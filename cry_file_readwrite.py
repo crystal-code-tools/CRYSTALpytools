@@ -162,6 +162,12 @@ class Crystal_output:
                         self.efermi = float(line1.split()[2])*27.2114
                         self.efermi_from = 'scf'
                         break
+                if self.efermi == None:
+                    for j,line1 in enumerate(self.data[:i:-1]):
+                        if re.match(r'^ TOP OF VALENCE BANDS',line1) != None:
+                            self.efermi = float(line1.split()[10])*27.2114
+                            self.efermi_from = 'scf_top_valence'
+                            break
         
         if self.efermi == None:
             print('WARNING: no Fermi energy found in the output file. efermi = None')
@@ -186,7 +192,6 @@ class Crystal_output:
             for i,line in enumerate(self.data[::-1]):                
                 if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN',line):
                     for j in range(len(self.data)-i+1,len(self.data)-i+4):
-                        print(self.data[j])
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
                     self.primitive_vectors = np.array(lattice)
@@ -220,7 +225,7 @@ class Crystal_output:
                     return self.reciprocal_vectors
             
 
-    def band_gap(self):#,spin_pol=False):
+    def get_band_gap(self):#,spin_pol=False):
         import re
         import numpy as np
         
@@ -255,9 +260,8 @@ class Crystal_output:
                 #elif re.match(r'^\s\w+ ENERGY BAND GAP',line1) != None:
                     #band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
 
-    def extract_last_geom(self,write_gui_file=False,print_cart=False):
+    def extract_last_geom(self,write_gui_file=True,print_cart=False):
         import re
-        #from visualisation_tools import out2cif
         from mendeleev import element
         import numpy as np
         import sys
@@ -276,7 +280,9 @@ class Crystal_output:
         for i in range(0,len(trans_matrix_flat),3):
             self.trans_matrix.append(trans_matrix_flat[i:i+3])
         self.trans_matrix = np.array(self.trans_matrix)
-            
+        
+        
+               
             
             
         for i,line in enumerate(self.data[len(self.data)::-1]):
@@ -295,38 +301,47 @@ class Crystal_output:
                 for atom in self.atom_symbols:    
                     self.atom_numbers.append(element(atom.capitalize()).atomic_number)
                 
+                cart_coords = 'To return the cartesian coordinates, set print_coord = True'
+                if print_cart == True:
+                    cart_coords = []
+                    for i in range(len(self.atom_numbers)):
+                        cart_coords.append([self.atom_numbers[i], self.atom_positions[i][0],self.atom_positions[i][1],self.atom_positions[i][2]])
+                        #print(self.atom_numbers[i], self.atom_positions[i][0],self.atom_positions[i][1],self.atom_positions[i][2])
+                    cart_coords = np.array(cart_coords)
                 
-                #Write the gui file 
-                #This is a duplication from write_gui, but the input is different
-                #It requires both the output and gui files with the same name and in the same directory
-                if self.name[-3:] == 'out':
-                    gui_file = self.name[:-4]+'.gui'
-            
-                elif self.name[-4:] == 'outp':
-                    gui_file = self.name[:-5]+'.gui'
-                else:
-                    gui_file = self.name+'.gui'
+                if write_gui_file == True:                                    
+                    #Write the gui file 
+                    #This is a duplication from write_gui, but the input is different
+                    #It requires both the output and gui files with the same name and in the same directory
+                    if self.name[-3:] == 'out':
+                        gui_file = self.name[:-4]+'.gui'
                 
-                try:   
-                    file = open(gui_file, 'r')
-                    gui_data = file.readlines()
-                    file.close()
-                except:
-                    print('EXITING: a .gui file with the same name as the input need to be present in the directory.')
-                    sys.exit(1)
+                    elif self.name[-4:] == 'outp':
+                        gui_file = self.name[:-5]+'.gui'
+                    else:
+                        gui_file = self.name+'.gui'
                     
-                #Replace the lattice vectors with the optimised ones
-                for i,vector in enumerate(self.primitive_lattice(initial=False).tolist()):
-                    gui_data[i+1]= ' '.join([str(x) for x in vector])+'\n'
-
-                n_symmops = int(gui_data[4])
-                for i in range(len(self.atom_numbers)):
-                    gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions[i][:]))
-                
-                with open(gui_file[:-4]+'_last.gui','w') as file:
-                    for line in gui_data:
-                        file.writelines(line)
+                    try:   
+                        file = open(gui_file, 'r')
+                        gui_data = file.readlines()
+                        file.close()
+                    except:
+                        print('EXITING: a .gui file with the same name as the input need to be present in the directory.')
+                        sys.exit(1)
+                        
+                    #Replace the lattice vectors with the optimised ones
+                    for i,vector in enumerate(self.primitive_lattice(initial=False).tolist()):
+                        gui_data[i+1]= ' '.join([str(x) for x in vector])+'\n'
+    
+                    n_symmops = int(gui_data[4])
+                    for i in range(len(self.atom_numbers)):
+                        gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions[i][:]))
                     
+                    with open(gui_file[:-4]+'_last.gui','w') as file:
+                        for line in gui_data:
+                            file.writelines(line)
+                
+                return cart_coords
                     
                 
                 #THIS WRITES A GUI WITH WRONG SYMMOPS - MULTIPLY BY THE TRANSFORMATION MATRIX
@@ -415,13 +430,13 @@ class Crystal_output:
                 
                 
             
-'''###TESTING
-a = Crystal_output('data/mgo_optgeom.out')
-print('final_energy\n',a.final_energy())
-print('fermi\n',a.fermi_energy())
-print('primitive\n',a.primitive_lattice(initial=False))
-print('band_gap\n',a.band_gap())
-print('spin\n',a.spin_pol)
-print('reciprocal\n',a.reciprocal_lattice())
-print('last geom\n',a.extract_last_geom())
-#print('symmops\n',a.symm_ops())'''
+###TESTING
+#a = Crystal_output('examples/data/mgo.out')
+#print('final_energy\n',a.final_energy())
+#print('fermi\n',a.fermi_energy())
+#print('primitive\n',a.primitive_lattice(initial=False))
+#print('band_gap\n',a.band_gap())
+#print('spin\n',a.spin_pol)
+#print('reciprocal\n',a.reciprocal_lattice())
+#print('last geom\n',a.extract_last_geom(print_cart=False))
+#print('symmops\n',a.symm_ops())
