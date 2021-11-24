@@ -427,7 +427,7 @@ class Crystal_output:
                 return self.symmops
                 
                 
-###TESTING
+'''###TESTING
 #a = Crystal_output('examples/data/mgo.out')
 #print('final_energy\n',a.final_energy())
 #print('fermi\n',a.fermi_energy())
@@ -436,7 +436,7 @@ class Crystal_output:
 #print('spin\n',a.spin_pol)
 #print('reciprocal\n',a.reciprocal_lattice())
 #print('last geom\n',a.extract_last_geom(print_cart=False))
-#print('symmops\n',a.symm_ops())
+#print('symmops\n',a.symm_ops())'''
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
@@ -550,3 +550,41 @@ class Crystal_doss:
 mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
 mgo_file = mgo_DOSS.read_cry_doss()
 print(mgo_file.doss[0,-1:1:-1,0])'''
+
+def write_cry_input(input_name,crystal_input,external_obj=None,comment=None):
+    #input_name is the name of the imput that is going to be written (.d12)
+    #crystal_input is an object belonging to the crystal_input Class.
+    #external_obj is the ASE or pymatgen object that is going to be written in the fort.34
+    
+    import itertools
+    import sys
+    from ase.io.crystal import write_crystal
+    from pymatgen.io.ase import AseAtomsAdaptor
+    
+    if external_obj != None:
+        
+        if 'ase.atoms' in  str(type(external_obj)):
+            crystal_input.geom_block = [crystal_input.geom_block[0]+'EXTERNAL\n','END\n'] #This needs some work
+            write_crystal(input_name[:-4]+'.gui',external_obj)
+        elif 'pymatgen.core' in str(type(external_obj)):
+            #Convert to ase first
+            external_obj = AseAtomsAdaptor.get_atoms(external_obj)
+            if comment == None:
+                comment = crystal_input.geom_block[0]
+            crystal_input.geom_block = [comment,'EXTERNAL\n','END\n']
+            write_crystal(input_name[:-4]+'.gui',external_obj)
+        else:
+            print('EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
+            sys.exit(1)
+        
+    with open(input_name, 'w') as file:
+        cry_input = list(itertools.chain(crystal_input.geom_block,
+                                         crystal_input.bs_block,
+                                         crystal_input.func_block,crystal_input.scf_block))
+        for line in cry_input:
+            file.writelines(line)
+
+'''###TESTING
+mgo = crystal_input('data/mgo.d12') 
+write_cry_input('data/mgo_TEST.d12',mgo)
+'''
