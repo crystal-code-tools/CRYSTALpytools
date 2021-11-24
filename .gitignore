@@ -1,3 +1,11 @@
+#CRYSTAL specific
+*.f*
+*.hessopt
+*.optinfo
+*.SCFLOG
+*.xyz
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
