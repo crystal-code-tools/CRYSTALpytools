@@ -427,9 +427,6 @@ class Crystal_output:
                 return self.symmops
                 
                 
-                
-                
-            
 ###TESTING
 #a = Crystal_output('examples/data/mgo.out')
 #print('final_energy\n',a.final_energy())
@@ -440,3 +437,116 @@ class Crystal_output:
 #print('reciprocal\n',a.reciprocal_lattice())
 #print('last geom\n',a.extract_last_geom(print_cart=False))
 #print('symmops\n',a.symm_ops())
+
+class Crystal_bands:
+    #This class contains the bands objects created from reading the 
+    #band files created by different electronic structure codes
+    #Returns an array where the band energy is expressed in eV
+    
+    def __init__(self,band_file):
+        self.file_name = band_file
+    
+    def read_cry_band(self):
+        import sys
+        import numpy as np
+    
+        try: 
+            file = open(self.file_name, 'r')
+            data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a CRYSTAL .BAND file needs to be specified')
+            sys.exit(1)
+        
+        #Read the information about the file
+        self.n_kpoints = int(data[0].split()[2])
+        self.n_bands = int(data[0].split()[4])
+        self.spin = int(data[0].split()[6])
+        self.n_tick = int(data[20].split()[4])
+        self.tick_position = []
+        for i in range(self.n_tick):
+            self.tick_position.append(float(data[21+i*2].split()[4]))
+        self.tick_label = []
+        for i in range(self.n_tick):
+            self.tick_label.append(str(data[22+i*2].split()[3][2:]))
+        self.efermi = float(data[-1].split()[3])*27.2114
+        
+        #Allocate the bands as np arrays
+        self.bands = np.zeros((self.n_kpoints,self.n_bands+1,self.spin),dtype=float)        
+
+        
+        #line where the first band is. Written this way to help identify
+        #where the error might be if there are different file lenghts
+        first_k = 2 + self.n_tick + 14 + 2*self.n_tick + 2   
+        
+        #Read the bands and store them into a numpy array
+        for i,line in enumerate(data[first_k:first_k+self.n_kpoints]):
+            self.bands[i,:self.n_bands+1,0] = np.array([float(n) for n in line.split()])
+        
+        if self.spin == 2:
+            #line where the first beta band is. Written this way to help identify
+            first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
+            for i,line in enumerate(data[first_k_beta:-1]):
+                self.bands[i,:self.n_bands+1,1] = np.array([float(n) for n in line.split()])
+        
+        #Convert all the energy to eV    
+        self.bands[:,1:,:] = self.bands[:,1:,:]*27.2114
+        
+        return self  
+    
+'''###TESTING
+mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
+mgo_file = mgo_bands.read_cry_band()
+print(mgo_file.bands[-1,0,0])
+print(mgo_file.tick_position[-1])'''
+
+class Crystal_doss:
+    
+    def __init__(self, doss_file):
+        self.file_name = doss_file
+    
+    def read_cry_doss(self):
+        import sys
+        import numpy as np
+    
+    
+        try: 
+            file = open(self.file_name, 'r')
+            data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a CRYSTAL .DOSS file needs to be specified')
+            sys.exit(1)
+        
+        #Read the information about the file
+        self.n_energy = int(data[0].split()[2])
+        self.n_proj = int(data[0].split()[4])
+        self.spin = int(data[0].split()[6])
+        self.efermi = float(data[-1].split()[3])*27.2114
+        
+        first_energy = 4
+        
+        #Allocate the doss as np arrays
+        self.doss = np.zeros((self.n_energy,self.n_proj+1,self.spin),dtype=float)        
+        
+        #Read the doss and store them into a numpy array
+        for i,line in enumerate(data[first_energy:first_energy+self.n_energy]):
+            self.doss[i,:self.n_proj+1,0] = np.array([float(n) for n in line.split()])
+            
+        if self.spin == 2:
+            #line where the first beta energy is. Written this way to help identify
+            first_energy_beta = first_energy + self.n_energy + 3
+            for i,line in enumerate(data[first_energy_beta:-1]):
+                self.doss[i,:self.n_proj+1,1] = np.array([float(n) for n in line.split()])
+        
+        #Convert all the energy to eV    
+        self.doss[0,:,:] = self.doss[0,:,:]*27.2114
+        
+        return self 
+    
+
+        
+'''###TESTING
+mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
+mgo_file = mgo_DOSS.read_cry_doss()
+print(mgo_file.doss[0,-1:1:-1,0])'''
