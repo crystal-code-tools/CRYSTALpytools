@@ -4,6 +4,8 @@
 *.optinfo
 *.SCFLOG
 *.xyz
+*.prop3d
+
 
 
 # Byte-compiled / optimized / DLL files
