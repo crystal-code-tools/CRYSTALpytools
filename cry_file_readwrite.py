@@ -4,6 +4,9 @@
 Created on Fri Nov 19 18:28:28 2021
 
 @authors: brunocamino
+
+TO DO:
+- write_cry_input: add symmetry via pymatgen
 """
 
 class Crystal_input:
@@ -551,40 +554,80 @@ mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS')
 mgo_file = mgo_DOSS.read_cry_doss()
 print(mgo_file.doss[0,-1:1:-1,0])'''
 
-def write_cry_input(input_name,crystal_input,external_obj=None,comment=None):
+def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_obj=None,comment=None):
     #input_name is the name of the imput that is going to be written (.d12)
     #crystal_input is an object belonging to the crystal_input Class.
     #external_obj is the ASE or pymatgen object that is going to be written in the fort.34
     
     import itertools
     import sys
+    import re
     from ase.io.crystal import write_crystal
     from pymatgen.io.ase import AseAtomsAdaptor
     
-    if external_obj != None:
+    if (crystal_input == None and crystal_blocks == None) or (crystal_input == True and crystal_blocks == True):
+        print('EXITING: please specify either a CRYSTAL input or CRYSTAL input blocks')
+        sys.exit(1)
+    if crystal_blocks != None:
+        if type(crystal_blocks) == list and len(crystal_blocks) == 4:
+            geom_block = crystal_blocks[0]
+            bs_block = crystal_blocks[1]
+            func_block = crystal_blocks[2]
+            scf_block = crystal_blocks[3]
+        else:
+            print('EXITING: the CRYSTAL blocks are not in the correct format.')
+            sys.exit(1)
+    elif crystal_input != None:
+        geom_block = crystal_input.geom_block
+        bs_block = crystal_input.bs_block
+        func_block = crystal_input.func_block
+        scf_block = crystal_input.scf_block
+    #print(geom_block,bs_block,func_block,scf_block)    
+
         
+    
+    #if there is an external object, we want to have the EXTERNAL
+    #keyword in the geom_block. If it's not present, this means
+    #adding it and keeping the rest of the input
+    if external_obj != None:    
+        if 'EXTERNAL' not in geom_block:
+            new_geom_block = []
+            if comment == None:
+                new_geom_block.append(geom_block[0])
+            else:
+                new_geom_block.append(comment+'\n')
+            new_geom_block.append('EXTERNAL\n')
+            for i,line in enumerate(geom_block[2:]):
+                if line.split()[0].replace('.','',1).isdigit() == False:
+                    for line1 in geom_block[i+2:]:
+                        new_geom_block.append(line1)
+                    break      
+        geom_block = new_geom_block
         if 'ase.atoms' in  str(type(external_obj)):
-            crystal_input.geom_block = [crystal_input.geom_block[0]+'EXTERNAL\n','END\n'] #This needs some work
             write_crystal(input_name[:-4]+'.gui',external_obj)
         elif 'pymatgen.core' in str(type(external_obj)):
             #Convert to ase first
             external_obj = AseAtomsAdaptor.get_atoms(external_obj)
-            if comment == None:
-                comment = crystal_input.geom_block[0]
-            crystal_input.geom_block = [comment,'EXTERNAL\n','END\n']
             write_crystal(input_name[:-4]+'.gui',external_obj)
         else:
             print('EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
             sys.exit(1)
         
     with open(input_name, 'w') as file:
-        cry_input = list(itertools.chain(crystal_input.geom_block,
-                                         crystal_input.bs_block,
-                                         crystal_input.func_block,crystal_input.scf_block))
+        cry_input = list(itertools.chain(geom_block, bs_block,
+                                         func_block,scf_block))
         for line in cry_input:
             file.writelines(line)
 
 '''###TESTING
-mgo = crystal_input('data/mgo.d12') 
-write_cry_input('data/mgo_TEST.d12',mgo)
-'''
+from pymatgen.core import Structure, Lattice             
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
+substrate_conv = SpacegroupAnalyzer(substrate).get_conventional_standard_structure() 
+
+#mgo = Crystal_input('examples/data/mgo.d12') 
+#write_cry_input('examples/data/mgo_TEST.d12',crystal_input = mgo,external_obj=substrate_conv,comment='YES')
+
+mgo = Crystal_input('examples/data/mgo.d12') 
+print(mgo.geom_block)
+write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
