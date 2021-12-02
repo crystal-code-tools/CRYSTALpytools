@@ -269,6 +269,8 @@ class Crystal_output:
         import numpy as np
         import sys
         
+        self.primitive_lattice(initial=False)
+        
         self.opt_converged = False
         for line in self.data:
             if re.match(r'^  FINAL OPTIMIZED GEOMETRY',line):
@@ -285,9 +287,6 @@ class Crystal_output:
         self.trans_matrix = np.array(self.trans_matrix)
         
         
-               
-            
-            
         for i,line in enumerate(self.data[len(self.data)::-1]):
             if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT',line):
                 self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
@@ -297,20 +296,22 @@ class Crystal_output:
                 for j in range(self.n_atoms):
                     atom_line = self.data[len(self.data)-i-2-int(self.n_atoms)+j].split()[3:]
                     self.atom_symbols.append(str(atom_line[0]) )
-                    self.atom_positions.append([float(x) for x in atom_line[1:]])
+                    self.atom_positions.append([float(x) for x in atom_line[1:]]) #These are fractional
                 a,b,c,alpha,beta,gamma = self.data[len(self.data)-i-2-int(self.n_atoms)-5].split()
                 #DELout2cif(file_name,a,b,c,alpha,beta,gamma,atom_positions)
                 #DELout_name = str(file_name[:-4]+'.cif')
                 for atom in self.atom_symbols:    
                     self.atom_numbers.append(element(atom.capitalize()).atomic_number)
                 
-                cart_coords = 'To return the cartesian coordinates, set print_coord = True'
+                    
+                self.atom_positions_cart = np.matmul(np.array(self.atom_positions),self.primitive_vectors)              
+                self.cart_coords = []
+                for i in range(len(self.atom_numbers)):
+                    self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i][0],self.atom_positions_cart[i][1],self.atom_positions_cart[i][2]])
+                self.cart_coords = np.array(self.cart_coords)
+                
                 if print_cart == True:
-                    cart_coords = []
-                    for i in range(len(self.atom_numbers)):
-                        cart_coords.append([self.atom_numbers[i], self.atom_positions[i][0],self.atom_positions[i][1],self.atom_positions[i][2]])
-                        #print(self.atom_numbers[i], self.atom_positions[i][0],self.atom_positions[i][1],self.atom_positions[i][2])
-                    cart_coords = np.array(cart_coords)
+                    print(self.cart_coords)
                 
                 if write_gui_file == True:                                    
                     #Write the gui file 
@@ -338,13 +339,13 @@ class Crystal_output:
     
                     n_symmops = int(gui_data[4])
                     for i in range(len(self.atom_numbers)):
-                        gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions[i][:]))
+                        gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions_cart[i][:]))
                     
                     with open(gui_file[:-4]+'_last.gui','w') as file:
                         for line in gui_data:
                             file.writelines(line)
                 
-                return cart_coords
+                return self
                     
                 
                 #THIS WRITES A GUI WITH WRONG SYMMOPS - MULTIPLY BY THE TRANSFORMATION MATRIX
