@@ -453,6 +453,7 @@ class Crystal_bands:
     def read_cry_band(self):
         import sys
         import numpy as np
+        import re
     
         try: 
             file = open(self.file_name, 'r')
@@ -466,13 +467,29 @@ class Crystal_bands:
         self.n_kpoints = int(data[0].split()[2])
         self.n_bands = int(data[0].split()[4])
         self.spin = int(data[0].split()[6])
-        self.n_tick = int(data[20].split()[4])
+        self.n_tick = int(data[1].split()[2])+1
+        self.k_point_inp_coordinates = []
+        n_points = []
+        for i in range(self.n_tick):
+            n_points.append(int(data[2+i].split()[1]))
+            coord = []
+            for j in range(3):
+                l = re.findall('\d+',data[2+i].split()[2])
+                coord.append(float(l[j])/float(l[3]))
+            self.k_point_inp_coordinates.append(coord)  
+        self.k_point_inp_coordinates = np.array(self.k_point_inp_coordinates)
+        self.k_point_coordinates = [self.k_point_inp_coordinates[0]]
+        for i in range(1,self.n_tick):
+            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(n_points[i]-n_points[i-1])
+            for j in range(n_points[i]-n_points[i-1]):
+                self.k_point_coordinates.append((self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())
+        for i in range(len(self.k_point_coordinates)):
+            print(i,self.k_point_coordinates[i])
         self.tick_position = []
-        for i in range(self.n_tick):
-            self.tick_position.append(float(data[21+i*2].split()[4]))
         self.tick_label = []
-        for i in range(self.n_tick):
-            self.tick_label.append(str(data[22+i*2].split()[3][2:]))
+        for i in range(self.n_tick):            
+            self.tick_position.append(float(data[16+self.n_tick+i*2].split()[4]))
+            self.tick_label.append(str(data[17+self.n_tick+i*2].split()[3][2:]))
         self.efermi = float(data[-1].split()[3])*27.2114
         
         #Allocate the bands as np arrays
