@@ -450,7 +450,7 @@ class Crystal_bands:
     def __init__(self,band_file):
         self.file_name = band_file
     
-    def read_cry_band(self):
+    #def read_cry_band(self):
         import sys
         import numpy as np
         import re
@@ -483,8 +483,6 @@ class Crystal_bands:
             step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(n_points[i]-n_points[i-1])
             for j in range(n_points[i]-n_points[i-1]):
                 self.k_point_coordinates.append((self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())
-        for i in range(len(self.k_point_coordinates)):
-            print(i,self.k_point_coordinates[i])
         self.tick_position = []
         self.tick_label = []
         for i in range(self.n_tick):            
@@ -493,8 +491,8 @@ class Crystal_bands:
         self.efermi = float(data[-1].split()[3])*27.2114
         
         #Allocate the bands as np arrays
-        self.bands = np.zeros((self.n_kpoints,self.n_bands+1,self.spin),dtype=float)        
-
+        self.bands = np.zeros((self.n_bands,self.n_kpoints,self.spin),dtype=float)        
+        
         
         #line where the first band is. Written this way to help identify
         #where the error might be if there are different file lenghts
@@ -502,18 +500,17 @@ class Crystal_bands:
         
         #Read the bands and store them into a numpy array
         for i,line in enumerate(data[first_k:first_k+self.n_kpoints]):
-            self.bands[i,:self.n_bands+1,0] = np.array([float(n) for n in line.split()])
+            self.bands[:self.n_bands+1,i,0] = np.array([float(n) for n in line.split()[1:]])
         
         if self.spin == 2:
             #line where the first beta band is. Written this way to help identify
             first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
             for i,line in enumerate(data[first_k_beta:-1]):
-                self.bands[i,:self.n_bands+1,1] = np.array([float(n) for n in line.split()])
+                self.bands[:self.n_bands+1,i,1] = np.array([float(n) for n in line.split()[1:]])
         
         #Convert all the energy to eV    
-        self.bands[:,1:,:] = self.bands[:,1:,:]*27.2114
-        
-        return self  
+        self.bands[1:,:,:] = self.bands[1:,:,:]*27.2114
+          
     
 '''###TESTING
 mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
