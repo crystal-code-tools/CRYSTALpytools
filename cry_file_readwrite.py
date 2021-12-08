@@ -469,9 +469,9 @@ class Crystal_bands:
         self.spin = int(data[0].split()[6])
         self.n_tick = int(data[1].split()[2])+1
         self.k_point_inp_coordinates = []
-        n_points = []
+        self.n_points = []
         for i in range(self.n_tick):
-            n_points.append(int(data[2+i].split()[1]))
+            self.n_points.append(int(data[2+i].split()[1]))
             coord = []
             for j in range(3):
                 l = re.findall('\d+',data[2+i].split()[2])
@@ -480,8 +480,8 @@ class Crystal_bands:
         self.k_point_inp_coordinates = np.array(self.k_point_inp_coordinates)
         self.k_point_coordinates = [self.k_point_inp_coordinates[0]]
         for i in range(1,self.n_tick):
-            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(n_points[i]-n_points[i-1])
-            for j in range(n_points[i]-n_points[i-1]):
+            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(self.n_points[i]-self.n_points[i-1])
+            for j in range(self.n_points[i]-self.n_points[i-1]):
                 self.k_point_coordinates.append((self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())
         self.tick_position = []
         self.tick_label = []
