@@ -6,14 +6,14 @@ Created on Wed Dec  8 15:35:48 2021
 @author: brunocamino
 """
 
-def newk(shrink1,shrink2,Fermi=1,print_option=0,title=None):
+def cry_newk(shrink1,shrink2,Fermi=1,print_option=0,title=None):
     
     newk_block = ['NEWK\n','%s %s\n' %(shrink1,shrink2),
                   '%s %s\n'%(Fermi,print_option)]
     
     return newk_block
     
-def bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
+def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
           title='Bands'):
     import numpy as np
     
@@ -49,12 +49,12 @@ def bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
     
     bands_block.append('END\n')
     
-    print(bands_block)
+    return bands_block
     
     
 
-###TESTING
+'''###TESTING
 k_path = [[0,0,0],[0.5,0,0],[0.5,0.5,0.5],[0.25,0,0.5]]
 
-bands(k_path,200,1,26)
+bands(k_path,200,1,26)'''
     

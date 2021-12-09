@@ -734,3 +734,26 @@ substrate_conv = SpacegroupAnalyzer(substrate).get_conventional_standard_structu
 mgo = Crystal_input('examples/data/mgo.d12') 
 print(mgo.geom_block)
 write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
+
+def write_cry_properties(input_name,property_block,newk=False):
+    
+    import sys
+    import itertools
+    
+    if newk == False:
+        property_input = property_block
+    if newk != False and type(newk) != list:
+        print('EXITING: newk must be a newk_block list')
+        sys.exit(1)
+    elif type(newk) == list:
+        property_input = list(itertools.chain(newk,property_block))
+            
+        
+    with open(input_name, 'w') as file:        
+        for line in property_input:
+            file.writelines(line)
+    
+    
+    
+    
+    
