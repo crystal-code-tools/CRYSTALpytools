@@ -132,6 +132,39 @@ class Crystal_output:
             print('WARNING: no final energy found in the output file. energy = None')
         
         return self.energy
+    
+    def scf_convergence(self,all_cycles=False):
+        
+        import re
+        import numpy as np
+        
+        self.scf_energy = []
+        self.scf_deltae = []
+        
+        scf_energy = []
+        scf_deltae = []                    
+        
+        for line in self.data:
+            
+            
+            if re.match(r'^ CYC ',line):
+                scf_energy.append(float(line.split()[3]))
+                scf_deltae.append(float(line.split()[5]))
+            
+            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY',line):
+                if all_cycles == False:
+                    self.scf_energy = np.array(scf_energy)
+                    self.scf_deltae = np.array(scf_deltae)
+                    
+                    return self.scf_energy, self.scf_deltae
+                
+                elif all_cycles == True:
+                    self.scf_energy.append(scf_energy)
+                    self.scf_deltae.append(scf_deltae)
+                    scf_energy = []
+                    scf_deltae = []    
+        
+        return self.scf_energy, self.scf_deltae
 
     
     def fermi_energy(self):
@@ -345,7 +378,7 @@ class Crystal_output:
                         for line in gui_data:
                             file.writelines(line)
                 
-                return self
+                
                     
                 
                 #THIS WRITES A GUI WITH WRONG SYMMOPS - MULTIPLY BY THE TRANSFORMATION MATRIX
@@ -494,7 +527,8 @@ a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('last geom\n',a.extract_last_geom(print_cart=False))
 #print('symmops\n',a.symm_ops())
 #print('forces\n',a.forces(gradient=True))
-#print('grad\n',a.grad)'''
+#print('grad\n',a.grad)
+#print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
