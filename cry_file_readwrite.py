@@ -429,10 +429,62 @@ class Crystal_output:
                 self.symmops = np.array(symmops)
                 
                 return self.symmops
+    
+    def forces(self,initial=False,grad=False):
+        import re
+        import numpy as np
+        
+        self.forces_atoms = []
+        self.forces_cell = []
+        #Number of atoms
+        for i,line in enumerate(self.data[len(self.data)::-1]):
+            if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT',line):
+                self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
+                break
+        
+        if grad == True:
+            self.grad = []
+            self.rms_grad = []
+            self.disp = []
+            self.rms_disp = []
+            for i,line in enumerate(self.data):
+                if re.match(r'^ MAX GRADIENT',line):
+                    self.grad.append(line.split()[2])
+                if re.match(r'^ RMS GRADIENT',line):
+                    self.rms_grad.append(line.split()[2])
+                if re.match(r'^ MAX DISPLAC.',line):
+                    self.disp.append(line.split()[2])
+                if re.match(r'^ RMS DISPLAC.',line):
+                    self.rms_disp.append(line.split()[2])
+                 
+        if initial == True:
+            for i,line in enumerate(self.data):
+                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)',line):
+                    for j in range(i+2,i+2+self.n_atoms):
+                        self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
+                    self.forces_atoms = np.array(self.forces_atoms)
+                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR',line):
+                    for j in range(i+4,i+7):
+                        self.forces_cell.append([float(x) for x in self.data[j].split()])
+                    self.forces_cell = np.array(self.forces_cell)
+                    return self.forces_atoms, self.forces_cell
+                
+        elif initial == False:
+            for i,line in enumerate(self.data[::-1]):
+                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR',line):
+                    for j in range(len(self.data)-i+3,len(self.data)-i+6):
+                        self.forces_cell.append([float(x) for x in self.data[j].split()])
+                    self.forces_cell = np.array(self.forces_cell)
+                
+                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)',line):
+                    for j in range(len(self.data)-i+1,len(self.data)-i+1+self.n_atoms):
+                        self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
+                    self.forces_atoms = np.array(self.forces_atoms)
+                    return self.forces_atoms, self.forces_cell
                 
                 
 '''###TESTING
-#a = Crystal_output('examples/data/mgo.out')
+a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('final_energy\n',a.final_energy())
 #print('fermi\n',a.fermi_energy())
 #print('primitive\n',a.primitive_lattice(initial=False))
@@ -440,7 +492,9 @@ class Crystal_output:
 #print('spin\n',a.spin_pol)
 #print('reciprocal\n',a.reciprocal_lattice())
 #print('last geom\n',a.extract_last_geom(print_cart=False))
-#print('symmops\n',a.symm_ops())'''
+#print('symmops\n',a.symm_ops())
+#print('forces\n',a.forces(gradient=True))
+#print('grad\n',a.grad)'''
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
