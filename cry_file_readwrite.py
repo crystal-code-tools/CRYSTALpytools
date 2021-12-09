@@ -735,18 +735,18 @@ mgo = Crystal_input('examples/data/mgo.d12')
 print(mgo.geom_block)
 write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
 
-def write_cry_properties(input_name,property_block,newk=False):
+def write_cry_properties(input_name,property_block,newk_block=False):
     
     import sys
     import itertools
     
-    if newk == False:
+    if newk_block == False:
         property_input = property_block
-    if newk != False and type(newk) != list:
+    if newk_block != False and type(newk_block) != list:
         print('EXITING: newk must be a newk_block list')
         sys.exit(1)
-    elif type(newk) == list:
-        property_input = list(itertools.chain(newk,property_block))
+    elif type(newk_block) == list:
+        property_input = list(itertools.chain(newk_block,property_block))
             
         
     with open(input_name, 'w') as file:        
