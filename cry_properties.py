@@ -114,6 +114,7 @@ def cry_pdoss(projections,proj_type='atom',output_file=None,n_points=200,band_ra
               do not match the required format (2 item list)')
         sys.exit(1)
     
+    pdoss_block.append('DOSS\n')
     pdoss_block.append(str(len(projections))+' '+str(n_points)+' '+str(pdoss_range[0])+' '+
                       str(pdoss_range[1])+' '+str(plotting_option)+' '+str(poly)+' '+
                       str(print_option)+'\n')
@@ -124,11 +125,10 @@ def cry_pdoss(projections,proj_type='atom',output_file=None,n_points=200,band_ra
     flat_proj = [x for sublist in projections for x in sublist]
     if all(isinstance(x, int) for x in flat_proj):        
         if proj_type == 'atom':
-            print('YES')
             for proj in projections:                
                 pdoss_block.append(str(-len(proj))+' '+' '.join([str(x) for x in proj])+'\n')
         if proj_type == 'ao':
-            for proj in projections:                
+            for proj in projections:  
                 pdoss_block.append(str(len(proj))+' '+' '.join([str(x) for x in proj])+'\n') 
         elif proj_type != 'atom' and proj_type != 'ao':
             print('EXITING: please specify either atom or ao projection. %s selected' % proj_type)
@@ -146,10 +146,8 @@ def cry_pdoss(projections,proj_type='atom',output_file=None,n_points=200,band_ra
            for proj in projections:
                atom_positions_list = []
                for element in proj:
-                   #index = [i for i,ele in enumerate(atoms_symbols) if ele=='B']
                    index = [i for i,ele in enumerate(atoms_symbols) if ele==element.upper()]
                    atom_positions_list.append([str(x) for x in index])
-                   #index.append(atoms_symbols.index(element.upper()))
                pdoss_block.append(str(-len(index))+' '+' '.join([str(x) for x in index])+'\n')        
    
     pdoss_block.append('END\n')
