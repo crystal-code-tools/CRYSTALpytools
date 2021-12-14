@@ -15,11 +15,32 @@ def cry_newk(shrink1,shrink2,Fermi=1,print_option=0,title=None):
     
 def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
           title='BAND STRUCTURE CALCULATION'):
+    #k_path can be:
+        ##list of list
+        ##pymatgen HighSymmKpath object
+    
     import numpy as np
+    import sys
     
     bands_block = []
     
-    k_path = np.array(k_path)
+    if 'HighSymmKpath' in type(k_path):
+        k_path_flat = [item for sublist in k_path for item in sublist]
+        k_path_pmg = []
+        for i in k_path_flat:
+            #This is a pmg HighSymmKpath object
+            k_path_pmg.append(k_path.kpath['kpoints'][i])        
+        k_path = np.array(k_path_pmg)
+    
+    elif type(k_path[0]) == list:
+        #This is a list of lists
+        k_path = np.array(k_path)           
+    
+    else:    
+        print('EXITING: k_path type must be a list of list (k coordinates) or\
+              a pymatgen HighSymmKpath object. %s selected' %type(k_path) )
+        sys.exit(1)
+    
     k_unique = np.unique(k_path)
     
     #Find the shrinking factor
