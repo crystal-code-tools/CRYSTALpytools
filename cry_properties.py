@@ -24,12 +24,12 @@ def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
     
     bands_block = []
     
-    if 'HighSymmKpath' in type(k_path):
-        k_path_flat = [item for sublist in k_path for item in sublist]
+    if 'HighSymmKpath' in str(type(k_path)):
+        k_path_flat = [item for sublist in k_path.kpath['path'] for item in sublist]
         k_path_pmg = []
         for i in k_path_flat:
             #This is a pmg HighSymmKpath object
-            k_path_pmg.append(k_path.kpath['kpoints'][i])        
+            k_path_pmg.append(k_path.kpath['kpoints'][i].tolist())  
         k_path = np.array(k_path_pmg)
     
     elif type(k_path[0]) == list:
@@ -57,7 +57,7 @@ def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
     
     bands_block.append(str(len(k_path)-1)+' '+str(shrink)+' '+str(n_kpoints)+
                        ' '+str(first_band)+' '+str(last_band)+' '+
-                       str(print_eig)+' '+str(print_option)+'\n')
+                       str(print_option)+' '+str(print_eig)+'\n')
     
     
     #Add the symmetry lines
@@ -71,8 +71,23 @@ def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
 
 '''###TESTING
 k_path = [[0,0,0],[0.5,0,0],[0.5,0.5,0.5],[0.25,0,0.5]]
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-bands(k_path,200,1,26)'''
+
+
+from cry_file_readwrite import Crystal_output
+from cry_convert import cry_out2pmg
+
+mgo = Crystal_output('examples/data/mgo.out')
+mgo = cry_out2pmg(mgo)
+mgo_prim = SpacegroupAnalyzer(mgo).get_primitive_standard_structure(international_monoclinic=False)
+
+#display(HighSymmKpath(mgo_prim).kpath['path'])
+k_path = HighSymmKpath(mgo_prim)
+
+cry_bands(k_path,200,1,26)'''
+
 
 def cry_doss(n_points=200,band_range=None,e_range=None,plotting_option=2,
              poly=12,print_option=1):
