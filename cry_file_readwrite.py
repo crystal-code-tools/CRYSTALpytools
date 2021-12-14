@@ -649,13 +649,58 @@ class Crystal_doss:
         self.doss[0,:,:] = self.doss[0,:,:]*27.2114
         
         return self 
-    
 
         
 '''###TESTING
 mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
 mgo_file = mgo_DOSS.read_cry_doss()
 print(mgo_file.doss[0,-1:1:-1,0])'''
+
+class Crystal_gui:
+    
+    def __init__(self, gui_file):
+        self.file_name = gui_file
+        
+        try: 
+            file = open(self.file_name, 'r')
+            self.data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a CRYSTAL .DOSS file needs to be specified')
+            sys.exit(1)
+    
+    def read_cry_gui(self):
+        import sys
+        import numpy as np
+        
+        
+        
+        #Read the information about the file
+        self.dim = int(self.data[0].split()[0])
+        lattice = []
+        for i in range(1,4):
+            lattice.append([float(n) for n in self.data[i].split()])
+        self.primitive_vectors = np.array(lattice)
+
+        self.n_symmops = int(self.data[4].split()[0])
+        symmops_list = []
+        for i in range(5,5+self.n_symmops*4):
+            symmops_list.append([float(n) for n in self.data[i].split()])
+        self.symm_ops = np.array(symmops_list)
+        
+        self.n_atoms = int(self.data[5+self.n_symmops*4].split()[0])
+        self.atom_positions = []
+        self.atom_numbers = []
+        for i in range(self.n_atoms):
+            self.atom_positions.append([float(x) for x in self.data[6+self.n_symmops*4+i].split()[1:]])
+            self.atom_numbers.append(int(self.data[6+self.n_symmops*4+i].split()[0]))
+       
+        return self 
+            
+'''###TESTING
+mgo_gui = Crystal_gui('examples/data/mgo.gui')
+mgo_gui_file = mgo_gui.read_cry_gui()
+print(mgo_gui_file.atom_positions)'''
 
 def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_obj=None,comment=None):
     #input_name is the name of the imput that is going to be written (.d12)
