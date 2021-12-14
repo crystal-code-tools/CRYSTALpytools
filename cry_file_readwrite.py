@@ -664,7 +664,6 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
     
     import itertools
     import sys
-    import re
     from ase.io.crystal import write_crystal
     from pymatgen.io.ase import AseAtomsAdaptor
     
@@ -685,9 +684,20 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         bs_block = crystal_input.bs_block
         func_block = crystal_input.func_block
         scf_block = crystal_input.scf_block
-    #print(geom_block,bs_block,func_block,scf_block)    
-
-        
+    
+    #This is a check to eliminate the END at the end of the geom_block
+    #if the BASISSET option is being used for the basis set
+    if len(bs_block[0]) > 5:
+        if bs_block[-1] == 'END\n':
+            bs_block = bs_block[:-1]
+        if 'OPTGEOM\n' in geom_block:
+            if geom_block[-2:] == ['END\n','END\n']:
+                geom_block = geom_block[:-1] 
+                geom_block.append('BASISSET\n')
+        else:
+            if geom_block[-1] == 'END\n':
+                geom_block = geom_block[:-1]    
+                geom_block.append('BASISSET\n')
     
     #if there is an external object, we want to have the EXTERNAL
     #keyword in the geom_block. If it's not present, this means
@@ -715,10 +725,23 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         else:
             print('EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
             sys.exit(1)
+            
+    #Check all lines contain a newline symbol at the end
+    block_list = [geom_block,bs_block,func_block,scf_block]
+    for i,block in enumerate(block_list):
+        for j,element in enumerate(block):
+            if type(element) == list:
+                if element[0][-1] != '\n':
+                    block_list[i][j][0] = block_list[i][j][0]+'\n'
+                if element[1][-1] != '\n':
+                    block_list[i][j][1] = block_list[i][j][1]+'\n'
+            else:
+                if element[-1] != '\n':
+                    block_list[i][j] =  block_list[i][j]+'\n'
         
     with open(input_name, 'w') as file:
-        cry_input = list(itertools.chain(geom_block, bs_block,
-                                         func_block,scf_block))
+        cry_input = list(itertools.chain(block_list[0],block_list[1],
+                                         block_list[2],block_list[3]))
         for line in cry_input:
             file.writelines(line)
 
