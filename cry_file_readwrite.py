@@ -531,7 +531,7 @@ class Crystal_output:
                     return self.forces_atoms, self.forces_cell
                 
                 
-###TESTING
+'''###TESTING
 a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('final_energy\n',a.final_energy())
 #print('fermi\n',a.fermi_energy())
@@ -544,7 +544,7 @@ a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('forces\n',a.forces(gradient=True))
 #print('grad\n',a.grad)
 #print('scf convergence\n',a.scf_convergence(all_cycles=False))
-a.scf_convergence(all_cycles=False)
+a.scf_convergence(all_cycles=False)'''
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
