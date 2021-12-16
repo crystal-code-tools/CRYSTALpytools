@@ -6,19 +6,31 @@ Created on Fri Nov 19 18:29:16 2021
 @author: brunocamino
 """
 
-def cry_out2pmg(output,initial=False):
+def cry_out2pmg(output,initial=False,dimensionality=3,vacuum=10):
     #output_file is a crystal output object
     
-    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core import Structure
+    
+    import numpy as np
    
     output.extract_last_geom(write_gui_file=False,print_cart=False)
     output.primitive_lattice(initial=initial)
     
-    structure = Structure(output.primitive_vectors, output.atom_numbers, output.atom_positions)
-    structure_conv = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+    if dimensionality == 3:
+        structure = Structure(output.primitive_vectors, output.atom_numbers, 
+                              output.atom_positions_frac)
+        
+    elif dimensionality == 2:
+        thickness = np.amax(np.array(output.atom_positions_cart)[:,2])-\
+                    np.amin(np.array(output.atom_positions_cart)[:,2])
+        
+        vectors = output.primitive_vectors
+        vectors[2,2] = thickness + vacuum
+        
+        structure = Structure(vectors, output.atom_numbers, 
+                              output.atom_positions_cart, coords_are_cartesian=True)
     
-    return structure_conv
+    return structure
     
     
 '''###TESTING
@@ -42,7 +54,6 @@ def cry_bands2pmg(output,bands,labels=None):
     
     if labels != None:        
         for i,j in enumerate(bands.n_points):
-            #labels_dict[labels[i]] = Kpoint(np.array(bands.k_point_coordinates[j-1]), Lattice(output.reciprocal_vectors))
             labels_dict[labels[i]] = bands.k_point_coordinates[j-1]
     
     '''#This defines the Kpoint objects. Not needed at the moment, but might be useful in the future
@@ -98,3 +109,10 @@ mgo_out = Crystal_output('examples/data/mgo_SPIN.out')
 #cry_bands2pmg(bands,output_name)
 #mgo_output_name = 'data/mgo_BAND.outp'
 cry_bands2pmg(mgo_out,mgo_bands,labels=['A','B','C','D','E'])'''
+
+def cry_gui2pmg(gui_file):
+    
+    pass
+
+
+
