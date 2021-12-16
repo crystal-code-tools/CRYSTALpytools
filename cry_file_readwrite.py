@@ -152,9 +152,24 @@ class Crystal_output:
                 scf_deltae.append(float(line.split()[5]))
             
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY',line):
+                
                 if all_cycles == False:
                     self.scf_energy = np.array(scf_energy)
                     self.scf_deltae = np.array(scf_deltae)
+                    
+                    #Check if the scf is converging
+                    #Simple model comparing the DeltaE in the 3/3 cycles
+                    #compared to the 2/3 cycles
+                    len_scf_deltae = int(len(self.scf_deltae))
+                    if len_scf_deltae < 5:
+                        self.is_converging = None
+                    second = np.sum(np.absolute(self.scf_deltae[int(len_scf_deltae/3):int((len_scf_deltae/3)*2)]))
+                    third = np.sum(np.absolute(self.scf_deltae[int((len_scf_deltae/3)*2):]))
+                    if third < 0.0001*second:
+                        self.is_converging = True
+                    else:
+                        self.is_converging = False
+                    
                     
                     return self.scf_energy, self.scf_deltae
                 
@@ -164,8 +179,8 @@ class Crystal_output:
                     scf_energy = []
                     scf_deltae = []    
         
+        
         return self.scf_energy, self.scf_deltae
-
     
     def fermi_energy(self):
 
@@ -516,7 +531,7 @@ class Crystal_output:
                     return self.forces_atoms, self.forces_cell
                 
                 
-'''###TESTING
+###TESTING
 a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('final_energy\n',a.final_energy())
 #print('fermi\n',a.fermi_energy())
@@ -528,7 +543,8 @@ a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('symmops\n',a.symm_ops())
 #print('forces\n',a.forces(gradient=True))
 #print('grad\n',a.grad)
-#print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
+#print('scf convergence\n',a.scf_convergence(all_cycles=False))
+a.scf_convergence(all_cycles=False)
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
