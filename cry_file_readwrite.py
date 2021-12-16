@@ -163,15 +163,16 @@ class Crystal_output:
                     len_scf_deltae = int(len(self.scf_deltae))
                     if len_scf_deltae < 5:
                         self.is_converging = None
-                    second = np.sum(np.absolute(self.scf_deltae[int(len_scf_deltae/3):int((len_scf_deltae/3)*2)]))
-                    third = np.sum(np.absolute(self.scf_deltae[int((len_scf_deltae/3)*2):]))
-                    if third < 0.0001*second:
-                        self.is_converging = True
                     else:
-                        self.is_converging = False
+                        second = np.sum(np.absolute(self.scf_deltae[int(len_scf_deltae/3):int((len_scf_deltae/3)*2)]))
+                        third = np.sum(np.absolute(self.scf_deltae[int((len_scf_deltae/3)*2):]))
+                        if third < 0.0001*second:
+                            self.is_converging = True
+                        else:
+                            self.is_converging = False
                     
                     
-                    return self.scf_energy, self.scf_deltae
+                    return self
                 
                 elif all_cycles == True:
                     self.scf_energy.append(scf_energy)
