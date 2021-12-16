@@ -170,8 +170,7 @@ class Crystal_output:
                             self.is_converging = True
                         else:
                             self.is_converging = False
-                    
-                    
+                                       
                     return self
                 
                 elif all_cycles == True:
@@ -329,31 +328,40 @@ class Crystal_output:
         for i,line in enumerate(self.data):
             if re.match(r' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL',line):
                 trans_matrix_flat = [float(x) for x in self.data[i+1].split()]
+            
+                self.trans_matrix = []
+                for i in range(0,len(trans_matrix_flat),3):
+                    self.trans_matrix.append(trans_matrix_flat[i:i+3])
+                self.trans_matrix = np.array(self.trans_matrix)
                 break
-        self.trans_matrix = []
-        for i in range(0,len(trans_matrix_flat),3):
-            self.trans_matrix.append(trans_matrix_flat[i:i+3])
-        self.trans_matrix = np.array(self.trans_matrix)
         
         
         for i,line in enumerate(self.data[len(self.data)::-1]):
             if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT',line):
                 self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
-                self.atom_positions = [] 
+                self.atom_positions_frac = [] 
                 self.atom_symbols = []
                 self.atom_numbers = []
                 for j in range(self.n_atoms):
                     atom_line = self.data[len(self.data)-i-2-int(self.n_atoms)+j].split()[3:]
                     self.atom_symbols.append(str(atom_line[0]) )
-                    self.atom_positions.append([float(x) for x in atom_line[1:]]) #These are fractional
+                    self.atom_positions_frac.append([float(x) for x in atom_line[1:]]) #These are fractional
                 a,b,c,alpha,beta,gamma = self.data[len(self.data)-i-2-int(self.n_atoms)-5].split()
                 #DELout2cif(file_name,a,b,c,alpha,beta,gamma,atom_positions)
                 #DELout_name = str(file_name[:-4]+'.cif')
                 for atom in self.atom_symbols:    
                     self.atom_numbers.append(element(atom.capitalize()).atomic_number)
-                
-                    
-                self.atom_positions_cart = np.matmul(np.array(self.atom_positions),self.primitive_vectors)              
+                break
+        
+        self.atom_positions_cart = []
+
+        for i,line in enumerate(self.data[len(self.data)::-1]):
+            if re.match(r'^ CARTESIAN COORDINATES - PRIMITIVE CELL',line):    
+                for j in range(self.n_atoms):
+                    atom_line = self.data[len(self.data)-i+3+j].split()[2:]
+                    self.atom_positions_cart.append([float(x) for x in atom_line[1:]]) #These are cartesian
+                   
+                #self.atom_positions_cart = np.matmul(np.array(self.atom_positions_frac),self.primitive_vectors)              
                 self.cart_coords = []
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i][0],self.atom_positions_cart[i][1],self.atom_positions_cart[i][2]])
@@ -746,20 +754,21 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         bs_block = crystal_input.bs_block
         func_block = crystal_input.func_block
         scf_block = crystal_input.scf_block
-    
+
     #This is a check to eliminate the END at the end of the geom_block
     #if the BASISSET option is being used for the basis set
-    if len(bs_block[0]) > 5:
-        if bs_block[-1] == 'END\n':
-            bs_block = bs_block[:-1]
-        if 'OPTGEOM\n' in geom_block:
-            if geom_block[-2:] == ['END\n','END\n']:
-                geom_block = geom_block[:-1] 
-                geom_block.append('BASISSET\n')
-        else:
-            if geom_block[-1] == 'END\n':
-                geom_block = geom_block[:-1]    
-                geom_block.append('BASISSET\n')
+    if 'TESTGEOM\n' not in geom_block:
+        if len(bs_block[0]) > 5:
+            if bs_block[-1] == 'END\n':
+                bs_block = bs_block[:-1]
+            if 'OPTGEOM\n' in geom_block:
+                if geom_block[-2:] == ['END\n','END\n']:
+                    geom_block = geom_block[:-1] 
+                    geom_block.append('BASISSET\n')
+            else:
+                if geom_block[-1] == 'END\n':
+                    geom_block = geom_block[:-1]    
+                    geom_block.append('BASISSET\n')
     
     #if there is an external object, we want to have the EXTERNAL
     #keyword in the geom_block. If it's not present, this means
