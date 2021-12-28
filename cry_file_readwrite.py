@@ -152,26 +152,11 @@ class Crystal_output:
                 scf_deltae.append(float(line.split()[5]))
             
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY',line):
-                
                 if all_cycles == False:
                     self.scf_energy = np.array(scf_energy)
                     self.scf_deltae = np.array(scf_deltae)
                     
-                    #Check if the scf is converging
-                    #Simple model comparing the DeltaE in the 3/3 cycles
-                    #compared to the 2/3 cycles
-                    len_scf_deltae = int(len(self.scf_deltae))
-                    if len_scf_deltae < 5:
-                        self.is_converging = None
-                    else:
-                        second = np.sum(np.absolute(self.scf_deltae[int(len_scf_deltae/3):int((len_scf_deltae/3)*2)]))
-                        third = np.sum(np.absolute(self.scf_deltae[int((len_scf_deltae/3)*2):]))
-                        if third < 0.0001*second:
-                            self.is_converging = True
-                        else:
-                            self.is_converging = False
-                                       
-                    return self
+                    return self.scf_energy, self.scf_deltae
                 
                 elif all_cycles == True:
                     self.scf_energy.append(scf_energy)
@@ -179,8 +164,8 @@ class Crystal_output:
                     scf_energy = []
                     scf_deltae = []    
         
-        
         return self.scf_energy, self.scf_deltae
+
     
     def fermi_energy(self):
 
@@ -328,40 +313,31 @@ class Crystal_output:
         for i,line in enumerate(self.data):
             if re.match(r' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL',line):
                 trans_matrix_flat = [float(x) for x in self.data[i+1].split()]
-            
-                self.trans_matrix = []
-                for i in range(0,len(trans_matrix_flat),3):
-                    self.trans_matrix.append(trans_matrix_flat[i:i+3])
-                self.trans_matrix = np.array(self.trans_matrix)
                 break
+        self.trans_matrix = []
+        for i in range(0,len(trans_matrix_flat),3):
+            self.trans_matrix.append(trans_matrix_flat[i:i+3])
+        self.trans_matrix = np.array(self.trans_matrix)
         
         
         for i,line in enumerate(self.data[len(self.data)::-1]):
             if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT',line):
                 self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
-                self.atom_positions_frac = [] 
+                self.atom_positions = [] 
                 self.atom_symbols = []
                 self.atom_numbers = []
                 for j in range(self.n_atoms):
                     atom_line = self.data[len(self.data)-i-2-int(self.n_atoms)+j].split()[3:]
                     self.atom_symbols.append(str(atom_line[0]) )
-                    self.atom_positions_frac.append([float(x) for x in atom_line[1:]]) #These are fractional
+                    self.atom_positions.append([float(x) for x in atom_line[1:]]) #These are fractional
                 a,b,c,alpha,beta,gamma = self.data[len(self.data)-i-2-int(self.n_atoms)-5].split()
                 #DELout2cif(file_name,a,b,c,alpha,beta,gamma,atom_positions)
                 #DELout_name = str(file_name[:-4]+'.cif')
                 for atom in self.atom_symbols:    
                     self.atom_numbers.append(element(atom.capitalize()).atomic_number)
-                break
-        
-        self.atom_positions_cart = []
-
-        for i,line in enumerate(self.data[len(self.data)::-1]):
-            if re.match(r'^ CARTESIAN COORDINATES - PRIMITIVE CELL',line):    
-                for j in range(self.n_atoms):
-                    atom_line = self.data[len(self.data)-i+3+j].split()[2:]
-                    self.atom_positions_cart.append([float(x) for x in atom_line[1:]]) #These are cartesian
-                   
-                #self.atom_positions_cart = np.matmul(np.array(self.atom_positions_frac),self.primitive_vectors)              
+                
+                    
+                self.atom_positions_cart = np.matmul(np.array(self.atom_positions),self.primitive_vectors)              
                 self.cart_coords = []
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i][0],self.atom_positions_cart[i][1],self.atom_positions_cart[i][2]])
@@ -552,8 +528,7 @@ a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('symmops\n',a.symm_ops())
 #print('forces\n',a.forces(gradient=True))
 #print('grad\n',a.grad)
-#print('scf convergence\n',a.scf_convergence(all_cycles=False))
-a.scf_convergence(all_cycles=False)'''
+#print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
 
 class Crystal_bands:
     #This class contains the bands objects created from reading the 
@@ -674,58 +649,13 @@ class Crystal_doss:
         self.doss[0,:,:] = self.doss[0,:,:]*27.2114
         
         return self 
+    
 
         
 '''###TESTING
 mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
 mgo_file = mgo_DOSS.read_cry_doss()
 print(mgo_file.doss[0,-1:1:-1,0])'''
-
-class Crystal_gui:
-    
-    def __init__(self, gui_file):
-        self.file_name = gui_file
-        
-        try: 
-            file = open(self.file_name, 'r')
-            self.data = file.readlines()
-            file.close()
-        except:
-            print('EXITING: a CRYSTAL .DOSS file needs to be specified')
-            sys.exit(1)
-    
-    def read_cry_gui(self):
-        import sys
-        import numpy as np
-        
-        
-        
-        #Read the information about the file
-        self.dim = int(self.data[0].split()[0])
-        lattice = []
-        for i in range(1,4):
-            lattice.append([float(n) for n in self.data[i].split()])
-        self.primitive_vectors = np.array(lattice)
-
-        self.n_symmops = int(self.data[4].split()[0])
-        symmops_list = []
-        for i in range(5,5+self.n_symmops*4):
-            symmops_list.append([float(n) for n in self.data[i].split()])
-        self.symm_ops = np.array(symmops_list)
-        
-        self.n_atoms = int(self.data[5+self.n_symmops*4].split()[0])
-        self.atom_positions = []
-        self.atom_numbers = []
-        for i in range(self.n_atoms):
-            self.atom_positions.append([float(x) for x in self.data[6+self.n_symmops*4+i].split()[1:]])
-            self.atom_numbers.append(int(self.data[6+self.n_symmops*4+i].split()[0]))
-       
-        return self 
-            
-'''###TESTING
-mgo_gui = Crystal_gui('examples/data/mgo.gui')
-mgo_gui_file = mgo_gui.read_cry_gui()
-print(mgo_gui_file.atom_positions)'''
 
 def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_obj=None,comment=None):
     #input_name is the name of the imput that is going to be written (.d12)
@@ -734,6 +664,7 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
     
     import itertools
     import sys
+    import re
     from ase.io.crystal import write_crystal
     from pymatgen.io.ase import AseAtomsAdaptor
     
@@ -754,21 +685,9 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         bs_block = crystal_input.bs_block
         func_block = crystal_input.func_block
         scf_block = crystal_input.scf_block
+    #print(geom_block,bs_block,func_block,scf_block)    
 
-    #This is a check to eliminate the END at the end of the geom_block
-    #if the BASISSET option is being used for the basis set
-    if 'TESTGEOM\n' not in geom_block:
-        if len(bs_block[0]) > 5:
-            if bs_block[-1] == 'END\n':
-                bs_block = bs_block[:-1]
-            if 'OPTGEOM\n' in geom_block:
-                if geom_block[-2:] == ['END\n','END\n']:
-                    geom_block = geom_block[:-1] 
-                    geom_block.append('BASISSET\n')
-            else:
-                if geom_block[-1] == 'END\n':
-                    geom_block = geom_block[:-1]    
-                    geom_block.append('BASISSET\n')
+        
     
     #if there is an external object, we want to have the EXTERNAL
     #keyword in the geom_block. If it's not present, this means
@@ -796,23 +715,10 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         else:
             print('EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
             sys.exit(1)
-            
-    #Check all lines contain a newline symbol at the end
-    block_list = [geom_block,bs_block,func_block,scf_block]
-    for i,block in enumerate(block_list):
-        for j,element in enumerate(block):
-            if type(element) == list:
-                if element[0][-1] != '\n':
-                    block_list[i][j][0] = block_list[i][j][0]+'\n'
-                if element[1][-1] != '\n':
-                    block_list[i][j][1] = block_list[i][j][1]+'\n'
-            else:
-                if element[-1] != '\n':
-                    block_list[i][j] =  block_list[i][j]+'\n'
         
     with open(input_name, 'w') as file:
-        cry_input = list(itertools.chain(block_list[0],block_list[1],
-                                         block_list[2],block_list[3]))
+        cry_input = list(itertools.chain(geom_block, bs_block,
+                                         func_block,scf_block))
         for line in cry_input:
             file.writelines(line)
 
@@ -829,25 +735,96 @@ mgo = Crystal_input('examples/data/mgo.d12')
 print(mgo.geom_block)
 write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
 
-def write_cry_properties(input_name,property_block,newk_block=False):
+def write_cry_properties(input_name,property_block,newk=False):
     
     import sys
     import itertools
     
-    if newk_block == False:
+    if newk == False:
         property_input = property_block
-    if newk_block != False and type(newk_block) != list:
+    if newk != False and type(newk) != list:
         print('EXITING: newk must be a newk_block list')
         sys.exit(1)
-    elif type(newk_block) == list:
-        property_input = list(itertools.chain(newk_block,property_block))
+    elif type(newk) == list:
+        property_input = list(itertools.chain(property_block,newk))
             
         
     with open(input_name, 'w') as file:        
         for line in property_input:
             file.writelines(line)
     
+
+class Density:
     
+    def __init__(self, fort98_unit):
+        self.file_name = fort98_unit
     
+    def cry_read_density(self):
+            
+        import sys
+        import numpy as np
+        import re
+    
+        try: 
+            file = open(self.file_name, 'r')
+            data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a CRYSTAL .BAND file needs to be specified')
+            sys.exit(1)
+        
+        
+        for i,line in enumerate(data):
+            
+          if re.match(r'^LIMINF LIMTOL LIMPAR', line):
+              inf_vec_len, tol_vec_len, par_vec_len = [int(x) for x in data[i+1].split()]
+              
+          elif re.match(r'^INF', line):
+              inf_vec = []
+              inf_n_lines = int(np.ceil(inf_vec_len/8))
+              for j in range(inf_n_lines):
+                  inf_vec.extend([int(x) for x in data[i+1+j].split()])   
+              n_symmops = inf_vec[0]
+              #n_symmops_noinv = inf_vec[1]
+          elif re.match(r'^TOL', line):
+              tol_vec = []
+              tol_n_lines = int(np.ceil(tol_vec_len/8))
+              for j in range(tol_n_lines):
+                  tol_vec.extend([int(x) for x in data[i+1+j].split()])   
+          
+          elif re.match(r'^PAR', line):
+              par_vec = []
+              par_n_lines = int(np.ceil(par_vec_len/4))
+              for j in range(par_n_lines):
+                  #The negative elements appear connected to the previous one
+                  #eg:  0.0000000000000E+00-1.0000000000000E+00
+                  #The line below fixes that issue
+                  for item in range(0,int(len(data[i+1+j])/20)):
+                      par_vec.append(float(data[i+1+j][(item)*20:(item+1)*20])) 
+          
+          elif re.match(r'^XYVGVE', line):
+              #This vector contains the rotations, translation,
+              #lattice vectors and transformation matrix from primitive to 
+              #crystallographic cell 
+              #Read all of it first and separate later
+              xyvgve_n_lines = int(np.ceil((n_symmops*12+18)/4))
+              xyvgve_vec = []
+              for j in range(xyvgve_n_lines):
+                  #The negative elements appear connected to the previous one
+                  #eg:  0.0000000000000E+00-1.0000000000000E+00
+                  #The line below fixes that issue
+                  for item in range(0,int(len(data[i+1+j])/20)):
+                      xyvgve_vec.append(float(data[i+1+j][(item)*20:(item+1)*20]))  
+              #Now let's split the xyvgve_vec
+              rotations_vec = xyvgve_vec[0:n_symmops*9]
+              translations_vec = xyvgve_vec[n_symmops*9:n_symmops*9+n_symmops*3]
+              direct_lattice_vec = xyvgve_vec[n_symmops*12:n_symmops*12+9]
+              transf_matrix = xyvgve_vec[-9:]
+              print(transf_matrix)
+              
+          #elif re.match('', line):
+        
+###TESTING  
+H_density =  Density('examples/data/h_bulk.f98').cry_read_density()     
     
     
