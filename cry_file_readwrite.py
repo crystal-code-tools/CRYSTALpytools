@@ -722,18 +722,18 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
         for line in cry_input:
             file.writelines(line)
 
-'''###TESTING
+###TESTING
 from pymatgen.core import Structure, Lattice             
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
-substrate_conv = SpacegroupAnalyzer(substrate).get_conventional_standard_structure() 
+substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure() 
 
 #mgo = Crystal_input('examples/data/mgo.d12') 
 #write_cry_input('examples/data/mgo_TEST.d12',crystal_input = mgo,external_obj=substrate_conv,comment='YES')
 
 mgo = Crystal_input('examples/data/mgo.d12') 
 print(mgo.geom_block)
-write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
+write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')
 
 def write_cry_properties(input_name,property_block,newk=False):
     
@@ -872,6 +872,6 @@ class Density:
           #elif re.match('', line):
         
 ###TESTING  
-H_density =  Density('examples/data/h_bulk.f98').cry_read_density()     
+#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()     
     
     
