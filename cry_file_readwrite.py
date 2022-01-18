@@ -752,6 +752,124 @@ def write_cry_properties(input_name,property_block,newk=False):
     with open(input_name, 'w') as file:        
         for line in property_input:
             file.writelines(line)
+            
+def write_gui(gui_file,atoms,dimensionality=3,test_symm=False):
+    #gui_file is the name of the gui that is going to be written (including .gui)
+    #atoms is the structure object from ase or pymatgen
+    
+    from ase.io.crystal import write_crystal
+    
+    from pymatgen.core import lattice
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    
+    import numpy as np
+    
+    #ASE object
+    if 'ase.atoms' in  str(type(atoms)):
+        write_crystal(gui_file,atoms)
+        
+    #pymatgen object
+    elif 'pymatgen.core' in str(type(atoms)):
+        
+        with open(gui_file, 'w') as file:    
+
+            if dimensionality == 3:
+                #First line (FIND WHAT THE FIRST LINE IS)
+                file.writelines('3   5   6\n')
+                
+                #Cell vectors
+                for vector in atoms.lattice.matrix:
+                    file.writelines(' '.join(str(n) for n in vector)+'\n')
+                    
+                #N symm ops
+                file.writelines('{}\n'.format(str(len(SpacegroupAnalyzer(atoms).get_space_group_operations()))))
+            
+                #symm ops
+                for i in range(len(SpacegroupAnalyzer(atoms).get_space_group_operations())):
+                    for symmops in np.array(SpacegroupAnalyzer(atoms).get_point_group_operations(cartesian=True)[i].as_dict()['matrix'])[0:4,0:3]:    
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops)))
+
+            elif dimensionality == 2:
+                file.writelines('2   1   1\n')
+                
+                #Cell vectors
+                z_component = ['0.0000', '0.00000', '500.00000']
+                for i,vector in enumerate(atoms.lattice.matrix[0:3,0:2]):
+                    file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')
+                
+                #Find symmops (inv/reflection)
+                n_symmops = 1
+                E = np.array([[1.,  0.,  0.],[0.,  1.,  0.],[0.,  0.,  1.],[0.,  0.,  0.]])
+                I = np.array([[-1.,  0.,  0.],[0.,  -1.,  0.],[0.,  0.,  -1.],[0.,  0.,  0.]])
+                R = np.array([[1.,  0.,  0.],[0.,  1.,  0.],[0.,  0.,  -1.],[0.,  0.,  0.]])
+                for i in range(len(SpacegroupAnalyzer(atoms).get_space_group_operations())):
+                    symmops = np.array(SpacegroupAnalyzer(atoms).get_point_group_operations(cartesian=False)[i].as_dict()['matrix'])[0:4,0:3]                    
+                    if np.array_equal(symmops,R):
+                        n_symmops += 1
+                        E = np.append(E,R,0)
+                
+                if len(E) == 4:
+                    n_symmops += 1
+                    E = np.append(E,I,0)
+               
+                #N symm ops
+                file.writelines('{}\n'.format(n_symmops)) 
+                                
+                #symm ops
+                for i in range(len(E)): 
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in E[i])))
+           
+            
+
+            if dimensionality == 2:
+                
+                #Shift to center of cell
+                shift = 0.
+                #if atoms.center_of_mass[2] != 0:   
+                if hasattr(atoms.sites[0], 'surface_properties'):
+                    l = []
+                    for i,site in enumerate(atoms.sites):
+                        if 'surface' in site.surface_properties:
+                            l.append(atoms.cart_coords[i,2]) 
+                    l_arr = np.array(l)
+                
+                    shift = np.array([0.,0.,(np.amax(l_arr)-np.amin(l_arr))/2+np.amin(l_arr)])    
+                    
+                else:                    
+                    shift = np.array([0.,0.,(np.amax(atoms.cart_coords[:,2])-np.amin(atoms.cart_coords[:,2]))/2+np.amin(atoms.cart_coords[:,2])])
+
+                num_atoms = np.sum(np.array((atoms.cart_coords-shift)[:,2]) >= -0.0000000001, axis=0) #The -0.0000000001 is to take into account the -0.0 case
+                
+                #N atoms
+                file.writelines('{}\n'.format(num_atoms))
+                                
+                #atom number + coordinates cart
+                for i in range(atoms.num_sites):
+                    if np.array((atoms.cart_coords[i]-shift)[2]) >= -0.0000000001:    
+                        file.writelines('{} {}\n'.format(atoms.atomic_numbers[i],' '.join(str(np.around(n,5)) for n in atoms.cart_coords[i]-shift)))
+                
+                #space group + n symm ops
+                file.writelines('{} {}'.format(0,0))
+                
+                
+            if dimensionality == 3:    
+                
+                #N atoms
+                file.writelines('{}\n'.format(atoms.num_sites))
+            
+                #atom number + coordinates cart
+                for i in range(atoms.num_sites):
+                    file.writelines('{} {}\n'.format(atoms.atomic_numbers[i],' '.join(str(np.around(n,5)) for n in atoms.cart_coords[i])))
+                    
+                #space group + n symm ops
+                file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
+           
+            
+'''###TESTING
+mgo = Crystal_input('data/mgo.d12') 
+from obj_converter import cry_inp2pmg
+mgo = cry_inp2pmg(mgo)
+write_gui('data/mgo_TEST.gui',mgo)'''
     
 
 class Density:
@@ -859,10 +977,12 @@ class Density:
                         self.shell_coord.append(basato_vec[(init+j):(init+j+3)])
                     #self.shell_coord = np.array(self.shell_coord)
                     
+                    #Array that defines which atom a shell belongs to
+                    self.shell_to_atom = []
                     for coord in self.shell_coord:
-                        print(self.atom_coord.index(coord))
+                        self.shell_to_atom.append(self.atom_coord.index(coord))
                     basato1 = True
-                    print(self.shell_coord)  
+                      
                 
                 elif basato1 == False:
                     pass
