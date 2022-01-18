@@ -723,7 +723,7 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
             file.writelines(line)
 
 ###TESTING
-from pymatgen.core import Structure, Lattice             
+'''from pymatgen.core import Structure, Lattice             
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
 substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure() 
@@ -733,7 +733,7 @@ substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure()
 
 mgo = Crystal_input('examples/data/mgo.d12') 
 print(mgo.geom_block)
-write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')
+write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
 
 def write_cry_properties(input_name,property_block,newk=False):
     
@@ -779,99 +779,181 @@ class Density:
         
         for i,line in enumerate(data):
             
-          if re.match(r'^LIMINF LIMTOL LIMPAR', line):
-              inf_vec_len, tol_vec_len, par_vec_len = [int(x) for x in data[i+1].split()]
-              
-          elif re.match(r'^INF', line):
-              self.inf_vec = []
-              inf_n_lines = int(np.ceil(inf_vec_len/8))
-              for j in range(inf_n_lines):
-                  self.inf_vec.extend([int(x) for x in data[i+1+j].split()])   
-              n_symmops = self.inf_vec[0]
-              n_atoms = self.inf_vec[23]
-              n_shells = self.inf_vec[19]
-              n_prim_gto = self.inf_vec[74]
-              f_irr_len = (self.inf_vec[63]+1)*self.inf_vec[227]
-              p_irr_len = (self.inf_vec[63]+1)*self.inf_vec[18]
-              #n_symmops_noinv = inf_vec[1]
-          
-          elif re.match(r'^TOL', line):
-              self.tol_vec = []
-              tol_n_lines = int(np.ceil(tol_vec_len/8))
-              for j in range(tol_n_lines):
-                  self.tol_vec.extend([int(x) for x in data[i+1+j].split()])
-          
-          elif re.match(r'^PAR', line):
-              self.par_vec = []
-              par_n_lines = int(np.ceil(par_vec_len/4))
-              for j in range(par_n_lines):
-                  #The negative elements appear connected to the previous one
-                  #eg:  0.0000000000000E+00-1.0000000000000E+00
-                  #The line below fixes that issue
-                  for item in range(0,int(len(data[i+1+j])/20)):
-                      self.par_vec.append(float(data[i+1+j][(item)*20:(item+1)*20])) 
-                      
-          
-          elif re.match(r'^XYVGVE', line):
-              #This vector contains the rotations, translation,
-              #lattice vectors and transformation matrix from primitive to 
-              #crystallographic cell 
-              #Read all of it first and separate later
-              xyvgve_n_lines = int(np.ceil((n_symmops*12+18)/4))
-              xyvgve_vec = []
-              for j in range(xyvgve_n_lines):
-                  #The negative elements appear connected to the previous one
-                  #eg:  0.0000000000000E+00-1.0000000000000E+00
-                  #The line below fixes that issue
-                  for item in range(0,int(len(data[i+1+j])/20)):
-                      xyvgve_vec.append(float(data[i+1+j][(item)*20:(item+1)*20]))  
-              #Now let's split the xyvgve_vec
-              self.rotations_vec = xyvgve_vec[0:n_symmops*9]
-              self.translations_vec = xyvgve_vec[n_symmops*9:n_symmops*9+n_symmops*3]
-              self.direct_lattice_vec = xyvgve_vec[n_symmops*12:n_symmops*12+9]
-              self.transf_matrix = xyvgve_vec[-9:]
-              
-          elif re.match(r'^BASATO', line):
-              if basato1 == False:
-                  basato_n_lines = int(np.ceil((n_atoms*4+n_shells*5+n_prim_gto*7)/4))
-                  basato_vec = []
-                  for j in range(basato_n_lines):
-                      #The negative elements appear connected to the previous one
-                      #eg:  0.0000000000000E+00-1.0000000000000E+00
-                      #The line below fixes that issue
-                      for item in range(0,int(len(data[i+1+j])/20)):
-                          basato_vec.append(float(data[i+1+j][(item)*20:(item+1)*20]))  
-                  #Extract the iformation we need from basato
-                  basato1 = True
-                  
-              elif basato1 == False:
-                  pass
-                                
-          elif re.match(r'^SPINOR', line):
-              self.f_irr = []
-              f_irr_n_lines = int(np.ceil(f_irr_len/4))
-              for j in range(f_irr_n_lines):
-                  #The negative elements appear connected to the previous one
-                  #eg:  0.0000000000000E+00-1.0000000000000E+00
-                  #As opposite to the loops above where the float read was 20
-                  #characters long, this ones are 21
-                  #The line below fixes that issue
-                  for item in range(0,int(len(data[i+3+j])/21)):
-                      self.f_irr.append(float(data[i+3+j][(item)*21:(item+1)*21]))    
-              self.p_irr = []
-              p_irr_n_lines = int(np.ceil(p_irr_len/4))
-              for k in range(i+4+j,i+4+j+p_irr_n_lines):
-                  #The negative elements appear connected to the previous one
-                  #eg:  0.0000000000000E+00-1.0000000000000E+00
-                  #As opposite to the loops above where the float read was 20
-                  #characters long, this ones are 21
-                  #The line below fixes that issue
-                  for item in range(0,int(len(data[k])/21)):
-                      self.p_irr.append(float(data[k][(item)*21:(item+1)*21]))    
-          #elif re.match('', line):
-          #elif re.match('', line):
+            if re.match(r'^LIMINF LIMTOL LIMPAR', line):
+                  inf_vec_len, tol_vec_len, par_vec_len = [int(x) for x in data[i+1].split()]
+                
+            elif re.match(r'^INF', line):
+                self.inf_vec = []
+                inf_n_lines = int(np.ceil(inf_vec_len/8))
+                for j in range(inf_n_lines):
+                    self.inf_vec.extend([int(x) for x in data[i+1+j].split()])   
+                n_symmops = self.inf_vec[0]
+                n_atoms = self.inf_vec[23]
+                n_shells = self.inf_vec[19]
+                n_prim_gto = self.inf_vec[74]
+                f_irr_len = (self.inf_vec[63]+1)*self.inf_vec[227]
+                p_irr_len = (self.inf_vec[63]+1)*self.inf_vec[18]
+                nnnc_len = self.inf_vec[190]
+                la3_len = self.inf_vec[55]
+                #n_symmops_noinv = inf_vec[1]
+            
+            elif re.match(r'^TOL', line):
+                self.tol_vec = []
+                tol_n_lines = int(np.ceil(tol_vec_len/8))
+                for j in range(tol_n_lines):
+                    self.tol_vec.extend([int(x) for x in data[i+1+j].split()])
+            
+            elif re.match(r'^PAR', line):
+                self.par_vec = []
+                par_n_lines = int(np.ceil(par_vec_len/4))
+                for j in range(par_n_lines):
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #The line below fixes that issue
+                    for item in range(0,int(len(data[i+1+j])/20)):
+                        self.par_vec.append(float(data[i+1+j][(item)*20:(item+1)*20])) 
+                        
+            
+            elif re.match(r'^XYVGVE', line):
+                #This vector contains the rotations, translation,
+                #lattice vectors and transformation matrix from primitive to 
+                #crystallographic cell 
+                #Read all of it first and separate later
+                xyvgve_n_lines = int(np.ceil((n_symmops*12+18)/4))
+                xyvgve_vec = []
+                for j in range(xyvgve_n_lines):
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #The line below fixes that issue
+                    for item in range(0,int(len(data[i+1+j])/20)):
+                        xyvgve_vec.append(float(data[i+1+j][(item)*20:(item+1)*20]))  
+                #Now let's split the xyvgve_vec
+                self.rotations_vec = xyvgve_vec[0:n_symmops*9]
+                self.translations_vec = xyvgve_vec[n_symmops*9:n_symmops*9+n_symmops*3]
+                self.direct_lattice_vec = xyvgve_vec[n_symmops*12:n_symmops*12+9]
+                self.transf_matrix = xyvgve_vec[-9:]
+                
+            elif re.match(r'^BASATO', line):
+                if basato1 == False:
+                    basato_n_lines = int(np.ceil((n_atoms*4+n_shells*5+n_prim_gto*7)/4))
+                    basato_vec = []
+                    for j in range(basato_n_lines):
+                        #The negative elements appear connected to the previous one
+                        #eg:  0.0000000000000E+00-1.0000000000000E+00
+                        #The line below fixes that issue
+                        for item in range(0,int(len(data[i+1+j])/20)):
+                            basato_vec.append(float(data[i+1+j][(item)*20:(item+1)*20]))  
+                    #Extract the iformation we need from basato
+                    
+                    #Atom coordinates
+                    self.atom_coord = []
+                    for j in range(0,3*n_atoms,3):
+                        self.atom_coord.append(basato_vec[(n_atoms+j):(n_atoms+j+3)])
+                    #self.atom_coord = np.array(self.atom_coord)
+                    
+                    #Assign the shell to the atom
+                    self.shell_coord = []
+                    #The beginning of the part of BASATO I need here
+                    init = 4*n_atoms + 2*n_shells 
+                    for j in range(0,3*n_shells,3):
+                        self.shell_coord.append(basato_vec[(init+j):(init+j+3)])
+                    #self.shell_coord = np.array(self.shell_coord)
+                    
+                    for coord in self.shell_coord:
+                        print(self.atom_coord.index(coord))
+                    basato1 = True
+                    print(self.shell_coord)  
+                
+                elif basato1 == False:
+                    pass
+                                  
+            elif re.match(r'^SPINOR', line):
+                self.f_irr = []
+                f_irr_n_lines = int(np.ceil(f_irr_len/4))
+                for j in range(f_irr_n_lines):
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    for item in range(0,int(len(data[i+3+j])/21)):
+                        self.f_irr.append(float(data[i+3+j][(item)*21:(item+1)*21]))    
+                self.p_irr = []
+                p_irr_n_lines = int(np.ceil(p_irr_len/4))
+                for k in range(i+4+j,i+4+j+p_irr_n_lines):
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    for item in range(0,int(len(data[k])/21)):
+                        self.p_irr.append(float(data[k][(item)*21:(item+1)*21]))  
+                        
+            elif re.match(r'^   NCF', line):
+                #The ncf vector contains the pointers to the symmetry irerducible
+                #shell couples la3, la4
+                self.ncf = []
+                j = i+1
+                while 'NSTATG' not in data[j].split()[0]:
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    self.ncf.extend([int(x) for x in data[j].split()])
+                    j += 1
+                    
+            elif re.match(r'^  NNNC', line):
+                #The nnnc points the starting position in the P matrix for 
+                #each couple, and its size corresponds to the total number 
+                #of shell couple in the shell couple sets
+                self.nnnc = []
+                nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                for j in range(nnnc_n_lines):
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    for item in range(0,int(len(data[i+1+j])/10)):
+                        self.nnnc.append(int(data[i+1+j][(item)*10:(item+1)*10]))  
+            elif re.match(r'^   LA3', line):
+               #The nnnc points the starting position in the P matrix for 
+               #each couple, and its size corresponds to the total number 
+               #of shell couple in the shell couple sets
+               self.la3 = []
+               #nnnc_n_lines = int(np.ceil(nnnc_len/8))
+               j = i+1 
+               while 'LA4' not in data[j].split()[0]:
+                   #The negative elements appear connected to the previous one
+                   #eg:  0.0000000000000E+00-1.0000000000000E+00
+                   #As opposite to the loops above where the float read was 20
+                   #characters long, this ones are 21
+                   #The line below fixes that issue
+                   self.la3.extend([int(x) for x in data[j].split()])
+                   j += 1   
+            elif re.match(r'^   LA4', line):
+                #The nnnc points the starting position in the P matrix for 
+                #each couple, and its size corresponds to the total number 
+                #of shell couple in the shell couple sets
+                self.la4 = []
+                #nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                j = i+1
+                while 'IROF' not in data[j].split()[0]:
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    self.la4.extend([int(x) for x in data[j].split()])
+                    j += 1           
+        print(self.ncf)
+                                     
+            #elif re.match('', line):
+            #elif re.match('', line):
         
 ###TESTING  
-#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()     
+#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
+H_density =  Density('examples/data/mgo.f98').cry_read_density()     
     
     
