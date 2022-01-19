@@ -759,20 +759,25 @@ def write_gui(gui_file,atoms,dimensionality=3,test_symm=False):
     
     from ase.io.crystal import write_crystal
     
-    from pymatgen.core import lattice
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     
     import numpy as np
-    
+
     #ASE object
     if 'ase.atoms' in  str(type(atoms)):
         write_crystal(gui_file,atoms)
         
     #pymatgen object
-    elif 'pymatgen.core' in str(type(atoms)):
-        
-        with open(gui_file, 'w') as file:    
-
+    elif 'pymatgen' in str(type(atoms)):
+        with open(gui_file, 'w') as file: 
+            
+            atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
+            
+            
+            #Is the structure symmetrysed?
+            if 'SymmetrizedStructure' not in str(type(atoms)):
+                atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
+            
             if dimensionality == 3:
                 #First line (FIND WHAT THE FIRST LINE IS)
                 file.writelines('3   5   6\n')
@@ -782,11 +787,12 @@ def write_gui(gui_file,atoms,dimensionality=3,test_symm=False):
                     file.writelines(' '.join(str(n) for n in vector)+'\n')
                     
                 #N symm ops
-                file.writelines('{}\n'.format(str(len(SpacegroupAnalyzer(atoms).get_space_group_operations()))))
-            
+                n_symmops = int(len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())/4)
+                file.writelines('{}\n'.format(str(n_symmops)))
+                
                 #symm ops
-                for i in range(len(SpacegroupAnalyzer(atoms).get_space_group_operations())):
-                    for symmops in np.array(SpacegroupAnalyzer(atoms).get_point_group_operations(cartesian=True)[i].as_dict()['matrix'])[0:4,0:3]:    
+                for i in range(n_symmops):
+                    for symmops in np.array(SpacegroupAnalyzer(atoms_symm).get_point_group_operations(cartesian=True)[i].as_dict()['matrix'])[0:4,0:3]:    
                         file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops)))
 
             elif dimensionality == 2:
@@ -855,21 +861,31 @@ def write_gui(gui_file,atoms,dimensionality=3,test_symm=False):
             if dimensionality == 3:    
                 
                 #N atoms
+                #file.writelines('{}\n'.format(len(np.array(atoms.equivalent_indices)[:,0])))
                 file.writelines('{}\n'.format(atoms.num_sites))
             
                 #atom number + coordinates cart
                 for i in range(atoms.num_sites):
-                    file.writelines('{} {}\n'.format(atoms.atomic_numbers[i],' '.join(str(np.around(n,5)) for n in atoms.cart_coords[i])))
+                    atomic_number = atoms.atomic_numbers[i]
+                    atom_coord = ' '.join(str(np.around(n,5)) for n in atoms.cart_coords[i])
+                    file.writelines('{} {}\n'.format(atomic_number,atom_coord))
                     
                 #space group + n symm ops
                 file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
            
             
-'''###TESTING
-mgo = Crystal_input('data/mgo.d12') 
-from obj_converter import cry_inp2pmg
-mgo = cry_inp2pmg(mgo)
-write_gui('data/mgo_TEST.gui',mgo)'''
+###TESTING
+'''from pymatgen.core import Structure, Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.surface import SlabGenerator
+
+substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
+substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
+substrate = SpacegroupAnalyzer(substrate).get_conventional_standard_structure()
+substrate = SpacegroupAnalyzer(substrate).get_symmetrized_structure()
+
+
+write_gui('examples/data/mgo_TEST.gui',substrate)'''
     
 
 class Density:
@@ -1067,7 +1083,7 @@ class Density:
                     #The line below fixes that issue
                     self.la4.extend([int(x) for x in data[j].split()])
                     j += 1           
-        print(self.ncf)
+        #print(self.ncf)
                                      
             #elif re.match('', line):
             #elif re.match('', line):
