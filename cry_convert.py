@@ -18,7 +18,7 @@ def cry_out2pmg(output,initial=False,dimensionality=3,vacuum=10):
     
     if dimensionality == 3:
         structure = Structure(output.primitive_vectors, output.atom_numbers, 
-                              output.atom_positions_frac)
+                              output.atom_positions_cart, coords_are_cartesian=True)
         
     elif dimensionality == 2:
         thickness = np.amax(np.array(output.atom_positions_cart)[:,2])-\
