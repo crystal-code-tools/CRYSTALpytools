@@ -26,7 +26,13 @@ class Crystal_input:
             print('EXITING: a .d12 file needs to be specified')
             sys.exit(1)
         
-        end_index = [i for i, s in enumerate(data) if 'END' in s]
+        if 'BASISSET\n' in data:
+            end_index = []
+            end_index.append(data.index('BASISSET\n')-1)
+            end_index.append(data.index('BASISSET\n')+1)
+            end_index.extend([i for i, s in enumerate(data) if 'END' in s])
+        else:        
+            end_index = [i for i, s in enumerate(data) if 'END' in s]
         
         self.geom_block = []
         #self.optgeom_block = []
