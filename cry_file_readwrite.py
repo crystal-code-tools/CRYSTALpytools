@@ -69,13 +69,18 @@ class Crystal_input:
                         pass
             self.scf_block.append('ENDSCF\n') #The loop cannot go over the last element
             
-            
+    def add_ghost(self,ghost_atoms):
+        
+        self.bs_block.insert(-1, 'GHOSTS\n')
+        self.bs_block.insert(-1,'%s\n' % len(ghost_atoms))  
+        self.bs_block.insert(-1,' '.join([str(x) for x in ghost_atoms])+'\n' )                
 
        
-'''TESTING
-mgo = crystal_input('data/mgo.d12')     
+'''###TESTING
+mgo = Crystal_input('examples/data/mgo.d12')
+mgo.add_ghost([1,2,3])     
 #print(mgo.name)
-print(mgo.scf_block)
+#print(mgo.scf_block)
 #mgo.scf_block.remove('DIIS\n')
 #print(mgo.scf_block)'''
 
@@ -753,7 +758,7 @@ def write_cry_properties(input_name,property_block,newk=False):
         for line in property_input:
             file.writelines(line)
             
-def write_gui(gui_file,atoms,dimensionality=3):
+def write_cry_gui(gui_file,atoms,dimensionality=3):
     #gui_file is the name of the gui that is going to be written (including .gui)
     #atoms is the structure object from ase or pymatgen
     
@@ -783,14 +788,14 @@ def write_gui(gui_file,atoms,dimensionality=3):
             
             if dimensionality == 3:
                 #First line (FIND WHAT THE FIRST LINE IS)
-                file.writelines('3   5   6\n')
+                file.writelines('3   1   1\n')
                 
                 #Cell vectors
                 for vector in atoms.lattice.matrix:
                     file.writelines(' '.join(str(n) for n in vector)+'\n')
                     
                 #N symm ops
-                n_symmops = int(len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())/4)
+                n_symmops = len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())
                 file.writelines('{}\n'.format(str(n_symmops)))
                 
                 #symm ops
@@ -845,17 +850,17 @@ def write_gui(gui_file,atoms,dimensionality=3):
             file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
            
             
-###TESTING
+'''###TESTING
 from pymatgen.core import Structure, Lattice
 from pymatgen.core.surface import SlabGenerator
 
 
-substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
-#substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
+#substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
+substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
 substrate = SlabGenerator(substrate, (1,0,0), 5., 10., center_slab=False).get_slab()
 
 
-write_gui('examples/data/cu_100_TEST.gui',substrate,dimensionality=2)
+write_cry_gui('examples/data/cu_100_TEST.gui',substrate,dimensionality=2)'''
     
 
 class Density:
@@ -1058,8 +1063,8 @@ class Density:
             #elif re.match('', line):
             #elif re.match('', line):
         
-###TESTING  
+'''###TESTING  
 #H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
-H_density =  Density('examples/data/mgo.f98').cry_read_density()     
+H_density =  Density('examples/data/mgo.f98').cry_read_density()     '''
     
     
