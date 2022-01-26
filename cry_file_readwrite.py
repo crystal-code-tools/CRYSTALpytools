@@ -27,12 +27,14 @@ class Crystal_input:
             sys.exit(1)
         
         if 'BASISSET\n' in data:
-            end_index = []
+            end_index = []                
             end_index.append(data.index('BASISSET\n')-1)
             end_index.append(data.index('BASISSET\n')+1)
-            end_index.extend([i for i, s in enumerate(data) if 'END' in s])
+            end_index.extend([i for i, s in enumerate(data[end_index[1]:]) if 'END' in s])
+            self.is_basisset = True
         else:        
             end_index = [i for i, s in enumerate(data) if 'END' in s]
+            self.is_basisset = False
         
         self.geom_block = []
         #self.optgeom_block = []
@@ -76,10 +78,30 @@ class Crystal_input:
             self.scf_block.append('ENDSCF\n') #The loop cannot go over the last element
             
     def add_ghost(self,ghost_atoms):
+        if self.is_basisset == True:
+            self.bs_block.append('GHOSTS\n')
+            self.bs_block.append('%s\n' % len(ghost_atoms))  
+            self.bs_block.append(' '.join([str(x) for x in ghost_atoms])+'\n' )   
+        else:
+            self.bs_block.insert(-1, 'GHOSTS\n')
+            self.bs_block.insert(-1,'%s\n' % len(ghost_atoms))  
+            self.bs_block.insert(-1,' '.join([str(x) for x in ghost_atoms])+'\n' )   
+
+    def opt_to_sp(self):   
         
-        self.bs_block.insert(-1, 'GHOSTS\n')
-        self.bs_block.insert(-1,'%s\n' % len(ghost_atoms))  
-        self.bs_block.insert(-1,' '.join([str(x) for x in ghost_atoms])+'\n' )                
+        if 'OPTGEOM\n' in self.geom_block:
+            init = self.geom_block.index('OPTGEOM\n')
+            final = self.geom_block.index('END\n')
+            del self.geom_block[init:final+1]
+    
+    def sp_to_opt(self):           
+        if 'OPTGEOM\n' not in self.geom_block:
+            if self.is_basisset == True:
+                self.geom_block.append('OPTGEOM\n')
+                self.geom_block.append('END\n')
+            else:
+                self.geom_block.insert(-1, 'OPTGEOM\n')
+                self.geom_block.insert(-1, 'END\n')                
 
        
 '''###TESTING
@@ -704,7 +726,7 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
     #keyword in the geom_block. If it's not present, this means
     #adding it and keeping the rest of the input
     if external_obj != None:    
-        if 'EXTERNAL' not in geom_block:
+        if 'EXTERNAL\n' not in geom_block:
             new_geom_block = []
             if comment == None:
                 new_geom_block.append(geom_block[0])
@@ -716,13 +738,12 @@ def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_o
                     for line1 in geom_block[i+2:]:
                         new_geom_block.append(line1)
                     break      
-        geom_block = new_geom_block
+            geom_block = new_geom_block
         if 'ase.atoms' in  str(type(external_obj)):
             write_crystal(input_name[:-4]+'.gui',external_obj)
         elif 'pymatgen.core' in str(type(external_obj)):
-            #Convert to ase first
-            external_obj = AseAtomsAdaptor.get_atoms(external_obj)
-            write_crystal(input_name[:-4]+'.gui',external_obj)
+            gui_file_name = input_name[:-4]+'.gui'
+            write_cry_gui(gui_file_name, external_obj)
         else:
             print('EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
             sys.exit(1)
@@ -785,7 +806,7 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
             dimensionality = 2
             
         with open(gui_file, 'w') as file: 
-            
+
             atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
             
             #Is the structure symmetrysed?
@@ -793,7 +814,8 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                 atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
             
             if dimensionality == 3:
-                #First line (FIND WHAT THE FIRST LINE IS)
+                
+                #First line 
                 file.writelines('3   1   1\n')
                 
                 #Cell vectors
@@ -805,18 +827,18 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                 file.writelines('{}\n'.format(str(n_symmops)))
                 
                 #symm ops
-                for i in range(n_symmops):
-                    for symmops in np.array(SpacegroupAnalyzer(atoms_symm).get_point_group_operations(cartesian=True)[i].as_dict()['matrix'])[0:4,0:3]:    
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops)))
+                for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):  
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
 
             elif dimensionality == 2:
                 file.writelines('2   1   1\n')
-                
                 #Cell vectors
                 z_component = ['0.0000', '0.00000', '500.00000']
                 for i,vector in enumerate(atoms.lattice.matrix[0:3,0:2]):
-                    file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')
-                    
+                    file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')  
                 #Center the slab
                 #First center at z = 0.5
                 atoms = center_slab(atoms)
