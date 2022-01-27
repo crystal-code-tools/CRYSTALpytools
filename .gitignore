@@ -9,11 +9,16 @@
 #OsX stuff
 *.DS_Store
 
+#pip stuff
+dist/*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+*__init__.py
 
 # C extensions
 *.so
