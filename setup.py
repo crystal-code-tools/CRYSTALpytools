@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="crystal_functions",
-    version="2022.1.14",
+    version="2022.0.2",
     author="Bruno Camino",
     author_email="camino.bruno@gmail.com",
     description="Functions to be used with the CRYSTAL code.",
@@ -20,8 +20,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "crystal_functions"},
-    packages=setuptools.find_packages(where="functions"),
+    packages=find_packages(include=['crystal_functions', 'crystal_functions.*'])
     python_requires=">=3.6",
     install_requires=[
         "pymatgen",
