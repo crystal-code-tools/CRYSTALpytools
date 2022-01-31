@@ -1,7 +1,7 @@
 import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+long_description = ['This repository contains functions to be used with the
+<a href="https://www.crystal.unito.it/index.php">CRYSTAL code</a>.']
 
 setuptools.setup(
     name="crystal_functions",
@@ -20,7 +20,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=find_packages(include=['crystal_functions', 'crystal_functions.*'])
+    packages=setuptools.find_packages(include=['crystal_functions', 'crystal_functions.*']),
     python_requires=">=3.6",
     install_requires=[
         "pymatgen",
