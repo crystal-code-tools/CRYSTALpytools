@@ -12,3 +12,21 @@ def cry_ads_energy(E_full_system,E_substrate,E_adsorbate):
     return E_full_system-(E_substrate+E_adsorbate)
 
 
+def cry_shrink(structure,spacing=0.2):
+    #structure is a pymatgen Structure object
+    
+    import numpy as np
+
+    short_vector = np.min(np.array(structure.lattice.reciprocal_lattice.lengths))
+    
+    return int(np.ceil(short_vector/spacing))
+
+
+'''from pymatgen.core import Structure, Lattice
+from pymatgen.core.surface import SlabGenerator
+
+
+bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
+
+cry_shrink(bulk)'''
+
