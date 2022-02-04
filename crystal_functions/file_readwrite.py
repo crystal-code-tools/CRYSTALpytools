@@ -806,12 +806,15 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
             dimensionality = 2
             
         with open(gui_file, 'w') as file: 
-
-            atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
-            
-            #Is the structure symmetrysed?
-            if 'SymmetrizedStructure' not in str(type(atoms)):
-                atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
+            try:
+                atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
+                #Is the structure symmetrysed?
+                if 'SymmetrizedStructure' not in str(type(atoms)):
+                    atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
+                symmetry = True
+            except:
+                atoms_symm = atoms
+                symmetry = False
             
             if dimensionality == 3:
                 
@@ -823,15 +826,25 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                     file.writelines(' '.join(str(n) for n in vector)+'\n')
                     
                 #N symm ops
-                n_symmops = len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())
-                file.writelines('{}\n'.format(str(n_symmops)))
-                
-                #symm ops
-                for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):  
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
+                if symmetry == True:
+                    n_symmops = len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())
+
+                    file.writelines('{}\n'.format(str(n_symmops)))
+
+                    #symm ops
+                    for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
+                else:
+                    n_symmops = 1
+                    # symm ops
+                    identity = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,0.]])
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in identity[0])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
 
             elif dimensionality == 2:
                 file.writelines('2   1   1\n')
@@ -848,22 +861,31 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                 atoms.translate_sites(list(range(atoms.num_sites)),
                                              translation, to_unit_cell=False)
                 
-                #Remove symmops with z component
-                sg = SpacegroupAnalyzer(atoms)
-                ops = sg.get_symmetry_operations(cartesian=True)       
-                symmops = []
-                for op in ops:
-                    if op.translation_vector[2] == 0.:
-                        symmops.extend(op.rotation_matrix.tolist())
-                        symmops.extend([op.translation_vector.tolist()])  
-                
-                #N symm ops
-                n_symmops = int(len(symmops)/4)
-                file.writelines('{}\n'.format(n_symmops))
-                
-                #symm ops
-                for symmop in symmops:    
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmop)))
+                if symmetry == True:
+                    #Remove symmops with z component
+                    sg = SpacegroupAnalyzer(atoms)
+                    ops = sg.get_symmetry_operations(cartesian=True)
+                    symmops = []
+                    for op in ops:
+                        if op.translation_vector[2] == 0.:
+                            symmops.extend(op.rotation_matrix.tolist())
+                            symmops.extend([op.translation_vector.tolist()])
+
+                    #N symm ops
+                    n_symmops = int(len(symmops)/4)
+                    file.writelines('{}\n'.format(n_symmops))
+
+                    #symm ops
+                    for symmop in symmops:
+                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmop)))
+                else:
+                    n_symmops = 1
+                    # symm ops
+                    identity = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[0])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
                 
             #N atoms
             file.writelines('{}\n'.format(atoms.num_sites))
@@ -875,8 +897,10 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                 file.writelines('{} {}\n'.format(atomic_number,atom_coord))
                 
             #space group + n symm ops
-            file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
-           
+            if symmetry == True:
+                file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
+            else:
+                file.writelines('1 1')
             
 '''###TESTING
 from pymatgen.core import Structure, Lattice
@@ -907,7 +931,7 @@ class Density:
             data = file.readlines()
             file.close()
         except:
-            print('EXITING: a CRYSTAL .BAND file needs to be specified')
+            print('EXITING: a CRYSTAL .f98 file needs to be specified')
             sys.exit(1)
         
         #the keyword BASATO appears twice, this is a check to see which basato
@@ -1001,25 +1025,54 @@ class Density:
                     for coord in self.shell_coord:
                         self.shell_to_atom.append(self.atom_coord.index(coord))
                     basato1 = True
+
                       
                 
-                elif basato1 == False:
-                    pass
+                elif basato1 == True:
+                    self.basato2 = []
+                    j = i + 1
+                    while 'SPINOR' not in data[j].split()[0]:
+                        # The negative elements appear connected to the previous one
+                        # eg:  0.0000000000000E+00-1.0000000000000E+00
+                        # As opposite to the loops above where the float read was 20
+                        # characters long, this ones are 21
+                        # The line below fixes that issue
+                        self.basato2.extend([int(x) for x in data[j].split()])
+                        j += 1
+                    self.atom_shell = self.basato2[-n_shells:]
                                   
             elif re.match(r'^SPINOR', line):
                 self.f_irr = []
+                self.charges = []
+                self.spin = [0]*(2*n_atoms) #tmp
+                self.ghost = []
+                n_ghost = 0
+                n_spin_lines = int(np.ceil((n_atoms*2)/8))
+                n_charge_lines = int(np.ceil(n_atoms/4))
+                skip = n_spin_lines + n_charge_lines +1
+                if 'IGHOST' in data[i+n_spin_lines+1]:
+                    n_ghost = int(np.ceil((n_atoms)/8)) +1
+                    skip = skip + n_ghost
+                    for j in range(n_ghost-1):
+                        self.ghost.extend([float(x) for x in data[i + j + n_spin_lines + 2].split()])
                 f_irr_n_lines = int(np.ceil(f_irr_len/4))
+                for j in range(n_charge_lines):
+                    self.charges.extend([float(x) for x in data[i+j+n_spin_lines+n_ghost+1].split()])
+                    '''for item in range(0,int(len(data[i+skip+j])/21)):
+                        print(data[i+j+n_spin_lines+1])
+                        self.charges.append(float(data[i+j+n_spin_lines+1][(item)*21:(item+1)*21]))'''
                 for j in range(f_irr_n_lines):
                     #The negative elements appear connected to the previous one
                     #eg:  0.0000000000000E+00-1.0000000000000E+00
                     #As opposite to the loops above where the float read was 20
                     #characters long, this ones are 21
                     #The line below fixes that issue
-                    for item in range(0,int(len(data[i+3+j])/21)):
-                        self.f_irr.append(float(data[i+3+j][(item)*21:(item+1)*21]))    
+                    for item in range(0,int(len(data[i+skip+j])/21)):
+                        self.f_irr.append(float(data[i+skip+j][(item)*21:(item+1)*21]))    
                 self.p_irr = []
                 p_irr_n_lines = int(np.ceil(p_irr_len/4))
-                for k in range(i+4+j,i+4+j+p_irr_n_lines):
+                skip += 1
+                for k in range(i+skip+j,i+skip+j+p_irr_n_lines):
                     #The negative elements appear connected to the previous one
                     #eg:  0.0000000000000E+00-1.0000000000000E+00
                     #As opposite to the loops above where the float read was 20
@@ -1040,6 +1093,20 @@ class Density:
                     #characters long, this ones are 21
                     #The line below fixes that issue
                     self.ncf.extend([int(x) for x in data[j].split()])
+                    j += 1
+
+            elif re.match(r'^NSTATG', line):
+                #The nstatg vector contains the pointers to the starting point
+                #of each couple set in P_irr and F_irr
+                self.nstatg = []
+                j = i+1
+                while 'NSTAFG' not in data[j].split()[0]:
+                    #The negative elements appear connected to the previous one
+                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    #As opposite to the loops above where the float read was 20
+                    #characters long, this ones are 21
+                    #The line below fixes that issue
+                    self.nstatg.extend([int(x) for x in data[j].split()])
                     j += 1
                     
             elif re.match(r'^  NNNC', line):
@@ -1086,13 +1153,110 @@ class Density:
                     #The line below fixes that issue
                     self.la4.extend([int(x) for x in data[j].split()])
                     j += 1           
-        #print(self.ncf)
+        return self
                                      
             #elif re.match('', line):
             #elif re.match('', line):
         
-'''###TESTING  
-#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
-H_density =  Density('examples/data/mgo.f98').cry_read_density()     '''
+                
+def cry_combine_density(density1,density2,density3,new_density='new_density.f98'):
+    import sys
+    import numpy as np
     
+    try:
+        '''file = open(density1, 'r')
+        density1_data = file.readlines()
+        file.close()
+        file = open(density2, 'r')
+        density2_data = file.readlines()
+        file.close()'''
+        density1_data = Density(density1).cry_read_density() #substrate
+        density2_data = Density(density2).cry_read_density()
+        file = open(density3, 'r')
+        density3_data = file.readlines()
+        file.close()
+    except:
+        print('EXITING: a CRYSTAL .f98 file needs to be specified')
+        sys.exit(1)
+
+    #Find P_irr <-> atom correspondence
+    fragment_1 = []
+    fragment_2 = []
+
+    for i,j in enumerate(density1_data.ncf):
+        #density1_data.la3[j] is the shell number
+        #density1_data.atom_shell[density1_data.la3[j]] is the atom position number (1-6)
+        #density1_data.ghost[density1_data.atom_shell[density1_data.la3[j]]] is either 0 or atomic number depending on ghost or not
+        #This tells me if the shell belongs to this fragment
+        n_elements = density1_data.nstatg[i] - density1_data.nstatg[i - 1]
+
+        #print(i, j, len(density1_data.la3), len(density1_data.la4), len(density1_data.atom_shell),
+              #len(density1_data.ghost))
+        '''print(i, j,
+              density1_data.la3[j-1],
+              density1_data.la4[j-1],
+              density1_data.atom_shell[density1_data.la3[j-1]-1],
+              density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1])'''
+        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] != 0 and \
+            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] != 0:
+            fragment_1.extend([True]*n_elements)
+        else:
+            fragment_1.extend([False]*n_elements)
+        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] == 0 and \
+            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] == 0:
+            fragment_2.extend([True]*n_elements)
+        else:
+            fragment_2.extend([False]*n_elements)
+    '''for i in range(len(fragment_2)):
+        if fragment_1[i] == True and fragment_2==True:
+            print(fragment_1[i],fragment_2[i])'''
+    beginning = density3_data.index('SPINOR\n')
+    end = density3_data.index('   NCF\n')
+    sum_density = np.array(density1_data.p_irr)+np.array(density2_data.p_irr)
+    sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
+    sum_charges = np.array(density1_data.charges)+np.array(density2_data.charges)
+    spinor = ['SPINOR\n']
+    charges = []
+    fock = []
+    density = []
+    new_fock = sum_fock #TMP
+    new_fock = [0] * len(density1_data.f_irr)
+    new_p = []
+    #print(len(density2_data.f_irr),len(fragment_1))
+    for i in range(len(fragment_1)):
+        if fragment_1[i] == True and fragment_2[i] == False:
+            #new_fock.append(density1_data.f_irr[i])
+            new_p.append(density1_data.p_irr[i])
+        elif fragment_1[i] == False and fragment_2[i] == True:
+            ##new_fock.append(density2_data.f_irr[i])
+            new_p.append(density2_data.p_irr[i])
+        elif fragment_1[i] == False and fragment_2[i] == False:
+            #new_fock.append(0.)
+            new_p.append(sum_density[i])
+
+    for i in range(0,len(density1_data.spin),8):
+        spinor.append(' '.join([str(x) for x in density1_data.spin[i:i+8]])+'\n')
+    for i in range(0,len(sum_charges),4):
+        charges.append(' '.join([str(x) for x in sum_charges[i:i+4]])+'\n')
+    for i in range(0,len(new_fock),4):
+        fock.append(' '.join([str(x) for x in new_fock[i:i+4]])+'\n')
+    for i in range(0,len(new_p),4):
+        density.append(' '.join([str(x) for x in new_p[i:i+4]])+'\n')
+    
+    final_fort98 = density3_data[0:beginning]+spinor+charges+fock+density+density3_data[end:] 
+    with open(new_density, 'w') as file:
+        for line in final_fort98:
+            file.writelines(line)
+            
+'''###TESTING
+#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
+#H_density =  Density('examples/data/mgo.f98').cry_read_density()     
+#ghost_density = Density('../examples/data/Mg2O2_O1_100_1.f98').cry_read_density()
+#ghost_density = Density('../examples/data/Mg2O2_O1_100_1_BSSE_ads.f98').cry_read_density()
+#print(ghost_density.charges)
+density1 = '../examples/data/density/substrate.f98'
+density2 = '../examples/data/density/adsorbate.f98'
+density3 = '../examples/data/density/system.f98'
+cry_combine_density(density1,density2,density3,'../examples/data/density/new_density.f98')'''
+
     
