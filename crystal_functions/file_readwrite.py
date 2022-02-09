@@ -27,15 +27,18 @@ class Crystal_input:
             sys.exit(1)
         
         if 'BASISSET\n' in data:
-            end_index = []                
-            end_index.append(data.index('BASISSET\n')-1)
-            end_index.append(data.index('BASISSET\n')+1)
-            end_index.extend([i for i, s in enumerate(data[end_index[1]:]) if 'END' in s])
+            end_index = []
+            if 'OPTGEOM\n' in data:
+                end_index = [i for i, s in enumerate(data) if 'END' in s]
+                end_index.insert(1,data.index('BASISSET\n')+1)
+            else:
+                end_index.append(data.index('BASISSET\n')-1)
+                end_index.append(data.index('BASISSET\n')+1)
+                end_index.extend([i for i, s in enumerate(data[end_index[1]:]) if 'END' in s])
             self.is_basisset = True
         else:        
             end_index = [i for i, s in enumerate(data) if 'END' in s]
             self.is_basisset = False
-        
         self.geom_block = []
         #self.optgeom_block = []
         self.bs_block = []
@@ -81,7 +84,7 @@ class Crystal_input:
         if self.is_basisset == True:
             self.bs_block.append('GHOSTS\n')
             self.bs_block.append('%s\n' % len(ghost_atoms))  
-            self.bs_block.append(' '.join([str(x) for x in ghost_atoms])+'\n' )   
+            self.bs_block.append(' '.join([str(x) for x in ghost_atoms])+'\n' )
         else:
             self.bs_block.insert(-1, 'GHOSTS\n')
             self.bs_block.insert(-1,'%s\n' % len(ghost_atoms))  
@@ -145,7 +148,7 @@ class Crystal_output:
         
         if self.converged == False:
             self.eoo = len(self.data)
-            print('WARNING: the calculation did not converge. Proceed with care!')
+            #print('WARNING: the calculation did not converge. Proceed with care!')
 
             
         
@@ -199,7 +202,15 @@ class Crystal_output:
         
         return self.scf_energy, self.scf_deltae
 
-    
+
+    def num_cycles(self):
+        import re
+
+        for line in self.data[::-1]:
+            if re.match(r'^ CYC ', line):
+                self.num_cycles = int(line.split()[1])
+                return self.num_cycles
+
     def fermi_energy(self):
 
         import re
@@ -229,6 +240,10 @@ class Crystal_output:
                 for j,line1 in enumerate(self.data[:i:-1]):
                     if re.match(r'^   FERMI ENERGY:',line1) != None:
                         self.efermi = float(line1.split()[2])*27.2114
+                        self.efermi_from = 'scf'
+                        break
+                    if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI',line1) != None:
+                        self.efermi = float(line1.split()[5]) * 27.2114
                         self.efermi_from = 'scf'
                         break
                 if self.efermi == None:
@@ -804,103 +819,109 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
     elif 'pymatgen' in str(type(atoms)):
         if 'Slab' in str(type(atoms)):
             dimensionality = 2
-            
-        with open(gui_file, 'w') as file: 
-            try:
-                atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
-                #Is the structure symmetrysed?
-                if 'SymmetrizedStructure' not in str(type(atoms)):
-                    atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
-                symmetry = True
-            except:
-                atoms_symm = atoms
-                symmetry = False
-            
-            if dimensionality == 3:
-                
-                #First line 
-                file.writelines('3   1   1\n')
-                
-                #Cell vectors
-                for vector in atoms.lattice.matrix:
-                    file.writelines(' '.join(str(n) for n in vector)+'\n')
-                    
-                #N symm ops
-                if symmetry == True:
-                    n_symmops = len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())
 
-                    file.writelines('{}\n'.format(str(n_symmops)))
+    #Save the coordinates before symmetry transformations
+    atomic_numbers = []
+    atom_coords = []
+    for i in range(atoms.num_sites):
+        atomic_numbers.append(atoms.atomic_numbers[i])
+        atom_coords.append(' '.join(str(np.around(n, 5)) for n in atoms.cart_coords[i]))
 
-                    #symm ops
-                    for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
-                else:
-                    n_symmops = 1
-                    # symm ops
-                    identity = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,0.]])
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in identity[0])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
+    with open(gui_file, 'w') as file:
+        try:
+            atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
+            #Is the structure symmetrysed?
+            if 'SymmetrizedStructure' not in str(type(atoms)):
+                atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
+            symmetry = True
+        except:
+            atoms_symm = atoms
+            symmetry = False
 
-            elif dimensionality == 2:
-                file.writelines('2   1   1\n')
-                #Cell vectors
-                z_component = ['0.0000', '0.00000', '500.00000']
-                for i,vector in enumerate(atoms.lattice.matrix[0:3,0:2]):
-                    file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')  
-                #Center the slab
-                #First center at z = 0.5
-                atoms = center_slab(atoms)
-                
-                #Then center at z=0.0
-                translation = np.array([0.0, 0.0, -0.5])
-                atoms.translate_sites(list(range(atoms.num_sites)),
-                                             translation, to_unit_cell=False)
-                
-                if symmetry == True:
-                    #Remove symmops with z component
-                    sg = SpacegroupAnalyzer(atoms)
-                    ops = sg.get_symmetry_operations(cartesian=True)
-                    symmops = []
-                    for op in ops:
-                        if op.translation_vector[2] == 0.:
-                            symmops.extend(op.rotation_matrix.tolist())
-                            symmops.extend([op.translation_vector.tolist()])
+        if dimensionality == 3:
 
-                    #N symm ops
-                    n_symmops = int(len(symmops)/4)
-                    file.writelines('{}\n'.format(n_symmops))
+            #First line
+            file.writelines('3   1   1\n')
 
-                    #symm ops
-                    for symmop in symmops:
-                        file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmop)))
-                else:
-                    n_symmops = 1
-                    # symm ops
-                    identity = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[0])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
-                    file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
-                
-            #N atoms
-            file.writelines('{}\n'.format(atoms.num_sites))
-        
-            #atom number + coordinates cart
-            for i in range(atoms.num_sites):
-                atomic_number = atoms.atomic_numbers[i]
-                atom_coord = ' '.join(str(np.around(n,5)) for n in atoms.cart_coords[i])
-                file.writelines('{} {}\n'.format(atomic_number,atom_coord))
-                
-            #space group + n symm ops
+            #Cell vectors
+            for vector in atoms.lattice.matrix:
+                file.writelines(' '.join(str(n) for n in vector)+'\n')
+
+            #N symm ops
             if symmetry == True:
-                file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
+                n_symmops = len(SpacegroupAnalyzer(atoms_symm).get_space_group_operations())
+
+                file.writelines('{}\n'.format(str(n_symmops)))
+
+                #symm ops
+                for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
             else:
-                file.writelines('1 1')
+                n_symmops = 1
+                # symm ops
+                identity = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,0.]])
+                file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in identity[0])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
+
+        elif dimensionality == 2:
+            file.writelines('2   1   1\n')
+            #Cell vectors
+            z_component = ['0.0000', '0.00000', '500.00000']
+            for i,vector in enumerate(atoms.lattice.matrix[0:3,0:2]):
+                file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')
+            #Center the slab
+            #First center at z = 0.5
+            atoms = center_slab(atoms)
+
+            #Then center at z=0.0
+            translation = np.array([0.0, 0.0, -0.5])
+            atoms.translate_sites(list(range(atoms.num_sites)),
+                                         translation, to_unit_cell=False)
+
+            if symmetry == True:
+                #Remove symmops with z component
+                sg = SpacegroupAnalyzer(atoms)
+                ops = sg.get_symmetry_operations(cartesian=True)
+                symmops = []
+                for op in ops:
+                    if op.translation_vector[2] == 0.:
+                        symmops.extend(op.rotation_matrix.tolist())
+                        symmops.extend([op.translation_vector.tolist()])
+
+                #N symm ops
+                n_symmops = int(len(symmops)/4)
+                file.writelines('{}\n'.format(n_symmops))
+
+                #symm ops
+                for symmop in symmops:
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmop)))
+            else:
+                n_symmops = 1
+                # symm ops
+                identity = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[0])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
+
+        #N atoms
+        file.writelines('{}\n'.format(atoms.num_sites))
+
+        #atom number + coordinates cart
+        print(atomic_numbers,atom_coords)
+        for i in range(atoms.num_sites):
+            file.writelines('{} {}\n'.format(atomic_numbers[i],atom_coords[i]))
+
+        #space group + n symm ops
+        if symmetry == True:
+            file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(),len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
+        else:
+            file.writelines('1 1')
             
 '''###TESTING
 from pymatgen.core import Structure, Lattice
@@ -1172,6 +1193,7 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
         file.close()'''
         density1_data = Density(density1).cry_read_density() #substrate
         density2_data = Density(density2).cry_read_density()
+        density3_data_obj = Density(density2).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
         file.close()
@@ -1197,13 +1219,13 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
               density1_data.la4[j-1],
               density1_data.atom_shell[density1_data.la3[j-1]-1],
               density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1])'''
-        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] != 0 and \
-            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] != 0:
+        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] == 0 and \
+            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] == 0:
             fragment_1.extend([True]*n_elements)
         else:
             fragment_1.extend([False]*n_elements)
-        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] == 0 and \
-            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] == 0:
+        if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] != 0 and \
+            density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] != 0:
             fragment_2.extend([True]*n_elements)
         else:
             fragment_2.extend([False]*n_elements)
@@ -1215,6 +1237,7 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
     sum_density = np.array(density1_data.p_irr)+np.array(density2_data.p_irr)
     sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
     sum_charges = np.array(density1_data.charges)+np.array(density2_data.charges)
+    #sum_charges = [12.,12.,8.,8.,8,8.]
     spinor = ['SPINOR\n']
     charges = []
     fock = []
@@ -1233,15 +1256,17 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
         elif fragment_1[i] == False and fragment_2[i] == False:
             #new_fock.append(0.)
             new_p.append(sum_density[i])
+            #new_p.append(0.)
+            #new_p.append(density3_data_obj.p_irr[i])
 
     for i in range(0,len(density1_data.spin),8):
         spinor.append(' '.join([str(x) for x in density1_data.spin[i:i+8]])+'\n')
     for i in range(0,len(sum_charges),4):
-        charges.append(' '.join([str(x) for x in sum_charges[i:i+4]])+'\n')
+        charges.append(' '.join(["{:.13e}".format(x) for x in sum_charges[i:i+4]])+'\n')
     for i in range(0,len(new_fock),4):
-        fock.append(' '.join([str(x) for x in new_fock[i:i+4]])+'\n')
+        fock.append(' '.join(["{:.13e}".format(x) for x in new_fock[i:i+4]])+'\n')
     for i in range(0,len(new_p),4):
-        density.append(' '.join([str(x) for x in new_p[i:i+4]])+'\n')
+        density.append(' '.join(["{:.13e}".format(x) for x in new_p[i:i+4]])+'\n')
     
     final_fort98 = density3_data[0:beginning]+spinor+charges+fock+density+density3_data[end:] 
     with open(new_density, 'w') as file:
