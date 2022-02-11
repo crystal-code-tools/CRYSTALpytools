@@ -5,19 +5,24 @@ This repository contains functions to be used with the
 This is a work in progress, if you would like to contribute please get in touch with camino.bruno@gmail.com.
 
 ## Installation
-A list of the dependecies used by crystal_functions can be found in this file.
-
-### conda
-To install crystal_functions using conda, please use:
-```console
-conda install -c crystal-python-tools crystal_functions
-```
+The current release works for python<= 3.9.
+crystal_functions will require <a href="https://pymatgen.org/index.html">pymatgen</a> to be installed
+in the environment where you are running the functions.
 
 ### pip
 To install crystal_functions using pip, please use:
 ```console
+pip install pymatgen
 pip install crystal_functions
 ```
+
+### conda
+To install crystal_functions using conda, please use:
+```console
+conda install -c conda-forge pymatgen
+conda install -c crystal-python-tools crystal_functions
+```
+
 Please note that both conda and pip will only install the functions and not the example notebooks. This decision was taken in order to reduce the volume of data transferred when installing. If you are interested in the example notebooks please read the section below.
 
 ## Examples
@@ -31,4 +36,5 @@ from crystal_functions.file_read_write import Crystal_output
 
 Crystal_output('output_name.out')
 ```
+
 Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a crystal_functions function and not, for example, a pymatgen one with a similar name.
