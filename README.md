@@ -5,6 +5,7 @@ This repository contains functions to be used with the
 This is a work in progress, if you would like to contribute please get in touch with camino.bruno@gmail.com.
 
 ## Installation
+The current release works for python<= 3.9.
 crystal_functions will require <a href="https://pymatgen.org/index.html">pymatgen</a> to be installed
 in the environment where you are running the functions.
 

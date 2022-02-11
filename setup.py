@@ -1,11 +1,11 @@
 import setuptools
 
-long_description = ['This repository contains functions to be used with the
-<a href="https://www.crystal.unito.it/index.php">CRYSTAL code</a>.']
+long_description = 'This repository contains functions to be used with the\
+ <a href="https://www.crystal.unito.it/index.php">CRYSTAL code</a>.'
 
 setuptools.setup(
     name="crystal_functions",
-    version="2022.0.2",
+    version="2022.1.1",
     author="Bruno Camino",
     author_email="camino.bruno@gmail.com",
     description="Functions to be used with the CRYSTAL code.",
@@ -21,8 +21,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(include=['crystal_functions', 'crystal_functions.*']),
-    python_requires=">=3.6",
+    #python_requires=">=3.8",
     install_requires=[
-        "pymatgen",
-        ]
+	"pymatgen"
+    ]
 )
