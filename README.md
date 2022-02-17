@@ -14,15 +14,6 @@ The current release works for python<= 3.9.
 crystal_functions will require <a href="https://pymatgen.org/index.html">pymatgen</a> to be installed
 in the environment where you are running the functions.
 
-If you intend to run CRYSTAL on the machine where you are running
-the crystal_functions, the path to your local runcry amd runprop needs to be specified. To do so, please run the set_runcry_path and set_runprop_path functions:
-```console
-python 3
-from crystal_functions.execute import set_runcry_path, set_runprop_path 
-set_runcry_path('path_to_your_runcry')
-set_runprop_path('path_to_your_runcry')
-```
-
 ### pip
 To install crystal_functions using pip, please use:
 ```console
@@ -38,6 +29,15 @@ conda install -c crystal-python-tools crystal_functions
 ```
 
 Please note that both conda and pip will only install the functions and not the example notebooks. This decision was taken in order to reduce the volume of data transferred when installing. If you are interested in the example notebooks please read the section below.
+
+If you intend to run CRYSTAL on the machine where you are running
+the crystal_functions, the path to your local runcry amd runprop needs to be specified. To do so, please run the set_runcry_path and set_runprop_path functions:
+```console
+python 3
+from crystal_functions.execute import set_runcry_path, set_runprop_path
+set_runcry_path('path_to_your_runcry')
+set_runprop_path('path_to_your_runcry')
+```
 
 ## Examples
 Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in file_read_write.py are explained in the example/file_read_write.ipynb notebook).
