@@ -172,7 +172,7 @@ Adds the OPTGEOM part to the input.
 <h6>primitive_lattice(initial=True)</h6>
 <b>Parameters</b>
 <ul>
-<li> <b><initial</b>: initial (True) or optimised primitive lattice (False)
+<li> <b>initial</b>: initial (True) or optimised primitive lattice (False)
 </ul>
 <b>Properties</b>
 <ul>
@@ -182,7 +182,7 @@ Adds the OPTGEOM part to the input.
 <h6>reciprocal_lattice(initial=True)</h6>
 <b>Parameters</b>
 <ul>
-<li> <b><initial</b>: initial (True) or optimised reciprocal lattice (False)
+<li> <b>initial</b>: initial (True) or optimised reciprocal lattice (False)
 </ul>
 <b>Properties</b>
 <ul>
@@ -249,9 +249,6 @@ To use after a SCELCONF calculation.
 <ul>
 <li> <b></b>:
 </ul>
-
-
-
 
 <h3>plot</h3>
 <ul>
