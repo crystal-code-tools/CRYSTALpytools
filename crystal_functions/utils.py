@@ -3,7 +3,15 @@
 """
 Created on 29/03/2022
 
-@author: brunocamino
 """
 
-def help():
+def help(folder='./'):
+    
+    import os.path
+
+    if os.path.isfile(os.path.join(folder,'help.txt')):
+        print ("Display the txt file")
+    elif os.path.isfile(os.path.join(folder,'help.md')) or os.path.isfile(os.path.join(folder,'help.html')):
+        print ("Display the md text")
+    elif os.path.isfile(os.path.join(folder,'help.jpg')) or os.path.isfile(os.path.join(folder,'help.png')):
+        print ("Display the image")
