@@ -7,10 +7,8 @@ Created on Wed Dec  8 15:35:48 2021
 """
 
 def cry_newk(shrink1,shrink2,Fermi=1,print_option=0,title=None):
-    
     newk_block = ['NEWK\n','%s %s\n' %(shrink1,shrink2),
                   '%s %s\n'%(Fermi,print_option)]
-    
     return newk_block
     
 def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
@@ -72,21 +70,8 @@ def cry_bands(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
 '''###TESTING
 k_path = [[0,0,0],[0.5,0,0],[0.5,0.5,0.5],[0.25,0,0.5]]
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer'''
 
-
-
-from cry_file_readwrite import Crystal_output
-from cry_convert import cry_out2pmg
-
-mgo = Crystal_output('examples/data/mgo.out')
-mgo = cry_out2pmg(mgo)
-mgo_prim = SpacegroupAnalyzer(mgo).get_primitive_standard_structure(international_monoclinic=False)
-
-#display(HighSymmKpath(mgo_prim).kpath['path'])
-k_path = HighSymmKpath(mgo_prim)
-
-cry_bands(k_path,200,1,26)'''
 
 
 def cry_doss(n_points=200,band_range=None,e_range=None,plotting_option=2,
@@ -128,11 +113,10 @@ print(cry_doss(e_range=[-5,10]))'''
 
 def cry_pdoss(projections,proj_type='atom',output_file=None,n_points=200,band_range=None,
               e_range=None,plotting_option=2,poly=12,print_option=1):
+
     #projections is a list of lists
-    
     import sys
-    from cry_file_readwrite import Crystal_output
-    
+    from crystal_functions.file_readwrite import Crystal_output
     pdoss_block = []
     if band_range == None and e_range == None:
         print('EXITING: please specify either band_range or e_range. None selected')

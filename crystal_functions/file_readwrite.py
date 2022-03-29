@@ -3,8 +3,6 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 
-@authors: brunocamino
-
 TO DO:
 - write_cry_input: add symmetry via pymatgen
 """
@@ -117,12 +115,12 @@ mgo.add_ghost([1,2,3])
 
 class Crystal_output:
 #This class reads a CRYSTAL output and generates an object
-    
+
     def __init__(self,output_name):
-        
+
         import sys
         import re
-        
+
         self.name = output_name
         #Check if the file exists
         try: 
@@ -137,7 +135,7 @@ class Crystal_output:
 
         #Check the calculation converged
         self.converged = False
-        
+
         for i,line in enumerate(self.data[::-1]):
             if re.match(r'^ EEEEEEEEEE TERMINATION',line):
                 self.converged = True
@@ -150,7 +148,6 @@ class Crystal_output:
             self.eoo = len(self.data)
             #print('WARNING: the calculation did not converge. Proceed with care!')
 
-            
         
         
     def final_energy(self): 
@@ -189,8 +186,8 @@ class Crystal_output:
             
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY',line):
                 if all_cycles == False:
-                    self.scf_energy = np.array(scf_energy)
-                    self.scf_deltae = np.array(scf_deltae)
+                    self.scf_energy = np.array(scf_energy)*27.2114
+                    self.scf_deltae = np.array(scf_deltae)*27.2114
                     
                     return self.scf_energy, self.scf_deltae
                 
@@ -204,12 +201,13 @@ class Crystal_output:
 
 
     def num_cycles(self):
+
         import re
 
         for line in self.data[::-1]:
             if re.match(r'^ CYC ', line):
-                self.num_cycles = int(line.split()[1])
-                return self.num_cycles
+                self.num_cycles_scf = int(line.split()[1])
+                return self.num_cycles_scf
 
     def fermi_energy(self):
 
@@ -361,11 +359,10 @@ class Crystal_output:
         for i,line in enumerate(self.data):
             if re.match(r' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL',line):
                 trans_matrix_flat = [float(x) for x in self.data[i+1].split()]
-                break
-        self.trans_matrix = []
-        for i in range(0,len(trans_matrix_flat),3):
-            self.trans_matrix.append(trans_matrix_flat[i:i+3])
-        self.trans_matrix = np.array(self.trans_matrix)
+                self.trans_matrix = []
+                for i in range(0,len(trans_matrix_flat),3):
+                    self.trans_matrix.append(trans_matrix_flat[i:i+3])
+                self.trans_matrix = np.array(self.trans_matrix)
         
         
         for i,line in enumerate(self.data[len(self.data)::-1]):
@@ -392,6 +389,7 @@ class Crystal_output:
                 self.cart_coords = np.array(self.cart_coords)
                 
                 if print_cart == True:
+
                     print(self.cart_coords)
                 
                 if write_gui_file == True:                                    
@@ -425,76 +423,6 @@ class Crystal_output:
                     with open(gui_file[:-4]+'_last.gui','w') as file:
                         for line in gui_data:
                             file.writelines(line)
-                
-                
-                    
-                
-                #THIS WRITES A GUI WITH WRONG SYMMOPS - MULTIPLY BY THE TRANSFORMATION MATRIX
-                #I am leaving it here in case in the future I want to do some more work on this
-                #Write the gui file 
-                #This is a duplication from write_gui, but the input is different
-                '''if self.name[-3:] == 'out':
-                    gui_file = self.name[:-4]+'_last.gui'
-            
-                elif self.name[-4:] == 'outp':
-                    gui_file = self.name[:-5]+'_last.gui'
-                else:
-                    gui_file = self.name+'_last.gui'
-                
-                with open(gui_file, 'w') as file:    
-
-                    #First line (FIND WHAT THE FIRST LINE IS)
-                    file.writelines('3   5   6\n')
-                    
-                    #Cell vectors
-                    for vector in self.primitive_lattice():
-                        file.writelines(' '.join(str(n) for n in vector)+'\n')
-                    
-                    #Get the symmops
-                    self.symm_ops() 
-                    
-                    #N symm ops
-                    file.writelines('{}\n'.format(self.n_symmpos))
-                    
-                    #symm ops
-                    symmops_flat_list = [item for sublist in self.symmops for item in sublist]
-                    for i in range(0,self.n_symmpos*12,3):
-                        file.writelines('{}\n'.format(' '.join(symmops_flat_list[i:i+3])))
-                    
-                    #Multiply by the trans matrix
-                    rot_ops = []
-                    
-                        
-                    
-                    #N atoms
-                    file.writelines('{}\n'.format(self.n_atoms))
-                    
-                    #atom number + coordinates cart
-                    for i in range(self.n_atoms):
-                        file.writelines('{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions[i])))
-                    
-                    #space group + n symm ops
-                    #I need to change this
-                    self.space_group = 225
-                    file.writelines('{} {}'.format(self.space_group,self.n_symmpos))
-                return self.atom_positions'''
-                #Write the gui file
-                
-                '''print('File %s written' % (out_name))
-                
-                if print_cart == True:
-                    print('\n Cartesian coordinates:\n')
-                    atoms[:,0] = atomic_numbers
-                    if float(a) < 500:
-                        atoms[:,1] = atoms[:,1].astype('float')*float(a)
-                    if float(b) < 500:
-                        atoms[:,2] = atoms[:,2].astype('float')*float(b)
-                    if float(c) < 500:
-                        atoms[:,3] = atoms[:,3].astype('float')*float(c)
-                    
-                    for i in atoms:
-                        print(' '.join(i))
-                return None'''
         
     def symm_ops(self):
         import re
@@ -562,10 +490,70 @@ class Crystal_output:
                         self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
                     self.forces_atoms = np.array(self.forces_atoms)
                     return self.forces_atoms, self.forces_cell
-                
-                
-'''###TESTING
-a = Crystal_output('examples/data/mgo_optgeom.out')
+
+    def config_analysis(self):
+        import re
+        import numpy as np
+
+        try:
+            begin = self.data.index('                             CONFIGURATION ANALYSIS\n')
+        except:
+            return "WARNING: this is not a CONFCNT analysis."
+
+        for i,line in enumerate(self.data[begin:]):
+            if re.match(r'^ COMPOSITION', line):
+                self.n_classes = line.split()[9]
+                original_atom = str(line.split()[2])
+                begin = begin+i
+
+        non_subs = []
+        subs = []
+        class_index = []
+        config_list = []
+
+        #config_list.extend(line.split() for line in self.data[begin:])
+        for line in self.data[begin:]:
+            if not re.match(r'^   WARNING', line):
+                config_list.extend(line.split())
+        #config_list = [item for sublist in config_list for item in sublist]
+        config_list = np.array(config_list)
+        warning = np.where(config_list == 'WARNING')
+        config_list = np.delete(config_list,warning)
+        atom1_begin = np.where(config_list == original_atom)[0]
+        atom1_end = np.where(config_list == '--------------------------------------------------------------------------')[0]
+        atom2_begin = np.where(config_list == 'XX')[0]
+        atom2_end = np.where(config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
+        end = np.where(config_list == '===============================================================================')[0][-1]
+        atom2_end = np.append(atom2_end,end)
+        atom_type1 = []
+        atom_type2 = []
+        config_list = config_list.tolist()
+        #print(len(atom1_begin),len(atom2_begin),len(atom1_end),len(atom2_end))
+        for i in range(len(atom1_end)):
+            #print(i,atom2_begin[i],atom2_end[i],config_list[atom2_begin[i]],config_list[atom2_end[i]])
+            atom_type1.append([int(x) for x in config_list[atom1_begin[i+1]+1:atom1_end[i]]])
+            atom_type2.append([int(x) for x in config_list[atom2_begin[i]+1:atom2_end[i]]])
+
+        self.atom_type1 = atom_type1
+        self.atom_type2 = atom_type2
+        #print(atom_type1)
+        #print(config_list)
+        #print(np.where(config_list == 'TI')[0])
+
+
+        '''non_subs = []
+        subs = []
+        class_index = []
+        for i, line in enumerate(self.data[begin:]):
+            if line.split()[0] == 'CLASS':
+                class_index.append(begin+i)
+        print(self.data[class_index[0]])'''
+
+
+###TESTING
+#a = Crystal_output('../examples/data/mgo_optgeom.out')
+#a = Crystal_output('../examples/data/LTS_CONFCNT_ONLY')
+#print(a.config_analysis())
 #print('final_energy\n',a.final_energy())
 #print('fermi\n',a.fermi_energy())
 #print('primitive\n',a.primitive_lattice(initial=False))
@@ -578,27 +566,30 @@ a = Crystal_output('examples/data/mgo_optgeom.out')
 #print('grad\n',a.grad)
 #print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
 
-class Crystal_bands:
-    #This class contains the bands objects created from reading the 
-    #band files created by different electronic structure codes
-    #Returns an array where the band energy is expressed in eV
-    
-    def __init__(self,band_file):
-        self.file_name = band_file
-    
-    #def read_cry_band(self):
-        import sys
-        import numpy as np
-        import re
+class Crystal_properties:
+
+    def __init__(self,properties_output):
+       
+        self.file_name = properties_output
     
         try: 
             file = open(self.file_name, 'r')
-            data = file.readlines()
+            self.data = file.readlines()
             file.close()
         except:
             print('EXITING: a CRYSTAL .BAND file needs to be specified')
             sys.exit(1)
-        
+
+    def read_bands(self):
+        #This class contains the bands objects created from reading the 
+        #band files created by different electronic structure codes
+        #Returns an array where the band energy is expressed in eV
+
+        import re
+        import numpy as np
+
+        data = self.data
+            
         #Read the information about the file
         self.n_kpoints = int(data[0].split()[2])
         self.n_bands = int(data[0].split()[4])
@@ -648,30 +639,19 @@ class Crystal_bands:
         self.bands[1:,:,:] = self.bands[1:,:,:]*27.2114
           
     
-'''###TESTING
-mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
-mgo_file = mgo_bands.read_cry_band()
-print(mgo_file.bands[-1,0,0])
-print(mgo_file.tick_position[-1])'''
+    '''###TESTING
+    mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
+    mgo_file = mgo_bands.read_cry_band()
+    print(mgo_file.bands[-1,0,0])
+    print(mgo_file.tick_position[-1])'''
 
-class Crystal_doss:
-    
-    def __init__(self, doss_file):
-        self.file_name = doss_file
-    
     def read_cry_doss(self):
-        import sys
-        import numpy as np
-    
-    
-        try: 
-            file = open(self.file_name, 'r')
-            data = file.readlines()
-            file.close()
-        except:
-            print('EXITING: a CRYSTAL .DOSS file needs to be specified')
-            sys.exit(1)
         
+        import re
+        import numpy as np
+
+        data = self.data
+
         #Read the information about the file
         self.n_energy = int(data[0].split()[2])
         self.n_proj = int(data[0].split()[4])
@@ -697,6 +677,10 @@ class Crystal_doss:
         self.doss[0,:,:] = self.doss[0,:,:]*27.2114
         
         return self 
+    
+    def read_cry_contour(self):
+        #Ale C's function to read contour data
+        pass
     
 
         
@@ -800,7 +784,7 @@ def write_cry_properties(input_name,property_block,newk=False):
         for line in property_input:
             file.writelines(line)
             
-def write_cry_gui(gui_file,atoms,dimensionality=3):
+def write_cry_gui(gui_file,atoms,dimensionality=3,symm=True):
     #gui_file is the name of the gui that is going to be written (including .gui)
     #atoms is the structure object from ase or pymatgen
     
@@ -828,13 +812,22 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
         atom_coords.append(' '.join(str(np.around(n, 5)) for n in atoms.cart_coords[i]))
 
     with open(gui_file, 'w') as file:
-        try:
-            atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
-            #Is the structure symmetrysed?
-            if 'SymmetrizedStructure' not in str(type(atoms)):
-                atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
-            symmetry = True
-        except:
+        if symm == True:
+            try:
+                atoms = SpacegroupAnalyzer(atoms).get_primitive_standard_structure()
+                atomic_numbers = []
+                atom_coords = []
+                for i in range(atoms.num_sites):
+                    atomic_numbers.append(atoms.atomic_numbers[i])
+                    atom_coords.append(' '.join(str(np.around(n, 5)) for n in atoms.cart_coords[i]))
+                #Is the structure symmetrysed?
+                if 'SymmetrizedStructure' not in str(type(atoms)):
+                    atoms_symm = SpacegroupAnalyzer(atoms).get_symmetrized_structure()
+                symmetry = True
+            except:
+                atoms_symm = atoms
+                symmetry = False
+        elif symm == False:
             atoms_symm = atoms
             symmetry = False
 
@@ -862,6 +855,7 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
             else:
                 n_symmops = 1
                 # symm ops
+                file.writelines('{}\n'.format(str(n_symmops)))
                 identity = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,0.]])
                 file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in identity[0])))
                 file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
@@ -909,13 +903,21 @@ def write_cry_gui(gui_file,atoms,dimensionality=3):
                 file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
                 file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
 
-        #N atoms
-        file.writelines('{}\n'.format(atoms.num_sites))
+        if symmetry == True:
+            # N atoms
+            file.writelines('{}\n'.format(len(atoms_symm.equivalent_indices)))
 
-        #atom number + coordinates cart
-        print(atomic_numbers,atom_coords)
-        for i in range(atoms.num_sites):
-            file.writelines('{} {}\n'.format(atomic_numbers[i],atom_coords[i]))
+            # atom number + coordinates cart
+            for i in range(len(atoms_symm.equivalent_indices)):
+                file.writelines('{} {}\n'.format(atomic_numbers[atoms_symm.equivalent_indices[i][0]],
+                                                 atom_coords[atoms_symm.equivalent_indices[i][0]]))
+        else:
+            #N atoms
+            file.writelines('{}\n'.format(atoms.num_sites))
+
+            #atom number + coordinates cart
+            for i in range(atoms.num_sites):
+                file.writelines('{} {}\n'.format(atomic_numbers[i],atom_coords[i]))
 
         #space group + n symm ops
         if symmetry == True:
@@ -936,12 +938,12 @@ substrate = SlabGenerator(substrate, (1,0,0), 5., 10., center_slab=False).get_sl
 write_cry_gui('examples/data/cu_100_TEST.gui',substrate,dimensionality=2)'''
     
 
-class Density:
+class Crystal_density:
     
     def __init__(self, fort98_unit):
         self.file_name = fort98_unit
     
-    def cry_read_density(self):
+    #def cry_read_density(self):
             
         import sys
         import numpy as np
@@ -954,7 +956,9 @@ class Density:
         except:
             print('EXITING: a CRYSTAL .f98 file needs to be specified')
             sys.exit(1)
-        
+
+        self.all_file = data
+
         #the keyword BASATO appears twice, this is a check to see which basato
         #is being read
         basato1 = False
@@ -972,6 +976,10 @@ class Density:
                 n_symmops = self.inf_vec[0]
                 n_atoms = self.inf_vec[23]
                 n_shells = self.inf_vec[19]
+                '''if self.inf_vec[26] == 0:
+                    self.spin_pol == False
+                elif self.inf_vec[26] == 1:
+                    self.spin_pol == True'''
                 n_prim_gto = self.inf_vec[74]
                 f_irr_len = (self.inf_vec[63]+1)*self.inf_vec[227]
                 p_irr_len = (self.inf_vec[63]+1)*self.inf_vec[18]
@@ -1065,12 +1073,19 @@ class Density:
             elif re.match(r'^SPINOR', line):
                 self.f_irr = []
                 self.charges = []
-                self.spin = [0]*(2*n_atoms) #tmp
+                #self.spin = [0]*(2*n_atoms) #tmp
+                self.spin = []
                 self.ghost = []
                 n_ghost = 0
                 n_spin_lines = int(np.ceil((n_atoms*2)/8))
+                n_basold = 0
+                if 'BASOLD' in data[i+n_spin_lines+1]:
+                    n_basold = 9+ 3*self.inf_vec[1]+ n_shells +3*n_atoms+3*n_shells+self.inf_vec[4]+1+3*self.inf_vec[78]
+                n_basold_lines = int(np.ceil((n_basold)/4))
                 n_charge_lines = int(np.ceil(n_atoms/4))
-                skip = n_spin_lines + n_charge_lines +1
+                skip = n_spin_lines + n_charge_lines +1 + n_basold_lines
+                for j in range(n_spin_lines):
+                    self.spin.extend([int(x) for x in data[i + j + 1].split()])
                 if 'IGHOST' in data[i+n_spin_lines+1]:
                     n_ghost = int(np.ceil((n_atoms)/8)) +1
                     skip = skip + n_ghost
@@ -1078,7 +1093,7 @@ class Density:
                         self.ghost.extend([float(x) for x in data[i + j + n_spin_lines + 2].split()])
                 f_irr_n_lines = int(np.ceil(f_irr_len/4))
                 for j in range(n_charge_lines):
-                    self.charges.extend([float(x) for x in data[i+j+n_spin_lines+n_ghost+1].split()])
+                    self.charges.extend([float(x) for x in data[i+j+n_spin_lines+n_basold+n_ghost+1].split()])
                     '''for item in range(0,int(len(data[i+skip+j])/21)):
                         print(data[i+j+n_spin_lines+1])
                         self.charges.append(float(data[i+j+n_spin_lines+1][(item)*21:(item+1)*21]))'''
@@ -1180,20 +1195,14 @@ class Density:
             #elif re.match('', line):
         
                 
-def cry_combine_density(density1,density2,density3,new_density='new_density.f98'):
+def cry_combine_density(density1,density2,density3,new_density='new_density.f98',spin_pol=False):
     import sys
     import numpy as np
     
     try:
-        '''file = open(density1, 'r')
-        density1_data = file.readlines()
-        file.close()
-        file = open(density2, 'r')
-        density2_data = file.readlines()
-        file.close()'''
         density1_data = Density(density1).cry_read_density() #substrate
         density2_data = Density(density2).cry_read_density()
-        density3_data_obj = Density(density2).cry_read_density()
+        density3_data_obj = Density(density3).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
         file.close()
@@ -1229,6 +1238,12 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
             fragment_2.extend([True]*n_elements)
         else:
             fragment_2.extend([False]*n_elements)
+
+    if spin_pol == True:
+        spin_p1 = fragment_1.copy()
+        spin_p2 = fragment_2.copy()
+        fragment_1.extend(spin_p1)
+        fragment_2.extend(spin_p2)
     '''for i in range(len(fragment_2)):
         if fragment_1[i] == True and fragment_2==True:
             print(fragment_1[i],fragment_2[i])'''
@@ -1243,9 +1258,9 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
     fock = []
     density = []
     new_fock = sum_fock #TMP
-    new_fock = [0] * len(density1_data.f_irr)
+    new_fock = [0] * len(density3_data_obj.f_irr)
     new_p = []
-    #print(len(density2_data.f_irr),len(fragment_1))
+
     for i in range(len(fragment_1)):
         if fragment_1[i] == True and fragment_2[i] == False:
             #new_fock.append(density1_data.f_irr[i])
@@ -1258,27 +1273,63 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
             new_p.append(sum_density[i])
             #new_p.append(0.)
             #new_p.append(density3_data_obj.p_irr[i])
-
-    for i in range(0,len(density1_data.spin),8):
-        spinor.append(' '.join([str(x) for x in density1_data.spin[i:i+8]])+'\n')
+    #print('fock',len(density3_data_obj.f_irr),len(new_fock))
+    #print('density',len(density3_data_obj.p_irr),len(new_p))
+    for i in range(0,len(density3_data_obj.spin),8):
+        spinor.append(' '.join([str(x) for x in density3_data_obj.spin[i:i+8]])+'\n')
     for i in range(0,len(sum_charges),4):
         charges.append(' '.join(["{:.13e}".format(x) for x in sum_charges[i:i+4]])+'\n')
     for i in range(0,len(new_fock),4):
         fock.append(' '.join(["{:.13e}".format(x) for x in new_fock[i:i+4]])+'\n')
     for i in range(0,len(new_p),4):
         density.append(' '.join(["{:.13e}".format(x) for x in new_p[i:i+4]])+'\n')
-    
+    #print(len(fock),len(density))
     final_fort98 = density3_data[0:beginning]+spinor+charges+fock+density+density3_data[end:] 
     with open(new_density, 'w') as file:
         for line in final_fort98:
             file.writelines(line)
+
+def write_cry_density(fort98_name,new_p,new_fort98):
+
+    import numpy as np
+
+    file = open(fort98_name, 'r')
+    data = file.readlines()
+    file.close()
+
+    density = Density(fort98_name).cry_read_density()
+
+    n_spin_lines = int(np.ceil((density.inf_vec[23] * 2) / 8))
+    n_charges_lines = int(np.ceil((density.inf_vec[23] ) / 4))
+    beginning = data.index('SPINOR\n') + n_spin_lines + n_charges_lines + 1
+    end = data.index('   NCF\n')
+
+
+
+    new_fock_vect = [0] * len(density.f_irr)
+
+    new_fock = []
+    for i in range(0, len(new_fock_vect), 4):
+        new_fock.append(' '.join(["{:.13e}".format(x) for x in new_fock_vect[i:i + 4]]) + '\n')
+
+    new_density = []
+    for i in range(0,len(new_p),4):
+        new_density.append(' '.join(["{:.13e}".format(x) for x in new_p[i:i+4]])+'\n')
+
+
+    final_fort98 = data[0:beginning]+new_fock+new_density+data[end:]
+    with open(new_fort98, 'w') as file:
+        for line in final_fort98:
+            file.writelines(line)
             
-'''###TESTING
+###TESTING
 #H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
 #H_density =  Density('examples/data/mgo.f98').cry_read_density()     
 #ghost_density = Density('../examples/data/Mg2O2_O1_100_1.f98').cry_read_density()
 #ghost_density = Density('../examples/data/Mg2O2_O1_100_1_BSSE_ads.f98').cry_read_density()
 #print(ghost_density.charges)
+#density_basold = Density('/Users/brunocamino/Desktop/Imperial/cmsg_icl/solid-solutions/data/classification/LTS_2_B3LYP_Ahl_b.f98').cry_read_density()
+'''
 density1 = '../examples/data/density/substrate.f98'
 density2 = '../examples/data/density/adsorbate.f98'
 density3 = '../examples/data/density/system.f98'

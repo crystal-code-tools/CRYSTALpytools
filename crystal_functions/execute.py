@@ -53,7 +53,7 @@ def set_runprop_path(path):
 
 def runcry(file_name, guessp=None):
 
-    runcry_path = None
+    runcry_path = '/Users/brunocamino/crystal/runcry17'
     if runcry_path is None:
         return 'Please set the runcry path before calling this function'
 
@@ -93,7 +93,7 @@ def runcry(file_name, guessp=None):
 
 def runprop(prop_name,wf_file):
 
-    runprop_path = None
+    runprop_path = '/Users/brunocamino/crystal/runprop17'
     if runprop_path is None:
         return('Please set the runprop path before calling it')
 
