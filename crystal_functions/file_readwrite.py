@@ -5,6 +5,7 @@ Created on Fri Nov 19 18:28:28 2021
 
 TO DO:
 - write_cry_input: add symmetry via pymatgen
+- move writecry to crystal_input 
 """
 
 class Crystal_input:
