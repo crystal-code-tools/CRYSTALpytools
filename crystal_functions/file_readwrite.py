@@ -278,6 +278,8 @@ class Crystal_output:
                         lattice.append(lattice_line)
                     self.primitive_vectors = np.array(lattice)
                     break
+
+                
         
         if lattice == []:
             print('WARNING: no lattice vectors found in the output file. lattice = []')
