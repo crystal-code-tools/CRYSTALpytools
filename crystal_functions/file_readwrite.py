@@ -149,6 +149,7 @@ class Crystal_output:
         for line in self.data:
             if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM',line) != None:
                 self.dimensionality = int(line.split()[9])    
+                return self.dimensionality
         
     def get_final_energy(self): 
         
@@ -592,7 +593,7 @@ class Crystal_properties:
         import sys
 
         self.file_name = properties_output
-        print(self.file_name)
+
         try: 
             file = open(self.file_name, 'r')
             self.data = file.readlines()
@@ -601,7 +602,7 @@ class Crystal_properties:
             print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
 
-    def read_bands(self):
+    def read_cry_bands(self):
         #This class contains the bands objects created from reading the 
         #band files created by different electronic structure codes
         #Returns an array where the band energy is expressed in eV
@@ -658,7 +659,7 @@ class Crystal_properties:
         
         #Convert all the energy to eV    
         self.bands[1:,:,:] = self.bands[1:,:,:]*27.2114
-          
+        return self  
     
     '''###TESTING
     mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
@@ -700,15 +701,17 @@ class Crystal_properties:
         return self 
     
     def read_cry_contour(self):
-        #Ale C's function to read contour data
-        print(self.data)
+        #Functions that extract useful info and stores it in sel.attributes
         pass
     
 
         
 ###TESTING
-mgo_bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND')
-print(mgo_bands)
+#contour_obj = Crystal_properties('../examples/data/SURFRHOO.DAT').read_cry_contour()
+#a = contour_obj.read_cry_contour()
+#bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND').read_cry_bands()
+#print(bands.bands)
+
 
 
 def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_obj=None,comment=None):
@@ -1224,7 +1227,8 @@ def cry_combine_density(density1,density2,density3,new_density='new_density.f98'
     try:
         density1_data = Density(density1).cry_read_density() #substrate
         density2_data = Density(density2).cry_read_density()
-        density3_data_obj = Density(density3).cry_read_density()
+        ###density3_data_obj = Density(density3).cry_read_density()
+        density3_data_obj = Density(density1).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
         file.close()
