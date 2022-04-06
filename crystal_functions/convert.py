@@ -3,22 +3,22 @@
 """
 Created on Fri Nov 19 18:29:16 2021
 
-@author: brunocamino
 """
 
 
-def cry_out2pmg(output, initial=False, dimensionality=3, vacuum=10):
+def cry_out2pmg(output, initial=False, vacuum=10):
     # output_file is a crystal output object
     
     from pymatgen.core import Structure
-    
+    from crystal_functions.file_readwrite import get_dimensionality    
     import numpy as np
-   
-    output.extract_last_geom(write_gui_file=False, print_cart=False)
-    output.primitive_lattice(initial=initial)
+
+    dimensionality = output.get_dimensionality()
+    output.get_last_geom(write_gui_file=False, print_cart=False)
+    output.get_lattice(initial=initial)
     
     if dimensionality == 3:
-        structure = Structure(output.primitive_vectors, output.atom_numbers, 
+        structure = Structure(output.primitive_lattice, output.atom_numbers, 
                               output.atom_positions_cart, coords_are_cartesian=True)
         
     elif dimensionality == 2:
@@ -95,7 +95,7 @@ def cry_bands2pmg(output, bands, labels=None):
                                  bands.efermi, labels_dict,
                                  coords_are_cartesian=False)
     
-from crystal_functions.file_readwrite import Crystal_output, Crystal_bands
+from crystal_functions.file_readwrite import Crystal_output, Crystal_properties
 from crystal_functions.convert import cry_bands2pmg
 
 '''cry_output = Crystal_output('../examples/data/mgo_optgeom.out')
