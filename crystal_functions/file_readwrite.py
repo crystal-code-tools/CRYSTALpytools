@@ -4,9 +4,6 @@
 Created on Fri Nov 19 18:28:28 2021
 """
 
-from typing_extensions import Self
-
-
 class Crystal_input:
     #This creates a crystal_input object
     
@@ -148,7 +145,10 @@ class Crystal_output:
             self.eoo = len(self.data)
             #print('WARNING: the calculation did not converge. Proceed with care!')
 
-    def get_dimensionality():
+    def get_dimensionality(self):
+
+        import re
+        
         for line in self.data:
             if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM',line) != None:
                 self.dimensionality = int(line.split()[9])    
@@ -607,22 +607,22 @@ class Properties_input:
                 print('EXITING: a .d3 file needs to be specified')
                 sys.exit(1)
         
-        if 'NEWK\n' in self.data:
-            self.is_newk = True
-            self.newk_block = self.data[0:2]
-            self.property_block = self.data[2:]
-        else:
-            self.is_newk = False
-            self.property_block = self.data
+            if 'NEWK\n' in self.data:
+                self.is_newk = True
+                self.newk_block = self.data[0:2]
+                self.property_block = self.data[2:]
+            else:
+                self.is_newk = False
+                self.property_block = self.data
 
-    def make_newk_block(shrink1,shrink2,Fermi=1,print_option=0,title=None):
+    def make_newk_block(self,shrink1,shrink2,Fermi=1,print_option=0,title=None):
         self.newk_block = ['NEWK\n','%s %s\n' %(shrink1,shrink2),
                     '%s %s\n'%(Fermi,print_option)]
 
         return self.newk_block
 
 
-    def make_bands_block(k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
+    def make_bands_block(self,k_path,n_kpoints,first_band,last_band,print_eig=0,print_option=1,
           title='BAND STRUCTURE CALCULATION'):
         #k_path can be:
             ##list of list
@@ -680,7 +680,7 @@ class Properties_input:
 
         return self.bands_block      
 
-    def make_doss_block(n_points=200,band_range=None,e_range=None,plotting_option=2,
+    def make_doss_block(self,n_points=200,band_range=None,e_range=None,plotting_option=2,
              poly=12,print_option=1):
         #e_range in eV
         import sys
@@ -716,7 +716,7 @@ class Properties_input:
 
         return self.doss_block
     
-    def make_pdoss_block(projections,proj_type='atom',output_file=None,n_points=200,band_range=None,
+    def make_pdoss_block(self,projections,proj_type='atom',output_file=None,n_points=200,band_range=None,
               e_range=None,plotting_option=2,poly=12,print_option=1):
 
         #projections is a list of lists
@@ -760,21 +760,21 @@ class Properties_input:
                 print('EXITING: please specify either atom or ao projection. %s selected' % proj_type)
                 sys.exit(1)
         elif all(isinstance(x, str) for x in flat_proj):
-        if output_file == None:
-            print('EXITING: please specify an outut file to use the atoms projection.')
-            sys.exit(1)
-        else:
-            output = Crystal_output(output_file)
-            output.extract_last_geom()
-            atoms_symbols = output.atom_symbols
-            atoms_symbols.insert(0, 0)
-            
-            for proj in projections:
-                atom_positions_list = []
-                for element in proj:
-                    index = [i for i,ele in enumerate(atoms_symbols) if ele==element.upper()]
-                    atom_positions_list.append([str(x) for x in index])
-                pdoss_block.append(str(-len(index))+' '+' '.join([str(x) for x in index])+'\n')        
+            if output_file == None:
+                print('EXITING: please specify an outut file to use the atoms projection.')
+                sys.exit(1)
+            else:
+                output = Crystal_output(output_file)
+                output.extract_last_geom()
+                atoms_symbols = output.atom_symbols
+                atoms_symbols.insert(0, 0)
+                
+                for proj in projections:
+                    atom_positions_list = []
+                    for element in proj:
+                        index = [i for i,ele in enumerate(atoms_symbols) if ele==element.upper()]
+                        atom_positions_list.append([str(x) for x in index])
+                    pdoss_block.append(str(-len(index))+' '+' '.join([str(x) for x in index])+'\n')        
     
         pdoss_block.append('END\n')
         
