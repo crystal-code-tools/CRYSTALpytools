@@ -1,0 +1,7 @@
+date Tue 5 Apr 2022 16:28:02 BST
+hostname MacBook-Pro-3.local
+system Darwin MacBook-Pro-3.local 21.3.0 Darwin Kernel Version 21.3.0: Wed Jan 5 21:37:58 PST 2022; root:xnu-8019.80.24~20/RELEASE_ARM64_T8101 arm64
+user brunocamino
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/crystal_functions/mgo_optgeom.out
+crystal executable in /Users/brunocamino/crystal
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/crystal_functions/mgo_optgeom.d12 not found or empty
