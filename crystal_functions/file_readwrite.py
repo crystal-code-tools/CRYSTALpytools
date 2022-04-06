@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 19 18:28:28 2021
-
-TO DO:
-- write_cry_input: add symmetry via pymatgen
 """
 
 class Crystal_input:
@@ -148,25 +145,28 @@ class Crystal_output:
             self.eoo = len(self.data)
             #print('WARNING: the calculation did not converge. Proceed with care!')
 
+    def get_dimensionality():
+        for line in self.data:
+            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM',line) != None:
+                self.dimensionality = int(line.split()[9])    
         
-        
-    def final_energy(self): 
+    def get_final_energy(self): 
         
         import re
         
-        self.energy = None
+        self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED',line) != None:
-                self.energy = float(line.split()[7])*27.2114
+                self.final_energy = float(line.split()[7])*27.2114
             elif re.match(r'^ == SCF ENDED',line) != None:
-                self.energy =  float(line.split()[8])*27.2114 
+                self.final_energy =  float(line.split()[8])*27.2114 
         
-        if self.energy == None:
+        if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
         
-        return self.energy
+        return self.final_energy
     
-    def scf_convergence(self,all_cycles=False):
+    def get_scf_convergence(self,all_cycles=False):
         
         import re
         import numpy as np
@@ -196,31 +196,33 @@ class Crystal_output:
                     self.scf_deltae.append(scf_deltae)
                     scf_energy = []
                     scf_deltae = []    
-        
-        return self.scf_energy, self.scf_deltae
+
+            self.scf_convergence = [self.scf_energy, self.scf_deltae]
+        return self.scf_convergence
 
 
-    def num_cycles(self):
+    def get_num_cycles(self):
 
         import re
 
         for line in self.data[::-1]:
             if re.match(r'^ CYC ', line):
-                self.num_cycles_scf = int(line.split()[1])
-                return self.num_cycles_scf
+                self.num_cycles = int(line.split()[1])
+                return self.num_cycles
+        return None
 
-    def fermi_energy(self):
+    def get_fermi_energy(self):
 
         import re
         
-        self.efermi = None
+        self.fermi_energy = None
         
         for i,line in enumerate(self.data[len(self.data)::-1]):     
             #This is in case the .out is from a DOSS calculation
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND',self.data[len(self.data)-(i+4)]) != None:
                 for j,line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ ENERGY RANGE ',line1):
-                        self.efermi = float(line1.split()[7])*27.2114  
+                        self.fermi_energy = float(line1.split()[7])*27.2114  
                         #Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'band'
                         break
@@ -228,7 +230,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS',self.data[len(self.data)-(i+4)]) != None:
                 for j,line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ N. OF SCF CYCLES ',line1):
-                        self.efermi = float(line1.split()[7])*27.2114  
+                        self.fermi_energy = float(line1.split()[7])*27.2114  
                         #Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'doss'
                         break
@@ -237,38 +239,39 @@ class Crystal_output:
             else:      
                 for j,line1 in enumerate(self.data[:i:-1]):
                     if re.match(r'^   FERMI ENERGY:',line1) != None:
-                        self.efermi = float(line1.split()[2])*27.2114
+                        self.fermi_energy = float(line1.split()[2])*27.2114
                         self.efermi_from = 'scf'
                         break
                     if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI',line1) != None:
-                        self.efermi = float(line1.split()[5]) * 27.2114
+                        self.fermi_energy = float(line1.split()[5]) * 27.2114
                         self.efermi_from = 'scf'
                         break
-                if self.efermi == None:
+                if self.fermi_energy == None:
                     for j,line1 in enumerate(self.data[:i:-1]):
                         if re.match(r'^ TOP OF VALENCE BANDS',line1) != None:
-                            self.efermi = float(line1.split()[10])*27.2114
+                            self.fermi_energy = float(line1.split()[10])*27.2114
                             self.efermi_from = 'scf_top_valence'
                             break
         
-        if self.efermi == None:
+        if self.fermi_energy == None:
             print('WARNING: no Fermi energy found in the output file. efermi = None')
 
-        return self.efermi
+        return self.fermi_energy
             
-    def primitive_lattice(self,initial=True):
+    def get_primitive_lattice(self,initial=True):
         #Initial = False reads the last lattice vectors. Useful in case of optgeom
         import re
         import numpy as np
         
         lattice = []
+        self.primitive_lattice = None
         if initial == True:
             for i,line in enumerate(self.data):
                 if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN',line):
                     for j in range(i+2,i+5):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_vectors = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice)
                     break
         elif initial == False:
             for i,line in enumerate(self.data[::-1]):                
@@ -276,7 +279,7 @@ class Crystal_output:
                     for j in range(len(self.data)-i+1,len(self.data)-i+4):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_vectors = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice)
                     break
 
                 
@@ -284,9 +287,9 @@ class Crystal_output:
         if lattice == []:
             print('WARNING: no lattice vectors found in the output file. lattice = []')
         
-        return self.primitive_vectors
+        return self.primitive_lattice
     
-    def reciprocal_lattice(self,initial=True):
+    def get_reciprocal_lattice(self,initial=True):
         import re
         import numpy as np
         
@@ -297,16 +300,18 @@ class Crystal_output:
                     for j in range(i+2,i+5):
                         lattice_line = [float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_vectors = np.array(lattice)
-                    return self.reciprocal_vectors
+                    self.reciprocal_lattice = np.array(lattice)
+                    return self.reciprocal_lattice
         elif initial == False:
             for i,line in enumerate(self.data[::-1]):
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)',line):
                     for j in range(len(self.data)-i+1,len(self.data)-i+4):
                         lattice_line = [float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_vectors = np.array(lattice)
-                    return self.reciprocal_vectors
+                    self.reciprocal_lattice = np.array(lattice)
+                    return self.reciprocal_lattice
+        
+        return None
             
 
     def get_band_gap(self):#,spin_pol=False):
@@ -340,17 +345,19 @@ class Crystal_output:
                     self.band_gap = np.array(band_gap_spin)
                     return self.band_gap
         if band_gap_spin == []:
-            print('DEV WARNING: check this output and the band gap function in code_io')
+            print('DEV WARNING: check this output and the band gap function in file_readwrite')
                 #elif re.match(r'^\s\w+ ENERGY BAND GAP',line1) != None:
                     #band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
 
-    def extract_last_geom(self,write_gui_file=True,print_cart=False):
+    def get_last_geom(self,write_gui_file=True,symm_info='pymatgen'):
         import re
         from mendeleev import element
         import numpy as np
         import sys
+        from pymatgen.core.structure import Structure
         
-        self.primitive_lattice(initial=False)
+        
+        self.get_primitive_lattice(initial=False)
         
         self.opt_converged = False
         for line in self.data:
@@ -384,49 +391,54 @@ class Crystal_output:
                     self.atom_numbers.append(element(atom.capitalize()).atomic_number)
                 
                     
-                self.atom_positions_cart = np.matmul(np.array(self.atom_positions),self.primitive_vectors)              
+                self.atom_positions_cart = np.matmul(np.array(self.atom_positions),self.primitive_lattice)              
                 self.cart_coords = []
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i][0],self.atom_positions_cart[i][1],self.atom_positions_cart[i][2]])
                 self.cart_coords = np.array(self.cart_coords)
                 
-                if print_cart == True:
-
-                    print(self.cart_coords)
                 
                 if write_gui_file == True:                                    
                     #Write the gui file 
                     #This is a duplication from write_gui, but the input is different
                     #It requires both the output and gui files with the same name and in the same directory
-                    if self.name[-3:] == 'out':
-                        gui_file = self.name[:-4]+'.gui'
+                    if symm_info == 'pymatgen':
+                        if self.name[-3:] == 'out':
+                            gui_file = self.name[:-4]+'.gui'
                 
-                    elif self.name[-4:] == 'outp':
-                        gui_file = self.name[:-5]+'.gui'
-                    else:
-                        gui_file = self.name+'.gui'
-                    
-                    try:   
-                        file = open(gui_file, 'r')
-                        gui_data = file.readlines()
-                        file.close()
-                    except:
-                        print('EXITING: a .gui file with the same name as the input need to be present in the directory.')
-                        sys.exit(1)
+                        elif self.name[-4:] == 'outp':
+                            gui_file = self.name[:-5]+'.gui'
+                        else:
+                            gui_file = self.name+'.gui'
                         
-                    #Replace the lattice vectors with the optimised ones
-                    for i,vector in enumerate(self.primitive_lattice(initial=False).tolist()):
-                        gui_data[i+1]= ' '.join([str(x) for x in vector])+'\n'
-    
-                    n_symmops = int(gui_data[4])
-                    for i in range(len(self.atom_numbers)):
-                        gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions_cart[i][:]))
-                    
-                    with open(gui_file[:-4]+'_last.gui','w') as file:
-                        for line in gui_data:
-                            file.writelines(line)
+                        structure = Structure(self.get_primitive_lattice(initial=False), self.atom_numbers, 
+                              self.atom_positions_cart, coords_are_cartesian=True)
+                        write_cry_gui(gui_file,structure)
+                    else:
+                        gui_file = symm_info
+                        try:   
+                            file = open(gui_file, 'r')
+                            gui_data = file.readlines()
+                            file.close()
+                        except:
+                            print('EXITING: a .gui file with the same name as the input need to be present in the directory.')
+                            sys.exit(1)
+                            
+                        #Replace the lattice vectors with the optimised ones
+                        for i,vector in enumerate(self.get_primitive_lattice(initial=False).tolist()):
+                            gui_data[i+1]= ' '.join([str(x) for x in vector])+'\n'
         
-    def symm_ops(self):
+                        n_symmops = int(gui_data[4])
+                        for i in range(len(self.atom_numbers)):
+                            gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i],' '.join(str(x) for x in self.atom_positions_cart[i][:]))
+                        
+                        with open(gui_file[:-4]+'_last.gui','w') as file:
+                            for line in gui_data:
+                                file.writelines(line)
+        self.last_geom = [self.primitive_lattice.tolist(), self.atom_numbers, self.atom_positions_cart.tolist()]
+        return self.last_geom
+        
+    def get_symm_ops(self):
         import re
         import numpy as np
         
@@ -434,14 +446,14 @@ class Crystal_output:
 
         for i,line in enumerate(self.data):
             if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS',line):
-                self.n_symmpos = int(line.split()[1])
-                for j in range(0,self.n_symmpos):
+                self.n_symm_ops = int(line.split()[1])
+                for j in range(0,self.n_symm_ops):
                     symmops.append(self.data[i+3+j].split()[2:])
-                self.symmops = np.array(symmops)
+                self.symm_ops = np.array(symmops)
                 
-                return self.symmops
+                return self.symm_ops
     
-    def forces(self,initial=False,grad=False):
+    def get_forces(self,initial=False,grad=False):
         import re
         import numpy as np
         
@@ -478,7 +490,8 @@ class Crystal_output:
                     for j in range(i+4,i+7):
                         self.forces_cell.append([float(x) for x in self.data[j].split()])
                     self.forces_cell = np.array(self.forces_cell)
-                    return self.forces_atoms, self.forces_cell
+                    self.forces = [self.forces_cell,self.forces_atoms]
+                    return self.forces
                 
         elif initial == False:
             for i,line in enumerate(self.data[::-1]):
@@ -491,9 +504,26 @@ class Crystal_output:
                     for j in range(len(self.data)-i+1,len(self.data)-i+1+self.n_atoms):
                         self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
                     self.forces_atoms = np.array(self.forces_atoms)
-                    return self.forces_atoms, self.forces_cell
+                    self.forces = [self.forces_cell,self.forces_atoms]
+                    return self.forces
+        
 
-    def config_analysis(self):
+    def get_mulliken_charges(self):
+        
+        import re
+
+        self.mulliken_charges = []
+        for i,line in enumerate(self.data):
+                if re.match(r'^ MULLIKEN POPULATION ANALYSIS',line):
+                    for j in range(len(self.data[i:])):
+                        line1 = self.data[i+4+j].split()
+                        if line1 == []:
+                            return self.mulliken_charges
+                        elif line1[0].isdigit() == True:
+                            self.mulliken_charges.append(float(line1[3]))
+                              
+
+    def get_config_analysis(self):
         import re
         import numpy as np
 
@@ -513,11 +543,9 @@ class Crystal_output:
         class_index = []
         config_list = []
 
-        #config_list.extend(line.split() for line in self.data[begin:])
         for line in self.data[begin:]:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
-        #config_list = [item for sublist in config_list for item in sublist]
         config_list = np.array(config_list)
         warning = np.where(config_list == 'WARNING')
         config_list = np.delete(config_list,warning)
@@ -530,26 +558,14 @@ class Crystal_output:
         atom_type1 = []
         atom_type2 = []
         config_list = config_list.tolist()
-        #print(len(atom1_begin),len(atom2_begin),len(atom1_end),len(atom2_end))
         for i in range(len(atom1_end)):
-            #print(i,atom2_begin[i],atom2_end[i],config_list[atom2_begin[i]],config_list[atom2_end[i]])
             atom_type1.append([int(x) for x in config_list[atom1_begin[i+1]+1:atom1_end[i]]])
             atom_type2.append([int(x) for x in config_list[atom2_begin[i]+1:atom2_end[i]]])
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
-        #print(atom_type1)
-        #print(config_list)
-        #print(np.where(config_list == 'TI')[0])
-
-
-        '''non_subs = []
-        subs = []
-        class_index = []
-        for i, line in enumerate(self.data[begin:]):
-            if line.split()[0] == 'CLASS':
-                class_index.append(begin+i)
-        print(self.data[class_index[0]])'''
+        return [self.atom_type1, self.atom_type2]
+        
 
 
 ###TESTING
@@ -567,19 +583,22 @@ class Crystal_output:
 #print('forces\n',a.forces(gradient=True))
 #print('grad\n',a.grad)
 #print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
+#print(a.get_mulliken_charges())
 
 class Crystal_properties:
 
     def __init__(self,properties_output):
        
+        import sys
+
         self.file_name = properties_output
-    
+        print(self.file_name)
         try: 
             file = open(self.file_name, 'r')
             self.data = file.readlines()
             file.close()
         except:
-            print('EXITING: a CRYSTAL .BAND file needs to be specified')
+            print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
 
     def read_bands(self):
@@ -682,14 +701,15 @@ class Crystal_properties:
     
     def read_cry_contour(self):
         #Ale C's function to read contour data
+        print(self.data)
         pass
     
 
         
-'''###TESTING
-mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
-mgo_file = mgo_DOSS.read_cry_doss()
-print(mgo_file.doss[0,-1:1:-1,0])'''
+###TESTING
+mgo_bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND')
+print(mgo_bands)
+
 
 def write_cry_input(input_name,crystal_input=None,crystal_blocks=None,external_obj=None,comment=None):
     #input_name is the name of the imput that is going to be written (.d12)
