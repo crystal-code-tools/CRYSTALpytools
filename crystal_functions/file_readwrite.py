@@ -592,12 +592,13 @@ class Crystal_properties:
         data = self.data
             
         #Read the information about the file
-        self.n_kpoints = int(data[0].split()[2])
-        self.n_bands = int(data[0].split()[4])
-        self.spin = int(data[0].split()[6])
-        self.n_tick = int(data[1].split()[2])+1
+        self.n_kpoints = int(data[0].split()[2]) #number of k points in the calculation
+        self.n_bands = int(data[0].split()[4]) #number of bands in the calculation
+        self.spin = int(data[0].split()[6]) #number of spin
+        self.n_tick = int(data[1].split()[2])+1 #number of tick in the band plot
         self.k_point_inp_coordinates = []
         self.n_points = []
+        #finds all the coordinates of the ticks and the k points
         for i in range(self.n_tick):
             self.n_points.append(int(data[2+i].split()[1]))
             coord = []
@@ -610,9 +611,9 @@ class Crystal_properties:
         for i in range(1,self.n_tick):
             step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(self.n_points[i]-self.n_points[i-1])
             for j in range(self.n_points[i]-self.n_points[i-1]):
-                self.k_point_coordinates.append((self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())
-        self.tick_position = []
-        self.tick_label = []
+                self.k_point_coordinates.append((self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist()) #coordinates of the k_points in the calculation
+        self.tick_position = [] #positions of the ticks
+        self.tick_label = [] #tick labels
         for i in range(self.n_tick):            
             self.tick_position.append(float(data[16+self.n_tick+i*2].split()[4]))
             self.tick_label.append(str(data[17+self.n_tick+i*2].split()[3][2:]))
@@ -634,7 +635,7 @@ class Crystal_properties:
             #line where the first beta band is. Written this way to help identify
             first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
             for i,line in enumerate(data[first_k_beta:-1]):
-                self.bands[:self.n_bands+1,i,1] = np.array([float(n) for n in line.split()[1:]])
+                self.bands[:self.n_bands+1,i,1] = np.array([float(n) for n in line.split()[1:]])#organization of the bands energy into the array 
         
         #Convert all the energy to eV    
         self.bands[1:,:,:] = self.bands[1:,:,:]*27.2114
