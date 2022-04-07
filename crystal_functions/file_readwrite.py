@@ -666,7 +666,9 @@ class Crystal_properties:
                            1] = np.array([float(n) for n in line.split()[1:]])
 
         # Convert all the energy to eV
-        self.bands[1:, :, :] = self.bands[1:, :, :]*27.2114
+        self.bands[:, :, :] = self.bands[:, :, :]*27.2114
+
+        return 'bands', self.bands, '\nno_bands\n', self.n_bands, 'spin\n', self.spin, 'no_tick\n', self.n_tick, 'input coordinates\n', self.k_point_inp_coordinates, 'no_points\n', self.n_points, 'k point coordiantes\n', self.k_point_coordinates, 'tick poitions\n', self.tick_position, 'tick labels\n', self.tick_label
 
     '''###TESTING
     mgo_bands = Bands('data/mgo_BAND_dat.BAND') 

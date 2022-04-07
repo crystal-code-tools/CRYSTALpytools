@@ -12,6 +12,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     import matplotlib.pyplot as plt
     import matplotlib.lines as mlines
     import numpy as np
+    import sys
 
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397', 'Theta': '\u0398', 'Iota': '\u0399',
              'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E', 'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4',
@@ -166,6 +167,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 def plot_cry_multibands(bands_list, k_labels=None, energy_range=None, title=False, not_scaled=False):
     # Filippo's function
     # bands list is a Crystal_band object
+    pass
 
 
 def plot_cry_doss():
