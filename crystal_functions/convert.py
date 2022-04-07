@@ -3,22 +3,20 @@
 """
 Created on Fri Nov 19 18:29:16 2021
 
-@author: brunocamino
 """
 
-
-def cry_out2pmg(output, initial=False, dimensionality=3, vacuum=10):
+def cry_out2pmg(output, initial=False, vacuum=10):
     # output_file is a crystal output object
     
-    from pymatgen.core import Structure
-    
+    from pymatgen.core import Structure  
     import numpy as np
-   
-    output.extract_last_geom(write_gui_file=False, print_cart=False)
-    output.primitive_lattice(initial=initial)
+
+    dimensionality = output.get_dimensionality()
+    output.get_last_geom(write_gui_file=False)
+    output.get_primitive_lattice(initial=initial)
     
     if dimensionality == 3:
-        structure = Structure(output.primitive_vectors, output.atom_numbers, 
+        structure = Structure(output.primitive_lattice, output.atom_numbers, 
                               output.atom_positions_cart, coords_are_cartesian=True)
         
     elif dimensionality == 2:
@@ -34,8 +32,11 @@ def cry_out2pmg(output, initial=False, dimensionality=3, vacuum=10):
     return structure
 
     
-'''###TESTING
-cry_out2pmg('examples/data/mgo.out')'''
+###TESTING
+'''from crystal_functions.file_readwrite import Crystal_output
+cry_output = Crystal_output('../examples/data/mgo.out')
+print(cry_output)
+cry_out2pmg(cry_output)'''
 
 
 def cry_bands2pmg(output, bands, labels=None):
@@ -49,7 +50,7 @@ def cry_bands2pmg(output, bands, labels=None):
     from pymatgen.core.lattice import Lattice
     from pymatgen.electronic_structure.core import Spin
 
-    output.reciprocal_lattice()
+    output.get_reciprocal_lattice()
     labels_dict = {}
     
     if labels is not None:
@@ -71,7 +72,7 @@ def cry_bands2pmg(output, bands, labels=None):
     band_energy = bands.bands 
     
     # pymatgen will plot the bands wrt to the Fermi Energy
-    band_energy[1:, :, :] = band_energy[1:, :, :] + output.fermi_energy()
+    band_energy[1:, :, :] = band_energy[1:, :, :] + output.get_fermi_energy()
     k_points_coordinates = []
     
     for i, coord in enumerate(bands.k_point_coordinates):
@@ -91,12 +92,11 @@ def cry_bands2pmg(output, bands, labels=None):
         eigenvals[Spin.down] = band_energy[:, :, 1]
 
     return BandStructureSymmLine(k_points_coordinates, eigenvals, 
-                                 Lattice(output.reciprocal_vectors), 
+                                 Lattice(output.reciprocal_lattice), 
                                  bands.efermi, labels_dict,
                                  coords_are_cartesian=False)
     
-from crystal_functions.file_readwrite import Crystal_output, Crystal_bands
-from crystal_functions.convert import cry_bands2pmg
+
 
 '''cry_output = Crystal_output('../examples/data/mgo_optgeom.out')
 cry_bands = Crystal_bands('../examples/data/mgo_BAND_dat.BAND')

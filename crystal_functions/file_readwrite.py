@@ -2,10 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 19 18:28:28 2021
-
-TO DO:
-- write_cry_input: add symmetry via pymatgen
-- move writecry to crystal_input 
 """
 
 
@@ -153,23 +149,32 @@ class Crystal_output:
             self.eoo = len(self.data)
             #print('WARNING: the calculation did not converge. Proceed with care!')
 
-    def final_energy(self):
+    def get_dimensionality(self):
 
         import re
 
-        self.energy = None
+        for line in self.data:
+            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line) != None:
+                self.dimensionality = int(line.split()[9])
+                return self.dimensionality
+
+    def get_final_energy(self):
+
+        import re
+
+        self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                self.energy = float(line.split()[7])*27.2114
+                self.final_energy = float(line.split()[7])*27.2114
             elif re.match(r'^ == SCF ENDED', line) != None:
-                self.energy = float(line.split()[8])*27.2114
+                self.final_energy = float(line.split()[8])*27.2114
 
-        if self.energy == None:
+        if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
 
-        return self.energy
+        return self.final_energy
 
-    def scf_convergence(self, all_cycles=False):
+    def get_scf_convergence(self, all_cycles=False):
 
         import re
         import numpy as np
@@ -199,29 +204,33 @@ class Crystal_output:
                     scf_energy = []
                     scf_deltae = []
 
+            self.scf_convergence = [self.scf_energy, self.scf_deltae]
+        return self.scf_convergence
+
         return self.scf_energy, self.scf_deltae
 
-    def num_cycles(self):
+    def get_num_cycles(self):
 
         import re
 
         for line in self.data[::-1]:
             if re.match(r'^ CYC ', line):
-                self.num_cycles_scf = int(line.split()[1])
-                return self.num_cycles_scf
+                self.num_cycles = int(line.split()[1])
+                return self.num_cycles
+        return None
 
-    def fermi_energy(self):
+    def get_fermi_energy(self):
 
         import re
 
-        self.efermi = None
+        self.fermi_energy = None
 
         for i, line in enumerate(self.data[len(self.data)::-1]):
             # This is in case the .out is from a DOSS calculation
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ ENERGY RANGE ', line1):
-                        self.efermi = float(line1.split()[7])*27.2114
+                        self.fermi_energy = float(line1.split()[7])*27.2114
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'band'
                         break
@@ -229,7 +238,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ N. OF SCF CYCLES ', line1):
-                        self.efermi = float(line1.split()[7])*27.2114
+                        self.fermi_energy = float(line1.split()[7])*27.2114
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'doss'
                         break
@@ -238,38 +247,40 @@ class Crystal_output:
             else:
                 for j, line1 in enumerate(self.data[:i:-1]):
                     if re.match(r'^   FERMI ENERGY:', line1) != None:
-                        self.efermi = float(line1.split()[2])*27.2114
+                        self.fermi_energy = float(line1.split()[2])*27.2114
                         self.efermi_from = 'scf'
                         break
                     if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line1) != None:
-                        self.efermi = float(line1.split()[5]) * 27.2114
+                        self.fermi_energy = float(line1.split()[5]) * 27.2114
                         self.efermi_from = 'scf'
                         break
-                if self.efermi == None:
+                if self.fermi_energy == None:
                     for j, line1 in enumerate(self.data[:i:-1]):
                         if re.match(r'^ TOP OF VALENCE BANDS', line1) != None:
-                            self.efermi = float(line1.split()[10])*27.2114
+                            self.fermi_energy = float(
+                                line1.split()[10])*27.2114
                             self.efermi_from = 'scf_top_valence'
                             break
 
-        if self.efermi == None:
+        if self.fermi_energy == None:
             print('WARNING: no Fermi energy found in the output file. efermi = None')
 
-        return self.efermi
+        return self.fermi_energy
 
-    def primitive_lattice(self, initial=True):
+    def get_primitive_lattice(self, initial=True):
         # Initial = False reads the last lattice vectors. Useful in case of optgeom
         import re
         import numpy as np
 
         lattice = []
+        self.primitive_lattice = None
         if initial == True:
             for i, line in enumerate(self.data):
                 if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
                     for j in range(i+2, i+5):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_vectors = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice)
                     break
         elif initial == False:
             for i, line in enumerate(self.data[::-1]):
@@ -277,15 +288,15 @@ class Crystal_output:
                     for j in range(len(self.data)-i+1, len(self.data)-i+4):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_vectors = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice)
                     break
 
         if lattice == []:
             print('WARNING: no lattice vectors found in the output file. lattice = []')
 
-        return self.primitive_vectors
+        return self.primitive_lattice
 
-    def reciprocal_lattice(self, initial=True):
+    def get_reciprocal_lattice(self, initial=True):
         import re
         import numpy as np
 
@@ -297,8 +308,8 @@ class Crystal_output:
                         lattice_line = [
                             float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_vectors = np.array(lattice)
-                    return self.reciprocal_vectors
+                    self.reciprocal_lattice = np.array(lattice)
+                    return self.reciprocal_lattice
         elif initial == False:
             for i, line in enumerate(self.data[::-1]):
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
@@ -306,8 +317,10 @@ class Crystal_output:
                         lattice_line = [
                             float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_vectors = np.array(lattice)
-                    return self.reciprocal_vectors
+                    self.reciprocal_lattice = np.array(lattice)
+                    return self.reciprocal_lattice
+
+        return None
 
     def get_band_gap(self):  # ,spin_pol=False):
         import re
@@ -341,17 +354,19 @@ class Crystal_output:
                     self.band_gap = np.array(band_gap_spin)
                     return self.band_gap
         if band_gap_spin == []:
-            print('DEV WARNING: check this output and the band gap function in code_io')
+            print(
+                'DEV WARNING: check this output and the band gap function in file_readwrite')
             # elif re.match(r'^\s\w+ ENERGY BAND GAP',line1) != None:
             #band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
 
-    def extract_last_geom(self, write_gui_file=True, print_cart=False):
+    def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
         import re
         from mendeleev import element
         import numpy as np
         import sys
+        from pymatgen.core.structure import Structure
 
-        self.primitive_lattice(initial=False)
+        self.get_primitive_lattice(initial=False)
 
         self.opt_converged = False
         for line in self.data:
@@ -388,52 +403,58 @@ class Crystal_output:
                         element(atom.capitalize()).atomic_number)
 
                 self.atom_positions_cart = np.matmul(
-                    np.array(self.atom_positions), self.primitive_vectors)
+                    np.array(self.atom_positions), self.primitive_lattice)
                 self.cart_coords = []
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i]
                                             [0], self.atom_positions_cart[i][1], self.atom_positions_cart[i][2]])
                 self.cart_coords = np.array(self.cart_coords)
 
-                if print_cart == True:
-
-                    print(self.cart_coords)
-
                 if write_gui_file == True:
                     # Write the gui file
                     # This is a duplication from write_gui, but the input is different
                     # It requires both the output and gui files with the same name and in the same directory
-                    if self.name[-3:] == 'out':
-                        gui_file = self.name[:-4]+'.gui'
+                    if symm_info == 'pymatgen':
+                        if self.name[-3:] == 'out':
+                            gui_file = self.name[:-4]+'.gui'
 
-                    elif self.name[-4:] == 'outp':
-                        gui_file = self.name[:-5]+'.gui'
+                        elif self.name[-4:] == 'outp':
+                            gui_file = self.name[:-5]+'.gui'
+                        else:
+                            gui_file = self.name+'.gui'
+
+                        structure = Structure(self.get_primitive_lattice(initial=False), self.atom_numbers,
+                                              self.atom_positions_cart, coords_are_cartesian=True)
+                        write_cry_gui(gui_file, structure)
                     else:
-                        gui_file = self.name+'.gui'
+                        gui_file = symm_info
+                        try:
+                            file = open(gui_file, 'r')
+                            gui_data = file.readlines()
+                            file.close()
+                        except:
+                            print(
+                                'EXITING: a .gui file with the same name as the input need to be present in the directory.')
+                            sys.exit(1)
 
-                    try:
-                        file = open(gui_file, 'r')
-                        gui_data = file.readlines()
-                        file.close()
-                    except:
-                        print(
-                            'EXITING: a .gui file with the same name as the input need to be present in the directory.')
-                        sys.exit(1)
+                        # Replace the lattice vectors with the optimised ones
+                        for i, vector in enumerate(self.get_primitive_lattice(initial=False).tolist()):
+                            gui_data[i+1] = ' '.join([str(x)
+                                                     for x in vector])+'\n'
 
-                    # Replace the lattice vectors with the optimised ones
-                    for i, vector in enumerate(self.primitive_lattice(initial=False).tolist()):
-                        gui_data[i+1] = ' '.join([str(x) for x in vector])+'\n'
+                        n_symmops = int(gui_data[4])
+                        for i in range(len(self.atom_numbers)):
+                            gui_data[i+n_symmops*4+6] = '{} {}\n'.format(
+                                self.atom_numbers[i], ' '.join(str(x) for x in self.atom_positions_cart[i][:]))
 
-                    n_symmops = int(gui_data[4])
-                    for i in range(len(self.atom_numbers)):
-                        gui_data[i+n_symmops*4+6] = '{} {}\n'.format(
-                            self.atom_numbers[i], ' '.join(str(x) for x in self.atom_positions_cart[i][:]))
+                        with open(gui_file[:-4]+'_last.gui', 'w') as file:
+                            for line in gui_data:
+                                file.writelines(line)
+        self.last_geom = [self.primitive_lattice.tolist(
+        ), self.atom_numbers, self.atom_positions_cart.tolist()]
+        return self.last_geom
 
-                    with open(gui_file[:-4]+'_last.gui', 'w') as file:
-                        for line in gui_data:
-                            file.writelines(line)
-
-    def symm_ops(self):
+    def get_symm_ops(self):
         import re
         import numpy as np
 
@@ -441,14 +462,14 @@ class Crystal_output:
 
         for i, line in enumerate(self.data):
             if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
-                self.n_symmpos = int(line.split()[1])
-                for j in range(0, self.n_symmpos):
+                self.n_symm_ops = int(line.split()[1])
+                for j in range(0, self.n_symm_ops):
                     symmops.append(self.data[i+3+j].split()[2:])
-                self.symmops = np.array(symmops)
+                self.symm_ops = np.array(symmops)
 
-                return self.symmops
+                return self.symm_ops
 
-    def forces(self, initial=False, grad=False):
+    def get_forces(self, initial=False, grad=False):
         import re
         import numpy as np
 
@@ -487,7 +508,8 @@ class Crystal_output:
                         self.forces_cell.append(
                             [float(x) for x in self.data[j].split()])
                     self.forces_cell = np.array(self.forces_cell)
-                    return self.forces_atoms, self.forces_cell
+                    self.forces = [self.forces_cell, self.forces_atoms]
+                    return self.forces
 
         elif initial == False:
             for i, line in enumerate(self.data[::-1]):
@@ -502,9 +524,24 @@ class Crystal_output:
                         self.forces_atoms.append(
                             [float(x) for x in self.data[j].split()[2:]])
                     self.forces_atoms = np.array(self.forces_atoms)
-                    return self.forces_atoms, self.forces_cell
+                    self.forces = [self.forces_cell, self.forces_atoms]
+                    return self.forces
 
-    def config_analysis(self):
+    def get_mulliken_charges(self):
+
+        import re
+
+        self.mulliken_charges = []
+        for i, line in enumerate(self.data):
+            if re.match(r'^ MULLIKEN POPULATION ANALYSIS', line):
+                for j in range(len(self.data[i:])):
+                    line1 = self.data[i+4+j].split()
+                    if line1 == []:
+                        return self.mulliken_charges
+                    elif line1[0].isdigit() == True:
+                        self.mulliken_charges.append(float(line1[3]))
+
+    def get_config_analysis(self):
         import re
         import numpy as np
 
@@ -525,11 +562,9 @@ class Crystal_output:
         class_index = []
         config_list = []
 
-        #config_list.extend(line.split() for line in self.data[begin:])
         for line in self.data[begin:]:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
-        #config_list = [item for sublist in config_list for item in sublist]
         config_list = np.array(config_list)
         warning = np.where(config_list == 'WARNING')
         config_list = np.delete(config_list, warning)
@@ -545,9 +580,7 @@ class Crystal_output:
         atom_type1 = []
         atom_type2 = []
         config_list = config_list.tolist()
-        # print(len(atom1_begin),len(atom2_begin),len(atom1_end),len(atom2_end))
         for i in range(len(atom1_end)):
-            # print(i,atom2_begin[i],atom2_end[i],config_list[atom2_begin[i]],config_list[atom2_end[i]])
             atom_type1.append(
                 [int(x) for x in config_list[atom1_begin[i+1]+1:atom1_end[i]]])
             atom_type2.append(
@@ -555,17 +588,7 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
-        # print(atom_type1)
-        # print(config_list)
-        #print(np.where(config_list == 'TI')[0])
-
-        '''non_subs = []
-        subs = []
-        class_index = []
-        for i, line in enumerate(self.data[begin:]):
-            if line.split()[0] == 'CLASS':
-                class_index.append(begin+i)
-        print(self.data[class_index[0]])'''
+        return [self.atom_type1, self.atom_type2]
 
 
 # TESTING
@@ -583,10 +606,213 @@ class Crystal_output:
 # print('forces\n',a.forces(gradient=True))
 # print('grad\n',a.grad)
 # print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
+# print(a.get_mulliken_charges())
 
-class Crystal_properties:
+class Properties_input:
+    # This creates a crystal_input object
+
+    def __init__(self, input_name=None):
+        import sys
+
+        self.name = input_name
+        if input_name is not None:
+            try:
+                if input_name[-3:] != 'd12':
+                    input_name = input_name+'.d12'
+                file = open(input_name, 'r')
+                self.data = file.readlines()
+                file.close()
+            except:
+                print('EXITING: a .d3 file needs to be specified')
+                sys.exit(1)
+
+            if 'NEWK\n' in self.data:
+                self.is_newk = True
+                self.newk_block = self.data[0:2]
+                self.property_block = self.data[2:]
+            else:
+                self.is_newk = False
+                self.property_block = self.data
+
+    def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0, title=None):
+        self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
+                           '%s %s\n' % (Fermi, print_option)]
+
+        return self.newk_block
+
+    def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
+                         title='BAND STRUCTURE CALCULATION'):
+        # k_path can be:
+        # list of list
+        # pymatgen HighSymmKpath object
+
+        import numpy as np
+        import sys
+
+        bands_block = []
+
+        if 'HighSymmKpath' in str(type(k_path)):
+            k_path_flat = [item for sublist in k_path.kpath['path']
+                           for item in sublist]
+            k_path_pmg = []
+            for i in k_path_flat:
+                # This is a pmg HighSymmKpath object
+                k_path_pmg.append(k_path.kpath['kpoints'][i].tolist())
+            k_path = np.array(k_path_pmg)
+
+        elif type(k_path[0]) == list:
+            # This is a list of lists
+            k_path = np.array(k_path)
+
+        else:
+            print('EXITING: k_path type must be a list of list (k coordinates) or\
+                a pymatgen HighSymmKpath object. %s selected' % type(k_path))
+            sys.exit(1)
+
+        k_unique = np.unique(k_path)
+
+        # Find the shrinking factor
+        k_unique = np.array(np.around(k_unique, 4)*10000, dtype=int)
+        if len(k_unique) > 2:
+            gcd = np.gcd.reduce(k_unique)
+        else:
+            gcd = np.gcd(k_unique[0], k_unique[1])
+        k_path = np.array((k_path/gcd)*10000, dtype=int)
+        shrink = int(10000/gcd)
+
+        bands_block.append('BAND\n')
+        bands_block.append(title+'\n')
+
+        bands_block.append(str(len(k_path)-1)+' '+str(shrink)+' '+str(n_kpoints) +
+                           ' '+str(first_band)+' '+str(last_band)+' ' +
+                           str(print_option)+' '+str(print_eig)+'\n')
+
+        # Add the symmetry lines
+        for i in range(len(k_path[:-1])):
+            bands_block.append(' '.join([str(x) for x in k_path[i]])+'  ' +
+                               ' '.join([str(x) for x in k_path[i+1]])+'\n')
+
+        bands_block.append('END\n')
+
+        self.bands_block = bands_block
+
+        return self.bands_block
+
+    def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
+                        poly=12, print_option=1):
+        #e_range in eV
+        import sys
+
+        doss_block = []
+        if band_range == None and e_range == None:
+            print('EXITING: please specify either band_range or e_range. None selected')
+            sys.exit(1)
+        elif band_range != None and e_range != None:
+            print('EXITING: please specify either band_range or e_range. Both selected')
+            sys.exit(1)
+        elif type(band_range) == list and len(band_range) == 2:
+            doss_range = band_range
+        elif type(e_range) == list and len(e_range) == 2:
+            doss_range = [-1, -1]
+
+        else:
+            print('EXITING: either the band_range argument or the e_range argument\
+                do not match the required format (2 item list)')
+            sys.exit(1)
+
+        doss_block.append('DOSS\n')
+        doss_block.append(str(0)+' '+str(n_points)+' '+str(doss_range[0])+' ' +
+                          str(doss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
+                          str(print_option)+'\n')
+
+        if doss_range == [-1, -1]:
+            doss_block.append(
+                str(e_range[0]/27.2114)+' '+str(e_range[1]/27.2114)+'\n')
+
+        doss_block.append('END\n')
+
+        self.doss_block = doss_block
+
+        return self.doss_block
+
+    def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
+                         e_range=None, plotting_option=2, poly=12, print_option=1):
+
+        # projections is a list of lists
+        import sys
+        from crystal_functions.file_readwrite import Crystal_output
+
+        pdoss_block = []
+        if band_range == None and e_range == None:
+            print('EXITING: please specify either band_range or e_range. None selected')
+            sys.exit(1)
+        elif band_range != None and e_range != None:
+            print('EXITING: please specify either band_range or e_range. Both selected')
+            sys.exit(1)
+        elif type(band_range) == list and len(band_range) == 2:
+            pdoss_range = band_range
+        elif type(e_range) == list and len(e_range) == 2:
+            pdoss_range = [-1, -1]
+
+        else:
+            print('EXITING: either the band_range argument or the e_range argument\
+                do not match the required format (2 item list)')
+            sys.exit(1)
+
+        pdoss_block.append('DOSS\n')
+        pdoss_block.append(str(len(projections))+' '+str(n_points)+' '+str(pdoss_range[0])+' ' +
+                           str(pdoss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
+                           str(print_option)+'\n')
+
+        if pdoss_range == [-1, -1]:
+            pdoss_block.append(
+                str(e_range[0]/27.2114)+' '+str(e_range[1]/27.2114)+'\n')
+
+        flat_proj = [x for sublist in projections for x in sublist]
+        if all(isinstance(x, int) for x in flat_proj):
+            if proj_type == 'atom':
+                for proj in projections:
+                    pdoss_block.append(str(-len(proj))+' ' +
+                                       ' '.join([str(x) for x in proj])+'\n')
+            if proj_type == 'ao':
+                for proj in projections:
+                    pdoss_block.append(str(len(proj))+' ' +
+                                       ' '.join([str(x) for x in proj])+'\n')
+            elif proj_type != 'atom' and proj_type != 'ao':
+                print(
+                    'EXITING: please specify either atom or ao projection. %s selected' % proj_type)
+                sys.exit(1)
+        elif all(isinstance(x, str) for x in flat_proj):
+            if output_file == None:
+                print(
+                    'EXITING: please specify an outut file to use the atoms projection.')
+                sys.exit(1)
+            else:
+                output = Crystal_output(output_file)
+                output.extract_last_geom()
+                atoms_symbols = output.atom_symbols
+                atoms_symbols.insert(0, 0)
+
+                for proj in projections:
+                    atom_positions_list = []
+                    for element in proj:
+                        index = [i for i, ele in enumerate(
+                            atoms_symbols) if ele == element.upper()]
+                        atom_positions_list.append([str(x) for x in index])
+                    pdoss_block.append(
+                        str(-len(index))+' '+' '.join([str(x) for x in index])+'\n')
+
+        pdoss_block.append('END\n')
+
+        self.pdoss_block = pdoss_block
+        return self.pdoss_block
+
+
+class Properties_output:
 
     def __init__(self, properties_output):
+
+        import sys
 
         self.file_name = properties_output
 
@@ -595,10 +821,10 @@ class Crystal_properties:
             self.data = file.readlines()
             file.close()
         except:
-            print('EXITING: a CRYSTAL .BAND file needs to be specified')
+            print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
 
-    def read_bands(self):
+    def read_cry_bands(self):
         # This class contains the bands objects created from reading the
         # band files created by different electronic structure codes
         # Returns an array where the band energy is expressed in eV
@@ -661,14 +887,12 @@ class Crystal_properties:
             # line where the first beta band is. Written this way to help identify
             first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
             for i, line in enumerate(data[first_k_beta:-1]):
-                # organization of the bands energy into the array
                 self.bands[:self.n_bands+1, i,
                            1] = np.array([float(n) for n in line.split()[1:]])
 
         # Convert all the energy to eV
-        self.bands[:, :, :] = self.bands[:, :, :]*27.2114
-
-        return 'bands', self.bands, '\nno_bands\n', self.n_bands, 'spin\n', self.spin, 'no_tick\n', self.n_tick, 'input coordinates\n', self.k_point_inp_coordinates, 'no_points\n', self.n_points, 'k point coordiantes\n', self.k_point_coordinates, 'tick poitions\n', self.tick_position, 'tick labels\n', self.tick_label
+        self.bands[1:, :, :] = self.bands[1:, :, :]*27.2114
+        return self
 
     '''###TESTING
     mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
@@ -713,17 +937,18 @@ class Crystal_properties:
         return self
 
     def read_cry_contour(self):
-        # Ale C's function to read contour data
+        # Functions that extract useful info and stores it in sel.attributes
         pass
 
 
-'''###TESTING
-mgo_DOSS = Doss('data/mgo_spin_DOSS_dat.DOSS') 
-mgo_file = mgo_DOSS.read_cry_doss()
-print(mgo_file.doss[0,-1:1:-1,0])'''
+# TESTING
+#contour_obj = Crystal_properties('../examples/data/SURFRHOO.DAT').read_cry_contour()
+#a = contour_obj.read_cry_contour()
+#bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND').read_cry_bands()
+# print(bands.bands)
 
 
-def write_cry_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
+def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # input_name is the name of the imput that is going to be written (.d12)
     # crystal_input is an object belonging to the crystal_input Class.
     # external_obj is the ASE or pymatgen object that is going to be written in the fort.34
@@ -801,7 +1026,7 @@ print(mgo.geom_block)
 write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
 
 
-def write_cry_properties(input_name, property_block, newk=False):
+def write_properties_input(input_name, property_block, newk=False):
 
     import sys
     import itertools
@@ -1274,7 +1499,8 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     try:
         density1_data = Density(density1).cry_read_density()  # substrate
         density2_data = Density(density2).cry_read_density()
-        density3_data_obj = Density(density3).cry_read_density()
+        ###density3_data_obj = Density(density3).cry_read_density()
+        density3_data_obj = Density(density1).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
         file.close()

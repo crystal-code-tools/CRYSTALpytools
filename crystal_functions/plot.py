@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on 29/03/2022
-
-@author: brunocamino
 """
 
 
@@ -170,9 +168,17 @@ def plot_cry_multibands(bands_list, k_labels=None, energy_range=None, title=Fals
     pass
 
 
+def plot_cry_bands_compare():
+    pass
+
+
 def plot_cry_doss():
     pass
 
 
 def plot_cry_es():
     pass
+
+
+def plot_contour(contour_obj, diff=False):
+    # Ale C's function
