@@ -37,14 +37,14 @@ class Crystal_input:
             end_index = [i for i, s in enumerate(data) if 'END' in s]
             self.is_basisset = False
         self.geom_block = []
-        #self.optgeom_block = []
+        # self.optgeom_block = []
         self.bs_block = []
         self.func_block = []
         self.scf_block = []
 
         if len(end_index) == 4:
             self.geom_block = data[:end_index[0]+1]
-            #self.optgeom_block = []
+            # self.optgeom_block = []
             self.bs_block = data[end_index[0]+1:end_index[1]+1]
             self.func_block = data[end_index[1]+1:end_index[2]+1]
             # The following loop ensures that keyword+values (such as TOLINTEG 7 7 7 7 14
@@ -62,7 +62,7 @@ class Crystal_input:
             # This is the old one, remove if not needed: self.scf_block = data[end_index[2]+1:]
         elif len(end_index) == 5:
             self.geom_block = data[:end_index[1]+1]
-            #self.optgeom_block = data[end_index[0]+1:end_index[1]+1]
+            # self.optgeom_block = data[end_index[0]+1:end_index[1]+1]
             self.bs_block = data[end_index[1]+1:end_index[2]+1]
             self.func_block = data[end_index[2]+1:end_index[3]+1]
             # The following loop ensures that keyword+values (such as TOLINTEG 7 7 7 7 14
@@ -108,11 +108,11 @@ class Crystal_input:
 
 '''###TESTING
 mgo = Crystal_input('examples/data/mgo.d12')
-mgo.add_ghost([1,2,3])     
-#print(mgo.name)
-#print(mgo.scf_block)
-#mgo.scf_block.remove('DIIS\n')
-#print(mgo.scf_block)'''
+mgo.add_ghost([1,2,3])
+# print(mgo.name)
+# print(mgo.scf_block)
+# mgo.scf_block.remove('DIIS\n')
+# print(mgo.scf_block)'''
 
 
 class Crystal_output:
@@ -147,7 +147,7 @@ class Crystal_output:
 
         if self.converged == False:
             self.eoo = len(self.data)
-            #print('WARNING: the calculation did not converge. Proceed with care!')
+            # print('WARNING: the calculation did not converge. Proceed with care!')
 
     def get_dimensionality(self):
 
@@ -357,7 +357,7 @@ class Crystal_output:
             print(
                 'DEV WARNING: check this output and the band gap function in file_readwrite')
             # elif re.match(r'^\s\w+ ENERGY BAND GAP',line1) != None:
-            #band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
+            # band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
         import re
@@ -397,7 +397,7 @@ class Crystal_output:
                 a, b, c, alpha, beta, gamma = self.data[len(
                     self.data)-i-2-int(self.n_atoms)-5].split()
                 # DELout2cif(file_name,a,b,c,alpha,beta,gamma,atom_positions)
-                #DELout_name = str(file_name[:-4]+'.cif')
+                # DELout_name = str(file_name[:-4]+'.cif')
                 for atom in self.atom_symbols:
                     self.atom_numbers.append(
                         element(atom.capitalize()).atomic_number)
@@ -592,8 +592,8 @@ class Crystal_output:
 
 
 # TESTING
-#a = Crystal_output('../examples/data/mgo_optgeom.out')
-#a = Crystal_output('../examples/data/LTS_CONFCNT_ONLY')
+# a = Crystal_output('../examples/data/mgo_optgeom.out')
+# a = Crystal_output('../examples/data/LTS_CONFCNT_ONLY')
 # print(a.config_analysis())
 # print('final_energy\n',a.final_energy())
 # print('fermi\n',a.fermi_energy())
@@ -601,7 +601,7 @@ class Crystal_output:
 # print('band_gap\n',a.band_gap())
 # print('spin\n',a.spin_pol)
 # print('reciprocal\n',a.reciprocal_lattice())
-#print('last geom\n',a.extract_last_geom(print_cart=False))
+# print('last geom\n',a.extract_last_geom(print_cart=False))
 # print('symmops\n',a.symm_ops())
 # print('forces\n',a.forces(gradient=True))
 # print('grad\n',a.grad)
@@ -700,7 +700,7 @@ class Properties_input:
 
     def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
                         poly=12, print_option=1):
-        #e_range in eV
+        # e_range in eV
         import sys
 
         doss_block = []
@@ -874,6 +874,9 @@ class Properties_output:
         self.bands = np.zeros(
             (self.n_bands, self.n_kpoints, self.spin), dtype=float)
 
+        # Allocate the k_points a one dimensional array
+        self.k_point_plot = np.zeros(self.n_kpoints)
+
         # line where the first band is. Written this way to help identify
         # where the error might be if there are different file lenghts
         first_k = 2 + self.n_tick + 14 + 2*self.n_tick + 2
@@ -882,6 +885,7 @@ class Properties_output:
         for i, line in enumerate(data[first_k:first_k+self.n_kpoints]):
             self.bands[:self.n_bands+1, i,
                        0] = np.array([float(n) for n in line.split()[1:]])
+            self.k_point_plot[i] = float(line.split()[0])
 
         if self.spin == 2:
             # line where the first beta band is. Written this way to help identify
@@ -891,11 +895,11 @@ class Properties_output:
                            1] = np.array([float(n) for n in line.split()[1:]])
 
         # Convert all the energy to eV
-        self.bands[1:, :, :] = self.bands[1:, :, :]*27.2114
+        self.bands[:, :, :] = self.bands[:, :, :]*27.2114
         return self
 
     '''###TESTING
-    mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
+    mgo_bands = Bands('data/mgo_BAND_dat.BAND')
     mgo_file = mgo_bands.read_cry_band()
     print(mgo_file.bands[-1,0,0])
     print(mgo_file.tick_position[-1])'''
@@ -942,9 +946,9 @@ class Properties_output:
 
 
 # TESTING
-#contour_obj = Crystal_properties('../examples/data/SURFRHOO.DAT').read_cry_contour()
-#a = contour_obj.read_cry_contour()
-#bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND').read_cry_bands()
+# contour_obj = Crystal_properties('../examples/data/SURFRHOO.DAT').read_cry_contour()
+# a = contour_obj.read_cry_contour()
+# bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND').read_cry_bands()
 # print(bands.bands)
 
 
@@ -1013,15 +1017,16 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
 
 
 # TESTING
-'''from pymatgen.core import Structure, Lattice             
+'''from pymatgen.core import Structure, Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
-substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure() 
+substrate = Structure.from_spacegroup(
+    "Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
+substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure()
 
-#mgo = Crystal_input('examples/data/mgo.d12') 
-#write_cry_input('examples/data/mgo_TEST.d12',crystal_input = mgo,external_obj=substrate_conv,comment='YES')
+# mgo = Crystal_input('examples/data/mgo.d12')
+# write_cry_input('examples/data/mgo_TEST.d12',crystal_input = mgo,external_obj=substrate_conv,comment='YES')
 
-mgo = Crystal_input('examples/data/mgo.d12') 
+mgo = Crystal_input('examples/data/mgo.d12')
 print(mgo.geom_block)
 write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
 
@@ -1214,9 +1219,11 @@ from pymatgen.core import Structure, Lattice
 from pymatgen.core.surface import SlabGenerator
 
 
-#substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
-substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
-substrate = SlabGenerator(substrate, (1,0,0), 5., 10., center_slab=False).get_slab()
+# substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
+substrate = Structure.from_spacegroup(
+    "Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
+substrate = SlabGenerator(substrate, (1,0,0), 5., 10.,
+                          center_slab=False).get_slab()
 
 
 write_cry_gui('examples/data/cu_100_TEST.gui',substrate,dimensionality=2)'''
@@ -1270,7 +1277,7 @@ class Crystal_density:
                 p_irr_len = (self.inf_vec[63]+1)*self.inf_vec[18]
                 nnnc_len = self.inf_vec[190]
                 la3_len = self.inf_vec[55]
-                #n_symmops_noinv = inf_vec[1]
+                # n_symmops_noinv = inf_vec[1]
 
             elif re.match(r'^TOL', line):
                 self.tol_vec = []
@@ -1283,7 +1290,7 @@ class Crystal_density:
                 par_n_lines = int(np.ceil(par_vec_len/4))
                 for j in range(par_n_lines):
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
                     for item in range(0, int(len(data[i+1+j])/20)):
                         self.par_vec.append(
@@ -1298,7 +1305,7 @@ class Crystal_density:
                 xyvgve_vec = []
                 for j in range(xyvgve_n_lines):
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
                     for item in range(0, int(len(data[i+1+j])/20)):
                         xyvgve_vec.append(
@@ -1318,7 +1325,7 @@ class Crystal_density:
                     basato_vec = []
                     for j in range(basato_n_lines):
                         # The negative elements appear connected to the previous one
-                        #eg:  0.0000000000000E+00-1.0000000000000E+00
+                        # eg:  0.0000000000000E+00-1.0000000000000E+00
                         # The line below fixes that issue
                         for item in range(0, int(len(data[i+1+j])/20)):
                             basato_vec.append(
@@ -1330,7 +1337,7 @@ class Crystal_density:
                     for j in range(0, 3*n_atoms, 3):
                         self.atom_coord.append(
                             basato_vec[(n_atoms+j):(n_atoms+j+3)])
-                    #self.atom_coord = np.array(self.atom_coord)
+                    # self.atom_coord = np.array(self.atom_coord)
 
                     # Assign the shell to the atom
                     self.shell_coord = []
@@ -1339,7 +1346,7 @@ class Crystal_density:
                     for j in range(0, 3*n_shells, 3):
                         self.shell_coord.append(
                             basato_vec[(init+j):(init+j+3)])
-                    #self.shell_coord = np.array(self.shell_coord)
+                    # self.shell_coord = np.array(self.shell_coord)
 
                     # Array that defines which atom a shell belongs to
                     self.shell_to_atom = []
@@ -1393,7 +1400,7 @@ class Crystal_density:
                         self.charges.append(float(data[i+j+n_spin_lines+1][(item)*21:(item+1)*21]))'''
                 for j in range(f_irr_n_lines):
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1405,7 +1412,7 @@ class Crystal_density:
                 skip += 1
                 for k in range(i+skip+j, i+skip+j+p_irr_n_lines):
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1420,7 +1427,7 @@ class Crystal_density:
                 j = i+1
                 while 'NSTATG' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1434,7 +1441,7 @@ class Crystal_density:
                 j = i+1
                 while 'NSTAFG' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1449,7 +1456,7 @@ class Crystal_density:
                 nnnc_n_lines = int(np.ceil(nnnc_len/8))
                 for j in range(nnnc_n_lines):
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1461,11 +1468,11 @@ class Crystal_density:
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la3 = []
-                #nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'LA4' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1476,11 +1483,11 @@ class Crystal_density:
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la4 = []
-                #nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'IROF' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
-                    #eg:  0.0000000000000E+00-1.0000000000000E+00
+                    # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
                     # characters long, this ones are 21
                     # The line below fixes that issue
@@ -1499,7 +1506,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     try:
         density1_data = Density(density1).cry_read_density()  # substrate
         density2_data = Density(density2).cry_read_density()
-        ###density3_data_obj = Density(density3).cry_read_density()
+        # density3_data_obj = Density(density3).cry_read_density()
         density3_data_obj = Density(density1).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
@@ -1551,7 +1558,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
     sum_charges = np.array(density1_data.charges) + \
         np.array(density2_data.charges)
-    #sum_charges = [12.,12.,8.,8.,8,8.]
+    # sum_charges = [12.,12.,8.,8.,8,8.]
     spinor = ['SPINOR\n']
     charges = []
     fock = []
@@ -1628,12 +1635,12 @@ def write_cry_density(fort98_name, new_p, new_fort98):
 
 
 # TESTING
-#H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
-#H_density =  Density('examples/data/mgo.f98').cry_read_density()
-#ghost_density = Density('../examples/data/Mg2O2_O1_100_1.f98').cry_read_density()
-#ghost_density = Density('../examples/data/Mg2O2_O1_100_1_BSSE_ads.f98').cry_read_density()
+# H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
+# H_density =  Density('examples/data/mgo.f98').cry_read_density()
+# ghost_density = Density('../examples/data/Mg2O2_O1_100_1.f98').cry_read_density()
+# ghost_density = Density('../examples/data/Mg2O2_O1_100_1_BSSE_ads.f98').cry_read_density()
 # print(ghost_density.charges)
-#density_basold = Density('/Users/brunocamino/Desktop/Imperial/cmsg_icl/solid-solutions/data/classification/LTS_2_B3LYP_Ahl_b.f98').cry_read_density()
+# density_basold = Density('/Users/brunocamino/Desktop/Imperial/cmsg_icl/solid-solutions/data/classification/LTS_2_B3LYP_Ahl_b.f98').cry_read_density()
 '''
 density1 = '../examples/data/density/substrate.f98'
 density2 = '../examples/data/density/adsorbate.f98'

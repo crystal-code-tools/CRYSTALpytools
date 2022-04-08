@@ -26,12 +26,9 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     # plotting of a single band object
     if mode == modes[0]:
 
-        if bands.spin == 1:
-            dx = bands.bands[:, 0]
-            pltband = bands.bands[:, 1:]
-        elif bands.spin == 2:
-            dx = bands.bands[:, 0, :]
-            pltband = bands.bands[:, ]
+        dx = bands.k_point_plot
+
+        pltband = bands.bands
         no_bands = np.shape(pltband)
         no_bands = no_bands[0]
         ymin = np.amin(pltband)
@@ -89,7 +86,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         path_dict = dict(zip(high_sym_point2, hsp))
 
-        x = np.linspace(x_min, x_max, 2)
+        x = np.linspace(xmin, xmax, 2)
         y = np.zeros(2)
         plt.plot(x, y, color=fermi, linewidth=2.5)
 
@@ -116,6 +113,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         plt.ylabel('$E-E_F$ (eV)')
         plt.ylim(ymin, ymax)
         plt.xlim(xmin, xmax)
+        plt.show()
 
     """kpoints = bands.tick_position 
     efermi_band = bands.efermi    
@@ -182,3 +180,4 @@ def plot_cry_es():
 
 def plot_contour(contour_obj, diff=False):
     # Ale C's function
+    pass
