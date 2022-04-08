@@ -17,11 +17,62 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
              'Upsilon': '\u03A5', 'Phi': '\u03A6', 'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
 
     # Error check on the mode flag
-    modes = ['single', 'multi', 'surface']
+    modes = ['single', 'multi', 'compare', 'surface']
     if mode not in modes:
         print('The selected mode '+mode+' is not among the possible ones: ' +
-              modes[0]+', ' + modes[1] + ', or '+modes[2])
+              modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
         sys.exit()
+
+    # Error chenk on k_label
+    if k_labels != None:
+
+        if type(k_labels) != list:
+            print('k_labels must be a list of strings')
+            sys.exit()
+
+        elif type(k_labels) == list:
+            for element in k_labels:
+                if type(element) != str:
+                    print('k_label must be a list of strings:' +
+                          str(element)+' is not a string')
+                    sys.exit()
+
+    # Error check on energy range
+    if energy_range != None:
+
+        if type(energy_range) != list:
+            print('energy_range must be a list of two int or float (min,max)')
+            sys.exit()
+
+        elif type(energy_range) == list:
+
+            if len(energy_range) > 2:
+                print('energy_range must be a list of two int or float (min,max)')
+                sys.exit()
+
+            for element in energy_range:
+                if (type(element) != int) or (type(element) != float):
+                    print('energy_range must be a list of two int or float (min,max): ' +
+                          str(element)+', is neither a float or an int')
+                    sys.exit()
+
+    # Error check on k_range
+    if k_range != None:
+
+        if type(k_range) != list:
+            print('k_range must be a list of two strings')
+            sys.exit()
+
+        elif type(k_range) == list:
+            if len(k_range) > 2:
+                print('k_range must be a list of two strings')
+                sys.exit()
+
+            for element in k_range:
+                if type(element) != str:
+                    print('k_label must be a list of two strings:' +
+                          str(element)+' is not a string')
+                    sys.exit()
 
     # plotting of a single band object
     if mode == modes[0]:
@@ -67,6 +118,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 hsp_label.append(n)
                 high_sym_point.append(n)
 
+        # give the possibility through the k_range to select a shorter path than the one calculated
         high_sym_point2 = high_sym_point
         count = 0
         for i in high_sym_point2:
@@ -86,14 +138,17 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         path_dict = dict(zip(high_sym_point2, hsp))
 
+        # plot of the fermi level
         x = np.linspace(xmin, xmax, 2)
         y = np.zeros(2)
         plt.plot(x, y, color=fermi, linewidth=2.5)
 
+        # definition of the ylim
         if energy_range != None:
             ymin = energy_range[0]
             ymax = energy_range[1]
 
+        # definition of the xlim
         if k_range != None:
             for i in range(0, len(k_range)):
                 j = k_range[i]
@@ -103,6 +158,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             xmin = path_dict[k_range[0]]
             xmax = path_dict[k_range[1]]
 
+        # definition of the plot title
         if title != False:
             plt.title(title)
 
@@ -113,7 +169,10 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         plt.ylabel('$E-E_F$ (eV)')
         plt.ylim(ymin, ymax)
         plt.xlim(xmin, xmax)
-        plt.show()
+
+    elif mode == modes[1]:
+
+    plt.show()
 
     """kpoints = bands.tick_position 
     efermi_band = bands.efermi    
