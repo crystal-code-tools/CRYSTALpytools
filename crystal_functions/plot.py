@@ -5,10 +5,13 @@ Created on 29/03/2022
 """
 
 
-def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-', linewidth=1, color='blue', fermi='forestgreen', k_range=None):
+from pyparsing import counted_array
+
+
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-', linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None):
 
     import matplotlib.pyplot as plt
-    import matplotlib.lines as mlines
+    # import matplotlib.lines as mlines
     import numpy as np
     import sys
 
@@ -74,14 +77,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                           str(element)+' is not a string')
                     sys.exit()
 
+    # Error check on title
+    if title != False:
+        if type(title) != str:
+            print('title needs to be a string')
+            sys.exit
+
     # plotting of a single band object
     if mode == modes[0]:
 
         dx = bands.k_point_plot
 
         pltband = bands.bands
-        no_bands = np.shape(pltband)
-        no_bands = no_bands[0]
+        no_bands = np.shape(pltband)[0]
         ymin = np.amin(pltband)
         ymax = np.amax(pltband)
         xmin = min(dx)
@@ -100,77 +108,152 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 plt.plot(dx[:, 1], pltband[i, :, 1], color='black',
                          linestyle=linestl, linewidth=linewidth, label='Beta')
 
-        # high symmetry point line plot
-        y_band = np.linspace(ymin-3, ymax+3, 2)
-        hsp = bands.tick_position
-        high_sym_point = []
-        hsp_label = []
-        for j in hsp:
-            x_band = np.ones(2)*j
-            plt.plot(x_band, y_band, color='black', linewidth=0.5)
-
-        for n in k_labels:
-            if n in greek:
-                g = greek.get(n)
-                hsp_label.append(g)
-                high_sym_point.append(n)
-            else:
-                hsp_label.append(n)
-                high_sym_point.append(n)
-
-        # give the possibility through the k_range to select a shorter path than the one calculated
-        high_sym_point2 = high_sym_point
-        count = 0
-        for i in high_sym_point2:
-            repeat = high_sym_point2.count(i)
-            if repeat != 1:
-                for p in range(0, len(high_sym_point2)):
-                    if p != count:
-                        repeat_count = 1
-                        q = high_sym_point2[p]
-                        r = high_sym_point[p]
-                        if (q == i) & (q == r):
-                            high_sym_point2[p] = i+str(repeat_count)
-                            repeat_count += 1
-                            if repeat_count > repeat:
-                                repeat_count = 0
-            count += 1
-
-        path_dict = dict(zip(high_sym_point2, hsp))
-
-        # plot of the fermi level
-        x = np.linspace(xmin, xmax, 2)
-        y = np.zeros(2)
-        plt.plot(x, y, color=fermi, linewidth=2.5)
-
-        # definition of the ylim
-        if energy_range != None:
-            ymin = energy_range[0]
-            ymax = energy_range[1]
-
-        # definition of the xlim
-        if k_range != None:
-            for i in range(0, len(k_range)):
-                j = k_range[i]
-                if j in greek:
-                    g = greek.get(j)
-                    k_range[i] = g
-            xmin = path_dict[k_range[0]]
-            xmax = path_dict[k_range[1]]
-
-        # definition of the plot title
-        if title != False:
-            plt.title(title)
-
-        if bands.spin == 2:
-            plt.legend()
-
-        plt.xticks(hsp, hsp_label)
-        plt.ylabel('$E-E_F$ (eV)')
-        plt.ylim(ymin, ymax)
-        plt.xlim(xmin, xmax)
-
+    # plot of multiple band objects on a single plot
     elif mode == modes[1]:
+
+        # Error check on the band on the 'multi' mode flag
+        if type(bands) != list:
+            print('When you choose a ' +
+                  modes[1]+' plot bands needs to be a list of band objects')
+            sys.exit()
+
+        # Error check on color for the 'multi' mode flag
+        if type(color) != list:
+            print('When you choose a ' +
+                  modes[1]+' plot color needs to be a list')
+            sys.exit()
+
+        elif type(color) == list:
+            if len(color) > len(bands):
+                print(
+                    'The number of colors is greater than the number of objects you want to plot')
+                sys.exit()
+
+        # Warning comparison with band.spin==2
+        for m in bands:
+            if m.spin == 2:
+                print(
+                    "Warning: the 'multi' plot is not available at the moment for file with NSPIN = 2")
+
+        # scaling that enables the comparison of band structure calculated at different pressures
+        if not_scaled == False:
+            reference = xmax = np.amax(bands[0].k_point_plot)
+            xmin = np.amin(bands[0].k_point_plot)
+
+        else:
+            xmax = []
+            xmin = []
+
+        ymin = []
+        ymax = []
+
+        # plot of all the bands obj present in the list
+        for index, data in enumerate(bands)
+        # scaling that enables the comparison of band structure calculated at different pressures
+           if not_scaled == False:
+                k_max = np.amax(data.k_point_plot)
+                dx = (data.k_point_plot/k_max)*reference
+
+            else:
+                dx = data.k_point_plot
+                xmin.append(np.amin(dx))
+                xmax.append(np.amax(dx))
+
+            pltband = data.bands
+            no_bands = np.shape(pltband)[0]
+            ymin.append(np.amin(pltband))
+            ymax.append(np.amax(pltband))
+
+            count1 = 0
+            count2 = 0
+
+            for j in range(no_bands):
+                
+                if count1 == count2:
+                    if type(linestl)==list:
+                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                    else:
+                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl, linewidth=linewidth, label=labels[index])
+                        
+                else:
+                    if type(linestl)==list:
+                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl[index], linewidth=linewidth)
+                    else:
+                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl, linewidth=linewidth)
+                count1+=1
+                
+    # HSP line plot
+    if type(bands) == list:
+        hsp = bands[0].tick_position
+    else:
+        hsp = bands.tick_position
+    y_band = np.linspace(ymin-3, ymax+3, 2)
+    high_sym_point = []
+    hsp_label = []
+    for j in hsp:
+        x_band = np.ones(2)*j
+        plt.plot(x_band, y_band, color='black', linewidth=0.5)
+
+    for n in k_labels:
+        if n in greek:
+            g = greek.get(n)
+            hsp_label.append(g)
+            high_sym_point.append(n)
+        else:
+            hsp_label.append(n)
+            high_sym_point.append(n)
+
+    # give the possibility through the k_range to select a shorter path than the one calculated
+    high_sym_point2 = high_sym_point
+    count = 0
+    for i in high_sym_point2:
+        repeat = high_sym_point2.count(i)
+        if repeat != 1:
+            for p in range(0, len(high_sym_point2)):
+                if p != count:
+                    repeat_count = 1
+                    q = high_sym_point2[p]
+                    r = high_sym_point[p]
+                    if (q == i) & (q == r):
+                        high_sym_point2[p] = i+str(repeat_count)
+                        repeat_count += 1
+                        if repeat_count > repeat:
+                            repeat_count = 0
+        count += 1
+
+    path_dict = dict(zip(high_sym_point2, hsp))
+
+    # plot of the fermi level
+    x = np.linspace(xmin, xmax, 2)
+    y = np.zeros(2)
+    plt.plot(x, y, color=fermi, linewidth=2.5)
+
+    # definition of the ylim
+    if energy_range != None:
+        ymin = energy_range[0]
+        ymax = energy_range[1]
+
+    # definition of the xlim
+    if k_range != None:
+        for i in range(0, len(k_range)):
+            j = k_range[i]
+            if j in greek:
+                g = greek.get(j)
+                k_range[i] = g
+        xmin = path_dict[k_range[0]]
+        xmax = path_dict[k_range[1]]
+
+    # definition of the plot title
+    if title != False:
+        plt.title(title)
+
+    if bands.spin == 2:
+        plt.legend()
+
+    plt.xticks(hsp, hsp_label)
+    plt.ylabel('$E-E_F$ (eV)')
+    plt.ylim(ymin, ymax)
+    plt.xlim(xmin, xmax) 
 
     plt.show()
 
