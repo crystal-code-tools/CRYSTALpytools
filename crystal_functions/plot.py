@@ -24,64 +24,64 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     if mode not in modes:
         print('The selected mode '+mode+' is not among the possible ones: ' +
               modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
-        sys.exit()
+        sys.exit(1)
 
     # Error chenk on k_label
     if k_labels != None:
 
         if type(k_labels) != list:
             print('k_labels must be a list of strings')
-            sys.exit()
+            sys.exit(1)
 
         elif type(k_labels) == list:
             for element in k_labels:
                 if type(element) != str:
                     print('k_label must be a list of strings:' +
                           str(element)+' is not a string')
-                    sys.exit()
+                    sys.exit(1)
 
     # Error check on energy range
     if energy_range != None:
 
         if type(energy_range) != list:
             print('energy_range must be a list of two int or float (min,max)')
-            sys.exit()
+            sys.exit(1)
 
         elif type(energy_range) == list:
 
             if len(energy_range) > 2:
                 print('energy_range must be a list of two int or float (min,max)')
-                sys.exit()
+                sys.exit(1)
 
             for element in energy_range:
-                if (type(element) != int) or (type(element) != float):
+                if (type(element) != int) and (type(element) != float):
                     print('energy_range must be a list of two int or float (min,max): ' +
                           str(element)+', is neither a float or an int')
-                    sys.exit()
+                    sys.exit(1)
 
     # Error check on k_range
     if k_range != None:
 
         if type(k_range) != list:
             print('k_range must be a list of two strings')
-            sys.exit()
+            sys.exit(1)
 
         elif type(k_range) == list:
             if len(k_range) > 2:
                 print('k_range must be a list of two strings')
-                sys.exit()
+                sys.exit(1)
 
             for element in k_range:
                 if type(element) != str:
                     print('k_label must be a list of two strings:' +
                           str(element)+' is not a string')
-                    sys.exit()
+                    sys.exit(1)
 
     # Error check on title
     if title != False:
         if type(title) != str:
             print('title needs to be a string')
-            sys.exit
+            sys.exit(1)
 
     # plotting of a single band object
     if mode == modes[0]:
@@ -94,6 +94,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         ymax = np.amax(pltband)
         xmin = min(dx)
         xmax = max(dx)
+        count1 = 0
+        count2 = 0
 
         # band plot
         for i in range(no_bands):
@@ -103,10 +105,17 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                          linestyle=linestl, linewidth=linewidth)
 
             elif bands.spin == 2:
-                plt.plot(dx[:, 0], pltband[i, :, 0], color='red',
-                         linestyle=linestl, linewidth=linewidth, label='Alpha')
-                plt.plot(dx[:, 1], pltband[i, :, 1], color='black',
-                         linestyle=linestl, linewidth=linewidth, label='Beta')
+                if count1 == count2:
+                    plt.plot(dx, pltband[i, :, 0], color='red',
+                             linestyle=linestl, linewidth=linewidth, label='Alpha')
+                    plt.plot(dx, pltband[i, :, 1], color='black',
+                             linestyle=linestl, linewidth=linewidth, label='Beta')
+                else:
+                    plt.plot(dx, pltband[i, :, 0], color='red',
+                             linestyle=linestl, linewidth=linewidth)
+                    plt.plot(dx, pltband[i, :, 1], color='black',
+                             linestyle=linestl, linewidth=linewidth)
+                count1 += 1
 
     # plot of multiple band objects on a single plot
     elif mode == modes[1]:
@@ -115,19 +124,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         if type(bands) != list:
             print('When you choose a ' +
                   modes[1]+' plot bands needs to be a list of band objects')
-            sys.exit()
+            sys.exit(1)
 
         # Error check on color for the 'multi' mode flag
         if type(color) != list:
             print('When you choose a ' +
                   modes[1]+' plot color needs to be a list')
-            sys.exit()
+            sys.exit(1)
 
         elif type(color) == list:
             if len(color) > len(bands):
                 print(
                     'The number of colors is greater than the number of objects you want to plot')
-                sys.exit()
+                sys.exit(1)
 
         # Warning comparison with band.spin==2
         for m in bands:
@@ -148,12 +157,11 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         ymax = []
 
         # plot of all the bands obj present in the list
-        for index, data in enumerate(bands)
-        # scaling that enables the comparison of band structure calculated at different pressures
-           if not_scaled == False:
+        for index, data in enumerate(bands):
+            # scaling that enables the comparison of band structure calculated at different pressures
+            if not_scaled == False:
                 k_max = np.amax(data.k_point_plot)
                 dx = (data.k_point_plot/k_max)*reference
-
             else:
                 dx = data.k_point_plot
                 xmin.append(np.amin(dx))
@@ -168,25 +176,49 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             count2 = 0
 
             for j in range(no_bands):
-                
+
                 if count1 == count2:
-                    if type(linestl)==list:
-                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                    if type(linestl) == list:
+                        plt.plot(dx, pltband[j, :], color=color[index],
+                                 linestyle=linestl[index], linewidth=linewidth, label=labels[index])
                     else:
-                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl, linewidth=linewidth, label=labels[index])
-                        
+                        plt.plot(dx, pltband[j, :], color=color[index],
+                                 linestyle=linestl, linewidth=linewidth, label=labels[index])
+
                 else:
-                    if type(linestl)==list:
-                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl[index], linewidth=linewidth)
+                    if type(linestl) == list:
+                        plt.plot(dx, pltband[j, :], color=color[index],
+                                 linestyle=linestl[index], linewidth=linewidth)
                     else:
-                        plt.plot(dx, pltband[j, :], color=color[index],linestyle=linestl, linewidth=linewidth)
-                count1+=1
-                
+                        plt.plot(
+                            dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
+                count1 += 1
+
+        if (type(xmin) == list) or (type(xmax) == list):
+            xmin = min(xmin)
+            xmax = max(xmax)
+
+        ymin = min(ymin)
+        ymax = max(ymax)
+
     # HSP line plot
     if type(bands) == list:
         hsp = bands[0].tick_position
     else:
         hsp = bands.tick_position
+
+    if k_labels != None:
+        if len(hsp) != len(k_labels):
+            if len(hsp) > len(k_labels):
+                print(
+                    'Error, you have specified a number of label smalle than the number of High Simmetry Point along the path')
+            elif len(hsp) < len(k_labels):
+                print(
+                    'Error, you have more labels than the High Simmetry point along the path')
+            sys.exit(1)
+
+    hsp[len(hsp)-1] = xmax
+
     y_band = np.linspace(ymin-3, ymax+3, 2)
     high_sym_point = []
     hsp_label = []
@@ -194,14 +226,15 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         x_band = np.ones(2)*j
         plt.plot(x_band, y_band, color='black', linewidth=0.5)
 
-    for n in k_labels:
-        if n in greek:
-            g = greek.get(n)
-            hsp_label.append(g)
-            high_sym_point.append(n)
-        else:
-            hsp_label.append(n)
-            high_sym_point.append(n)
+    if k_labels != None:
+        for n in k_labels:
+            if n in greek:
+                g = greek.get(n)
+                hsp_label.append(g)
+                high_sym_point.append(n)
+            else:
+                hsp_label.append(n)
+                high_sym_point.append(n)
 
     # give the possibility through the k_range to select a shorter path than the one calculated
     high_sym_point2 = high_sym_point
@@ -222,6 +255,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         count += 1
 
     path_dict = dict(zip(high_sym_point2, hsp))
+    print(path_dict)
 
     # plot of the fermi level
     x = np.linspace(xmin, xmax, 2)
@@ -235,11 +269,6 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
     # definition of the xlim
     if k_range != None:
-        for i in range(0, len(k_range)):
-            j = k_range[i]
-            if j in greek:
-                g = greek.get(j)
-                k_range[i] = g
         xmin = path_dict[k_range[0]]
         xmax = path_dict[k_range[1]]
 
@@ -247,13 +276,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     if title != False:
         plt.title(title)
 
-    if bands.spin == 2:
+    if type(bands) != list:
+        if bands.spin == 2:
+            plt.legend()
+    else:
         plt.legend()
 
-    plt.xticks(hsp, hsp_label)
+    if k_labels != None:
+        plt.xticks(hsp, hsp_label)
+    else:
+        plt.xticks(hsp)
     plt.ylabel('$E-E_F$ (eV)')
     plt.ylim(ymin, ymax)
-    plt.xlim(xmin, xmax) 
+    plt.xlim(xmin, xmax)
 
     plt.show()
 
