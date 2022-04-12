@@ -8,7 +8,7 @@ Created on 29/03/2022
 from pyparsing import counted_array
 
 
-def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-', linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None):
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-', linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None):
 
     import matplotlib.pyplot as plt
     # import matplotlib.lines as mlines
@@ -22,7 +22,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     # Error check on the mode flag
     modes = ['single', 'multi', 'compare', 'surface']
     if mode not in modes:
-        print('The selected mode '+mode+' is not among the possible ones: ' +
+        print('Error,The selected mode '+mode+' is not among the possible ones: ' +
               modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
         sys.exit(1)
 
@@ -30,13 +30,13 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     if k_labels != None:
 
         if type(k_labels) != list:
-            print('k_labels must be a list of strings')
+            print('Error, k_labels must be a list of strings')
             sys.exit(1)
 
         elif type(k_labels) == list:
             for element in k_labels:
                 if type(element) != str:
-                    print('k_label must be a list of strings:' +
+                    print('Error, k_label must be a list of strings:' +
                           str(element)+' is not a string')
                     sys.exit(1)
 
@@ -44,18 +44,18 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     if energy_range != None:
 
         if type(energy_range) != list:
-            print('energy_range must be a list of two int or float (min,max)')
+            print('Error, energy_range must be a list of two int or float (min,max)')
             sys.exit(1)
 
         elif type(energy_range) == list:
 
             if len(energy_range) > 2:
-                print('energy_range must be a list of two int or float (min,max)')
+                print('Error, energy_range must be a list of two int or float (min,max)')
                 sys.exit(1)
 
             for element in energy_range:
                 if (type(element) != int) and (type(element) != float):
-                    print('energy_range must be a list of two int or float (min,max): ' +
+                    print('Error, energy_range must be a list of two int or float (min,max): ' +
                           str(element)+', is neither a float or an int')
                     sys.exit(1)
 
@@ -63,24 +63,24 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     if k_range != None:
 
         if type(k_range) != list:
-            print('k_range must be a list of two strings')
+            print('Error, k_range must be a list of two strings')
             sys.exit(1)
 
         elif type(k_range) == list:
             if len(k_range) > 2:
-                print('k_range must be a list of two strings')
+                print('Error, k_range must be a list of two strings')
                 sys.exit(1)
 
             for element in k_range:
                 if type(element) != str:
-                    print('k_label must be a list of two strings:' +
+                    print('Error, k_label must be a list of two strings:' +
                           str(element)+' is not a string')
                     sys.exit(1)
 
     # Error check on title
     if title != False:
         if type(title) != str:
-            print('title needs to be a string')
+            print('Error, title needs to be a string')
             sys.exit(1)
 
     # plotting of a single band object
@@ -99,6 +99,11 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         # band plot
         for i in range(no_bands):
+
+            if figsize != None:
+                plt.figure()
+            else:
+                plt.figure(figsize=figsize)
 
             if bands.spin == 1:
                 plt.plot(dx, pltband[i, :], color=color,
@@ -122,27 +127,26 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         # Error check on the band on the 'multi' mode flag
         if type(bands) != list:
-            print('When you choose a ' +
+            print('Error, When you choose a ' +
                   modes[1]+' plot bands needs to be a list of band objects')
             sys.exit(1)
 
         # Error check on color for the 'multi' mode flag
         if type(color) != list:
-            print('When you choose a ' +
-                  modes[1]+' plot color needs to be a list')
-            sys.exit(1)
+            color = ['dimgrey', 'blue', 'indigo', 'slateblue',
+                     'thistle', 'purple', 'orchid', 'crimson']
 
         elif type(color) == list:
             if len(color) > len(bands):
                 print(
-                    'The number of colors is greater than the number of objects you want to plot')
+                    'Error, The number of colors is greater than the number of objects you want to plot')
                 sys.exit(1)
 
         # Warning comparison with band.spin==2
         for m in bands:
             if m.spin == 2:
                 print(
-                    "Warning: the 'multi' plot is not available at the moment for file with NSPIN = 2")
+                    "Warning: the 'multi' plot is not fully implemented at the moment for file with NSPIN = 2")
 
         # scaling that enables the comparison of band structure calculated at different pressures
         if not_scaled == False:
@@ -155,6 +159,9 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         ymin = []
         ymax = []
+
+        if figsize != None:
+            plt.figure(figsize=figsize)
 
         # plot of all the bands obj present in the list
         for index, data in enumerate(bands):
@@ -175,23 +182,37 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             count1 = 0
             count2 = 0
 
+            # Effective plot
             for j in range(no_bands):
 
-                if count1 == count2:
-                    if type(linestl) == list:
-                        plt.plot(dx, pltband[j, :], color=color[index],
-                                 linestyle=linestl[index], linewidth=linewidth, label=labels[index])
-                    else:
-                        plt.plot(dx, pltband[j, :], color=color[index],
-                                 linestyle=linestl, linewidth=linewidth, label=labels[index])
+                if (count1 == count2) and (labels != None):
+                    if data.spin == 1:
+                        if type(linestl) == list:
+                            plt.plot(dx, pltband[j, :], color=color[index],
+                                     linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                        else:
+                            plt.plot(dx, pltband[j, :], color=color[index],
+                                     linestyle=linestl, linewidth=linewidth, label=labels[index])
+                    elif data.spin == 2:
+                        plt.plot(dx, pltband[j, :, 0], color=color[index],
+                                 linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
+                        plt.plot(dx, pltband[j, :, 1], color=color[index],
+                                 linestyle='--', linewidth=linewidth, label=labels[index]+' Beta')
 
                 else:
-                    if type(linestl) == list:
-                        plt.plot(dx, pltband[j, :], color=color[index],
-                                 linestyle=linestl[index], linewidth=linewidth)
-                    else:
+                    if data.spin == 1:
+                        if type(linestl) == list:
+                            plt.plot(dx, pltband[j, :], color=color[index],
+                                     linestyle=linestl[index], linewidth=linewidth)
+                        else:
+                            plt.plot(
+                                dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
+                    elif data.spin == 2:
                         plt.plot(
-                            dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
+                            dx, pltband[j, :, 0], color=color[index], linestyle=linestl, linewidth=linewidth)
+                        plt.plot(
+                            dx, pltband[j, :, 1], color=color[index], linestyle='--', linewidth=linewidth)
+
                 count1 += 1
 
         if (type(xmin) == list) or (type(xmax) == list):
@@ -255,7 +276,6 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         count += 1
 
     path_dict = dict(zip(high_sym_point2, hsp))
-    print(path_dict)
 
     # plot of the fermi level
     x = np.linspace(xmin, xmax, 2)
