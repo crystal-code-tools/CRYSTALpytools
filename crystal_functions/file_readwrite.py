@@ -148,7 +148,7 @@ class Crystal_output:
     def get_dimensionality(self):
 
         import re
-        
+
         for line in self.data:
             if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM',line) != None:
                 self.dimensionality = int(line.split()[9])    
@@ -171,6 +171,7 @@ class Crystal_output:
         return self.final_energy
     
     def get_scf_convergence(self,all_cycles=False):
+        #Returns the final
         
         import re
         import numpy as np
@@ -204,6 +205,14 @@ class Crystal_output:
             self.scf_convergence = [self.scf_energy, self.scf_deltae]
         return self.scf_convergence
 
+    def get_opt_convergence_energy(self):
+
+        self.opt_energy = []
+        for line in self.data:                     
+            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY',line):
+                self.opt_energy.append(float(line.split()[8])*27.2114)
+        
+        return self.opt_energy
 
     def get_num_cycles(self):
 
@@ -857,11 +866,11 @@ class Properties_output:
         self.bands[1:,:,:] = self.bands[1:,:,:]*27.2114
         return self  
     
-    '''###TESTING
-    mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
-    mgo_file = mgo_bands.read_cry_band()
-    print(mgo_file.bands[-1,0,0])
-    print(mgo_file.tick_position[-1])'''
+    ###TESTING
+    #mgo_bands = Bands('data/mgo_BAND_dat.BAND') 
+    #mgo_file = mgo_bands.read_cry_band()
+    #print(mgo_file.bands[-1,0,0])
+    #print(mgo_file.tick_position[-1])
 
     def read_cry_doss(self):
         
@@ -1005,7 +1014,7 @@ def write_properties_input(input_name,property_block,newk=False):
         for line in property_input:
             file.writelines(line)
             
-def write_cry_gui(gui_file,atoms,dimensionality=3,symm=True):
+def write_crystal_gui(gui_file,atoms,dimensionality=3,symm=True,pseudo_atoms=[]):
     #gui_file is the name of the gui that is going to be written (including .gui)
     #atoms is the structure object from ase or pymatgen
     
@@ -1136,9 +1145,12 @@ def write_cry_gui(gui_file,atoms,dimensionality=3,symm=True):
             #N atoms
             file.writelines('{}\n'.format(atoms.num_sites))
 
-            #atom number + coordinates cart
+            #atom number (including pseudopotentials) + coordinates cart
             for i in range(atoms.num_sites):
-                file.writelines('{} {}\n'.format(atomic_numbers[i],atom_coords[i]))
+                if atomic_numbers[i] in pseudo_atoms:
+                    file.writelines('{} {}\n'.format(int(atomic_numbers[i])+200,atom_coords[i]))
+                else:
+                    file.writelines('{} {}\n'.format(atomic_numbers[i],atom_coords[i]))
 
         #space group + n symm ops
         if symmetry == True:
