@@ -4,5 +4,4 @@ from . import convert
 from . import execute
 from . import file_readwrite
 from . import plot
-from . import properties
 from . import utils
