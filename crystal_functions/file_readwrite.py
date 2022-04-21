@@ -84,6 +84,10 @@ class Crystal_input:
             self.bs_block.insert(-1, 'GHOSTS\n')
             self.bs_block.insert(-1,'%s\n' % len(ghost_atoms))  
             self.bs_block.insert(-1,' '.join([str(x) for x in ghost_atoms])+'\n' )   
+    
+    def remove_ghost(self):
+        if 'GHOST\n' in self.bs_block:
+            del self.bs_block[-3:-1]
 
     def opt_to_sp(self):   
         
@@ -426,7 +430,7 @@ class Crystal_output:
                         
                         structure = Structure(self.get_primitive_lattice(initial=False), self.atom_numbers, 
                               self.atom_positions_cart, coords_are_cartesian=True)
-                        write_cry_gui(gui_file,structure)
+                        write_crystal_gui(gui_file,structure)
                     else:
                         gui_file = symm_info
                         try:   
@@ -461,7 +465,7 @@ class Crystal_output:
             if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS',line):
                 self.n_symm_ops = int(line.split()[1])
                 for j in range(0,self.n_symm_ops):
-                    symmops.append(self.data[i+3+j].split()[2:])
+                    symmops.append([float(x) for x in self.data[i+3+j].split()[2:]])
                 self.symm_ops = np.array(symmops)
                 
                 return self.symm_ops
@@ -534,6 +538,7 @@ class Crystal_output:
                             return self.mulliken_charges
                         elif line1[0].isdigit() == True:
                             self.mulliken_charges.append(float(line1[3]))
+        return self.mulliken_charges
                               
 
     def get_config_analysis(self):
@@ -1014,7 +1019,131 @@ def write_properties_input(input_name,property_block,newk=False):
         for line in property_input:
             file.writelines(line)
             
-def write_crystal_gui(gui_file,atoms,dimensionality=3,symm=True,pseudo_atoms=[]):
+def write_crystal_gui(gui_file,ext_structure,dimensionality=3,symm=True,pseudo_atoms=[]):
+    #gui_file is the name of the gui that is going to be written (including .gui)
+    #atoms is the structure object from ase or pymatgen
+    
+    from ase.io.crystal import write_crystal
+    
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    from pymatgen.core.surface import center_slab
+    
+    import numpy as np
+ 
+    #ASE object
+    if 'ase.atoms' in  str(type(ext_structure)):
+        write_crystal(gui_file,ext_structure)
+        return None
+        
+    #pymatgen object
+    elif 'pymatgen' in str(type(ext_structure)):
+        if 'Slab' in str(type(ext_structure)):
+            dimensionality = 2
+
+
+    with open(gui_file, 'w') as file:
+
+        if dimensionality == 3:
+
+            #First line
+            file.writelines('3   1   1\n')
+
+            #Cell vectors
+            for vector in ext_structure.lattice.matrix:
+                file.writelines(' '.join(str(n) for n in vector)+'\n')
+
+            #N symm ops
+            if symm == True:
+                n_symmops = len(SpacegroupAnalyzer(ext_structure).get_space_group_operations())
+
+                file.writelines('{}\n'.format(str(n_symmops)))
+
+                #symm ops
+                for symmops in SpacegroupAnalyzer(ext_structure).get_symmetry_operations(cartesian=True):
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[0])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[1])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.rotation_matrix[2])))
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmops.translation_vector)))
+            else:
+                n_symmops = 1
+                # symm ops
+                file.writelines('{}\n'.format(str(n_symmops)))
+                identity = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,0.]])
+                file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in identity[0])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
+
+        elif dimensionality == 2:
+            file.writelines('2   1   1\n')
+            #Cell vectors
+            z_component = ['0.0000', '0.00000', '500.00000']
+            for i,vector in enumerate(ext_structure.lattice.matrix[0:3,0:2]):
+                file.writelines(' '.join(str(n) for n in vector)+' '+z_component[i]+'\n')
+            #Center the slab
+            #First center at z = 0.5
+            ext_structure = center_slab(ext_structure)
+
+            #Then center at z=0.0
+            translation = np.array([0.0, 0.0, -0.5])
+            ext_structure.translate_sites(list(range(ext_structure.num_sites)),
+                                         translation, to_unit_cell=False)
+
+            if symm == True:
+                #Remove symmops with z component
+                sg = SpacegroupAnalyzer(ext_structure)
+                ops = sg.get_symmetry_operations(cartesian=True)
+                symmops = []
+                for op in ops:
+                    if op.translation_vector[2] == 0.:
+                        symmops.extend(op.rotation_matrix.tolist())
+                        symmops.extend([op.translation_vector.tolist()])
+
+                #N symm ops
+                n_symmops = int(len(symmops)/4)
+                file.writelines('{}\n'.format(n_symmops))
+
+                #symm ops
+                for symmop in symmops:
+                    file.writelines('{}\n'.format(' '.join(str(np.around(n,8)) for n in symmop)))
+            else:
+                n_symmops = 1
+                # symm ops
+                identity = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[0])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[1])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[2])))
+                file.writelines('{}\n'.format(' '.join(str(np.around(n, 8)) for n in identity[3])))
+
+        '''if symmetry == True:
+            # N atoms
+            file.writelines('{}\n'.format(len(atoms_symm.equivalent_indices)))
+
+            # atom number + coordinates cart
+            for i in range(len(atoms_symm.equivalent_indices)):
+                file.writelines('{} {}\n'.format(atomic_numbers[atoms_symm.equivalent_indices[i][0]],
+                                                 atom_coords[atoms_symm.equivalent_indices[i][0]]))'''
+
+        #N atoms
+        file.writelines('{}\n'.format(ext_structure.num_sites))
+
+        #atom number (including pseudopotentials) + coordinates cart
+        for i in range(ext_structure.num_sites):
+            if ext_structure.atomic_numbers[i] in pseudo_atoms:
+                file.writelines('{} {}\n'.format(int(ext_structure.atomic_numbers[i])+200,
+                                                ' '.join([str(x) for x in ext_structure.cart_coords[i]])))
+            else:
+                file.writelines('{} {}\n'.format(ext_structure.atomic_numbers[i],
+                                                ' '.join([str(x) for x in ext_structure.cart_coords[i]])))
+
+        #space group + n symm ops
+        if symm == True:
+            file.writelines('{} {}'.format(SpacegroupAnalyzer(ext_structure).get_space_group_number(),
+                            len(SpacegroupAnalyzer(ext_structure).get_space_group_operations())))
+        else:
+            file.writelines('1 1')
+
+def write_crystal_gui_SAVE(gui_file,atoms,dimensionality=3,symm=True,pseudo_atoms=[]):
     #gui_file is the name of the gui that is going to be written (including .gui)
     #atoms is the structure object from ase or pymatgen
     
@@ -1033,7 +1162,7 @@ def write_crystal_gui(gui_file,atoms,dimensionality=3,symm=True,pseudo_atoms=[])
     elif 'pymatgen' in str(type(atoms)):
         if 'Slab' in str(type(atoms)):
             dimensionality = 2
-
+    
     #Save the coordinates before symmetry transformations
     atomic_numbers = []
     atom_coords = []
