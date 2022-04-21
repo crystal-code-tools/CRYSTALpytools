@@ -15,3 +15,10 @@ def help(folder='./'):
         print ("Display the md text")
     elif os.path.isfile(os.path.join(folder,'help.jpg')) or os.path.isfile(os.path.join(folder,'help.png')):
         print ("Display the image")
+
+
+def view_pmg(pmg_structure):
+    from pymatgen.io.ase import AseAtomsAdaptor
+    from ase.visualize import view
+    
+    return view(AseAtomsAdaptor().get_atoms(pmg_structure))
