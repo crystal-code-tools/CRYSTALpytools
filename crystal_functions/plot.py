@@ -227,6 +227,10 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             ymin = min(ymin)
             ymax = max(ymax)
 
+        if mode == modes[3]:
+            print('Warning, the surface bands is not ready yet')
+            sys.exit(0)
+
         # HSP line plot
         if isinstance(bands, list):
             hsp = bands[0].tick_position
@@ -252,50 +256,10 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             x_band = np.ones(2)*j
             plt.plot(x_band, y_band, color='black', linewidth=0.5)
 
-        if k_labels is not None:
-            for n in k_labels:
-                if n in greek:
-                    g = greek.get(n)
-                    hsp_label.append(g)
-                    high_sym_point.append(n)
-                else:
-                    hsp_label.append(n)
-                    high_sym_point.append(n)
-
-        # give the possibility through the k_range to select a shorter path than the one calculated
-        high_sym_point2 = high_sym_point
-        count = 0
-        for i in high_sym_point2:
-            repeat = high_sym_point2.count(i)
-            if repeat != 1:
-                for p in range(0, len(high_sym_point2)):
-                    if p != count:
-                        repeat_count = 1
-                        q = high_sym_point2[p]
-                        r = high_sym_point[p]
-                        if (q == i) & (q == r):
-                            high_sym_point2[p] = i+str(repeat_count)
-                            repeat_count += 1
-                            if repeat_count > repeat:
-                                repeat_count = 0
-            count += 1
-
-        path_dict = dict(zip(high_sym_point2, hsp))
-
         # plot of the fermi level
         x = np.linspace(xmin, xmax, 2)
         y = np.zeros(2)
         plt.plot(x, y, color=fermi, linewidth=2.5)
-
-        # definition of the ylim
-        if energy_range != None:
-            ymin = energy_range[0]
-            ymax = energy_range[1]
-
-        # definition of the xlim
-        if k_range is not None:
-            xmin = path_dict[k_range[0]]
-            xmax = path_dict[k_range[1]]
 
         # definition of the plot title
         if title is not False:
@@ -307,15 +271,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         else:
             plt.legend()
 
-        if k_labels is not None:
-            plt.xticks(hsp, hsp_label)
-        else:
-            plt.xticks(hsp)
         plt.ylabel('$E-E_F$ (eV)')
-        plt.ylim(ymin, ymax)
-        plt.xlim(xmin, xmax)
-
-        plt.show()
 
     elif mode = modes[2]:
 
@@ -384,7 +340,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     elif data.spin == 2:
                         axs[row, col].plot(
                             dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[row, col]plot(dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
+                        axs[row, col].plot(
+                            dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
 
                 hsp = data.tick_position
                 yhsp = np.zeros(2)
@@ -393,11 +350,67 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     axs[row, col].plot(
                         xhsp, yhsp, color='black', linewidth=0.5)
 
-                xfermi = np.linspace(np.amin(pltband), np.amax(plt.band, 2))
+                xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
                 yfermi = np.zeros(2)
                 axs[row, col].plot(xfermi, yfermi, color=fermi, linewidth=2.5)
 
+                axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
+                axs[row, col].set_ylim([np.amin(pltband), np.amax(pltband)])
+
                 count3 += (n_col-1)
+
+        fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
+                 va='center', rotation='vertical')
+
+    if k_labels is not None:
+        for n in k_labels:
+            if n in greek:
+                g = greek.get(n)
+                hsp_label.append(g)
+                high_sym_point.append(n)
+            else:
+                hsp_label.append(n)
+                high_sym_point.append(n)
+
+    # give the possibility through the k_range to select a shorter path than the one calculated
+    high_sym_point2 = high_sym_point
+    count = 0
+    for i in high_sym_point2:
+        repeat = high_sym_point2.count(i)
+        if repeat != 1:
+            for p in range(0, len(high_sym_point2)):
+                if p != count:
+                    repeat_count = 1
+                    q = high_sym_point2[p]
+                    r = high_sym_point[p]
+                    if (q == i) & (q == r):
+                        high_sym_point2[p] = i+str(repeat_count)
+                        repeat_count += 1
+                        if repeat_count > repeat:
+                            repeat_count = 0
+        count += 1
+
+    path_dict = dict(zip(high_sym_point2, hsp))
+
+    # definition of the ylim
+    if energy_range != None:
+        ymin = energy_range[0]
+        ymax = energy_range[1]
+
+    # definition of the xlim
+    if k_range is not None:
+        xmin = path_dict[k_range[0]]
+        xmax = path_dict[k_range[1]]
+
+    if k_labels is not None:
+        plt.xticks(hsp, hsp_label)
+    else:
+        plt.xticks(hsp)
+
+    plt.ylim(ymin, ymax)
+    plt.xlim(xmin, xmax)
+
+    plt.show()
 
     """kpoints = bands.tick_position 
     efermi_band = bands.efermi    
