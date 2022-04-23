@@ -117,10 +117,11 @@ mgo_out = Crystal_output('examples/data/mgo_SPIN.out')
 cry_bands2pmg(mgo_out,mgo_bands,labels=['A','B','C','D','E'])'''
 
 
-def cry_gui2pmg(gui_file):
+def cry_gui2pmg(gui_file,vacuum=10):
 
     from pymatgen.core.structure import Structure
     import sys
+    import numpy as np
 
     try:
         if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34':
@@ -131,23 +132,27 @@ def cry_gui2pmg(gui_file):
     except:
         print('EXITING: a .gui file needs to be specified')
         sys.exit(1)
-    if data[0].split()[0] == '3':
-        lattice = []
-        for i in range(1, 4):
-            lattice.append([float(x) for x in data[i].split()])
-        n_symmops = int(data[4].split()[0])
-        n_atoms = int(data[5+n_symmops*4].split()[0])
-        atom_number = []
-        atom_positions = []
-        for i in range(6+n_symmops*4, 6+n_symmops*4+n_atoms):
-            atom_line = data[i].split()
-            atom_number.append(str(atom_line[0]))
-            atom_positions.append([float(x) for x in atom_line[1:]])
+    #if data[0].split()[0] == '3':
+    lattice = []
+    for i in range(1, 4):
+        lattice.append([float(x) for x in data[i].split()])
+    n_symmops = int(data[4].split()[0])
+    n_atoms = int(data[5+n_symmops*4].split()[0])
+    atom_number = []
+    atom_positions = []
+    for i in range(6+n_symmops*4, 6+n_symmops*4+n_atoms):
+        atom_line = data[i].split()
+        atom_number.append(str(atom_line[0]))
+        atom_positions.append([float(x) for x in atom_line[1:]])
 
-        return Structure(lattice, atom_number, atom_positions, coords_are_cartesian=True)
-
-    else:
-        return 'Lower dimensionality not yet implemented'
+    if data[0].split()[0] == '2':
+        thickness = np.amax(np.array(atom_positions)[:, 2]) - \
+                    np.amin(np.array(atom_positions)[:, 2])
+        
+        lattice[2][2] = thickness + vacuum
+    
+    return Structure(lattice, atom_number, atom_positions, coords_are_cartesian=True)
+        
 
     
 def cry_out2ase(output, initial=False, dimensionality=3, vacuum=10):
