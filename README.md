@@ -81,3 +81,15 @@ you already have an input file, it might be easier to create a Crystal_input obj
 This case applied to when the calculations were run on a different machine and the user might be interested in analysing the output. The inputs can be generated from any of the two workflows above by stopping before execution.
 
 ![output_analysis](doc/output_analysis.png)
+
+## Testing
+To test the crystal_functions please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
+
+```console
+from crystal_functions.unit_test import *
+
+test_all('./data_test/')
+```
+where './data_test/' is the path to the test folder.
+
+All values should return True if the test is passed.
