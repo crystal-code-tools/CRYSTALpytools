@@ -1,9 +1,9 @@
-from asyncore import write
-from re import M
-
 
 def crystal_input_test(folder_path):
-    
+    # Testing of the Crystal_input class
+
+    # folder_path is the path to the folder that contains the test files
+
     from crystal_functions.file_readwrite import Crystal_input
 
     import os
@@ -164,7 +164,9 @@ def crystal_input_test(folder_path):
 
 
 def crystal_output_test(folder_path):
-    
+    # Testing of the Crystal_output class
+
+    # folder_path is the path to the folder that contains the test files
     from crystal_functions.file_readwrite import Crystal_output
 
     import numpy as np
@@ -299,8 +301,6 @@ def crystal_output_test(folder_path):
     else:
         test_result.append(False)
 
-    
-
     # GET SYMMOPS
 
     test_attr.append('get_symm_ops')
@@ -314,8 +314,6 @@ def crystal_output_test(folder_path):
     else:
         test_result.append(False)
 
-
-    
     # GET FORCES
 
     test_attr.append('get_forces')
@@ -334,7 +332,6 @@ def crystal_output_test(folder_path):
     else:
         test_result.append(False)
 
-  
     # GET MULLIKEN CHARGES
 
     test_attr.append('get_mulliken_charges')
@@ -346,21 +343,12 @@ def crystal_output_test(folder_path):
     else:
         test_result.append(False)
 
-    '''
-    # 
-
-    test_attr.append('')
-
-    if mgo_output.() == 7:
-        test_result.append(True)
-    else:
-        test_result.append(False)'''
-
-    
-
     return [test_attr, test_result]
 
 def convert_test(folder_path):
+    # Testing of the functions contained in convert_test
+
+    # folder_path is the path to the folder that contains the test files
 
     import os
     import numpy as np
@@ -392,7 +380,6 @@ def convert_test(folder_path):
     else:
         test_result.append(False)
 
-
     # CRY_GUI2PMG
 
     test_attr.append('cry_gui2pmg')
@@ -415,11 +402,11 @@ def convert_test(folder_path):
     return [test_attr, test_result]
 
 
-
 def test_all(folder_path):
+    # Testing of all the above classes and functions
 
-    
-    
+    # folder_path is the path to the folder that contains the test files
+       
     print('***Testing of the file_readwrite module:***\n')
 
     print('**Testing of the Crystal_input class:**\n')
@@ -446,8 +433,3 @@ def test_all(folder_path):
     
     for i in range(len(convert_test_out[0])):
         print(convert_test_out[0][i],convert_test_out[1][i])
-
-
-
-
-        
