@@ -178,7 +178,7 @@ def crystal_output_test(folder_path):
     mgo_output = Crystal_output(output_file)
     mgo_opt_output = Crystal_output(output_opt_file)
 
-    print('Files for input testing: %s and %s' %(output_file,mgo_opt_output))
+    print('Files for input testing: %s and %s' %(output_file,output_opt_file))
 
     # CONVERGED
 
@@ -386,7 +386,6 @@ def convert_test(folder_path):
     cart_coord = np.array([[0.        , 0.        , 0.        ],
        [2.12011001, 2.12011001, 2.12011001]])
 
-    print(np.round(pmg_obj.lattice.matrix,8))
     if np.all(np.round(pmg_obj.lattice.matrix,8) == lattice_matrix) and \
         np.all(np.round(pmg_obj.cart_coords,8) == cart_coord):
         test_result.append(True)
@@ -407,23 +406,11 @@ def convert_test(folder_path):
     cart_coord = np.round(np.array([[0.     , 0.     , 0.     ],
        [2.12011, 2.12011, 2.12011]]),8)
 
-    print(pmg_obj.lattice.matrix)
     if np.all(np.round(pmg_obj.lattice.matrix,8) == lattice_matrix) and \
         np.all(np.round(pmg_obj.cart_coords,8) == cart_coord):
         test_result.append(True)
     else:
         test_result.append(False)
-
-        '''
-    # 
-
-    test_attr.append('')
-
-    if mgo_output.() == 7:
-        test_result.append(True)
-    else:
-        test_result.append(False)'''
-
 
     return [test_attr, test_result]
 
@@ -431,7 +418,34 @@ def convert_test(folder_path):
 
 def test_all(folder_path):
 
+    
+    
+    print('***Testing of the file_readwrite module:***\n')
+
+    print('**Testing of the Crystal_input class:**\n')
+    
     crystal_input_test_out = crystal_input_test(folder_path)
+    
+    print('')
+    
+    for i in range(len(crystal_input_test_out[0])):
+        print(crystal_input_test_out[0][i],crystal_input_test_out[1][i])
+
+    print('\n**Testing of the Crystal_output class:**\n')
+
+    crystal_output_test_out = crystal_output_test(folder_path)
+    
+    print('')
+
+    for i in range(len(crystal_output_test_out[0])):
+        print(crystal_output_test_out[0][i],crystal_output_test_out[1][i])
+
+    print('\n***Testing of the convert module:***\n')
+
+    convert_test_out = convert_test(folder_path)
+    
+    for i in range(len(convert_test_out[0])):
+        print(convert_test_out[0][i],convert_test_out[1][i])
 
 
 
