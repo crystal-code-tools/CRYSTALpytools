@@ -171,7 +171,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             # plot of all the bands obj present in the list
             for index, data in enumerate(bands):
                 # scaling that enables the comparison of band structure calculated at different pressures
-                if not_scaled == False:
+                if not_scaled is False:
                     k_max = np.amax(data.k_point_plot)
                     dx = (data.k_point_plot/k_max)*reference
                 else:
@@ -190,7 +190,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 # Effective plot
                 for j in range(no_bands):
 
-                    if (count1 == count2) and (labels != None):
+                    if (count1 == count2) and (labels is not None):
                         if data.spin == 1:
                             if isinstance(linestl, list):
                                 plt.plot(dx, pltband[j, :], color=color[index],
@@ -316,8 +316,14 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
                                     sharex=sharex, sharey=sharey)
 
-        xmin = []
-        xmax = []
+        if not_scaled is False:
+            reference = xmax = np.amax(bands[0].k_point_plot)
+            xmin = np.amin(bands[0].k_point_plot)
+
+        else:
+            xmax = []
+            xmin = []
+
         ymin = []
         ymax = []
         count3 = 0
@@ -325,12 +331,17 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         for col in range(n_col):
             for row in range(n_rows):
                 data = bands[count3]
-                print(count3)
-                dx = data.k_point_plot
+                if count3 == 0:
+                    hsp = data.tick_position
                 pltband = data.bands
                 no_bands = np.shape(pltband)[0]
-                xmin.append(np.amin(dx))
-                xmax.append(np.amax(dx))
+                if not_scaled is False:
+                    k_max = np.amax(data.k_point_plot)
+                    dx = (data.k_point_plot/k_max)*reference
+                else:
+                    dx = data.k_point_plot
+                    xmin.append(np.amin(dx))
+                    xmax.append(np.amax(dx))
                 ymin.append(np.amin(pltband))
                 ymax.append(np.amax(pltband))
                 for j in range(no_bands):
@@ -353,7 +364,6 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                             axs[row, col].plot(
                                 dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
 
-                hsp = data.tick_position
                 yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
                 for j in hsp:
                     xhsp = np.ones(2)*j
