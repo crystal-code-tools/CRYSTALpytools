@@ -9,6 +9,8 @@ class Crystal_input:
     # This creates a crystal_input object
 
     def __init__(self, input_name):
+        # input_name: name of the input file
+
         import sys
 
         self.name = input_name
@@ -22,6 +24,7 @@ class Crystal_input:
             print('EXITING: a .d12 file needs to be specified')
             sys.exit(1)
 
+        # Check is the basis set is a built in one
         if 'BASISSET\n' in data:
             end_index = []
             if 'OPTGEOM\n' in data:
@@ -36,19 +39,16 @@ class Crystal_input:
         else:
             end_index = [i for i, s in enumerate(data) if 'END' in s]
             self.is_basisset = False
+
         self.geom_block = []
-        # self.optgeom_block = []
         self.bs_block = []
         self.func_block = []
         self.scf_block = []
 
         if len(end_index) == 4:
             self.geom_block = data[:end_index[0]+1]
-            # self.optgeom_block = []
             self.bs_block = data[end_index[0]+1:end_index[1]+1]
             self.func_block = data[end_index[1]+1:end_index[2]+1]
-            # The following loop ensures that keyword+values (such as TOLINTEG 7 7 7 7 14
-            # are written as a list)
             for i in range(end_index[2]+1, end_index[-1]):
                 if data[i+1][0].isnumeric():
                     self.scf_block.append([data[i], data[i+1]])
@@ -59,14 +59,12 @@ class Crystal_input:
                         pass
             # The loop cannot go over the last element
             self.scf_block.append('ENDSCF\n')
-            # This is the old one, remove if not needed: self.scf_block = data[end_index[2]+1:]
+
         elif len(end_index) == 5:
             self.geom_block = data[:end_index[1]+1]
-            # self.optgeom_block = data[end_index[0]+1:end_index[1]+1]
             self.bs_block = data[end_index[1]+1:end_index[2]+1]
             self.func_block = data[end_index[2]+1:end_index[3]+1]
-            # The following loop ensures that keyword+values (such as TOLINTEG 7 7 7 7 14
-            # are written as a list)
+
             for i in range(end_index[3]+1, end_index[-1]):
                 if data[i+1][0].isnumeric():
                     self.scf_block.append([data[i], data[i+1]])
@@ -79,6 +77,8 @@ class Crystal_input:
             self.scf_block.append('ENDSCF\n')
 
     def add_ghost(self, ghost_atoms):
+        # Add ghost functions to the input object
+
         if self.is_basisset == True:
             self.bs_block.append('GHOSTS\n')
             self.bs_block.append('%s\n' % len(ghost_atoms))
@@ -89,7 +89,14 @@ class Crystal_input:
             self.bs_block.insert(-1, ' '.join([str(x)
                                  for x in ghost_atoms])+'\n')
 
+    def remove_ghost(self):
+        # Remove ghost functions from the input object
+
+        if 'GHOST\n' in self.bs_block:
+            del self.bs_block[-3:-1]
+
     def opt_to_sp(self):
+        # Make an optgeom calculation into single_point
 
         if 'OPTGEOM\n' in self.geom_block:
             init = self.geom_block.index('OPTGEOM\n')
@@ -97,6 +104,8 @@ class Crystal_input:
             del self.geom_block[init:final+1]
 
     def sp_to_opt(self):
+        # Make a single point calculation into an optgeom
+
         if 'OPTGEOM\n' not in self.geom_block:
             if self.is_basisset == True:
                 self.geom_block.append('OPTGEOM\n')
@@ -106,24 +115,17 @@ class Crystal_input:
                 self.geom_block.insert(-1, 'END\n')
 
 
-'''###TESTING
-mgo = Crystal_input('examples/data/mgo.d12')
-mgo.add_ghost([1,2,3])
-# print(mgo.name)
-# print(mgo.scf_block)
-# mgo.scf_block.remove('DIIS\n')
-# print(mgo.scf_block)'''
-
-
 class Crystal_output:
     # This class reads a CRYSTAL output and generates an object
 
     def __init__(self, output_name):
+        # output_name: name of the output file
 
         import sys
         import re
 
         self.name = output_name
+
         # Check if the file exists
         try:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
@@ -147,9 +149,9 @@ class Crystal_output:
 
         if self.converged == False:
             self.eoo = len(self.data)
-            # print('WARNING: the calculation did not converge. Proceed with care!')
 
     def get_dimensionality(self):
+        # Get the dimsensionality of the system
 
         import re
 
@@ -159,6 +161,7 @@ class Crystal_output:
                 return self.dimensionality
 
     def get_final_energy(self):
+        # Get the final energy of the system
 
         import re
 
@@ -175,6 +178,9 @@ class Crystal_output:
         return self.final_energy
 
     def get_scf_convergence(self, all_cycles=False):
+        # Returns the scf convergence energy and energy difference
+
+        # all_cycles == True returns all the steps for a geometry opt
 
         import re
         import numpy as np
@@ -207,9 +213,18 @@ class Crystal_output:
             self.scf_convergence = [self.scf_energy, self.scf_deltae]
         return self.scf_convergence
 
-        return self.scf_energy, self.scf_deltae
+    def get_opt_convergence_energy(self):
+        # Returns the energy for each opt step
+
+        self.opt_energy = []
+        for line in self.data:
+            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
+                self.opt_energy.append(float(line.split()[8])*27.2114)
+
+        return self.opt_energy
 
     def get_num_cycles(self):
+        # Returns the number of scf cycles
 
         import re
 
@@ -220,13 +235,14 @@ class Crystal_output:
         return None
 
     def get_fermi_energy(self):
+        # Returns the system Fermi energy
 
         import re
 
         self.fermi_energy = None
 
         for i, line in enumerate(self.data[len(self.data)::-1]):
-            # This is in case the .out is from a DOSS calculation
+            # This is in case the .out is from a BAND calculation
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ ENERGY RANGE ', line1):
@@ -268,7 +284,10 @@ class Crystal_output:
         return self.fermi_energy
 
     def get_primitive_lattice(self, initial=True):
-        # Initial = False reads the last lattice vectors. Useful in case of optgeom
+        # Returns the pritive lattice of the system
+
+        # Initial == False: read the last lattice vectors. Useful in case of optgeom
+
         import re
         import numpy as np
 
@@ -297,6 +316,10 @@ class Crystal_output:
         return self.primitive_lattice
 
     def get_reciprocal_lattice(self, initial=True):
+        # Returns the reciprocal pritive lattice of the system
+
+        # Initial == False: read the last reciprocal lattice vectors. Useful in case of optgeom
+
         import re
         import numpy as np
 
@@ -322,10 +345,13 @@ class Crystal_output:
 
         return None
 
-    def get_band_gap(self):  # ,spin_pol=False):
+    def get_band_gap(self):
+        # Returns the system band gap
+
         import re
         import numpy as np
 
+        # Check if the system is spin polarised
         self.spin_pol = False
         for line in self.data:
             if re.match(r'^ SPIN POLARIZED', line):
@@ -356,10 +382,14 @@ class Crystal_output:
         if band_gap_spin == []:
             print(
                 'DEV WARNING: check this output and the band gap function in file_readwrite')
-            # elif re.match(r'^\s\w+ ENERGY BAND GAP',line1) != None:
-            # band_gap = [float(data[len(data)-i-j-7].split()[4]),float(line1.split()[4])]
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
+        # Return the last optimised geometry
+
+        # write_gui_file == True writes the last geometry to the gui file
+        # symm_info == 'pymatgen' uses the symmetry info from a pymatgen object
+        # otherwise it is taken from the existing gui file
+
         import re
         from mendeleev import element
         import numpy as np
@@ -368,12 +398,14 @@ class Crystal_output:
 
         self.get_primitive_lattice(initial=False)
 
+        # Check if the geometry optimisation converged
         self.opt_converged = False
         for line in self.data:
             if re.match(r'^  FINAL OPTIMIZED GEOMETRY', line):
                 self.opt_converged = True
                 break
 
+        # Find the last geometry
         for i, line in enumerate(self.data):
             if re.match(r' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL', line):
                 trans_matrix_flat = [float(x) for x in self.data[i+1].split()]
@@ -388,6 +420,7 @@ class Crystal_output:
                 self.atom_positions = []
                 self.atom_symbols = []
                 self.atom_numbers = []
+
                 for j in range(self.n_atoms):
                     atom_line = self.data[len(
                         self.data)-i-2-int(self.n_atoms)+j].split()[3:]
@@ -396,20 +429,20 @@ class Crystal_output:
                         [float(x) for x in atom_line[1:]])  # These are fractional
                 a, b, c, alpha, beta, gamma = self.data[len(
                     self.data)-i-2-int(self.n_atoms)-5].split()
-                # DELout2cif(file_name,a,b,c,alpha,beta,gamma,atom_positions)
-                # DELout_name = str(file_name[:-4]+'.cif')
+
                 for atom in self.atom_symbols:
                     self.atom_numbers.append(
                         element(atom.capitalize()).atomic_number)
-
                 self.atom_positions_cart = np.matmul(
                     np.array(self.atom_positions), self.primitive_lattice)
                 self.cart_coords = []
+
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i]
                                             [0], self.atom_positions_cart[i][1], self.atom_positions_cart[i][2]])
                 self.cart_coords = np.array(self.cart_coords)
 
+                # Write the gui file
                 if write_gui_file == True:
                     # Write the gui file
                     # This is a duplication from write_gui, but the input is different
@@ -425,7 +458,7 @@ class Crystal_output:
 
                         structure = Structure(self.get_primitive_lattice(initial=False), self.atom_numbers,
                                               self.atom_positions_cart, coords_are_cartesian=True)
-                        write_cry_gui(gui_file, structure)
+                        write_crystal_gui(gui_file, structure)
                     else:
                         gui_file = symm_info
                         try:
@@ -452,9 +485,12 @@ class Crystal_output:
                                 file.writelines(line)
         self.last_geom = [self.primitive_lattice.tolist(
         ), self.atom_numbers, self.atom_positions_cart.tolist()]
+
         return self.last_geom
 
     def get_symm_ops(self):
+        # Return the symmetry operators
+
         import re
         import numpy as np
 
@@ -464,17 +500,24 @@ class Crystal_output:
             if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
                 self.n_symm_ops = int(line.split()[1])
                 for j in range(0, self.n_symm_ops):
-                    symmops.append(self.data[i+3+j].split()[2:])
+                    symmops.append([float(x)
+                                   for x in self.data[i+3+j].split()[2:]])
                 self.symm_ops = np.array(symmops)
 
                 return self.symm_ops
 
     def get_forces(self, initial=False, grad=False):
+        # Return the forces from an optgeom calculation
+
+        # initial == False returns the last calculated forces
+        # grad == False does not return the gradient on atoms
+
         import re
         import numpy as np
 
         self.forces_atoms = []
         self.forces_cell = []
+
         # Number of atoms
         for i, line in enumerate(self.data[len(self.data)::-1]):
             if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
@@ -528,6 +571,7 @@ class Crystal_output:
                     return self.forces
 
     def get_mulliken_charges(self):
+        # Return the Mulliken charges (PPAN keyword in input)
 
         import re
 
@@ -540,11 +584,15 @@ class Crystal_output:
                         return self.mulliken_charges
                     elif line1[0].isdigit() == True:
                         self.mulliken_charges.append(float(line1[3]))
+        return self.mulliken_charges
 
     def get_config_analysis(self):
+        # Return the configuration analysis for solid solutions (CONFCON keyword in input)
+
         import re
         import numpy as np
 
+        # Check this is a configuration analysis calculation
         try:
             begin = self.data.index(
                 '                             CONFIGURATION ANALYSIS\n')
@@ -557,11 +605,9 @@ class Crystal_output:
                 original_atom = str(line.split()[2])
                 begin = begin+i
 
-        non_subs = []
-        subs = []
-        class_index = []
         config_list = []
 
+        # Read all the configurations
         for line in self.data[begin:]:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
@@ -588,30 +634,16 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
+
         return [self.atom_type1, self.atom_type2]
 
 
-# TESTING
-# a = Crystal_output('../examples/data/mgo_optgeom.out')
-# a = Crystal_output('../examples/data/LTS_CONFCNT_ONLY')
-# print(a.config_analysis())
-# print('final_energy\n',a.final_energy())
-# print('fermi\n',a.fermi_energy())
-# print('primitive\n',a.primitive_lattice(initial=False))
-# print('band_gap\n',a.band_gap())
-# print('spin\n',a.spin_pol)
-# print('reciprocal\n',a.reciprocal_lattice())
-# print('last geom\n',a.extract_last_geom(print_cart=False))
-# print('symmops\n',a.symm_ops())
-# print('forces\n',a.forces(gradient=True))
-# print('grad\n',a.grad)
-# print('scf convergence\n',a.scf_convergence(all_cycles=True))'''
-# print(a.get_mulliken_charges())
-
 class Properties_input:
-    # This creates a crystal_input object
+    # This creates a properties_input object
 
     def __init__(self, input_name=None):
+        # input_name != None reads an existing properties input
+
         import sys
 
         self.name = input_name
@@ -626,6 +658,7 @@ class Properties_input:
                 print('EXITING: a .d3 file needs to be specified')
                 sys.exit(1)
 
+            # Check if NEWK is in the input
             if 'NEWK\n' in self.data:
                 self.is_newk = True
                 self.newk_block = self.data[0:2]
@@ -634,7 +667,13 @@ class Properties_input:
                 self.is_newk = False
                 self.property_block = self.data
 
-    def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0, title=None):
+    def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
+        # Returns the newk block
+
+        # shrink1 and shrink 2 are the newk shrinking factors
+        # Fermi: 1 if recalculated, 0 if not
+        # print_options: Properties printing options
+
         self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
                            '%s %s\n' % (Fermi, print_option)]
 
@@ -642,15 +681,22 @@ class Properties_input:
 
     def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
                          title='BAND STRUCTURE CALCULATION'):
+        # Return the bands block to be used in a bands calculation
+
         # k_path can be:
         # list of list
         # pymatgen HighSymmKpath object
+        # first_band: first band for bands calculation
+        # last_band: last band for bands calculation
+        # print_eig: printing options for eigenvalues
+        # print_option: properties printing options
 
         import numpy as np
         import sys
 
         bands_block = []
 
+        # path from a pymatgen k_path object
         if 'HighSymmKpath' in str(type(k_path)):
             k_path_flat = [item for sublist in k_path.kpath['path']
                            for item in sublist]
@@ -700,9 +746,18 @@ class Properties_input:
 
     def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
                         poly=12, print_option=1):
-        # e_range in eV
+        # Return the doss block to be used in a doss calculation
+
+        # n_points : number of points in the energy range
+        # band range: which bands to include in the doss calculation
+        # e_range: in eV
+        # plotting_options: properties printing options
+        # poly: maximum exponent for the polynomial fit
+        # print_option: properties printing options
+
         import sys
 
+        # either band_range or e_range needs to be specified
         doss_block = []
         if band_range == None and e_range == None:
             print('EXITING: please specify either band_range or e_range. None selected')
@@ -737,8 +792,16 @@ class Properties_input:
 
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
                          e_range=None, plotting_option=2, poly=12, print_option=1):
+        # Return the pdoss block to be used in a pdoss calculation
 
-        # projections is a list of lists
+        # projections is a list of lists of atoms or atomic orbitals
+        # n_points : number of points in the energy range
+        # proj_type == 'atom' is an atom projected DOSS, proj_type == 'ao' is an atomic orbital projected DOSS
+        # e_range: in eV
+        # plotting_options: properties printing options
+        # poly: maximum exponent for the polynomial fit
+        # print_option: properties printing options
+
         import sys
         from crystal_functions.file_readwrite import Crystal_output
 
@@ -809,8 +872,10 @@ class Properties_input:
 
 
 class Properties_output:
+    # This creates a properties_output object
 
     def __init__(self, properties_output):
+        # properties_output is the properties output file
 
         import sys
 
@@ -826,7 +891,7 @@ class Properties_output:
 
     def read_cry_bands(self):
         # This class contains the bands objects created from reading the
-        # band files created by different electronic structure codes
+        # CRYSTAL band files
         # Returns an array where the band energy is expressed in eV
 
         import re
@@ -898,13 +963,10 @@ class Properties_output:
         self.bands[:, :, :] = self.bands[:, :, :]*27.2114
         return self
 
-    '''###TESTING
-    mgo_bands = Bands('data/mgo_BAND_dat.BAND')
-    mgo_file = mgo_bands.read_cry_band()
-    print(mgo_file.bands[-1,0,0])
-    print(mgo_file.tick_position[-1])'''
-
     def read_cry_doss(self):
+        # This class contains the bands objects created from reading the
+        # CRYSTAL doss files
+        # Returns an array where the band energy is expressed in eV
 
         import re
         import numpy as np
@@ -941,21 +1003,20 @@ class Properties_output:
         return self
 
     def read_cry_contour(self):
-        # Functions that extract useful info and stores it in sel.attributes
+        # WORK IN PROGRESS
+
+        # This class contains the bands objects created from reading the
+        # CRYSTAL contour calculation files
+        # Returns an array where the band energy is expressed in eV
         pass
 
 
-# TESTING
-# contour_obj = Crystal_properties('../examples/data/SURFRHOO.DAT').read_cry_contour()
-# a = contour_obj.read_cry_contour()
-# bands = Crystal_properties('../examples/data/mgo_BAND_dat.BAND').read_cry_bands()
-# print(bands.bands)
-
-
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
+    # Write a CRYSTAL input file (to file)
+
     # input_name is the name of the imput that is going to be written (.d12)
     # crystal_input is an object belonging to the crystal_input Class.
-    # external_obj is the ASE or pymatgen object that is going to be written in the fort.34
+    # external_obj is the ASE or pymatgen object that is going to be written in the gui file
 
     import itertools
     import sys
@@ -963,6 +1024,7 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
     from ase.io.crystal import write_crystal
     from pymatgen.io.ase import AseAtomsAdaptor
 
+    # either a crystal_input or crystal_blocks need to be specified
     if (crystal_input == None and crystal_blocks == None) or (crystal_input == True and crystal_blocks == True):
         print('EXITING: please specify either a CRYSTAL input or CRYSTAL input blocks')
         sys.exit(1)
@@ -980,7 +1042,6 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
         bs_block = crystal_input.bs_block
         func_block = crystal_input.func_block
         scf_block = crystal_input.scf_block
-    # print(geom_block,bs_block,func_block,scf_block)
 
     # if there is an external object, we want to have the EXTERNAL
     # keyword in the geom_block. If it's not present, this means
@@ -1016,22 +1077,12 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
             file.writelines(line)
 
 
-# TESTING
-'''from pymatgen.core import Structure, Lattice
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-substrate = Structure.from_spacegroup(
-    "Fm-3m", Lattice.cubic(3.61491), ["Cu"], [[0, 0, 0]])
-substrate_conv = SpacegroupAnalyzer().get_conventional_standard_structure()
-
-# mgo = Crystal_input('examples/data/mgo.d12')
-# write_cry_input('examples/data/mgo_TEST.d12',crystal_input = mgo,external_obj=substrate_conv,comment='YES')
-
-mgo = Crystal_input('examples/data/mgo.d12')
-print(mgo.geom_block)
-write_cry_input('examples/data/mgo_TEST.d12',crystal_blocks= [mgo.geom_block,mgo.bs_block,mgo.func_block,mgo.scf_block],external_obj=substrate_conv,comment='YES')'''
-
-
 def write_properties_input(input_name, property_block, newk=False):
+    # Write a properties input file (to file)
+
+    # input_name is the name of the imput that is going to be written (.d12)
+    # property_block is a list of properties blocks
+    # newk == True: perform a newk calculation
 
     import sys
     import itertools
@@ -1049,56 +1100,30 @@ def write_properties_input(input_name, property_block, newk=False):
             file.writelines(line)
 
 
-def write_cry_gui(gui_file, atoms, dimensionality=3, symm=True):
+def write_crystal_gui(gui_file, ext_structure, dimensionality=3, symm=True, pseudo_atoms=[]):
+    # Write a CRYSTAL gui file (to file)
     # gui_file is the name of the gui that is going to be written (including .gui)
-    # atoms is the structure object from ase or pymatgen
+    # ext_structure is the structure object from ase or pymatgen
+    # dimensionality is the dimensionality of the system
+    # symm == True includes the symmops
+    # pseudo_atoms is a list of atoms whose core is described by a pseudopotential
 
     from ase.io.crystal import write_crystal
-
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
-
     import numpy as np
 
     # ASE object
-    if 'ase.atoms' in str(type(atoms)):
-        write_crystal(gui_file, atoms)
+    if 'ase.atoms' in str(type(ext_structure)):
+        write_crystal(gui_file, ext_structure)
+        return None
 
     # pymatgen object
-    elif 'pymatgen' in str(type(atoms)):
-        if 'Slab' in str(type(atoms)):
+    elif 'pymatgen' in str(type(ext_structure)):
+        if 'Slab' in str(type(ext_structure)):
             dimensionality = 2
 
-    # Save the coordinates before symmetry transformations
-    atomic_numbers = []
-    atom_coords = []
-    for i in range(atoms.num_sites):
-        atomic_numbers.append(atoms.atomic_numbers[i])
-        atom_coords.append(' '.join(str(np.around(n, 5))
-                           for n in atoms.cart_coords[i]))
-
     with open(gui_file, 'w') as file:
-        if symm == True:
-            try:
-                atoms = SpacegroupAnalyzer(
-                    atoms).get_primitive_standard_structure()
-                atomic_numbers = []
-                atom_coords = []
-                for i in range(atoms.num_sites):
-                    atomic_numbers.append(atoms.atomic_numbers[i])
-                    atom_coords.append(' '.join(str(np.around(n, 5))
-                                       for n in atoms.cart_coords[i]))
-                # Is the structure symmetrysed?
-                if 'SymmetrizedStructure' not in str(type(atoms)):
-                    atoms_symm = SpacegroupAnalyzer(
-                        atoms).get_symmetrized_structure()
-                symmetry = True
-            except:
-                atoms_symm = atoms
-                symmetry = False
-        elif symm == False:
-            atoms_symm = atoms
-            symmetry = False
 
         if dimensionality == 3:
 
@@ -1106,18 +1131,18 @@ def write_cry_gui(gui_file, atoms, dimensionality=3, symm=True):
             file.writelines('3   1   1\n')
 
             # Cell vectors
-            for vector in atoms.lattice.matrix:
+            for vector in ext_structure.lattice.matrix:
                 file.writelines(' '.join(str(n) for n in vector)+'\n')
 
             # N symm ops
-            if symmetry == True:
+            if symm == True:
                 n_symmops = len(SpacegroupAnalyzer(
-                    atoms_symm).get_space_group_operations())
+                    ext_structure).get_space_group_operations())
 
                 file.writelines('{}\n'.format(str(n_symmops)))
 
                 # symm ops
-                for symmops in SpacegroupAnalyzer(atoms_symm).get_symmetry_operations(cartesian=True):
+                for symmops in SpacegroupAnalyzer(ext_structure).get_symmetry_operations(cartesian=True):
                     file.writelines('{}\n'.format(
                         ' '.join(str(np.around(n, 8)) for n in symmops.rotation_matrix[0])))
                     file.writelines('{}\n'.format(
@@ -1145,21 +1170,21 @@ def write_cry_gui(gui_file, atoms, dimensionality=3, symm=True):
             file.writelines('2   1   1\n')
             # Cell vectors
             z_component = ['0.0000', '0.00000', '500.00000']
-            for i, vector in enumerate(atoms.lattice.matrix[0:3, 0:2]):
+            for i, vector in enumerate(ext_structure.lattice.matrix[0:3, 0:2]):
                 file.writelines(' '.join(str(n)
                                 for n in vector)+' '+z_component[i]+'\n')
             # Center the slab
             # First center at z = 0.5
-            atoms = center_slab(atoms)
+            ext_structure = center_slab(ext_structure)
 
             # Then center at z=0.0
             translation = np.array([0.0, 0.0, -0.5])
-            atoms.translate_sites(list(range(atoms.num_sites)),
-                                  translation, to_unit_cell=False)
+            ext_structure.translate_sites(list(range(ext_structure.num_sites)),
+                                          translation, to_unit_cell=False)
 
-            if symmetry == True:
+            if symm == True:
                 # Remove symmops with z component
-                sg = SpacegroupAnalyzer(atoms)
+                sg = SpacegroupAnalyzer(ext_structure)
                 ops = sg.get_symmetry_operations(cartesian=True)
                 symmops = []
                 for op in ops:
@@ -1189,52 +1214,34 @@ def write_cry_gui(gui_file, atoms, dimensionality=3, symm=True):
                 file.writelines('{}\n'.format(
                     ' '.join(str(np.around(n, 8)) for n in identity[3])))
 
-        if symmetry == True:
-            # N atoms
-            file.writelines('{}\n'.format(len(atoms_symm.equivalent_indices)))
+        # N atoms
+        file.writelines('{}\n'.format(ext_structure.num_sites))
 
-            # atom number + coordinates cart
-            for i in range(len(atoms_symm.equivalent_indices)):
-                file.writelines('{} {}\n'.format(atomic_numbers[atoms_symm.equivalent_indices[i][0]],
-                                                 atom_coords[atoms_symm.equivalent_indices[i][0]]))
-        else:
-            # N atoms
-            file.writelines('{}\n'.format(atoms.num_sites))
-
-            # atom number + coordinates cart
-            for i in range(atoms.num_sites):
-                file.writelines('{} {}\n'.format(
-                    atomic_numbers[i], atom_coords[i]))
+        # atom number (including pseudopotentials) + coordinates cart
+        for i in range(ext_structure.num_sites):
+            if ext_structure.atomic_numbers[i] in pseudo_atoms:
+                file.writelines('{} {}\n'.format(int(ext_structure.atomic_numbers[i])+200,
+                                                 ' '.join([str(x) for x in ext_structure.cart_coords[i]])))
+            else:
+                file.writelines('{} {}\n'.format(ext_structure.atomic_numbers[i],
+                                                 ' '.join([str(x) for x in ext_structure.cart_coords[i]])))
 
         # space group + n symm ops
-        if symmetry == True:
-            file.writelines('{} {}'.format(SpacegroupAnalyzer(atoms).get_space_group_number(
-            ), len(SpacegroupAnalyzer(atoms).get_space_group_operations())))
+        if symm == True:
+            file.writelines('{} {}'.format(SpacegroupAnalyzer(ext_structure).get_space_group_number(),
+                            len(SpacegroupAnalyzer(ext_structure).get_space_group_operations())))
         else:
             file.writelines('1 1')
 
 
-'''###TESTING
-from pymatgen.core import Structure, Lattice
-from pymatgen.core.surface import SlabGenerator
-
-
-# substrate = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.597), ["Cu"], [[0, 0, 0]])
-substrate = Structure.from_spacegroup(
-    "Fm-3m", Lattice.cubic(4.217), ["Mg",'O'], [[0, 0, 0],[0.5,0.5,0.5]])
-substrate = SlabGenerator(substrate, (1,0,0), 5., 10.,
-                          center_slab=False).get_slab()
-
-
-write_cry_gui('examples/data/cu_100_TEST.gui',substrate,dimensionality=2)'''
-
-
 class Crystal_density:
+    # WORK IN PROGRESS
+    # Returns a crystal_density object
 
     def __init__(self, fort98_unit):
-        self.file_name = fort98_unit
+        # fort98_unit is the file containing the formatted density matrix
 
-    # def cry_read_density(self):
+        self.file_name = fort98_unit
 
         import sys
         import numpy as np
@@ -1395,9 +1402,6 @@ class Crystal_density:
                 for j in range(n_charge_lines):
                     self.charges.extend(
                         [float(x) for x in data[i+j+n_spin_lines+n_basold+n_ghost+1].split()])
-                    '''for item in range(0,int(len(data[i+skip+j])/21)):
-                        print(data[i+j+n_spin_lines+1])
-                        self.charges.append(float(data[i+j+n_spin_lines+1][(item)*21:(item+1)*21]))'''
                 for j in range(f_irr_n_lines):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
@@ -1495,18 +1499,24 @@ class Crystal_density:
                     j += 1
         return self
 
-        # elif re.match('', line):
-        # elif re.match('', line):
 
+def cry_combine_density(density1, density2, new_density='new_density.f98', spin_pol=False):
+    # WORK IN PROGRESS:
+    # it only works with ghost atoms at the moment
 
-def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
+    # Returns the combined density matrix
+    # density1 is the first density matrix file
+    # density2 is the second density matrix file
+    # new_density is the name of the new density matrix
+    # spin_pol == False means the system is not spin polarised
+
     import sys
     import numpy as np
 
     try:
         density1_data = Density(density1).cry_read_density()  # substrate
-        density2_data = Density(density2).cry_read_density()
-        # density3_data_obj = Density(density3).cry_read_density()
+        density2_data = Density(density2).cry_read_density()  # adsorbate
+
         density3_data_obj = Density(density1).cry_read_density()
         file = open(density3, 'r')
         density3_data = file.readlines()
@@ -1526,13 +1536,6 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
         # This tells me if the shell belongs to this fragment
         n_elements = density1_data.nstatg[i] - density1_data.nstatg[i - 1]
 
-        # print(i, j, len(density1_data.la3), len(density1_data.la4), len(density1_data.atom_shell),
-        # len(density1_data.ghost))
-        '''print(i, j,
-              density1_data.la3[j-1],
-              density1_data.la4[j-1],
-              density1_data.atom_shell[density1_data.la3[j-1]-1],
-              density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1])'''
         if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] == 0 and \
                 density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] == 0:
             fragment_1.extend([True]*n_elements)
@@ -1549,16 +1552,13 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
         spin_p2 = fragment_2.copy()
         fragment_1.extend(spin_p1)
         fragment_2.extend(spin_p2)
-    '''for i in range(len(fragment_2)):
-        if fragment_1[i] == True and fragment_2==True:
-            print(fragment_1[i],fragment_2[i])'''
+
     beginning = density3_data.index('SPINOR\n')
     end = density3_data.index('   NCF\n')
     sum_density = np.array(density1_data.p_irr)+np.array(density2_data.p_irr)
     sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
     sum_charges = np.array(density1_data.charges) + \
         np.array(density2_data.charges)
-    # sum_charges = [12.,12.,8.,8.,8,8.]
     spinor = ['SPINOR\n']
     charges = []
     fock = []
@@ -1579,8 +1579,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
             new_p.append(sum_density[i])
             # new_p.append(0.)
             # new_p.append(density3_data_obj.p_irr[i])
-    # print('fock',len(density3_data_obj.f_irr),len(new_fock))
-    # print('density',len(density3_data_obj.p_irr),len(new_p))
+
     for i in range(0, len(density3_data_obj.spin), 8):
         spinor.append(' '.join([str(x)
                       for x in density3_data_obj.spin[i:i+8]])+'\n')
@@ -1593,7 +1592,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     for i in range(0, len(new_p), 4):
         density.append(' '.join(["{:.13e}".format(x)
                        for x in new_p[i:i+4]])+'\n')
-    # print(len(fock),len(density))
+
     final_fort98 = density3_data[0:beginning] + \
         spinor+charges+fock+density+density3_data[end:]
     with open(new_density, 'w') as file:
@@ -1602,7 +1601,13 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 
 
 def write_cry_density(fort98_name, new_p, new_fort98):
+    # WORK IN PROGRESS
 
+    # Writes the formatted density matrix
+    # fort98_name is the name of the previous density matrix file
+    # new_p is the new density matrix
+    # new_fort_90 is the name of the new density matrix file
+    #
     import numpy as np
 
     file = open(fort98_name, 'r')
@@ -1632,17 +1637,3 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     with open(new_fort98, 'w') as file:
         for line in final_fort98:
             file.writelines(line)
-
-
-# TESTING
-# H_density =  Density('examples/data/h_bulk.f98').cry_read_density()
-# H_density =  Density('examples/data/mgo.f98').cry_read_density()
-# ghost_density = Density('../examples/data/Mg2O2_O1_100_1.f98').cry_read_density()
-# ghost_density = Density('../examples/data/Mg2O2_O1_100_1_BSSE_ads.f98').cry_read_density()
-# print(ghost_density.charges)
-# density_basold = Density('/Users/brunocamino/Desktop/Imperial/cmsg_icl/solid-solutions/data/classification/LTS_2_B3LYP_Ahl_b.f98').cry_read_density()
-'''
-density1 = '../examples/data/density/substrate.f98'
-density2 = '../examples/data/density/adsorbate.f98'
-density3 = '../examples/data/density/system.f98'
-cry_combine_density(density1,density2,density3,'../examples/data/density/new_density.f98')'''

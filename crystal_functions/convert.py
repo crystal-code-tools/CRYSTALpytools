@@ -6,11 +6,16 @@ Created on Fri Nov 19 18:29:16 2021
 """
 
 def cry_out2pmg(output, initial=False, vacuum=10):
+    #Transform a CRYSTAL output object into a pymatgen structure object
+
     # output_file is a crystal output object
+    # initial == False reads the last geometry of the output file
+    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
     
     from pymatgen.core import Structure  
     import numpy as np
 
+    #Extract information from the output file
     dimensionality = output.get_dimensionality()
     output.get_last_geom(write_gui_file=False)
     output.get_primitive_lattice(initial=initial)
@@ -18,7 +23,7 @@ def cry_out2pmg(output, initial=False, vacuum=10):
     if dimensionality == 3:
         structure = Structure(output.primitive_lattice, output.atom_numbers, 
                               output.atom_positions_cart, coords_are_cartesian=True)
-        
+    # Add vacuum for 2D structures    
     elif dimensionality == 2:
         thickness = np.amax(np.array(output.atom_positions_cart)[:, 2]) - \
                     np.amin(np.array(output.atom_positions_cart)[:, 2])
@@ -31,25 +36,24 @@ def cry_out2pmg(output, initial=False, vacuum=10):
     
     return structure
 
-    
-###TESTING
-'''from crystal_functions.file_readwrite import Crystal_output
-cry_output = Crystal_output('../examples/data/mgo.out')
-print(cry_output)
-cry_out2pmg(cry_output)'''
-
 
 def cry_bands2pmg(output, bands, labels=None):
-    # WORK IN PROGRESS Function to transform a crystal band file into a pmg band object Format of the pmg object:
-    # classBandStructure(kpoints, eigenvals, lattice, efermi, labels_dict=None, coords_are_cartesian=False,
-    # structure=None, projections=None)
+    # WORK IN TRANSFORMATION
+    #Transform a CRYSTAL bands object into a pymatgen bands object
+
+    # output_file is a crystal output object
+    # bands is a crystal bands object
+        # classBandStructure(kpoints, eigenvals, lattice, efermi, labels_dict=None, coords_are_cartesian=False,
+        # structure=None, projections=None)
+    # labels are the k point labels to display in the band structure
     
     import numpy as np
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     
     from pymatgen.core.lattice import Lattice
     from pymatgen.electronic_structure.core import Spin
-
+    
+    # Read the reciprocal lattice from the output file
     output.get_reciprocal_lattice()
     labels_dict = {}
     
@@ -57,16 +61,6 @@ def cry_bands2pmg(output, bands, labels=None):
         for i, j in enumerate(bands.n_points):
             labels_dict[labels[i]] = bands.k_point_coordinates[j-1]
     
-    '''#This defines the Kpoint objects. Not needed at the moment, but might be useful in the future
-    k_points = []
-    for i, coord in enumerate(bands.k_point_coordinates):
-        k_points.append(Kpoint(np.array(coord), 
-                               Lattice(output.reciprocal_vectors)))
-        if len(bands.n_points) > 1:
-            if i+1 in bands.n_points[1:-1]:
-                print(i+1)
-                k_points.append(Kpoint(np.array(coord), 
-                               Lattice(output.reciprocal_vectors)))'''
     
     # List of k points coordinates as symmetry lines
     band_energy = bands.bands 
@@ -97,27 +91,11 @@ def cry_bands2pmg(output, bands, labels=None):
                                  coords_are_cartesian=False)
     
 
-
-'''cry_output = Crystal_output('../examples/data/mgo_optgeom.out')
-cry_bands = Crystal_bands('../examples/data/mgo_BAND_dat.BAND')
-bs = cry_bands2pmg(cry_output,cry_bands,labels=['\\Gamma','B','C','\\Gamma','E'])'''
-
-'''###TESTING
-from cry_file_readwrite import Crystal_bands, Crystal_output
-from pymatgen.core.lattice import Lattice
-
-mgo_bands = Crystal_bands('examples/data/mgo_SPIN_BAND_dat.BAND')
-mgo_out = Crystal_output('examples/data/mgo_SPIN.out')
-#print(mgo_bands.n_points,labels=['A','B','C','D','E'])
-#mgo_out.reciprocal_lattice()
-
-
-#cry_bands2pmg(bands,output_name)
-#mgo_output_name = 'data/mgo_BAND.outp'
-cry_bands2pmg(mgo_out,mgo_bands,labels=['A','B','C','D','E'])'''
-
-
 def cry_gui2pmg(gui_file,vacuum=10):
+    #Transform a CRYSTAL structure (gui) file into a pymatgen bands object
+
+    #gui_file is the CRYSTAL structure (gui) file
+    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
 
     from pymatgen.core.structure import Structure
     import sys
@@ -132,7 +110,7 @@ def cry_gui2pmg(gui_file,vacuum=10):
     except:
         print('EXITING: a .gui file needs to be specified')
         sys.exit(1)
-    #if data[0].split()[0] == '3':
+    
     lattice = []
     for i in range(1, 4):
         lattice.append([float(x) for x in data[i].split()])
@@ -156,12 +134,23 @@ def cry_gui2pmg(gui_file,vacuum=10):
 
     
 def cry_out2ase(output, initial=False, dimensionality=3, vacuum=10):
+    #Transform a CRYSTAL output object into an ASE bands object
+    #The gui file is firt transfomed into a pymatgen object
+
+    # output_file is a crystal output object
+    # initial == False reads the last geometry of the output file
+    # dimensionality is the dimensionality of the system  
+    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
     return AseAtomsAdaptor().get_atoms(cry_out2pmg(output,initial=initial,dimensionality=dimensionality,vacuum=vacuum))
 
 def cry_gui2ase(gui_file):
+    #Transform a CRYSTAL structure (gui) file into an ASE bands object
+    #The gui file is firt transfomed into a pymatgen object
+
+    #gui_file is the CRYSTAL structure (gui) file
 
     from pymatgen.io.ase import AseAtomsAdaptor
 

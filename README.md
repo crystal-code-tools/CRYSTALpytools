@@ -43,6 +43,17 @@ set_runprop_path('path_to_your_runcry')
 Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in file_read_write.py are explained in the example/file_read_write.ipynb notebook).
 
 ## Usage
+
+The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in crystal_functions/file_read_write.py. To access them, please use:
+
+```console
+from crystal_functions.file_read_write import Crystal_output
+
+Crystal_output('output_name.out')
+```
+
+Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a crystal_functions function and not, for example, a pymatgen one with a similar name.
+
 The following flowcharts cover a wide range of workflows where the
 crystal_functions can be used. In order to run the CRYSTAL
 calculation, input data needs to be written to file. Nonetheless,
@@ -71,12 +82,14 @@ This case applied to when the calculations were run on a different machine and t
 
 ![output_analysis](doc/output_analysis.png)
 
-The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in crystal_functions/file_read_write.py. To access them, please use:
+## Testing
+To test the crystal_functions please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
 
 ```console
-from crystal_functions.file_read_write import Crystal_output
+from crystal_functions.unit_test import *
 
-Crystal_output('output_name.out')
+test_all('./data_test/')
 ```
+where './data_test/' is the path to the test folder.
 
-Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a crystal_functions function and not, for example, a pymatgen one with a similar name.
+All values should return True if the test is passed.
