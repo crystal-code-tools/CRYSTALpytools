@@ -86,7 +86,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             print('Error, title needs to be a string')
             sys.exit(1)
 
-    if (mode=modes[0]) or (mode=modes[1]) or (mode=modes[3]):
+    if (mode == modes[0]) or (mode == modes[1]) or (mode == modes[3]):
 
         # plotting of a single band object
         if mode == modes[0]:
@@ -250,8 +250,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         hsp[len(hsp)-1] = xmax
 
         y_band = np.linspace(ymin-3, ymax+3, 2)
-        high_sym_point = []
-        hsp_label = []
+
         for j in hsp:
             x_band = np.ones(2)*j
             plt.plot(x_band, y_band, color='black', linewidth=0.5)
@@ -273,7 +272,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         plt.ylabel('$E-E_F$ (eV)')
 
-    elif mode = modes[2]:
+    elif mode == modes[2]:
 
         if not isinstance(bands, list):
             print('Error, When you choose a ' +
@@ -296,8 +295,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 sys.exit(1)
 
         if scheme is None:
-            n_rows = len(bands)
-            n_col = 1
+            n_rows = 1
+            n_col = len(bands)
         else:
             if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
                 print('Error, scheme needs to be a tuple or a list')
@@ -311,11 +310,11 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 n_col = scheme[1]
 
         if figsize is None:
-            fig, axs = plt.subplot(nrows=n_rows, ncol=n_col,
-                                   sharex=sharex, sharey=sharey)
+            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
+                                    sharex=sharex, sharey=sharey)
         else:
-            fig, axs = plt.subplot(nrows=n_rows, ncol=n_col,
-                                   sharex=sharex, sharey=sharey)
+            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
+                                    sharex=sharex, sharey=sharey)
 
         xmin = []
         xmax = []
@@ -323,11 +322,12 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         ymax = []
         count3 = 0
 
-        for row in range(n_rows):
-            for col in range(n_col):
-                data = bands[row+col+count3]
+        for col in range(n_col):
+            for row in range(n_rows):
+                data = bands[count3]
+                print(count3)
                 dx = data.k_point_plot
-                pltband = data.band
+                pltband = data.bands
                 no_bands = np.shape(pltband)[0]
                 xmin.append(np.amin(dx))
                 xmax.append(np.amax(dx))
@@ -335,33 +335,59 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 ymax.append(np.amax(pltband))
                 for j in range(no_bands):
                     if data.spin == 1:
-                        axs[row, col].plot(
-                            dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
+                        if n_rows == 1:
+                            axs[col].plot(
+                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
+                        else:
+                            axs[row, col].plot(
+                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
                     elif data.spin == 2:
-                        axs[row, col].plot(
-                            dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[row, col].plot(
-                            dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
+                        if n_rows == 1:
+                            axs[col].plot(dx, pltband[j, :, 0], color=color,
+                                          linestyle='-', linewidth=linewidth, label='Alpha')
+                            axs[col].plot(dx, pltband[j, :, 0], color=color,
+                                          linestyle='--', linewidth=linewidth, label='Beta')
+                        else:
+                            axs[row, col].plot(
+                                dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
+                            axs[row, col].plot(
+                                dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
 
                 hsp = data.tick_position
-                yhsp = np.zeros(2)
+                yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
                 for j in hsp:
                     xhsp = np.ones(2)*j
-                    axs[row, col].plot(
-                        xhsp, yhsp, color='black', linewidth=0.5)
+                    if n_rows == 1:
+                        axs[col].plot(
+                            xhsp, yhsp, color='black', linewidth=0.5)
+                    else:
+                        axs[row, col].plot(
+                            xhsp, yhsp, color='black', linewidth=0.5)
 
                 xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
                 yfermi = np.zeros(2)
-                axs[row, col].plot(xfermi, yfermi, color=fermi, linewidth=2.5)
+                if n_rows == 1:
+                    axs[col].plot(
+                        xfermi, yfermi, color=fermi, linewidth=2.5)
+                else:
+                    axs[row, col].plot(
+                        xfermi, yfermi, color=fermi, linewidth=2.5)
 
-                axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
-                axs[row, col].set_ylim([np.amin(pltband), np.amax(pltband)])
+                if n_rows == 1:
+                    axs[col].set_xlim([np.amin(dx), np.amax(dx)])
+                    axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
+                else:
+                    axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
+                    axs[row, col].set_ylim(
+                        [np.amin(pltband), np.amax(pltband)])
 
-                count3 += (n_col-1)
+                count3 += 1
 
         fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
                  va='center', rotation='vertical')
 
+    hsp_label = []
+    high_sym_point = []
     if k_labels is not None:
         for n in k_labels:
             if n in greek:
@@ -408,7 +434,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         plt.xticks(hsp)
 
     plt.ylim(ymin, ymax)
-    plt.xlim(xmin, xmax)
+    if (mode == modes[0]) or (mode == modes[1]):
+        plt.xlim(xmin, xmax)
 
     plt.show()
 
