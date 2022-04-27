@@ -384,12 +384,41 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                         xfermi, yfermi, color=fermi, linewidth=2.5)
 
                 if n_rows == 1:
+                    if sharex is not True:
+                        """hsp_label = []
+                        for element in k_labels:
+                            if element in k_labels:
+                                g = greek.get(element)
+                                hsp_label.append(g)
+                        axs[col].set_xticks(hsp)
+                        if k_labels is not None:
+                            axs[col].set_xlabels(hsp_label)"""
+                        print(
+                            'Warning, the sharex = False option has not been developed yet')
                     axs[col].set_xlim([np.amin(dx), np.amax(dx)])
-                    axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
+                    if (sharey is not True) and (energy_range is not None):
+                        axs[col].set_ylim([energy_range[0], energy_range[1]])
+                    else:
+                        axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
                 else:
+                    if sharex is not True:
+                        """hsp_label = []
+                        for element in k_labels:
+                            if element in k_labels:
+                                g = greek.get(element)
+                                hsp_label.append(g)
+                        axs[row, col].set_xticks(hsp)
+                        if k_labels is not None:
+                            axs[row, col].set_xlabels(hsp_label)"""
+                        print(
+                            'Warning, the sharex = False option has not been developed yet')
                     axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
-                    axs[row, col].set_ylim(
-                        [np.amin(pltband), np.amax(pltband)])
+                    if (sharey is not True) and (energy_range is not False):
+                        axs[row, col].set_ylim(
+                            [energy_range[0], energy_range[1]])
+                    else:
+                        axs[row, col].set_ylim(
+                            [np.amin(pltband), np.amax(pltband)])
 
                 count3 += 1
 
@@ -429,7 +458,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     path_dict = dict(zip(high_sym_point2, hsp))
 
     # definition of the ylim
-    if energy_range != None:
+    if (energy_range is None) or (sharey is False):
         ymin = energy_range[0]
         ymax = energy_range[1]
 
