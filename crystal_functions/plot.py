@@ -272,13 +272,16 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
         plt.ylabel('$E-E_F$ (eV)')
 
+    # compare mode plot
     elif mode == modes[2]:
 
+        # Error check on type(bands)
         if not isinstance(bands, list):
             print('Error, When you choose a ' +
                   modes[2]+' plot bands needs to be a list of band objects')
             sys.exit(1)
 
+        # Error check on sharex and sharey option
         if (not isinstance(sharex, bool)) or (not isinstance(sharey, bool)):
             accepted_str = ['row', 'col']
 
@@ -294,6 +297,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                 print('Error, sharex and sharey have to be boolean')
                 sys.exit(1)
 
+        # Error check and definition of scheme
         if scheme is None:
             n_rows = 1
             n_col = len(bands)
@@ -308,14 +312,14 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             else:
                 n_rows = scheme[0]
                 n_col = scheme[1]
-
+        # Creation of the subplots
         if figsize is None:
             fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
                                     sharex=sharex, sharey=sharey)
         else:
             fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
                                     sharex=sharex, sharey=sharey)
-
+        # Scaling with different size of the same brillouin zone
         if not_scaled is False:
             reference = xmax = np.amax(bands[0].k_point_plot)
             xmin = np.amin(bands[0].k_point_plot)
@@ -328,6 +332,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         ymax = []
         count3 = 0
 
+        # Plot of the different band structure into the subplots
         for col in range(n_col):
             for row in range(n_rows):
                 data = bands[count3]
@@ -344,6 +349,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     xmax.append(np.amax(dx))
                 ymin.append(np.amin(pltband))
                 ymax.append(np.amax(pltband))
+                # Effective plotting action
                 for j in range(no_bands):
                     if data.spin == 1:
                         if n_rows == 1:
@@ -364,6 +370,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                             axs[row, col].plot(
                                 dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
 
+                # Plot of the HSPs lines
                 yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
                 for j in hsp:
                     xhsp = np.ones(2)*j
@@ -374,6 +381,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                         axs[row, col].plot(
                             xhsp, yhsp, color='black', linewidth=0.5)
 
+                # Fermi level line plot
                 xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
                 yfermi = np.zeros(2)
                 if n_rows == 1:
@@ -383,6 +391,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     axs[row, col].plot(
                         xfermi, yfermi, color=fermi, linewidth=2.5)
 
+                # Definition of x and y limits
                 if n_rows == 1:
                     if sharex is not True:
                         """hsp_label = []
@@ -475,6 +484,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     plt.ylim(ymin, ymax)
     if (mode == modes[0]) or (mode == modes[1]):
         plt.xlim(xmin, xmax)
+    elif mode == modes[2]:
+        print('Warning, the k_range is not available yet for the compare mode')
 
     plt.show()
 
