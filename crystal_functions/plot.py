@@ -5,6 +5,7 @@ Created on 29/03/2022
 """
 
 
+from matplotlib.pyplot import ylim
 from pyparsing import counted_array
 
 
@@ -434,6 +435,10 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
                  va='center', rotation='vertical')
 
+        if (isinstance(ylim, list)) or (isinstance(ymax, list)):
+            ymin = min(ymin)
+            ymax = max(ymax)
+
     hsp_label = []
     high_sym_point = []
     if k_labels is not None:
@@ -467,7 +472,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     path_dict = dict(zip(high_sym_point2, hsp))
 
     # definition of the ylim
-    if (energy_range is None) or (sharey is False):
+    if (energy_range is not None) or (sharey is True):
         ymin = energy_range[0]
         ymax = energy_range[1]
 
@@ -484,7 +489,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     plt.ylim(ymin, ymax)
     if (mode == modes[0]) or (mode == modes[1]):
         plt.xlim(xmin, xmax)
-    elif mode == modes[2]:
+    elif (mode == modes[2]) and (k_range is not None):
         print('Warning, the k_range is not available yet for the compare mode')
 
     plt.show()
