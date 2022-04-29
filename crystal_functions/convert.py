@@ -102,7 +102,7 @@ def cry_gui2pmg(gui_file,vacuum=10):
     import numpy as np
 
     try:
-        if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34':
+        if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and  'optc' not in gui_file:
             gui_file = gui_file + '.gui'
         file = open(gui_file, 'r')
         data = file.readlines()
