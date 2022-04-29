@@ -1066,7 +1066,7 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
             write_crystal(input_name[:-4]+'.gui', external_obj)
         elif 'pymatgen.core' in str(type(external_obj)):
             gui_file_name = input_name[:-4]+'.gui'
-            write_cry_gui(gui_file_name, external_obj)
+            write_crystal_gui(gui_file_name, external_obj)
         else:
             print(
                 'EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
@@ -1482,16 +1482,19 @@ class Crystal_density:
                     # The line below fixes that issue
                     self.la4.extend([int(x) for x in data[j].split()])
                     j += 1
-        return self
+        #return self
 
+'''#TESTING
+Crystal_density('../../../cmsg_icl/density-matrix/data/system_guessp.f98')'''
 
-def cry_combine_density(density1, density2, new_density='new_density.f98', spin_pol=False):
+def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
     #WORK IN PROGRESS:
      #it only works with ghost atoms at the moment
 
     #Returns the combined density matrix
     #density1 is the first density matrix file
     #density2 is the second density matrix file
+    #density3 is the density matrix file for the whole system
     #new_density is the name of the new density matrix
     # spin_pol == False means the system is not spin polarised
 
@@ -1499,13 +1502,11 @@ def cry_combine_density(density1, density2, new_density='new_density.f98', spin_
     import numpy as np
 
     try:
-        density1_data = Density(density1).cry_read_density()  # substrate
-        density2_data = Density(density2).cry_read_density()  # adsorbate
+        density1_data = Crystal_density(density1)  # substrate
+        density2_data = Crystal_density(density2)  # adsorbate
 
-        density3_data_obj = Density(density1).cry_read_density()
-        file = open(density3, 'r')
-        density3_data = file.readlines()
-        file.close()
+        density3_data_obj = Crystal_density(density3)
+        density3_data = density3_data_obj.all_file
     except:
         print('EXITING: a CRYSTAL .f98 file needs to be specified')
         sys.exit(1)
@@ -1600,7 +1601,7 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     data = file.readlines()
     file.close()
 
-    density = Density(fort98_name).cry_read_density()
+    density = Crystal_density(fort98_name)
 
     n_spin_lines = int(np.ceil((density.inf_vec[23] * 2) / 8))
     n_charges_lines = int(np.ceil((density.inf_vec[23]) / 4))
