@@ -1542,7 +1542,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 
     beginning = density3_data.index('SPINOR\n')
     end = density3_data.index('   NCF\n')
-    sum_density = np.array(density1_data.p_irr)+np.array(density2_data.p_irr)
+    sum_density = (np.array(density1_data.p_irr)+np.array(density2_data.p_irr))/2
     sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
     sum_charges = np.array(density1_data.charges) + \
         np.array(density2_data.charges)
