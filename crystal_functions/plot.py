@@ -5,6 +5,7 @@ Created on 29/03/2022
 """
 
 
+from matplotlib.lines import _LineStyle
 from matplotlib.pyplot import ylim
 from pyparsing import counted_array
 
@@ -269,7 +270,8 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             if bands.spin == 2:
                 plt.legend()
         else:
-            plt.legend()
+            if labels is not None:
+                plt.legend()
 
         plt.ylabel('$E-E_F$ (eV)')
 
@@ -539,21 +541,56 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         plt.subplots_adjust(wspace=0.2, top=0.88)"""
 
 
-def plot_cry_multibands(bands_list, k_labels=None, energy_range=None, title=False, not_scaled=False):
-    # Filippo's function
-    # bands list is a Crystal_band object
-    pass
+def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool = False, labels=None, figsize=None, linestl=None,
+                  linewidth=1, title: str = None, beta: str = 'up'):
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import sys
+
+    accepted_beta = ['up', 'down']
+    if beta not in accepted_beta:
+        print('Error, beta can be defined only as: ' +
+              accepted_beta[0] + ' or ' + accepted_beta[1])
+        sys.exit(1)
+
+    if overlap = True:
+
+        if (not isinstance(color, list)) and (doss.n_proj > 1):
+            print('Error, When overlap is true color has to be a list')
+            sys.exit(1)
+
+        if labels is not None:
+            if not isinstance(labels, list) and (doss.n_proj > 1):
+                print('Error, When overlap is true labels has to be a list')
+                sys.exit(1)
+
+        plt.figure(figsize=figsize)
+        dx = doss.doss[0]
+        xmin = np.amin(dx)
+        xmax = np.amax(dx)
+        ymin = np.amin(doss.doss[1:, :])
+        ymax = np.amax(doss.doss[1:, :])
+        for projection in range(1, doss.n_proj+1):
+            if doss.spin == 1:
+                plt.plot(dx, doss.doss[:, projection], color=color[projection],
+                         label=labels[:, projection], linestyle=linestl[projection], linewidth=linewidth)
+            elif doss.spin == 2:
+                if beta == accepted_beta[0]:
+                    plt.plot(dx, doss.doss[:, projection, 0], color=color[projection],
+                             label=labels[projection], linestyle='-', linewidth=linewidth)
+                    plt.plot(dx, doss.doss[:, projection, 1], color=color[projection],
+                             label=labels[projection], linestyle='--', linewidth=linewidth)
+                elif beta == accepted_beta[1]:
+                    plt.plot(dx, doss.doss[:, projection, 0], color=color[projection],
+                             label=labels[projection], linestyle='-', linewidth=linewidth)
+                    plt.plot(dx, -doss.doss[:, projection, 1], color=color[projection],
+                             label=labels[projection], linestyle='--', linewidth=linewidth)
+
+    else:
 
 
-def plot_cry_bands_compare():
-    pass
-
-
-def plot_cry_doss():
-    pass
-
-
-def plot_cry_es():
+def plot_cry_es(bands, doss):
     pass
 
 
