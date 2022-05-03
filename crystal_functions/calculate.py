@@ -17,9 +17,10 @@ def cry_shrink(structure, spacing=0.2):
     
     import numpy as np
 
-    short_vector = np.min(np.array(structure.lattice.reciprocal_lattice.lengths))
-    
-    return int(np.ceil(short_vector/spacing))
+    #short_vector = np.min(np.array(structure.lattice.reciprocal_lattice.lengths))
+    vector = np.average(structure.lattice.reciprocal_lattice.lengths)
+
+    return int(np.ceil(vector/spacing))
 
 
 '''###TESTING
