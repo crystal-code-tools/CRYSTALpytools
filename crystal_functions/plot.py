@@ -542,7 +542,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
 
 def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool = False, labels=None, figsize=None, linestl=None,
-                  linewidth=1, title: str = None, beta: str = 'up'):
+                  linewidth=1, title: str = None, beta: str = 'up', energy_range=None, nos_range=None):
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -566,7 +566,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
                 sys.exit(1)
 
         plt.figure(figsize=figsize)
-        dx = doss.doss[0]
+        dx = doss.doss[0]*27.2114
         xmin = np.amin(dx)
         xmax = np.amax(dx)
         ymin = np.amin(doss.doss[1:, :])
@@ -587,7 +587,35 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
                     plt.plot(dx, -doss.doss[:, projection, 1], color=color[projection],
                              label=labels[projection], linestyle='--', linewidth=linewidth)
 
+        yfermi_level = np.linspace(ymin, ymax, 2)
+        xfermi_level = np.ones(2)*doss.efermi
+        plt.plot(xfermi_level, yfermi_level, color=fermi, linewidth=2.5)
+
+        if energy_range is not None:
+            xmin = energy_range[0]
+            xmax = energy_range[1]
+
+        plt.xlim(xmin, xmax)
+
+        if nos_range is not None:
+            ymin = nos_range[0]
+            ymax = nos_range[1]
+            plt.ylim(ymin, ymax)
+        else:
+            if doss.spin == 1:
+                plt.ylim(ymin-5, ymax+5)
+            elif doss.spin == 2:
+                plt.ylim(-ymax-5, ymax+5)
+
+        plt.xlabel('Energy (eV)')
+        plt.ylabel('DOS (a.u)')
+
+        if title is not None:
+            plt.title(title)
+
     else:
+
+    plt.show()
 
 
 def plot_cry_es(bands, doss):
