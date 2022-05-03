@@ -542,7 +542,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
 
 def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool = False, labels=None, figsize=None, linestl=None,
-                  linewidth=1, title: str = None, beta: str = 'up', energy_range=None, nos_range=None):
+                  linewidth=1, title: str = None, beta: str = 'up', energy_range=None, dos_range=None):
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -569,8 +569,8 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
         dx = doss.doss[0]*27.2114
         xmin = np.amin(dx)
         xmax = np.amax(dx)
-        ymin = np.amin(doss.doss[1:, :])
-        ymax = np.amax(doss.doss[1:, :])
+        ymin = np.amin(doss.doss[1:, :, :])
+        ymax = np.amax(doss.doss[1:, :, :])
         for projection in range(1, doss.n_proj+1):
             if doss.spin == 1:
                 plt.plot(dx, doss.doss[:, projection], color=color[projection],
@@ -591,15 +591,9 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
         xfermi_level = np.ones(2)*doss.efermi
         plt.plot(xfermi_level, yfermi_level, color=fermi, linewidth=2.5)
 
-        if energy_range is not None:
-            xmin = energy_range[0]
-            xmax = energy_range[1]
-
-        plt.xlim(xmin, xmax)
-
-        if nos_range is not None:
-            ymin = nos_range[0]
-            ymax = nos_range[1]
+        if dos_range is not None:
+            ymin = dos_range[0]
+            ymax = dos_range[1]
             plt.ylim(ymin, ymax)
         else:
             if doss.spin == 1:
@@ -607,7 +601,6 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
             elif doss.spin == 2:
                 plt.ylim(-ymax-5, ymax+5)
 
-        plt.xlabel('Energy (eV)')
         plt.ylabel('DOS (a.u)')
 
         if title is not None:
@@ -615,6 +608,65 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
 
     else:
 
+        dx = doss.doss[0]*27.2114
+        xmin = np.amin(dx)
+        xmax = np.amax(dx)
+        yfermi = np.linspace(ymin, ymax, 2)
+        xfermi = np.zeros(2)
+        fig, axs = plt.subplots(
+            nrows=doss.n_proj, ncols=1, sharex=True, figsize=figsize)
+        for projection in range(doss.n_proj):
+            if doss.spin == 1:
+                ymin = np.amin(doss.doss[:, projection+1])
+                ymax = np.amax(doss.doss[:, projection+1])
+                axs[projection].plot(dx, doss.doss[:, projection+1],
+                                     color=color, linestyle=linestl, linewidth=linewidth)
+                axs[projection].plot(
+                    xfermi, yfermi, color=fermi, linewidth=2.5)
+                if dos_range is not None:
+                    ymin = dos_range[0]
+                    ymax = dos_range[1]
+                axs[projection].set_ylim(ymin, ymax)
+            elif doss.spin == 2:
+                if beta == accepted_beta[0]:
+                    ymin = np.amin(doss.doss[:, projection+1, :])
+                    ymax = np.amax(doss.doss[:, projection+1, :])
+                    axs[projection].plot(dx, doss.doss[:, projection+1, 0], color=color,
+                                         linestyle='-', linewidth=linewidth, label='Alpha')
+                    axs[projection].plot(dx, doss.doss[:, projection+1, 1], color=color,
+                                         linestyle='--', linewidth=linewidth, label='Beta')
+                    axs[projection].plot(
+                        xfermi, yfermi, color=fermi, linewidth=2.5)
+                    if dos_range is not None:
+                        ymin = dos_range[0]
+                        ymax = dos_range[1]
+                    axs[projection].set_ylim(ymin, ymax)
+                elif beta == accepted_beta[1]:
+                    ymin = -np.amax(doss.doss[:, projection+1, :])
+                    ymax = np.amax(doss.doss[:, projection+1, :])
+                    axs[projection].plot(dx, doss.doss[:, projection+1, 0], color=color,
+                                         linestyle='-', linewidth=linewidth, label='Alpha')
+                    axs[projection].plot(dx, doss.doss[:, projection+1, 1], color=color,
+                                         linestyle='--', linewidth=linewidth, label='Beta')
+                    axs[projection].plot(
+                        xfermi, yfermi, color=fermi, linewidth=2.5)
+                    if dos_range is not None:
+                        ymin = dos_range[0]
+                        ymax = dos_range[1]
+                    axs[projection].set_ylim(ymin, ymax)
+
+        if (doss.spin == 2) and (beta == accepted_beta[1]):
+            plt.legend()
+
+        fig.text(0.06, 0.5, 'DOS (a.u.)', ha='center',
+                 va='center', rotation='vertical')
+
+    if energy_range is not None:
+        xmin = energy_range[0]
+        xmax = energy_range[1]
+    plt.xlim(xmin, xmax)
+
+    plt.xlabel('Energy (eV)')
     plt.show()
 
 
