@@ -998,7 +998,7 @@ class Properties_output:
                           1] = np.array([float(n) for n in line.split()])
 
         # Convert all the energy to eV
-        self.doss[0, :, :] = self.doss[0, :, :]*27.2114
+        self.doss[:, 0, :] = self.doss[:, 0, :]*27.2114
 
         return self
 
@@ -1497,18 +1497,18 @@ class Crystal_density:
                     # The line below fixes that issue
                     self.la4.extend([int(x) for x in data[j].split()])
                     j += 1
-        #return self
+        # return self
 
 
 def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
-    #WORK IN PROGRESS:
-     #it only works with ghost atoms at the moment
+    # WORK IN PROGRESS:
+    # it only works with ghost atoms at the moment
 
-    #Returns the combined density matrix
-    #density1 is the first density matrix file
-    #density2 is the second density matrix file
-    #density3 is the density matrix file for the whole system
-    #new_density is the name of the new density matrix
+    # Returns the combined density matrix
+    # density1 is the first density matrix file
+    # density2 is the second density matrix file
+    # density3 is the density matrix file for the whole system
+    # new_density is the name of the new density matrix
     # spin_pol == False means the system is not spin polarised
 
     import sys
@@ -1554,7 +1554,8 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 
     beginning = density3_data.index('SPINOR\n')
     end = density3_data.index('   NCF\n')
-    sum_density = (np.array(density1_data.p_irr)+np.array(density2_data.p_irr))/2
+    sum_density = (np.array(density1_data.p_irr) +
+                   np.array(density2_data.p_irr))/2
     sum_fock = np.array(density1_data.f_irr)+np.array(density2_data.f_irr)
     sum_charges = np.array(density1_data.charges) + \
         np.array(density2_data.charges)
