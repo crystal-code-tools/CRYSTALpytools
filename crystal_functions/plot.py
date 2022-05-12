@@ -316,10 +316,10 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         # Creation of the subplots
         if figsize is None:
             fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey)
+                                    sharex=sharex, sharey=sharey, figsize=figsize)
         else:
             fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey)
+                                    sharex=sharex, sharey=sharey, figsize=figsize)
         # Scaling with different size of the same brillouin zone
         if not_scaled is False:
             reference = xmax = np.amax(bands[0].k_point_plot)
@@ -551,7 +551,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
     # Error check on beta
     accepted_beta = ['up', 'down']
     if beta not in accepted_beta:
-        print('Error, beta can be defined only as: ' +
+        print('Error!, beta can be defined only as: ' +
               accepted_beta[0] + ' or ' + accepted_beta[1])
         sys.exit(1)
 
@@ -675,8 +675,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
                                      label=labels[projection-1], linestyle=linestl[projection-1], linewidth=linewidth)
                     else:
                         plt.plot(
-                            dx, doss.doss[:, projection], linewidth=linewidth)
-                        pass
+                            dx, doss.doss[:, projection], color=color, linewidth=linewidth)
                 elif doss.spin == 2:
                     if beta == accepted_beta[0]:
                         if doss.n_proj > 1:
@@ -715,7 +714,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
                                      label=labels[index], linestyle=linestl[index], linewidth=linewidth)
                     else:
                         plt.plot(
-                            dx, doss.doss[:, projection], linewidth=linewidth)
+                            dx, doss.doss[:, projection], color=color, linewidth=linewidth)
                 elif doss.spin == 2:
                     if beta == accepted_beta[0]:
                         if doss.n_proj > 1:
@@ -926,8 +925,186 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
     plt.show()
 
 
-def plot_cry_es(bands, doss):
-    pass
+def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
+                linestl_doss='-', linewidth=1, prj: list = None, figsize=None, labels: list = None):
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import sys
+
+    greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
+             'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
+             'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
+             'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
+
+    fig, axs = plt.subplots(nrows=1, ncols=2,
+                            gridspec_kw={'width_ratios': [2, 1]},
+                            sharex=False, sharey=True, figsize=figsize,
+                            )
+    hsp = bands.tick_position
+
+    if k_labels is not None:
+        if len(hsp) != len(k_labels):
+            if len(hsp) > len(k_labels):
+                print(
+                    'Error!, you have specified a number of label smalle than the number of High Simmetry Point along the path')
+            elif len(hsp) < len(k_labels):
+                print(
+                    'Error!, you have more labels than the High Simmetry point along the path')
+            sys.exit(1)
+
+    dx_bd = bands.k_point_plot
+
+    pltband = bands.bands
+    no_bands = np.shape(pltband)[0]
+    ymin_bd = np.amin(pltband)
+    ymax_bd = np.amax(pltband)
+    xmin_bd = np.amin(dx_bd)
+    xmax_bd = np.amax(dx_bd)
+    count1 = 0
+    count2 = 0
+
+    # band plot
+    for i in range(no_bands):
+        if bands.spin == 1:
+            axs[0].plot(dx_bd, pltband[i, :], color=color_bd,
+                        linestyle=linestl_bd, linewidth=linewidth)
+
+        elif bands.spin == 2:
+            if count1 == count2:
+                axs[0].plot(dx_bd, pltband[i, :, 0], color=color_bd,
+                            linestyle='-', linewidth=linewidth, label='Alpha')
+                axs[0].plot(dx_bd, pltband[i, :, 1], color=color_bd,
+                            linestyle='--', linewidth=linewidth, label='Beta')
+            else:
+                axs[0].plot(dx_bd, pltband[i, :, 0], color=color_bd,
+                            linestyle='-', linewidth=linewidth)
+                axs[0].plot(dx_bd, pltband[i, :, 1], color=color_bd,
+                            linestyle='--', linewidth=linewidth)
+
+        count1 += 1
+
+    if doss.spin == 1:
+        dx_dos = doss.doss[:, 0]
+    elif doss.spin == 2:
+        dx_dos = doss.doss[:, 0, :]
+        dx_alpha = doss.doss[:, 0, 0]
+        dx_beta = doss.doss[:, 0, 1]
+
+     # Determination of xmin, xmax, ymin, and ymax
+    xmin_dos = np.amin(doss.doss[:, 1:, :])
+    xmax_dos = np.amax(doss.doss[:, 1:, :])
+    ymin_dos = np.amin(dx_dos)
+    ymax_dos = np.amax(dx_dos)
+
+    # Plot of all projections
+    if prj is None:
+        for projection in range(1, doss.n_proj+1):
+            if doss.spin == 1:
+
+                if doss.n_proj > 1:
+
+                    if linestl_doss is None:
+                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[projection-1],
+                                    label=labels[projection-1], linewidth=linewidth)
+
+                    else:
+                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[projection-1],
+                                    label=labels[projection-1], linestyle=linestl_doss[projection-1], linewidth=linewidth)
+
+                else:
+                    axs[1].plot(doss.doss[:, projection], dx_dos,
+                                color=color_doss, linewidth=linewidth)
+
+            elif doss.spin == 2:
+                if doss.n_proj > 1:
+                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[projection-1],
+                                label=labels[projection-1], linestyle='-', linewidth=linewidth)
+                    axs[1].plot(-doss.doss[:, projection, 1], dx_beta, color=color_doss[projection-1],
+                                label=labels[projection-1], linestyle='--', linewidth=linewidth)
+                else:
+                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss,
+                                linestyle='-', linewidth=linewidth)
+                    axs[1].plot(-doss.doss[:, projection, 1], dx_beta, color=color_doss,
+                                linestyle='--', linewidth=linewidth)
+
+    else:
+        for index, projection in enumerate(prj):
+            if doss.spin == 1:
+                if doss.n_proj > 1:
+                    if linestl_doss is None:
+                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[index],
+                                    label=labels[index], linewidth=linewidth)
+                    else:
+                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[index],
+                                    label=labels[index], linestyle=linestl_doss[index], linewidth=linewidth)
+                else:
+                    axs[1].plot(doss.doss[:, projection], dx_dos,
+                                color=color_doss, linewidth=linewidth)
+            elif doss.spin == 2:
+                if doss.n_proj > 1:
+                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[index],
+                                label=labels[index], linestyle='-', linewidth=linewidth)
+                    axs[1].plot(-doss.doss[:, projection, 1], dx_beta, color=color_doss[index],
+                                label=labels[index], linestyle='--', linewidth=linewidth)
+                else:
+                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss,
+                                linestyle='-', linewidth=linewidth)
+                    axs[1].plot(-doss.doss[:, projection, 1], dx_beta, color=color_doss,
+                                linestyle='--', linewidth=linewidth)
+
+    if ymin_bd > ymin_dos:
+        ymin = ymin_dos
+    elif ymin_bd <= ymin_dos:
+        ymin = ymin_bd
+
+    if ymax_bd >= ymax_dos:
+        ymax = ymax_bd
+    elif ymax_bd < ymax_bd:
+        ymax = ymax_dos
+
+    xmax_bd = hsp[len(hsp)-1]
+    xmin_dos = 0
+
+    yhsp = np.linspace(ymin-5, ymax+5, 2)
+    for j in hsp:
+        xhsp = np.ones(2)*j
+        axs[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
+
+    hsp_label = []
+    if k_labels is not None:
+        for n in k_labels:
+            if n in greek:
+                g = greek.get(n)
+                hsp_label.append(g)
+            else:
+                hsp_label.append(n)
+
+    axs[0].set_xticks(hsp)
+    axs[0].set_xticklabels(hsp_label)
+
+    xfermi_bd = np.linspace(xmin_bd, xmax_bd, 2)
+    xfermi_dos = np.linspace(xmin_dos, xmax_dos, 2)
+    yfermi = np.zeros(2)
+
+    axs[0].plot(xfermi_bd, yfermi, color=fermi, linewidth=1.5)
+    axs[1].plot(xfermi_dos, yfermi, color=fermi, linewidth=1.5)
+
+    axs[0].set_xlim(xmin_bd, xmax_bd)
+    axs[1].set_xlim(xmin_dos, xmax_dos+5)
+
+    if energy_range is not None:
+        ymin = energy_range[0]
+        ymax = energy_range[1]
+
+    plt.ylim(ymin, ymax)
+
+    fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
+             va='center', rotation='vertical')
+
+    plt.legend()
+
+    plt.show()
 
 
 def plot_contour(contour_obj, diff=False):
