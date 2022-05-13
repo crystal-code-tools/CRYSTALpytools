@@ -926,7 +926,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
 
 
 def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
-                linestl_doss='-', linewidth=1, prj: list = None, figsize=None, labels: list = None):
+                linestl_doss=None, linewidth=1, prj: list = None, figsize=None, labels: list = None):
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -1060,13 +1060,13 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
 
     if ymax_bd >= ymax_dos:
         ymax = ymax_bd
-    elif ymax_bd < ymax_bd:
+    elif ymax_bd < ymax_dos:
         ymax = ymax_dos
 
     xmax_bd = hsp[len(hsp)-1]
     xmin_dos = 0
 
-    yhsp = np.linspace(ymin-5, ymax+5, 2)
+    yhsp = np.linspace(ymin_bd-5, ymax_bd+5, 2)
     for j in hsp:
         xhsp = np.ones(2)*j
         axs[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
@@ -1081,7 +1081,8 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
                 hsp_label.append(n)
 
     axs[0].set_xticks(hsp)
-    axs[0].set_xticklabels(hsp_label)
+    if k_labels is not None:
+        axs[0].set_xticklabels(hsp_label)
 
     xfermi_bd = np.linspace(xmin_bd, xmax_bd, 2)
     xfermi_dos = np.linspace(xmin_dos, xmax_dos, 2)
