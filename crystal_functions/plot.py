@@ -926,7 +926,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
 
 
 def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
-                linestl_doss=None, linewidth=1, prj: list = None, figsize=None, labels: list = None):
+                linestl_doss=None, linewidth=1, prj: list = None, figsize=None, labels: list = None, dos_max_range: float = None):
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -1066,7 +1066,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
     xmax_bd = hsp[len(hsp)-1]
     xmin_dos = 0
 
-    yhsp = np.linspace(ymin_bd-5, ymax_bd+5, 2)
+    yhsp = np.linspace(ymin-5, ymax+5, 2)
     for j in hsp:
         xhsp = np.ones(2)*j
         axs[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
@@ -1092,6 +1092,13 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
     axs[1].plot(xfermi_dos, yfermi, color=fermi, linewidth=1.5)
 
     axs[0].set_xlim(xmin_bd, xmax_bd)
+
+    if dos_max_range is not None:
+        xmax_dos = dos_max_range
+
+    if (prj is None) and (doss.n_proj not in prj):
+        xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
+
     axs[1].set_xlim(xmin_dos, xmax_dos+5)
 
     if energy_range is not None:
