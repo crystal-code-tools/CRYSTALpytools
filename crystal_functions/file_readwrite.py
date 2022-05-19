@@ -885,6 +885,16 @@ class Properties_output:
             file = open(self.file_name, 'r')
             self.data = file.readlines()
             file.close()
+
+            #directory
+            dir_name = os.path.abspath(self.file_name)
+            self.abspath = os.path.join(dir_name)
+            
+            #title (named "title" only to distinguish from "file_name" which means another thing)
+            self.title = dir_name.split('/')[-1][:-4]
+
+
+
         except:
             print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
