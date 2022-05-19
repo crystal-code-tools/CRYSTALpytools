@@ -1106,7 +1106,115 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
 
     plt.show()
 
-
+    #coss
 def plot_contour(contour_obj, diff=False):
-    # Ale C's function
-    pass
+    
+    df = contour_obj.df
+    n_punti_x = contour_obj.npx
+    
+    for i in range(0,8):
+        df[i] = df[i].astype(float) 
+
+    flat_list = [item for sublist in df.values for item in sublist]
+
+    cleaned_list = [x for x in flat_list if ~np.isnan(x)]
+    
+    l = [cleaned_list[x:x+n_punti_x] for x in range(0, len(cleaned_list),n_punti_x)]
+    
+    c = contour_obj.x_graph_param
+    d = contour_obj.y_graph_param
+    
+    plt.rcParams["figure.figsize"] = [c,d]
+
+    plt.xlabel(r'$\AA$',fontsize=18)
+    plt.ylabel(r'$\AA$',fontsize=18)
+
+    X,Y = np.meshgrid(contour_obj.x_points,contour_obj.y_points) 
+    
+    
+    levels = contour_obj.levels
+    colors = contour_obj.colors
+    linestyles = contour_obj.linestyles
+    fmt = contour_obj.fmt
+
+    #Change here to have or not the isovalues on the plot
+    iso = True
+    #iso = False
+
+    if (iso == True):
+        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
+                    alpha = 1)
+        plt.clabel(L, inline = 1, fontsize = 7, fmt = fmt)
+    elif (iso == False):
+        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
+                    alpha = 1)
+
+    
+    path = os.path.join('./'+'figure_' + contour_obj.tipo + '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+    print('\nThe image has been saved in the current directory')
+
+    plt.show()
+
+
+#coss
+def plot_contour_differences(contour_obj, contour_obj_ref):
+    
+    n_punti_x = contour_obj.npx
+    
+    df = contour_obj.df  
+    for i in range(0,8):
+        df[i] = df[i].astype(float) 
+        
+    df_ref = contour_obj_ref.df
+    for i in range(0,8):
+        df_ref[i] = df_ref[i].astype(float)   
+        
+    df_diff = df - df_ref
+        
+    flat_list = [item for sublist in df_diff.values for item in sublist]
+
+    cleaned_list = [x for x in flat_list if ~np.isnan(x)]
+    
+    l = [cleaned_list[x:x+n_punti_x] for x in range(0, len(cleaned_list),n_punti_x)]
+    
+    c = contour_obj.x_graph_param
+    d = contour_obj.y_graph_param
+    
+    plt.rcParams["figure.figsize"] = [c,d]
+
+    plt.xlabel(r'$\AA$',fontsize=18)
+    plt.ylabel(r'$\AA$',fontsize=18)
+
+    X,Y = np.meshgrid(contour_obj.x_points,contour_obj.y_points) 
+    
+    
+    ctr1dif = np.array([-8,-4,-2,-0.8,-0.4,-0.2,-0.08,-0.04,-0.02,-0.008,-0.004,-0.002,-0.0008,-0.0004,-0.0002,0,
+                       0.0002,0.0004,0.0008,0.002,0.004,0.008,0.02,0.04,0.08,0.2,0.4,0.8,2,4,8])
+    colors1dif = ['b','b','b','b','b','b','b','b','b','b','b','b','b','b','b','k','r','r','r','r','r','r','r',
+                  'r','r','r','r','r','r','r','r']
+    ls1dif = ['--','--','--','--','--','--','--','--','--','--','--','--','--','--','--','dotted','-','-','-','-',
+              '-','-','-','-','-','-','-','-','-','-','-']
+
+    levels = ctr1dif
+    colors = colors1dif
+    linestyles = ls1dif
+    fmt = '%1.4f'
+
+    #Change here to have or not the isovalues on the plot
+    iso = True
+    #iso = False
+
+    if (iso == True):
+        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
+                    alpha = 1)
+        plt.clabel(L, inline = 1, fontsize = 7, fmt = fmt)
+    elif (iso == False):
+        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
+                    alpha = 1)
+    
+    path = os.path.join('./'+'figure_diff_' + contour_obj.tipo + '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+    print('\nThe image has been saved in the current directory')
+
+    plt.show()
