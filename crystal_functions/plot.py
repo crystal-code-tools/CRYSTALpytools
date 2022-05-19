@@ -1218,3 +1218,19 @@ def plot_contour_differences(contour_obj, contour_obj_ref):
     print('\nThe image has been saved in the current directory')
 
     plt.show()
+
+
+#coss
+def plot_XRD(xrd_obj):
+    
+    plt.rcParams["figure.figsize"] = [16,9]
+
+    plt.plot(xrd_obj.x,xrd_obj.y)
+
+    plt.xlim((0, 30))
+        
+    path = os.path.join('./'+'figure_'+'XRD_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.title(xrd_obj.title, fontsize=20)
+    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+    
+    plt.show()
