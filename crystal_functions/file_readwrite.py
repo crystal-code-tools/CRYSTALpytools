@@ -1012,6 +1012,9 @@ class Properties_output:
 
         return self
 
+
+
+    #coss
     def read_cry_contour(self):
 
         filename = self.abspath
@@ -1121,7 +1124,7 @@ class Properties_output:
         
         return self
 
-
+    #coss
     def read_XRD_spec(self): 
         
         data = self.data
