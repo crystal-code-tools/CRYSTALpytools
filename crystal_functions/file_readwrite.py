@@ -1889,6 +1889,78 @@ class Properties_output:
 
 
 
+    #coss        
+    def read_seebeck(self):
+                
+        data = self.data
+        filename = self.abspath
+        title = self.title
+        
+
+        if filename.endswith('.DAT'):
+            pass
+        else:
+            sys.exit('please, choose a valid file or rename it properly')
+
+
+        spectrum = re.compile('Npoints', re.DOTALL)
+
+        match = []
+
+        for line in data:
+            if spectrum.search(line):
+                match.append('RIGHT LINE:' + line)
+            else: 
+                match.append('WRONG LINE:' + line)
+                
+        df = pd.DataFrame(match)
+        indx = list(df[df[0].str.contains("RIGHT")].index)
+        
+        lin = []
+        for i in indx:
+            lin.append(i+1)
+            
+        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
+        
+        length = diffs[0] - 1 #la lunghezza del blocco tra due "RIGHT"
+            
+        lif = []
+        for i in lin:
+            lif.append(i+length)
+            
+        c = []
+        for i in range(len(lin)):
+            c.append(lin[i])
+            c.append(lif[i])
+            
+        d = [c[i:i + 2] for i in range(0, len(c), 2)]
+        
+        l = []
+        for i in range(0,len(d)):
+            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
+            
+            
+        right = df[df[0].str.contains("RIGHT")]
+        right = right.reset_index().drop('index',axis=1)
+        
+        self.temp = []
+        for i in range(0,len(right)):
+            self.temp.append(float(str(right[0][i])[22:25])) #va bene perchè la struttura è sempre la stessa
+            
+        ll = []
+        for k in range(0,len(l)):
+            ll.append(l[k].reset_index().drop('index',axis=1))
+            
+        self.all_data = []
+        for k in range(0,len(ll)):
+            for i in ll[k]:
+                self.all_data.append(ll[k][i].apply(lambda x: x.replace('WRONG LINE:','')))
+                
+        self.title = title
+        
+        return self
+
+
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
 
