@@ -1250,3 +1250,21 @@ def plot_rholine(rholine_obj):
     plt.savefig(path, bbox_inches = 'tight',dpi=600)
 
     plt.show()
+
+
+#coss
+def plot_out_molecule(mol_obj):
+    return view(mol_obj.atoms,viewer='ngl')
+
+#coss
+def plot_out_opt_molecule(mol_opt_obj):
+    return view(mol_opt_obj.atoms,viewer='ngl')
+
+#coss
+def plot_out_crystal(cry_obj):
+    return view(cry_obj.cell,viewer='ngl')
+
+#coss
+def plot_out_opt_crystal(cry_opt_obj):
+    return view(cry_opt_obj.cell,viewer='ngl')
+
