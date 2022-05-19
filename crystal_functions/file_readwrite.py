@@ -1013,12 +1013,114 @@ class Properties_output:
         return self
 
     def read_cry_contour(self):
-        # WORK IN PROGRESS
 
-        # This class contains the bands objects created from reading the
-        # CRYSTAL contour calculation files
-        # Returns an array where the band energy is expressed in eV
-        pass
+        filename = self.abspath
+
+        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFGRHO.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFVIRI.DAT')) or (filename.endswith('SURFGKIN.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFKKIN.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
+            pass
+        else:       
+            sys.exit('please, choose a valid file or rename it properly')
+
+
+        tipo = ''
+
+        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')):
+            self.tipo = 'SURFRHOO'
+            self.path = filename
+        elif (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')):
+            self.tipo = 'SURFLAPP'
+            self.path = filename
+        elif (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')):
+            self.tipo = 'SURFLAPM'
+            self.path = filename
+        elif (filename.endswith('SURFGRHO.DAT')):
+            self.tipo = 'SURFGRHO'
+            self.path = filename
+        elif (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
+            self.tipo = 'SURFELFB'
+            self.path = filename
+        elif (filename.endswith('SURFVIRI.DAT')):
+            self.tipo = 'SURFVIRI'
+            self.path = filename
+        elif (filename.endswith('SURFGKIN.DAT')):
+            self.tipo = 'SURFGKIN'
+            self.path = filename
+        elif (filename.endswith('SURFKKIN.DAT')):
+            self.tipo = 'SURFKKIN'
+            self.path = filename 
+
+        factor = 0.529177249
+
+        l_dens = self.data
+
+        n_punti_x = int(l_dens[1].strip().split()[0])
+        n_punti_y = int(l_dens[1].strip().split()[1])
+        
+        self.npx = n_punti_x
+
+        x_min = float(l_dens[2].strip().split()[0]) * factor
+        x_max = float(l_dens[2].strip().split()[1]) * factor
+        x_step = float(l_dens[2].strip().split()[2]) * factor
+
+        y_min = float(l_dens[3].strip().split()[0]) * factor
+        y_max = float(l_dens[3].strip().split()[1]) * factor
+        y_step = float(l_dens[3].strip().split()[2]) * factor
+
+        l_dens = l_dens[5:]
+
+        m_dens=[]
+        for i in l_dens:
+            m_dens.append(re.sub("\s\s+" , " ", i))
+
+        n_dens=[]
+        for i in m_dens:
+            n_dens.append(i.replace('\n','').split())
+
+        self.df = pd.DataFrame(n_dens)
+        
+        self.x_points = np.linspace(x_min,x_max,n_punti_x)
+        self.y_points = np.linspace(y_min,y_max,n_punti_y)
+
+        a = x_max - x_min
+        b = y_max - y_min
+        r = a/b
+
+
+        self.x_graph_param = 10
+        self.y_graph_param = 10 / r
+
+        ctr1 = np.array([0.002,0.004,0.008,0.02,0.04,0.08,0.2,0.4,0.8,2,4,8,20])
+        colors1 = ['r','r','r','r','r','r','r','r','r','r','r','r','r']
+        ls1 = ['-','-','-','-','-','-','-','-','-','-','-','-','-']
+
+        ctr2 = np.array([-8,-4,-2,-0.8,-0.4,-0.2,-0.08,-0.04,-0.02,-0.008,-0.004,-0.002,0.002,0.004,0.008,0.02,0.04,0.08,
+                     0.2,0.4,0.8,2,4,8])
+        colors2 = ['b','b','b','b','b','b','b','b','b','b','b','b','r','r','r','r','r','r','r','r','r','r','r','r']
+        ls2 = ['--','--','--','--','--','--','--','--','--','--','--','--','-','-','-','-','-','-','-','-','-','-','-','-']
+
+        ctr3 = np.array([0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,
+                         0.95,1])
+        colors3 = ['k','b','b','b','b','b','b','b','b','b','b','r','r','r','r','r','r','r','r','r','r']
+        ls3 = ['dotted','--','--','--','--','--','--','--','--','--','--','-','-','-','-','-','-','-','-','-','-']
+
+        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFRHOO_ref') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
+            self.levels = ctr1
+            self.colors = colors1
+            self.linestyles = ls1
+            self.fmt = '%1.3f'
+        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPP_ref') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFLAPM_ref') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
+            self.levels = ctr2
+            self.colors = colors2
+            self.linestyles = ls2
+            self.fmt = '%1.3f'
+        elif (self.tipo == 'SURFELFB') or (self.tipo == 'SURFELFB_ref'):
+            self.levels = ctr3
+            self.colors = colors3
+            self.linestyles = ls3
+            self.fmt = '%1.2f'
+        
+        return self
+
 
 
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
