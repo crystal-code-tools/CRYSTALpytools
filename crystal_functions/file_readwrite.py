@@ -1281,7 +1281,83 @@ class Properties_output:
         
         return self
     
-    
+
+
+    #coss
+    def read_out_opt_molecule(self):
+        
+        data = self.data
+        filename = self.abspath
+
+        spectrum_final = re.compile('FINAL OPTIMIZED GEOMETRY', re.DOTALL)
+
+        match_final = []
+
+        for line in data:
+            if spectrum_final.search(line):
+                match_final.append('RIGHT LINE: ' + line)
+            else: 
+                match_final.append('WRONG LINE: ' + line)
+
+
+        df_final = pd.DataFrame(match_final)
+        num_final = (df_final[df_final[0].str.contains(u'RIGHT')].index.values)
+        bag = df_final[0][int(num_final):]
+        bag = bag.str.replace('RIGHT LINE: ', '')
+        bag = bag.str.replace('WRONG LINE: ', '')
+
+        spectrum = re.compile('ATOMS IN THE ASYMMETRIC UNIT', re.DOTALL) 
+
+        match = []
+
+        for line in bag:
+            if spectrum.search(line):
+                match.append('RIGHT LINE: ' + line)
+            else: 
+                match.append('WRONG LINE: ' + line)
+
+        df = pd.DataFrame(match)
+
+        num_riga = (df[df[0].str.contains(u'RIGHT')].index.values)
+        num_in = num_riga + 3 #due sono la right line, l'header e gli *
+        num_irr = int(df[0][num_riga[0]][76])
+        num_fin = num_in + num_irr 
+        match = match[num_in[0]:num_fin[0]]
+
+        match_2 = []
+        for line in match:
+            line = line.replace('WRONG LINE:', '')
+            match_2.append(line)
+
+        df = pd.DataFrame([i.strip().split() for i in match_2])
+        df = df[[2,4,5,6]].rename(columns={2: 'at_num', 4: 'x', 5: 'y', 6: 'z'})
+
+        nops = []
+
+        for column in df.columns[:1]:
+            for i in df[column]:
+                if len(i) == 3:
+                    nops.append(i[1:])
+                else:
+                    nops.append(i)
+
+        df = df.drop('at_num',axis=1)
+        df['at_num'] = nops
+
+        df_pos = df.drop('at_num',axis=1)
+
+        l=[]
+        for i in range(0,len(df_pos)):
+            l.append(df_pos.iloc[i].to_list())
+
+        self.atoms = Atoms(numbers=df.at_num, positions=l) 
+        
+        return self 
+
+
+
+
+        
 
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
