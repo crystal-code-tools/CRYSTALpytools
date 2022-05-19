@@ -1017,6 +1017,11 @@ class Properties_output:
     #coss
     def read_cry_contour(self):
 
+        import sys
+        import re
+        import pandas as pd
+        import numpy as np
+
         filename = self.abspath
 
         if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFGRHO.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFVIRI.DAT')) or (filename.endswith('SURFGKIN.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFKKIN.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
@@ -1126,6 +1131,11 @@ class Properties_output:
 
     #coss
     def read_XRD_spec(self): 
+
+        import sys
+        import re
+        import pandas as pd
+
         
         data = self.data
         filename = self.abspath
@@ -1191,6 +1201,10 @@ class Properties_output:
 
     #coss
     def read_rholine(self):
+
+        import sys
+        import re 
+        import pandas as pd
     
         l_dens = self.data
         filename = self.abspath
@@ -1199,7 +1213,6 @@ class Properties_output:
         if filename.endswith('.RHOLINE'):
             pass
         else:
-            display.display(print_duck())
             sys.exit('please, choose a valid file or rename it properly')
 
         m_dens=[]
@@ -1229,6 +1242,15 @@ class Properties_output:
 
     #coss
     def read_out_molecule(self):
+
+        import re
+        import pandas as pd
+        import ase
+        from ase import Atoms 
+        from ase.visualize import view 
+        from ase.visualize.plot import plot_atoms
+        import ase.spacegroup
+        import ase.io.cif
         
         data = self.data
         filename = self.abspath
@@ -1285,6 +1307,15 @@ class Properties_output:
 
     #coss
     def read_out_opt_molecule(self):
+
+        import re
+        import pandas as pd
+        import ase
+        from ase import Atoms 
+        from ase.visualize import view 
+        from ase.visualize.plot import plot_atoms
+        import ase.spacegroup
+        import ase.io.cif
         
         data = self.data
         filename = self.abspath
@@ -1360,6 +1391,15 @@ class Properties_output:
     
     #coss    
     def read_out_crystal(self):
+
+        import re
+        import pandas as pd
+        import ase
+        from ase import Atoms 
+        from ase.visualize import view 
+        from ase.visualize.plot import plot_atoms
+        import ase.spacegroup
+        import ase.io.cif
         
         #cerco il numero di atomi irriducibili
         
@@ -1621,6 +1661,15 @@ class Properties_output:
 
     #coss        
     def read_out_opt_crystal(self):
+
+        import re
+        import pandas as pd
+        import ase
+        from ase import Atoms 
+        from ase.visualize import view 
+        from ase.visualize.plot import plot_atoms
+        import ase.spacegroup
+        import ase.io.cif
         
         data = self.data
         filename = self.abspath
@@ -1891,6 +1940,10 @@ class Properties_output:
 
     #coss        
     def read_seebeck(self):
+
+        import sys
+        import re
+        import pandas as pd
                 
         data = self.data
         filename = self.abspath
