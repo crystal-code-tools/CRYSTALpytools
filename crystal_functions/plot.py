@@ -1234,3 +1234,19 @@ def plot_XRD(xrd_obj):
     plt.savefig(path, bbox_inches = 'tight',dpi=600)
     
     plt.show()
+
+
+
+#coss    
+def plot_rholine(rholine_obj):
+    
+    plt.plot(rholine_obj.x,rholine_obj.y)
+
+    plt.xlabel('d  [$\AA$]',fontsize=14)
+    plt.ylabel(r'$\rho$  [$\frac{e}{\AA^3}$]',fontsize=16)
+        
+    path = os.path.join('./'+'figure_'+'rholine_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.title(rholine_obj.title, fontsize=15)
+    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+
+    plt.show()
