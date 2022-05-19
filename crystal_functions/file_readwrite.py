@@ -1354,10 +1354,540 @@ class Properties_output:
         
         return self 
 
-
-
-
+    
+    
+    
+    
+    #coss    
+    def read_out_crystal(self):
         
+        #cerco il numero di atomi irriducibili
+        
+        data = self.data
+        filename = self.abspath
+
+        spectrum_0_0 = re.compile('NUMBER OF IRREDUCIBLE ATOMS IN THE CONVENTIONAL CELL', re.DOTALL)
+
+        match_0_0 = []
+
+        for line in data:
+            if spectrum_0_0.search(line):
+                match_0_0.append('RIGHT LINE: ' + line)
+            else: 
+                match_0_0.append('WRONG LINE: ' + line)
+
+        df_0_0 = pd.DataFrame(match_0_0)
+        num_in_0_0 = (df_0_0[df_0_0[0].str.contains(u'RIGHT')].index.values)
+        num_irr = int(df_0_0[0][num_in_0_0].tolist()[0][69:71])
+
+
+        #cerco i numeri nella cella cristallografica
+
+        spec = re.compile('ATOMS IN THE UNIT CELL', re.DOTALL)
+
+        matc = []
+
+        for line in data:
+            if spec.search(line):
+                matc.append('RIGHT LINE: ' + line)
+            else: 
+                matc.append('WRONG LINE: ' + line)
+
+
+        df_cc = pd.DataFrame(matc)
+        num_df_cc = (df_cc[df_cc[0].str.contains(u'RIGHT')].index.values)
+        num_cc = int(df_cc[0][num_df_cc[0]][74:77])
+
+
+        #cerco le coordinate
+
+        spectrum_0 = re.compile('COORDINATES IN THE CRYSTALLOGRAPHIC CELL', re.DOTALL)
+
+        match_0 = []
+
+        for line in data:
+            if spectrum_0.search(line):
+                match_0.append('RIGHT LINE: ' + line)
+            else: 
+                match_0.append('WRONG LINE: ' + line)
+
+        df_0 = pd.DataFrame(match_0)
+        num_in_0 = (df_0[df_0[0].str.contains(u'RIGHT')].index.values)
+        inizio = int(num_in_0[0]) + 3
+        fine = inizio + num_cc
+        l = match_0[inizio:fine]
+
+        pos=[]
+        for i in l:
+            if (str(i[20])=='T'):
+                pos.append(i[31:90].split())
+
+        first_df = pd.DataFrame(pos, columns=['x','y','z'])
+        first_df['x'] = first_df.x.astype(float)
+        first_df['y'] = first_df.y.astype(float)
+        first_df['z'] = first_df.z.astype(float)
+
+        coord=[]
+        for i in range(0,len(first_df)):
+            coord.append(first_df.iloc[i].to_list())
+
+
+        #cerco i numeri degli atomi
+        at_num_raw=[]
+        for i in l:
+            if (str(i[20])=='T'):
+                at_num_raw.append(i[22:25])
+
+        at_num_raw = [str(i).strip() for i in at_num_raw]
+
+        #pulisco dagli pseudo
+
+        at_num = []
+        for i in at_num_raw:
+            if len(i) == 3:
+                at_num.append(int(i[1:]))
+            else:
+                at_num.append(int(i))
+
+
+        #cerco i parametri reticolari
+
+        alto = inizio - 5
+        A = float(match_0[alto][15:27])
+        B = float(match_0[alto][30:42])
+        C = float(match_0[alto][45:57])
+        ALPHA = float(match_0[alto][60:70])
+        BETA = float(match_0[alto][71:81])
+        GAMMA = float(match_0[alto][82:92])
+        params = []
+        params.append(A)
+        params.append(B)
+        params.append(C)
+        params.append(ALPHA)
+        params.append(BETA)
+        params.append(GAMMA)
+
+        #cerco lo space group
+
+        spectra = re.compile('SPACE GROUP', re.DOTALL)
+
+        match_s = []
+
+        for line in data:
+            if spectra.search(line):
+                match_s.append('RIGHT LINE: ' + line)
+            else: 
+                match_s.append('WRONG LINE: ' + line)
+
+
+        df_s = pd.DataFrame(match_s)
+        num_line_sg = (df_s[df_s[0].str.contains(u'RIGHT')].index.values)
+        line_sg = match_s[num_line_sg[0]]
+        sg = line_sg[51:65].strip().replace(" ", "")
+        sg = sg.lower()
+        upp = sg[0].upper()
+        space_group = upp + sg[1:]
+
+        #cerco la unit cell primitiva
+
+        spectra_1 = re.compile('DIRECT LATTICE VECTORS', re.DOTALL)
+
+        match_pr = []
+
+        for line in data:
+            if spectra_1.search(line):
+                match_pr.append('RIGHT LINE: ' + line)
+            else: 
+                match_pr.append('WRONG LINE: ' + line)
+
+        df_pr = pd.DataFrame(match_pr)
+        num_line_pr = (df_pr[df_pr[0].str.contains(u'RIGHT')].index.values)
+        line_pr = match_pr[num_line_pr[0]]
+        mat_pr_str = match_pr[num_line_pr[0]+2:num_line_pr[0]+5]
+        mat_pr = []
+
+        for i in mat_pr_str:
+            mat_pr.append(float(i.split()[2]))
+            mat_pr.append(float(i.split()[3]))
+            mat_pr.append(float(i.split()[4]))
+
+        mat_pr = [mat_pr[x:x+3] for x in range(0, len(mat_pr),3)]
+        mat_pr = np.asarray(mat_pr)
+
+
+
+        #cerco la matrice di conversione
+
+        spectra_tr = re.compile(' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL', re.DOTALL)
+
+        match_tr = []
+
+        for line in data:
+            if spectra_tr.search(line):
+                match_tr.append('RIGHT LINE: ' + line)
+            else: 
+                match_tr.append('WRONG LINE: ' + line)
+
+        df_tr = pd.DataFrame(match_tr)
+        num_line_tr = (df_tr[df_tr[0].str.contains(u'RIGHT')].index.values)
+        line_tr = match_tr[num_line_tr[0]]
+        mat_tr_str = match_tr[num_line_tr[0]+1]
+
+        mat_tr = []
+        for i in mat_tr_str.split()[2:]:
+            mat_tr.append(float(i))
+
+
+        mat_tr = [mat_tr[x:x+3] for x in range(0, len(mat_tr),3)]
+        mat_tr = np.asarray(mat_tr)
+        mat_tr = mat_tr.T
+
+
+
+        #moltiplico le due matrici per ottenere la unit cell sulla convenzionale
+        mat_conv = np.dot(mat_tr,mat_pr)
+
+
+        #creo gli atomi
+        atoms = Atoms(numbers=at_num, positions=coord) 
+
+        #creo il cristallo
+        #chiedo all'utente che cella vuole
+        try:
+            case = int(input('Please insert the cell you want to build. \nFor the conventional cell type 1, or the primitive cell type 2\n'))
+        except ValueError:
+            print("Not a valid option")
+
+
+        if (case == 1):
+
+            try:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                    spacegroup = space_group,
+                                    setting = 2,
+                                    cell = mat_conv,
+                                    cellpar = params)
+
+                ase.io.cif.write_cif(filename + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+
+            except:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                        spacegroup = space_group,
+                                        setting = 1,
+                                        cell = mat_conv,
+                                        cellpar = params)
+
+                ase.io.cif.write_cif(filename + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+            return self
+            
+
+        elif (case == 2):
+
+
+
+            #primitiva
+            try:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                    spacegroup = space_group,
+                                    setting = 2,
+                                    cell = mat_conv,
+                                    cellpar = params,
+                                    primitive_cell = True)
+
+                
+                ase.io.cif.write_cif(filename + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+            except:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                        spacegroup = space_group,
+                                        setting = 1,
+                                        cell = mat_conv,
+                                        cellpar = params,
+                                        primitive_cell = True)
+
+                
+                ase.io.cif.write_cif(filename + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+            
+            return self
+
+        else:
+            print('insert a valid option') 
+
+
+
+
+    #coss        
+    def read_out_opt_crystal(self):
+        
+        data = self.data
+        filename = self.abspath
+
+        #cerco la finalrun
+        spectrum_final = re.compile('FINAL OPTIMIZED GEOMETRY', re.DOTALL)
+
+        match_final = []
+
+        for line in data:
+            if spectrum_final.search(line):
+                match_final.append('RIGHT LINE: ' + line)
+            else: 
+                match_final.append('WRONG LINE: ' + line)
+
+
+        df_final = pd.DataFrame(match_final)
+        num_final = (df_final[df_final[0].str.contains(u'RIGHT')].index.values)
+        bag = df_final[0][int(num_final):]
+        bag = bag.str.replace('RIGHT LINE: ', '')
+        bag = bag.str.replace('WRONG LINE: ', '')
+
+
+
+        #cerco num atomi irriducibili
+        spectrum_0_0 = re.compile('ASYMMETRIC UNIT', re.DOTALL)
+
+        match_0_0 = []
+
+        for line in bag:
+            if spectrum_0_0.search(line):
+                match_0_0.append('RIGHT LINE: ' + line)
+            else: 
+                match_0_0.append('WRONG LINE: ' + line)
+
+
+        df_0_0 = pd.DataFrame(match_0_0)
+        num_in_0_0 = (df_0_0[df_0_0[0].str.contains(u'RIGHT')].index.values)
+        num_irr = int(df_0_0[0][num_in_0_0].tolist()[0][43:46])
+
+
+        #cerco i numeri nella cella cristallografica
+        spec = re.compile('ATOMS IN THE UNIT CELL', re.DOTALL)
+
+        matc = []
+
+        for line in bag:
+            if spec.search(line):
+                matc.append('RIGHT LINE: ' + line)
+            else: 
+                matc.append('WRONG LINE: ' + line)
+
+        df_cc = pd.DataFrame(matc)
+        num_df_cc = (df_cc[df_cc[0].str.contains(u'RIGHT')].index.values)
+        num_cc = int(df_cc[0][num_df_cc[0]][74:77])
+
+
+        #cerco le coordinate
+        spectrum_0 = re.compile('COORDINATES IN THE CRYSTALLOGRAPHIC CELL', re.DOTALL)
+
+        match_0 = []
+
+        for line in bag:
+            if spectrum_0.search(line):
+                match_0.append('RIGHT LINE: ' + line)
+            else: 
+                match_0.append('WRONG LINE: ' + line)
+
+        df_0 = pd.DataFrame(match_0)
+        num_in_0 = (df_0[df_0[0].str.contains(u'RIGHT')].index.values)
+        inizio = int(num_in_0[0]) + 3 
+        fine = inizio + num_cc
+        l = match_0[inizio:fine]
+        pos=[]
+        for i in l:
+            if (str(i[20])=='T'):
+                pos.append(i[31:90].split())
+        first_df = pd.DataFrame(pos, columns=['x','y','z'])
+        first_df['x'] = first_df.x.astype(float)
+        first_df['y'] = first_df.y.astype(float)
+        first_df['z'] = first_df.z.astype(float)
+        coord=[]
+        for i in range(0,len(first_df)):
+            coord.append(first_df.iloc[i].to_list())
+
+        at_num_raw=[]
+        for i in l:
+            if (str(i[20])=='T'):
+                at_num_raw.append(i[22:25])
+
+        at_num_raw = [str(i).strip() for i in at_num_raw]
+
+        at_num = []
+        for i in at_num_raw:
+            if len(i) == 3:
+                at_num.append(int(i[1:]))
+            else:
+                at_num.append(int(i))
+
+
+
+        #cerco i parametri reticolari
+        alto = inizio - 5
+        A = float(match_0[alto][15:27])
+        B = float(match_0[alto][30:42])
+        C = float(match_0[alto][45:57])
+        ALPHA = float(match_0[alto][60:70])
+        BETA = float(match_0[alto][71:81])
+        GAMMA = float(match_0[alto][82:92])
+
+        params = []
+        params.append(A)
+        params.append(B)
+        params.append(C)
+        params.append(ALPHA)
+        params.append(BETA)
+        params.append(GAMMA)
+
+
+        #cerco lo space group
+        spectra = re.compile('SPACE GROUP', re.DOTALL)
+
+        match_s = []
+
+        for line in data:
+            if spectra.search(line):
+                match_s.append('RIGHT LINE: ' + line)
+            else: 
+                match_s.append('WRONG LINE: ' + line)
+
+        df_s = pd.DataFrame(match_s)
+        num_line_sg = (df_s[df_s[0].str.contains(u'RIGHT')].index.values)
+        line_sg = match_s[num_line_sg[0]]
+        sg = line_sg[51:65].strip().replace(" ", "")
+        sg = sg.lower()
+        upp = sg[0].upper()
+        space_group = upp + sg[1:]
+
+
+
+        #cerco la unit cell primitiva
+        spectra_1 = re.compile('DIRECT LATTICE VECTORS', re.DOTALL)
+
+        match_pr = []
+
+        for line in bag:
+            if spectra_1.search(line):
+                match_pr.append('RIGHT LINE: ' + line)
+            else: 
+                match_pr.append('WRONG LINE: ' + line)
+
+        df_pr = pd.DataFrame(match_pr)
+        num_line_pr = (df_pr[df_pr[0].str.contains(u'RIGHT')].index.values)
+        line_pr = match_pr[num_line_pr[0]]
+        mat_pr_str = match_pr[num_line_pr[0]+2:num_line_pr[0]+5]
+
+        mat_pr = []
+        for i in mat_pr_str:
+            mat_pr.append(float(i.split()[2]))
+            mat_pr.append(float(i.split()[3]))
+            mat_pr.append(float(i.split()[4]))
+
+        mat_pr = [mat_pr[x:x+3] for x in range(0, len(mat_pr),3)]
+        mat_pr = np.asarray(mat_pr)
+
+
+        #cerco la matrice di conversione
+        spectra_tr = re.compile(' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL', re.DOTALL)
+
+        match_tr = []
+
+        for line in bag:
+            if spectra_tr.search(line):
+                match_tr.append('RIGHT LINE: ' + line)
+            else: 
+                match_tr.append('WRONG LINE: ' + line)
+
+        df_tr = pd.DataFrame(match_tr)
+        num_line_tr = (df_tr[df_tr[0].str.contains(u'RIGHT')].index.values)
+        line_tr = match_tr[num_line_tr[0]]
+        mat_tr_str = match_tr[num_line_tr[0]+1]
+
+        mat_tr = []
+        for i in mat_tr_str.split()[2:]:
+            mat_tr.append(float(i))
+
+        mat_tr = [mat_tr[x:x+3] for x in range(0, len(mat_tr),3)]
+        mat_tr = np.asarray(mat_tr)
+        mat_tr = mat_tr.T
+
+        #moltiplico le due matrici per ottenere la unit cell sulla convenzionale
+        mat_conv = np.dot(mat_tr,mat_pr)
+
+
+        #creo gli atomi con Atoms
+        atoms = Atoms(numbers=at_num, positions=coord) 
+
+        #creo il cristallo
+        #chiedo all'utente che cella vuole
+        
+        try:
+            case = int(input('Please insert the cell you want to build. \nFor the conventional cell type 1, or the primitive cell type 2\n'))
+        except ValueError:
+            print("Not a valid option")
+
+
+        if (case == 1):
+
+            try:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                    spacegroup = space_group,
+                                    setting = 2,
+                                    cell = mat_conv,
+                                    cellpar = params)
+
+                
+                ase.io.cif.write_cif(filename + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+
+            except:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                        spacegroup = space_group,
+                                        setting = 1,
+                                        cell = mat_conv,
+                                        cellpar = params)
+
+                
+                ase.io.cif.write_cif(filename + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+            return self
+            
+
+        elif (case == 2):
+
+
+
+            #primitiva
+            try:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                    spacegroup = space_group,
+                                    setting = 2,
+                                    cell = mat_conv,
+                                    cellpar = params,
+                                    primitive_cell = True)
+
+                
+                ase.io.cif.write_cif(filename + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+            except:
+                self.cell = ase.spacegroup.crystal(symbols=atoms,
+                                        spacegroup = space_group,
+                                        setting = 1,
+                                        cell = mat_conv,
+                                        cellpar = params,
+                                        primitive_cell = True)
+
+                
+                ase.io.cif.write_cif(filename + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+
+
+            
+            return self
+
+        else:
+            print('insert a valid option')  
+
+
 
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
