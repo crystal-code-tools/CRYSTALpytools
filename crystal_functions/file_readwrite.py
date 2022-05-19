@@ -1403,6 +1403,8 @@ class Properties_output:
         from ase.visualize.plot import plot_atoms
         import ase.spacegroup
         import ase.io.cif
+        import numpy as np
+        import time
         
         #cerco il numero di atomi irriducibili
         
@@ -1673,6 +1675,8 @@ class Properties_output:
         from ase.visualize.plot import plot_atoms
         import ase.spacegroup
         import ase.io.cif
+        import numpy as np
+        import time
         
         data = self.data
         filename = self.abspath
