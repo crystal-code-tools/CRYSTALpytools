@@ -1268,3 +1268,66 @@ def plot_out_crystal(cry_obj):
 def plot_out_opt_crystal(cry_opt_obj):
     return view(cry_opt_obj.cell,viewer='ngl')
 
+
+#coss
+def plot_seebeck(seebeck_obj):
+    
+    case = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_','')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+        
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syx':
+        col = 6
+    elif case == 'syy':
+        col = 7
+    elif case == 'syz':
+        col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11
+    else:
+        sys.exit('please, choose a valid chioce')
+        
+    x = [] # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+    for k in range(0,len(seebeck_obj.all_data)):
+            x.append(np.array(seebeck_obj.all_data[k].apply(lambda x: float(x.split()[0]))))
+            
+    y = [] # qui metto i valori di y che vuole plottare l'utente
+    for k in range(0,len(seebeck_obj.all_data)):
+            y.append(np.array(seebeck_obj.all_data[k].apply(lambda x: float(x.split()[col])*1000000)))
+            
+    for k in range(0,len(seebeck_obj.all_data)):
+        plt.figure()
+        plt.plot(x[k],y[k],label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)',fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)',fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(seebeck_obj.title)
+        plt.legend(loc='upper left',fontsize=12)
+        plt.savefig('seebeck_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
+        plt.show()
+        
+        
+    for k in range(0,len(seebeck_obj.all_data)):
+        plt.plot(x[k],y[k],label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)',fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)',fontsize=12)
+        plt.title(seebeck_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left',fontsize=12)
+    plt.savefig('seebeck_different_T_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
+        #Do NOT put here plt.show()
