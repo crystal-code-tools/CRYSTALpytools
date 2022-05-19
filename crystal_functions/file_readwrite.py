@@ -1122,6 +1122,68 @@ class Properties_output:
         return self
 
 
+    def read_XRD_spec(self): 
+        
+        data = self.data
+        filename = self.abspath
+        title = self.title
+
+        if filename.endswith('.outp'):
+            pass
+        else:
+            sys.exit('please, choose a valid file or rename it properly')
+
+        spectrum = re.compile('2THETA    INTENS  INTENS-LP INTENS-LP-DW', re.DOTALL)
+
+        match = []
+
+        a=0
+
+        for line in data:
+            if spectrum.search(line):
+                match.append('WRITE LINE:' + line)
+                a=1
+            else: 
+                match.append('WRONG LINE:' + line)
+
+        if (a == 0):       
+            sys.exit('please, choose a valid file or rename it properly')
+
+        df = pd.DataFrame(match)
+
+        num_riga = (df[df[0].str.contains(u'WRITE')].index.values)
+
+        num_riga = num_riga[0]
+
+        match = match[num_riga:]
+
+        pattern=re.compile('\s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+\n', re.DOTALL)
+
+        match_2 = []
+
+        for line in match:
+            if pattern.search(line):
+                line = line.replace('WRONG LINE:', '') #pulisco dalle scritte di prima
+                match_2.append(line)
+
+
+        df = pd.DataFrame([i.strip().split() for i in match_2])
+
+
+        for i in range(0,4):
+            df[i] = df[i].astype(float)
+
+        df = df.rename(columns={0: '2THETA', 1: 'INTENS', 2: 'INTENS-LP', 3: 'INTENS-LP-DW'})
+
+
+        self.x = df['2THETA']
+        self.y = df['INTENS-LP']
+        
+        self.title = title[:-1]
+        
+        
+        return self
+
 
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
