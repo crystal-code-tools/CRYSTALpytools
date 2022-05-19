@@ -1188,6 +1188,46 @@ class Properties_output:
         return self
 
 
+
+    #coss
+    def read_rholine(self):
+    
+        l_dens = self.data
+        filename = self.abspath
+        title = self.title
+        
+        if filename.endswith('.RHOLINE'):
+            pass
+        else:
+            display.display(print_duck())
+            sys.exit('please, choose a valid file or rename it properly')
+
+        m_dens=[]
+        for i in l_dens:
+            m_dens.append(re.sub("\s\s+" , " ", i))
+
+
+        n_dens=[]
+        for i in m_dens:
+            n_dens.append(i.replace('\n','').split())
+
+
+        df_dens=pd.DataFrame(n_dens)
+        df_dens=df_dens.dropna()
+
+        for i in range(0,len(df_dens.columns)):
+            df_dens[i] = pd.to_numeric(df_dens[i])
+            
+        
+        self.x = (df_dens[0]-5.55)*0.529177249
+        self.y = df_dens[1]/0.148184743
+        
+        self.title = title[:-4]
+        
+        return self       
+    
+    
+
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
 
