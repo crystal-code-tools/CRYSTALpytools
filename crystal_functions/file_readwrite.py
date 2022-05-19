@@ -878,6 +878,7 @@ class Properties_output:
         # properties_output is the properties output file
 
         import sys
+        import os
 
         self.file_name = properties_output
 
@@ -886,10 +887,12 @@ class Properties_output:
             self.data = file.readlines()
             file.close()
 
+            #coss
             #directory
             dir_name = os.path.abspath(self.file_name)
             self.abspath = os.path.join(dir_name)
             
+            #coss
             #title (named "title" only to distinguish from "file_name" which means another thing)
             self.title = dir_name.split('/')[-1][:-4]
 
