@@ -1106,8 +1106,13 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
 
     plt.show()
 
-    #coss
+#coss
 def plot_contour(contour_obj, diff=False):
+
+    import matplotlib.pyplot as plt
+    import os
+    import numpy as np
+    import time
     
     df = contour_obj.df
     n_punti_x = contour_obj.npx
@@ -1159,6 +1164,11 @@ def plot_contour(contour_obj, diff=False):
 
 #coss
 def plot_contour_differences(contour_obj, contour_obj_ref):
+    
+    import matplotlib.pyplot as plt
+    import os
+    import numpy as np
+    import time
     
     n_punti_x = contour_obj.npx
     
@@ -1222,6 +1232,10 @@ def plot_contour_differences(contour_obj, contour_obj_ref):
 
 #coss
 def plot_XRD(xrd_obj):
+
+    import matplotlib.pyplot as plt
+    import os
+    import time
     
     plt.rcParams["figure.figsize"] = [16,9]
 
@@ -1240,6 +1254,10 @@ def plot_XRD(xrd_obj):
 #coss    
 def plot_rholine(rholine_obj):
     
+    import matplotlib.pyplot as plt
+    import os
+    import time
+
     plt.plot(rholine_obj.x,rholine_obj.y)
 
     plt.xlabel('d  [$\AA$]',fontsize=14)
@@ -1254,23 +1272,41 @@ def plot_rholine(rholine_obj):
 
 #coss
 def plot_out_molecule(mol_obj):
+    
+    from ase.visualize import view 
+
     return view(mol_obj.atoms,viewer='ngl')
 
 #coss
 def plot_out_opt_molecule(mol_opt_obj):
+
+    from ase.visualize import view 
+
     return view(mol_opt_obj.atoms,viewer='ngl')
 
 #coss
 def plot_out_crystal(cry_obj):
+
+    from ase.visualize import view 
+
     return view(cry_obj.cell,viewer='ngl')
 
 #coss
 def plot_out_opt_crystal(cry_opt_obj):
+
+    from ase.visualize import view 
+
     return view(cry_opt_obj.cell,viewer='ngl')
 
 
 #coss
 def plot_seebeck(seebeck_obj):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    import time
     
     case = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
 
