@@ -1410,6 +1410,7 @@ class Properties_output:
         
         data = self.data
         filename = self.abspath
+        title = self.title
 
         spectrum_0_0 = re.compile('NUMBER OF IRREDUCIBLE ATOMS IN THE CONVENTIONAL CELL', re.DOTALL)
 
@@ -1613,7 +1614,7 @@ class Properties_output:
                                     cell = mat_conv,
                                     cellpar = params)
 
-                ase.io.cif.write_cif(filename + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
 
             except:
@@ -1623,7 +1624,7 @@ class Properties_output:
                                         cell = mat_conv,
                                         cellpar = params)
 
-                ase.io.cif.write_cif(filename + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + '_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
             return self
             
@@ -1642,7 +1643,7 @@ class Properties_output:
                                     primitive_cell = True)
 
                 
-                ase.io.cif.write_cif(filename + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
             except:
                 self.cell = ase.spacegroup.crystal(symbols=atoms,
@@ -1653,7 +1654,7 @@ class Properties_output:
                                         primitive_cell = True)
 
                 
-                ase.io.cif.write_cif(filename + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + '_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
             
             return self
@@ -1680,6 +1681,7 @@ class Properties_output:
         
         data = self.data
         filename = self.abspath
+        title = self.title
 
         #cerco la finalrun
         spectrum_final = re.compile('FINAL OPTIMIZED GEOMETRY', re.DOTALL)
@@ -1893,7 +1895,7 @@ class Properties_output:
                                     cellpar = params)
 
                 
-                ase.io.cif.write_cif(filename + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
 
             except:
@@ -1904,7 +1906,7 @@ class Properties_output:
                                         cellpar = params)
 
                 
-                ase.io.cif.write_cif(filename + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + 'OPT_conventional_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
             return self
             
@@ -1923,7 +1925,7 @@ class Properties_output:
                                     primitive_cell = True)
 
                 
-                ase.io.cif.write_cif(filename + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
             except:
                 self.cell = ase.spacegroup.crystal(symbols=atoms,
@@ -1934,7 +1936,7 @@ class Properties_output:
                                         primitive_cell = True)
 
                 
-                ase.io.cif.write_cif(filename + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
+                ase.io.cif.write_cif('./'+title + 'OPT_primitive_cell_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.cif',self.cell)
 
 
             
