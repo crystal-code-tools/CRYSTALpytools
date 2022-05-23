@@ -937,6 +937,42 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
              'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
              'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
 
+    if (prj is None) and (len(linestl_doss) != doss.n_proj):
+        if len(linestl_doss) > doss.n_proj:
+            print(
+                'Warning! You have a number of linestl_doss elements is greater than the number of projection!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required")
+            sys.exit(1)
+
+    if (prj is None) and (len(labels) != doss.n_proj):
+        if len(labels) > doss.n_proj:
+            print(
+                'Warning! You have a number of labels greater than the number of projection!')
+        else:
+            print(
+                "Error! You don't have enough elements in labels for the numeber of projection required")
+            sys.exit(1)
+
+    if (prj is not None) and (len(linestl_doss) != len(prj)):
+        if len(linestl_doss) > len(prj):
+            print(
+                'Warning! You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
+            sys.exit(1)
+
+    if (prj is not None) and (len(labels) != len(prj)):
+        if len(labels) > len(prj):
+            print(
+                'Warning! You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
+            sys.exit(1)
+
     fig, axs = plt.subplots(nrows=1, ncols=2,
                             gridspec_kw={'width_ratios': [2, 1]},
                             sharex=False, sharey=True, figsize=figsize,
@@ -1096,8 +1132,8 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
     if dos_max_range is not None:
         xmax_dos = dos_max_range
 
-    if (prj is None) and (doss.n_proj not in prj):
-        xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
+    # if (prj is None) and (doss.n_proj not in prj):
+    #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
 
     axs[1].set_xlim(xmin_dos, xmax_dos+5)
 
