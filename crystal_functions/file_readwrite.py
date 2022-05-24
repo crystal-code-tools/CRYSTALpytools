@@ -1248,6 +1248,7 @@ class Properties_output:
 
         import re
         import pandas as pd
+        import time
         import ase
         from ase import Atoms 
         from ase.visualize import view 
@@ -1257,6 +1258,7 @@ class Properties_output:
         
         data = self.data
         filename = self.abspath
+        title = self.title
 
         spectrum = re.compile('ATOMS IN THE ASYMMETRIC UNIT', re.DOTALL) 
 
@@ -1302,8 +1304,12 @@ class Properties_output:
         for i in range(0,len(df_pos)):
             l.append(df_pos.iloc[i].to_list())
 
-        self.atoms = Atoms(numbers=df.at_num, positions=l) 
         
+
+        self.atoms = Atoms(numbers=df.at_num, positions=l) 
+
+        ase.io.write('./'+title + '_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.xyz',self.atoms)
+
         return self
     
 
@@ -1313,6 +1319,7 @@ class Properties_output:
 
         import re
         import pandas as pd
+        import time
         import ase
         from ase import Atoms 
         from ase.visualize import view 
@@ -1322,6 +1329,7 @@ class Properties_output:
         
         data = self.data
         filename = self.abspath
+        title = self.title
 
         spectrum_final = re.compile('FINAL OPTIMIZED GEOMETRY', re.DOTALL)
 
@@ -1385,7 +1393,9 @@ class Properties_output:
             l.append(df_pos.iloc[i].to_list())
 
         self.atoms = Atoms(numbers=df.at_num, positions=l) 
-        
+
+        ase.io.write('./'+title + '_'+ time.strftime("%Y-%m-%d_%H%M%S")+'.xyz',self.atoms)
+
         return self 
 
     
