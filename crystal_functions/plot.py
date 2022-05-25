@@ -1377,7 +1377,7 @@ def plot_lapl_profile(lapl_obj):
     import time
 
 
-    plt.plot(lapl_obj.datax,lapl_obj.datay) #metto il meno perchè le altre volte avevo la L
+    plt.plot(lapl_obj.datax,lapl_obj.datay)
 
 
     plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay < 0),color='lightblue', interpolate=True)
@@ -1390,5 +1390,20 @@ def plot_lapl_profile(lapl_obj):
     plt.ylabel('Laplacian [e/A^5]')
         
     plt.savefig('Laplacian_profile' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
+
+    plt.show()
+
+def plot_density_profile(lapl_obj):
+    
+    import matplotlib.pyplot as plt
+    import time
+
+
+    plt.plot(lapl_obj.datax,lapl_obj.datay) 
+
+    plt.xlabel('Distance [A]') 
+    plt.ylabel('Density [e/A^3]')
+        
+    plt.savefig('Density_profile' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
 
     plt.show()
