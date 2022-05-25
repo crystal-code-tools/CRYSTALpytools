@@ -2083,8 +2083,11 @@ class Properties_output:
         df = df.drop(df[df.lapl == '********'].index)
         df = df.reset_index().drop('index',axis=1)
         df['lapl'] = df['lapl'].apply(pd.to_numeric)
-        self.dataf = df
+        df['dist'] = df['dist'].apply(pd.to_numeric)
+        self.datax = df.dist
+        self.datay = df.lapl
 
+        return self
 
 
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):

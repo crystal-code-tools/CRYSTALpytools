@@ -5,7 +5,9 @@ Created on 29/03/2022
 """
 
 
+from numpy import rot90
 from pyparsing import counted_array
+from sympy import rotations
 
 
 def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-',
@@ -1375,21 +1377,17 @@ def plot_lapl_profile(lapl_obj):
     import time
 
 
-    plt.plot(lapl_obj.dist,lapl_obj.lapl) #metto il meno perchè le altre volte avevo la L
+    plt.plot(lapl_obj.datax,lapl_obj.datay) #metto il meno perchè le altre volte avevo la L
 
 
-    plt.fill_between(lapl_obj.dist,lapl_obj.lapl,where=(lapl_obj.lapl < 0),color='lightblue', interpolate=True)
-    plt.fill_between(lapl_obj.dist,lapl_obj.lapl,where=(lapl_obj.lapl > 0),color='lightcoral', interpolate=True)
-
-    #cp
-    plt.vlines((0.567*0.529177249),-1000,1000,color='green')
-    plt.vlines((-0.567*0.529177249),-1000,1000,color='green')
+    plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay < 0),color='lightblue', interpolate=True)
+    plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay > 0),color='lightcoral', interpolate=True)
 
     #plt.xlim(-0.5,0.5)
     #plt.ylim(-200,200)
 
-    plt.xlabel('dist [A]') 
-    plt.ylabel('Lapl[e/A^5]')
+    plt.xlabel('Distance [A]') 
+    plt.ylabel('Laplacian [e/A^5]')
         
     plt.savefig('Laplacian_profile' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
 
