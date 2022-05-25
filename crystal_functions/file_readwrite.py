@@ -2033,6 +2033,60 @@ class Properties_output:
         return self
 
 
+    def read_lapl_profile(self):
+
+        import pandas as pd
+        import re
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        data = self.data
+        filename = self.abspath
+        title = self.title
+
+        spectrum = re.compile('PROFILE ALONG THE POINTS', re.DOTALL)  
+
+        match = []
+
+        for line in data:
+            if spectrum.search(line):
+                match.append('RIGHT LINE: ' + line)
+            else: 
+                match.append('WRONG LINE: ' + line)
+
+        df = pd.DataFrame(match)
+        num_riga = (df[df[0].str.contains(u'RIGHT')].index.values)
+        num_in = num_riga + 8
+
+        spectrum_fin = re.compile('EEEEEEEEEE TERMINATION  DATE', re.DOTALL) 
+
+        match_fin = []
+
+        for line in data:
+            if spectrum_fin.search(line):
+                match_fin.append('RIGHT LINE: ' + line)
+            else: 
+                match_fin.append('WRONG LINE: ' + line)
+
+        df_fin = pd.DataFrame(match_fin)
+
+        num_fin = (df_fin[df_fin[0].str.contains(u'RIGHT')].index.values)
+        match = match[num_in[0]:num_fin[0]-2]
+
+        match_2 = []
+        for line in match:
+            line = line.replace('WRONG LINE:', '')
+            match_2.append(line)
+
+        df = pd.DataFrame([i.strip().split() for i in match_2])
+        df = df.rename({0: 'x', 1: 'y',2: 'z',3: 'dist',4: 'rho',5: 'lapl',6: 'L3',7: 'ellip'}, axis=1)
+        df = df.drop(df[df.lapl == '********'].index)
+        df = df.reset_index().drop('index',axis=1)
+        df['lapl'] = df['lapl'].apply(pd.to_numeric)
+        self.dataf = df
+
+
+
 def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
     # Write a CRYSTAL input file (to file)
 

@@ -1367,3 +1367,30 @@ def plot_seebeck(seebeck_obj):
         plt.legend(loc='upper left',fontsize=12)
     plt.savefig('seebeck_different_T_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
         #Do NOT put here plt.show()
+
+
+def plot_lapl_profile(lapl_obj):
+
+    import matplotlib.pyplot as plt
+    import time
+
+
+    plt.plot(lapl_obj.dist,lapl_obj.lapl) #metto il meno perchè le altre volte avevo la L
+
+
+    plt.fill_between(lapl_obj.dist,lapl_obj.lapl,where=(lapl_obj.lapl < 0),color='lightblue', interpolate=True)
+    plt.fill_between(lapl_obj.dist,lapl_obj.lapl,where=(lapl_obj.lapl > 0),color='lightcoral', interpolate=True)
+
+    #cp
+    plt.vlines((0.567*0.529177249),-1000,1000,color='green')
+    plt.vlines((-0.567*0.529177249),-1000,1000,color='green')
+
+    #plt.xlim(-0.5,0.5)
+    #plt.ylim(-200,200)
+
+    plt.xlabel('dist [A]') 
+    plt.ylabel('Lapl[e/A^5]')
+        
+    plt.savefig('Laplacian_profile' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
+
+    plt.show()
