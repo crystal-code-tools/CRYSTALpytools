@@ -251,6 +251,7 @@ To use after a SCELCONF calculation.
 </ul>
 
 <h3>plot</h3>
+<h6>plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, mode='single', linestl='-', linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None, sharex=True, sharey=True)<\h6>
 <ul>
 <li>
 <li>
