@@ -5,6 +5,9 @@ Created on Fri Nov 19 18:28:28 2021
 """
 
 
+from hashlib import new
+
+
 class Crystal_input:
     # This creates a crystal_input object
 
@@ -88,6 +91,11 @@ class Crystal_input:
             self.bs_block.insert(-1, '%s\n' % len(ghost_atoms))
             self.bs_block.insert(-1, ' '.join([str(x)
                                  for x in ghost_atoms])+'\n')
+    
+    def add_guessp(self):
+        # Add the GUESSP keyword functions to the input object
+
+        self.scf_block.insert(-1,'GUESSP\n')
 
     def remove_ghost(self):
         # Remove ghost functions from the input object
@@ -604,7 +612,6 @@ class Crystal_output:
                 self.n_classes = line.split()[9]
                 original_atom = str(line.split()[2])
                 begin = begin+i
-
         config_list = []
 
         # Read all the configurations
@@ -616,7 +623,7 @@ class Crystal_output:
         config_list = np.delete(config_list, warning)
         atom1_begin = np.where(config_list == original_atom)[0]
         atom1_end = np.where(
-            config_list == '--------------------------------------------------------------------------')[0]
+            config_list == '------------------------------------------------------------------------------')[0]
         atom2_begin = np.where(config_list == 'XX')[0]
         atom2_end = np.where(
             config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
@@ -634,7 +641,6 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
-
         return [self.atom_type1, self.atom_type2]
 
 
@@ -1527,7 +1533,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     # Find P_irr <-> atom correspondence
     fragment_1 = []
     fragment_2 = []
-
+    
     for i, j in enumerate(density1_data.ncf):
         # density1_data.la3[j] is the shell number
         # density1_data.atom_shell[density1_data.la3[j]] is the atom position number (1-6)
@@ -1540,6 +1546,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
             fragment_1.extend([True]*n_elements)
         else:
             fragment_1.extend([False]*n_elements)
+        
         if density1_data.ghost[density1_data.atom_shell[density1_data.la3[j-1]-1]-1] != 0 and \
                 density1_data.ghost[density1_data.atom_shell[density1_data.la4[j-1]-1]-1] != 0:
             fragment_2.extend([True]*n_elements)
@@ -1592,6 +1599,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
         density.append(' '.join(["{:.13e}".format(x)
                        for x in new_p[i:i+4]])+'\n')
 
+    
     final_fort98 = density3_data[0:beginning] + \
         spinor+charges+fock+density+density3_data[end:]
     with open(new_density, 'w') as file:
