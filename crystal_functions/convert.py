@@ -5,7 +5,7 @@ Created on Fri Nov 19 18:29:16 2021
 
 """
 
-def cry_out2pmg(output, initial=False, vacuum=10):
+def cry_out2pmg(output, vacuum=10):
     #Transform a CRYSTAL output object into a pymatgen structure object
 
     # output_file is a crystal output object
