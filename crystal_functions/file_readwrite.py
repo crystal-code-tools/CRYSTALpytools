@@ -5,9 +5,6 @@ Created on Fri Nov 19 18:28:28 2021
 """
 
 
-from hashlib import new
-
-
 class Crystal_input:
     # This creates a crystal_input object
 
@@ -402,9 +399,10 @@ class Crystal_output:
         from mendeleev import element
         import numpy as np
         import sys
-        from pymatgen.core.structure import Structure
+        from pymatgen.core.structure import Structure, Molecule
 
-        self.get_primitive_lattice(initial=False)
+        dimensionality = self.get_dimensionality()
+        
 
         # Check if the geometry optimisation converged
         self.opt_converged = False
@@ -433,22 +431,46 @@ class Crystal_output:
                     atom_line = self.data[len(
                         self.data)-i-2-int(self.n_atoms)+j].split()[3:]
                     self.atom_symbols.append(str(atom_line[0]))
+                    
                     self.atom_positions.append(
                         [float(x) for x in atom_line[1:]])  # These are fractional
-                a, b, c, alpha, beta, gamma = self.data[len(
-                    self.data)-i-2-int(self.n_atoms)-5].split()
-
+                
                 for atom in self.atom_symbols:
                     self.atom_numbers.append(
                         element(atom.capitalize()).atomic_number)
-                self.atom_positions_cart = np.matmul(
-                    np.array(self.atom_positions), self.primitive_lattice)
+                
+                self.atom_positions_cart = np.array(self.atom_positions)
+
+                if dimensionality > 0:
+                    lattice = self.get_primitive_lattice(initial=False)
+                else:
+                    min_max = max( [
+                        (max(self.atom_positions_cart[:,0]) - min(self.atom_positions_cart[:,0])),
+                        (max(self.atom_positions_cart[:,1]) - min(self.atom_positions_cart[:,1])),
+                        (max(self.atom_positions_cart[:,2]) - min(self.atom_positions_cart[:,2]))
+                    ] )
+                    lattice = np.identity(3)*(min_max+10)
+
+                if dimensionality > 0:
+                    self.atom_positions_cart[:dimensionality] = np.matmul(
+                        np.array(self.atom_positions)[:,:dimensionality], lattice[:dimensionality,:dimensionality])
+                
                 self.cart_coords = []
 
                 for i in range(len(self.atom_numbers)):
                     self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i]
                                             [0], self.atom_positions_cart[i][1], self.atom_positions_cart[i][2]])
                 self.cart_coords = np.array(self.cart_coords)
+
+                if dimensionality > 0:
+                    lattice = self.get_primitive_lattice(initial=False)
+                else:
+                    min_max = max( [
+                        (max(self.cart_coords[:,0]) - min(self.cart_coords[:,0])),
+                        (max(self.cart_coords[:,1]) - min(self.cart_coords[:,1])),
+                        (max(self.cart_coords[:,2]) - min(self.cart_coords[:,2]))
+                    ] )
+                    lattice = np.identity(3)*(min_max+10)
 
                 # Write the gui file
                 if write_gui_file == True:
@@ -464,8 +486,9 @@ class Crystal_output:
                         else:
                             gui_file = self.name+'.gui'
 
-                        structure = Structure(self.get_primitive_lattice(initial=False), self.atom_numbers,
-                                              self.atom_positions_cart, coords_are_cartesian=True)
+                        structure = Structure(lattice, self.atom_numbers,
+                                            self.atom_positions_cart, coords_are_cartesian=True)
+                                        
                         write_crystal_gui(gui_file, structure)
                     else:
                         gui_file = symm_info
@@ -479,7 +502,7 @@ class Crystal_output:
                             sys.exit(1)
 
                         # Replace the lattice vectors with the optimised ones
-                        for i, vector in enumerate(self.get_primitive_lattice(initial=False).tolist()):
+                        for i, vector in enumerate(lattice.tolist()):
                             gui_data[i+1] = ' '.join([str(x)
                                                      for x in vector])+'\n'
 
@@ -491,10 +514,13 @@ class Crystal_output:
                         with open(gui_file[:-4]+'_last.gui', 'w') as file:
                             for line in gui_data:
                                 file.writelines(line)
-        self.last_geom = [self.primitive_lattice.tolist(
-        ), self.atom_numbers, self.atom_positions_cart.tolist()]
+        
 
-        return self.last_geom
+                self.last_geom = [lattice.tolist(
+                ), self.atom_numbers, self.atom_positions_cart.tolist()]
+                
+
+                return self.last_geom
 
     def get_symm_ops(self):
         # Return the symmetry operators
@@ -520,63 +546,68 @@ class Crystal_output:
         # initial == False returns the last calculated forces
         # grad == False does not return the gradient on atoms
 
-        import re
-        import numpy as np
+        if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
+            print('WARNING: this is not a geometry optimisation.')
+            return None        
+        else:
 
-        self.forces_atoms = []
-        self.forces_cell = []
+            import re
+            import numpy as np
 
-        # Number of atoms
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
-                self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
-                break
+            self.forces_atoms = []
+            self.forces_cell = []
 
-        if grad == True:
-            self.grad = []
-            self.rms_grad = []
-            self.disp = []
-            self.rms_disp = []
-            for i, line in enumerate(self.data):
-                if re.match(r'^ MAX GRADIENT', line):
-                    self.grad.append(line.split()[2])
-                if re.match(r'^ RMS GRADIENT', line):
-                    self.rms_grad.append(line.split()[2])
-                if re.match(r'^ MAX DISPLAC.', line):
-                    self.disp.append(line.split()[2])
-                if re.match(r'^ RMS DISPLAC.', line):
-                    self.rms_disp.append(line.split()[2])
+            # Number of atoms
+            for i, line in enumerate(self.data[len(self.data)::-1]):
+                if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
+                    self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
+                    break
 
-        if initial == True:
-            for i, line in enumerate(self.data):
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(i+2, i+2+self.n_atoms):
-                        self.forces_atoms.append(
-                            [float(x) for x in self.data[j].split()[2:]])
-                    self.forces_atoms = np.array(self.forces_atoms)
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(i+4, i+7):
-                        self.forces_cell.append(
-                            [float(x) for x in self.data[j].split()])
-                    self.forces_cell = np.array(self.forces_cell)
-                    self.forces = [self.forces_cell, self.forces_atoms]
-                    return self.forces
+            if grad == True:
+                self.grad = []
+                self.rms_grad = []
+                self.disp = []
+                self.rms_disp = []
+                for i, line in enumerate(self.data):
+                    if re.match(r'^ MAX GRADIENT', line):
+                        self.grad.append(line.split()[2])
+                    if re.match(r'^ RMS GRADIENT', line):
+                        self.rms_grad.append(line.split()[2])
+                    if re.match(r'^ MAX DISPLAC.', line):
+                        self.disp.append(line.split()[2])
+                    if re.match(r'^ RMS DISPLAC.', line):
+                        self.rms_disp.append(line.split()[2])
 
-        elif initial == False:
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(len(self.data)-i+3, len(self.data)-i+6):
-                        self.forces_cell.append(
-                            [float(x) for x in self.data[j].split()])
-                    self.forces_cell = np.array(self.forces_cell)
+            if initial == True:
+                for i, line in enumerate(self.data):
+                    if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
+                        for j in range(i+2, i+2+self.n_atoms):
+                            self.forces_atoms.append(
+                                [float(x) for x in self.data[j].split()[2:]])
+                        self.forces_atoms = np.array(self.forces_atoms)
+                    if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
+                        for j in range(i+4, i+7):
+                            self.forces_cell.append(
+                                [float(x) for x in self.data[j].split()])
+                        self.forces_cell = np.array(self.forces_cell)
+                        self.forces = [self.forces_cell, self.forces_atoms]
+                        return self.forces
 
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
-                        self.forces_atoms.append(
-                            [float(x) for x in self.data[j].split()[2:]])
-                    self.forces_atoms = np.array(self.forces_atoms)
-                    self.forces = [self.forces_cell, self.forces_atoms]
-                    return self.forces
+            elif initial == False:
+                for i, line in enumerate(self.data[::-1]):
+                    if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
+                        for j in range(len(self.data)-i+3, len(self.data)-i+6):
+                            self.forces_cell.append(
+                                [float(x) for x in self.data[j].split()])
+                        self.forces_cell = np.array(self.forces_cell)
+
+                    if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
+                        for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
+                            self.forces_atoms.append(
+                                [float(x) for x in self.data[j].split()[2:]])
+                        self.forces_atoms = np.array(self.forces_atoms)
+                        self.forces = [self.forces_cell, self.forces_atoms]
+                        return self.forces
 
     def get_mulliken_charges(self):
         # Return the Mulliken charges (PPAN keyword in input)
