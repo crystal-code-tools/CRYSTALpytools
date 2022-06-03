@@ -1094,7 +1094,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     plt.show()
 
 
-def plot_contour(contour_obj, diff=False, save_to_file = False):
+def plot_cry_contour(contour_obj, diff=False, save_to_file = False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1152,8 +1152,7 @@ def plot_contour(contour_obj, diff=False, save_to_file = False):
     plt.show()
 
 
-#coss
-def plot_contour_differences(contour_obj, contour_obj_ref, save_to_file = False):
+def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file = False):
     
     import matplotlib.pyplot as plt
     import os
@@ -1223,8 +1222,7 @@ def plot_contour_differences(contour_obj, contour_obj_ref, save_to_file = False)
     plt.show()
 
 
-#coss
-def plot_XRD(xrd_obj, save_to_file = False):
+def plot_cry_xrd(xrd_obj, save_to_file = False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1245,10 +1243,8 @@ def plot_XRD(xrd_obj, save_to_file = False):
 
     plt.show()
 
-
-
-#coss    
-def plot_rholine(rholine_obj, save_to_file = False):
+   
+def plot_cry_rholine(rholine_obj, save_to_file = False):
     
     import matplotlib.pyplot as plt
     import os
@@ -1269,7 +1265,7 @@ def plot_rholine(rholine_obj, save_to_file = False):
     plt.show()
 
 
-def plot_seebeck(seebeck_obj, save_to_file = False):
+def plot_cry_seebeck(seebeck_obj, save_to_file = False):
 
     import sys
     import matplotlib.pyplot as plt
@@ -1338,7 +1334,7 @@ def plot_seebeck(seebeck_obj, save_to_file = False):
         save_plot(save_to_file)
 
 
-def plot_lapl_profile(lapl_obj, save_to_file = False):
+def plot_cry_lapl_profile(lapl_obj, save_to_file = False):
 
     import matplotlib.pyplot as plt
     import time
@@ -1361,7 +1357,7 @@ def plot_lapl_profile(lapl_obj, save_to_file = False):
 
     plt.show()
 
-def plot_density_profile(lapl_obj, save_to_file = False):
+def plot_cry_density_profile(lapl_obj, save_to_file = False):
     
     import matplotlib.pyplot as plt
     import time
@@ -1376,7 +1372,7 @@ def plot_density_profile(lapl_obj, save_to_file = False):
 
     if save_to_file != False:
         save_plot(save_to_file)
-        
+
     plt.show()
 
 def save_plot(path_to_file):
