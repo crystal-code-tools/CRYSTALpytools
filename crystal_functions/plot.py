@@ -5,10 +5,6 @@ Created on 29/03/2022
 """
 
 
-from numpy import rot90
-from pyparsing import counted_array
-from sympy import rotations
-
 
 def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file = False, mode='single', linestl='-',
                    linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
