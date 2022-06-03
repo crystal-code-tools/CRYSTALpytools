@@ -1339,9 +1339,7 @@ def plot_cry_lapl_profile(lapl_obj, save_to_file = False):
     import matplotlib.pyplot as plt
     import time
 
-
     plt.plot(lapl_obj.datax,lapl_obj.datay)
-
 
     plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay < 0),color='lightblue', interpolate=True)
     plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay > 0),color='lightcoral', interpolate=True)
