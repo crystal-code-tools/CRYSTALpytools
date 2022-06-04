@@ -5,7 +5,7 @@ Created on Fri Nov 19 18:29:16 2021
 
 """
 
-def cry_out2pmg(output, vacuum=10):
+def cry_out2pmg(output, vacuum=10, initial = False):
     #Transform a CRYSTAL output object into a pymatgen structure object
 
     # output_file is a crystal output object
@@ -18,7 +18,7 @@ def cry_out2pmg(output, vacuum=10):
     #Extract information from the output file
     dimensionality = output.get_dimensionality()
     output.get_last_geom(write_gui_file=False)
-    output.get_primitive_lattice(initial=False)
+    output.get_primitive_lattice(initial=initial)
     
     if dimensionality == 3:
         structure = Structure(output.primitive_lattice, output.atom_numbers, 
