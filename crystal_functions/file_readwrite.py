@@ -11,7 +11,7 @@ class Crystal_input:
     def __init__(self):
         # Initialise the object
         
-        return self
+        return None
 
     def from_blocks(self, geom_block, bs_block, func_block, scf_block, title = None):
         # Build the input from blocks
@@ -21,8 +21,9 @@ class Crystal_input:
         self.bs_block = bs_block
         self.func_block = func_block
         self.scf_block = scf_block
-        self.title = [title]
+        self.title = [title+'\n']
 
+        return self
 
     def from_file(self, input_name):
         # input_name: name of the input file
@@ -140,6 +141,27 @@ class Crystal_input:
             else:
                 self.geom_block.insert(-1, 'OPTGEOM\n')
                 self.geom_block.insert(-1, 'END\n')
+
+    def print_input(self):
+        # Print the whole input file
+
+        if len(self.__dict__) > 0:
+            
+            blocks = [self.geom_block, self.bs_block, self.func_block, self.scf_block]
+            
+            if self.title is not None:
+                print(self.title[0][:-1])
+            else:
+                print('crystal_functions generated input')
+            for block in blocks:
+                for line in block:
+                    if type(line) == list:
+                        print(line[0][:-1])
+                        print(line[1][:-1])
+                    else:
+                        print(line[:-1])
+        else:
+            print('The input is initialised, but the blocks were not defined') 
 
 
 class Crystal_output:
