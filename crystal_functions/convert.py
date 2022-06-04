@@ -18,7 +18,7 @@ def cry_out2pmg(output, vacuum=10):
     #Extract information from the output file
     dimensionality = output.get_dimensionality()
     output.get_last_geom(write_gui_file=False)
-    output.get_primitive_lattice(initial=initial)
+    output.get_primitive_lattice(initial=False)
     
     if dimensionality == 3:
         structure = Structure(output.primitive_lattice, output.atom_numbers, 
