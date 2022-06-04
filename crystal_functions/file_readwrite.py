@@ -8,12 +8,29 @@ Created on Fri Nov 19 18:28:28 2021
 class Crystal_input:
     # This creates a crystal_input object
 
-    def __init__(self, input_name):
+    def __init__(self):
+        # Initialise the object
+        
+        return self
+
+    def from_blocks(self, geom_block, bs_block, func_block, scf_block, title = None):
+        # Build the input from blocks
+        # All the blocks are list of strings or lists
+
+        self.geom_block = geom_block
+        self.bs_block = bs_block
+        self.func_block = func_block
+        self.scf_block = scf_block
+        self.title = [title]
+
+
+    def from_file(self, input_name):
         # input_name: name of the input file
 
         import sys
 
         self.name = input_name
+
         try:
             if input_name[-3:] != 'd12':
                 input_name = input_name+'.d12'
@@ -23,6 +40,9 @@ class Crystal_input:
         except:
             print('EXITING: a .d12 file needs to be specified')
             sys.exit(1)
+        
+        # The first line is the title
+        self.title = [data[0]]
 
         # Check is the basis set is a built in one
         if 'BASISSET\n' in data:
@@ -75,6 +95,8 @@ class Crystal_input:
                         pass
             # The loop cannot go over the last element
             self.scf_block.append('ENDSCF\n')
+    
+    
 
     def add_ghost(self, ghost_atoms):
         # Add ghost functions to the input object
@@ -1462,7 +1484,7 @@ class Properties_output:
         return self
 
 
-def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, external_obj=None, comment=None):
+def write_crystal_input(input_name, crystal_input, external_obj=None):
     # Write a CRYSTAL input file (to file)
 
     # input_name is the name of the imput that is going to be written (.d12)
@@ -1471,28 +1493,17 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
 
     import itertools
     import sys
-    import re
-    from ase.io.crystal import write_crystal
     from pymatgen.io.ase import AseAtomsAdaptor
 
-    # either a crystal_input or crystal_blocks need to be specified
-    if (crystal_input == None and crystal_blocks == None) or (crystal_input == True and crystal_blocks == True):
-        print('EXITING: please specify either a CRYSTAL input or CRYSTAL input blocks')
-        sys.exit(1)
-    if crystal_blocks != None:
-        if type(crystal_blocks) == list and len(crystal_blocks) == 4:
-            geom_block = crystal_blocks[0]
-            bs_block = crystal_blocks[1]
-            func_block = crystal_blocks[2]
-            scf_block = crystal_blocks[3]
-        else:
-            print('EXITING: the CRYSTAL blocks are not in the correct format.')
-            sys.exit(1)
-    elif crystal_input != None:
-        geom_block = crystal_input.geom_block
-        bs_block = crystal_input.bs_block
-        func_block = crystal_input.func_block
-        scf_block = crystal_input.scf_block
+    geom_block = crystal_input.geom_block
+    bs_block = crystal_input.bs_block
+    func_block = crystal_input.func_block
+    scf_block = crystal_input.scf_block
+    
+    if cry_input.title is None:
+        title = ['Input generated using crystal_functions\n']
+    else:
+        title = crystal_input.title
 
     # if there is an external object, we want to have the EXTERNAL
     # keyword in the geom_block. If it's not present, this means
@@ -1500,10 +1511,6 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
     if external_obj != None:
         if 'EXTERNAL\n' not in geom_block:
             new_geom_block = []
-            if comment == None:
-                new_geom_block.append(geom_block[0])
-            else:
-                new_geom_block.append(comment+'\n')
             new_geom_block.append('EXTERNAL\n')
             for i, line in enumerate(geom_block[2:]):
                 if line.split()[0].replace('.', '', 1).isdigit() == False:
@@ -1512,7 +1519,12 @@ def write_crystal_input(input_name, crystal_input=None, crystal_blocks=None, ext
                     break
             geom_block = new_geom_block
         if 'ase.atoms' in str(type(external_obj)):
-            write_crystal(input_name[:-4]+'.gui', external_obj)
+            # Transform into a pymatgen object to use the extra tools pymatgen has
+            external_obj = AseAtomsAdaptor().get_structure(external_obj)
+            
+            gui_file_name = input_name[:-4]+'.gui'
+            write_crystal_gui(gui_file_name, external_obj)
+
         elif 'pymatgen.core' in str(type(external_obj)):
             gui_file_name = input_name[:-4]+'.gui'
             write_crystal_gui(gui_file_name, external_obj)
