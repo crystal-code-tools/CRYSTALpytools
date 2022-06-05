@@ -5,11 +5,13 @@ from crystal_functions.file_readwrite import Crystal_output
 from crystal_functions.convert import cry_out2pmg
 
 
-class Thermal_output(Crystal_output):
+class Freq_output(Crystal_output):
     """
-    Class Thermal_output, inheriated from Crystal_out and with thermodynamic-
+    Class Freq_output, inheriated from Crystal_out and with thermodynamic-
     specific attributes, including:
         self.lattice: __init__, Lattice information
+        self.edft: get_edft, DFT total energy, with probable corrections.
+                   Unit: KJ / mol cell
         self.nqpoint: get_qpoint, Number of q points
         self.qpoint: get_qpoint, Fractional coordinates of qpoints
         self.nmode: get_mode, Number of vibrational modes at all qpoints
@@ -31,8 +33,27 @@ class Thermal_output(Crystal_output):
             self.lattice, pymatgen structure object, lattice and atom
                           information
         """
-        super(Thermal_output, self).__init__(output_name)
+        super(Freq_output, self).__init__(output_name)
         self.lattice = cry_out2pmg(self, initial=False, vacuum=500)
+
+    def get_edft(self):
+        '''
+        Get the DFT total energy of simulation cell. Unit: KJ / mol cell. To
+        include probable energy corrections, the value at 'CENTRAL POINT' of
+        force constant matrix is adopted.
+        Input:
+            -
+        Output:
+            self.edft, float, DFT total energy. Unit: KJ / mol cell
+        '''
+        import re
+
+        for i, line in enumerate(self.data):
+            if re.match(r'\s*CENTRAL POINT', line):
+                self.edft = float(line.strip().split()[2]) * 2625.500256
+                break
+
+        return self.edft
 
     def get_qpoint(self):
         """
@@ -42,7 +63,7 @@ class Thermal_output(Crystal_output):
         Output:
             self.nqpoint, int, Number of q points where the frequencies are
                           calculated.
-            self.qpoint, nq * 3 numpy float array, fractional coordinates of
+            self.qpoint, nq * 3 numpy float array, Fractional coordinates of
                          qpoints.
         """
         import numpy as np
@@ -52,10 +73,10 @@ class Thermal_output(Crystal_output):
         self.qpoint = np.array([], dtype=float)
 
         for i, line in enumerate(self.data):
-            if re.search('EXPRESSED IN UNITS        OF DENOMINATOR', line):
+            if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
 
-            if re.search('DISPERSION K POINT NUMBER', line):
+            if re.match(r'\s*DISPERSION K POINT NUMBER', line):
                 coord = np.array(line.strip().split()[7:10], dtype=float)
                 self.qpoint = np.append(self.qpoint, coord / shrink)
                 self.nqpoint += 1
@@ -91,20 +112,23 @@ class Thermal_output(Crystal_output):
         countline = 0
         while countline < len(self.data):
             is_freq = False
-            if re.search('DISPERSION K POINT NUMBER', self.data[countline]):
+            if re.match(r'\s*DISPERSION K POINT NUMBER\s*\d',
+                        self.data[countline]):
                 countline += 2
                 is_freq = True
 
-            if re.search('MODES         EIGV          FREQUENCIES     IRREP',
-                         self.data[countline]):
+            if re.match(r'\s*MODES\s*EIGV\s*FREQUENCIES\s*IRREP',
+                        self.data[countline]):
                 countline += 2
                 is_freq = True
 
             while self.data[countline].strip() and is_freq:
-                line_data = self.ignore_signal_line(self.data[countline])
-                nm_a = int(line_data[0].strip('-'))
-                nm_b = int(line_data[1])
-                freq = float(line_data[4])
+                line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
+                                       self.data[countline])
+                if line_data:
+                    nm_a = int(line_data[0].strip('-'))
+                    nm_b = int(line_data[1])
+                    freq = float(line_data[4])
 
                 for mode in range(nm_a, nm_b + 1):
                     self.frequency = np.append(self.frequency, freq)
@@ -150,20 +174,21 @@ class Thermal_output(Crystal_output):
         total_data = []
         while countline < len(self.data) and countmode <= total_mode:
             # Gamma point / phonon dispersion calculation
-            if re.match(r'^ MODES IN PHASE', self.data[countline]) or\
-               re.match(r'^ NORMAL MODES NORMALIZED', self.data[countline]):
+            if re.match(r'\s*MODES IN PHASE', self.data[countline]) or\
+               re.match(r'\s*NORMAL MODES NORMALIZED', self.data[countline]):
                 block_label = True
-            elif re.match(r'^ MODES IN ANTI-PHASE', self.data[countline]):
+            elif re.match(r'\s*MODES IN ANTI-PHASE', self.data[countline]):
                 block_label = False
 
             # Enter a block
-            if 'FREQ(CM**-1)' in self.data[countline] and block_label:
+            if re.match(r'\s*FREQ\(CM\*\*\-1\)', self.data[countline]) and\
+               block_label:
                 countline += 2
                 block_data = []
                 while self.data[countline].strip():
                     # Trim annotation part (12 characters)
-                    line_data = self.ignore_signal_line(
-                        self.data[countline][13:])
+                    line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
+                                           self.data[countline][13:])
                     if line_data:
                         block_data.append(line_data)
 
@@ -192,26 +217,6 @@ class Thermal_output(Crystal_output):
 
             self.eigenvector.append(q_rearrange)
 
-        self.eigenvector = np.array(self.eigenvector) * 0.5292
+        self.eigenvector = np.array(self.eigenvector) * 0.529177
 
         return self.eigenvector
-
-    def ignore_signal_line(self, text, split_mark=''):
-        """
-        Not a function for thermodynamics. Ignore the signalling floating-point
-        exceptions in the output. Used for multi-line data. Warning message:
-            Note: The following floating-point exceptions are signalling:
-
-        Input:
-            A text line generated by output.readlines()
-        Output:
-            The split line as a list of strings if this line does not begin
-            with 'Note:' / 'IEEE'
-        """
-        if 'Note:' in text or 'IEEE_' in text:
-            return
-
-        if not split_mark:
-            return text.strip().split()
-        else:
-            return text.strip().split(split_mark)
