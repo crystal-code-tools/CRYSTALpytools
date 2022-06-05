@@ -5,9 +5,8 @@ long_description = 'This repository contains functions to be used with the\
 
 setuptools.setup(
     name="crystal_functions",
-    version="2022.1.10",
-    author="Bruno Camino",
-    author_email="camino.bruno@gmail.com",
+    version="2022.6.4",
+    author_email="crystalcodetools@gmail.com",
     description="Functions to be used with the CRYSTAL code.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -23,8 +22,8 @@ setuptools.setup(
     packages=setuptools.find_packages(include=['crystal_functions', 'crystal_functions.*']),
     #python_requires=">=3.8",
     install_requires=[
-	"pymatgen"
-	"mendeleev"
+	"pymatgen",
+	"mendeleev",
 	"ase"
     ]
 )

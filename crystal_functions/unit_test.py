@@ -372,7 +372,7 @@ def convert_test(folder_path):
        [2.12011001, 0.        , 2.12011001],
        [2.12011001, 2.12011001, 0.        ]])
     cart_coord = np.array([[0.        , 0.        , 0.        ],
-       [2.12011001, 2.12011001, 2.12011001]])
+       [-2.12011001, -2.12011001, -2.12011001]])
 
     if np.all(np.round(pmg_obj.lattice.matrix,8) == lattice_matrix) and \
         np.all(np.round(pmg_obj.cart_coords,8) == cart_coord):
