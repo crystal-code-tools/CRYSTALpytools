@@ -1237,7 +1237,7 @@ class Properties_output:
         return self
 
 
-    def read_XRD_spec(self, properties_output): 
+    def read_cry_xrd_spec(self, properties_output): 
 
         import sys
         import re
@@ -1304,7 +1304,7 @@ class Properties_output:
         return self
 
 
-    def read_rholine(self, properties_output):
+    def read_cry_rholine(self, properties_output):
 
         import sys
         import re 
@@ -1346,7 +1346,7 @@ class Properties_output:
         return self       
 
      
-    def read_seebeck(self, properties_output):
+    def read_cry_seebeck(self, properties_output):
 
         import sys
         import re
@@ -1423,7 +1423,7 @@ class Properties_output:
         return self
 
 
-    def read_lapl_profile(self, properties_output):
+    def read_cry_lapl_profile(self, properties_output):
 
         import pandas as pd
         import re
@@ -1481,14 +1481,14 @@ class Properties_output:
         return self
 
 
-    def read_density_profile(self, properties_output):
+    def read_cry_density_profile(self, properties_output):
     
         import pandas as pd
         import re
         import numpy as np
 
         self.read_file(properties_output)
-        
+
         data = self.data
         filename = self.abspath
         title = self.title
