@@ -991,11 +991,11 @@ class Properties_output:
             file.close()
 
             #directory
-            dir_name = os.path.abspath(self.file_name)
+            dir_name = os.path.split(properties_output)[0]
             self.abspath = os.path.join(dir_name)
             
             #title (named "title" only to distinguish from "file_name" which means another thing)
-            self.title = dir_name.split('/')[-1][:-4]
+            self.title = os.path.split(properties_output)[1] 
 
 
         except:
