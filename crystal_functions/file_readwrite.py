@@ -11,7 +11,7 @@ class Crystal_input:
     def __init__(self):
         # Initialise the object
         
-        return None
+        pass
 
     def from_blocks(self, geom_block, bs_block, func_block, scf_block, title = None):
         # Build the input from blocks
@@ -23,7 +23,8 @@ class Crystal_input:
         self.scf_block = scf_block
         self.title = [title+'\n']
 
-        return self
+        if 'BASISSET\n' in self.bs_block:
+            self.is_basisset = True
 
     def from_file(self, input_name):
         # input_name: name of the input file
@@ -67,7 +68,7 @@ class Crystal_input:
         self.scf_block = []
 
         if len(end_index) == 4:
-            self.geom_block = data[:end_index[0]+1]
+            self.geom_block = data[1:end_index[0]+1]
             self.bs_block = data[end_index[0]+1:end_index[1]+1]
             self.func_block = data[end_index[1]+1:end_index[2]+1]
             for i in range(end_index[2]+1, end_index[-1]):
@@ -131,15 +132,19 @@ class Crystal_input:
             final = self.geom_block.index('END\n')
             del self.geom_block[init:final+1]
 
-    def sp_to_opt(self):
+
+    def sp_to_opt(self,opt_options = []):
         # Make a single point calculation into an optgeom
 
         if 'OPTGEOM\n' not in self.geom_block:
             if self.is_basisset == True:
                 self.geom_block.append('OPTGEOM\n')
+                self.geom_block.extend(opt_options)
                 self.geom_block.append('END\n')
             else:
                 self.geom_block.insert(-1, 'OPTGEOM\n')
+                for option in opt_options:
+                    self.geom_block.insert(-1,option)
                 self.geom_block.insert(-1, 'END\n')
 
     def print_input(self):
@@ -167,9 +172,14 @@ class Crystal_input:
 class Crystal_output:
     # This class reads a CRYSTAL output and generates an object
 
-    def __init__(self, output_name):
-        # output_name: name of the output file
+    def __init__(self):
+        # Initialise the Crystal_output
 
+        pass
+
+    def read_cry_output(self,output_name):
+        # output_name: name of the output file
+        
         import sys
         import re
 
