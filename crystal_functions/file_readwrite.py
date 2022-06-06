@@ -735,7 +735,8 @@ class Properties_input:
     def __init__(self, input_name=None):
         #Initialise the object
 
-        pass
+        self.is_newk = False
+
     
     def from_file(self, input_name):
         # input_name is the path to an existing properties input
@@ -768,6 +769,8 @@ class Properties_input:
         # shrink1 and shrink 2 are the newk shrinking factors
         # Fermi: 1 if recalculated, 0 if not
         # print_options: Properties printing options
+
+        self.is_newk = True
 
         self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
                            '%s %s\n' % (Fermi, print_option)]
@@ -909,24 +912,27 @@ class Properties_input:
             sys.exit(1)
         elif type(band_range) == list and len(band_range) == 2:
             pdoss_range = band_range
+            range_is_bands = True
         elif type(e_range) == list and len(e_range) == 2:
-            pdoss_range = [-1, -1]
+            pdoss_range = [-1,-1]
+            range_is_bands = False
 
         else:
             print('EXITING: either the band_range argument or the e_range argument\
                 do not match the required format (2 item list)')
             sys.exit(1)
 
-        pdoss_block.append('DOSS\n')
+        pdoss_block.append('PDOS\n')
         pdoss_block.append(str(len(projections))+' '+str(n_points)+' '+str(pdoss_range[0])+' ' +
                            str(pdoss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
                            str(print_option)+'\n')
 
-        if pdoss_range == [-1, -1]:
+        if range_is_bands == False:
             pdoss_block.append(
-                str(e_range[0]/27.2114)+' '+str(e_range[1]/27.2114)+'\n')
+                str(round(pdoss_range[0]/27.2114,6))+' '+str(round(pdoss_range[1]/27.2114,6))+'\n')
 
         flat_proj = [x for sublist in projections for x in sublist]
+
         if all(isinstance(x, int) for x in flat_proj):
             if proj_type == 'atom':
                 for proj in projections:
@@ -1596,26 +1602,28 @@ def write_crystal_input(input_name, crystal_input, external_obj=None):
             file.writelines(line)
 
 
-def write_properties_input(input_name, property_block, newk=False):
+def write_properties_input(input_name, property_input, newk=False):
     # Write a properties input file (to file)
 
     # input_name is the name of the imput that is going to be written (.d12)
-    # property_block is a list of properties blocks
+    # property_input is a Properties_input object
     # newk == True: perform a newk calculation
 
     import sys
     import itertools
 
-    if newk == False:
-        property_input = property_block
-    if newk != False and type(newk) != list:
+    newk = property_input.newk_block
+
+    if property_input.is_newk == False:
+        property_input_list = property_input.property_block
+    if property_input.is_newk != False and type(newk) != list:
         print('EXITING: newk must be a newk_block list')
         sys.exit(1)
     elif type(newk) == list:
-        property_input = list(itertools.chain(property_block, newk))
+        property_input_list = list(itertools.chain(newk, property_input.property_block))
 
     with open(input_name, 'w') as file:
-        for line in property_input:
+        for line in property_input_list:
             file.writelines(line)
 
 
