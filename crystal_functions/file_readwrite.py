@@ -733,8 +733,12 @@ class Properties_input:
     # This creates a properties_input object
 
     def __init__(self, input_name=None):
-        # input_name != None reads an existing properties input
+        #Initialise the object
 
+        pass
+    
+    def from_file(self, input_name):
+        # input_name is the path to an existing properties input
         import sys
 
         self.name = input_name
@@ -831,9 +835,9 @@ class Properties_input:
 
         bands_block.append('END\n')
 
-        self.bands_block = bands_block
+        self.property_block = bands_block
 
-        return self.bands_block
+        return self.property_block
 
     def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
                         poly=12, print_option=1):
@@ -877,9 +881,9 @@ class Properties_input:
 
         doss_block.append('END\n')
 
-        self.doss_block = doss_block
+        self.property_block = doss_block
 
-        return self.doss_block
+        return self.property_block
 
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
                          e_range=None, plotting_option=2, poly=12, print_option=1):
@@ -894,7 +898,7 @@ class Properties_input:
         # print_option: properties printing options
 
         import sys
-        from crystal_functions.file_readwrite import Crystal_output
+        from file_readwrite import Crystal_output
 
         pdoss_block = []
         if band_range == None and e_range == None:
@@ -943,7 +947,7 @@ class Properties_input:
                 sys.exit(1)
             else:
                 output = Crystal_output(output_file)
-                output.extract_last_geom()
+                output.get_last_geom()
                 atoms_symbols = output.atom_symbols
                 atoms_symbols.insert(0, 0)
 
@@ -958,16 +962,24 @@ class Properties_input:
 
         pdoss_block.append('END\n')
 
-        self.pdoss_block = pdoss_block
-        return self.pdoss_block
+        self.property_block = pdoss_block
+        
+        return self.property_block
 
 
 class Properties_output:
     # This creates a properties_output object
 
-    def __init__(self, properties_output):
+    def __init__(self):
         # properties_output is the properties output file
 
+        pass
+
+    def read_file(self, properties_output):
+        # Function to parse the properties output file.
+        # It is not meant to be calles directly, but to be used by the
+        # functions below to read the properties file.
+        
         import sys
         import os
 
@@ -978,15 +990,12 @@ class Properties_output:
             self.data = file.readlines()
             file.close()
 
-            #coss
             #directory
             dir_name = os.path.abspath(self.file_name)
             self.abspath = os.path.join(dir_name)
             
-            #coss
             #title (named "title" only to distinguish from "file_name" which means another thing)
             self.title = dir_name.split('/')[-1][:-4]
-
 
 
         except:
