@@ -979,7 +979,7 @@ class Properties_output:
         # Function to parse the properties output file.
         # It is not meant to be calles directly, but to be used by the
         # functions below to read the properties file.
-        
+
         import sys
         import os
 
@@ -1002,13 +1002,15 @@ class Properties_output:
             print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
 
-    def read_cry_bands(self):
+    def read_cry_bands(self, properties_output):
         # This class contains the bands objects created from reading the
         # CRYSTAL band files
         # Returns an array where the band energy is expressed in eV
 
         import re
         import numpy as np
+
+        self.read_file(properties_output)
 
         data = self.data
 
@@ -1076,13 +1078,15 @@ class Properties_output:
         self.bands[:, :, :] = self.bands[:, :, :]*27.2114
         return self
 
-    def read_cry_doss(self):
+    def read_cry_doss(self, properties_output):
         # This class contains the bands objects created from reading the
         # CRYSTAL doss files
         # Returns an array where the band energy is expressed in eV
 
         import re
         import numpy as np
+
+        self.read_file(properties_output)
 
         data = self.data
 
@@ -1116,12 +1120,14 @@ class Properties_output:
         return self
 
 
-    def read_cry_contour(self):
+    def read_cry_contour(self, properties_output):
 
         import sys
         import re
         import pandas as pd
         import numpy as np
+
+        self.read_file(properties_output)
 
         filename = self.abspath
 
@@ -1231,13 +1237,14 @@ class Properties_output:
         return self
 
 
-    def read_XRD_spec(self): 
+    def read_XRD_spec(self, properties_output): 
 
         import sys
         import re
         import pandas as pd
 
-        
+        self.read_file(properties_output)
+
         data = self.data
         filename = self.abspath
         title = self.title
@@ -1297,12 +1304,14 @@ class Properties_output:
         return self
 
 
-    def read_rholine(self):
+    def read_rholine(self, properties_output):
 
         import sys
         import re 
         import pandas as pd
-    
+
+        self.read_file(properties_output)
+
         l_dens = self.data
         filename = self.abspath
         title = self.title
@@ -1337,12 +1346,14 @@ class Properties_output:
         return self       
 
      
-    def read_seebeck(self):
+    def read_seebeck(self, properties_output):
 
         import sys
         import re
         import pandas as pd
-                
+
+        self.read_file(properties_output)
+
         data = self.data
         filename = self.abspath
         title = self.title
@@ -1412,7 +1423,7 @@ class Properties_output:
         return self
 
 
-    def read_lapl_profile(self):
+    def read_lapl_profile(self, properties_output):
 
         import pandas as pd
         import re
@@ -1421,6 +1432,8 @@ class Properties_output:
         data = self.data
         filename = self.abspath
         title = self.title
+
+        self.read_file(properties_output)
 
         spectrum = re.compile('PROFILE ALONG THE POINTS', re.DOTALL)  
 
@@ -1468,12 +1481,14 @@ class Properties_output:
         return self
 
 
-    def read_density_profile(self):
+    def read_density_profile(self, properties_output):
     
         import pandas as pd
         import re
         import numpy as np
 
+        self.read_file(properties_output)
+        
         data = self.data
         filename = self.abspath
         title = self.title
