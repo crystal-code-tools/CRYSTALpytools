@@ -100,12 +100,12 @@ def cry_gui2pmg(gui, vacuum=10):
     from pymatgen.core.structure import Structure
     import numpy as np
 
-    if gui.dimensionality == '2'
+    if gui.dimensionality == '2':
         thickness = np.amax(np.array(gui.atom_positions)[:, 2]) - \
                     np.amin(np.array(gui.atom_positions)[:, 2])
             
         gui.lattice[2][2] = thickness + vacuum
-        
+
     return Structure(gui.lattice, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
         
 
