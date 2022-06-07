@@ -1082,7 +1082,6 @@ class Properties_output:
 
         # Convert all the energy to eV
         self.bands[:, :, :] = self.bands[:, :, :]*27.2114
-        return self
 
     def read_cry_doss(self, properties_output):
         # This class contains the bands objects created from reading the
@@ -1123,7 +1122,6 @@ class Properties_output:
         # Convert all the energy to eV
         self.doss[:, 0, :] = self.doss[:, 0, :]*27.2114
 
-        return self
 
 
     def read_cry_contour(self, properties_output):
@@ -1239,8 +1237,7 @@ class Properties_output:
             self.colors = colors3
             self.linestyles = ls3
             self.fmt = '%1.2f'
-        
-        return self
+    
 
 
     def read_cry_xrd_spec(self, properties_output): 
@@ -1306,8 +1303,6 @@ class Properties_output:
         self.y = df['INTENS-LP']
         
         self.title = title[:-1]
-        
-        return self
 
 
     def read_cry_rholine(self, properties_output):
@@ -1347,9 +1342,7 @@ class Properties_output:
         self.x = (df_dens[0]-5.55)*0.529177249
         self.y = df_dens[1]/0.148184743
         
-        self.title = title[:-4]
-        
-        return self       
+        self.title = title[:-4]      
 
      
     def read_cry_seebeck(self, properties_output):
@@ -1426,7 +1419,6 @@ class Properties_output:
                 
         self.title = title
         
-        return self
 
 
     def read_cry_lapl_profile(self, properties_output):
@@ -1484,7 +1476,6 @@ class Properties_output:
         self.datax = df.dist
         self.datay = df.lapl
 
-        return self
 
 
     def read_cry_density_profile(self, properties_output):
@@ -1542,8 +1533,6 @@ class Properties_output:
         self.datax = df.dist
         self.datay = df.rho
         
-
-        return self
 
 
 def write_crystal_input(input_name, crystal_input, external_obj=None):
@@ -1760,6 +1749,50 @@ def write_crystal_gui(gui_file, ext_structure, dimensionality=3, symm=True, pseu
         else:
             file.writelines('1 1')
 
+class Crystal_gui:
+    # This class reads a CRYSTAL gui file and generates an object
+
+    def __init__(self):
+        # Initialise the Crystal_gui
+
+        pass
+
+    def read_cry_gui(self,gui_file, vacuum=10):
+        # gui_filename: name of the gui file
+
+        #gui_file is the CRYSTAL structure (gui) file
+        # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
+
+        import sys
+        import numpy as np
+
+        try:
+            if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and  'optc' not in gui_file:
+                gui_file = gui_file + '.gui'
+            file = open(gui_file, 'r')
+            data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a .gui file needs to be specified')
+            sys.exit(1)
+        
+        self.lattice = []
+        for i in range(1, 4):
+            self.lattice.append([float(x) for x in data[i].split()])
+        self.n_symmops = int(data[4].split()[0])
+        self.n_atoms = int(data[5+self.n_symmops*4].split()[0])
+        self.atom_number = []
+        self.atom_positions = []
+        for i in range(6+self.n_symmops*4, 6+self.n_symmops*4+self.n_atoms):
+            atom_line = data[i].split()
+            self.atom_number.append(str(atom_line[0]))
+            self.atom_positions.append([float(x) for x in atom_line[1:]])
+
+        if data[0].split()[0] == '2':
+            thickness = np.amax(np.array(self.atom_positions)[:, 2]) - \
+                        np.amin(np.array(self.atom_positions)[:, 2])
+            
+            self.lattice[2][2] = thickness + vacuum
 
 class Crystal_density:
     # WORK IN PROGRESS

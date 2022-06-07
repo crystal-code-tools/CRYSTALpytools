@@ -5,6 +5,9 @@ Created on Fri Nov 19 18:29:16 2021
 
 """
 
+from ctypes import Structure
+
+
 def cry_out2pmg(output, vacuum=10, initial = False):
     #Transform a CRYSTAL output object into a pymatgen structure object
 
@@ -91,45 +94,19 @@ def cry_bands2pmg(output, bands, labels=None):
                                  coords_are_cartesian=False)
     
 
-def cry_gui2pmg(gui_file,vacuum=10):
-    #Transform a CRYSTAL structure (gui) file into a pymatgen bands object
-
-    #gui_file is the CRYSTAL structure (gui) file
-    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
-
+def cry_gui2pmg(gui, vacuum=10):
+    #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
+    
     from pymatgen.core.structure import Structure
-    import sys
     import numpy as np
 
-    try:
-        if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and  'optc' not in gui_file:
-            gui_file = gui_file + '.gui'
-        file = open(gui_file, 'r')
-        data = file.readlines()
-        file.close()
-    except:
-        print('EXITING: a .gui file needs to be specified')
-        sys.exit(1)
-    
-    lattice = []
-    for i in range(1, 4):
-        lattice.append([float(x) for x in data[i].split()])
-    n_symmops = int(data[4].split()[0])
-    n_atoms = int(data[5+n_symmops*4].split()[0])
-    atom_number = []
-    atom_positions = []
-    for i in range(6+n_symmops*4, 6+n_symmops*4+n_atoms):
-        atom_line = data[i].split()
-        atom_number.append(str(atom_line[0]))
-        atom_positions.append([float(x) for x in atom_line[1:]])
-
-    if data[0].split()[0] == '2':
-        thickness = np.amax(np.array(atom_positions)[:, 2]) - \
-                    np.amin(np.array(atom_positions)[:, 2])
+    if gui.dimensionality == '2'
+        thickness = np.amax(np.array(gui.atom_positions)[:, 2]) - \
+                    np.amin(np.array(gui.atom_positions)[:, 2])
+            
+        gui.lattice[2][2] = thickness + vacuum
         
-        lattice[2][2] = thickness + vacuum
-    
-    return Structure(lattice, atom_number, atom_positions, coords_are_cartesian=True)
+    return Structure(gui.lattice, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
         
 
     
@@ -155,3 +132,30 @@ def cry_gui2ase(gui_file):
     from pymatgen.io.ase import AseAtomsAdaptor
 
     return AseAtomsAdaptor().get_atoms(cry_gui2pmg(gui_file))
+
+
+def cry_gui2cif(cif_file_name, gui_file):
+    #Read a CRYSTAL structure (gui) file and save a cif file
+    # cif_file_name: name (including path) of the cif file to be saved
+    # gui_file: name (including path) of the gui file to be read
+
+    #gui_file is the CRYSTAL structure (gui) file
+
+    from pymatgen.io.cif import CifWriter
+
+    structure = cry_gui2pmg(gui_file)
+    
+    CifWriter().write_file(cif_file_name)
+
+def cry_out2cif(cif_file_name, ):
+    #Transform a CRYSTAL structure (gui) file into an ASE bands object
+    #The gui file is firt transfomed into a pymatgen object
+
+    #gui_file is the CRYSTAL structure (gui) file
+
+    from pymatgen.io.cif import CifWriter
+
+    structure = cry_gui2pmg(gui_file)
+    
+    CifWriter().write_file(cif_file_name)
+
