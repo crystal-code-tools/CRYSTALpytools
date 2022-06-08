@@ -220,3 +220,34 @@ class Freq_output(Crystal_output):
         self.eigenvector = np.array(self.eigenvector) * 0.529177
 
         return self.eigenvector
+
+
+def clean_imaginary(self):
+    """
+    Substitute imaginary modes and corresponding eigenvectors with numpy NaN
+    format and print warning message.
+
+    Input:
+        -
+    Output:
+        cleaned attributes.
+        self.frequency
+        self.eigenvector
+    """
+    import numpy as np
+
+    for q, freq in enumerate(self.frequency):
+        if freq[0] > -1e-4:
+            continue
+
+        print('WARNING: Negative frequencies detected - Calculated thermodynamics might be inaccurate.')
+        print('WARNING: Negative frequencies will be substituted with NaN.')
+
+        neg_rank = np.where(freq <= -1e-4)[0]
+        self.frequency[q, neg_rank] = np.nan
+
+        natom = len(self.lattice.sites)
+        nan_eigvt = np.full([natom, 3], np.nan)
+        self.eigenvector[q, neg_rank] = nan_eigvt
+
+    return self.nmode, self.frequency, self.eigenvector
