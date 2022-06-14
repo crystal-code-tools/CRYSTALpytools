@@ -43,6 +43,30 @@ def plot_cry_bands(bands, k_labels: list = None, energy_range: list = None, titl
                           str(element)+' is not a string')
                     sys.exit(1)
 
+            if isinstance(bands, list):
+                ref = bands[0].n_tick
+
+                for i, file in enumerate(bands):
+                    if file.n_tick != ref:
+                        i = str(i)
+                        print(
+                            'Error! The ' + i + 'element your file list has a different number of High Symmetry Point!')
+                        sys.exit(1)
+            else:
+                ref = bands.n_tick
+
+            if len(k_labels) < ref:
+                diff = str(ref-len(k_labels))
+                print('Error! You are lacking ' + diff +
+                      ' High Symmetry Points in k_labels!')
+                sys.exit(1)
+
+            elif len(k_labels) > ref:
+                diff = str(len(k_labels)-ref)
+                print('Error! You have ' + diff +
+                      'High Symmetry Points in excess in k_labels')
+                sys.exit(1)
+
         else:
             print('Error, k_labels must be a list of strings')
             sys.exit(1)
