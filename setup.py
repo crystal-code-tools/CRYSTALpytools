@@ -5,7 +5,7 @@ long_description = 'This repository contains functions to be used with the\
 
 setuptools.setup(
     name="crystal_functions",
-    version="2022.6.4",
+    version="2022.6.16",
     author_email="crystalcodetools@gmail.com",
     description="Functions to be used with the CRYSTAL code.",
     long_description=long_description,
