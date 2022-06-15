@@ -167,12 +167,13 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     # molecule = True generates a Molecule pymatgen object for 0D structures
     # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
 
-    from file_readwrite import Crystal_gui
+    from crystal_functions.file_readwrite import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
     
     import numpy as np
     import sys
+    import copy
 
     gui = Crystal_gui()
 
@@ -182,7 +183,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     elif dimensionality == 0 and 'Molecule' in str(type(structure)):
         lattice_vectors = np.identity(3)*500.
     elif dimensionality > 0:
-        lattice_vectors = structure.lattice.matrix
+        lattice_vectors = copy.deepcopy(structure.lattice.matrix)
     
     gui.dimensionality = dimensionality
 
@@ -201,7 +202,13 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     if symmetry == True:
         if dimensionality == 3:
             symmops = SpacegroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
-        
+
+            for symmop in symmops:
+                gui.symmops.extend(symmop.rotation_matrix.tolist())
+                gui.symmops.append(symmop.translation_vector.tolist())
+            
+            gui.n_symmops = int(len(symmops))
+
         elif dimensionality == 2:
 
             #center the slab first
@@ -211,13 +218,15 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
             translation = np.array([0.0, 0.0, -0.5])
             structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
+            
             sg = SpacegroupAnalyzer(structure)
             ops = sg.get_symmetry_operations(cartesian=True)
-            symmops = []
             for op in ops:
                 if op.translation_vector[2] == 0.:
-                    symmops.extend([op.rotation_matrix.tolist()])
-                    symmops.append([op.translation_vector.tolist()])
+                    gui.symmops.extend(op.rotation_matrix.tolist())
+                    gui.symmops.append(op.translation_vector.tolist())
+         
+            gui.n_symmops = int(len(gui.symmops)/4)
 
         elif dimensionality == 1:
             print('WARNING: check the polymer is correctly centered in the cell and that the correct symmops are used.')      
@@ -225,12 +234,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
         elif dimensionality == 0:
             print('WARNING: 0D in development')
             sys.exit(1)
-
-        gui.n_symmops = len(symmops)
-
-        for symmop in symmops:
-            gui.symmops.extend(symmop.rotation_matrix.tolist())
-            gui.symmops.append(symmop.translation_vector.tolist())
+     
     else:
         gui.n_symmops = 1
         gui.symmops.extend(np.identity(3).tolist())
@@ -238,7 +242,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     
     gui.atom_number = list(structure.atomic_numbers)
     gui.atom_positions = structure.cart_coords.tolist()
-    
+
     return gui
 
 def cry_ase2gui(structure, dimensionality = 3, symmetry = True):
