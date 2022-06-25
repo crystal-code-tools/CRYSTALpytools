@@ -756,7 +756,6 @@ class Crystal_output:
         Input:
             -
         Output:
-            lattice, pymatgen structure object, lattice and atom information.
             self.edft, float, DFT total energy. Unit: KJ / mol cell
             self.nqpoint, int, Number of q points where the frequencies are
                           calculated.
@@ -856,14 +855,12 @@ class Crystal_output:
                               at all atoms, all modes and all qpoints.
                               Classical amplitude. Unit: Angstrom
         """
-        from crystal_functions.convert import cry_out2pmg
         import numpy as np
         import re
 
         if not hasattr(self, 'nmode'):
             self.get_mode()
 
-        lattice = cry_out2pmg(self, initial=False, vacuum=500)
         total_mode = np.sum(self.nmode)
         countline = 0
         # Multiple blocks for 1 mode. Maximum 6 columns for 1 block.
@@ -915,7 +912,7 @@ class Crystal_output:
         # 2nd dimension, nmode
             q_data = np.transpose(q_data)
         # 3rd dimension, natom
-            natom = len(lattice.sites)
+            natom = int(self.nmode[q] / 3)
             q_rearrange = [np.split(m, natom, axis=0) for m in q_data]
 
             self.eigenvector.append(q_rearrange)
@@ -936,10 +933,8 @@ class Crystal_output:
             self.frequency
             self.eigenvector
         """
-        from crystal_functions.convert import cry_out2pmg
         import numpy as np
 
-        lattice = cry_out2pmg(self, initial=False, vacuum=500)
         for q, freq in enumerate(self.frequency):
             if freq[0] > -1e-4:
                 continue
@@ -951,7 +946,7 @@ class Crystal_output:
             self.frequency[q, neg_rank] = np.nan
 
             if hasattr(self, 'eigenvector'):
-                natom = len(lattice.sites)
+                natom = int(self.nmode[q] / 3)
                 nan_eigvt = np.full([natom, 3], np.nan)
                 self.eigenvector[q, neg_rank] = nan_eigvt
 
