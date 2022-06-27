@@ -12,7 +12,8 @@ def crystal_input_test(folder_path):
     test_result = []
 
     input_file = os.path.join(folder_path,'mgo.d12')  
-    mgo_input = Crystal_input(input_file)
+    mgo_input = Crystal_input()
+    mgo_input.from_file(input_file)
 
     print('File for input testing: %s' %input_file)
 
@@ -113,7 +114,8 @@ def crystal_input_test(folder_path):
 
     # ADD GHOST
 
-    mgo_input = Crystal_input(input_file)
+    mgo_input = Crystal_input()
+    mgo_input.from_file(input_file)
     
     test_attr.append('add_ghost')
 
@@ -127,7 +129,8 @@ def crystal_input_test(folder_path):
 
     # SP TO OPT
 
-    mgo_input = Crystal_input(input_file)
+    mgo_input = Crystal_input()
+    mgo_input.from_file(input_file)
     
     test_attr.append('sp_to_opt')
 
@@ -177,8 +180,8 @@ def crystal_output_test(folder_path):
 
     output_file = os.path.join(folder_path,'mgo.out')  
     output_opt_file = os.path.join(folder_path,'mgo_optgeom.out')  
-    mgo_output = Crystal_output(output_file)
-    mgo_opt_output = Crystal_output(output_opt_file)
+    mgo_output = Crystal_output().read_cry_output(output_file)
+    mgo_opt_output = Crystal_output().read_cry_output(output_opt_file)
 
     print('Files for input testing: %s and %s' %(output_file,output_opt_file))
 
@@ -352,7 +355,7 @@ def convert_test(folder_path):
 
     import os
     import numpy as np
-    from crystal_functions.file_readwrite import Crystal_output
+    from crystal_functions.file_readwrite import Crystal_output, Crystal_gui
     from crystal_functions.convert import cry_out2pmg, cry_gui2pmg
 
     test_attr = []
@@ -360,7 +363,7 @@ def convert_test(folder_path):
 
     output_opt_file = os.path.join(folder_path,'mgo_optgeom.out')  
     gui_file = os.path.join(folder_path,'mgo_optgeom.gui')
-    mgo_opt_output = Crystal_output(output_opt_file)
+    mgo_opt_output = Crystal_output().read_cry_output(output_opt_file)
 
     # CRY_OUT2PMG
 
@@ -372,7 +375,7 @@ def convert_test(folder_path):
        [2.12011001, 0.        , 2.12011001],
        [2.12011001, 2.12011001, 0.        ]])
     cart_coord = np.array([[0.        , 0.        , 0.        ],
-       [2.12011001, 2.12011001, 2.12011001]])
+       [-2.12011001, -2.12011001, -2.12011001]])
 
     if np.all(np.round(pmg_obj.lattice.matrix,8) == lattice_matrix) and \
         np.all(np.round(pmg_obj.cart_coords,8) == cart_coord):
@@ -383,8 +386,9 @@ def convert_test(folder_path):
     # CRY_GUI2PMG
 
     test_attr.append('cry_gui2pmg')
-
-    pmg_obj = cry_gui2pmg(gui_file)
+    mgo_gui = Crystal_gui()
+    mgo_gui.read_cry_gui(gui_file)
+    pmg_obj = cry_gui2pmg(mgo_gui)
     
     lattice_matrix = np.round(np.array([[-1.29819297e-16,  2.12011001e+00,  2.12011001e+00],
        [ 2.12011001e+00,  0.00000000e+00,  2.12011001e+00],

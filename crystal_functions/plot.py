@@ -5,16 +5,9 @@ Created on 29/03/2022
 """
 
 
-from numpy import rot90
-from pyparsing import counted_array
-from sympy import rotations
-
-# FB ins start
-
-
-def plot_cry_bands(bands, k_labels: list = None, energy_range: list = None, title: str = False, not_scaled: bool = False, mode: str = 'single', linestl='-',
-                   linewidth=1, color='blue', fermi: str = 'forestgreen', k_range: list = None, labels=None, figsize=None, scheme=None,
-                   sharex: bool = True, sharey: bool = True):
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file=False, mode='single', linestl='-',
+                   linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
+                   sharex=True, sharey=True):
 
     import matplotlib.pyplot as plt
     # import matplotlib.lines as mlines
@@ -520,61 +513,19 @@ def plot_cry_bands(bands, k_labels: list = None, energy_range: list = None, titl
     elif (mode == modes[2]) and (k_range is not None):
         print('Warning, the k_range is not available yet for the compare mode')
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
-    """kpoints = bands.tick_position
-    efermi_band = bands.efermi
 
-    x1 = bands.bands[:,0,:]
-    print(x1)
-    y1 = bands.bands[:,1:,:]
-
-    fig, ax1 = plt.subplots(1,1)
-
-    if len(bands.bands[0,0,:]) > 1:
-
-        ax1.plot(x1[:,1], y1[:,:,1],'-',  c='red' )
-        ax1.plot(x1[:,0], y1[:,:,0],'-' , c='black')
-        # ax1.legend( bbox_to_anchor=(0.9, .75))
-        spin_band = [mlines.Line2D([], [], color='black', label='Alpha'),
-                     mlines.Line2D([], [], color='red', label='Beta')]
-        ax1.legend(spin_band,['Alpha electrons', 'Beta electrons'],
-                   facecolor='white', framealpha=1,bbox_to_anchor=(.83,.90))
-
-    else:
-        ax1.plot(x1[:,0], y1[:,:,0],'-', c='black' )
-
-    # Display E Fermi on band structure
-    if not_scaled == True:
-        fermi_line = [[0, np.amax(bands.bands[:,1:,0])+1],
-                                  [efermi_band,efermi_band]]
-    else:
-        fermi_line = [[0, np.amax(bands.bands[:,1:,0])+1],[0,0]]
-
-    ax1.plot(fermi_line[0],fermi_line[1], '--',color='grey')
-    ax1.set_title('Band structure', size = 18)
-    ax1.set_xlabel('k point', size =12)
-    ax1.set_ylabel('E-E Fermi (eV)', size =12)
-    ax1.set_xticks(kpoints)
-    if k_labels is not None:
-        ax1.set_xticklabels(k_labels, size=12)
-    ax1.set_xlim([0, bands.bands[-1,0,0]])
-    ax1.set_ylim(energy_range)
-    ax1.grid()
-
-
-    fig.set_size_inches(8, 8)
-    if title != False:
-        fig.suptitle(title, size=22)
-        plt.subplots_adjust(wspace=0.2, top=0.88)"""
-
-
-def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool = True, labels=None, figsize=None, linestl=None,
+def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', save_to_file=False, overlap: bool = False, labels=None, figsize=None, linestl=None,
                   linewidth=1, title: str = None, beta: str = 'up', energy_range=None, dos_range=None, prj: list = None):
 
     import matplotlib.pyplot as plt
     import numpy as np
     import sys
+    from os import path
 
     # Error check on beta
     accepted_beta = ['up', 'down']
@@ -951,15 +902,28 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', overlap: bool 
     plt.xlim(xmin, xmax)
 
     plt.xlabel('Energy (eV)')
+
+    if save_to_file != False:
+        folder = path.split(save_to_file)[0]
+        if path.exists(folder) == True:
+            plt.savefig('%s.png' % save_to_file)
+        else:
+            print('Error: folder %s does not exist' % save_to_file)
+            sys.exit(1)
+
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
 
-def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
+def plot_cry_es(bands, doss, k_labels: list = None, save_to_file=False, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
                 linestl_doss=None, linewidth=1, prj: list = None, figsize=None, labels: list = None, dos_max_range: float = None):
 
     import numpy as np
     import matplotlib.pyplot as plt
     import sys
+    from os import path
 
     # Dictionary of greek letters for the band plot in the electronic structure
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
@@ -1191,14 +1155,13 @@ def plot_cry_es(bands, doss, k_labels: list = None, color_bd='blue', color_doss=
 
     plt.legend()
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
-# FB ins end
 
-# coss
-
-
-def plot_contour(contour_obj, diff=False):
+def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1250,11 +1213,13 @@ def plot_contour(contour_obj, diff=False):
     plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
 
-# coss
-def plot_contour_differences(contour_obj, contour_obj_ref):
+def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1319,11 +1284,13 @@ def plot_contour_differences(contour_obj, contour_obj_ref):
     plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
 
-# coss
-def plot_XRD(xrd_obj):
+def plot_cry_xrd(xrd_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1340,11 +1307,13 @@ def plot_XRD(xrd_obj):
     plt.title(xrd_obj.title, fontsize=20)
     plt.savefig(path, bbox_inches='tight', dpi=600)
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
 
-# coss
-def plot_rholine(rholine_obj):
+def plot_cry_rholine(rholine_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1360,51 +1329,17 @@ def plot_rholine(rholine_obj):
     plt.title(rholine_obj.title, fontsize=15)
     plt.savefig(path, bbox_inches='tight', dpi=600)
 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
     plt.show()
 
 
-# coss
-def plot_out_molecule(mol_obj):
-
-    from ase.visualize import view
-
-    return view(mol_obj.atoms, viewer='ngl')
-
-# coss
-
-
-def plot_out_opt_molecule(mol_opt_obj):
-
-    from ase.visualize import view
-
-    return view(mol_opt_obj.atoms, viewer='ngl')
-
-# coss
-
-
-def plot_out_crystal(cry_obj):
-
-    from ase.visualize import view
-
-    return view(cry_obj.cell, viewer='ngl')
-
-# coss
-
-
-def plot_out_opt_crystal(cry_opt_obj):
-
-    from ase.visualize import view
-
-    return view(cry_opt_obj.cell, viewer='ngl')
-
-
-# coss
-def plot_seebeck(seebeck_obj):
+def plot_cry_seebeck(seebeck_obj, save_to_file=False):
 
     import sys
     import matplotlib.pyplot as plt
     import numpy as np
-    import os
     import time
 
     case = input(
@@ -1467,12 +1402,12 @@ def plot_seebeck(seebeck_obj):
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', fontsize=12)
-    plt.savefig('seebeck_different_T_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
-        "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
-    # Do NOT put here plt.show()
+
+    if save_to_file != False:
+        save_plot(save_to_file)
 
 
-def plot_lapl_profile(lapl_obj):
+def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import time
@@ -1490,13 +1425,13 @@ def plot_lapl_profile(lapl_obj):
     plt.xlabel('Distance [A]')
     plt.ylabel('Laplacian [e/A^5]')
 
-    plt.savefig('Laplacian_profile' + time.strftime("%Y-%m-%d_%H%M%S") +
-                '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+    if save_to_file != False:
+        save_plot(save_to_file)
 
     plt.show()
 
 
-def plot_density_profile(lapl_obj):
+def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import time
@@ -1506,7 +1441,21 @@ def plot_density_profile(lapl_obj):
     plt.xlabel('Distance [A]')
     plt.ylabel('Density [e/A^3]')
 
-    plt.savefig('Density_profile' + time.strftime("%Y-%m-%d_%H%M%S") +
-                '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+    if save_to_file != False:
+        save_plot(save_to_file)
 
     plt.show()
+
+
+def save_plot(path_to_file):
+
+    from os import path
+    import sys
+    import matplotlib as plt
+
+    folder = path.split(path_to_file)[0]
+    if path.exists(folder) == True:
+        plt.savefig('%s.png' % path_to_file)
+    else:
+        print('Error: folder %s does not exist' % path_to_file)
+        sys.exit(1)
