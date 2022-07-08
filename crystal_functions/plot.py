@@ -124,12 +124,13 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             count2 = 0
 
             # band plot
-            for i in range(no_bands):
 
-                if figsize is not None:
-                    plt.figure()
-                else:
-                    plt.figure(figsize=figsize)
+            if figsize is not None:
+                plt.figure()
+            else:
+                plt.figure(figsize=figsize)
+
+            for i in range(no_bands):
 
                 if bands.spin == 1:
                     plt.plot(dx, pltband[i, :], color=color,
@@ -214,11 +215,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     if (count1 == count2) and (labels is not None):
                         if data.spin == 1:
                             if isinstance(linestl, list):
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth, label=labels[index])
                             else:
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl, linewidth=linewidth, label=labels[index])
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl, linewidth=linewidth[index], label=labels[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl, linewidth=linewidth, label=labels[index])
                         elif data.spin == 2:
                             plt.plot(dx, pltband[j, :, 0], color=color[index],
                                      linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
@@ -228,11 +237,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     else:
                         if data.spin == 1:
                             if isinstance(linestl, list):
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl[index], linewidth=linewidth)
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth)
                             else:
-                                plt.plot(
-                                    dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
+                                if isinstance(linewidth, list):
+                                    plt.plot(
+                                        dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth[index])
+                                else:
+                                    plt.plot(
+                                        dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
                         elif data.spin == 2:
                             plt.plot(
                                 dx, pltband[j, :, 0], color=color[index], linestyle=linestl, linewidth=linewidth)
@@ -1198,7 +1215,7 @@ def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
 
     # Change here to have or not the isovalues on the plot
     iso = True
-    #iso = False
+    # iso = False
 
     if (iso == True):
         L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
@@ -1269,7 +1286,7 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
 
     # Change here to have or not the isovalues on the plot
     iso = True
-    #iso = False
+    # iso = False
 
     if (iso == True):
         L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
