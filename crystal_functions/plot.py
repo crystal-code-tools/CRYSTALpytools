@@ -126,8 +126,6 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             # band plot
 
             if figsize is not None:
-                plt.figure()
-            else:
                 plt.figure(figsize=figsize)
 
             for i in range(no_bands):
@@ -473,7 +471,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
                  va='center', rotation='vertical')
 
-        if (isinstance(ylim, list)) or (isinstance(ymax, list)):
+        if (isinstance(ymin, list)) or (isinstance(ymax, list)):
             ymin = min(ymin)
             ymax = max(ymax)
 
