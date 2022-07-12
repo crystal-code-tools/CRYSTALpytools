@@ -3,11 +3,6 @@
 """
 A comprehensive module for lattice dynamics based on harmonic and quasiharmonic
 approximations.
-
-Initially created in May, 2022.
-Last Update: Jul. 04, 2022
-
-By Spica. Vir., ICL. 
 """
 from crystal_functions.file_readwrite import Crystal_output
 

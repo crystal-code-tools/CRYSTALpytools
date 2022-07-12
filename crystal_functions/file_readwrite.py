@@ -191,8 +191,8 @@ class Crystal_output:
         try:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
                 output_name = output_name+'.out'
-            file = open(output_name, 'r')
-            self.data = file.readlines(errors='ignore')
+            file = open(output_name, 'r', errors='ignore')
+            self.data = file.readlines()
             file.close()
         except:
             print('EXITING: a .out file needs to be specified')
