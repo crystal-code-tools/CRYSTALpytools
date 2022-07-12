@@ -5,8 +5,7 @@ Created on 29/03/2022
 """
 
 
-
-def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file = False, mode='single', linestl='-',
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file=False, mode='single', linestl='-',
                    linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
                    sharex=True, sharey=True):
 
@@ -14,7 +13,6 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
     # import matplotlib.lines as mlines
     import numpy as np
     import sys
-    
 
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
              'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
@@ -37,6 +35,30 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     print('Error, k_label must be a list of strings:' +
                           str(element)+' is not a string')
                     sys.exit(1)
+
+            if isinstance(bands, list):
+                ref = bands[0].n_tick
+
+                for i, file in enumerate(bands):
+                    if file.n_tick != ref:
+                        i = str(i)
+                        print(
+                            'Error! The ' + i + 'element your file list has a different number of High Symmetry Point!')
+                        sys.exit(1)
+            else:
+                ref = bands.n_tick
+
+            if len(k_labels) < ref:
+                diff = str(ref-len(k_labels))
+                print('Error! You are lacking ' + diff +
+                      ' High Symmetry Points in k_labels!')
+                sys.exit(1)
+
+            elif len(k_labels) > ref:
+                diff = str(len(k_labels)-ref)
+                print('Error! You have ' + diff +
+                      'High Symmetry Points in excess in k_labels')
+                sys.exit(1)
 
         else:
             print('Error, k_labels must be a list of strings')
@@ -102,12 +124,11 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
             count2 = 0
 
             # band plot
-            for i in range(no_bands):
 
-                if figsize is not None:
-                    plt.figure()
-                else:
-                    plt.figure(figsize=figsize)
+            if figsize is not None:
+                plt.figure(figsize=figsize)
+
+            for i in range(no_bands):
 
                 if bands.spin == 1:
                     plt.plot(dx, pltband[i, :], color=color,
@@ -192,11 +213,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     if (count1 == count2) and (labels is not None):
                         if data.spin == 1:
                             if isinstance(linestl, list):
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth, label=labels[index])
                             else:
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl, linewidth=linewidth, label=labels[index])
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl, linewidth=linewidth[index], label=labels[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl, linewidth=linewidth, label=labels[index])
                         elif data.spin == 2:
                             plt.plot(dx, pltband[j, :, 0], color=color[index],
                                      linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
@@ -206,11 +235,19 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
                     else:
                         if data.spin == 1:
                             if isinstance(linestl, list):
-                                plt.plot(dx, pltband[j, :], color=color[index],
-                                         linestyle=linestl[index], linewidth=linewidth)
+                                if isinstance(linewidth, list):
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth[index])
+                                else:
+                                    plt.plot(dx, pltband[j, :], color=color[index],
+                                             linestyle=linestl[index], linewidth=linewidth)
                             else:
-                                plt.plot(
-                                    dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
+                                if isinstance(linewidth, list):
+                                    plt.plot(
+                                        dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth[index])
+                                else:
+                                    plt.plot(
+                                        dx, pltband[j, :], color=color[index], linestyle=linestl, linewidth=linewidth)
                         elif data.spin == 2:
                             plt.plot(
                                 dx, pltband[j, :, 0], color=color[index], linestyle=linestl, linewidth=linewidth)
@@ -434,7 +471,7 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
         fig.text(.06, 0.5, '$E-E_F$ (eV)', ha='center',
                  va='center', rotation='vertical')
 
-        if (isinstance(ylim, list)) or (isinstance(ymax, list)):
+        if (isinstance(ymin, list)) or (isinstance(ymax, list)):
             ymin = min(ymin)
             ymax = max(ymax)
 
@@ -493,11 +530,11 @@ def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_sca
 
     if save_to_file != False:
         save_plot(save_to_file)
-    
+
     plt.show()
 
 
-def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', save_to_file = False, overlap: bool = False, labels=None, figsize=None, linestl=None,
+def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', save_to_file=False, overlap: bool = False, labels=None, figsize=None, linestl=None,
                   linewidth=1, title: str = None, beta: str = 'up', energy_range=None, dos_range=None, prj: list = None):
 
     import matplotlib.pyplot as plt
@@ -821,6 +858,7 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', save_to_file =
                             ymin = dos_range[0]
                             ymax = dos_range[1]
                         axs[projection].set_ylim(ymin, ymax)
+
         # Plot for selected projections
         else:
             for index, projection in enumerate(prj):
@@ -880,23 +918,21 @@ def plot_cry_doss(doss, color='blue', fermi: str = 'forestgreen', save_to_file =
 
     plt.xlabel('Energy (eV)')
 
-    if save_to_file != False:       
+    if save_to_file != False:
         folder = path.split(save_to_file)[0]
         if path.exists(folder) == True:
-            plt.savefig('%s.png'%save_to_file)
+            plt.savefig('%s.png' % save_to_file)
         else:
-            print('Error: folder %s does not exist'%save_to_file)
+            print('Error: folder %s does not exist' % save_to_file)
             sys.exit(1)
-    
+
     if save_to_file != False:
         save_plot(save_to_file)
 
     plt.show()
 
 
-
-
-def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
+def plot_cry_es(bands, doss, k_labels: list = None, save_to_file=False, color_bd='blue', color_doss='blue', fermi='forestgreen', energy_range: list = None, linestl_bd='-',
                 linestl_doss=None, linewidth=1, prj: list = None, figsize=None, labels: list = None, dos_max_range: float = None):
 
     import numpy as np
@@ -904,17 +940,62 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     import sys
     from os import path
 
+    # Dictionary of greek letters for the band plot in the electronic structure
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
              'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
              'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
              'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
 
+    # Error check on linestl_doss length when the prj kwargs is not used
+    if (prj is None) and (len(linestl_doss) != doss.n_proj):
+        if len(linestl_doss) > doss.n_proj:
+            print(
+                'Warning! You have a number of linestl_doss elements is greater than the number of projection!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required")
+            sys.exit(1)
+
+    # Error check on labels length when the prj kwargs is not used
+    if (prj is None) and (len(labels) != doss.n_proj):
+        if len(labels) > doss.n_proj:
+            print(
+                'Warning! You have a number of labels greater than the number of projection!')
+        else:
+            print(
+                "Error! You don't have enough elements in labels for the numeber of projection required")
+            sys.exit(1)
+
+    # Error check on linestl_doss length when the prj kwargs is used
+    if (prj is not None) and (len(linestl_doss) != len(prj)):
+        if len(linestl_doss) > len(prj):
+            print(
+                'Warning! You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
+            sys.exit(1)
+
+    # Error check on labels length when the prj kwargs is used
+    if (prj is not None) and (len(labels) != len(prj)):
+        if len(labels) > len(prj):
+            print(
+                'Warning! You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+        else:
+            print(
+                "Error! You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
+            sys.exit(1)
+
+    # Definition and creation of the figure and the axes
     fig, axs = plt.subplots(nrows=1, ncols=2,
                             gridspec_kw={'width_ratios': [2, 1]},
                             sharex=False, sharey=True, figsize=figsize,
                             )
+
+    # Definition of the hsp position variables
     hsp = bands.tick_position
 
+    # Error check on k_labels lenght against the HSP poisitions
     if k_labels is not None:
         if len(hsp) != len(k_labels):
             if len(hsp) > len(k_labels):
@@ -925,8 +1006,8 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
                     'Error!, you have more labels than the High Simmetry point along the path')
             sys.exit(1)
 
+    # Local variable definition for the band plot
     dx_bd = bands.k_point_plot
-
     pltband = bands.bands
     no_bands = np.shape(pltband)[0]
     ymin_bd = np.amin(pltband)
@@ -956,6 +1037,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
 
         count1 += 1
 
+    # Definition of dx for the doss plot
     if doss.spin == 1:
         dx_dos = doss.doss[:, 0]
     elif doss.spin == 2:
@@ -963,7 +1045,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
         dx_alpha = doss.doss[:, 0, 0]
         dx_beta = doss.doss[:, 0, 1]
 
-     # Determination of xmin, xmax, ymin, and ymax
+    # Determination of xmin, xmax, ymin, and ymax
     xmin_dos = np.amin(doss.doss[:, 1:, :])
     xmax_dos = np.amax(doss.doss[:, 1:, :])
     ymin_dos = np.amin(dx_dos)
@@ -1000,6 +1082,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
                     axs[1].plot(-doss.doss[:, projection, 1], dx_beta, color=color_doss,
                                 linestyle='--', linewidth=linewidth)
 
+    # Plot of a selected number of projections
     else:
         for index, projection in enumerate(prj):
             if doss.spin == 1:
@@ -1038,11 +1121,13 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     xmax_bd = hsp[len(hsp)-1]
     xmin_dos = 0
 
+    # Plot of HSP lines
     yhsp = np.linspace(ymin-5, ymax+5, 2)
     for j in hsp:
         xhsp = np.ones(2)*j
         axs[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
 
+    # Creation if HSP label ticks
     hsp_label = []
     if k_labels is not None:
         for n in k_labels:
@@ -1060,6 +1145,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     xfermi_dos = np.linspace(xmin_dos, xmax_dos, 2)
     yfermi = np.zeros(2)
 
+    # Plot of fermi level lines both in the band and the doss plot
     axs[0].plot(xfermi_bd, yfermi, color=fermi, linewidth=1.5)
     axs[1].plot(xfermi_dos, yfermi, color=fermi, linewidth=1.5)
 
@@ -1068,8 +1154,8 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     if dos_max_range is not None:
         xmax_dos = dos_max_range
 
-    if (prj is None) and (doss.n_proj not in prj):
-        xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
+    # if (prj is None) and (doss.n_proj not in prj):
+    #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
 
     axs[1].set_xlim(xmin_dos, xmax_dos+5)
 
@@ -1090,56 +1176,56 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file = False, color_
     plt.show()
 
 
-def plot_cry_contour(contour_obj, diff=False, save_to_file = False):
+def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
     import numpy as np
     import time
-    
+
     df = contour_obj.df
     n_punti_x = contour_obj.npx
-    
-    for i in range(0,8):
-        df[i] = df[i].astype(float) 
+
+    for i in range(0, 8):
+        df[i] = df[i].astype(float)
 
     flat_list = [item for sublist in df.values for item in sublist]
 
     cleaned_list = [x for x in flat_list if ~np.isnan(x)]
-    
-    l = [cleaned_list[x:x+n_punti_x] for x in range(0, len(cleaned_list),n_punti_x)]
-    
+
+    l = [cleaned_list[x:x+n_punti_x]
+         for x in range(0, len(cleaned_list), n_punti_x)]
+
     c = contour_obj.x_graph_param
     d = contour_obj.y_graph_param
-    
-    plt.rcParams["figure.figsize"] = [c,d]
 
-    plt.xlabel(r'$\AA$',fontsize=18)
-    plt.ylabel(r'$\AA$',fontsize=18)
+    plt.rcParams["figure.figsize"] = [c, d]
 
-    X,Y = np.meshgrid(contour_obj.x_points,contour_obj.y_points) 
-    
-    
+    plt.xlabel(r'$\AA$', fontsize=18)
+    plt.ylabel(r'$\AA$', fontsize=18)
+
+    X, Y = np.meshgrid(contour_obj.x_points, contour_obj.y_points)
+
     levels = contour_obj.levels
     colors = contour_obj.colors
     linestyles = contour_obj.linestyles
     fmt = contour_obj.fmt
 
-    #Change here to have or not the isovalues on the plot
+    # Change here to have or not the isovalues on the plot
     iso = True
-    #iso = False
+    # iso = False
 
     if (iso == True):
-        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
-                    alpha = 1)
-        plt.clabel(L, inline = 1, fontsize = 7, fmt = fmt)
+        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
+                        alpha=1)
+        plt.clabel(L, inline=1, fontsize=7, fmt=fmt)
     elif (iso == False):
-        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
-                    alpha = 1)
+        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
+                        alpha=1)
 
-    
-    path = os.path.join('./'+'figure_' + contour_obj.tipo + '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
-    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+    path = os.path.join('./'+'figure_' + contour_obj.tipo +
+                        '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
     if save_to_file != False:
@@ -1148,68 +1234,69 @@ def plot_cry_contour(contour_obj, diff=False, save_to_file = False):
     plt.show()
 
 
-def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file = False):
-    
+def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=False):
+
     import matplotlib.pyplot as plt
     import os
     import numpy as np
     import time
-    
+
     n_punti_x = contour_obj.npx
-    
-    df = contour_obj.df  
-    for i in range(0,8):
-        df[i] = df[i].astype(float) 
-        
+
+    df = contour_obj.df
+    for i in range(0, 8):
+        df[i] = df[i].astype(float)
+
     df_ref = contour_obj_ref.df
-    for i in range(0,8):
-        df_ref[i] = df_ref[i].astype(float)   
-        
+    for i in range(0, 8):
+        df_ref[i] = df_ref[i].astype(float)
+
     df_diff = df - df_ref
-        
+
     flat_list = [item for sublist in df_diff.values for item in sublist]
 
     cleaned_list = [x for x in flat_list if ~np.isnan(x)]
-    
-    l = [cleaned_list[x:x+n_punti_x] for x in range(0, len(cleaned_list),n_punti_x)]
-    
+
+    l = [cleaned_list[x:x+n_punti_x]
+         for x in range(0, len(cleaned_list), n_punti_x)]
+
     c = contour_obj.x_graph_param
     d = contour_obj.y_graph_param
-    
-    plt.rcParams["figure.figsize"] = [c,d]
 
-    plt.xlabel(r'$\AA$',fontsize=18)
-    plt.ylabel(r'$\AA$',fontsize=18)
+    plt.rcParams["figure.figsize"] = [c, d]
 
-    X,Y = np.meshgrid(contour_obj.x_points,contour_obj.y_points) 
-    
-    
-    ctr1dif = np.array([-8,-4,-2,-0.8,-0.4,-0.2,-0.08,-0.04,-0.02,-0.008,-0.004,-0.002,-0.0008,-0.0004,-0.0002,0,
-                       0.0002,0.0004,0.0008,0.002,0.004,0.008,0.02,0.04,0.08,0.2,0.4,0.8,2,4,8])
-    colors1dif = ['b','b','b','b','b','b','b','b','b','b','b','b','b','b','b','k','r','r','r','r','r','r','r',
-                  'r','r','r','r','r','r','r','r']
-    ls1dif = ['--','--','--','--','--','--','--','--','--','--','--','--','--','--','--','dotted','-','-','-','-',
-              '-','-','-','-','-','-','-','-','-','-','-']
+    plt.xlabel(r'$\AA$', fontsize=18)
+    plt.ylabel(r'$\AA$', fontsize=18)
+
+    X, Y = np.meshgrid(contour_obj.x_points, contour_obj.y_points)
+
+    ctr1dif = np.array([-8, -4, -2, -0.8, -0.4, -0.2, -0.08, -0.04, -0.02, -0.008, -0.004, -0.002, -0.0008, -0.0004, -0.0002, 0,
+                       0.0002, 0.0004, 0.0008, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08, 0.2, 0.4, 0.8, 2, 4, 8])
+    colors1dif = ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'k', 'r', 'r', 'r', 'r', 'r', 'r', 'r',
+                  'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
+    ls1dif = ['--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'dotted', '-', '-', '-', '-',
+              '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
     levels = ctr1dif
     colors = colors1dif
     linestyles = ls1dif
     fmt = '%1.4f'
 
-    #Change here to have or not the isovalues on the plot
+    # Change here to have or not the isovalues on the plot
     iso = True
-    #iso = False
+    # iso = False
 
     if (iso == True):
-        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
-                    alpha = 1)
-        plt.clabel(L, inline = 1, fontsize = 7, fmt = fmt)
+        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
+                        alpha=1)
+        plt.clabel(L, inline=1, fontsize=7, fmt=fmt)
     elif (iso == False):
-        L = plt.contour(X, Y, l, levels = levels, colors = colors, linestyles = linestyles, linewidths = 0.7,
-                    alpha = 1)
-    
-    path = os.path.join('./'+'figure_diff_' + contour_obj.tipo + '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
-    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
+                        alpha=1)
+
+    path = os.path.join('./'+'figure_diff_' + contour_obj.tipo +
+                        '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
     if save_to_file != False:
@@ -1218,42 +1305,44 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file = Fa
     plt.show()
 
 
-def plot_cry_xrd(xrd_obj, save_to_file = False):
+def plot_cry_xrd(xrd_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
     import time
-    
-    plt.rcParams["figure.figsize"] = [16,9]
 
-    plt.plot(xrd_obj.x,xrd_obj.y)
+    plt.rcParams["figure.figsize"] = [16, 9]
+
+    plt.plot(xrd_obj.x, xrd_obj.y)
 
     plt.xlim((0, 30))
-        
-    path = os.path.join('./'+'figure_'+'XRD_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+
+    path = os.path.join('./'+'figure_'+'XRD_' +
+                        time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
     plt.title(xrd_obj.title, fontsize=20)
-    plt.savefig(path, bbox_inches = 'tight',dpi=600)
-    
+    plt.savefig(path, bbox_inches='tight', dpi=600)
+
     if save_to_file != False:
         save_plot(save_to_file)
 
     plt.show()
 
-   
-def plot_cry_rholine(rholine_obj, save_to_file = False):
-    
+
+def plot_cry_rholine(rholine_obj, save_to_file=False):
+
     import matplotlib.pyplot as plt
     import os
     import time
 
-    plt.plot(rholine_obj.x,rholine_obj.y)
+    plt.plot(rholine_obj.x, rholine_obj.y)
 
-    plt.xlabel('d  [$\AA$]',fontsize=14)
-    plt.ylabel(r'$\rho$  [$\frac{e}{\AA^3}$]',fontsize=16)
-        
-    path = os.path.join('./'+'figure_'+'rholine_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
+    plt.xlabel('d  [$\AA$]', fontsize=14)
+    plt.ylabel(r'$\rho$  [$\frac{e}{\AA^3}$]', fontsize=16)
+
+    path = os.path.join('./'+'figure_'+'rholine_' +
+                        time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
     plt.title(rholine_obj.title, fontsize=15)
-    plt.savefig(path, bbox_inches = 'tight',dpi=600)
+    plt.savefig(path, bbox_inches='tight', dpi=600)
 
     if save_to_file != False:
         save_plot(save_to_file)
@@ -1261,22 +1350,23 @@ def plot_cry_rholine(rholine_obj, save_to_file = False):
     plt.show()
 
 
-def plot_cry_seebeck(seebeck_obj, save_to_file = False):
+def plot_cry_seebeck(seebeck_obj, save_to_file=False):
 
     import sys
     import matplotlib.pyplot as plt
     import numpy as np
     import time
-    
-    case = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
 
-    case = case.lower().replace('_','')
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_', '')
 
     if case.isalpha() == True:
         pass
     else:
         sys.exit('Please, select a valid chioce')
-        
+
     if case == 'sxx':
         col = 3
     elif case == 'sxy':
@@ -1297,88 +1387,90 @@ def plot_cry_seebeck(seebeck_obj, save_to_file = False):
         col = 11
     else:
         sys.exit('please, choose a valid chioce')
-        
-    x = [] # qui metto i potenziali alle diverse T (che saranno sempre uguali)
-    for k in range(0,len(seebeck_obj.all_data)):
-            x.append(np.array(seebeck_obj.all_data[k].apply(lambda x: float(x.split()[0]))))
-            
-    y = [] # qui metto i valori di y che vuole plottare l'utente
-    for k in range(0,len(seebeck_obj.all_data)):
-            y.append(np.array(seebeck_obj.all_data[k].apply(lambda x: float(x.split()[col])*1000000)))
-            
-    for k in range(0,len(seebeck_obj.all_data)):
+
+    x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+    for k in range(0, len(seebeck_obj.all_data)):
+        x.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    y = []  # qui metto i valori di y che vuole plottare l'utente
+    for k in range(0, len(seebeck_obj.all_data)):
+        y.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[col])*1000000)))
+
+    for k in range(0, len(seebeck_obj.all_data)):
         plt.figure()
-        plt.plot(x[k],y[k],label=str(seebeck_obj.temp[k])+' K')
-        plt.xlabel('Chemical Potential (eV)',fontsize=12)
-        plt.ylabel('Seebeck Coefficient ($\mu$V/K)',fontsize=12)
+        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.axhline(0, color='k')
         plt.title(seebeck_obj.title)
-        plt.legend(loc='upper left',fontsize=12)
-        plt.savefig('seebeck_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('seebeck_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
-        
-        
-    for k in range(0,len(seebeck_obj.all_data)):
-        plt.plot(x[k],y[k],label=str(seebeck_obj.temp[k])+' K')
-        plt.xlabel('Chemical Potential (eV)',fontsize=12)
-        plt.ylabel('Seebeck Coefficient ($\mu$V/K)',fontsize=12)
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left',fontsize=12)
-    
+        plt.legend(loc='upper left', fontsize=12)
+
     if save_to_file != False:
         save_plot(save_to_file)
 
 
-def plot_cry_lapl_profile(lapl_obj, save_to_file = False):
+def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import time
 
-    plt.plot(lapl_obj.datax,lapl_obj.datay)
+    plt.plot(lapl_obj.datax, lapl_obj.datay)
 
-    plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay < 0),color='lightblue', interpolate=True)
-    plt.fill_between(lapl_obj.datax,lapl_obj.datay,where=(lapl_obj.datay > 0),color='lightcoral', interpolate=True)
+    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
+        lapl_obj.datay < 0), color='lightblue', interpolate=True)
+    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
+        lapl_obj.datay > 0), color='lightcoral', interpolate=True)
 
-    #plt.xlim(-0.5,0.5)
-    #plt.ylim(-200,200)
+    # plt.xlim(-0.5,0.5)
+    # plt.ylim(-200,200)
 
-    plt.xlabel('Distance [A]') 
+    plt.xlabel('Distance [A]')
     plt.ylabel('Laplacian [e/A^5]')
-        
+
     if save_to_file != False:
         save_plot(save_to_file)
 
     plt.show()
 
-def plot_cry_density_profile(lapl_obj, save_to_file = False):
-    
+
+def plot_cry_density_profile(lapl_obj, save_to_file=False):
+
     import matplotlib.pyplot as plt
     import time
 
+    plt.plot(lapl_obj.datax, lapl_obj.datay)
 
-    plt.plot(lapl_obj.datax,lapl_obj.datay) 
-
-    plt.xlabel('Distance [A]') 
+    plt.xlabel('Distance [A]')
     plt.ylabel('Density [e/A^3]')
-        
-    plt.savefig('Density_profile' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=600,bbox_inches='tight')
 
     if save_to_file != False:
         save_plot(save_to_file)
 
     plt.show()
+
 
 def save_plot(path_to_file):
 
     from os import path
     import sys
     import matplotlib as plt
-       
+
     folder = path.split(path_to_file)[0]
     if path.exists(folder) == True:
-        plt.savefig('%s.png'%path_to_file)
+        plt.savefig('%s.png' % path_to_file)
     else:
-        print('Error: folder %s does not exist'%path_to_file)
+        print('Error: folder %s does not exist' % path_to_file)
         sys.exit(1)
-    
