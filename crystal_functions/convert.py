@@ -29,7 +29,7 @@ def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
     if dimensionality == 0:
         if molecule == True:
             if molecule == True:
-                return Molecule(output.atom_number, atom_positions)
+                return Molecule(output.atom_numbers, atom_positions)
         elif molecule == False:
             thickness_x = np.amax(np.array(atom_positions)[:, 0]) - \
                         np.amin(np.array(atom_positions)[:, 0])
@@ -308,7 +308,7 @@ def cry_gui2xyz(xyz_file_name, gui):
 
     #gui_file is the CRYSTAL structure (gui) file
 
-    from pymatgen.io.cif import XYZ
+    from pymatgen.io.xyz import XYZ
     import sys
 
     if gui.dimensionality != 0:
@@ -325,7 +325,7 @@ def cry_out2xyz(xyz_file_name, output):
 
     #gui_file is the CRYSTAL structure (gui) file
 
-    from pymatgen.io.cif import XYZ
+    from pymatgen.io.xyz import XYZ
     import sys
 
     if output.dimensionality != 0:
