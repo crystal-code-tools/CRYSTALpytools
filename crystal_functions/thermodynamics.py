@@ -26,8 +26,8 @@ class Mode:
                         Unit: KJ/mol cell
         self.U_vib, get_U_vib, Vibration contribution to internal energy,
                     including zero-point energy. Unit: KJ/mol cell
-        self.entropy, get_entropy, Entropy of the mode. Unit: KJ/mol cell*K
-        self.C_v, get_C_v, Constant volume specific heat. Unit: KJ/mol cell*K
+        self.entropy, get_entropy, Entropy of the mode. Unit: J/mol cell*K
+        self.C_v, get_C_v, Constant volume specific heat. Unit: J/mol cell*K
     """
 
     def __init__(self, rank=0, frequency=[], volume=[], eigenvector=[]):
@@ -117,7 +117,7 @@ class Mode:
                          is computed.
         Output:
             self.entropy, float, The entropy of a given mode.
-                          Unit: KJ/mol cell*K
+                          Unit: J/mol cell*K
         """
         import numpy as np
 
@@ -133,7 +133,7 @@ class Mode:
         kb_t = 1.380649E-3 * 6.022141 * temperature
         expon = np.exp(hbar_freq / kb_t)
         entS = kb_t * (hbar_freq / kb_t / (expon - 1) - np.log(1 - 1 / expon))
-        self.entropy = entS / temperature
+        self.entropy = entS / temperature * 1000
 
         return self.entropy
 
@@ -147,7 +147,7 @@ class Mode:
                          is computed.
         Output:
             self.C_v, float, The constant volume specific heat of a given mode.
-            Unit: KJ/mol cell*K
+            Unit: J/mol cell*K
         """
         import numpy as np
 
@@ -163,7 +163,8 @@ class Mode:
         kb_t = 1.380649E-3 * 6.022141 * temperature
         expon = np.exp(hbar_freq / kb_t)
 
-        self.C_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
+        self.C_v = hbar_freq**2 / kb_t / \
+            temperature * expon / (expon - 1)**2 * 1000
 
         return self.C_v
 
@@ -176,7 +177,7 @@ class Harmonic(Crystal_output):
     the all the information (usually for QHA).
 
     Inherited attributes:
-        self.edft
+        self.edft (length should be 1)
         self.nqpoint
         self.qpoint
         self.nmode
@@ -184,11 +185,14 @@ class Harmonic(Crystal_output):
         self.eigenvector
 
     New attributes:
-        self.lattice, The pymatgen Structure object of the calculation cell.
+        self.strucrure, The pymatgen Structure object of the calculation cell.
         self.mode, The list of mode objects.
         self.temperature, The temperature range for HA thermodynamics.
+        self.pressure, The pressure range for HA thermodynamics.
         self.helmholtz, Helmholtz free energy of the cell, at HA level.
                         Unit: KJ/mol cell
+        self.gibbs, Gibbs free energy of the cell, at HA level.
+                    Unit: KJ/mol cell
         * Following attributes are the summed up values of corresponding
           attributes of class Mode.
         self.U_vib, thermodynamics
@@ -200,13 +204,17 @@ class Harmonic(Crystal_output):
     def __init__(self):
         pass
 
-    def from_file(self, output_name, temperature=[298.15], scelphono=[],
-                  write_out=True, filename='HA-thermodynamics.dat'):
+    def from_file(self, output_name, temperature=[298.15], pressure=[0.],
+                  scelphono=[], write_out=True, filename='HA-thermodynamics.dat'):
         """
+        Generate the Harominc object from a HA file.
+
         Input:
             output_name, str, Name of the output file.
-            Temperature, nTempt * 1 array / list, Temperatures where the
+            temperature, nTempt * 1 array / list, Temperatures where the
                          thermodynamic properties are computed. Unit: K
+            pressure, npress * 1 array / list, Pressures where the
+                      thermodyanmic properties are calculated. Unit: GPa
             scellphono, ndimension * ndimension list, Supercell manipulation
                         matrix used for vibrational properties. Should be the
                         same as 'SCELPHONO' keyword in CRYSTAL input file. 3x3
@@ -215,10 +223,13 @@ class Harmonic(Crystal_output):
             filename, str, Name of the printed-out file, used only if
                       write_out = True.
         Output:
+            self.mode, nqpoint * nmode array, List of mode objects at all
+                       qpoints.
             self.temperature, nTempt * 1 array / list, Temperature range.
                               Unit: K
-            self.lattice, pymatgen Structure object. The calculation cell
-                          without the 'SCELPHONO' expansion.
+            self.pressure, nTempt * 1 array / list, Pressure range. Unit: GPa
+            self.structure, pymatgen Structure object. The calculation cell
+                            without the 'SCELPHONO' expansion.
             self.mode, nqpoint * nmode list, List of mode objects at all
                        qpoints.
             filename, text file, HA thermodynamic data. 'Thermodynamics' method
@@ -227,33 +238,40 @@ class Harmonic(Crystal_output):
         """
         import numpy as np
 
+        if hasattr(self, "volume"):
+            return "ERROR: Data exists. Cannot overwriting the existing data."
+
         super(Harmonic, self).read_cry_output(output_name)
         self.temperature = np.array(temperature, dtype=float)
+        self.pressure = np.array(pressure, dtype=float)
         self.get_mode()
         self.clean_imaginary()
-        self.generate_lattice(scelphono=scelphono)
-        vol = self.lattice.volume
+        self.generate_structure(scelphono=scelphono)
+
+        if len(self.edft) != 1:
+            return "ERROR: Only a single frequency calculation is premitted."
+        else:
+            self.edft = self.edft[0]
 
         # Transfer the modes in self.freqency into lists of mode objects
-        modes = []
+        self.mode = []
         for qpoint in self.frequency:
-            qmodes = []
+            qmode = []
             for m, freq in enumerate(qpoint):
-                qmodes.append(Mode(rank=m + 1, frequency=[freq], volume=[vol]))
+                qmode.append(
+                    Mode(rank=m + 1, frequency=[freq], volume=[self.volume]))
 
-            modes.append(qmodes)
-
-        self.mode = modes
+            self.mode.append(qmode)
 
         if write_out:
-            self.thermodynamics()
+            self.thermodynamics(sumphonon=True)
             wtout = open(filename, 'w')
             self.print_results(file=wtout)
             wtout.close()
 
         return self
 
-    def generate_lattice(self, scelphono):
+    def generate_structure(self, scelphono):
         """
         Eliminate the influences of the keyword 'SCELPHONO' and generate the
         pymatgen 'structure' object of the actual cell used for phonon
@@ -262,8 +280,11 @@ class Harmonic(Crystal_output):
         Input:
             scellphono, ndimension * ndimension list. 3*3 list is also allowed.
         Output:
-            self.lattice, pymatgen Structure object. The calculation cell
-                          without 'SCELPHONO' expansion.
+            self.structure, pymatgen Structure object. The calculation cell
+                            without 'SCELPHONO' expansion.
+            self.natom, int, Number of atoms in the cell.
+            self.volume, float, pymatgen structure.volume. Cell volume.
+                         Unit: Angstrom^3
         """
         from crystal_functions.convert import cry_out2pmg
         from pymatgen.core.structure import Structure
@@ -272,14 +293,17 @@ class Harmonic(Crystal_output):
         ndimen = self.get_dimensionality()
 
         if not scelphono or not ndimen:
-            self.lattice = cry_out2pmg(self, vacuum=500)
-            return self.lattice
+            self.structure = cry_out2pmg(self, vacuum=100)
+            self.natom = len(self.structure.species)
+            self.volume = self.structure.volume
+
+            return self
 
         scell_mx = np.eye(3, dtype=float)
         scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]
         shrink_mx = np.linalg.pinv(scell_mx)
 
-        scel = cry_out2pmg(self, vacuum=500)
+        scel = cry_out2pmg(self, vacuum=100)
 
         pcel_lattice = np.dot(scel.lattice.matrix, shrink_mx)
         all_coord = np.dot(
@@ -299,12 +323,14 @@ class Harmonic(Crystal_output):
                 pcel_species.append(all_species[i])
 
         pcel_natom = len(pcel_species)
-        pcel_charge = int(scel.charge / pcel_natom)
+        pcel_charge = int(scel.charge * pcel_natom / len(all_species))
 
-        self.lattice = Structure(
+        self.structure = Structure(
             pcel_lattice, pcel_species, pcel_coord, pcel_charge)
+        self.natom = len(self.structure.species)
+        self.volume = self.structure.volume
 
-        return self.lattice
+        return self
 
     def phonon_sumup(self, temperature=None):
         """
@@ -319,15 +345,16 @@ class Harmonic(Crystal_output):
                          C_v are calculated. If = None, zero_point energy will
                          be calculated.
         Output:
-            zp_energy, float, Zero-point energy at a given q point. Returned if
-                       temperature = None.
-            U_vib, float, Vibrational contribution to internal energy at
-                   constant temperature and given q point. Returned if
-                   temperature is given.
-            entropy, float, Entropy at constant temperature and given q point.
-                     Returned if temperature is given.
-            C_v, float, Constant volume specific heat at constant temperature
-                 and given q point. Returned if temperature is given.
+            zp_energy, nqpoint * 1 array, Zero-point energy at a given q point.
+                       Returned if temperature = None.
+            U_vib, nqpoint * 1 array, Vibrational contribution to internal
+                   energy at constant temperature and all q points. Returned
+                   if temperature is given.
+            entropy, nqpoint * 1 array, Entropy at constant temperature and
+                     given q point. Returned if temperature is given.
+            C_v, nqpoint * 1 array, Constant volume specific heat at constant
+                 temperature and given q point. Returned if temperature is
+                 given.
         """
         import numpy as np
 
@@ -365,103 +392,177 @@ class Harmonic(Crystal_output):
 
             return U_vib, entropy, C_v
 
-    def thermodynamics(self):
+    def thermodynamics(self, sumphonon=True):
         """
         Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
         and Helmholtz free energy) of the given system, at all qpoints and the
         whole temperature range.
 
         Input:
-            -
+            sumphonon, bool, Whether summing up the phonon contributions across
+                       the first Brillouin zone.
         Output:
             self.helmholtz, nqpoint * nTempt numpy array, Helmholtz free energy.
                             Unit: KJ/mol cell
+            self.gibbs, nqpoint * nTempt * npress numpy array, Gibbs free energy.
+                        Unit: KJ/mol cell
             self.zp_energy, nqpoint * 1 numpy array, Zero-point energy.
                             Unit: KJ/mol cell
             self.U_vib, nqpoint * nTempt numpy array, Vibrational contribute to
                         internal energy. Unit: KJ/mol cell
             self.entropy, nqpoint * nTempt numpy array, Entropy.
-                          Unit: KJ/mol cell*K
+                          Unit: J/mol cell*K
             self.C_v, nqpoint * nTempt numpy array, Constant volume specific
-                      heat. Unit: KJ/mol cell*K
+                      heat. Unit: J/mol cell*K
+
+        Note: If sumphonon = True, the thermodyanmic properties of phonon 
+              dispersion are summed. In this case, nqpoint = 1 but the
+              dimension is kept.
         """
         import numpy as np
 
         self.zp_energy = self.phonon_sumup()
-        self.U_vib = []
-        self.entropy = []
-        self.C_v = []
-        self.helmholtz = []
+        U_vib = []
+        entropy = []
+        C_v = []
+        helmholtz = []
+        gibbs = []
 
         for T in self.temperature:
+            gibbs_t = []
             U_vib_t, entropy_t, C_v_t = self.phonon_sumup(temperature=T)
             helm_t = -entropy_t * T + U_vib_t + self.edft
 
-            self.U_vib.append(U_vib_t)
-            self.entropy.append(entropy_t)
-            self.C_v.append(C_v_t)
-            self.helmholtz.append(helm_t)
+            for p in self.pressure:
+                gibbs_tp = p * self.volume * 0.602214 + helm_t
+                gibbs_t.append(gibbs_tp)
 
-        self.U_vib = np.array(self.U_vib, dtype=float).transpose()
-        self.entropy = np.array(self.entropy, dtype=float).transpose()
-        self.C_v = np.array(self.C_v, dtype=float).transpose()
-        self.helmholtz = np.array(self.helmholtz, dtype=float).transpose()
+            # nTemp * nqpoint
+            U_vib.append(U_vib_t)
+            entropy.append(entropy_t)
+            C_v.append(C_v_t)
+            helmholtz.append(helm_t)
+            # nTemp * npress * nqpoint
+            gibbs.append(gibbs_t)
 
-        return self.helmholtz, self.zp_energy, self.U_vib, self.entropy, self.C_v
+        U_vib = np.transpose(np.array(U_vib, dtype=float))
+        entropy = np.transpose(np.array(entropy, dtype=float))
+        C_v = np.transpose(np.array(C_v, dtype=float))
+        helmholtz = np.transpose(np.array(helmholtz, dtype=float))
+        gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
+
+        if sumphonon:
+            self.U_vib = np.array([np.sum(U_vib, axis=0)])
+            self.entropy = np.array([np.sum(entropy, axis=0)])
+            self.C_v = np.array([np.sum(C_v, axis=0)])
+            self.helmholtz = np.array([np.sum(helmholtz, axis=0)])
+            self.gibbs = np.array([np.sum(gibbs, axis=0)])
+            self.nqpoint = 1
+            self.qpoint = np.array([[0., 0., 0.]], dtype=float)
+        else:
+            self.U_vib = U_vib
+            self.entropy = entropy
+            self.C_v = C_v
+            self.helmholtz = helmholtz
+            self.gibbs = gibbs
+
+        return self.helmholtz, self.gibbs, self.zp_energy, self.U_vib,\
+            self.entropy, self.C_v
 
     def print_results(self, file):
         """
         Print a single output file for HA thermodynamics. Used if write_out=True.
+
+        Note: Phonon dispersions are forced to be summed to keep the output
+        succinct if the automatic scheme (write_out=True) is launched. To get
+        verbose outputs, directly use this attribute.
 
         Input:
             file, file object obtained by 'open' command.
         Output:
             filename, text file.
         Format:
-ELECTRONIC ENERGY = edft           KJ/MOL
-CELL VOLUME =    volume        A^3, =  volume      CM^3/MOL
-LATTICE PARAMETERS
+# DFT TOTAL ENERGY =         edft eV,         =         edft kJ/mol
+# CELL VOLUME      = volume       Angstrom^3, =       volume cm^3/mol
+# LATTICE PARAMETERS (ANGSTROM, DEGREE)
            A           B           C       ALPHA        BETA       GAMMA
-           a           b            c      alpha        beta       gamma
+           a           b           c       alpha        beta       gamma
 
-HARMONIC THERMODYNAMICS AT QPOINT #    rank of qpoint
+# HARMONIC THERMODYNAMICS AT QPOINT #   rank of qpoint
 
-  ZERO POINT ENERGY =   zp_energy  KJ/MOL
+  zero point energy =    zp_energy kJ/mol
 
-  T(K)     U_VIB(KJ/MOL) ENTROPY(KJ/MOL*K)     C_V(KJ/MOL*K) HELMHOLTZ(KJ/MOL)
- Tempt             U_vib           entropy               C_v         Helmholtz
+  temperature dependent properties
+    T(K)     U_vib(kJ/mol)  Entropy(J/mol*K)      C_V(J/mol*K) Helmholtz(kJ/mol)
+   Tempt             U_vib           entropy               C_v         Helmholtz
+   ...
 
-HARMONIC THERMODYNAMICS AT QPOINT #    rank of qpoint
+  Gibbs free energy
+    rows    : pressure (GPa)  pressure list
+    columns : temperature (K) temperature list
+    data  data  data  ...
+    ...
 
-  ZERO POINT ENERGY =   zp_energy  KJ/MOL
 
-  T(K)     U_VIB(KJ/MOL) ENTROPY(KJ/MOL*K)     C_V(KJ/MOL*K) HELMHOLTZ(KJ/MOL)
- Tempt             U_vib           entropy               C_v         Helmholtz
+# HARMONIC THERMODYNAMICS AT QPOINT #   rank of qpoint
+
+  zero point energy =    zp_energy kJ/mol
+
+  temperature dependent properties
+    T(K)     U_vib(kJ/mol)  Entropy(J/mol*K)      C_V(J/mol*K) Helmholtz(kJ/mol)
+   Tempt             U_vib           entropy               C_v         Helmholtz
+   ...
+
+  Gibbs free energy
+    rows    : pressure (GPa)  pressure list
+    columns : temperature (K) temperature list
+    data  data  data  ...
+    ...
+
+
         """
-        file.write('%19s%12.4e%10s\n' %
-                   ('ELECTRONIC ENERGY =', self.edft, 'KJ/MOL'))
-        file.write('%-15s%12.6f%10s%12.6f%10s\n' %
-                   ('CELL VOLUME =', self.lattice.volume, ' A^3, =',
-                    self.lattice.volume * 0.602214, 'CM^3/MOL'))
-        file.write('%s\n' % 'LATTICE PARAMETERS')
+        file.write('%-21s%12.4e%-15s%12.4e%-10s\n' %
+                   ('# DFT TOTAL ENERGY = ', self.edft * 2625.500256,
+                    ' eV,         = ', self.edft, ' kJ/mol'))
+        file.write('%-21s%12.6f%-15s%12.6f%-10s\n' %
+                   ('# CELL VOLUME      = ', self.volume,
+                    ' Angstrom^3, = ', self.volume * 0.602214, ' cm^3/mol'))
+        file.write('%s\n' % '# LATTICE PARAMETERS (ANGSTROM, DEGREE)')
         file.write('%12s%12s%12s%12s%12s%12s\n' % ('A', 'B', 'C',
                                                    'ALPHA', 'BETA', 'GAMMA'))
         file.write('%12.4f%12.4f%12.4f%12.4f%12.4f%12.4f\n\n' %
-                   (self.lattice.lattice.parameters[0:6]))
+                   (self.structure.lattice.parameters[0:6]))
 
         for q in range(self.nqpoint):
-            file.write('%35s%5i\n\n' %
-                       ('HARMONIC THERMODYNAMICS AT QPOINT #', q))
-            file.write('%21s%12.6e%8s\n\n' %
-                       ('ZERO POINT ENERGY =', self.zp_energy[q], 'KJ/MOL'))
-            file.write('%6s%18s%18s%18s%18s\n' %
-                       ('T(K)', 'U_VIB(KJ/MOL)', 'ENTROPY(KJ/MOL*K)', 'C_V(KJ/MOL*K)',
-                        'HELMHOLTZ(KJ/MOL)'))
+            file.write('%-40s%5i\n\n' %
+                       ('# HARMONIC THERMODYNAMICS AT QPOINT #', q))
+            file.write('%-23s%12.6e%8s\n\n' %
+                       ('  zero point energy = ', self.zp_energy[q], ' kJ/mol'))
+            file.write('%s\n' % '  temperature dependent properties')
+            file.write('%8s%18s%18s%18s%18s\n' %
+                       ('    T(K)', 'U_vib(kJ/mol)', 'Entropy(J/mol*K)',
+                        'C_V(J/mol*K)', 'Helmholtz(kJ/mol)'))
             for t, tempt in enumerate(self.temperature):
-                file.write('%6.2f%18.6e%18.6e%18.6e%18.6e\n' %
+                file.write('%8.2f%18.6e%18.6e%18.6e%18.6e\n' %
                            (tempt, self.U_vib[q, t], self.entropy[q, t],
                             self.C_v[q, t], self.helmholtz[q, t]))
 
             file.write('\n')
+            file.write('%s\n' % '  Gibbs free energy')
+            file.write('%-30s' % '    rows    : pressure (GPa)  ')
+            for p in self.pressure:
+                file.write('%8.3f%1s' % (p, ''))
+
+            file.write('\n')
+            file.write('%-30s' % '    columns : temperature (K) ')
+            for t in self.temperature:
+                file.write('%8.3f%1s' % (t, ''))
+
+            for gibbs_t in self.gibbs[q]:
+                file.write('\n%4s' % '')
+                for gibbs_p in gibbs_t:
+                    file.write('%18.6e%2s' % (gibbs_p, ''))
+
+            file.write('\n\n\n')
 
         return

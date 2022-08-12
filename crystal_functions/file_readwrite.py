@@ -832,11 +832,11 @@ class Crystal_output:
 # QHA Gamma point calculation
         elif self.nqpoint == 0 and len(edft) > 1:
             self.nqpoint = len(edft)
-            self.qpoint = np.array([[0, 0, 0], for i in range(self.nqpoint)], dtype=float)
+            self.qpoint = np.array([[0, 0, 0] for i in range(self.nqpoint)], dtype=float)
 # HA dispersion calculation
         elif self.nqpoint > 0 and len(edft) == 1:
             self.qpoint = np.reshape(self.qpoint, (-1, 3))
-            self.edft = np.array([edft[0], for i in range(self.nqpoint)], dtype=float)
+            self.edft = edft
         else:
             return "ERROR: Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion."
 
