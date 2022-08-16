@@ -763,9 +763,11 @@ class Crystal_output:
             is_freq: bool, True if the identifier is found.
         """
         import re
+        import sys
 
         if not hasattr(self, 'data'):
-            return "ERROR: Output file not specified."
+            print('ERROR: Output file not specified.')
+            sys.exit(1)
 
         is_freq = False
 
@@ -801,10 +803,12 @@ class Crystal_output:
         """
         import re
         import numpy as np
+        import sys
 
         is_freq = self.check_freq_file()
         if not is_freq:
-            return "ERROR: Not a frequency output."
+            print('ERROR: Not a frequency output.')
+            sys.exit(1)
 
         edft = np.array([], dtype=float)
         self.nqpoint = 0
@@ -838,7 +842,8 @@ class Crystal_output:
             self.qpoint = np.reshape(self.qpoint, (-1, 3))
             self.edft = edft
         else:
-            return "ERROR: Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion."
+            print('ERROR: Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
+            sys.exit(1)
 
         return self.edft, self.nqpoint, self.qpoint
 
