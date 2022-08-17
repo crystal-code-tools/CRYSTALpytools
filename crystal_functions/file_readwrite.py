@@ -897,7 +897,7 @@ class Crystal_output:
             countline += 1
 
         self.frequency = np.reshape(self.frequency, (self.nqpoint, -1))
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=float)
+        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
 
         return self.nmode, self.frequency
 
