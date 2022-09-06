@@ -8,4 +8,7 @@ urea_contour_output = Properties_output()
 
 print('ho istanziato')
 
-#DA QUI SI COMINCIA
+urea_contour_output.read_cry_contour('SURFLAPP.DAT')
+
+print('ho letto il file')
+
