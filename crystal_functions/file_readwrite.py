@@ -1395,12 +1395,6 @@ class Properties_output:
         self.read_file(properties_output)
 
         filename = str(properties_output)
-
-
-        #if (filename.endswith('.SURFRHOO')) or (filename.endswith('.SURFLAPP')) or (filename.endswith('.SURFLAPM')) or (filename.endswith('.SURFGRHO')) or (filename.endswith('.SURFELFB')) or (filename.endswith('.SURFVIRI')) or (filename.endswith('.SURFGKIN')) or (filename.endswith('.SURFKKIN')):
-        #    pass
-        #else:
-        #    sys.exit('please, choose a valid file or rename it properly')
        
         tipo = ''
 
