@@ -1395,6 +1395,7 @@ class Properties_output:
         self.read_file(properties_output)
 
         filename = str(properties_output)
+
        
         tipo = ''
 
