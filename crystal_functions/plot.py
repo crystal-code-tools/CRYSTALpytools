@@ -1245,7 +1245,6 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
     import time
     import sys
 
-
     if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB') :
             pass
     else:
