@@ -1392,13 +1392,10 @@ class Properties_output:
         import pandas as pd
         import numpy as np
 
-        print('sono all inizio')
-
         self.read_file(properties_output)
 
         filename = str(properties_output)
 
-        #print(filename)
 
         if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFGRHO.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFVIRI.DAT')) or (filename.endswith('SURFGKIN.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFKKIN.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
             pass
@@ -1432,7 +1429,7 @@ class Properties_output:
             self.tipo = 'SURFKKIN'
             self.path = filename
         else:
-            print('nessuna delle opzioni')
+            print('Please choose a valid file')
 
         factor = 0.529177249
 
@@ -1509,8 +1506,6 @@ class Properties_output:
             self.linestyles = ls3
             self.fmt = '%1.2f'
          
-
-        print('ritorno self, bye')
 
         return self
 

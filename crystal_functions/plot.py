@@ -1176,7 +1176,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file=False, color_bd
     plt.show()
 
 
-def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
+def plot_cry_contour(contour_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
