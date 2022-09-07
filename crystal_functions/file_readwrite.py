@@ -1424,7 +1424,7 @@ class Properties_output:
             self.tipo = 'SURFKKIN'
             self.path = filename
         else:
-            print('Please choose a valid file')
+            sys.exit('Please choose a valid file')
 
         factor = 0.529177249
 
@@ -1490,7 +1490,7 @@ class Properties_output:
             self.colors = colors1
             self.linestyles = ls1
             self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFLAPM_ref') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
+        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
             self.levels = ctr2
             self.colors = colors2
             self.linestyles = ls2
