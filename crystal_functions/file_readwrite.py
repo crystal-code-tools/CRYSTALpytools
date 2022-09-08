@@ -1677,7 +1677,6 @@ class Properties_output:
         for i in range(0, len(right)):
             # va bene perchè la struttura è sempre la stessa in crystal17
             self.temp.append(float(str(right[0][i])[20:23]))
-        print(self.temp)
 
         ll = []
         for k in range(0, len(l)):
@@ -1688,6 +1687,9 @@ class Properties_output:
             for i in ll[k]:
                 self.all_data.append(ll[k][i].apply(
                     lambda x: x.replace('WRONG LINE:', '')))
+        #ele_8_9_22
+        self.volume = (float(str(match[2:3])[-13:-4]))
+        #fine ele_8_9_22
 
         self.title = title
 
