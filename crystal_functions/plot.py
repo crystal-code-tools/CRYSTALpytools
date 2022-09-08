@@ -1417,7 +1417,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
 
@@ -1493,7 +1493,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', fontsize=12)
         #plt.xscale('log')
-        plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
  
     if save_to_file != False:
         save_plot(save_to_file)
