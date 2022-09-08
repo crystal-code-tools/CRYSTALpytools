@@ -1671,9 +1671,13 @@ class Properties_output:
         right = right.reset_index().drop('index', axis=1)
 
         self.temp = []
+
+        
+
         for i in range(0, len(right)):
-            # va bene perchè la struttura è sempre la stessa
-            self.temp.append(float(str(right[0][i])[22:25]))
+            # va bene perchè la struttura è sempre la stessa in crystal17
+            self.temp.append(float(str(right[0][i])[20:23]))
+        print(self.temp)
 
         ll = []
         for k in range(0, len(l)):
