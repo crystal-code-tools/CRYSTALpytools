@@ -1394,39 +1394,37 @@ class Properties_output:
 
         self.read_file(properties_output)
 
-        filename = self.abspath
+        filename = str(properties_output)
 
-        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFGRHO.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFVIRI.DAT')) or (filename.endswith('SURFGKIN.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFKKIN.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
-            pass
-        else:
-            sys.exit('please, choose a valid file or rename it properly')
-
+       
         tipo = ''
 
-        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')):
+        if (filename.endswith('.SURFRHOO')):
             self.tipo = 'SURFRHOO'
             self.path = filename
-        elif (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')):
+        elif (filename.endswith('.SURFLAPP')):
             self.tipo = 'SURFLAPP'
             self.path = filename
-        elif (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')):
+        elif (filename.endswith('.SURFLAPM')):
             self.tipo = 'SURFLAPM'
             self.path = filename
-        elif (filename.endswith('SURFGRHO.DAT')):
+        elif (filename.endswith('.SURFGRHO')):
             self.tipo = 'SURFGRHO'
             self.path = filename
-        elif (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
+        elif (filename.endswith('.SURFELFB')):
             self.tipo = 'SURFELFB'
             self.path = filename
-        elif (filename.endswith('SURFVIRI.DAT')):
+        elif (filename.endswith('.SURFVIRI')):
             self.tipo = 'SURFVIRI'
             self.path = filename
-        elif (filename.endswith('SURFGKIN.DAT')):
+        elif (filename.endswith('.SURFGKIN')):
             self.tipo = 'SURFGKIN'
             self.path = filename
-        elif (filename.endswith('SURFKKIN.DAT')):
+        elif (filename.endswith('.SURFKKIN')):
             self.tipo = 'SURFKKIN'
             self.path = filename
+        else:
+            sys.exit('Please choose a valid file')
 
         factor = 0.529177249
 
@@ -1487,21 +1485,22 @@ class Properties_output:
         ls3 = ['dotted', '--', '--', '--', '--', '--', '--', '--', '--',
                '--', '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
-        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFRHOO_ref') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
+        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
             self.levels = ctr1
             self.colors = colors1
             self.linestyles = ls1
             self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPP_ref') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFLAPM_ref') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
+        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
             self.levels = ctr2
             self.colors = colors2
             self.linestyles = ls2
             self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFELFB') or (self.tipo == 'SURFELFB_ref'):
+        elif (self.tipo == 'SURFELFB'):
             self.levels = ctr3
             self.colors = colors3
             self.linestyles = ls3
             self.fmt = '%1.2f'
+         
 
         return self
 
