@@ -1626,10 +1626,10 @@ class Properties_output:
         filename = self.abspath
         title = self.title
 
-        if filename.endswith('.DAT'):
-            pass
-        else:
-            sys.exit('please, choose a valid file or rename it properly')
+    #    if filename.endswith('.DAT'):
+     #       pass
+      #  else:
+       #     sys.exit('please, choose a valid file or rename it properly')
 
         spectrum = re.compile('Npoints', re.DOTALL)
 
