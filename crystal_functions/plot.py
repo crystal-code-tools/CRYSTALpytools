@@ -1361,7 +1361,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1376,18 +1376,12 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         col = 4
     elif case == 'sxz':
         col = 5
-    elif case == 'syx':
-        col = 6
     elif case == 'syy':
-        col = 7
+        col = 6
     elif case == 'syz':
-        col = 8
-    elif case == 'szx':
-        col = 9
-    elif case == 'szy':
-        col = 10
+        col = 7
     elif case == 'szz':
-        col = 11
+        col = 8
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1433,7 +1427,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1448,18 +1442,12 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         col = 4
     elif case == 'sxz':
         col = 5
-    elif case == 'syx':
-        col = 6
     elif case == 'syy':
-        col = 7
+        col = 6
     elif case == 'syz':
-        col = 8
-    elif case == 'szx':
-        col = 9
-    elif case == 'szy':
-        col = 10
+        col = 7
     elif case == 'szz':
-        col = 11
+        col = 8
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1510,7 +1498,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1525,18 +1513,12 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         col = 4
     elif case == 'sxz':
         col = 5
-    elif case == 'syx':
-        col = 6
     elif case == 'syy':
-        col = 7
+        col = 6
     elif case == 'syz':
-        col = 8
-    elif case == 'szx':
-        col = 9
-    elif case == 'szy':
-        col = 10
+        col = 7
     elif case == 'szz':
-        col = 11
+        col = 8
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1586,7 +1568,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1601,18 +1583,12 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         col = 4
     elif case == 'sxz':
         col = 5
-    elif case == 'syx':
-        col = 6
     elif case == 'syy':
-        col = 7
+        col = 6
     elif case == 'syz':
-        col = 8
-    elif case == 'szx':
-        col = 9
-    elif case == 'szy':
-        col = 10
+        col = 7
     elif case == 'szz':
-        col = 11
+        col = 8
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1662,7 +1638,7 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
     import time
     
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_zx, PF_zy, PF_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yy, PF_yz, PF_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1677,18 +1653,12 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
         col = 4
     elif case == 'pfxz':
         col = 5
-    elif case == 'pfyx':
-        col = 6
     elif case == 'pfyy':
-        col = 7
+        col = 6
     elif case == 'pfyz':
-        col = 8
-    elif case == 'pfzx':
-        col = 9
-    elif case == 'pfzy':
-        col = 10
+        col = 7
     elif case == 'pfzz':
-        col = 11
+        col = 8
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1748,7 +1718,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     import time
     
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_zx, ZT_zy, ZT_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yy, ZT_yz, ZT_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1763,18 +1733,13 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         col = 4
     elif case == 'ztxz':
         col = 5
-    elif case == 'ztyx':
-        col = 6
     elif case == 'ztyy':
-        col = 7
+        col = 6
     elif case == 'ztyz':
-        col = 8
-    elif case == 'ztzx':
-        col = 9
-    elif case == 'ztzy':
-        col = 10
+        col = 7
     elif case == 'ztzz':
-        col = 11
+        col = 8
+    
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -1807,7 +1772,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     zt = []  
     for i in range(0, len(pf_meta)):
         zt.append((pf[i] * seebeck_obj.temp[i])/ktot)
-    print(zt)
+    
 
     for k in range(0, len(seebeck_obj.all_data)):
         plt.figure()
