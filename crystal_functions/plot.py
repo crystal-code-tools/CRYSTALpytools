@@ -1471,11 +1471,13 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
+    
+    #abs_pot = abs(element) for element in x
 
     for k in range(0, len(sigma_obj.all_data)):
         plt.figure()
         plt.plot(x[k], y[k], label=str(sigma_obj.temp[k])+' K')
-        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.xlabel('Chemical POtential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
         plt.title(sigma_obj.title)
@@ -1486,8 +1488,8 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
     for k in range(0, len(sigma_obj.all_data)):
         plt.plot(x[k], y[k], label=str(sigma_obj.temp[k])+' K')
-        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
-        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.title(sigma_obj.title)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', fontsize=12)
@@ -1549,26 +1551,102 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
 
     for k in range(0, len(seebeck_obj.all_data)):
         plt.figure()
-        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(x[k]), y[k], label=str(seebeck_obj.temp[k])+' K')
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.axhline(0, color='k')
         plt.title(seebeck_obj.title)
         plt.legend(loc='upper left', fontsize=12)
-        #plt.xscale('log')
+        plt.xscale('log')
         plt.savefig('seebeck_carrier_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
     for k in range(0, len(seebeck_obj.all_data)):
-        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(x[k]), y[k], label=str(seebeck_obj.temp[k])+' K')
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', fontsize=12)
-        #plt.xscale('log')
+        plt.xscale('log')
     plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+ 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syx':
+        col = 6
+    elif case == 'syy':
+        col = 7
+    elif case == 'syz':
+        col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    vol= sigma_obj.volume
+    
+    x = []  # qui metto i valori di carrier concentration alle diverse T (che saranno sempre uguali)
+    for k in range(0, len(sigma_obj.all_data)):
+        x.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: (float(x.split()[2])/vol))))
+
+    y = []  # qui metto i valori di y che vuole plottare l'utente
+    for k in range(0, len(sigma_obj.all_data)):
+        y.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[col])*1000000)))
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.figure()
+        plt.plot(abs(x[k]), y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(sigma_obj.title)
+        plt.legend(loc='upper left', fontsize=12)
+        plt.xscale('log')
+        plt.savefig('sigma_carrier_at_' + str(sigma_obj.temp[k]) + 'T___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.plot(abs(x[k]), y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.title(sigma_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', fontsize=12)
+        plt.xscale('log')
+    plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
  
     if save_to_file != False:
         save_plot(save_to_file)
