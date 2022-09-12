@@ -1676,7 +1676,7 @@ class Properties_output:
 
         for i in range(0, len(right)):
             # va bene perchè la struttura è sempre la stessa in crystal17
-            self.temp.append(float(str(right[0][i])[20:23]))
+            self.temp.append(float(str(right[0][i])[20:24]))
 
         ll = []
         for k in range(0, len(l)):
@@ -1761,7 +1761,7 @@ class Properties_output:
 
         for i in range(0, len(right)):
             # va bene perchè la struttura è sempre la stessa in crystal17
-            self.temp.append(float(str(right[0][i])[20:23]))
+            self.temp.append(float(str(right[0][i])[20:24]))
 
         ll = []
         for k in range(0, len(l)):

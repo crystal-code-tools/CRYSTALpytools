@@ -1691,9 +1691,9 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
         plt.figure()
         plt.plot(x[k], pf[k], label=str(seebeck_obj.temp[k])+' K')
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$', fontsize=12)
+        plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
         plt.axhline(0, color='k')
-        plt.title('Power Factor at ' + str(seebeck_obj.temp[k]) + ' T')
+        plt.title('Power Factor at ' + str(seebeck_obj.temp[k]) + ' K')
         plt.legend(loc='upper left', fontsize=12)
         plt.savefig('powerfactor_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
