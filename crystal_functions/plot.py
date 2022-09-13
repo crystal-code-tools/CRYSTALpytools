@@ -1413,7 +1413,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
@@ -1483,7 +1483,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.title(sigma_obj.title)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
  
     if save_to_file != False:
@@ -1553,7 +1553,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.title(seebeck_obj.title)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.xscale('log')
     plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
  
@@ -1623,7 +1623,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.title(sigma_obj.title)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.xscale('log')
     plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
  
@@ -1705,7 +1705,7 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
         plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
         plt.title('Power Factor at different T')
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('powerfactor_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
@@ -1792,7 +1792,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         plt.ylabel('ZT', fontsize=12)
         plt.title('PZT at different T')
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('zt_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
@@ -1842,7 +1842,7 @@ def plot_cry_multiseebeck(*seebeck):
         y = []  # qui metto i valori di seebeck
         for k in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[k].apply(
-                lambda x: float(x.split()[col]))))
+                lambda x: float(x.split()[col])*1000000)))
 
     
            
@@ -1851,7 +1851,7 @@ def plot_cry_multiseebeck(*seebeck):
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.title('Multiseebeck')
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
 
           
