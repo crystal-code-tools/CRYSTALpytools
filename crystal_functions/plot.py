@@ -1849,10 +1849,67 @@ def plot_cry_multiseebeck(*seebeck):
         plt.plot(abs(x[k]), y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
-        plt.title('Multiseebeck')
+        plt.title('MultiSeebeck')
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+
+def plot_cry_multisigma(*sigma):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    k = float(input('Insert the index of temperature you want to plot'))
+    
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+    
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    for n in sigma:
+
+        x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+        for k in range(0, len(n.all_data)):
+            x.append(np.array(n.all_data[k].apply(
+                lambda x: float(x.split()[0]))))
+
+        y = []  # qui metto i valori di seebeck
+        for k in range(0, len(n.all_data)):
+            y.append(np.array(n.all_data[k].apply(
+                lambda x: float(x.split()[col]))))
+
+    
+           
+        plt.plot(abs(x[k]), y[k], label=str(n.title))
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.title('MultiSigma')
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')    
 
           
  #fine ele_8_9_22            
