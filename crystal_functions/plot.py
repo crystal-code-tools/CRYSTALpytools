@@ -5,6 +5,9 @@ Created on 29/03/2022
 """
 
 
+from email.errors import CloseBoundaryNotFoundDefect
+
+
 def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file=False, mode='single', linestl='-',
                    linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
                    sharex=True, sharey=True):
@@ -1176,7 +1179,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file=False, color_bd
     plt.show()
 
 
-def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
+def plot_cry_contour(contour_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1240,6 +1243,12 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
     import os
     import numpy as np
     import time
+    import sys
+
+    if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB') :
+            pass
+    else:
+        sys.exit('Difference option only allowed for SURFLAPP, SURFLAPM, SURFRHOO and SURFELFB file')
 
     n_punti_x = contour_obj.npx
 
