@@ -1361,7 +1361,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, Syx, S_yy, S_yz, S_yz, S_zx, Szy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1425,7 +1425,6 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
-#ele_8_9_22
 def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
     import sys
@@ -1505,7 +1504,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, Syx, S_yy, S_yz, S_yz, S_zx, Szy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1615,7 +1614,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     y = []  # qui metto i valori di y che vuole plottare l'utente
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
-            lambda x: float(x.split()[col])*1000000)))
+            lambda x: float(x.split()[col]))))
 
     for k in range(0, len(sigma_obj.all_data)):
         plt.figure()
@@ -1757,8 +1756,8 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     import numpy as np
     import time
     
-    ktot = input(
-        'Please insert the value of ktot in W-1K-2m-1')
+    ktot = float(input(
+        'Please insert the value of ktot in W-1K-1m-1'))
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz\n')
 
@@ -1870,10 +1869,10 @@ def plot_cry_multiseebeck(*seebeck):
     import numpy as np
     import time
 
-    k = int(input('Insert the index of temperature you want to plot'))
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
     
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1888,12 +1887,18 @@ def plot_cry_multiseebeck(*seebeck):
         col = 4
     elif case == 'sxz':
         col = 5
-    elif case == 'syy':
+    elif case == 'syx':
         col = 6
-    elif case == 'syz':
+    elif case == 'syy':
         col = 7
-    elif case == 'szz':
+    elif case == 'syz':
         col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11
     
     else:
         sys.exit('please, choose a valid chioce')
@@ -1915,7 +1920,6 @@ def plot_cry_multiseebeck(*seebeck):
         plt.plot(x[k], y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
-        plt.xlim(-4,0)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.title('MultiSeebeck '+ str(n.temp[k]) + ' T')
@@ -1928,7 +1932,7 @@ def plot_cry_multisigma(*sigma):
     import numpy as np
     import time
 
-    k = int(input('Insert the index of temperature you want to plot '))
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
 
 
     case = input(
@@ -1957,39 +1961,30 @@ def plot_cry_multisigma(*sigma):
     else:
         sys.exit('please, choose a valid chioce')
     
-    print(sigma)
-    print('k1='+ str(k))
+    
 
     for n in sigma:
 
-        #x = np.array(n.all_data[k].apply(lambda x: float(x.split()[0])))
         x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
-        #y = np.array(n.all_data[k].apply(lambda x: float(x.split()[col])))
         y = []  # qui metto i valori di seebeck
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col]))))
 
-    
-           
-        plt.plot(abs(x[k]), y[k], label=str(n.title))
+        
+        plt.plot(x[k], y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' T')
-    print(sigma[0])
-    print(sigma[0].temp[0])
-    print(sigma[0].temp[k])
-    print(k)
     plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')    
 
-          
- #fine ele_8_9_22            
+                    
 
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
