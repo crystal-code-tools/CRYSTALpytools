@@ -1392,12 +1392,12 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+    x = []  
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    y = []  # qui metto i valori di y che vuole plottare l'utente
+    y = []  
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col])*1000000)))
@@ -1410,7 +1410,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         plt.axhline(0, color='k')
         plt.title(seebeck_obj.title)
         plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('seebeck_potential_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('seebeck_potential_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1459,17 +1459,16 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
     vol= sigma_obj.volume
     
-    x = []  # qui metto i valori di potenziale alle diverse T (che saranno sempre uguali)
+    x = []  
     for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    y = []  # qui metto i valori di y che vuole plottare l'utente
+    y = []  
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
     
-    #abs_pot = abs(element) for element in x
 
     for k in range(0, len(sigma_obj.all_data)):
         plt.figure()
@@ -1479,7 +1478,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         plt.axhline(0, color='k')
         plt.title(sigma_obj.title)
         plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('sigma_potential_at_' + str(sigma_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('sigma_potential_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1536,12 +1535,13 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
 
     vol= seebeck_obj.volume
     
-    x = []  # qui metto i valori di carrier concentration alle diverse T (che saranno sempre uguali)
+    
+    x = [] 
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
 
-    y = []  # qui metto i valori di y che vuole plottare l'utente
+    y = []  
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col])*1000000)))
@@ -1555,7 +1555,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         plt.title(seebeck_obj.title)
         plt.legend(loc='upper left', fontsize=12)
         plt.xscale('log')
-        plt.savefig('seebeck_carrier_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('seebeck_carrier_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1606,12 +1606,12 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
 
     vol= sigma_obj.volume
     
-    x = []  # qui metto i valori di carrier concentration alle diverse T (che saranno sempre uguali)
+    x = []  
     for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
 
-    y = []  # qui metto i valori di y che vuole plottare l'utente
+    y = []  
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
@@ -1625,7 +1625,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         plt.title(sigma_obj.title)
         plt.legend(loc='upper left', fontsize=12)
         plt.xscale('log')
-        plt.savefig('sigma_carrier_at_' + str(sigma_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('sigma_carrier_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1680,7 +1680,7 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    if case == 'pfxx':    #sigma is a symmetric matrix
+    if case == 'pfxx':    
         cols = 3
     elif case == 'pfxy':
         cols = 4
@@ -1701,17 +1701,17 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')    
 
-    x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+    x = []  
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    yse = []  # qui metto i valori di seebeck
+    yse = []  
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    ysi = []  # qui metto i valori di sigma 
+    ysi = [] 
     for k in range(0, len(sigma_obj.all_data)):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
@@ -1734,7 +1734,7 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
         plt.axhline(0, color='k')
         plt.title('Power Factor at ' + str(seebeck_obj.temp[k]) + ' K')
         plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('powerfactor_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('powerfactor_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1789,7 +1789,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    if case == 'ztxx':    #sigma is a symmetric matrix
+    if case == 'ztxx':    
         cols = 3
     elif case == 'ztxy':
         cols = 4
@@ -1810,17 +1810,17 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')    
 
-    x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+    x = []  
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    yse = []  # qui metto i valori di seebeck
+    yse = []  
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    ysi = []  # qui metto i valori di sigma 
+    ysi = []   
     for k in range(0, len(sigma_obj.all_data)):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
@@ -1845,9 +1845,9 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('ZT', fontsize=12)
         plt.axhline(0, color='k')
-        plt.title('ZT at ' + str(seebeck_obj.temp[k]) + ' T')
+        plt.title('ZT at ' + str(seebeck_obj.temp[k]) + ' K')
         plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('zt_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
+        plt.savefig('zt_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
@@ -1870,6 +1870,9 @@ def plot_cry_multiseebeck(*seebeck):
     import time
 
     k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
+    
     
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
@@ -1905,12 +1908,12 @@ def plot_cry_multiseebeck(*seebeck):
 
     for n in seebeck:
 
-        x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+        x = []  
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
-        y = []  # qui metto i valori di seebeck
+        y = []  
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col])*1000000)))
@@ -1920,9 +1923,10 @@ def plot_cry_multiseebeck(*seebeck):
         plt.plot(x[k], y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.xlim(minpot, maxpot)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-    plt.title('MultiSeebeck '+ str(n.temp[k]) + ' T')
+    plt.title('MultiSeebeck '+ str(n.temp[k]) + ' K')
     plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
 
 def plot_cry_multisigma(*sigma):
@@ -1965,12 +1969,12 @@ def plot_cry_multisigma(*sigma):
 
     for n in sigma:
 
-        x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
+        x = []  
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
-        y = []  # qui metto i valori di seebeck
+        y = []  
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col]))))
@@ -1981,7 +1985,7 @@ def plot_cry_multisigma(*sigma):
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-    plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' T')
+    plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
     plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')    
 
                     

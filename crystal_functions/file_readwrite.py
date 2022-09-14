@@ -1617,19 +1617,13 @@ class Properties_output:
         import re
         import pandas as pd
 
-        #provawork
-    
+           
 
         self.read_file(properties_output)
 
         data = self.data
         filename = self.abspath
         title = self.title
-
-    #    if filename.endswith('.DAT'):
-     #       pass
-      #  else:
-       #     sys.exit('please, choose a valid file or rename it properly')
 
         spectrum = re.compile('Npoints', re.DOTALL)
 
@@ -1650,7 +1644,7 @@ class Properties_output:
 
         diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
 
-        length = diffs[0] - 1  # la lunghezza del blocco tra due "RIGHT"
+        length = diffs[0] - 1  
 
         lif = []
         for i in lin:
@@ -1675,7 +1669,6 @@ class Properties_output:
         
 
         for i in range(0, len(right)):
-            # va bene perchè la struttura è sempre la stessa in crystal17
             self.temp.append(float(str(right[0][i])[20:24]))
 
         ll = []
@@ -1687,22 +1680,18 @@ class Properties_output:
             for i in ll[k]:
                 self.all_data.append(ll[k][i].apply(
                     lambda x: x.replace('WRONG LINE:', '')))
-        #ele_8_9_22
+       
         self.volume = (float(str(match[2:3])[-13:-4]))
-        #fine ele_8_9_22
-
+        
         self.title = title
 
         return self
 
-#ele_8_9_22
     def read_cry_sigma(self, properties_output):
 
         import sys
         import re
         import pandas as pd
-
-        #provawork
     
 
         self.read_file(properties_output)
@@ -1711,10 +1700,6 @@ class Properties_output:
         filename = self.abspath
         title = self.title
 
-    #    if filename.endswith('.DAT'):
-     #       pass
-      #  else:
-       #     sys.exit('please, choose a valid file or rename it properly')
 
         spectrum = re.compile('Npoints', re.DOTALL)
 
@@ -1735,7 +1720,7 @@ class Properties_output:
 
         diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
 
-        length = diffs[0] - 1  # la lunghezza del blocco tra due "RIGHT"
+        length = diffs[0] - 1  
 
         lif = []
         for i in lin:
@@ -1760,7 +1745,6 @@ class Properties_output:
         
 
         for i in range(0, len(right)):
-            # va bene perchè la struttura è sempre la stessa in crystal17
             self.temp.append(float(str(right[0][i])[20:24]))
 
         ll = []
@@ -1772,14 +1756,12 @@ class Properties_output:
             for i in ll[k]:
                 self.all_data.append(ll[k][i].apply(
                     lambda x: x.replace('WRONG LINE:', '')))
-        #ele_8_9_22
+        
         self.volume = (float(str(match[2:3])[-13:-4]))
-        #fine ele_8_9_22
 
         self.title = title
 
         return self
-#fine ele_8_9_22
 
     def read_cry_lapl_profile(self, properties_output):
 
