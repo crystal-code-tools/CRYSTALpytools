@@ -4,7 +4,6 @@
 Created on 29/03/2022
 """
 
-
 def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file=False, mode='single', linestl='-',
                    linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
                    sharex=True, sharey=True):
@@ -1176,7 +1175,7 @@ def plot_cry_es(bands, doss, k_labels: list = None, save_to_file=False, color_bd
     plt.show()
 
 
-def plot_cry_contour(contour_obj, diff=False, save_to_file=False):
+def plot_cry_contour(contour_obj, save_to_file=False):
 
     import matplotlib.pyplot as plt
     import os
@@ -1240,6 +1239,12 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
     import os
     import numpy as np
     import time
+    import sys
+
+    if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB') :
+            pass
+    else:
+        sys.exit('Difference option only allowed for SURFLAPP, SURFLAPM, SURFRHOO and SURFELFB file')
 
     n_punti_x = contour_obj.npx
 
@@ -1350,7 +1355,7 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
     plt.show()
 
 
-def plot_cry_seebeck(seebeck_obj, save_to_file=False):
+def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
 
     import sys
     import matplotlib.pyplot as plt
@@ -1358,7 +1363,521 @@ def plot_cry_seebeck(seebeck_obj, save_to_file=False):
     import time
 
     case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_zx, S_zy, S_zz\n')
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syx':
+        col = 6
+    elif case == 'syy':
+        col = 7
+    elif case == 'syz':
+        col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11            
+
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    x = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        x.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    y = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        y.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[col])*1000000)))
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.figure()
+        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(seebeck_obj.title)
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('seebeck_potential_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.title(seebeck_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    vol= sigma_obj.volume
+    
+    x = []  
+    for k in range(0, len(sigma_obj.all_data)):
+        x.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    y = []  
+    for k in range(0, len(sigma_obj.all_data)):
+        y.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[col]))))
+    
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.figure()
+        plt.plot(x[k], y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(sigma_obj.title)
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('sigma_potential_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.plot(x[k], y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.title(sigma_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+ 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+
+def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syx':
+        col = 6
+    elif case == 'syy':
+        col = 7
+    elif case == 'syz':
+        col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11      
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    vol= seebeck_obj.volume
+    
+    
+    x = [] 
+    for k in range(0, len(seebeck_obj.all_data)):
+        x.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: (float(x.split()[2])/vol))))
+
+    y = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        y.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[col])*1000000)))
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.figure()
+        plt.plot(abs(x[k]), y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(seebeck_obj.title)
+        plt.legend(loc='upper left', fontsize=12)
+        plt.xscale('log')
+        plt.savefig('seebeck_carrier_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.plot(abs(x[k]), y[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.title(seebeck_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+        plt.xscale('log')
+    plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+ 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    vol= sigma_obj.volume
+    
+    x = []  
+    for k in range(0, len(sigma_obj.all_data)):
+        x.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: (float(x.split()[2])/vol))))
+
+    y = []  
+    for k in range(0, len(sigma_obj.all_data)):
+        y.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[col]))))
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.figure()
+        plt.plot(abs(x[k]), y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title(sigma_obj.title)
+        plt.legend(loc='upper left', fontsize=12)
+        plt.xscale('log')
+        plt.savefig('sigma_carrier_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(sigma_obj.all_data)):
+        plt.plot(abs(x[k]), y[k], label=str(sigma_obj.temp[k])+' K')
+        plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.title(sigma_obj.title)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+        plt.xscale('log')
+    plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+ 
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+    
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'pfxx':
+        col = 3
+    elif case == 'pfxy':
+        col = 4
+    elif case == 'pfxz':
+        col = 5
+    elif case == 'pfyx':
+        col = 6
+    elif case == 'pfyy':
+        col = 7
+    elif case == 'pfyz':
+        col = 8
+    elif case == 'pfzx':
+        col = 9
+    elif case == 'pfzy':
+        col = 10
+    elif case == 'pfzz':
+        col = 11      
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    if case == 'pfxx':    
+        cols = 3
+    elif case == 'pfxy':
+        cols = 4
+    elif case == 'pfxz':
+        cols = 5
+    elif case == 'pfyx':
+        cols = 4
+    elif case == 'pfyy':
+        cols = 6
+    elif case == 'pfyz':
+        cols = 7
+    elif case == 'pfzx':
+        cols = 5
+    elif case == 'pfzy':
+        cols = 7
+    elif case == 'pfzz':
+        cols = 8      
+    else:
+        sys.exit('please, choose a valid chioce')    
+
+    x = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        x.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    yse = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        yse.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[col]))))
+
+    ysi = [] 
+    for k in range(0, len(sigma_obj.all_data)):
+        ysi.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[cols]))))
+    
+    pf_meta = []
+    for i in range(0, len(yse)):
+        pf_meta.append(yse[i] * yse[i])
+
+    pf = []
+    for i in range(0, len(pf_meta)):
+        pf.append(pf_meta[i] * ysi[i])    
+    
+     
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.figure()
+        plt.plot(x[k], pf[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title('Power Factor at ' + str(seebeck_obj.temp[k]) + ' K')
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('powerfactor_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.plot(x[k], pf[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
+        plt.title('Power Factor at different T')
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('powerfactor_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+    
+    ktot = float(input(
+        'Please insert the value of ktot in W-1K-1m-1'))
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'ztxx':
+        col = 3
+    elif case == 'ztxy':
+        col = 4
+    elif case == 'ztxz':
+        col = 5
+    elif case == 'ztyx':
+        col = 6
+    elif case == 'ztyy':
+        col = 7
+    elif case == 'ztyz':
+        col = 8
+    elif case == 'ztzx':
+        col = 9
+    elif case == 'ztzy':
+        col = 10
+    elif case == 'ztzz':
+        col = 11      
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    if case == 'ztxx':    
+        cols = 3
+    elif case == 'ztxy':
+        cols = 4
+    elif case == 'ztxz':
+        cols = 5
+    elif case == 'ztyx':
+        cols = 4
+    elif case == 'ztyy':
+        cols = 6
+    elif case == 'ztyz':
+        cols = 7
+    elif case == 'ztzx':
+        cols = 5
+    elif case == 'ztzy':
+        cols = 7
+    elif case == 'ztzz':
+        cols = 8      
+    else:
+        sys.exit('please, choose a valid chioce')    
+
+    x = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        x.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    yse = []  
+    for k in range(0, len(seebeck_obj.all_data)):
+        yse.append(np.array(seebeck_obj.all_data[k].apply(
+            lambda x: float(x.split()[col]))))
+
+    ysi = []   
+    for k in range(0, len(sigma_obj.all_data)):
+        ysi.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[cols]))))
+    
+    
+    pf_meta = []
+    for i in range(0, len(yse)):
+        pf_meta.append(yse[i] * yse[i])
+
+    pf = []
+    for i in range(0, len(pf_meta)):
+        pf.append(pf_meta[i] * ysi[i])    
+    
+    zt = []  
+    for i in range(0, len(pf_meta)):
+        zt.append((pf[i] * seebeck_obj.temp[i])/ktot)
+    
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.figure()
+        plt.plot(x[k], pf[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('ZT', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title('ZT at ' + str(seebeck_obj.temp[k]) + ' K')
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('zt_at_' + str(seebeck_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        plt.plot(x[k], pf[k], label=str(seebeck_obj.temp[k])+' K')
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('ZT', fontsize=12)
+        plt.title('ZT at different T')
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('zt_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+def plot_cry_multiseebeck(*seebeck):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
+    
+    
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
 
     case = case.lower().replace('_', '')
 
@@ -1385,41 +1904,93 @@ def plot_cry_seebeck(seebeck_obj, save_to_file=False):
         col = 10
     elif case == 'szz':
         col = 11
+    
     else:
         sys.exit('please, choose a valid chioce')
 
-    x = []  # qui metto i potenziali alle diverse T (che saranno sempre uguali)
-    for k in range(0, len(seebeck_obj.all_data)):
-        x.append(np.array(seebeck_obj.all_data[k].apply(
-            lambda x: float(x.split()[0]))))
+    for n in seebeck:
 
-    y = []  # qui metto i valori di y che vuole plottare l'utente
-    for k in range(0, len(seebeck_obj.all_data)):
-        y.append(np.array(seebeck_obj.all_data[k].apply(
-            lambda x: float(x.split()[col])*1000000)))
+        x = []  
+        for kq in range(0, len(n.all_data)):
+            x.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[0]))))
 
-    for k in range(0, len(seebeck_obj.all_data)):
-        plt.figure()
-        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+        y = []  
+        for kq in range(0, len(n.all_data)):
+            y.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[col])*1000000)))
+
+    
+           
+        plt.plot(x[k], y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.xlim(minpot, maxpot)
         plt.axhline(0, color='k')
-        plt.title(seebeck_obj.title)
-        plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('seebeck_at_' + str(seebeck_obj.temp[k]) + 'T___' + time.strftime(
-            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
-        plt.show()
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.title('MultiSeebeck '+ str(n.temp[k]) + ' K')
+    plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
 
-    for k in range(0, len(seebeck_obj.all_data)):
-        plt.plot(x[k], y[k], label=str(seebeck_obj.temp[k])+' K')
+def plot_cry_multisigma(*sigma):
+
+    import sys
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import time
+
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+    
+    else:
+        sys.exit('please, choose a valid chioce')
+    
+    
+
+    for n in sigma:
+
+        x = []  
+        for kq in range(0, len(n.all_data)):
+            x.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[0]))))
+
+        y = []  
+        for kq in range(0, len(n.all_data)):
+            y.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[col]))))
+
+        
+        plt.plot(x[k], y[k], label=str(n.title))
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
-        plt.title(seebeck_obj.title)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
-        plt.legend(loc='upper left', fontsize=12)
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
+    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')    
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+                    
 
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
