@@ -170,6 +170,65 @@ class Crystal_input:
         else:
             print('The input is initialised, but the blocks were not defined')
 
+    def write_crystal_input(self,input_name, external_obj=None):
+    # Write a CRYSTAL input file (to file)
+
+    # input_name is the name of the imput that is going to be written (.d12)
+    # crystal_input is an object belonging to the crystal_input Class.
+    # external_obj is the ASE or pymatgen object that is going to be written in the gui file
+
+        import itertools
+        import sys
+        from pymatgen.io.ase import AseAtomsAdaptor
+        from crystal_functions.convert import cry_pmg2gui
+
+        geom_block = self.geom_block
+        bs_block = self.bs_block
+        func_block = self.func_block
+        scf_block = self.scf_block
+
+        if self.title is None:
+            title = ['Input generated using crystal_functions\n']
+        else:
+            title = self.title
+
+        # if there is an external object, we want to have the EXTERNAL
+        # keyword in the geom_block. If it's not present, this means
+        # adding it and keeping the rest of the input
+        if external_obj != None:
+            if 'EXTERNAL\n' not in geom_block:
+                new_geom_block = []
+                new_geom_block.append('EXTERNAL\n')
+                for i, line in enumerate(geom_block[2:]):
+                    if line.split()[0].replace('.', '', 1).isdigit() == False:
+                        for line1 in geom_block[i+2:]:
+                            new_geom_block.append(line1)
+                        break
+                geom_block = new_geom_block
+            if 'ase.atoms' in str(type(external_obj)):
+                # Transform into a pymatgen object to use the extra tools pymatgen has
+                external_obj = AseAtomsAdaptor().get_structure(external_obj)
+
+                gui_file_name = input_name[:-4]+'.gui'
+                gui_obj = cry_pmg2gui(external_obj)
+                write_crystal_gui(gui_file_name, gui_obj)
+
+            elif 'pymatgen.core' in str(type(external_obj)):
+
+                gui_file_name = input_name[:-4]+'.gui'
+                gui_obj = cry_pmg2gui(external_obj)
+                write_crystal_gui(gui_file_name, gui_obj)
+
+            else:
+                print(
+                    'EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
+                sys.exit(1)
+
+        with open(input_name, 'w') as file:
+            cry_input = list(itertools.chain(title, geom_block, bs_block,
+                                            func_block, scf_block))
+            for line in cry_input:
+                file.writelines(line)
 
 class Crystal_output:
     # This class reads a CRYSTAL output and generates an object
@@ -1232,6 +1291,25 @@ class Properties_input:
 
         return self
 
+    def write_properties_input(self, input_name):
+    # Write a properties input file (to file)
+
+    # input_name is the name of the imput that is going to be written (.d12)
+    # property_input is a Properties_input object
+    # newk == True: perform a newk calculation
+
+        import sys
+        import itertools
+
+        if self.is_newk == False:
+            property_input_list = self.property_block
+        if self.is_newk == True:
+            property_input_list = list(itertools.chain(
+                self.newk_block, self.property_block))
+
+        with open(input_name, 'w') as file:
+            for line in property_input_list:
+                file.writelines(line)
 
 class Properties_output:
     # This creates a properties_output object
@@ -1879,138 +1957,6 @@ class Properties_output:
         return self
 
 
-def write_crystal_input(input_name, crystal_input, external_obj=None):
-    # Write a CRYSTAL input file (to file)
-
-    # input_name is the name of the imput that is going to be written (.d12)
-    # crystal_input is an object belonging to the crystal_input Class.
-    # external_obj is the ASE or pymatgen object that is going to be written in the gui file
-
-    import itertools
-    import sys
-    from pymatgen.io.ase import AseAtomsAdaptor
-    from crystal_functions.convert import cry_pmg2gui
-
-    geom_block = crystal_input.geom_block
-    bs_block = crystal_input.bs_block
-    func_block = crystal_input.func_block
-    scf_block = crystal_input.scf_block
-
-    if crystal_input.title is None:
-        title = ['Input generated using crystal_functions\n']
-    else:
-        title = crystal_input.title
-
-    # if there is an external object, we want to have the EXTERNAL
-    # keyword in the geom_block. If it's not present, this means
-    # adding it and keeping the rest of the input
-    if external_obj != None:
-        if 'EXTERNAL\n' not in geom_block:
-            new_geom_block = []
-            new_geom_block.append('EXTERNAL\n')
-            for i, line in enumerate(geom_block[2:]):
-                if line.split()[0].replace('.', '', 1).isdigit() == False:
-                    for line1 in geom_block[i+2:]:
-                        new_geom_block.append(line1)
-                    break
-            geom_block = new_geom_block
-        if 'ase.atoms' in str(type(external_obj)):
-            # Transform into a pymatgen object to use the extra tools pymatgen has
-            external_obj = AseAtomsAdaptor().get_structure(external_obj)
-
-            gui_file_name = input_name[:-4]+'.gui'
-            gui_obj = cry_pmg2gui(external_obj)
-            write_crystal_gui(gui_file_name, gui_obj)
-
-        elif 'pymatgen.core' in str(type(external_obj)):
-
-            gui_file_name = input_name[:-4]+'.gui'
-            gui_obj = cry_pmg2gui(external_obj)
-            write_crystal_gui(gui_file_name, gui_obj)
-
-        else:
-            print(
-                'EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
-            sys.exit(1)
-
-    with open(input_name, 'w') as file:
-        cry_input = list(itertools.chain(title, geom_block, bs_block,
-                                         func_block, scf_block))
-        for line in cry_input:
-            file.writelines(line)
-
-
-def write_properties_input(input_name, property_input):
-    # Write a properties input file (to file)
-
-    # input_name is the name of the imput that is going to be written (.d12)
-    # property_input is a Properties_input object
-    # newk == True: perform a newk calculation
-
-    import sys
-    import itertools
-
-    if property_input.is_newk == False:
-        property_input_list = property_input.property_block
-    if property_input.is_newk == True:
-        property_input_list = list(itertools.chain(
-            property_input.newk_block, property_input.property_block))
-
-    with open(input_name, 'w') as file:
-        for line in property_input_list:
-            file.writelines(line)
-
-
-def write_crystal_gui(gui_file, gui_object, symm=True, pseudo_atoms=[]):
-    # Write a CRYSTAL gui file (to file)
-    # gui_file is the name of the gui that is going to be written (including .gui)
-    # ext_structure is the structure object from ase or pymatgen
-    # dimensionality is the dimensionality of the system
-    # symm == True includes the symmops
-    # pseudo_atoms is a list of atoms whose core is described by a pseudopotential
-
-    from ase.io.crystal import write_crystal
-    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-    from pymatgen.core.surface import center_slab
-    import numpy as np
-
-    with open(gui_file, 'w') as file:
-
-        # First line
-        file.writelines('%s   1   1\n' % gui_object.dimensionality)
-
-        # Cell vectors
-        for vector in gui_object.lattice:
-            file.writelines(' '.join(str(n) for n in vector)+'\n')
-
-        # N symm ops
-        file.writelines('{}\n'.format(str(gui_object.n_symmops)))
-
-        # symm ops
-        for symmops in gui_object.symmops:
-            file.writelines('{}\n'.format(
-                ' '.join(str(np.around(n, 8)) for n in symmops)))
-
-        # N atoms
-        file.writelines('{}\n'.format(gui_object.n_atoms))
-
-        # atom number (including pseudopotentials) + coordinates cart
-        for i in range(gui_object.n_atoms):
-            if gui_object.atom_number[i] in pseudo_atoms:
-                file.writelines('{} {}\n'.format(int(gui_object.atom_number[i])+200,
-                                                 ' '.join([str(x) for x in gui_object.atom_positions[i]])))
-            else:
-                file.writelines('{} {}\n'.format(gui_object.atom_number[i],
-                                                 ' '.join([str(x) for x in gui_object.atom_positions[i]])))
-
-        # space group + n symm ops
-        if symm == True:
-            file.writelines('{} {}'.format(
-                gui_object.space_group, gui_object.n_symmops))
-        else:
-            file.writelines('1 1')
-
-
 class Crystal_gui:
     # This class reads a CRYSTAL gui file and generates an object
 
@@ -2052,6 +1998,51 @@ class Crystal_gui:
 
         return self
 
+    def write_crystal_gui(self, gui_file, symm=True, pseudo_atoms=[]):
+    # Write a CRYSTAL gui file (to file)
+    # gui_file is the name of the gui that is going to be written (including .gui)
+    # ext_structure is the structure object from ase or pymatgen
+    # dimensionality is the dimensionality of the system
+    # symm == True includes the symmops
+    # pseudo_atoms is a list of atoms whose core is described by a pseudopotential
+
+    import numpy as np
+
+    with open(gui_file, 'w') as file:
+
+        # First line
+        file.writelines('%s   1   1\n' % self.dimensionality)
+
+        # Cell vectors
+        for vector in self.lattice:
+            file.writelines(' '.join(str(n) for n in vector)+'\n')
+
+        # N symm ops
+        file.writelines('{}\n'.format(str(self.n_symmops)))
+
+        # symm ops
+        for symmops in self.symmops:
+            file.writelines('{}\n'.format(
+                ' '.join(str(np.around(n, 8)) for n in symmops)))
+
+        # N atoms
+        file.writelines('{}\n'.format(self.n_atoms))
+
+        # atom number (including pseudopotentials) + coordinates cart
+        for i in range(self.n_atoms):
+            if self.atom_number[i] in pseudo_atoms:
+                file.writelines('{} {}\n'.format(int(self.atom_number[i])+200,
+                                                 ' '.join([str(x) for x in self.atom_positions[i]])))
+            else:
+                file.writelines('{} {}\n'.format(self.atom_number[i],
+                                                 ' '.join([str(x) for x in self.atom_positions[i]])))
+
+        # space group + n symm ops
+        if symm == True:
+            file.writelines('{} {}'.format(
+                self.space_group, self.n_symmops))
+        else:
+            file.writelines('1 1')
 
 class Crystal_density():
     # WORK IN PROGRESS
