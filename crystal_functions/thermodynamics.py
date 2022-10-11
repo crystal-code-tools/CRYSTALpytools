@@ -811,7 +811,7 @@ class Quasi_harmonic:
             for idx_m in range(nmode[int(idx_q)]):
                 combined_mode_q.append(Mode(rank=idx_m + 1,
                                             frequency=freq[idx_q, idx_m, :],
-                                            volume=self.combined_volume,
+                                            volume=combined_volume,
                                             eigenvector=eigvt[idx_q, idx_m, :]))
             
             combined_mode.append(combined_mode_q)
@@ -853,7 +853,7 @@ class Quasi_harmonic:
 
         return combined_volume, combined_edft, combined_mode
     
-    def edft_eos_fit(self, method='birch_murnaghan', write_out, filename):
+    def edft_eos_fit(self, method, write_out, filename):
         """
         Fit electron total energy according to equation of states. Not a
         standalone method.
@@ -875,19 +875,19 @@ class Quasi_harmonic:
             file = open(filename, 'a+')
             file.write('%s%s\n' % ('# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
             file.write('%s\n' % '  Electron total energy is fitted as the function of volume, of which the')
-            file.write('%s\n' % '  formalism is given by equation of states.')
+            file.write('%s\n\n' % '  formalism is given by equation of states.')
             
-            file.write('%12s%16s%12s%12s\n' % ('  E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
-            file.write('%12.4f%12.4f%12.4f%12.4f\n' % (self.edft_eos.e0, 
-                                                       self.edft_eos.v0,
-                                                       self.edft_eos.b0 * 1.660539,
-                                                       self.edft_eos.b1))
+            file.write('%16s%16s%12s%12s\n' % ('  E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
+            file.write('%16.4f%16.4f%12.4f%12.4f\n' % (self.eos.e0, 
+                                                       self.eos.v0,
+                                                       self.eos.b0 * 1.660539,
+                                                       self.eos.b1))
             file.write('\n')
             file.close()
             
         return self.eos
     
-    def freq_polynomial_fit(self, order=[2, 3], write_out, filename):
+    def freq_polynomial_fit(self, order, write_out, filename):
         """
         Fit phonon frequencies as polynomial functions of volumes. Not a
         standalone method.
@@ -914,7 +914,7 @@ class Quasi_harmonic:
             return self
             
         self.freq_method = 'polynomial'
-        rsquare_tot = np.array([[od, 0] for od in order])
+        rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
         
         if write_out:
             file = open(filename, 'a+')
@@ -923,7 +923,7 @@ class Quasi_harmonic:
             file.write('%s\n' % '  volume, with specified orders of power.')
 
         for idx_q, mode_q in enumerate(self.combined_mode):
-            rsquare_q = {od : 0 for od in order}
+            rsquare_q = {od : 0. for od in order}
 
             if write_out:
                 file.write('\n%s%8i\n' % ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
@@ -1061,11 +1061,13 @@ class Quasi_harmonic:
         # Generate temperature and pressure series
         if hasattr(self, 'temperature'):
             print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
-            self.temperature = np.array(temperature, dtype=float)
+        
+        self.temperature = np.array(temperature, dtype=float)
             
         if hasattr(self, 'pressure'):
             print('WARNING! Pressure attribute exists. Input temperatures will be used to update the attribute.')
-            self.pressure = np.array(pressure, dtype=float)
+        
+        self.pressure = np.array(pressure, dtype=float)
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'eos'):
