@@ -36,6 +36,12 @@ The crystal_functions package can be installed from pip. Pip is a package-manage
 pip install --upgrade crystal_functions
 ```
 
+Windows users might need to install windows-curses. This can be done by using:
+
+```console
+pip install windows-curses
+```
+
 To check that crystal_functions was install please type
 
 ```console
@@ -44,15 +50,6 @@ conda list
 
 This will return a list of all the modules installed in the environment. Here there should be crystal-functions. If this was not the case, something went wrong during the installation. Please check the location of the environment that is being displayed. This appears at the beginning of the “conda list” command. The most common mistake at this stage is that the environment was not activated as described above.
 
-crystal_functions will require <a href="https://pymatgen.org/index.html">pymatgen</a> to be installed
-in the environment where you are running the functions.
-
-### pip
-To install crystal_functions using pip, please use:
-```console
-pip install pymatgen
-pip install crystal_functions
-```
 
 Please note that pip will only install the functions and not the example notebooks. This decision was taken in order to reduce the volume of data transferred when installing. If you are interested in the example notebooks please read the section below.
 
@@ -68,7 +65,7 @@ set_runprop_path('path_to_your_runcry')
 ```
 
 ## Examples
-Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in file_read_write.py are explained in the example/file_read_write.ipynb notebook).
+Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in file_readwrite.py are explained in the example/file_readwrite.ipynb notebook).
 
 
 ## Tutorials
@@ -108,10 +105,10 @@ This case applied to when the calculations were run on a different machine and t
 
 ![output_analysis](doc/output_analysis.png)
 
-The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in crystal_functions/file_read_write.py. To access them, please use:
+The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in crystal_functions/file_readwrite.py. To access them, please use:
 
 ```console
-from crystal_functions.file_read_write import Crystal_output
+from crystal_functions.file_readwrite import Crystal_output
 
 Crystal_output('output_name.out')
 ```

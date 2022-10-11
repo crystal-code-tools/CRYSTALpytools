@@ -1419,39 +1419,37 @@ class Properties_output:
 
         self.read_file(properties_output)
 
-        filename = self.abspath
+        filename = str(properties_output)
 
-        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFGRHO.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFVIRI.DAT')) or (filename.endswith('SURFGKIN.DAT')) or (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFKKIN.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
-            pass
-        else:
-            sys.exit('please, choose a valid file or rename it properly')
-
+       
         tipo = ''
 
-        if (filename.endswith('SURFRHOO.DAT')) or (filename.endswith('SURFRHOO_ref.DAT')):
+        if (filename.endswith('.SURFRHOO')):
             self.tipo = 'SURFRHOO'
             self.path = filename
-        elif (filename.endswith('SURFLAPP.DAT')) or (filename.endswith('SURFLAPP_ref.DAT')):
+        elif (filename.endswith('.SURFLAPP')):
             self.tipo = 'SURFLAPP'
             self.path = filename
-        elif (filename.endswith('SURFLAPM.DAT')) or (filename.endswith('SURFLAPM_ref.DAT')):
+        elif (filename.endswith('.SURFLAPM')):
             self.tipo = 'SURFLAPM'
             self.path = filename
-        elif (filename.endswith('SURFGRHO.DAT')):
+        elif (filename.endswith('.SURFGRHO')):
             self.tipo = 'SURFGRHO'
             self.path = filename
-        elif (filename.endswith('SURFELFB.DAT')) or (filename.endswith('SURFELFB_ref.DAT')):
+        elif (filename.endswith('.SURFELFB')):
             self.tipo = 'SURFELFB'
             self.path = filename
-        elif (filename.endswith('SURFVIRI.DAT')):
+        elif (filename.endswith('.SURFVIRI')):
             self.tipo = 'SURFVIRI'
             self.path = filename
-        elif (filename.endswith('SURFGKIN.DAT')):
+        elif (filename.endswith('.SURFGKIN')):
             self.tipo = 'SURFGKIN'
             self.path = filename
-        elif (filename.endswith('SURFKKIN.DAT')):
+        elif (filename.endswith('.SURFKKIN')):
             self.tipo = 'SURFKKIN'
             self.path = filename
+        else:
+            sys.exit('Please choose a valid file')
 
         factor = 0.529177249
 
@@ -1512,21 +1510,22 @@ class Properties_output:
         ls3 = ['dotted', '--', '--', '--', '--', '--', '--', '--', '--',
                '--', '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
-        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFRHOO_ref') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
+        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
             self.levels = ctr1
             self.colors = colors1
             self.linestyles = ls1
             self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPP_ref') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFLAPM_ref') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
+        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
             self.levels = ctr2
             self.colors = colors2
             self.linestyles = ls2
             self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFELFB') or (self.tipo == 'SURFELFB_ref'):
+        elif (self.tipo == 'SURFELFB'):
             self.levels = ctr3
             self.colors = colors3
             self.linestyles = ls3
             self.fmt = '%1.2f'
+         
 
         return self
 
@@ -1642,16 +1641,13 @@ class Properties_output:
         import re
         import pandas as pd
 
+           
+
         self.read_file(properties_output)
 
         data = self.data
         filename = self.abspath
         title = self.title
-
-        if filename.endswith('.DAT'):
-            pass
-        else:
-            sys.exit('please, choose a valid file or rename it properly')
 
         spectrum = re.compile('Npoints', re.DOTALL)
 
@@ -1672,7 +1668,7 @@ class Properties_output:
 
         diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
 
-        length = diffs[0] - 1  # la lunghezza del blocco tra due "RIGHT"
+        length = diffs[0] - 1  
 
         lif = []
         for i in lin:
@@ -1693,9 +1689,11 @@ class Properties_output:
         right = right.reset_index().drop('index', axis=1)
 
         self.temp = []
+
+        
+
         for i in range(0, len(right)):
-            # va bene perchè la struttura è sempre la stessa
-            self.temp.append(float(str(right[0][i])[22:25]))
+            self.temp.append(float(str(right[0][i])[20:24]))
 
         ll = []
         for k in range(0, len(l)):
@@ -1706,6 +1704,84 @@ class Properties_output:
             for i in ll[k]:
                 self.all_data.append(ll[k][i].apply(
                     lambda x: x.replace('WRONG LINE:', '')))
+       
+        self.volume = (float(str(match[2:3])[-13:-4]))
+        
+        self.title = title
+
+        return self
+
+    def read_cry_sigma(self, properties_output):
+
+        import sys
+        import re
+        import pandas as pd
+    
+
+        self.read_file(properties_output)
+
+        data = self.data
+        filename = self.abspath
+        title = self.title
+
+
+        spectrum = re.compile('Npoints', re.DOTALL)
+
+        match = []
+
+        for line in data:
+            if spectrum.search(line):
+                match.append('RIGHT LINE:' + line)
+            else:
+                match.append('WRONG LINE:' + line)
+
+        df = pd.DataFrame(match)
+        indx = list(df[df[0].str.contains("RIGHT")].index)
+
+        lin = []
+        for i in indx:
+            lin.append(i+1)
+
+        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
+
+        length = diffs[0] - 1  
+
+        lif = []
+        for i in lin:
+            lif.append(i+length)
+
+        c = []
+        for i in range(len(lin)):
+            c.append(lin[i])
+            c.append(lif[i])
+
+        d = [c[i:i + 2] for i in range(0, len(c), 2)]
+
+        l = []
+        for i in range(0, len(d)):
+            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
+
+        right = df[df[0].str.contains("RIGHT")]
+        right = right.reset_index().drop('index', axis=1)
+
+        self.temp = []
+
+        
+
+        for i in range(0, len(right)):
+            self.temp.append(float(str(right[0][i])[20:24]))
+
+        ll = []
+        for k in range(0, len(l)):
+            ll.append(l[k].reset_index().drop('index', axis=1))
+
+        self.all_data = []
+        for k in range(0, len(ll)):
+            for i in ll[k]:
+                self.all_data.append(ll[k][i].apply(
+                    lambda x: x.replace('WRONG LINE:', '')))
+        
+        self.volume = (float(str(match[2:3])[-13:-4]))
 
         self.title = title
 
