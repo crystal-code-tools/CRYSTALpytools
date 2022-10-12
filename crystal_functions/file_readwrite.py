@@ -230,6 +230,7 @@ class Crystal_input:
             for line in cry_input:
                 file.writelines(line)
 
+
 class Crystal_output:
     # This class reads a CRYSTAL output and generates an object
 
@@ -271,6 +272,20 @@ class Crystal_output:
             self.eoo = len(self.data)
 
         return self
+
+    def get_eigenvectors(self):
+
+        import re
+
+        for i,line in enumerate(self.data):
+            if re.match(r'\s NUMBER OF AO', line) != None:
+                self.num_ao = int(line.split()[3])
+
+            if re.match(r'\s SHRINK. FACT.(MONKH.)', line) != None:
+                self.num_k = int(line.split()[13])
+            
+            if re.match(r'\s SHRINK. FACT.(MONKH.)', line) != None:
+                self.num_k = int(line.split()[13])
 
     def get_dimensionality(self):
         # Get the dimsensionality of the system
@@ -755,12 +770,13 @@ class Crystal_output:
         import numpy as np
 
         # Check this is a configuration analysis calculation
+        print(self.data)
         try:
             begin = self.data.index(
                 '                             CONFIGURATION ANALYSIS\n')
         except:
             return "WARNING: this is not a CONFCNT analysis."
-
+        
         for i, line in enumerate(self.data[begin:]):
             if re.match(r'^ COMPOSITION', line):
                 self.n_classes = line.split()[9]
@@ -1310,6 +1326,7 @@ class Properties_input:
         with open(input_name, 'w') as file:
             for line in property_input_list:
                 file.writelines(line)
+
 
 class Properties_output:
     # This creates a properties_output object
@@ -1985,9 +2002,12 @@ class Crystal_gui:
 
         self.dimensionality = int(data[0].split()[0])
         self.lattice = []
+        self.symmops = []
         for i in range(1, 4):
             self.lattice.append([float(x) for x in data[i].split()])
         self.n_symmops = int(data[4].split()[0])
+        for i in range(5,4+self.n_symmops*4):
+            self.symmops.append([float(x) for x in data[i].split()])
         self.n_atoms = int(data[5+self.n_symmops*4].split()[0])
         self.atom_number = []
         self.atom_positions = []
@@ -1995,6 +2015,7 @@ class Crystal_gui:
             atom_line = data[i].split()
             self.atom_number.append(str(atom_line[0]))
             self.atom_positions.append([float(x) for x in atom_line[1:]])
+        self.space_group = int(data[-1].split()[0])
 
         return self
 
@@ -2006,43 +2027,44 @@ class Crystal_gui:
     # symm == True includes the symmops
     # pseudo_atoms is a list of atoms whose core is described by a pseudopotential
 
-    import numpy as np
+        import numpy as np
 
-    with open(gui_file, 'w') as file:
+        with open(gui_file, 'w') as file:
 
-        # First line
-        file.writelines('%s   1   1\n' % self.dimensionality)
+            # First line
+            file.writelines('%s   1   1\n' % self.dimensionality)
 
-        # Cell vectors
-        for vector in self.lattice:
-            file.writelines(' '.join(str(n) for n in vector)+'\n')
+            # Cell vectors
+            for vector in self.lattice:
+                file.writelines(' '.join(str(n) for n in vector)+'\n')
 
-        # N symm ops
-        file.writelines('{}\n'.format(str(self.n_symmops)))
+            # N symm ops
+            file.writelines('{}\n'.format(str(self.n_symmops)))
 
-        # symm ops
-        for symmops in self.symmops:
-            file.writelines('{}\n'.format(
-                ' '.join(str(np.around(n, 8)) for n in symmops)))
+            # symm ops
+            for symmops in self.symmops:
+                file.writelines('{}\n'.format(
+                    ' '.join(str(np.around(n, 8)) for n in symmops)))
 
-        # N atoms
-        file.writelines('{}\n'.format(self.n_atoms))
+            # N atoms
+            file.writelines('{}\n'.format(self.n_atoms))
 
-        # atom number (including pseudopotentials) + coordinates cart
-        for i in range(self.n_atoms):
-            if self.atom_number[i] in pseudo_atoms:
-                file.writelines('{} {}\n'.format(int(self.atom_number[i])+200,
-                                                 ' '.join([str(x) for x in self.atom_positions[i]])))
+            # atom number (including pseudopotentials) + coordinates cart
+            for i in range(self.n_atoms):
+                if self.atom_number[i] in pseudo_atoms:
+                    file.writelines('{} {}\n'.format(int(self.atom_number[i])+200,
+                                                    ' '.join([str(x) for x in self.atom_positions[i]])))
+                else:
+                    file.writelines('{} {}\n'.format(self.atom_number[i],
+                                                    ' '.join([str(x) for x in self.atom_positions[i]])))
+
+            # space group + n symm ops
+            if symm == True:
+                file.writelines('{} {}'.format(
+                    self.space_group, self.n_symmops))
             else:
-                file.writelines('{} {}\n'.format(self.atom_number[i],
-                                                 ' '.join([str(x) for x in self.atom_positions[i]])))
+                file.writelines('1 1')
 
-        # space group + n symm ops
-        if symm == True:
-            file.writelines('{} {}'.format(
-                self.space_group, self.n_symmops))
-        else:
-            file.writelines('1 1')
 
 class Crystal_density():
     # WORK IN PROGRESS
@@ -2051,11 +2073,14 @@ class Crystal_density():
     def __init__(self):
 
         pass
+    
 
-    def read_cry_density(self, fort98_unit):
+
+    def read_cry_irr_density(self, fort98_unit):
         # fort98_unit is the file containing the formatted density matrix
 
         self.file_name = fort98_unit
+        self.is_irr = True
 
         import sys
         import numpy as np

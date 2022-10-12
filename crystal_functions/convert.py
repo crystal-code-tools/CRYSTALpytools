@@ -133,8 +133,8 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
         gui.lattice[2][2] = thickness_z + vacuum
 
     return Structure(gui.lattice, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
- 
-        
+
+
 def cry_gui2xyz(xyz_file_name, gui):
     #Transform a CRYSTAL structure (gui) file into an ASE bands object
     #The gui file is firt transfomed into a pymatgen object
@@ -321,11 +321,6 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     gui.atom_positions = structure.cart_coords.tolist()
 
     return gui
-
-
-
-
-
 
 
 def cry_out2xyz(xyz_file_name, output):
