@@ -683,7 +683,8 @@ class Quasi_harmonic:
     def __init__(self):
         pass
 
-    def from_HA_files(self, input_files, scelphono=[], write_out=True, filename='QHA-Fit.dat'):
+    def from_HA_files(self, input_files, scelphono=[], 
+                      write_out=True, filename='QHA-Fit.dat'):
         """
         Read data from individual HA calculation outputs.
 
@@ -798,22 +799,22 @@ class Quasi_harmonic:
         if write_out:
             file = open(filename, 'w')
             file.write('%s\n' % '# COMBINED QHA DATA')
-            file.write('%s' % '# SAMPLED VOLUMES(ANGSTROM^3) = ')
+            file.write('%s' % '## SAMPLED VOLUMES(ANGSTROM^3) = ')
             for v in combined_volume:
                 file.write('%16.4e' % v)
 
             file.write('\n')
 
-            file.write('%s' % '# DFT TOTAL ENERGIES(KJ/MOL CELL) = ')
+            file.write('%s' % '## DFT TOTAL ENERGIES(KJ/MOL CELL) = ')
             for e in combined_edft:
                 file.write('%16.6e' % e)
 
             file.write('\n\n')
 
-            file.write('%s\n\n' % '# COMBINED MODES')
+            file.write('%s\n\n' % '## COMBINED MODES')
             for idx_q, qpoint in enumerate(combined_mode):
                 file.write('%-25s%8i\n' %
-                           ('## FREQUENCIES AT QPOINT #', idx_q))
+                           ('### FREQUENCIES AT QPOINT #', idx_q))
                 for mode in qpoint:
                     file.write('\n%-8s%22s%22s\n' %
                                ('  Mode #', 'Volume(Angstrom^3)', 'Frequency(THz)'))
@@ -1037,7 +1038,7 @@ class Quasi_harmonic:
                         be fitted. Useful only when freq_method = 'polynomial'.
             gruneisen_continuity: float, Continuity criteria for Gruneisen
                                   model. Unit: Angstrom
-            min_method: string, Minimisation algorithoms. Parameterized and
+            min_method: string, Minimisation algorithms. Parameterized and
                         tested algos: 
                         * BFGS(no boundary)
                         * L-BFGS-B(with boundary)
@@ -1166,22 +1167,22 @@ class Quasi_harmonic:
             file.write('%s\n\n' % '  Thermodynamic properties fitted by QHA.')
             if self.freq_method == 'polynomial':
                 file.write('%s%6i\n' %
-                           ('# FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
+                           ('## FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
             else:
                 file.write('%s%12.6f%s\n' % (
-                    '# GRUNEISEN CONTINUITY CRITERION: ', self.gruneisen_continuity, ' ANGSTROM'))
+                    '## GRUNEISEN CONTINUITY CRITERION: ', self.gruneisen_continuity, ' ANGSTROM'))
 
             file.write('%s%s\n' %
-                       ('# EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
+                       ('## EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
             if volume_bound:
                 file.write('%s\n' % (
-                    '# CONSTRAINED VOLUME MINIMIZATION LAUNCHED. VOLUME BOUNDARIES (UNIT: ANGSTROM^3):'))
+                    '## CONSTRAINED VOLUME MINIMIZATION LAUNCHED. VOLUME BOUNDARIES (UNIT: ANGSTROM^3):'))
                 file.write('%s%8.2f%s%8.2f\n\n' % (
-                    '# LOWER: ', volume_bound[0], ' UPPER: ', volume_bound[1]))
+                    '## LOWER: ', volume_bound[0], ' UPPER: ', volume_bound[1]))
 
             for idx_p, press in enumerate(self.pressure):
                 file.write('%s%6.2f%s\n\n' %
-                           ('# THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
+                           ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
                 file.write('%4s%6s%4s%16s%2s%18s%4s%16s%4s%16s\n' %
                            ('', 'T(K)', '', 'Vol(Angstrom^3)', '', 'Helmholtz(kJ/mol)', '', 'Gibbs(kJ/mol)', '', 'Entropy(J/mol*K)'))
                 for idx_t, tempt in enumerate(self.temperature):
