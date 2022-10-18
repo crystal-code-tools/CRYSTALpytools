@@ -28,7 +28,7 @@ class Mode:
                     including zero-point energy. Unit: KJ/mol cell
         self.entropy, get_entropy, Entropy of the mode. Unit: J/mol cell*K
         self.C_v, get_C_v, Constant volume specific heat. Unit: J/mol cell*K
-        
+
     Limited to ncalc > 1 cases:
         self.poly_fit, polynomial_fit, dictionary of numpy polynomial objects.
                        Key: orders of power, Value: fitted polynomials
@@ -210,14 +210,17 @@ class Mode:
         self.poly_fit = {}
         self.poly_fit_rsqaure = {}
 
-        r_squares = np.array([])
         for i in order:
-            func = np.polynomial.polynomial.Polynomial.fit(self.volume,
-                                                           self.frequency, i)
+            func = np.polynomial.polynomial.Polynomial.fit(
+                self.volume, self.frequency, i)
             self.poly_fit.update({i: func})
-            ss_res = np.sum((self.frequency - func(self.volume))**2)
-            ss_tot = np.sum((self.frequency - np.mean(self.frequency))**2)
-            r_square = 1 - ss_res / ss_tot
+            if np.all(abs(self.frequency) < 1E-4):
+                r_square = 1.
+            else:
+                ss_res = np.sum((self.frequency - func(self.volume))**2)
+                ss_tot = np.sum((self.frequency - np.mean(self.frequency))**2)
+                r_square = 1 - ss_res / ss_tot
+
             self.poly_fit_rsqaure.update({i: r_square})
 
         return order, self.poly_fit, self.poly_fit_rsqaure
@@ -473,7 +476,7 @@ class Harmonic(Crystal_output):
             U_vib = np.array([], dtype=float)
             entropy = np.array([], dtype=float)
             C_v = np.array([], dtype=float)
-        
+
         for qpoint in self.mode:
             if calculate_zp:
                 zp_energy_q = 0.
@@ -485,21 +488,21 @@ class Harmonic(Crystal_output):
             for mode in qpoint:
                 if np.isnan(mode.frequency) or mode.frequency <= 1e-5:
                     continue
-                
+
                 if calculate_zp:
                     zp_energy_q += mode.get_zp_energy()
                 else:
                     U_vib_q += mode.get_U_vib(temperature=T)
                     entropy_q += mode.get_entropy(temperature=T)
                     C_v_q += mode.get_C_v(temperature=T)
-            
+
             if calculate_zp:
                 zp_energy = np.append(zp_energy, zp_energy_q)
             else:
                 U_vib = np.append(U_vib, U_vib_q)
                 entropy = np.append(entropy, entropy_q)
                 C_v = np.append(C_v, C_v_q)
-                
+
         if calculate_zp:
             return zp_energy
         else:
@@ -531,7 +534,7 @@ class Harmonic(Crystal_output):
                           Unit: J/mol cell*K
             self.C_v, nqpoint * nTempt numpy array, Constant volume specific
                       heat. Unit: J/mol cell*K
-                      
+
         Generated, not returned output:
             self.temperature, nTempt * 1 array / list, Temperature range.
                               Unit: K
@@ -546,7 +549,7 @@ class Harmonic(Crystal_output):
 
         self.temperature = np.array(temperature, dtype=float)
         self.pressure = np.array(pressure, dtype=float)
-        
+
         self.zp_energy = self.phonon_sumup(calculate_zp=True)
         U_vib = []
         entropy = []
@@ -591,9 +594,9 @@ class Harmonic(Crystal_output):
             self.C_v = C_v
             self.helmholtz = helmholtz
             self.gibbs = gibbs
-        
+
         return self.helmholtz, self.gibbs, self.zp_energy, self.U_vib,\
-               self.entropy, self.C_v
+            self.entropy, self.C_v
 
     def print_results(self, file):
         """
@@ -607,45 +610,6 @@ class Harmonic(Crystal_output):
             file, file object obtained by 'open' command.
         Output:
             filename, text file.
-        Format:
-# DFT TOTAL ENERGY =         edft eV,         =         edft kJ/mol
-# CELL VOLUME      = volume       Angstrom^3, =       volume cm^3/mol
-# LATTICE PARAMETERS (ANGSTROM, DEGREE)
-           A           B           C       ALPHA        BETA       GAMMA
-           a           b           c       alpha        beta       gamma
-
-# HARMONIC THERMODYNAMICS AT QPOINT #   rank of qpoint
-
-  zero point energy =    zp_energy kJ/mol
-
-  temperature dependent properties
-    T(K)     U_vib(kJ/mol)  Entropy(J/mol*K)      C_V(J/mol*K) Helmholtz(kJ/mol)
-   Tempt             U_vib           entropy               C_v         Helmholtz
-   ...
-
-  Gibbs free energy
-    rows    : pressure (GPa)  pressure list
-    columns : temperature (K) temperature list
-    data  data  data  ...
-    ...
-
-
-# HARMONIC THERMODYNAMICS AT QPOINT #   rank of qpoint
-
-  zero point energy =    zp_energy kJ/mol
-
-  temperature dependent properties
-    T(K)     U_vib(kJ/mol)  Entropy(J/mol*K)      C_V(J/mol*K) Helmholtz(kJ/mol)
-   Tempt             U_vib           entropy               C_v         Helmholtz
-   ...
-
-  Gibbs free energy
-    rows    : pressure (GPa)  pressure list
-    columns : temperature (K) temperature list
-    data  data  data  ...
-    ...
-
-
         """
         file.write('%-21s%12.4e%-15s%12.4e%-10s\n' %
                    ('# DFT TOTAL ENERGY = ', self.edft / 96.485340,
@@ -692,7 +656,8 @@ class Harmonic(Crystal_output):
             file.write('\n\n\n')
 
         return
-    
+
+
 class Quasi_harmonic:
     """
     Class Quasi_haromic - Generate and arrange harmonic phonons, store the
@@ -703,14 +668,25 @@ class Quasi_harmonic:
     self.combined_volume, from_HA_files, A list of volumes.
     self.combined_edft, from_HA_files, A list of DFT total energies.
     self.combined_mode, from_HA_files, A list of mode objects.
+    self.eos_method, edft_eos_fit, Fitting method of equation of states
+    self.eos, edft_eos_fit, Fitted equation of states
+    self.freq_method, freq_polynomial_fit, Fitting method for frequencies
+    self.fit_order, freq_polynomial_fit, The optimal order of polynomial fit
+    self.temerature, thermodynamics, Temperature series. Unit: K
+    self.pressure, thermodynamics, Pressure series. Unit: GPa
+    self.equilibrium_volume, thermodynamics, V(T, p). Unit: Angstrom^3
+    self.helmholtz, thermodynamics, F(T, V). Unit: kJ/mol
+    self.gibbs, thermodynamics, G(T, p). Unit: kJ/mol
+    self.entropy, thermodynamics, S(T, V). Unit: J/mol*K
     """
+
     def __init__(self):
         pass
-    
+
     def from_HA_files(self, input_files, scelphono=[], write_out=True, filename='QHA-Fit.dat'):
         """
         Read data from individual HA calculation outputs.
-        
+
         Input:
             input_files, ncalc*1 list, List of phonon output filenames.
             scelphono, ndimen*ndimen or 3*3 list / array, Same to the
@@ -727,21 +703,22 @@ class Quasi_harmonic:
 
         if hasattr(self, "ncalc"):
             return "WARNING: Data exists. The current command will be ignored."
-            
+
         self.ncalc = len(input_files)
         if self.ncalc == 1:
-            print('WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
-        
+            print(
+                'WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
+
         ha_list = [Harmonic().from_file(file, scelphono=scelphono,
                                         read_eigenvector=True, write_out=False)
                    for file in input_files]
 
         self.combined_volume, self.combined_edft, self.combined_mode \
             = self.combine_data(ha_list, write_out=write_out, filename=filename)
-        
+
         return self
-    
-     def combine_data(self, ha_list, write_out, filename):
+
+    def combine_data(self, ha_list, write_out, filename):
         """
         Combine the HA calculation data and rearrange it according to modes.
         Not a standalone method.
@@ -769,19 +746,20 @@ class Quasi_harmonic:
         import numpy as np
         import sys
         from crystal_functions.thermodynamics import Mode
-        
+
         # Sorting data according to volumes
         sorted_vol = []
-        nmode = ha_list[0].nmode # nqpoint * 1 array
-        natom = ha_list[0].natom # int
+        nmode = ha_list[0].nmode  # nqpoint * 1 array
+        natom = ha_list[0].natom  # int
         for index, ha_phonon in enumerate(ha_list):
             sorted_vol.append([index, ha_phonon.volume])
-            ## Check whether the numbers of modes and atoms are consistent.
+            # Check whether the numbers of modes and atoms are consistent.
             if (natom - ha_phonon.natom) != 0 or \
                not np.all((nmode - ha_phonon.nmode) == 0):
-                print('ERROR: The number of modes or atoms is not consistent across the sampling points')
+                print(
+                    'ERROR: The number of modes or atoms is not consistent across the sampling points')
                 sys.exit(1)
-        
+
         sorted_vol = np.array(sorted_vol, dtype=float)
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
 
@@ -803,8 +781,9 @@ class Quasi_harmonic:
         # freq, ncalc * nqpoint * nmode array to nqpoint * nmode * ncalc array
         freq = np.transpose(np.array(freq, dtype=float), axes=[1, 2, 0])
         # eigvt, ncalc * nqpoint * nmode * natom * 3 array to nqpoint * nmode * ncalc * natom * 3 array
-        eigvt = np.transpose(np.array(eigvt, dtype=float), axes=[1, 2, 0, 3, 4])
-        
+        eigvt = np.transpose(np.array(eigvt, dtype=float),
+                             axes=[1, 2, 0, 3, 4])
+
         combined_mode = []
         for idx_q in range(len(nmode)):
             combined_mode_q = []
@@ -813,27 +792,28 @@ class Quasi_harmonic:
                                             frequency=freq[idx_q, idx_m, :],
                                             volume=combined_volume,
                                             eigenvector=eigvt[idx_q, idx_m, :]))
-            
+
             combined_mode.append(combined_mode_q)
-        
+
         if write_out:
             file = open(filename, 'w')
             file.write('%s\n' % '# COMBINED QHA DATA')
             file.write('%s' % '# SAMPLED VOLUMES(ANGSTROM^3) = ')
             for v in combined_volume:
                 file.write('%16.4e' % v)
-            
+
             file.write('\n')
-            
+
             file.write('%s' % '# DFT TOTAL ENERGIES(KJ/MOL CELL) = ')
             for e in combined_edft:
                 file.write('%16.6e' % e)
-            
+
             file.write('\n\n')
-            
+
             file.write('%s\n\n' % '# COMBINED MODES')
             for idx_q, qpoint in enumerate(combined_mode):
-                file.write('%-25s%8i\n' % ('## FREQUENCIES AT QPOINT #', idx_q))
+                file.write('%-25s%8i\n' %
+                           ('## FREQUENCIES AT QPOINT #', idx_q))
                 for mode in qpoint:
                     file.write('\n%-8s%22s%22s\n' %
                                ('  Mode #', 'Volume(Angstrom^3)', 'Frequency(THz)'))
@@ -843,7 +823,7 @@ class Quasi_harmonic:
                             file.write('%8i' % mode.rank)
                         else:
                             file.write('%8s' % '')
-                        
+
                         file.write('%22.4f%22.4f\n' %
                                    (mode.volume[i], mode.frequency[i]))
 
@@ -852,12 +832,12 @@ class Quasi_harmonic:
             file.close()
 
         return combined_volume, combined_edft, combined_mode
-    
+
     def edft_eos_fit(self, method, write_out, filename):
         """
         Fit electron total energy according to equation of states. Not a
         standalone method.
-        
+
         Input:
             method: string, Name of EoS used. Consistent with requirements of
                     pymatgen (https://pymatgen.org/pymatgen.analysis.eos.html).
@@ -873,25 +853,29 @@ class Quasi_harmonic:
         self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
         if write_out:
             file = open(filename, 'a+')
-            file.write('%s%s\n' % ('# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
-            file.write('%s\n' % '  Electron total energy is fitted as the function of volume, of which the')
-            file.write('%s\n\n' % '  formalism is given by equation of states.')
-            
-            file.write('%16s%16s%12s%12s\n' % ('  E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
-            file.write('%16.4f%16.4f%12.4f%12.4f\n' % (self.eos.e0, 
+            file.write('%s%s\n' % (
+                '# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
+            file.write(
+                '%s\n' % '  Electron total energy is fitted as the function of volume, of which the')
+            file.write('%s\n\n' %
+                       '  formalism is given by equation of states.')
+
+            file.write('%16s%16s%12s%12s\n' %
+                       ('E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
+            file.write('%16.4f%16.4f%12.4f%12.4f\n' % (self.eos.e0,
                                                        self.eos.v0,
                                                        self.eos.b0 * 1.660539,
                                                        self.eos.b1))
             file.write('\n')
             file.close()
-            
+
         return self.eos
-    
+
     def freq_polynomial_fit(self, order, write_out, filename):
         """
         Fit phonon frequencies as polynomial functions of volumes. Not a
         standalone method.
-        
+
         Input:
             order, list/array, List of the highest order of polynomials to be
                    fitted. Default: [2, 3] (quadratic, cubic)
@@ -900,62 +884,66 @@ class Quasi_harmonic:
         Output:
             self.freq_method, 'polynomial', Fitting method for frequencies.
             self.fit_order, int, The optimal order of polynomial fit.
-            Also see 'self.poly_fit' and 'self.poly_fit_rsquare' attributes of
-            mode object
+
+        Also see 'self.poly_fit' and 'self.poly_fit_rsquare' attributes of mode
+        object
         """
         import numpy as np
-        
+
         if hasattr(self, 'freq_method') and self.freq_method == 'polynomial':
             print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
             return self
-        
+
         elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen':
             print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
             return self
-            
+
         self.freq_method = 'polynomial'
         rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
-        
+
         if write_out:
             file = open(filename, 'a+')
             file.write('%s\n' % '# POLYNOMIAL FIT OF MODE FREQUENCY')
-            file.write('%s\n' % '  Frequency of each vibrational mode is fitted as the polynomial function of')
+            file.write(
+                '%s\n' % '  Frequency of each vibrational mode is fitted as the polynomial function of')
             file.write('%s\n' % '  volume, with specified orders of power.')
 
         for idx_q, mode_q in enumerate(self.combined_mode):
-            rsquare_q = {od : 0. for od in order}
+            rsquare_q = {od: 0. for od in order}
 
             if write_out:
-                file.write('\n%s%8i\n' % ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
+                file.write('\n%s%8i\n' %
+                           ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
 
             for mode in mode_q:
                 order_new, _, _ = mode.polynomial_fit(order=order)
                 for key, value in mode.poly_fit_rsqaure.items():
-                    if np.isnan(value):
-                        continue
-
                     rsquare_q[key] += value / len(mode_q)
 
                 if write_out:
-                    file.write('%-8s%7s%14s%s\n' % ('  Mode #', 'Order', 'R^2', '  Coeff low to high'))
+                    file.write('%-8s%7s%14s%s\n' % ('  Mode #',
+                                                    'Order', 'R^2', '  Coeff low to high'))
                     for idx_od, od in enumerate(order_new):
                         if idx_od == 0:
                             file.write('%8i' % mode.rank)
                         else:
                             file.write('%8s' % '')
 
-                        file.write('%7i%2s%12.6f%2s' % (od, '',mode.poly_fit_rsqaure[od], ''))
+                        file.write('%7i%2s%12.6f%2s' %
+                                   (od, '', mode.poly_fit_rsqaure[od], ''))
                         for c in mode.poly_fit[od].convert().coef:
                             file.write('%12.4e' % c)
 
                         file.write('\n')
-                
+
                     file.write('\n')
 
-            rsquare_tot[:, 1] += np.array([rsquare_q[od] / len(self.combined_mode) for od in order])
+            rsquare_tot[:, 1] += np.array([rsquare_q[od] /
+                                           len(self.combined_mode) for od in order])
 
             if write_out:
-                file.write('%s%8i\n' % ('## POLYNOMIAL FIT GOODNESS AT QPOINT #', idx_q))
+                file.write('%s%8i\n' %
+                           ('## POLYNOMIAL FIT GOODNESS AT QPOINT #', idx_q))
                 file.write('%-7s%14s\n' % ('  Order', 'R^2'))
                 for od in order:
                     file.write('%7i%2s%12.6f\n' % (od, '', rsquare_q[od]))
@@ -967,113 +955,135 @@ class Quasi_harmonic:
             file.close()
 
         return self
-    
-#     def freq_gruneisen_fit(continuity_threshold=0.112011, write_out, filename):
-#         if hasattr(self, 'freq_method') and self.freq_method == 'polynomial':
-#             print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
-            
-#             return self
-        
-#         elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen':
-#             print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
-            
-#             return self
-        
-#         self.freq_method = 'gruneisen'
 
-    def minimize_gibbs(self, volume, temperature, pressure):
-        """
-        """
-        ha = self.get_harmonic_phonon(volume)
-        ha.thermodynamics(temperature=[temperature], pressure=[pressure])
-        
-        return ha.gibbs[0, 0, 0]
-    
     def get_harmonic_phonon(self, volume):
         """
+        Get numerical phonon frequencies from fitted analytical expressions and
+        generate harmonic phonon objects. Not a standalone method.
+
+        Input:
+            volume, float, The volume of harmonic lattice. Unit: Angstrom^3
+        Output:
+            ha, Harmonic, Harmonic phonon object with numerical data.
         """
         import sys
         from crystal_functions.thermodynamics import Harmonic
         from crystal_functions.thermodynamics import Mode
-        
+
         if not hasattr(self, 'freq_method') or not hasattr(self, 'eos'):
             print('ERROR: Analytical expressions unavailable.')
             sys.exit(1)
-            
+
         num_mode = []
         for mode_q in self.combined_mode:
             num_mode_q = []
             for idx_m, mode in enumerate(mode_q):
                 if self.freq_method == 'polynomial':
                     num_mode_q.append(
-                        Mode(rank=idx_m + 1, 
-                             frequency=[mode.poly_fit[self.fit_order](volume)], 
+                        Mode(rank=idx_m + 1,
+                             frequency=[mode.poly_fit[self.fit_order](volume)],
                              volume=[volume])
                     )
-                    
+
                 elif self.freq_method == 'gruneisen':
                     num_mode_q.append(
-                        Mode(rank=idx_m + 1, 
-                             frequency=[mode.grun_fit(volume)], 
+                        Mode(rank=idx_m + 1,
+                             frequency=[mode.grun_fit(volume)],
                              volume=[volume])
                     )
 
             num_mode.append(num_mode_q)
 
         ha = Harmonic().from_data(self.eos(volume), num_mode, volume=volume)
-        
+
         return ha
 
-    def thermodynamics(self, temperature=[298.15], pressure=[0.], 
+    def minimize_gibbs(self, volume, temperature, pressure):
+        """
+        Get Gibbs free energy from the Harmonic phonon object. Used only for
+        minimizing G(V; T, p) by SciPy. Not a standalone method.
+
+        Input:
+            volume, float, The volume of lattice (V). Unit: Angstrom^3
+            temperature, float, T, argument. Unit: K
+            pressure, float, p, argument. Unit: GPa
+        """
+        ha = self.get_harmonic_phonon(volume)
+        ha.thermodynamics(temperature=[temperature], pressure=[pressure])
+
+        return ha.gibbs[0, 0, 0]
+
+    def thermodynamics(self, temperature=[298.15], pressure=[0.],
                        eos_method='birch_murnaghan', freq_method='polynomial',
-                       poly_order=[2, 3], grun_cont=0.112011,
+                       poly_order=[2, 3], gruneisen_continuity=0.112011,
                        min_method='BFGS', volume_bound=None,
                        write_out=True, filename='QHA_Fit.dat'):
         """
-        Fit E_DFT and frequencies (if that has not been done) according to
-        methods specified. Calculate the 0 pressure equilibrium volumes and
-        pressure-independent properties at given temperatures.
-        
+        1. Fit E_DFT and frequencies (if that has not been done) according to
+        methods specified. 
+        2. Calculate the 0 pressure equilibrium volume and pressure-independent
+        properties (Helmholtz free energy, Entropy and Constant-volume specific
+        heat) at given temperatures.
+        3. Calculate pressure-dependent proerties (Gibbs free energy)
+
         Input:
-            temperature: nTempt*1 list/array, List of temperatures at which the
-                         equilibrium volumes are fitted. Unit: K
+            temperature: nTempt*1 list/array, List of temperatures. Unit: K
+            pressure: nPress*1 list/array, List of pressures. Unit: GPa
             eos_method: string, Equation of state used to fit E_DFT. For EOSs
                         supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
             freq_method: string ('polynomial' / 'gruneisen'), Methods to fit
                          phonon frequency as the function of volume.
             poly_order: list/array, List of the highest order of polynomials to
                         be fitted. Useful only when freq_method = 'polynomial'.
-            grun_cont: float, Continuity criteria for Gruneisen model.
-                       Unit: Angstrom
+            gruneisen_continuity: float, Continuity criteria for Gruneisen
+                                  model. Unit: Angstrom
             min_method: string, Minimisation algorithoms. Parameterized and
-                        tested algos: BFGS(no boundary) / L-BFGS-B(with boundary)
-            volume_bound: turple-like, Boundary conditions of Helmoltz free
-                          energy minimisation. Unit: Angstrom^3
+                        tested algos: 
+                        * BFGS(no boundary)
+                        * L-BFGS-B(with boundary)
+            volume_bound: turple-like, Boundary conditions of equilibrium
+                          volumes. Unit: Angstrom^3
             write_out: bool, Whether to print out the results.
             filename: string, Name of the output.
         Output:
-            
+            self.temperature, nTempt*1 array, List of temperatures. Unit: K
+            self.pressure, nPress*1 array, List of pressures. Unit: GPa
+            self.equilibrium_volume, nTempt*nPress array, Equilibrium volumes
+                                     at given temperature and pressure. Unit:
+                                     Angstrom^3
+            self.helmholtz, nTempt*nPress array, Helmholtz free energy at given
+                            volume. Unit: kJ/mol
+            self.gibbs, nTempt*nPress array, Gibbs free energy at given volume.
+                        Unit: kJ/mol
+            self.entropy, nTempt*nPress array, Entropy at given volume. Unit:
+                          J/mol*K
+
+        Optional outputs, see comments in edft_eos_fit, freq_polynomial_fit
+        , and freq_gruneisen_fit
         """
         import sys
         import numpy as np
         from scipy.optimize import minimize
-        
+
         # Generate temperature and pressure series
         if hasattr(self, 'temperature'):
             print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
-        
+
         self.temperature = np.array(temperature, dtype=float)
-            
+
         if hasattr(self, 'pressure'):
-            print('WARNING! Pressure attribute exists. Input temperatures will be used to update the attribute.')
-        
+            print(
+                'WARNING! Pressure attribute exists. Input temperatures will be used to update the attribute.')
+
         self.pressure = np.array(pressure, dtype=float)
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'eos'):
-            print('WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
+            print(
+                'WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
         else:
-            self.edft_eos_fit(method=eos_method)
+            self.edft_eos_fit(method=eos_method,
+                              write_out=write_out, filename=filename)
 
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'freq_method') and self.freq_method == 'polynomial':
@@ -1082,59 +1092,106 @@ class Quasi_harmonic:
             print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
         else:
             if freq_method == 'polynomial':
-                self.freq_polynomial_fit(order=poly_order,
-                                         write_out=write_out, filename=filename)
+                self.freq_polynomial_fit(order=poly_order, write_out=write_out,
+                                         filename=filename)
             elif freq_method == 'gruneisen':
-                self.freq_gruneisen_fit(continuity_threshold=grun_cont, 
+                self.freq_gruneisen_fit(continuity_threshold=gruneisen_continuity,
                                         write_out=write_out, filename=filename)
             else:
-                print('ERROR: Frequency fitting method specified does not exist. No fitted frequency available.')
+                print(
+                    'ERROR: Frequency fitting method specified does not exist. No fitted frequency available.')
                 sys.exit(1)
-        
+
         # Define minimization methods
         methods = {
-            'BFGS' : "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='BFGS', jac='3-point')", 
-            'L-BFGS-B' : "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='L-BFGS-B', jac='3-point', bounds=volume_bound)",
-                  }
-        
+            'BFGS': "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='BFGS', jac='3-point')",
+            'L-BFGS-B': "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='L-BFGS-B', jac='3-point', bounds=volume_bound)",
+        }
+
         # Gibbs(V; T, p) minimization nTempt*nPress list
         eq_vol = []
         v_init = np.mean(self.combined_volume)
-        
+
         for t in self.temperature:
             eq_vol_t = []
             for p in self.pressure:
-                params = {'self' : self, 'minimize' : minimize,
-                          'v_init' : v_init, 't' : t, 'p' : p,
-                          'volume_bound' : volume_bound}
+                params = {'self': self,
+                          'minimize': minimize,
+                          'v_init': v_init,
+                          't': t,
+                          'p': p,
+                          'volume_bound': volume_bound}
                 exec(methods[min_method], params)
                 eq_vol_t.append(params['vol'].x[0])
-                
+
                 if params['vol'].x[0] < min(self.combined_volume) or \
                    params['vol'].x[0] > max(self.combined_volume):
-                    print('WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
-                    print('         Volume: ', params['vol'].x[0], '  Temperature: ', t, '  Pressure: ', p)
-                
+                    print(
+                        'WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
+                    print(
+                        '         Volume: ', params['vol'].x[0], '  Temperature: ', t, '  Pressure: ', p)
+
             eq_vol.append(eq_vol_t)
-        
+
         self.equilibrium_volume = np.array(eq_vol)
-        
+
         # Calculate other thermodynamic properties
+        self.helmholtz = []
         self.gibbs = []
         self.entropy = []
         for idx_t, t in enumerate(self.temperature):
+            helmholtz_t = []
             gibbs_t = []
+            entropy_t = []
             for idx_p, p in enumerate(self.pressure):
                 vol = self.equilibrium_volume[idx_t, idx_p]
                 ha = self.get_harmonic_phonon(vol)
                 ha.thermodynamics(temperature=[t], pressure=[p])
+                helmholtz_t.append(ha.helmholtz[0, 0])
                 gibbs_t.append(ha.gibbs[0, 0, 0])
-                
+                entropy_t.append(ha.entropy[0, 0])
+
+            self.helmholtz.append(helmholtz_t)
             self.gibbs.append(gibbs_t)
-            self.entropy.append(ha.entropy[0, 0])
-            
+            self.entropy.append(entropy_t)
+
+        self.helmholtz = np.array(self.helmholtz)
         self.gibbs = np.array(self.gibbs)
         self.entropy = np.array(self.entropy)
-        
-        return self
 
+        # Print output file
+        if write_out:
+            file = open(filename, 'a+')
+            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES')
+            file.write('%s\n\n' % '  Thermodynamic properties fitted by QHA.')
+            if self.freq_method == 'polynomial':
+                file.write('%s%6i\n' %
+                           ('# FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
+            else:
+                file.write('%s%12.6f%s\n' % (
+                    '# GRUNEISEN CONTINUITY CRITERION: ', self.gruneisen_continuity, ' ANGSTROM'))
+
+            file.write('%s%s\n' %
+                       ('# EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
+            if volume_bound:
+                file.write('%s\n' % (
+                    '# CONSTRAINED VOLUME MINIMIZATION LAUNCHED. VOLUME BOUNDARIES (UNIT: ANGSTROM^3):'))
+                file.write('%s%8.2f%s%8.2f\n\n' % (
+                    '# LOWER: ', volume_bound[0], ' UPPER: ', volume_bound[1]))
+
+            for idx_p, press in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' %
+                           ('# THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
+                file.write('%4s%6s%4s%16s%2s%18s%4s%16s%4s%16s\n' %
+                           ('', 'T(K)', '', 'Vol(Angstrom^3)', '', 'Helmholtz(kJ/mol)', '', 'Gibbs(kJ/mol)', '', 'Entropy(J/mol*K)'))
+                for idx_t, tempt in enumerate(self.temperature):
+                    file.write('%4s%6.1f%4s%16.4f%4s%16.8e%4s%16.8e%4s%16.8e\n' %
+                               ('', tempt,
+                                '', self.equilibrium_volume[idx_t, idx_p],
+                                '', self.helmholtz[idx_t, idx_p],
+                                '', self.gibbs[idx_t, idx_p],
+                                '', self.entropy[idx_t, idx_p]))
+
+                file.write('\n')
+
+        return self
