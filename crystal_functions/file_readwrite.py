@@ -763,9 +763,11 @@ class Crystal_output:
             is_freq: bool, True if the identifier is found.
         """
         import re
+        import sys
 
         if not hasattr(self, 'data'):
-            return "ERROR: Output file not specified."
+            print('ERROR: Output file not specified.')
+            sys.exit(1)
 
         is_freq = False
 
@@ -783,10 +785,17 @@ class Crystal_output:
         Get the lattice information, DFT total energy and qpoints at which the
         phonon frequency is calculated.
 
+        Note: edft is a list to make the script compatible with QHA output. The
+              sampled HA calculations in QHA output are recognized as HA
+              calculations at various qpoints. 
+
+              For other cases, self.edft is an array of the same numbers,
+              corresponding to the number of qpoints.
+
         Input:
             -
         Output:
-            self.edft, float, DFT total energy. Unit: KJ / mol cell
+            self.edft, nqpoint * 1 array, DFT total energy. Unit: KJ / mol cell
             self.nqpoint, int, Number of q points where the frequencies are
                           calculated.
             self.qpoint, nq * 3 numpy float array, Fractional coordinates of
@@ -794,31 +803,47 @@ class Crystal_output:
         """
         import re
         import numpy as np
+        import sys
 
         is_freq = self.check_freq_file()
         if not is_freq:
-            return "ERROR: Not a frequency output."
+            print('ERROR: Not a frequency output.')
+            sys.exit(1)
 
+        edft = np.array([], dtype=float)
         self.nqpoint = 0
-        self.edft = 0
         self.qpoint = np.array([], dtype=float)
 
         for i, line in enumerate(self.data):
+# Keywords in gradient calculation
             if re.match(r'\s*CENTRAL POINT', line):
-                self.edft = float(line.strip().split()[2]) * 2625.500256
+                edft = np.append(edft, float(line.strip().split()[2]) * 2625.500256)
 
             if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
 
+# Keywords in dipersion calculation
             if re.match(r'\s*DISPERSION K POINT NUMBER', line):
                 coord = np.array(line.strip().split()[7:10], dtype=float)
                 self.qpoint = np.append(self.qpoint, coord / shrink)
                 self.nqpoint += 1
 
-        self.qpoint = np.reshape(self.qpoint, (-1, 3))
-        if self.nqpoint == 0:
+# HA Gamma point calculation
+        if self.nqpoint == 0 and len(edft) == 1:
             self.nqpoint = 1
-            self.qpoint = np.array([0, 0, 0], dtype=float)
+            self.qpoint = np.array([[0, 0, 0]], dtype=float)
+            self.edft = edft
+# QHA Gamma point calculation
+        elif self.nqpoint == 0 and len(edft) > 1:
+            self.nqpoint = len(edft)
+            self.qpoint = np.array([[0, 0, 0] for i in range(self.nqpoint)], dtype=float)
+# HA dispersion calculation
+        elif self.nqpoint > 0 and len(edft) == 1:
+            self.qpoint = np.reshape(self.qpoint, (-1, 3))
+            self.edft = edft
+        else:
+            print('ERROR: Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
+            sys.exit(1)
 
         return self.edft, self.nqpoint, self.qpoint
 
@@ -872,7 +897,7 @@ class Crystal_output:
             countline += 1
 
         self.frequency = np.reshape(self.frequency, (self.nqpoint, -1))
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=float)
+        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
 
         return self.nmode, self.frequency
 
