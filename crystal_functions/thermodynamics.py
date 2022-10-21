@@ -278,8 +278,12 @@ class Harmonic(Crystal_output):
         """
         import numpy as np
         
-        self.temperature = np.array(temperature, dtype=float)
-        self.pressure = np.array(pressure, dtype=float)
+        if temperature:
+            self.temperature = np.array(temperature, dtype=float)
+        
+        if pressure:
+            self.pressure = np.array(pressure, dtype=float)
+
         self.write_out = write_out
         self.filename = filename
         
@@ -561,6 +565,7 @@ class Harmonic(Crystal_output):
               dispersion are summed. In this case, nqpoint = 1 but the
               dimension is kept.
         """
+        import sys
         import numpy as np
 
         if temptpress:
@@ -570,7 +575,12 @@ class Harmonic(Crystal_output):
             
             if hasattr(self, 'pressure') and 'pressure' in temptpress:
                 print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
-                self.pressure = np.array(temptpress['pressure'], dtype=float) 
+                self.pressure = np.array(temptpress['pressure'], dtype=float)
+        else:
+            if not hasattr(self, 'temperature') or \
+               not hasattr(self, 'pressure'):
+                print('ERROR: Temperature and pressure should be specified.')
+                sys.exit(1)
 
         self.zp_energy = self.phonon_sumup(temperature=0., calculate_zp=True)
         U_vib = []
@@ -687,6 +697,7 @@ class Quasi_harmonic:
     thermodynamic properties.
 
     self.ncalc, from_HA_files, The number of phonon calculations.
+    self.combined_phonon, from_HA_files, Sampled calculation as Harmonic object
     self.combined_volume, from_HA_files, A list of volumes.
     self.combined_edft, from_HA_files, A list of DFT total energies.
     self.combined_mode, from_HA_files, A list of mode objects.
@@ -722,8 +733,12 @@ class Quasi_harmonic:
         """
         import numpy as np
         
-        self.temperature = np.array(temperature, dtype=float)
-        self.pressure = np.array(pressure, dtype=float)
+        if temperature:
+            self.temperature = np.array(temperature, dtype=float)
+        
+        if pressure:
+            self.pressure = np.array(pressure, dtype=float)
+
         self.write_out = write_out
         self.filename = filename
         
@@ -739,8 +754,8 @@ class Quasi_harmonic:
                        'SCELPHONO' keyword of CRYSTAL17 input.
         Output:
             self.ncalc, int, Number of HA phonon calculations.
-            self.combined_mode, self.combined_edft, self.combined_volume, refer
-            the method 'combine_data'
+            self.combined_phonon, self.combined_volume, self.combined_edft,
+            self.combined_mode, refer the method 'combine_data'
         """
         from crystal_functions.thermodynamics import Harmonic
 
@@ -753,12 +768,17 @@ class Quasi_harmonic:
         if self.ncalc == 1:
             print('WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
 
-        ha_list = [Harmonic().from_file(file, scelphono=scelphono,
-                                        read_eigenvector=True, write_out=False)
-                   for file in input_files]
-
-        self.combined_volume, self.combined_edft, self.combined_mode \
-        = self.combine_data(ha_list)
+        ha_list = [
+            Harmonic(write_out=False).from_file(
+                file,
+                scelphono=scelphono, 
+                read_eigenvector=True,
+                auto_calc=False
+            ) for file in input_files
+        ]
+        
+        self.combined_phonon, self.combined_volume, self.combined_edft, \
+        self.combined_mode = self.combine_data(ha_list)
 
         return self
 
@@ -773,6 +793,7 @@ class Quasi_harmonic:
         Input:
             ha_list, ncalc * 1 list, The list of harmonic objects.
         Output:
+            combined_phonon, list of Harmonic objects, Sampled calculations
             combined_volume, ncalc * 1 list, A list of volumes.
                              Unit: Angstrom^3
             combined_edft, ncalc * 1 list, A list of DFT total energies.
@@ -805,13 +826,15 @@ class Quasi_harmonic:
         sorted_vol = np.array(sorted_vol, dtype=float)
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
 
-        freq = []
+        combined_phonon = []
         volume = []
-        eigvt = []
         edft = []
+        freq = []
+        eigvt = []
         for idx_old in sorted_vol:
             volume.append(idx_old[1])
             ha_phonon = ha_list[int(idx_old[0])]
+            combined_phonon.append(ha_phonon)
             edft.append(ha_phonon.edft)
             freq.append(ha_phonon.frequency)
             eigvt.append(ha_phonon.eigenvector)
@@ -823,8 +846,7 @@ class Quasi_harmonic:
         # freq, ncalc * nqpoint * nmode array to nqpoint * nmode * ncalc array
         freq = np.transpose(np.array(freq, dtype=float), axes=[1, 2, 0])
         # eigvt, ncalc * nqpoint * nmode * natom * 3 array to nqpoint * nmode * ncalc * natom * 3 array
-        eigvt = np.transpose(np.array(eigvt, dtype=float),
-                             axes=[1, 2, 0, 3, 4])
+        eigvt = np.transpose(np.array(eigvt, dtype=float), axes=[1, 2, 0, 3, 4])
 
         combined_mode = []
         for idx_q in range(len(nmode)):
@@ -873,7 +895,7 @@ class Quasi_harmonic:
 
             file.close()
 
-        return combined_volume, combined_edft, combined_mode
+        return combined_phonon, combined_volume, combined_edft, combined_mode
 
     def edft_eos_fit(self, method):
         """
@@ -1031,7 +1053,8 @@ class Quasi_harmonic:
 
             num_mode.append(num_mode_q)
 
-        ha = Harmonic().from_data(self.eos(volume), num_mode, volume=volume)
+        ha = Harmonic(write_out=False).from_data(self.eos(volume), 
+                                                 num_mode, volume=volume)
 
         return ha
 
@@ -1107,7 +1130,12 @@ class Quasi_harmonic:
             
             if hasattr(self, 'pressure') and 'pressure' in temptpress:
                 print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
-                self.pressure = np.array(temptpress['pressure'], dtype=float) 
+                self.pressure = np.array(temptpress['pressure'], dtype=float)
+        else:
+            if not hasattr(self, 'temperature') or \
+               not hasattr(self, 'pressure'):
+                print('ERROR: Temperature and pressure should be specified.')
+                sys.exit(1)
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'eos'):
