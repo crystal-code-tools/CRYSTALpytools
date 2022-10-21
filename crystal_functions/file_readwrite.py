@@ -272,6 +272,17 @@ class Crystal_output:
 
         return self
 
+    def get_dielectric_tensor(self):
+
+        import re
+
+        for i, line in enumerate(self.data):
+            if re.match(r'^ TENSOR IN PRINCIPAL AXES SYSTEM', line):
+                # This is the end of output
+                self.dielectric_tensor = [float(x) for x in self.data[i+1].split()[1::2]]
+                return self.dielectric_tensor
+        return None
+
     def get_eigenvectors(self):
 
         import re
