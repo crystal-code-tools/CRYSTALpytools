@@ -258,12 +258,35 @@ class Harmonic(Crystal_output):
         self.C_v, thermodynamics
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, temperature=[], pressure=[], 
+                 write_out=True, filename='HA-thermodynamics.dat'):
+        """
+        Initialization.
+        
+        Input:
+            temperature, nTempt * 1 array / list, Temperatures where the
+                         thermodynamic properties are computed. Unit: K
+            pressure, npress * 1 array / list, Pressures where the
+                      thermodyanmic properties are calculated. Unit: GPa
+            write_out, bool, Wheter to print out HA thermodynamic properties.
+            filename, str, Name of the printed-out file, used only if
+                      write_out = True.
+        Note: Temperature can also be defined in 'thermodynamics' method, which
+              will cover the settings during initialisation.
+        Output: 
+            -
+        """
+        import numpy as np
+        
+        self.temperature = np.array(temperature, dtype=float)
+        self.pressure = np.array(pressure, dtype=float)
+        self.write_out = write_out
+        self.filename = filename
+        
+        return self
 
     def from_file(self, output_name, scelphono=[], read_eigenvector=False,
-                  temperature=[298.15], pressure=[0.],
-                  write_out=True, filename='HA-thermodynamics.dat'):
+                  auto_calc=True):
         """
         Generate the Harominc object from a HA file.
 
@@ -275,16 +298,9 @@ class Harmonic(Crystal_output):
                         list is also allowed.
             read_eigenvector, bool, Whether reading eigenvectors, i.e.,
                               normalised modes from outputs.
-            temperature, nTempt * 1 array / list, Temperatures where the
-                         thermodynamic properties are computed. Unit: K
-            pressure, npress * 1 array / list, Pressures where the
-                      thermodyanmic properties are calculated. Unit: GPa
-            write_out, bool, Wheter to print out HA thermodynamic properties.
-            filename, str, Name of the printed-out file, used only if
-                      write_out = True.
-
-        Note: Temperature can also be defined in 'thermodynamics' method, which
-              will cover the settings during initialisation.
+            auto_calc, bool, Whether to automatically launch thermodynamic
+                       calculations. Parameters defined during initialization
+                       will be used.
         Output:
             self.strucrure, pymatgen Structure object, the calculation cell,
                             reduced by SCELPHONO.
@@ -305,9 +321,9 @@ class Harmonic(Crystal_output):
             sys.exit(1)
 
         super(Harmonic, self).read_cry_output(output_name)
-        self.get_mode()
-        self.clean_imaginary()
-        self.generate_structure(scelphono=scelphono)
+        super(Harmonic, self).get_mode()
+        super(Harmonic, self).clean_imaginary()
+        super(Harmonic, self).generate_structure(scelphono=scelphono)
 
         if len(self.edft) != 1:
             print("ERROR: Only a single frequency calculation is premitted.")
@@ -326,14 +342,14 @@ class Harmonic(Crystal_output):
             self.mode.append(qmode)
 
         if read_eigenvector:
-            self.get_eigenvector()
+            super(Harmonic, self).get_eigenvector()
 
-        if write_out:
-            self.thermodynamics(temperature=temperature,
-                                pressure=pressure, sumphonon=True)
-            wtout = open(filename, 'w')
-            self.print_results(file=wtout)
-            wtout.close()
+        if auto_calc:
+            self.thermodynamics(sumphonon=True)
+            if self.write_out:
+                wtout = open(self.filename, 'w')
+                self.print_results(file=wtout)
+                wtout.close()
 
         return self
 
@@ -345,10 +361,10 @@ class Harmonic(Crystal_output):
         Input:
             edft: float, Electron total energy
             mode: nqpoint * nmode array, List of mode objects.
-            geometry: optional. Accepted options:
-                structure: Pymatgen structure object
-                natom: int, number of atoms
-                volume: float, volume of the simulation cell. Unit Angstrom^3
+            structure: Optional, Pymatgen structure object
+            natom: Optional, int, number of atoms
+            volume: Optional, float, volume of the simulation cell.
+                    Unit Angstrom^3
         Output:
             self.nqpoint, int, Number of qpoints.
             self.nmode, nqpoint * 1 array, Number of modes at each q point.
@@ -442,7 +458,7 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def phonon_sumup(self, temperature=298.15, calculate_zp=False):
+    def phonon_sumup(self, temperature, calculate_zp):
         """
         Summing up inidival phonon modes at each q point. Translational modes
         with frequencies = 0 are skipped.
@@ -508,16 +524,16 @@ class Harmonic(Crystal_output):
         else:
             return U_vib, entropy, C_v
 
-    def thermodynamics(self, temperature=[298.15], pressure=[0.], sumphonon=True):
+    def thermodynamics(self, sumphonon=True, **temptpress):
         """
         Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
         and Helmholtz free energy) of the given system, at all qpoints and the
         whole temperature range.
 
         Input:
-            temperature, nTempt * 1 array / list, Temperatures where the
-                         thermodynamic properties are computed. Unit: K
-            pressure, npress * 1 array / list, Pressures where the
+            temperature, Optional, nTempt * 1 array / list, Temperatures where
+                         the thermodynamic properties are computed. Unit: K
+            pressure, Optional, npress * 1 array / list, Pressures where the
                       thermodyanmic properties are calculated. Unit: GPa
             sumphonon, bool, Whether summing up the phonon contributions across
                        the first Brillouin zone.
@@ -547,10 +563,16 @@ class Harmonic(Crystal_output):
         """
         import numpy as np
 
-        self.temperature = np.array(temperature, dtype=float)
-        self.pressure = np.array(pressure, dtype=float)
+        if temptpress:
+            if hasattr(self, 'temperature') and 'temperature' in temptpress:
+                print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
+                self.temperature = np.array(temptpress['temperature'], dtype=float)
+            
+            if hasattr(self, 'pressure') and 'pressure' in temptpress:
+                print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
+                self.pressure = np.array(temptpress['pressure'], dtype=float) 
 
-        self.zp_energy = self.phonon_sumup(calculate_zp=True)
+        self.zp_energy = self.phonon_sumup(temperature=0., calculate_zp=True)
         U_vib = []
         entropy = []
         C_v = []
@@ -559,7 +581,7 @@ class Harmonic(Crystal_output):
 
         for T in self.temperature:
             gibbs_t = []
-            U_vib_t, entropy_t, C_v_t = self.phonon_sumup(temperature=T)
+            U_vib_t, entropy_t, C_v_t = self.phonon_sumup(temperature=T, calculate_zp=False)
             helm_t = -entropy_t * T / 1000 + U_vib_t + self.edft
 
             for p in self.pressure:
@@ -680,11 +702,34 @@ class Quasi_harmonic:
     self.entropy, thermodynamics, S(T, V). Unit: J/mol*K
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, temperature=[], pressure=[], 
+                 write_out=True, filename='QHA-Fit.dat'):
+        """
+        Initialization.
+        
+        Input:
+            temperature, nTempt * 1 array / list, Temperatures where the
+                         thermodynamic properties are computed. Unit: K
+            pressure, npress * 1 array / list, Pressures where the
+                      thermodyanmic properties are calculated. Unit: GPa
+            write_out, bool, Whether to record the key information into a file.
+            filename, str, Name of the printed-out file, used only if
+                      write_out = True.
+        Note: Temperature can also be defined in 'thermodynamics' method, which
+              will cover the settings during initialisation.
+        Output: 
+            -
+        """
+        import numpy as np
+        
+        self.temperature = np.array(temperature, dtype=float)
+        self.pressure = np.array(pressure, dtype=float)
+        self.write_out = write_out
+        self.filename = filename
+        
+        return self
 
-    def from_HA_files(self, input_files, scelphono=[], 
-                      write_out=True, filename='QHA-Fit.dat'):
+    def from_HA_files(self, input_files, scelphono=[]):
         """
         Read data from individual HA calculation outputs.
 
@@ -692,9 +737,6 @@ class Quasi_harmonic:
             input_files, ncalc*1 list, List of phonon output filenames.
             scelphono, ndimen*ndimen or 3*3 list / array, Same to the
                        'SCELPHONO' keyword of CRYSTAL17 input.
-            write_out, bool, Whether to record the key information into a file.
-                       Default: True.
-            filename, string, The name of output file. Default: 'QHA-fit.dat'
         Output:
             self.ncalc, int, Number of HA phonon calculations.
             self.combined_mode, self.combined_edft, self.combined_volume, refer
@@ -703,23 +745,24 @@ class Quasi_harmonic:
         from crystal_functions.thermodynamics import Harmonic
 
         if hasattr(self, "ncalc"):
-            return "WARNING: Data exists. The current command will be ignored."
+            print('WARNING: Data exists. The current command will be ignored.')
+
+            return self 
 
         self.ncalc = len(input_files)
         if self.ncalc == 1:
-            print(
-                'WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
+            print('WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
 
         ha_list = [Harmonic().from_file(file, scelphono=scelphono,
                                         read_eigenvector=True, write_out=False)
                    for file in input_files]
 
         self.combined_volume, self.combined_edft, self.combined_mode \
-            = self.combine_data(ha_list, write_out=write_out, filename=filename)
+        = self.combine_data(ha_list)
 
         return self
 
-    def combine_data(self, ha_list, write_out, filename):
+    def combine_data(self, ha_list):
         """
         Combine the HA calculation data and rearrange it according to modes.
         Not a standalone method.
@@ -729,8 +772,6 @@ class Quasi_harmonic:
 
         Input:
             ha_list, ncalc * 1 list, The list of harmonic objects.
-            write_out, bool, Whether printing out the combined data.
-            filename, string, output file.
         Output:
             combined_volume, ncalc * 1 list, A list of volumes.
                              Unit: Angstrom^3
@@ -796,8 +837,8 @@ class Quasi_harmonic:
 
             combined_mode.append(combined_mode_q)
 
-        if write_out:
-            file = open(filename, 'w')
+        if self.write_out:
+            file = open(self.filename, 'w')
             file.write('%s\n' % '# COMBINED QHA DATA')
             file.write('%s' % '## SAMPLED VOLUMES(ANGSTROM^3) = ')
             for v in combined_volume:
@@ -834,7 +875,7 @@ class Quasi_harmonic:
 
         return combined_volume, combined_edft, combined_mode
 
-    def edft_eos_fit(self, method, write_out, filename):
+    def edft_eos_fit(self, method):
         """
         Fit electron total energy according to equation of states. Not a
         standalone method.
@@ -842,8 +883,6 @@ class Quasi_harmonic:
         Input:
             method: string, Name of EoS used. Consistent with requirements of
                     pymatgen (https://pymatgen.org/pymatgen.analysis.eos.html).
-            write_out, bool, Whether to print out the fitted parameters.
-            filename, string, Name of the output file.
         Output:
             self.eos_method, string, Equation of State used
             self.eos, pymatgen EOS object, Fitted equation of state.
@@ -852,8 +891,8 @@ class Quasi_harmonic:
 
         self.eos_method = method
         self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
-        if write_out:
-            file = open(filename, 'a+')
+        if self.write_out:
+            file = open(self.filename, 'a+')
             file.write('%s%s\n' % (
                 '# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
             file.write(
@@ -872,7 +911,7 @@ class Quasi_harmonic:
 
         return self.eos
 
-    def freq_polynomial_fit(self, order, write_out, filename):
+    def freq_polynomial_fit(self, order):
         """
         Fit phonon frequencies as polynomial functions of volumes. Not a
         standalone method.
@@ -880,8 +919,6 @@ class Quasi_harmonic:
         Input:
             order, list/array, List of the highest order of polynomials to be
                    fitted. Default: [2, 3] (quadratic, cubic)
-            write_out, bool, Whether to print the fitted parameters
-            filename, string, Name of the output.
         Output:
             self.freq_method, 'polynomial', Fitting method for frequencies.
             self.fit_order, int, The optimal order of polynomial fit.
@@ -902,8 +939,8 @@ class Quasi_harmonic:
         self.freq_method = 'polynomial'
         rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
 
-        if write_out:
-            file = open(filename, 'a+')
+        if self.write_out:
+            file = open(self.filename, 'a+')
             file.write('%s\n' % '# POLYNOMIAL FIT OF MODE FREQUENCY')
             file.write(
                 '%s\n' % '  Frequency of each vibrational mode is fitted as the polynomial function of')
@@ -912,7 +949,7 @@ class Quasi_harmonic:
         for idx_q, mode_q in enumerate(self.combined_mode):
             rsquare_q = {od: 0. for od in order}
 
-            if write_out:
+            if self.write_out:
                 file.write('\n%s%8i\n' %
                            ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
 
@@ -921,9 +958,8 @@ class Quasi_harmonic:
                 for key, value in mode.poly_fit_rsqaure.items():
                     rsquare_q[key] += value / len(mode_q)
 
-                if write_out:
-                    file.write('%-8s%7s%14s%s\n' % ('  Mode #',
-                                                    'Order', 'R^2', '  Coeff low to high'))
+                if self.write_out:
+                    file.write('%-8s%7s%14s%s\n' % ('  Mode #', 'Order', 'R^2', '  Coeff low to high'))
                     for idx_od, od in enumerate(order_new):
                         if idx_od == 0:
                             file.write('%8i' % mode.rank)
@@ -942,7 +978,7 @@ class Quasi_harmonic:
             rsquare_tot[:, 1] += np.array([rsquare_q[od] /
                                            len(self.combined_mode) for od in order])
 
-            if write_out:
+            if self.write_out:
                 file.write('%s%8i\n' %
                            ('## POLYNOMIAL FIT GOODNESS AT QPOINT #', idx_q))
                 file.write('%-7s%14s\n' % ('  Order', 'R^2'))
@@ -951,7 +987,7 @@ class Quasi_harmonic:
 
         self.fit_order = int(rsquare_tot[np.argmax(rsquare_tot[:, 1]), 0])
 
-        if write_out:
+        if self.write_out:
             file.write('\n\n')
             file.close()
 
@@ -1014,11 +1050,10 @@ class Quasi_harmonic:
 
         return ha.gibbs[0, 0, 0]
 
-    def thermodynamics(self, temperature=[298.15], pressure=[0.],
-                       eos_method='birch_murnaghan', freq_method='polynomial',
-                       poly_order=[2, 3], gruneisen_continuity=0.112011,
-                       min_method='BFGS', volume_bound=None,
-                       write_out=True, filename='QHA_Fit.dat'):
+    def thermodynamics(self, eos_method='birch_murnaghan', 
+                       freq_method='polynomial', poly_order=[2, 3], 
+                       gruneisen_continuity=0.112011,
+                       min_method='BFGS', volume_bound=None, **temptpress):
         """
         1. Fit E_DFT and frequencies (if that has not been done) according to
         methods specified. 
@@ -1028,8 +1063,8 @@ class Quasi_harmonic:
         3. Calculate pressure-dependent proerties (Gibbs free energy)
 
         Input:
-            temperature: nTempt*1 list/array, List of temperatures. Unit: K
-            pressure: nPress*1 list/array, List of pressures. Unit: GPa
+            temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
+            pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
             eos_method: string, Equation of state used to fit E_DFT. For EOSs
                         supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
             freq_method: string ('polynomial' / 'gruneisen'), Methods to fit
@@ -1044,8 +1079,6 @@ class Quasi_harmonic:
                         * L-BFGS-B(with boundary)
             volume_bound: turple-like, Boundary conditions of equilibrium
                           volumes. Unit: Angstrom^3
-            write_out: bool, Whether to print out the results.
-            filename: string, Name of the output.
         Output:
             self.temperature, nTempt*1 array, List of temperatures. Unit: K
             self.pressure, nPress*1 array, List of pressures. Unit: GPa
@@ -1067,21 +1100,18 @@ class Quasi_harmonic:
         from scipy.optimize import minimize
 
         # Generate temperature and pressure series
-        if hasattr(self, 'temperature'):
-            print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
-
-        self.temperature = np.array(temperature, dtype=float)
-
-        if hasattr(self, 'pressure'):
-            print(
-                'WARNING! Pressure attribute exists. Input temperatures will be used to update the attribute.')
-
-        self.pressure = np.array(pressure, dtype=float)
+        if temptpress:
+            if hasattr(self, 'temperature') and 'temperature' in temptpress:
+                print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
+                self.temperature = np.array(temptpress['temperature'], dtype=float)
+            
+            if hasattr(self, 'pressure') and 'pressure' in temptpress:
+                print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
+                self.pressure = np.array(temptpress['pressure'], dtype=float) 
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'eos'):
-            print(
-                'WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
+            print('WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
         else:
             self.edft_eos_fit(method=eos_method,
                               write_out=write_out, filename=filename)
@@ -1161,8 +1191,8 @@ class Quasi_harmonic:
         self.entropy = np.array(self.entropy)
 
         # Print output file
-        if write_out:
-            file = open(filename, 'a+')
+        if self.write_out:
+            file = open(self.filename, 'a+')
             file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES')
             file.write('%s\n\n' % '  Thermodynamic properties fitted by QHA.')
             if self.freq_method == 'polynomial':
