@@ -4,7 +4,6 @@
 Created on Fri Nov 19 18:28:28 2021
 """
 
-
 class Crystal_input:
     # This creates a crystal_input object
 
@@ -211,13 +210,13 @@ class Crystal_input:
 
                 gui_file_name = input_name[:-4]+'.gui'
                 gui_obj = cry_pmg2gui(external_obj)
-                write_crystal_gui(gui_file_name, gui_obj)
+                gui_obj.write_crystal_gui(gui_file_name)
 
             elif 'pymatgen.core' in str(type(external_obj)):
 
                 gui_file_name = input_name[:-4]+'.gui'
                 gui_obj = cry_pmg2gui(external_obj)
-                write_crystal_gui(gui_file_name, gui_obj)
+                gui_objwrite_crystal_gui(gui_file_name)
 
             else:
                 print(
@@ -628,7 +627,7 @@ class Crystal_output:
                                               self.atom_positions_cart, coords_are_cartesian=True)
                         gui_object = cry_pmg2gui(structure)
 
-                        write_crystal_gui(gui_file, gui_object)
+                        gui_object.write_crystal_gui(gui_file)
                     else:
                         gui_file = symm_info
                         try:
@@ -1257,14 +1256,14 @@ class Properties_input:
                 do not match the required format (2 item list)')
             sys.exit(1)
 
-        pdoss_block.append('PDOS\n')
+        pdoss_block.append('DOSS\n')
         pdoss_block.append(str(len(projections))+' '+str(n_points)+' '+str(pdoss_range[0])+' ' +
                            str(pdoss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
                            str(print_option)+'\n')
 
         if range_is_bands == False:
             pdoss_block.append(
-                str(round(pdoss_range[0]/27.2114, 6))+' '+str(round(pdoss_range[1]/27.2114, 6))+'\n')
+                str(round(e_range[0]/27.2114, 6))+' '+str(round(e_range[1]/27.2114, 6))+'\n')
 
         flat_proj = [x for sublist in projections for x in sublist]
 
@@ -2006,7 +2005,7 @@ class Crystal_gui:
         for i in range(1, 4):
             self.lattice.append([float(x) for x in data[i].split()])
         self.n_symmops = int(data[4].split()[0])
-        for i in range(5,4+self.n_symmops*4):
+        for i in range(5,5+self.n_symmops*4):
             self.symmops.append([float(x) for x in data[i].split()])
         self.n_atoms = int(data[5+self.n_symmops*4].split()[0])
         self.atom_number = []
@@ -2033,18 +2032,17 @@ class Crystal_gui:
 
             # First line
             file.writelines('%s   1   1\n' % self.dimensionality)
-
             # Cell vectors
             for vector in self.lattice:
-                file.writelines(' '.join(str(n) for n in vector)+'\n')
-
+                file.writelines(' '.join((format(np.round(n,12),'.12E')) for n in vector)+'\n')
             # N symm ops
             file.writelines('{}\n'.format(str(self.n_symmops)))
 
             # symm ops
             for symmops in self.symmops:
                 file.writelines('{}\n'.format(
-                    ' '.join(str(np.around(n, 8)) for n in symmops)))
+                    #' '.join(str(np.around(n, 8)) for n in symmops)))
+                    ' '.join(str(format(np.round(n,12),'.12E')) for n in symmops)))
 
             # N atoms
             file.writelines('{}\n'.format(self.n_atoms))
@@ -2056,7 +2054,7 @@ class Crystal_gui:
                                                     ' '.join([str(x) for x in self.atom_positions[i]])))
                 else:
                     file.writelines('{} {}\n'.format(self.atom_number[i],
-                                                    ' '.join([str(x) for x in self.atom_positions[i]])))
+                                                    ' '.join([str(format(np.round(x,12),'.12E')) for x in self.atom_positions[i]])))
 
             # space group + n symm ops
             if symm == True:
@@ -2064,7 +2062,6 @@ class Crystal_gui:
                     self.space_group, self.n_symmops))
             else:
                 file.writelines('1 1')
-
 
 class Crystal_density():
     # WORK IN PROGRESS
