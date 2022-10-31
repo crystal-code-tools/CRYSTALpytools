@@ -2032,6 +2032,119 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
     plt.show()
 
+def Young(theta, phi, S):
+
+    import numpy as np
+
+    # C2V = Matrix to refer the Cartesian into Voigt's notation
+    # Observe that the matrix should be written as is shown below
+    # C2V = np.array([[1,6,5],[6,2,4],[5,4,3]])
+    # Since python start counting from zero all numbers must be subtracted by 1
+    C2V = np.array(
+            [
+                [0, 5, 4],
+                [5, 1, 3],
+                [4, 3, 2]
+                ]
+            )
+    # print("The Matrix to convert Cartesian into Voigs Notation: \n", C2V)
+    # creating the 1x3 vector "a"
+    a = np.array(
+            [
+                np.sin(theta) * np.cos(phi),
+                np.sin(theta) * np.sin(phi),
+                np.cos(theta),
+                ]
+            )
+    # e is a pseudo Young modulus value folowing the relation 1/e
+    e = 0.0
+    # i,j,k,l are updatable indices refering to cartesian notation that
+    # will be converted by C2V into Voigt's
+    for i in range(3):
+        for j in range(3):
+            v = C2V[i, j]
+            for k in range(3):
+                for l in range(3):
+                    u = C2V[k, l]
+                    # rf is a factor that must be multipled by the compliance element if
+                    # certain conditions are satisfied
+                    rf = 1
+                    if v >= 3 and u >= 3:
+                        rf = 4
+                    if v >= 3 and u < 3:
+                        rf = 2
+                    if u >= 3 and v < 3:
+                        rf = 2
+
+                    rtmp = a[i] * a[j] * a[k] * a[l] * (S[v, u] / rf)
+                    e = e + rtmp
+    E_tmp = 1 / e  # is the Young Modulus of each cycle
+    return E_tmp 
+
+def plot_cry_ela(C, Cref, ndeg, choose):
+    
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import math
+    from mpl_toolkits.mplot3d import axes3d, Axes3D
+    from matplotlib import cm, colors, animation
+
+    # Inverse of the matrix C in GPa (Compliance)
+    S = np.linalg.inv(C)
+    Sref = np.linalg.inv(Cref)
+
+    # one dimentional array of theta from 0 to pi
+    theta_1D = np.linspace(0, np.pi, ndeg)
+    # one dimentional array of phi from 0 to 2pi
+    phi_1D = np.linspace(0, 2 * np.pi, ndeg)
+    # Make a 2D array for theta and phi
+    theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
+
+    if choose == 1:
+        R = Young(theta_2D, phi_2D, S)
+        Rref = Young(theta_2D, phi_1D, Sref)
+    
+    # Convert to cartesian coordinates for 3D representatio
+    X = R * np.sin(theta_2D) * np.cos(phi_2D)
+    Y = R * np.sin(theta_2D) * np.sin(phi_2D)
+    Z = R * np.cos(theta_2D)
+
+    norm = colors.Normalize(vmin=np.min(Rref), vmax=np.max(Rref), clip=False)
+    fig, ax = plt.subplots(subplot_kw=dict(projection="3d"))
+
+    ax.plot_surface(
+        X,
+        Y,
+        Z,
+        rstride=1,
+        cstride=1,
+        facecolors=cm.jet(norm(R)),
+        antialiased=True,
+        alpha=0.75,
+    )
+
+    m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
+    m.set_array(R)
+    fig.colorbar(m, shrink=0.7)
+
+    # make the planes transparent
+    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    # make the grid lines transparent
+    #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    # fixing limits
+    ax.set_xlim(-1 * np.max(R), np.max(R))
+    ax.set_ylim(-1 * np.max(R), np.max(R))
+    ax.set_zlim3d(-1 * np.max(R), np.max(R))
+    ax.locator_params(nbins=5)  # tight=True,
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    plt.show()
 
 def save_plot(path_to_file):
 

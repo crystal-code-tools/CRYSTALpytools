@@ -1015,6 +1015,45 @@ class Crystal_output:
         else:
             return self.frequency
 
+    def get_elatensor(self):
+
+        startstring = " SYMMETRIZED ELASTIC"
+        stopstring = " ELASTIC MODULI"
+        self.tensor = []
+        buffer = []
+        strtensor = []
+        copy = False
+
+        # Search for elastic tensor and save it into buffer
+        for line in self.data:
+            if line.startswith(startstring):
+                copy = True
+            elif line.startswith(stopstring):
+                copy = False
+            elif copy:
+                buffer.append(line)
+
+        # Build tensor
+        for i in range(6):
+            # Clean buffer and copy it in strtensor
+            strtensor.append(buffer[i + 1].replace(" |", " ").replace("\n", ""))
+            # Split strtensor strings and copy them in tensor
+            self.tensor.append(strtensor[i].split())
+            # Conversion str -> float
+            for j in range(6 - i):
+                self.tensor[i][j] = float(self.tensor[i][j])
+            # Add zeros
+            for k in range(i):
+                self.tensor[i].insert(0, 0)
+        buffer.clear()
+        
+        # Symmetrize tensor
+        for i in range(6):
+            for j in range(6):
+                self.tensor[j][i] = self.tensor[i][j]
+
+        return self.tensor
+
 
 class Properties_input:
     # This creates a properties_input object
