@@ -2032,7 +2032,9 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
     plt.show()
 
-def Young(theta, phi, S):
+
+
+def ela_young(theta, phi, S):
 
     import numpy as np
 
@@ -2081,7 +2083,49 @@ def Young(theta, phi, S):
     E_tmp = 1 / e  # is the Young Modulus of each cycle
     return E_tmp 
 
-def plot_cry_ela(C, Cref, ndeg, choose):
+
+
+def ela_comp(theta, phi, S):
+
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2]
+                ]
+            )
+
+    a = np.array(
+            [
+                np.sin(theta) * np.cos(phi), 
+                np.sin(theta) * np.sin(phi), 
+                np.cos(theta),
+                ]
+            )
+    B = 0.0
+
+    for i in range(3):
+        for j in range(3):
+            v = C2V[i, j]
+            for k in range(3):
+                u = C2V[k, k]
+                rf = 1
+                if v >= 3 and u >= 3:
+                    rf = 4
+                if v >= 3 and u < 3:
+                    rf = 2
+                if u >= 3 and v < 3:
+                    rf = 2
+
+                rtmp = a[i] * a[j] * (S[v, u] / rf)
+                B = B + rtmp
+    return B
+
+
+
+def plot_cry_ela(C, Cref, ndeg, choose, save_to_file=False):
     
     import numpy as np
     import matplotlib.pyplot as plt
@@ -2100,11 +2144,17 @@ def plot_cry_ela(C, Cref, ndeg, choose):
     # Make a 2D array for theta and phi
     theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
 
-    if choose == 1:
-        R = Young(theta_2D, phi_2D, S)
-        Rref = Young(theta_2D, phi_1D, Sref)
+    if choose == "young":
+        R = ela_young(theta_2D, phi_2D, S)
+        Rref = ela_young(theta_2D, phi_1D, Sref)
+    if choose == "comp":
+        R = ela_comp(theta_2D, phi_2D, S)
+        Rref = ela_comp(theta_2D, phi_2D, Sref)
+    #if choose == 3:
+    #    R = ela_shear(theta_1D, phi_1D, S, ndeg)
+    #    Rref = ela_shear(theta_1D, phi_1D, Sref, ndeg)
     
-    # Convert to cartesian coordinates for 3D representatio
+    # Convert to cartesian coordinates for 3D representation
     X = R * np.sin(theta_2D) * np.cos(phi_2D)
     Y = R * np.sin(theta_2D) * np.sin(phi_2D)
     Z = R * np.cos(theta_2D)
@@ -2145,7 +2195,9 @@ def plot_cry_ela(C, Cref, ndeg, choose):
     ax.set_zlabel("Z")
 
     plt.show()
-
+    if save_to_file != False:
+        save_plot(save_to_file)
+        
 def save_plot(path_to_file):
 
     from os import path
