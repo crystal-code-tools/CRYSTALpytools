@@ -2034,7 +2034,7 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
 
 
-def ela_young(theta, phi, S):
+def plot_cry_young(theta, phi, S):
 
     import numpy as np
 
@@ -2084,8 +2084,7 @@ def ela_young(theta, phi, S):
     return E_tmp 
 
 
-
-def ela_comp(theta, phi, S):
+def plot_cry_comp(theta, phi, S):
 
     import numpy as np
 
@@ -2124,37 +2123,145 @@ def ela_comp(theta, phi, S):
     return B
 
 
+def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
 
-def plot_cry_ela(C, Cref, ndeg, choose, save_to_file=False):
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2],
+                ]
+            )
+    shear_chi = np.zeros(ndeg)
+    shear_min = np.zeros((ndeg, ndeg))
+    shear_max = np.zeros((ndeg, ndeg))
+    shear_avg = np.zeros((ndeg, ndeg))
+    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
+
+    for phi_idx in range(ndeg):
+        phi = phi_1D[phi_idx]
+        for theta_idx in range(ndeg):
+            theta = theta_1D[theta_idx]
+            for chi_idx in range(ndeg):
+                chi = chi_1D[chi_idx]
+                a = np.array(
+                    [
+                        np.sin(theta) * np.cos(phi),
+                        np.sin(theta) * np.sin(phi),
+                        np.cos(theta),
+                    ]
+                )
+                b = np.array(
+                    [
+                        np.cos(theta) * np.cos(phi) * np.cos(chi)
+                        - np.sin(phi) * np.sin(chi),
+                        np.cos(theta) * np.sin(phi) * np.cos(chi)
+                        + np.cos(phi) * np.sin(chi),
+                        -np.sin(theta) * np.cos(chi),
+                    ]
+                )
+                shear_tmp = 0
+                for i in range(3):
+                    for j in range(3):
+                        v = C2V[i, j]
+                        for k in range(3):
+                            for l in range(3):
+                                u = C2V[k, l]
+                                rf = 1
+                                if v >= 3 and u >= 3:
+                                    rf = 4
+                                if v >= 3 and u < 3:
+                                    rf = 2
+                                if u >= 3 and v < 3:
+                                    rf = 2
+                                rtmp = a[i] * b[j] * a[k] * b[l] * (S[v, u] / rf)
+                                shear_tmp = shear_tmp + rtmp
+                shear_chi[chi_idx] = 1 / (4 * shear_tmp)
+            shear_min[phi_idx, theta_idx] = np.amin(shear_chi)
+            shear_max[phi_idx, theta_idx] = np.amax(shear_chi)
+            shear_avg[phi_idx, theta_idx] = np.mean(shear_chi)
+
+    if shear_choice == "avg":
+        return shear_avg
+    if shear_choice == "min":
+        return shear_min
+    if shear_choice == "max":
+        return shear_max
+
+
+def plot_cry_ela(*args):
     
     import numpy as np
     import matplotlib.pyplot as plt
     import math
+    import time
+    import sys
     from mpl_toolkits.mplot3d import axes3d, Axes3D
     from matplotlib import cm, colors, animation
 
+    if len(args) == 3:
+        compare = False
+        C = args[0]
+        ndeg = args[1]
+        choose = args[2]
+    if len(args) == 4:
+        compare = True
+        C = args[0]
+        Cref = args[1]
+        ndeg = args[2]
+        choose = args[3]
+        Sref = np.linalg.inv(Cref)
+    if len(args) > 4:
+        sys.exit("Too many arguments!")
+        
     # Inverse of the matrix C in GPa (Compliance)
     S = np.linalg.inv(C)
-    Sref = np.linalg.inv(Cref)
 
-    # one dimentional array of theta from 0 to pi
+    # One dimentional array of theta from 0 to pi
     theta_1D = np.linspace(0, np.pi, ndeg)
-    # one dimentional array of phi from 0 to 2pi
+    # One dimentional array of phi from 0 to 2pi
     phi_1D = np.linspace(0, 2 * np.pi, ndeg)
     # Make a 2D array for theta and phi
     theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
 
     if choose == "young":
-        R = ela_young(theta_2D, phi_2D, S)
-        Rref = ela_young(theta_2D, phi_1D, Sref)
-    if choose == "comp":
-        R = ela_comp(theta_2D, phi_2D, S)
-        Rref = ela_comp(theta_2D, phi_2D, Sref)
-    #if choose == 3:
-    #    R = ela_shear(theta_1D, phi_1D, S, ndeg)
-    #    Rref = ela_shear(theta_1D, phi_1D, Sref, ndeg)
+        R = plot_cry_young(theta_2D, phi_2D, S)
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_young(theta_2D, phi_1D, Sref)
+    elif choose == "comp":
+        R = plot_cry_comp(theta_2D, phi_2D, S)
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_comp(theta_2D, phi_2D, Sref)
+    elif choose == "shear avg":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "avg")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "avg")
+    elif choose == "shear min":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "min")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "min")
+    elif choose == "shear max":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "max")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "max")
+    else:
+        print(choose, "is an invalid plotting choice")
+        sys.exit(1)
+
     
-    # Convert to cartesian coordinates for 3D representation
+    # Convert to Cartesian coordinates for 3D representation
     X = R * np.sin(theta_2D) * np.cos(phi_2D)
     Y = R * np.sin(theta_2D) * np.sin(phi_2D)
     Z = R * np.cos(theta_2D)
@@ -2177,15 +2284,15 @@ def plot_cry_ela(C, Cref, ndeg, choose, save_to_file=False):
     m.set_array(R)
     fig.colorbar(m, shrink=0.7)
 
-    # make the planes transparent
+    # Make the planes transparent
     ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
     ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
     ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    # make the grid lines transparent
+    # Make the grid lines transparent
     #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-    # fixing limits
+    # Fixing limits
     ax.set_xlim(-1 * np.max(R), np.max(R))
     ax.set_ylim(-1 * np.max(R), np.max(R))
     ax.set_zlim3d(-1 * np.max(R), np.max(R))
@@ -2195,9 +2302,9 @@ def plot_cry_ela(C, Cref, ndeg, choose, save_to_file=False):
     ax.set_zlabel("Z")
 
     plt.show()
-    if save_to_file != False:
-        save_plot(save_to_file)
+    fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
         
+
 def save_plot(path_to_file):
 
     from os import path
