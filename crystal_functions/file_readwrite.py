@@ -978,6 +978,11 @@ class Crystal_output:
 
         self.eigenvector = np.array(self.eigenvector) * 0.529177
 
+        # Normalize eigenvectors of each mode to 1
+        for idx_q, q in enumerate(self.eigenvector):
+            for idx_m, m in enumerate(q):
+                self.eigenvector[idx_q, idx_m] /= np.sum(np.linalg.norm(m, axis=1))
+        
         return self.eigenvector
 
     def clean_imaginary(self):
