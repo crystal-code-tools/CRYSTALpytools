@@ -1113,8 +1113,7 @@ class Quasi_harmonic:
                         * L-BFGS-B(with boundary)
             volume_bound: turple-like, Boundary conditions of equilibrium
                           volumes. Unit: Angstrom^3
-            mutewarning, bool, Whether print out warning messages of updating
-                               temperature and pressure.
+            mutewarning, bool, Whether print out warning messages.
             temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
             pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
         Output:
@@ -1157,15 +1156,15 @@ class Quasi_harmonic:
                 sys.exit(1)
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
-        if hasattr(self, 'eos'):
+        if hasattr(self, 'eos') and not mutewarning:
             print('WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
         else:
             self.edft_eos_fit(method=eos_method)
 
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
-        if hasattr(self, 'freq_method') and self.freq_method == 'polynomial':
+        if hasattr(self, 'freq_method') and self.freq_method == 'polynomial' and not mutewarning:
             print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
-        elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen':
+        elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen' and not mutewarning:
             print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
         else:
             if freq_method == 'polynomial':
@@ -1199,8 +1198,7 @@ class Quasi_harmonic:
                 exec(methods[min_method], params)
                 eq_vol_p.append(params['vol'].x[0])
 
-                if params['vol'].x[0] < min(self.combined_volume) or \
-                   params['vol'].x[0] > max(self.combined_volume):
+                if (params['vol'].x[0] < min(self.combined_volume) or params['vol'].x[0] > max(self.combined_volume)) and not mutewarning:
                     print(
                         'WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
                     print(
@@ -1268,6 +1266,8 @@ class Quasi_harmonic:
                                 '', self.entropy[idx_p, idx_t]))
 
                 file.write('\n')
-                file.close()
+
+            file.write('\n')
+            file.close()
 
         return self
