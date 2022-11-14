@@ -976,7 +976,7 @@ class Crystal_output:
 
             self.eigenvector.append(q_rearrange)
 
-        self.eigenvector = np.array(self.eigenvector) * 0.529177
+        self.eigenvector = np.array(self.eigenvector)
 
         # Normalize eigenvectors of each mode to 1
         for idx_q, q in enumerate(self.eigenvector):
