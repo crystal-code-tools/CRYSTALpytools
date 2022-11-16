@@ -178,12 +178,14 @@ class Mode:
 
         return self.C_v
 
-    def polynomial_fit(self, order=[2, 3, 4]):
+    def polynomial_fit(self, eq_point, order=[2, 3]):
         """
-        Fit phonon frequency as the polynomial function of volume. Limited to
-        ncalc > 1 cases.
+        Fit phonon frequency as the polynomial function of volume with
+        perturbation theory. Limited to ncalc > 1 cases.
 
         Input:
+            eq_point, int, The DFT total energy minimum point with equilibrium
+                           volumes
             order, norder * 1 list, The orders of polynomials to be fitted.
         Output:
             self.poly_fit, norder * 1 dictionary, the dictionary of numpy
@@ -200,8 +202,7 @@ class Mode:
             sys.exit(1)
 
         if max(order) > self.ncalc - 1:
-            print(
-                'WARNING: Reference data not sufficient for the order of polynomial fitting.')
+            print('WARNING: Reference data not sufficient for the order of polynomial fitting.')
             print('WARNING: Too high values will be removed.')
 
         order = list(set(order))
@@ -209,10 +210,12 @@ class Mode:
 
         self.poly_fit = {}
         self.poly_fit_rsqaure = {}
+        
+        vol_fit = self.volume - self.volume[eq_point]
+        freq_fit = self.frequency - self.frequency[eq_point]
 
         for i in order:
-            func = np.polynomial.polynomial.Polynomial.fit(
-                self.volume, self.frequency, i)
+            func = np.polynomial.polynomial.Polynomial.fit(vol_fit, freq_fit, i)
             self.poly_fit.update({i: func})
             if np.all(abs(self.frequency) < 1E-4):
                 r_square = 1.
@@ -963,7 +966,9 @@ class Quasi_harmonic:
         Rearrange phonon modes by their continuity. If the difference between
         the maximum scalar product of correspondin eigenvectors (normalized to 
         1) and scalar products of other modes is less than 0.4, warning is
-        printed due to the potential overlap of modes. 
+        printed due to the potential overlap of modes. Adopted from CRYSTAL17,
+        
+        Erba A. J. Chem. Phys., 2014 141 124115.
 
         Input:
             freq, ncalc * nmode array, Phonon frequencies.
@@ -1103,6 +1108,7 @@ class Quasi_harmonic:
         import numpy as np
 
         rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
+        eq_point = np.argmin(self.combined_edft)
 
         if self.write_out:
             file = open(self.filename, 'a+')
@@ -1119,12 +1125,14 @@ class Quasi_harmonic:
                            ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
 
             for mode in mode_q:
-                order_new, _, _ = mode.polynomial_fit(order=order)
+                order_new, _, _ = mode.polynomial_fit(eq_point=eq_point, 
+                                                      order=order)
                 for key, value in mode.poly_fit_rsqaure.items():
                     rsquare_q[key] += value / len(mode_q)
 
                 if self.write_out:
-                    file.write('%-8s%7s%14s%s\n' % ('  Mode #', 'Order', 'R^2', '  Coeff low to high'))
+                    file.write('%-8s%7s%14s%s\n' % 
+                               ('  Mode #', 'Order', 'R^2', '  Coeff low to high'))
                     for idx_od, od in enumerate(order_new):
                         if idx_od == 0:
                             file.write('%8i' % mode.rank)
@@ -1140,8 +1148,9 @@ class Quasi_harmonic:
 
                     file.write('\n')
 
-            rsquare_tot[:, 1] += np.array([rsquare_q[od] /
-                                           len(self.combined_mode) for od in order])
+            rsquare_tot[:, 1] += np.array(
+                [rsquare_q[od] / len(self.combined_mode) for od in order]
+            )
 
             if self.write_out:
                 file.write('%s%8i\n' %
@@ -1169,6 +1178,7 @@ class Quasi_harmonic:
             ha, Harmonic, Harmonic phonon object with numerical data.
         """
         import sys
+        import numpy as np
         from crystal_functions.thermodynamics import Harmonic
         from crystal_functions.thermodynamics import Mode
 
@@ -1176,15 +1186,17 @@ class Quasi_harmonic:
             print('ERROR: Analytical expressions unavailable.')
             sys.exit(1)
 
+        eq_point = np.argmin(self.combined_edft)
         num_mode = []
         for mode_q in self.combined_mode:
             num_mode_q = []
             for idx_m, mode in enumerate(mode_q):
+                d_vol = volume - self.combined_volume[eq_point]
+                freq = mode.poly_fit[self.fit_order](d_vol) \
+                     + mode_q[idx_m].frequency[eq_point]
                 num_mode_q.append(
-                    Mode(rank=idx_m + 1,
-                         frequency=[mode.poly_fit[self.fit_order](volume)],
-                         volume=[volume])
-                    )
+                    Mode(rank=idx_m + 1, frequency=[freq], volume=[volume])
+                )
 
             num_mode.append(num_mode_q)
 
