@@ -981,7 +981,8 @@ class Crystal_output:
         # Normalize eigenvectors of each mode to 1
         for idx_q, q in enumerate(self.eigenvector):
             for idx_m, m in enumerate(q):
-                self.eigenvector[idx_q, idx_m] /= np.sum(np.linalg.norm(m, axis=1))
+                self.eigenvector[idx_q, idx_m] = \
+                    self.eigenvector[idx_q, idx_m] / np.linalg.norm(m)
         
         return self.eigenvector
 

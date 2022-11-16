@@ -714,7 +714,6 @@ class Quasi_harmonic:
     self.combined_mode, from_HA_files, A list of mode objects.
     self.eos_method, edft_eos_fit, Fitting method of equation of states
     self.eos, edft_eos_fit, Fitted equation of states
-    self.freq_method, freq_polynomial_fit, Fitting method for frequencies
     self.fit_order, freq_polynomial_fit, The optimal order of polynomial fit
     self.temerature, thermodynamics, Temperature series. Unit: K
     self.pressure, thermodynamics, Pressure series. Unit: GPa
@@ -756,7 +755,7 @@ class Quasi_harmonic:
         else:
             self.filename = 'no file'
 
-    def from_HA_files(self, input_files, scelphono=[]):
+    def from_HA_files(self, input_files, scelphono=[], overlap=0.4):
         """
         Read data from individual HA calculation outputs.
 
@@ -764,6 +763,7 @@ class Quasi_harmonic:
             input_files, ncalc*1 list, List of phonon output filenames.
             scelphono, ndimen*ndimen or 3*3 list / array, Same to the
                        'SCELPHONO' keyword of CRYSTAL17 input.
+            overlap, float, The threshold of close mode overlaps
         Output:
             self.ncalc, int, Number of HA phonon calculations.
             self.combined_phonon, self.combined_volume, self.combined_edft,
@@ -790,11 +790,11 @@ class Quasi_harmonic:
         ]
         
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-        self.combined_mode = self.combine_data(ha_list)
+        self.combined_mode = self._combine_data(ha_list, overlap=overlap)
 
         return self
 
-    def combine_data(self, ha_list):
+    def _combine_data(self, ha_list, overlap):
         """
         Combine the HA calculation data and rearrange it according to modes.
         Not a standalone method.
@@ -804,6 +804,7 @@ class Quasi_harmonic:
 
         Input:
             ha_list, ncalc * 1 list, The list of harmonic objects.
+            overlap, float, The threshold of close mode overlaps
         Output:
             combined_phonon, list of Harmonic objects, Sampled calculations
             combined_volume, ncalc * 1 list, A list of volumes.
@@ -823,51 +824,77 @@ class Quasi_harmonic:
         from crystal_functions.thermodynamics import Mode
 
         # Sorting data according to volumes
-        sorted_vol = []
+        sorted_vol = np.zeros([self.ncalc, 2])
+        nqpoint = ha_list[0].nqpoint
         nmode = ha_list[0].nmode  # nqpoint * 1 array
         natom = ha_list[0].natom  # int
         for index, ha_phonon in enumerate(ha_list):
-            sorted_vol.append([index, ha_phonon.volume])
+            sorted_vol[index, :] = [index, ha_phonon.volume]
             # Check whether the numbers of modes and atoms are consistent.
             if (natom - ha_phonon.natom) != 0 or \
-               not np.all((nmode - ha_phonon.nmode) == 0):
+                not np.all((nmode - ha_phonon.nmode) == 0) or \
+                nqpoint - ha_phonon.nqpoint != 0:
                 print(
-                    'ERROR: The number of modes or atoms is not consistent across the sampling points')
+                    'ERROR: The number of qpoints, modes or atoms is not consistent across the sampling points')
                 sys.exit(1)
 
-        sorted_vol = np.array(sorted_vol, dtype=float)
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
+        nmode = nmode[0]
 
         combined_phonon = []
-        volume = []
-        edft = []
-        freq = []
-        eigvt = []
-        for idx_old in sorted_vol:
-            volume.append(idx_old[1])
-            ha_phonon = ha_list[int(idx_old[0])]
-            combined_phonon.append(ha_phonon)
-            edft.append(ha_phonon.edft)
-            freq.append(ha_phonon.frequency)
-            eigvt.append(ha_phonon.eigenvector)
-
         # Volume, ncalc * 1 array
-        combined_volume = np.array(volume, dtype=float)
+        combined_volume = np.zeros(self.ncalc)
         # DFT total energy, ncalc * 1 array
-        combined_edft = np.array(edft, dtype=float)
-        # freq, ncalc * nqpoint * nmode array to nqpoint * nmode * ncalc array
-        freq = np.transpose(np.array(freq, dtype=float), axes=[1, 2, 0])
-        # eigvt, ncalc * nqpoint * nmode * natom * 3 array to nqpoint * nmode * ncalc * natom * 3 array
-        eigvt = np.transpose(np.array(eigvt, dtype=float), axes=[1, 2, 0, 3, 4])
+        combined_edft = np.zeros(self.ncalc)
+        # Frequency, ncalc * nqpoint * nmode array
+        combined_freq = np.zeros([self.ncalc, nqpoint, nmode])
+        # Eigenvector, ncalc * nqpoint * nmode * natom * 3 array
+        combined_eigvt = np.zeros([self.ncalc, nqpoint, nmode, natom, 3])
+        for idx_new, idx_vol in enumerate(sorted_vol):
+            ha_phonon = ha_list[int(idx_vol[0])]
+            combined_phonon.append(ha_phonon)
+            combined_volume[idx_new] = idx_vol[1]
+            combined_edft[idx_new] = ha_phonon.edft
+            combined_freq[idx_new] = ha_phonon.frequency
+            combined_eigvt[idx_new] = ha_phonon.eigenvector
+        
+        # ncalc * nqpoint * nmode array to nqpoint * ncalc * nmode array
+        combined_freq = np.transpose(combined_freq, axes=[1, 0, 2])
+        # ncalc * nqpoint * nmode * natom * 3 array to 
+        # nqpoint * ncalc * nmode * natom * 3 array
+        combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
+        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
+        for idx_q in range(nqpoint):
+            combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
+                = self._phonon_continuity(combined_freq[idx_q], 
+                                          combined_eigvt[idx_q], 
+                                          overlap=overlap)
+        # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
+        combined_freq = np.transpose(combined_freq, axes=[0, 2, 1])
+        # nqpoint * ncalc * nmode * natom * 3 array to 
+        # nqpoint *  nmode * ncalc * natom * 3 array
+        combined_eigvt = np.transpose(combined_eigvt, axes=[0, 2, 1, 3, 4])
+        # nqpoint * ncalc * nmode_ref * nmode_sort array to
+        # nqpoint * nmode_ref * ncalc * nmode_sort array
+        close_overlap = np.transpose(close_overlap, axes=[0, 2, 1, 3])
+
+        for idx_q, qpoint in enumerate(close_overlap):
+            overlap_numbers = np.sum(qpoint)
+            if overlap_numbers >= 1.:
+                print('WARNING! Close overlap of phonon modes detected at qpoint: ', 
+                      idx_q, ' , ', int(overlap_numbers), ' overlaps out of ', 
+                      nqpoint * nmode, ' modes.')
 
         combined_mode = []
-        for idx_q in range(len(nmode)):
+        for idx_q in range(nqpoint):
             combined_mode_q = []
-            for idx_m in range(nmode[int(idx_q)]):
-                combined_mode_q.append(Mode(rank=idx_m + 1,
-                                            frequency=freq[idx_q, idx_m, :],
-                                            volume=combined_volume,
-                                            eigenvector=eigvt[idx_q, idx_m, :]))
+            for idx_m in range(nmode):
+                combined_mode_q.append(
+                    Mode(rank=idx_m + 1,
+                         frequency=combined_freq[idx_q, idx_m, :],
+                         volume=combined_volume,
+                         eigenvector=combined_eigvt[idx_q, idx_m, :])
+                )
 
             combined_mode.append(combined_mode_q)
 
@@ -888,7 +915,7 @@ class Quasi_harmonic:
 
             file.write('%s\n\n' % '## COMBINED MODES')
             for idx_q, qpoint in enumerate(combined_mode):
-                file.write('%-25s%8i\n' %
+                file.write('%-27s%8i\n' %
                            ('### FREQUENCIES AT QPOINT #', idx_q))
                 for mode in qpoint:
                     file.write('\n%-8s%22s%22s\n' %
@@ -904,10 +931,124 @@ class Quasi_harmonic:
                                    (mode.volume[i], mode.frequency[i]))
 
                 file.write('\n')
+                
+            file.write('%s\n\n' % '## CLOSE OVERLAPS OF PHONON FREQUENCIES')
+            for idx_q, qpoint in enumerate(combined_mode):
+                file.write('%-30s%8i\n\n' % 
+                           ('### CLOSE OVERLAPS AT QPOINT #', idx_q))
+                file.write('%-10s%2s%8s%2s%9s%2s%9s\n' % 
+                           ('  Calc_Ref', '', 'Mode_Ref', '', 'Calc_Sort', 
+                            '', 'Mode_Sort'))
+                for idx_mref, mode in enumerate(qpoint):
+                    if np.sum(close_overlap[idx_q, idx_mref]) < 1.:
+                        continue
+
+                    for idx_csort in range(1, self.ncalc):
+                        for idx_msort in range(nmode):
+                            if close_overlap[idx_q, idx_mref, idx_csort, idx_msort]:
+                                file.write('%10i%2s%8i%2s%9i%2s%9i\n' % 
+                                           (idx_mref + 1, '', idx_csort - 1, 
+                                            '', idx_csort, '', idx_msort + 1))
+                            else:
+                                continue
+                
+                file.write('\n')
 
             file.close()
 
         return combined_phonon, combined_volume, combined_edft, combined_mode
+
+    def _phonon_continuity(self, freq, eigvt, symm=None, overlap=0.4):
+        """
+        Rearrange phonon modes by their continuity. If the difference between
+        the maximum scalar product of correspondin eigenvectors (normalized to 
+        1) and scalar products of other modes is less than 0.4, warning is
+        printed due to the potential overlap of modes. 
+
+        Input:
+            freq, ncalc * nmode array, Phonon frequencies.
+            eigvt, ncalc * nmode * natom * 3 array, Eigenvectores normalized to
+                   1 of corresponding modes
+            symm, ncalc * nmode array, Sub-group numbers of corresponding modes
+                  (Not supported at the current implementation)
+            overlap, float, The threshold of close mode overlaps
+        Output:
+            freq, ncalc * nmode array, Sorted phonon frequencies
+            eigvt, ncalc * nmode * natom * 3 array, Sorted eigenvectores
+            close_overlap, ncalc * nmode * nmode boolian array, Whether close
+                           overlap is identified at previous calculation (2nd 
+                           dimension) and the current calculation (3rd).
+        """
+        import numpy as np
+        
+        # Exclude negative and 0 frequencies
+        ncalc = len(freq)
+        nmode = len(freq[0])
+        ng_mode = 0
+        for idx_c, calc in enumerate(freq):
+            for idx_f, frequency in enumerate(calc):
+                if np.isnan(frequency) or (frequency < 1e-4):
+                    ng_mode_c = idx_f
+                else:
+                    break
+
+            if ng_mode_c > ng_mode:
+                ng_mode = ng_mode_c
+
+        # Sort phonon
+        products = np.zeros([ncalc, nmode])
+        for sort_c in range(1, ncalc):
+            ref_c = sort_c - 1
+            for ref_m in range(ng_mode + 1, nmode):
+                ref_pdt = 0.
+                sort_m_save = 0
+                for sort_m in range(ng_mode + 1, nmode):
+                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
+                        continue
+
+                    sort_pdt = abs(np.sum(
+                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
+                    ))
+                    if sort_pdt > ref_pdt:
+                        if sort_m < ref_m:
+                            check_pdt = abs(np.sum(
+                                eigvt[ref_c, sort_m] * eigvt[sort_c, sort_m]
+                            ))
+                            
+                            if check_pdt > sort_pdt:
+                                continue
+
+                        ref_pdt = sort_pdt
+                        sort_m_save = sort_m
+
+                products[sort_c, ref_m] = ref_pdt
+                freq[[sort_c, sort_c], [sort_m_save, ref_m]] \
+                    = freq[[sort_c, sort_c], [ref_m, sort_m_save]]
+                eigvt[[sort_c, sort_c], [sort_m_save, ref_m]] \
+                    = eigvt[[sort_c, sort_c], [ref_m, sort_m_save]]
+                if symm:
+                    symm[[sort_c, sort_c], [sort_m_save, ref_m]] \
+                        = symm[[sort_c, sort_c], [ref_m, sort_m_save]]
+
+        # Look for close overlaps
+        close_overlap = np.zeros([ncalc, nmode, nmode])
+        for sort_c in range(1, ncalc):
+            ref_c = sort_c - 1
+            for ref_m in range(ng_mode + 1, nmode):
+                ref_pdt = products[sort_c, ref_m]
+                for sort_m in range(ng_mode + 1, nmode):
+                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
+                        continue
+                    if sort_m == ref_m:
+                        continue
+
+                    sort_pdt = abs(np.sum(
+                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
+                    ))
+                    if ref_pdt - sort_pdt < overlap:
+                        close_overlap[ref_c, ref_m, sort_m] = 1
+        
+        return freq, eigvt, close_overlap
 
     def edft_eos_fit(self, method):
         """
@@ -954,7 +1095,6 @@ class Quasi_harmonic:
             order, list/array, List of the highest order of polynomials to be
                    fitted. Default: [2, 3] (quadratic, cubic)
         Output:
-            self.freq_method, 'polynomial', Fitting method for frequencies.
             self.fit_order, int, The optimal order of polynomial fit.
 
         Also see 'self.poly_fit' and 'self.poly_fit_rsquare' attributes of mode
@@ -962,15 +1102,6 @@ class Quasi_harmonic:
         """
         import numpy as np
 
-        if hasattr(self, 'freq_method') and self.freq_method == 'polynomial':
-            print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
-            return self
-
-        elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen':
-            print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
-            return self
-
-        self.freq_method = 'polynomial'
         rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
 
         if self.write_out:
@@ -1027,7 +1158,7 @@ class Quasi_harmonic:
 
         return self
 
-    def get_harmonic_phonon(self, volume):
+    def _get_harmonic_phonon(self, volume):
         """
         Get numerical phonon frequencies from fitted analytical expressions and
         generate harmonic phonon objects. Not a standalone method.
@@ -1041,7 +1172,7 @@ class Quasi_harmonic:
         from crystal_functions.thermodynamics import Harmonic
         from crystal_functions.thermodynamics import Mode
 
-        if not hasattr(self, 'freq_method') or not hasattr(self, 'eos'):
+        if not hasattr(self, 'fit_order') or not hasattr(self, 'eos'):
             print('ERROR: Analytical expressions unavailable.')
             sys.exit(1)
 
@@ -1049,18 +1180,10 @@ class Quasi_harmonic:
         for mode_q in self.combined_mode:
             num_mode_q = []
             for idx_m, mode in enumerate(mode_q):
-                if self.freq_method == 'polynomial':
-                    num_mode_q.append(
-                        Mode(rank=idx_m + 1,
-                             frequency=[mode.poly_fit[self.fit_order](volume)],
-                             volume=[volume])
-                    )
-
-                elif self.freq_method == 'gruneisen':
-                    num_mode_q.append(
-                        Mode(rank=idx_m + 1,
-                             frequency=[mode.grun_fit(volume)],
-                             volume=[volume])
+                num_mode_q.append(
+                    Mode(rank=idx_m + 1,
+                         frequency=[mode.poly_fit[self.fit_order](volume)],
+                         volume=[volume])
                     )
 
             num_mode.append(num_mode_q)
@@ -1070,7 +1193,7 @@ class Quasi_harmonic:
 
         return ha
 
-    def minimize_gibbs(self, volume, temperature, pressure):
+    def _minimize_gibbs(self, volume, temperature, pressure):
         """
         Get Gibbs free energy from the Harmonic phonon object. Used only for
         minimizing G(V; T, p) by SciPy. Not a standalone method.
@@ -1080,14 +1203,12 @@ class Quasi_harmonic:
             temperature, float, T, argument. Unit: K
             pressure, float, p, argument. Unit: GPa
         """
-        ha = self.get_harmonic_phonon(volume)
+        ha = self._get_harmonic_phonon(volume)
         ha.thermodynamics(temperature=[temperature], pressure=[pressure])
 
         return ha.gibbs[0, 0, 0]
 
-    def thermodynamics(self, eos_method='birch_murnaghan', 
-                       freq_method='polynomial', poly_order=[2, 3], 
-                       gruneisen_continuity=0.112011,
+    def thermodynamics(self, eos_method='birch_murnaghan', poly_order=[2, 3],
                        min_method='BFGS', volume_bound=None, mutewarning=False,
                        **temptpress):
         """
@@ -1101,12 +1222,8 @@ class Quasi_harmonic:
         Input:
             eos_method: string, Equation of state used to fit E_DFT. For EOSs
                         supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
-            freq_method: string ('polynomial' / 'gruneisen'), Methods to fit
-                         phonon frequency as the function of volume.
             poly_order: list/array, List of the highest order of polynomials to
-                        be fitted. Useful only when freq_method = 'polynomial'.
-            gruneisen_continuity: float, Continuity criteria for Gruneisen
-                                  model. Unit: Angstrom
+                        be fitted.
             min_method: string, Minimisation algorithms. Parameterized and
                         tested algos: 
                         * BFGS(no boundary)
@@ -1130,7 +1247,6 @@ class Quasi_harmonic:
                           J/mol*K
 
         Optional outputs, see comments in edft_eos_fit, freq_polynomial_fit
-        , and freq_gruneisen_fit
         """
         import sys
         import numpy as np
@@ -1162,24 +1278,15 @@ class Quasi_harmonic:
             self.edft_eos_fit(method=eos_method)
 
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
-        if hasattr(self, 'freq_method') and self.freq_method == 'polynomial' and not mutewarning:
+        if hasattr(self, 'fit_order') and not mutewarning:
             print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
-        elif hasattr(self, 'freq_method') and self.freq_method == 'gruneisen' and not mutewarning:
-            print('WARNING! Frequency is already fitted to Gruneisen model. To keep the consistency, it will not be updated.')
         else:
-            if freq_method == 'polynomial':
-                self.freq_polynomial_fit(order=poly_order)
-            elif freq_method == 'gruneisen':
-                self.freq_gruneisen_fit(continuity_threshold=gruneisen_continuity)
-            else:
-                print(
-                    'ERROR: Frequency fitting method specified does not exist. No fitted frequency available.')
-                sys.exit(1)
+            self.freq_polynomial_fit(order=poly_order)
 
         # Define minimization methods
         methods = {
-            'BFGS': "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='BFGS', jac='3-point')",
-            'L-BFGS-B': "vol = minimize(self.minimize_gibbs, v_init, args=(t, p), method='L-BFGS-B', jac='3-point', bounds=volume_bound)",
+            'BFGS': "vol = minimize(self._minimize_gibbs, v_init, args=(t, p), method='BFGS', jac='3-point')",
+            'L-BFGS-B': "vol = minimize(self._minimize_gibbs, v_init, args=(t, p), method='L-BFGS-B', jac='3-point', bounds=volume_bound)",
         }
 
         # Gibbs(V; T, p) minimization nTempt*nPress list
@@ -1198,11 +1305,12 @@ class Quasi_harmonic:
                 exec(methods[min_method], params)
                 eq_vol_p.append(params['vol'].x[0])
 
-                if (params['vol'].x[0] < min(self.combined_volume) or params['vol'].x[0] > max(self.combined_volume)) and not mutewarning:
-                    print(
-                        'WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
-                    print(
-                        '         Volume: ', params['vol'].x[0], '  Temperature: ', t, '  Pressure: ', p)
+                if (params['vol'].x[0] < min(self.combined_volume) 
+                    or params['vol'].x[0] > max(self.combined_volume)) \
+                   and not mutewarning:
+                    print('WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
+                    print('         Volume: ', params['vol'].x[0], 
+                          '  Temperature: ', t, '  Pressure: ', p)
 
             self.equilibrium_volume.append(eq_vol_p)
 
@@ -1218,7 +1326,7 @@ class Quasi_harmonic:
             entropy_p = []
             for idx_t, t in enumerate(self.temperature):
                 vol = self.equilibrium_volume[idx_p, idx_t]
-                ha = self.get_harmonic_phonon(vol)
+                ha = self._get_harmonic_phonon(vol)
                 ha.thermodynamics(temperature=[t], pressure=[p], mutewarning=True)
                 helmholtz_p.append(ha.helmholtz[0, 0])
                 gibbs_p.append(ha.gibbs[0, 0, 0])
@@ -1237,13 +1345,8 @@ class Quasi_harmonic:
             file = open(self.filename, 'a+')
             file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES')
             file.write('%s\n\n' % '  Thermodynamic properties fitted by QHA.')
-            if self.freq_method == 'polynomial':
-                file.write('%s%6i\n' %
-                           ('## FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
-            else:
-                file.write('%s%12.6f%s\n' % (
-                    '## GRUNEISEN CONTINUITY CRITERION: ', self.gruneisen_continuity, ' ANGSTROM'))
-
+            file.write('%s%6i\n' % 
+                       ('## FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
             file.write('%s%s\n' %
                        ('## EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
             if volume_bound:
