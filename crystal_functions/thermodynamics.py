@@ -75,8 +75,7 @@ class Mode:
         import numpy as np
 
         if self.ncalc > 1:
-            print('Error: This modulus is limited to a single frequency calculation.')
-            return
+            raise Exception('This module is limited to a single frequency calculation.')
 
         hbar_freq = self.frequency[0] * 6.022141 * 6.626070E-2
         self.zp_energy = 0.5 * hbar_freq
@@ -96,11 +95,9 @@ class Mode:
                         given mode. Unit: KJ/mol cell
         """
         import numpy as np
-        import sys
 
         if self.ncalc > 1:
-            print('Error: This modulus is limited to a single frequency calculation.')
-            sys.exit(1)
+            raise Exception('This module is limited to a single frequency calculation.')
 
         if not hasattr(self, 'zp_energy'):
             self.get_zp_energy()
@@ -128,11 +125,9 @@ class Mode:
                           Unit: J/mol cell*K
         """
         import numpy as np
-        import sys
 
         if self.ncalc > 1:
-            print('Error: This modulus is limited to a single frequency calculation.')
-            sys.exit(1)
+            raise Exception('This module is limited to a single frequency calculation.')
 
         if temperature == 0:
             self.entropy = 0
@@ -159,11 +154,9 @@ class Mode:
             Unit: J/mol cell*K
         """
         import numpy as np
-        import sys
 
         if self.ncalc > 1:
-            print('Error: This modulus is limited to a single frequency calculation.')
-            sys.exit(1)
+            raise Exception('This module is limited to a single frequency calculation.')
 
         if temperature == 0:
             self.C_v = 0
@@ -195,15 +188,14 @@ class Mode:
                                    goodness of fittings, characterized by R^2.
         """
         import numpy as np
-        import sys
+        import warnings
 
         if self.ncalc <= 1:
-            print('Error: This modulus is limited to multiple frequency calculations.')
-            sys.exit(1)
+            raise Exception('This modulus is limited to multiple frequency calculations.')
 
         if max(order) > self.ncalc - 1:
-            print('WARNING: Reference data not sufficient for the order of polynomial fitting.')
-            print('WARNING: Too high values will be removed.')
+            warnings.warn('Reference data not sufficient for the order of polynomial fitting.')
+            warnings.warn('Too high values will be removed.')
 
         order = list(set(order))
         order = [p for p in order if p <= self.ncalc - 1]
@@ -321,12 +313,10 @@ class Harmonic(Crystal_output):
                       out, if write_out = True.
         """
         import numpy as np
-        import sys
         from crystal_functions.thermodynamics import Mode
 
         if hasattr(self, "volume"):
-            print("ERROR: Data exists. Cannot overwriting the existing data.")
-            sys.exit(1)
+            raise Exception("Data exists. Cannot overwriting the existing data.")
 
         super(Harmonic, self).read_cry_output(output_name)
         super(Harmonic, self).get_mode()
@@ -334,8 +324,7 @@ class Harmonic(Crystal_output):
         self.generate_structure(scelphono=scelphono)
 
         if len(self.edft) != 1:
-            print("ERROR: Only a single frequency calculation is premitted.")
-            sys.exit(1)
+            raise Exception("Only a single frequency calculation is premitted.")
         else:
             self.edft = self.edft[0]
 
@@ -380,17 +369,15 @@ class Harmonic(Crystal_output):
             self.volume, float, The volume the reduced calculation cell.
         """
         import numpy as np
-        import sys
 
         if hasattr(self, "volume"):
-            print("ERROR: Data exists. The current command will be ignored.")
-            sys.exit(1)
+            raise Exception("Data exists. The current command will be ignored.")
 
         for key, value in geometry.items():
             if key == 'structure':
                 self.structure = value
-                self.natom = len(value.structure.species)
-                self.volume = value.structure.volume
+                self.natom = len(value.species)
+                self.volume = value.lattice.volume
                 break
             elif key == 'natom':
                 self.natom = int(value)
@@ -568,27 +555,26 @@ class Harmonic(Crystal_output):
               dispersion are summed. In this case, nqpoint = 1 but the
               dimension is kept.
         """
-        import sys
+        import warnings
         import numpy as np
 
         # Generate temperature and pressure series
         if temptpress:
             if 'temperature' in temptpress:
                 if hasattr(self, 'temperature') and not mutewarning:
-                    print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
+                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.')
                 
                 self.temperature = np.array(temptpress['temperature'], dtype=float)
             
             if 'pressure' in temptpress:
                 if hasattr(self, 'pressure') and not mutewarning:
-                    print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
+                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.')
                 
                 self.pressure = np.array(temptpress['pressure'], dtype=float)
         else:
             if not hasattr(self, 'temperature') or \
                not hasattr(self, 'pressure'):
-                print('ERROR: Temperature and pressure should be specified.')
-                sys.exit(1)
+                raise ValueError('Temperature and pressure should be specified.')
 
         self.zp_energy = self.phonon_sumup(temperature=0., calculate_zp=True)
         U_vib = []
@@ -773,15 +759,16 @@ class Quasi_harmonic:
             self.combined_mode, refer the method 'combine_data'
         """
         from crystal_functions.thermodynamics import Harmonic
+        import warnings
 
         if hasattr(self, "ncalc"):
-            print('WARNING: Data exists. The current command will be ignored.')
+            warnings.warn('Data exists. The current command will be ignored.')
 
             return self 
 
         self.ncalc = len(input_files)
         if self.ncalc == 1:
-            print('WARNING: Single frequency calculation detected! QHA is deteriorated to HA.')
+            warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
 
         ha_list = [
             Harmonic(write_out=False).from_file(
@@ -795,6 +782,114 @@ class Quasi_harmonic:
         self.combined_phonon, self.combined_volume, self.combined_edft, \
         self.combined_mode = self._combine_data(ha_list, overlap=overlap)
 
+        return self
+    
+    def from_QHA_file(self, input_file, scelphono=[], overlap=0.4):
+        """
+        Read data from a single QHA calculation at Gamma point.
+        
+        Input:
+            input_file, string or 1*1 list, Name of QHA output file. Only 1
+                        file is permitted
+
+        Other Input/output are consistent with 'from_HA_files'
+        """
+        from crystal_functions.file_readwrite import Crystal_output
+        from crystal_functions.thermodynamics import Harmonic
+        from crystal_functions.thermodynamics import Mode
+        import warnings
+        import re
+        import numpy as np
+        from pymatgen.core import Structure
+        
+        if hasattr(self, "ncalc"):
+            warnings.warn('Data exists. The current command will be ignored.')
+            return self
+        
+        if isinstance(input_file, list) and len(input_file) > 1:
+            raise Exception("Only a single QHA file is permitted")
+        elif isinstance(input_file, list) and len(input_file) == 1:
+            input_file = input_file[0]
+        
+        file = Crystal_output().read_cry_output(input_file)
+        file.get_mode()
+        file.get_eigenvector()
+        file.clean_imaginary()
+        
+        # Get volume/structure/dimensionality. Only to be used with QHA files
+        structures = []
+        for idx_line, line in enumerate(file.data): 
+            if re.match(
+                r'^\s+GEOMETRY\sFOR\sWAVE\sFUNCTION\s\-\sDIMENSIONALITY', line
+            ):
+                ndimen = int(line.strip().split()[9])
+            elif re.match(
+                r'^\s+DIRECT\sLATTICE\sVECTORS\sCARTESIAN\sCOMPONENTS\s\(ANGSTROM\)',
+                line
+            ):
+                idx_line += 2
+                vec1 = np.array(file.data[idx_line].strip().split()[0:3], dtype=float)
+                vec2 = np.array(file.data[idx_line + 1].strip().split()[0:3], dtype=float)
+                vec3 = np.array(file.data[idx_line + 2].strip().split()[0:3], dtype=float)
+
+                idx_line += 9
+                all_species = []
+                all_coords = np.array([], dtype=float)
+                while re.match(
+                    r'^\s+[0-9]+\s+[0-9]+\s+[A-Z]+', file.data[idx_line]
+                ):
+                    line_info = file.data[idx_line].strip().split()
+                    all_coords = np.append(all_coords, np.array(line_info[3:], dtype=float))
+                    all_species.append(line_info[2].capitalize())
+                    idx_line += 1
+                
+                all_coords = np.reshape(all_coords, [-1, 3])
+                
+                scell_mx = np.eye(3, dtype=float)
+                if scelphono:
+                    scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]
+                    shrink_mx = np.linalg.pinv(scell_mx)
+                    pcel_lattice = np.dot(np.stack([vec1, vec2, vec3]), shrink_mx)
+                    all_coords = np.dot(all_coords, np.linalg.pinv(pcel_lattice)).tolist()
+
+                    pcel_coord = []
+                    pcel_species = []
+                    for i, coord in enumerate(all_coords):
+                        if any(x > 0.5 or x <= -0.5 for x in coord):
+                            continue
+                        else:
+                            pcel_coord.append(coord)
+                            pcel_species.append(all_species[i])
+                
+                else:
+                    pcel_lattice = np.stack([vec1, vec2, vec3])
+                    pcel_coord = all_coords
+                    pcel_species = all_species
+
+                struc = Structure(lattice=pcel_lattice, species=pcel_species, 
+                                  coords=pcel_coord, coords_are_cartesian=False)
+                structures.append(struc) 
+            else:
+                continue
+
+        self.ncalc = file.nqpoint
+        ha_list = []
+        for idx_c in range(self.ncalc):
+            ha = Harmonic(write_out=False)
+            ha.structure = structures[idx_c + 1] # The first one is pre-opt geom
+            ha.natom = len(ha.structure.species)
+            ha.volume = ha.structure.lattice.volume
+            ha.edft = file.edft[idx_c]
+            ha.nqpoint = 1
+            ha.qpoint = [0, 0, 0]
+            ha.nmode = np.array([file.nmode[idx_c]])
+            ha.frequency = np.array([file.frequency[idx_c]])
+            ha.eigenvector = np.array([file.eigenvector[idx_c]])
+            ha_list.append(ha)
+        
+        self.combined_phonon, self.combined_volume, self.combined_edft, \
+        self.combined_mode = self._combine_data(ha_list, overlap=overlap)
+        
         return self
 
     def _combine_data(self, ha_list, overlap):
@@ -823,7 +918,7 @@ class Quasi_harmonic:
                            mode.eigenvector: ncalc * natom * 3 array
         """
         import numpy as np
-        import sys
+        import warnings
         from crystal_functions.thermodynamics import Mode
 
         # Sorting data according to volumes
@@ -837,9 +932,9 @@ class Quasi_harmonic:
             if (natom - ha_phonon.natom) != 0 or \
                 not np.all((nmode - ha_phonon.nmode) == 0) or \
                 nqpoint - ha_phonon.nqpoint != 0:
-                print(
-                    'ERROR: The number of qpoints, modes or atoms is not consistent across the sampling points')
-                sys.exit(1)
+                raise Exception(
+                    'ERROR: The number of qpoints, modes or atoms is not consistent across the sampling points'
+                )
 
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
         nmode = nmode[0]
@@ -884,9 +979,11 @@ class Quasi_harmonic:
         for idx_q, qpoint in enumerate(close_overlap):
             overlap_numbers = np.sum(qpoint)
             if overlap_numbers >= 1.:
-                print('WARNING! Close overlap of phonon modes detected at qpoint: ', 
-                      idx_q, ' , ', int(overlap_numbers), ' overlaps out of ', 
-                      nqpoint * nmode, ' modes.')
+                warnings.warn(
+                    'Close overlap of phonon modes detected at qpoint: ', idx_q,
+                    ' , ', int(overlap_numbers), ' overlaps out of ', 
+                    nqpoint * nmode, ' modes.'
+                )
 
         combined_mode = []
         for idx_q in range(nqpoint):
@@ -1177,14 +1274,12 @@ class Quasi_harmonic:
         Output:
             ha, Harmonic, Harmonic phonon object with numerical data.
         """
-        import sys
         import numpy as np
         from crystal_functions.thermodynamics import Harmonic
         from crystal_functions.thermodynamics import Mode
 
         if not hasattr(self, 'fit_order') or not hasattr(self, 'eos'):
-            print('ERROR: Analytical expressions unavailable.')
-            sys.exit(1)
+            raise Exception('ERROR: Analytical expressions unavailable.')
 
         eq_point = np.argmin(self.combined_edft)
         num_mode = []
@@ -1260,38 +1355,37 @@ class Quasi_harmonic:
 
         Optional outputs, see comments in edft_eos_fit, freq_polynomial_fit
         """
-        import sys
         import numpy as np
+        import warnings
         from scipy.optimize import minimize
 
         # Generate temperature and pressure series
         if temptpress:
             if 'temperature' in temptpress:
                 if hasattr(self, 'temperature') and not mutewarning:
-                    print('WARNING! Temperature attribute exists. Input temperatures will be used to update the attribute.')
+                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.')
                 
                 self.temperature = np.array(temptpress['temperature'], dtype=float)
             
             if 'pressure' in temptpress:
                 if hasattr(self, 'pressure') and not mutewarning:
-                    print('WARNING! Pressure attribute exists. Input pressures will be used to update the attribute.')
+                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.')
                 
                 self.pressure = np.array(temptpress['pressure'], dtype=float)
         else:
             if not hasattr(self, 'temperature') or \
                not hasattr(self, 'pressure'):
-                print('ERROR: Temperature and pressure should be specified.')
-                sys.exit(1)
+                raise ValueError('Temperature and pressure should be specified.')
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'eos') and not mutewarning:
-            print('WARNING! DFT total energy is already fitted. To keep the consistency, it will not be updated.')
+            warnings.warn('DFT total energy is already fitted. To keep the consistency, it will not be updated.')
         else:
             self.edft_eos_fit(method=eos_method)
 
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'fit_order') and not mutewarning:
-            print('WARNING! Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
+            warnings.warn('Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.')
         else:
             self.freq_polynomial_fit(order=poly_order)
 
@@ -1320,9 +1414,8 @@ class Quasi_harmonic:
                 if (params['vol'].x[0] < min(self.combined_volume) 
                     or params['vol'].x[0] > max(self.combined_volume)) \
                    and not mutewarning:
-                    print('WARNING: Optimised volume exceeds the sampled range. Special care should be taken of.')
-                    print('         Volume: ', params['vol'].x[0], 
-                          '  Temperature: ', t, '  Pressure: ', p)
+                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.')
+                    warnings.warn('  Volume: ' + str(params['vol'].x[0]) + '  Temperature: ' + str(t) + '  Pressure: ' + str(p))
 
             self.equilibrium_volume.append(eq_vol_p)
 
