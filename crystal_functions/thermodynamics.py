@@ -178,7 +178,7 @@ class Mode:
 
         Input:
             eq_point, int, The DFT total energy minimum point with equilibrium
-                           volumes
+                           volume
             order, norder * 1 list, The orders of polynomials to be fitted.
         Output:
             self.poly_fit, norder * 1 dictionary, the dictionary of numpy
@@ -273,10 +273,10 @@ class Harmonic(Crystal_output):
         """
         import numpy as np
         
-        if temperature:
+        if len(temperature) > 0:
             self.temperature = np.array(temperature, dtype=float)
         
-        if pressure:
+        if len(pressure) > 0:
             self.pressure = np.array(pressure, dtype=float)
 
         self.write_out = write_out
@@ -308,9 +308,6 @@ class Harmonic(Crystal_output):
             self.volume, float, The volume the reduced calculation cell.
             self.mode, nqpoint * nmode array, List of mode objects at all
                        qpoints.
-            filename, text file, HA thermodynamic data. 'Thermodynamics' method
-                      will be automatically executed and a file will be printed
-                      out, if write_out = True.
         """
         import numpy as np
         from crystal_functions.thermodynamics import Mode
@@ -321,7 +318,7 @@ class Harmonic(Crystal_output):
         super(Harmonic, self).read_cry_output(output_name)
         super(Harmonic, self).get_mode()
         super(Harmonic, self).clean_imaginary()
-        self.generate_structure(scelphono=scelphono)
+        self._generate_structure(scelphono=scelphono)
 
         if len(self.edft) != 1:
             raise Exception("Only a single frequency calculation is premitted.")
@@ -391,7 +388,7 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def generate_structure(self, scelphono):
+    def _generate_structure(self, scelphono):
         """
         Eliminate the influences of the keyword 'SCELPHONO' and generate the
         pymatgen 'structure' object of the actual cell used for phonon
@@ -450,7 +447,7 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def phonon_sumup(self, temperature, calculate_zp):
+    def _phonon_sumup(self, temperature, calculate_zp):
         """
         Summing up inidival phonon modes at each q point. Translational modes
         with frequencies = 0 are skipped.
@@ -528,7 +525,7 @@ class Harmonic(Crystal_output):
             pressure, Optional, npress * 1 array / list, Pressures where the
                       thermodyanmic properties are calculated. Unit: GPa
             sumphonon, bool, Whether summing up the phonon contributions across
-                       the first Brillouin zone.
+                       the first Brillouin zone and take average.
             mutewarning, bool, Whether print out warning messages of updating
                                temperature and pressure.
         Output:
@@ -576,7 +573,7 @@ class Harmonic(Crystal_output):
                not hasattr(self, 'pressure'):
                 raise ValueError('Temperature and pressure should be specified.')
 
-        self.zp_energy = self.phonon_sumup(temperature=0., calculate_zp=True)
+        self.zp_energy = self._phonon_sumup(temperature=0., calculate_zp=True)
         U_vib = []
         entropy = []
         C_v = []
@@ -585,7 +582,7 @@ class Harmonic(Crystal_output):
 
         for T in self.temperature:
             gibbs_t = []
-            U_vib_t, entropy_t, C_v_t = self.phonon_sumup(temperature=T, calculate_zp=False)
+            U_vib_t, entropy_t, C_v_t = self._phonon_sumup(temperature=T, calculate_zp=False)
             helm_t = -entropy_t * T / 1000 + U_vib_t + self.edft
 
             for p in self.pressure:
@@ -607,11 +604,11 @@ class Harmonic(Crystal_output):
         gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
 
         if sumphonon:
-            self.U_vib = np.array([np.sum(U_vib, axis=0)])
-            self.entropy = np.array([np.sum(entropy, axis=0)])
-            self.C_v = np.array([np.sum(C_v, axis=0)])
-            self.helmholtz = np.array([np.sum(helmholtz, axis=0)])
-            self.gibbs = np.array([np.sum(gibbs, axis=0)])
+            self.U_vib = np.array([np.sum(U_vib, axis=0)]) / self.nqpoint
+            self.entropy = np.array([np.sum(entropy, axis=0)]) / self.nqpoint
+            self.C_v = np.array([np.sum(C_v, axis=0)]) / self.nqpoint
+            self.helmholtz = np.array([np.sum(helmholtz, axis=0)]) / self.nqpoint
+            self.gibbs = np.array([np.sum(gibbs, axis=0)]) / self.nqpoint
             self.nqpoint = 1
             self.qpoint = np.array([[0., 0., 0.]], dtype=float)
         else:
@@ -732,10 +729,10 @@ class Quasi_harmonic:
         """
         import numpy as np
         
-        if temperature:
+        if len(temperature) > 0:
             self.temperature = np.array(temperature, dtype=float)
         
-        if pressure:
+        if len(pressure) > 0:
             self.pressure = np.array(pressure, dtype=float)
 
         self.write_out = write_out
@@ -933,7 +930,7 @@ class Quasi_harmonic:
                 not np.all((nmode - ha_phonon.nmode) == 0) or \
                 nqpoint - ha_phonon.nqpoint != 0:
                 raise Exception(
-                    'ERROR: The number of qpoints, modes or atoms is not consistent across the sampling points'
+                    'The number of qpoints, modes or atoms is not consistent across the sampling points'
                 )
 
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
@@ -980,9 +977,7 @@ class Quasi_harmonic:
             overlap_numbers = np.sum(qpoint)
             if overlap_numbers >= 1.:
                 warnings.warn(
-                    'Close overlap of phonon modes detected at qpoint: ', idx_q,
-                    ' , ', int(overlap_numbers), ' overlaps out of ', 
-                    nqpoint * nmode, ' modes.'
+                    'Close overlap of phonon modes detected at qpoint: ' + str(idx_q) + ' , ' + str(int(overlap_numbers)) + ' overlaps out of ' + str(int(nqpoint * nmode)) + ' modes.'
                 )
 
         combined_mode = []
@@ -1067,6 +1062,8 @@ class Quasi_harmonic:
         
         Erba A. J. Chem. Phys., 2014 141 124115.
 
+        Not a standalone method.
+        
         Input:
             freq, ncalc * nmode array, Phonon frequencies.
             eigvt, ncalc * nmode * natom * 3 array, Eigenvectores normalized to
