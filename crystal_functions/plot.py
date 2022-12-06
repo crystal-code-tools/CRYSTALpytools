@@ -2191,6 +2191,77 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
         return shear_max
 
 
+def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
+
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2],
+                ]
+            )
+    poisson_chi = np.zeros(ndeg)
+    poisson_min = np.zeros((ndeg, ndeg))
+    poisson_max = np.zeros((ndeg, ndeg))
+    poisson_avg = np.zeros((ndeg, ndeg))
+    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
+
+    for phi_idx in range(ndeg):
+        phi = phi_1D[phi_idx]
+        for theta_idx in range(ndeg):
+            theta = theta_1D[theta_idx]
+            for chi_idx in range(ndeg):
+                chi = chi_1D[chi_idx]
+                a = np.array(
+                    [
+                        np.sin(theta) * np.cos(phi),
+                        np.sin(theta) * np.sin(phi),
+                        np.cos(theta),
+                    ]
+                )
+                b = np.array(
+                    [
+                        np.cos(theta) * np.cos(phi) * np.cos(chi)
+                        - np.sin(phi) * np.sin(chi),
+                        np.cos(theta) * np.sin(phi) * np.cos(chi)
+                        + np.cos(phi) * np.sin(chi),
+                        -np.sin(theta) * np.cos(chi),
+                    ]
+                )
+                poisson_num = 0
+                poisson_den = 0
+                for i in range(3):
+                    for j in range(3):
+                        v = C2V[i, j]
+                        for k in range(3):
+                            for l in range(3):
+                                u = C2V[k, l]
+                                rf = 1
+                                if v >= 3 and u >= 3:
+                                    rf = 4
+                                if v >= 3 and u < 3:
+                                    rf = 2
+                                if u >= 3 and v < 3:
+                                    rf = 2
+                                num = (a[i] * a[j] * b[k] * b[l] * S[v, u])/rf 
+                                den = (a[i] * a[j] * a[k] * a[l] * S[v, u])/rf 
+                                poisson_num = poisson_num + num
+                                poisson_den = poisson_den + den
+                poisson_chi[chi_idx] = - poisson_num / poisson_den
+            poisson_min[phi_idx, theta_idx] = np.amin(poisson_chi)
+            poisson_max[phi_idx, theta_idx] = np.amax(poisson_chi)
+            poisson_avg[phi_idx, theta_idx] = np.mean(poisson_chi)
+
+    if poisson_choice == "avg":
+        return poisson_avg
+    if poisson_choice == "min":
+        return poisson_min
+    if poisson_choice == "max":
+        return poisson_max
+
+
 def plot_cry_ela(*args):
     
     import numpy as np
@@ -2256,6 +2327,24 @@ def plot_cry_ela(*args):
             Rref = R
         else:
             Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "max")
+    elif choose == "poisson avg":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "avg")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "avg")
+    elif choose == "poisson min":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "min")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "min")
+    elif choose == "poisson max":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "max")
     else:
         print(choose, "is an invalid plotting choice")
         sys.exit(1)
@@ -2282,7 +2371,7 @@ def plot_cry_ela(*args):
 
     m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
     m.set_array(R)
-    fig.colorbar(m, shrink=0.7)
+    fig.colorbar(m, shrink=0.7, location="left")
 
     # Make the planes transparent
     ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -2300,6 +2389,8 @@ def plot_cry_ela(*args):
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
+
+    ax.set_box_aspect(aspect = (1,1,1)) # Fix aspect ratio
 
     plt.show()
     fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
