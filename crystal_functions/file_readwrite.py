@@ -326,9 +326,9 @@ class Crystal_output:
         self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                self.final_energy = H_to_eV(float(line.split()[7]))
+                self.final_energy = units.H_to_eV(float(line.split()[7]))
             elif re.match(r'^ == SCF ENDED', line) != None:
-                self.final_energy = H_to_eV(float(line.split()[8]))
+                self.final_energy = units.H_to_eV(float(line.split()[8]))
 
         if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
@@ -357,8 +357,8 @@ class Crystal_output:
 
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
                 if all_cycles == False:
-                    self.scf_energy = H_to_eV(np.array(scf_energy))
-                    self.scf_deltae = H_to_eV(np.array(scf_deltae))
+                    self.scf_energy = units.H_to_eV(np.array(scf_energy))
+                    self.scf_deltae = units.H_to_eV(np.array(scf_deltae))
 
                     return self.scf_energy, self.scf_deltae
 
@@ -377,7 +377,7 @@ class Crystal_output:
         self.opt_energy = []
         for line in self.data:
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.opt_energy.append(H_to_eV(float(line.split()[8])))
+                self.opt_energy.append(units.H_to_eV(float(line.split()[8])))
 
         return self.opt_energy
 
@@ -404,7 +404,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ ENERGY RANGE ', line1):
-                        self.fermi_energy = H_to_eV(float(line1.split()[7]))
+                        self.fermi_energy = units.H_to_eV(float(line1.split()[7]))
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'band'
                         break
@@ -412,7 +412,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ N. OF SCF CYCLES ', line1):
-                        self.fermi_energy = H_to_eV(float(line1.split()[7]))
+                        self.fermi_energy = units.H_to_eV(float(line1.split()[7]))
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'doss'
                         break
@@ -421,18 +421,17 @@ class Crystal_output:
             else:
                 for j, line1 in enumerate(self.data[:i:-1]):
                     if re.match(r'^   FERMI ENERGY:', line1) != None:
-                        self.fermi_energy = H_to_eV(float(line1.split()[2]))
+                        self.fermi_energy = units.H_to_eV(float(line1.split()[2]))
                         self.efermi_from = 'scf'
                         break
                     if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line1) != None:
-                        self.fermi_energy = H_to_eV(float(line1.split()[5]))
+                        self.fermi_energy = units.H_to_eV(float(line1.split()[5]))
                         self.efermi_from = 'scf'
                         break
                 if self.fermi_energy == None:
                     for j, line1 in enumerate(self.data[:i:-1]):
                         if re.match(r'^ TOP OF VALENCE BANDS', line1) != None:
-                            self.fermi_energy = float(
-                                H_to_eV(line1.split()[10]))
+                            self.fermi_energy = units.H_to_eV(float(line1.split()[10]))
                             self.efermi_from = 'scf_top_valence'
                             break
 
@@ -487,7 +486,7 @@ class Crystal_output:
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
                     for j in range(i+2, i+5):
                         lattice_line = [
-                            float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
+                            units.angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
                     self.reciprocal_lattice = np.array(lattice)
                     return self.reciprocal_lattice
@@ -496,7 +495,7 @@ class Crystal_output:
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
                     for j in range(len(self.data)-i+1, len(self.data)-i+4):
                         lattice_line = [
-                            float(n)/0.52917721067121 for n in self.data[j].split()[3:]]
+                            angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
                     self.reciprocal_lattice = np.array(lattice)
                     return self.reciprocal_lattice
@@ -1308,7 +1307,7 @@ class Properties_input:
 
         if doss_range == [-1, -1]:
             doss_block.append(
-                str(eV_to_H(e_range[0]))+' '+str(eV_to_H(e_range[1])+'\n'))
+                str(units.eV_to_H(e_range[0]))+' '+str(units.eV_to_H(e_range[1])+'\n'))
 
         doss_block.append('END\n')
 
@@ -1356,7 +1355,7 @@ class Properties_input:
 
         if range_is_bands == False:
             pdoss_block.append(
-                str(round(eV_to_H(e_range[0]), 6))+' '+str(round(eV_to_H(e_range[1]), 6))+'\n')
+                str(round(units.eV_to_H(e_range[0]), 6))+' '+str(round(units.eV_to_H(e_range[1]), 6))+'\n')
 
         flat_proj = [x for sublist in projections for x in sublist]
 
@@ -1500,7 +1499,7 @@ class Properties_output:
                 float(data[16+self.n_tick+i*2].split()[4]))
             self.tick_label.append(
                 str(data[17+self.n_tick+i*2].split()[3][2:]))
-        self.efermi = H_to_eV(float(data[-1].split()[3]))
+        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
 
         # Allocate the bands as np arrays
         self.bands = np.zeros(
@@ -1527,7 +1526,7 @@ class Properties_output:
                            1] = np.array([float(n) for n in line.split()[1:]])
 
         # Convert all the energy to eV
-        self.bands[:, :, :] = H_to_eV(self.bands[:, :, :])
+        self.bands[:, :, :] = units.H_to_eV(self.bands[:, :, :])
 
         #Calculate the direct/indirect band gaps
         
@@ -1550,7 +1549,7 @@ class Properties_output:
         self.n_energy = int(data[0].split()[2])
         self.n_proj = int(data[0].split()[4])
         self.spin = int(data[0].split()[6])
-        self.efermi = H_to_eV(float(data[-1].split()[3]))
+        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
 
         first_energy = 4
 
@@ -1571,7 +1570,7 @@ class Properties_output:
                           1] = np.array([float(n) for n in line.split()])
 
         # Convert all the energy to eV
-        self.doss[:, 0, :] = H_to_eV(self.doss[:, 0, :])
+        self.doss[:, 0, :] = units.H_to_eV(self.doss[:, 0, :])
 
         return self
 
@@ -1616,7 +1615,6 @@ class Properties_output:
         else:
             sys.exit('Please choose a valid file')
 
-        factor = 0.529177249
 
         l_dens = self.data
 
@@ -1625,13 +1623,13 @@ class Properties_output:
 
         self.npx = n_punti_x
 
-        x_min = float(l_dens[2].strip().split()[0]) * factor
-        x_max = float(l_dens[2].strip().split()[1]) * factor
-        x_step = float(l_dens[2].strip().split()[2]) * factor
+        x_min = units.au_to_angstrom(float(l_dens[2].strip().split()[0])) 
+        x_max = units.au_to_angstrom(float(l_dens[2].strip().split()[1]))
+        x_step = units.au_to_angstrom(float(l_dens[2].strip().split()[2]))
 
-        y_min = float(l_dens[3].strip().split()[0]) * factor
-        y_max = float(l_dens[3].strip().split()[1]) * factor
-        y_step = float(l_dens[3].strip().split()[2]) * factor
+        y_min = units.au_to_angstrom(float(l_dens[3].strip().split()[0]))
+        y_max = units.au_to_angstrom(float(l_dens[3].strip().split()[1]))
+        y_step = units.au_to_angstrom(float(l_dens[3].strip().split()[2]))
 
         l_dens = l_dens[5:]
 
@@ -1793,7 +1791,7 @@ class Properties_output:
         for i in range(0, len(df_dens.columns)):
             df_dens[i] = pd.to_numeric(df_dens[i])
 
-        self.x = (df_dens[0]-5.55)*0.529177249
+        self.x = units.au_to_angstrom((df_dens[0]-5.55))
         self.y = df_dens[1]/0.148184743
 
         self.title = title[:-4]
