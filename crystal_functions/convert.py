@@ -242,7 +242,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     # molecule = True generates a Molecule pymatgen object for 0D structures
     # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
     
-    from file_readwrite import Crystal_gui
+    from . import file_readwrite
     #from crystal_functions.file_readwrite import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
@@ -251,7 +251,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     import sys
     import copy
 
-    gui = Crystal_gui()
+    gui = file_readwrite.Crystal_gui()
 
     if dimensionality == 0 and 'Molecule' not in str(type(structure)):
         print('WARNING: dimensionality is set to 0, but the structure is not a molecule')
