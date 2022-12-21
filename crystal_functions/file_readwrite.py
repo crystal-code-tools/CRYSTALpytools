@@ -1308,7 +1308,7 @@ class Properties_input:
 
         if doss_range == [-1, -1]:
             doss_block.append(
-                str(eV_to_H(e_range[0]))+' '+str(eV_to_H(e_range[1])+'\n')
+                str(eV_to_H(e_range[0]))+' '+str(eV_to_H(e_range[1])+'\n'))
 
         doss_block.append('END\n')
 
