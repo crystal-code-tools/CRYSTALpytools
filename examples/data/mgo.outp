@@ -2,12 +2,12 @@ date Tue 26 Apr 2022 09:14:59 BST
 master hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 21.4.0 Darwin Kernel Version 21.4.0: Fri Mar 18 00:47:26 PDT 2022; root:xnu-8020.101.4~15/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.outp
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.outp
 properties in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.d3
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.d3
 temporary directory /Users/brunocamino/crystal/tmp
-wave function data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f9 not found or empty
-wave function formatted data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f98
+wave function data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.f9 not found or empty
+wave function formatted data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.f98
 RDFMWF
 END
 
@@ -234,7 +234,7 @@ total 1808
 -rw-r--r--  1 brunocamino  admin   65432 26 Apr 09:15 fort.3
 -rw-r--r--  1 brunocamino  admin  127172 26 Apr 09:15 fort.9
 -rw-r--r--  1 brunocamino  admin  323770 26 Apr 09:14 fort.98
-file fort.9 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f98
-file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f13
+file fort.9 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.f98
+file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/mgo.f13
 removing temporary directories /Users/brunocamino/crystal/tmp

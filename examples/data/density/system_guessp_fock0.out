@@ -2,15 +2,15 @@ date Thu 3 Feb 2022 16:48:02 GMT
 hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 20.6.0 Darwin Kernel Version 20.6.0: Wed Nov 10 22:23:05 PST 2021; root:xnu-7195.141.14~1/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.out
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.out
 crystal executable in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.d12
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.d12
 temporary directory /Users/brunocamino/crystal/tmp
-scf guess from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f9
-external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.gui
-external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0_inp.gui
-file fort.20 from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f20
-file fort.13 from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f13
+scf guess from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f9
+external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.gui
+external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0_inp.gui
+file fort.20 from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f20
+file fort.13 from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f13
 Adsorption tests
 EXTERNAL
 EXTPRT
@@ -1285,12 +1285,12 @@ total 5088
 -rw-r--r--  1 brunocamino  admin  137444  3 Feb 16:51 fort.9
 -rw-r--r--  1 brunocamino  admin   21448  3 Feb 16:50 fort.95
 -rw-r--r--  1 brunocamino  admin  349855  3 Feb 16:51 fort.98
-wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f98
-file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f13
-file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.f20
-geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.gui
-properties input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/../../../examples/data/density/system_guessp_fock0.d3
+wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f98
+file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f13
+file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.f20
+geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.gui
+properties input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/../../../examples/data/density/system_guessp_fock0.d3
 RDFMWF
 END
 

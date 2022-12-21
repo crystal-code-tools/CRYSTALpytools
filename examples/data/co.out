@@ -2,12 +2,12 @@ date Fri 3 Jun 2022 18:42:38 BST
 hostname MacBook-Pro-4.local
 system Darwin MacBook-Pro-4.local 21.4.0 Darwin Kernel Version 21.4.0: Fri Mar 18 00:47:26 PDT 2022; root:xnu-8020.101.4~15/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.out
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.out
 crystal executable in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.d12
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.d12
 temporary directory /Users/brunocamino/crystal/tmp
-external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.gui
-external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co_inp.gui
+external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.gui
+external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co_inp.gui
 Molecule test
 MOLECULE
 1 
@@ -745,13 +745,13 @@ total 4440
 -rw-r--r--  1 brunocamino  admin      634  3 Jun 18:42 opta004
 -rw-r--r--  1 brunocamino  admin      634  3 Jun 18:42 opta005
 -rw-r--r--  1 brunocamino  admin      634  3 Jun 18:42 opta006
-wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.f98
-file optaxxx saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta001 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta002 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta003 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta004 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta005 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optstory/opta006
-file HESSOPT.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.hessopt
-file OPTINFO.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.optinfo
-file SCFOUT.LOG saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.SCFLOG
-file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.f20
-file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.xyz
-geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/co.gui
+wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.f98
+file optaxxx saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta001 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta002 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta003 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta004 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta005 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optstory/opta006
+file HESSOPT.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.hessopt
+file OPTINFO.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.optinfo
+file SCFOUT.LOG saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.SCFLOG
+file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.f20
+file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.xyz
+geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/co.gui
 temporary directory /Users/brunocamino/crystal/tmp removed

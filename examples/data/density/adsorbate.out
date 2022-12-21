@@ -2,12 +2,12 @@ date Tue 1 Feb 2022 14:09:52 GMT
 hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 20.6.0 Darwin Kernel Version 20.6.0: Wed Nov 10 22:23:05 PST 2021; root:xnu-7195.141.14~1/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.out
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.out
 crystal executable in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.d12
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.d12
 temporary directory /Users/brunocamino/crystal/tmp
-external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.gui
-external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate_inp.gui
+external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.gui
+external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate_inp.gui
 Adsorption tests
 EXTERNAL
 EXTPRT
@@ -550,7 +550,7 @@ total 3296
 -rw-r--r--  1 brunocamino  admin  137476  1 Feb 14:10 fort.9
 -rw-r--r--  1 brunocamino  admin   21448  1 Feb 14:10 fort.95
 -rw-r--r--  1 brunocamino  admin  349923  1 Feb 14:10 fort.98
-wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.f98
-geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/density/adsorbate.gui
+wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.f98
+geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/adsorbate.gui
 temporary directory /Users/brunocamino/crystal/tmp removed
