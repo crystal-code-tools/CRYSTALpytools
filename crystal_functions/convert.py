@@ -236,15 +236,14 @@ def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
     return structure
 
 
-
-
 def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
     #Vacuum needs to be included because pymatgen only includes 3D symmetry
     # molecule = True generates a Molecule pymatgen object for 0D structures
     # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
-
-    from crystal_functions.file_readwrite import Crystal_gui
+    
+    from file_readwrite import Crystal_gui
+    #from crystal_functions.file_readwrite import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
     
@@ -316,7 +315,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
         gui.n_symmops = 1
         gui.symmops.extend(np.identity(3).tolist())
         gui.symmops.append([0.0,0.0,0.0])
-    
+
     gui.atom_number = list(structure.atomic_numbers)
     gui.atom_positions = structure.cart_coords.tolist()
 

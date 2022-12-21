@@ -3,6 +3,7 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 """
+from units import *
 
 class Crystal_input:
     # This creates a crystal_input object
@@ -325,9 +326,9 @@ class Crystal_output:
         self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                self.final_energy = float(line.split()[7])*27.2114
+                self.final_energy = H_to_eV(float(line.split()[7]))
             elif re.match(r'^ == SCF ENDED', line) != None:
-                self.final_energy = float(line.split()[8])*27.2114
+                self.final_energy = H_to_eV(float(line.split()[8]))
 
         if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
@@ -356,8 +357,8 @@ class Crystal_output:
 
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
                 if all_cycles == False:
-                    self.scf_energy = np.array(scf_energy)*27.2114
-                    self.scf_deltae = np.array(scf_deltae)*27.2114
+                    self.scf_energy = H_to_eV(np.array(scf_energy))
+                    self.scf_deltae = H_to_eV(np.array(scf_deltae))
 
                     return self.scf_energy, self.scf_deltae
 
@@ -376,7 +377,7 @@ class Crystal_output:
         self.opt_energy = []
         for line in self.data:
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.opt_energy.append(float(line.split()[8])*27.2114)
+                self.opt_energy.append(H_to_eV(float(line.split()[8])))
 
         return self.opt_energy
 
@@ -403,7 +404,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ ENERGY RANGE ', line1):
-                        self.fermi_energy = float(line1.split()[7])*27.2114
+                        self.fermi_energy = H_to_eV(float(line1.split()[7]))
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'band'
                         break
@@ -411,7 +412,7 @@ class Crystal_output:
             if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS', self.data[len(self.data)-(i+4)]) != None:
                 for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
                     if re.match(r'^ N. OF SCF CYCLES ', line1):
-                        self.fermi_energy = float(line1.split()[7])*27.2114
+                        self.fermi_energy = H_to_eV(float(line1.split()[7]))
                         # Define from what type of calcualtion the Fermi energy was exctracted
                         self.efermi_from = 'doss'
                         break
@@ -420,18 +421,18 @@ class Crystal_output:
             else:
                 for j, line1 in enumerate(self.data[:i:-1]):
                     if re.match(r'^   FERMI ENERGY:', line1) != None:
-                        self.fermi_energy = float(line1.split()[2])*27.2114
+                        self.fermi_energy = H_to_eV(float(line1.split()[2]))
                         self.efermi_from = 'scf'
                         break
                     if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line1) != None:
-                        self.fermi_energy = float(line1.split()[5]) * 27.2114
+                        self.fermi_energy = H_to_eV(float(line1.split()[5]))
                         self.efermi_from = 'scf'
                         break
                 if self.fermi_energy == None:
                     for j, line1 in enumerate(self.data[:i:-1]):
                         if re.match(r'^ TOP OF VALENCE BANDS', line1) != None:
                             self.fermi_energy = float(
-                                line1.split()[10])*27.2114
+                                H_to_eV(line1.split()[10]))
                             self.efermi_from = 'scf_top_valence'
                             break
 
@@ -1307,7 +1308,7 @@ class Properties_input:
 
         if doss_range == [-1, -1]:
             doss_block.append(
-                str(e_range[0]/27.2114)+' '+str(e_range[1]/27.2114)+'\n')
+                str(eV_to_H(e_range[0]))+' '+str(eV_to_H(e_range[1])+'\n')
 
         doss_block.append('END\n')
 
@@ -1355,7 +1356,7 @@ class Properties_input:
 
         if range_is_bands == False:
             pdoss_block.append(
-                str(round(e_range[0]/27.2114, 6))+' '+str(round(e_range[1]/27.2114, 6))+'\n')
+                str(round(eV_to_H(e_range[0]), 6))+' '+str(round(eV_to_H(e_range[1]), 6))+'\n')
 
         flat_proj = [x for sublist in projections for x in sublist]
 
@@ -1499,7 +1500,7 @@ class Properties_output:
                 float(data[16+self.n_tick+i*2].split()[4]))
             self.tick_label.append(
                 str(data[17+self.n_tick+i*2].split()[3][2:]))
-        self.efermi = float(data[-1].split()[3])*27.2114
+        self.efermi = H_to_eV(float(data[-1].split()[3]))
 
         # Allocate the bands as np arrays
         self.bands = np.zeros(
@@ -1526,7 +1527,7 @@ class Properties_output:
                            1] = np.array([float(n) for n in line.split()[1:]])
 
         # Convert all the energy to eV
-        self.bands[:, :, :] = self.bands[:, :, :]*27.2114
+        self.bands[:, :, :] = H_to_eV(self.bands[:, :, :])
 
         #Calculate the direct/indirect band gaps
         
@@ -1549,7 +1550,7 @@ class Properties_output:
         self.n_energy = int(data[0].split()[2])
         self.n_proj = int(data[0].split()[4])
         self.spin = int(data[0].split()[6])
-        self.efermi = float(data[-1].split()[3])*27.2114
+        self.efermi = H_to_eV(float(data[-1].split()[3]))
 
         first_energy = 4
 
@@ -1570,7 +1571,7 @@ class Properties_output:
                           1] = np.array([float(n) for n in line.split()])
 
         # Convert all the energy to eV
-        self.doss[:, 0, :] = self.doss[:, 0, :]*27.2114
+        self.doss[:, 0, :] = H_to_eV(self.doss[:, 0, :])
 
         return self
 
