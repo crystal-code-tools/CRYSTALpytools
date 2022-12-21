@@ -837,6 +837,7 @@ class Crystal_output:
         elif self.nqpoint == 0 and len(edft) > 1:
             self.nqpoint = len(edft)
             self.qpoint = np.array([[0, 0, 0] for i in range(self.nqpoint)], dtype=float)
+            self.edft = edft
 # HA dispersion calculation
         elif self.nqpoint > 0 and len(edft) == 1:
             self.qpoint = np.reshape(self.qpoint, (-1, 3))
@@ -976,8 +977,14 @@ class Crystal_output:
 
             self.eigenvector.append(q_rearrange)
 
-        self.eigenvector = np.array(self.eigenvector) * 0.529177
+        self.eigenvector = np.array(self.eigenvector)
 
+        # Normalize eigenvectors of each mode to 1
+        for idx_q, q in enumerate(self.eigenvector):
+            for idx_m, m in enumerate(q):
+                self.eigenvector[idx_q, idx_m] = \
+                    self.eigenvector[idx_q, idx_m] / np.linalg.norm(m)
+        
         return self.eigenvector
 
     def clean_imaginary(self):
