@@ -10,9 +10,9 @@ setuptools.setup(
     description="Functions to be used with the CRYSTAL code.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/crystal-code-tools/crystal_functions",
+    url="https://github.com/crystal-code-tools/CRYSTALpy",
     project_urls={
-        "Bug Tracker": "https://github.com/crystal-code-tools/crystal_functions/issues",
+        "Bug Tracker": "https://github.com/crystal-code-tools/CRYSTALpy/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
