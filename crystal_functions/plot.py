@@ -2033,6 +2033,369 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
     plt.show()
 
 
+
+def plot_cry_young(theta, phi, S):
+
+    import numpy as np
+
+    # C2V = Matrix to refer the Cartesian into Voigt's notation
+    # Observe that the matrix should be written as is shown below
+    # C2V = np.array([[1,6,5],[6,2,4],[5,4,3]])
+    # Since python start counting from zero all numbers must be subtracted by 1
+    C2V = np.array(
+            [
+                [0, 5, 4],
+                [5, 1, 3],
+                [4, 3, 2]
+                ]
+            )
+    # print("The Matrix to convert Cartesian into Voigs Notation: \n", C2V)
+    # creating the 1x3 vector "a"
+    a = np.array(
+            [
+                np.sin(theta) * np.cos(phi),
+                np.sin(theta) * np.sin(phi),
+                np.cos(theta),
+                ]
+            )
+    # e is a pseudo Young modulus value folowing the relation 1/e
+    e = 0.0
+    # i,j,k,l are updatable indices refering to cartesian notation that
+    # will be converted by C2V into Voigt's
+    for i in range(3):
+        for j in range(3):
+            v = C2V[i, j]
+            for k in range(3):
+                for l in range(3):
+                    u = C2V[k, l]
+                    # rf is a factor that must be multipled by the compliance element if
+                    # certain conditions are satisfied
+                    rf = 1
+                    if v >= 3 and u >= 3:
+                        rf = 4
+                    if v >= 3 and u < 3:
+                        rf = 2
+                    if u >= 3 and v < 3:
+                        rf = 2
+
+                    rtmp = a[i] * a[j] * a[k] * a[l] * (S[v, u] / rf)
+                    e = e + rtmp
+    E_tmp = 1 / e  # is the Young Modulus of each cycle
+    return E_tmp 
+
+
+def plot_cry_comp(theta, phi, S):
+
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2]
+                ]
+            )
+
+    a = np.array(
+            [
+                np.sin(theta) * np.cos(phi), 
+                np.sin(theta) * np.sin(phi), 
+                np.cos(theta),
+                ]
+            )
+    B = 0.0
+
+    for i in range(3):
+        for j in range(3):
+            v = C2V[i, j]
+            for k in range(3):
+                u = C2V[k, k]
+                rf = 1
+                if v >= 3 and u >= 3:
+                    rf = 4
+                if v >= 3 and u < 3:
+                    rf = 2
+                if u >= 3 and v < 3:
+                    rf = 2
+
+                rtmp = a[i] * a[j] * (S[v, u] / rf)
+                B = B + rtmp
+    return B
+
+
+def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
+
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2],
+                ]
+            )
+    shear_chi = np.zeros(ndeg)
+    shear_min = np.zeros((ndeg, ndeg))
+    shear_max = np.zeros((ndeg, ndeg))
+    shear_avg = np.zeros((ndeg, ndeg))
+    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
+
+    for phi_idx in range(ndeg):
+        phi = phi_1D[phi_idx]
+        for theta_idx in range(ndeg):
+            theta = theta_1D[theta_idx]
+            for chi_idx in range(ndeg):
+                chi = chi_1D[chi_idx]
+                a = np.array(
+                    [
+                        np.sin(theta) * np.cos(phi),
+                        np.sin(theta) * np.sin(phi),
+                        np.cos(theta),
+                    ]
+                )
+                b = np.array(
+                    [
+                        np.cos(theta) * np.cos(phi) * np.cos(chi)
+                        - np.sin(phi) * np.sin(chi),
+                        np.cos(theta) * np.sin(phi) * np.cos(chi)
+                        + np.cos(phi) * np.sin(chi),
+                        -np.sin(theta) * np.cos(chi),
+                    ]
+                )
+                shear_tmp = 0
+                for i in range(3):
+                    for j in range(3):
+                        v = C2V[i, j]
+                        for k in range(3):
+                            for l in range(3):
+                                u = C2V[k, l]
+                                rf = 1
+                                if v >= 3 and u >= 3:
+                                    rf = 4
+                                if v >= 3 and u < 3:
+                                    rf = 2
+                                if u >= 3 and v < 3:
+                                    rf = 2
+                                rtmp = a[i] * b[j] * a[k] * b[l] * (S[v, u] / rf)
+                                shear_tmp = shear_tmp + rtmp
+                shear_chi[chi_idx] = 1 / (4 * shear_tmp)
+            shear_min[phi_idx, theta_idx] = np.amin(shear_chi)
+            shear_max[phi_idx, theta_idx] = np.amax(shear_chi)
+            shear_avg[phi_idx, theta_idx] = np.mean(shear_chi)
+
+    if shear_choice == "avg":
+        return shear_avg
+    if shear_choice == "min":
+        return shear_min
+    if shear_choice == "max":
+        return shear_max
+
+
+def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
+
+    import numpy as np
+
+    C2V = np.array(
+            [
+                [0, 5, 4], 
+                [5, 1, 3], 
+                [4, 3, 2],
+                ]
+            )
+    poisson_chi = np.zeros(ndeg)
+    poisson_min = np.zeros((ndeg, ndeg))
+    poisson_max = np.zeros((ndeg, ndeg))
+    poisson_avg = np.zeros((ndeg, ndeg))
+    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
+
+    for phi_idx in range(ndeg):
+        phi = phi_1D[phi_idx]
+        for theta_idx in range(ndeg):
+            theta = theta_1D[theta_idx]
+            for chi_idx in range(ndeg):
+                chi = chi_1D[chi_idx]
+                a = np.array(
+                    [
+                        np.sin(theta) * np.cos(phi),
+                        np.sin(theta) * np.sin(phi),
+                        np.cos(theta),
+                    ]
+                )
+                b = np.array(
+                    [
+                        np.cos(theta) * np.cos(phi) * np.cos(chi)
+                        - np.sin(phi) * np.sin(chi),
+                        np.cos(theta) * np.sin(phi) * np.cos(chi)
+                        + np.cos(phi) * np.sin(chi),
+                        -np.sin(theta) * np.cos(chi),
+                    ]
+                )
+                poisson_num = 0
+                poisson_den = 0
+                for i in range(3):
+                    for j in range(3):
+                        v = C2V[i, j]
+                        for k in range(3):
+                            for l in range(3):
+                                u = C2V[k, l]
+                                rf = 1
+                                if v >= 3 and u >= 3:
+                                    rf = 4
+                                if v >= 3 and u < 3:
+                                    rf = 2
+                                if u >= 3 and v < 3:
+                                    rf = 2
+                                num = (a[i] * a[j] * b[k] * b[l] * S[v, u])/rf 
+                                den = (a[i] * a[j] * a[k] * a[l] * S[v, u])/rf 
+                                poisson_num = poisson_num + num
+                                poisson_den = poisson_den + den
+                poisson_chi[chi_idx] = - poisson_num / poisson_den
+            poisson_min[phi_idx, theta_idx] = np.amin(poisson_chi)
+            poisson_max[phi_idx, theta_idx] = np.amax(poisson_chi)
+            poisson_avg[phi_idx, theta_idx] = np.mean(poisson_chi)
+
+    if poisson_choice == "avg":
+        return poisson_avg
+    if poisson_choice == "min":
+        return poisson_min
+    if poisson_choice == "max":
+        return poisson_max
+
+
+def plot_cry_ela(*args):
+    
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import math
+    import time
+    import sys
+    from mpl_toolkits.mplot3d import axes3d, Axes3D
+    from matplotlib import cm, colors, animation
+
+    if len(args) == 3:
+        compare = False
+        C = args[0]
+        ndeg = args[1]
+        choose = args[2]
+    if len(args) == 4:
+        compare = True
+        C = args[0]
+        Cref = args[1]
+        ndeg = args[2]
+        choose = args[3]
+        Sref = np.linalg.inv(Cref)
+    if len(args) > 4:
+        sys.exit("Too many arguments!")
+        
+    # Inverse of the matrix C in GPa (Compliance)
+    S = np.linalg.inv(C)
+
+    # One dimentional array of theta from 0 to pi
+    theta_1D = np.linspace(0, np.pi, ndeg)
+    # One dimentional array of phi from 0 to 2pi
+    phi_1D = np.linspace(0, 2 * np.pi, ndeg)
+    # Make a 2D array for theta and phi
+    theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
+
+    if choose == "young":
+        R = plot_cry_young(theta_2D, phi_2D, S)
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_young(theta_2D, phi_1D, Sref)
+    elif choose == "comp":
+        R = plot_cry_comp(theta_2D, phi_2D, S)
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_comp(theta_2D, phi_2D, Sref)
+    elif choose == "shear avg":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "avg")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "avg")
+    elif choose == "shear min":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "min")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "min")
+    elif choose == "shear max":
+        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "max")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "max")
+    elif choose == "poisson avg":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "avg")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "avg")
+    elif choose == "poisson min":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "min")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "min")
+    elif choose == "poisson max":
+        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
+        if compare is False:
+            Rref = R
+        else:
+            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "max")
+    else:
+        print(choose, "is an invalid plotting choice")
+        sys.exit(1)
+
+    
+    # Convert to Cartesian coordinates for 3D representation
+    X = R * np.sin(theta_2D) * np.cos(phi_2D)
+    Y = R * np.sin(theta_2D) * np.sin(phi_2D)
+    Z = R * np.cos(theta_2D)
+
+    norm = colors.Normalize(vmin=np.min(Rref), vmax=np.max(Rref), clip=False)
+    fig, ax = plt.subplots(subplot_kw=dict(projection="3d"))
+
+    ax.plot_surface(
+        X,
+        Y,
+        Z,
+        rstride=1,
+        cstride=1,
+        facecolors=cm.jet(norm(R)),
+        antialiased=True,
+        alpha=0.75,
+    )
+
+    m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
+    m.set_array(R)
+    fig.colorbar(m, shrink=0.7, location="left")
+
+    # Make the planes transparent
+    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    # Make the grid lines transparent
+    #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+    # Fixing limits
+    ax.set_xlim(-1 * np.max(R), np.max(R))
+    ax.set_ylim(-1 * np.max(R), np.max(R))
+    ax.set_zlim3d(-1 * np.max(R), np.max(R))
+    ax.locator_params(nbins=5)  # tight=True,
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    ax.set_box_aspect(aspect = (1,1,1)) # Fix aspect ratio
+
+    plt.show()
+    fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
+        
+
 def save_plot(path_to_file):
 
     from os import path
