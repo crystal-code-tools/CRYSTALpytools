@@ -1427,6 +1427,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
+
 def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
     import sys
@@ -1574,6 +1575,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
+
 def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
 
     import sys
@@ -1643,6 +1645,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
  
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
 
@@ -1750,6 +1753,7 @@ def plot_cry_powerfactor(seebeck_obj, sigma_obj, save_to_file=False):
     plt.savefig('powerfactor_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 
@@ -1864,6 +1868,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
+
 def plot_cry_multiseebeck(*seebeck):
 
     import sys
@@ -1931,6 +1936,7 @@ def plot_cry_multiseebeck(*seebeck):
     plt.title('MultiSeebeck '+ str(n.temp[k]) + ' K')
     plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
 
+
 def plot_cry_multisigma(*sigma):
 
     import sys
@@ -1990,8 +1996,6 @@ def plot_cry_multisigma(*sigma):
     plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
     plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')    
 
-                    
-
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
 
@@ -2031,7 +2035,6 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
         save_plot(save_to_file)
 
     plt.show()
-
 
 
 def plot_cry_young(theta, phi, S):
