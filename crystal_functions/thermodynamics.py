@@ -4,7 +4,7 @@
 A comprehensive module for lattice dynamics based on harmonic and quasiharmonic
 approximations.
 """
-from crystal_functions.file_readwrite import Crystal_output
+from CRYSTALpy.crystal_io import Crystal_output
 
 
 class Mode:
@@ -317,7 +317,7 @@ class Harmonic(Crystal_output):
                        qpoints.
         """
         import numpy as np
-        from crystal_functions.thermodynamics import Mode
+        from CRYSTALpy.thermodynamics import Mode
 
         if hasattr(self, "volume"):
             raise Exception(
@@ -413,7 +413,7 @@ class Harmonic(Crystal_output):
             self.volume, float, pymatgen structure.volume. Cell volume.
                          Unit: Angstrom^3
         """
-        from crystal_functions.convert import cry_out2pmg
+        from CRYSTALpy.convert import cry_out2pmg
         from pymatgen.core.structure import Structure
         import numpy as np
 
@@ -772,7 +772,7 @@ class Quasi_harmonic:
             self.combined_phonon, self.combined_volume, self.combined_edft,
             self.combined_mode, refer the method 'combine_data'
         """
-        from crystal_functions.thermodynamics import Harmonic
+        from CRYSTALpy.thermodynamics import Harmonic
         import warnings
 
         if hasattr(self, "ncalc"):
@@ -810,9 +810,9 @@ class Quasi_harmonic:
 
         Other Input/output are consistent with 'from_HA_files'
         """
-        from crystal_functions.file_readwrite import Crystal_output
-        from crystal_functions.thermodynamics import Harmonic
-        from crystal_functions.thermodynamics import Mode
+        from CRYSTALpy.crystal_io import Crystal_output
+        from CRYSTALpy.thermodynamics import Harmonic
+        from CRYSTALpy.thermodynamics import Mode
         import warnings
         import re
         import numpy as np
@@ -945,7 +945,7 @@ class Quasi_harmonic:
         """
         import numpy as np
         import warnings
-        from crystal_functions.thermodynamics import Mode
+        from CRYSTALpy.thermodynamics import Mode
 
         # Sorting data according to volumes
         sorted_vol = np.zeros([self.ncalc, 2])
@@ -1306,8 +1306,8 @@ class Quasi_harmonic:
             ha, Harmonic, Harmonic phonon object with numerical data.
         """
         import numpy as np
-        from crystal_functions.thermodynamics import Harmonic
-        from crystal_functions.thermodynamics import Mode
+        from CRYSTALpy.thermodynamics import Harmonic
+        from CRYSTALpy.thermodynamics import Mode
 
         if not hasattr(self, 'fit_order') or not hasattr(self, 'eos'):
             raise Exception('ERROR: Analytical expressions unavailable.')
@@ -1550,7 +1550,7 @@ class Quasi_harmonic:
         """
         import numpy as np
         import warnings
-        from crystal_functions.thermodynamics import Harmonic
+        from CRYSTALpy.thermodynamics import Harmonic
         from pymatgen.analysis.eos import EOS
         from scipy.optimize import fmin
         from sympy import diff, lambdify, symbols
