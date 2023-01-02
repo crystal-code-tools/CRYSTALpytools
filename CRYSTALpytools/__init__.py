@@ -4,4 +4,5 @@ from . import convert
 from . import execute
 from . import crystal_io
 from . import plot
+from . import units
 from . import utils

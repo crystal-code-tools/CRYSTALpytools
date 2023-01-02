@@ -2,12 +2,12 @@ date Thu 3 Feb 2022 16:48:02 GMT
 master hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 20.6.0 Darwin Kernel Version 20.6.0: Wed Nov 10 22:23:05 PST 2021; root:xnu-7195.141.14~1/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.outp
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.outp
 properties in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.d3
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.d3
 temporary directory /Users/brunocamino/crystal/tmp
-wave function data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.f9
-wave function formatted data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.f98
+wave function data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.f9
+wave function formatted data from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.f98
 RDFMWF
 END
 
@@ -241,7 +241,7 @@ total 1416
 -rw-r--r--  1 brunocamino  admin   38008  3 Feb 16:48 fort.3
 -rw-r--r--  1 brunocamino  admin  137444  3 Feb 16:48 fort.9
 -rw-r--r--  1 brunocamino  admin  327909  3 Feb 16:48 fort.98
-file fort.9 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.f98
-file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpy/examples/data/density/system_guessp_fock0.f13
+file fort.9 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.f98
+file fort.13 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/density/system_guessp_fock0.f13
 removing temporary directories /Users/brunocamino/crystal/tmp

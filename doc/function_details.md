@@ -1,4 +1,4 @@
-# Details of the CRYSTALpy
+# Details of the CRYSTALpytools
 
 <h3>adsorb</h3>
 <h6>sub_ads_indices(structure)</h6>
