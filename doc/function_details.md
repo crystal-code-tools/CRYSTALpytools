@@ -1,4 +1,4 @@
-# Details of the crystal_functions
+# Details of the CRYSTALpytools
 
 <h3>adsorb</h3>
 <h6>sub_ads_indices(structure)</h6>
@@ -97,7 +97,7 @@
 </ul>
 <b>Returns</b>: None
 
-<h3>file_readwrite</h3>
+<h3>crystal_io</h3>
 
 <h6>class Crystal_input(input_name)</h6>
 <b>Parameters</b>

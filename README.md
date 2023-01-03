@@ -1,10 +1,10 @@
-# crystal_functions
+# CRYSTALpytools
 This repository contains functions that allow the user to access the
 <a href="https://www.crystal.unito.it/index.php">CRYSTAL code</a>,
 input, output and execution from a python infrastructure, such as
 Jupyter Notebooks. Although they can achieve this goal on their own,
 they achieve their full potential when used together with
-<a href="https://pymatgen.org/index.html">pymatgen</a>. In this latter scenario, the crystal_functions could be seen as
+<a href="https://pymatgen.org/index.html">pymatgen</a>. In this latter scenario, the CRYSTALpytools could be seen as
 a layer between CRYSTAL and pymatgen.
 
 In January 2022 the first stable version (v2022.1.10) was released.
@@ -12,7 +12,7 @@ In January 2022 the first stable version (v2022.1.10) was released.
 ## Installation
 
 ### Create a conda/anaconda environment
-This step is not mandatory, but it makes using crystal_functions very smooth.
+This step is not mandatory, but it makes using CRYSTALpytools very smooth.
 It is, therefore, very recommended.
 If you are new to anaconda, please follow <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">these steps</a> to install it on your computer.
 
@@ -28,12 +28,12 @@ Activate the conda environment:
 conda activate crystal
 ```
 
-### Install crystal_functions
+### Install CRYSTALpytools
 
-The crystal_functions package can be installed from pip. Pip is a package-management system written in Python and is used to install and manage software packages (called modules in python).
+The CRYSTALpytools package can be installed from pip. Pip is a package-management system written in Python and is used to install and manage software packages (called modules in python).
 
 ```console
-pip install --upgrade crystal_functions
+pip install --upgrade CRYSTALpytools
 ```
 
 Windows users might need to install windows-curses. This can be done by using:
@@ -42,7 +42,7 @@ Windows users might need to install windows-curses. This can be done by using:
 pip install windows-curses
 ```
 
-To check that crystal_functions was install please type
+To check that CRYSTALpytools was install please type
 
 ```console
 conda list
@@ -56,29 +56,29 @@ Please note that pip will only install the functions and not the example noteboo
 ### Set the path to runcry and runprop
 
 If you intend to run CRYSTAL on the machine where you are running
-the crystal_functions, the path to your local runcry amd runprop needs to be specified. To do so, please run the set_runcry_path and set_runprop_path functions:
+the CRYSTALpytools, the path to your local runcry amd runprop needs to be specified. To do so, please run the set_runcry_path and set_runprop_path functions:
 ```console
 python 3
-from crystal_functions.execute import set_runcry_path, set_runprop_path
+from CRYSTALpytools.execute import set_runcry_path, set_runprop_path
 set_runcry_path('path_to_your_runcry')
 set_runprop_path('path_to_your_runcry')
 ```
 
 ## Examples
-Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in file_readwrite.py are explained in the example/file_readwrite.ipynb notebook).
+Each function is documented in Jupyter Notebooks that can be found in the  [example folder](example/). There is one notebook per function file (e.g. the functions contained in crystal_io.py are explained in the example/crystal_io.ipynb notebook).
 
 
 ## Tutorials
 Tutorials can be found in the [tutorial folder](tutorial/)
 ## Usage
 
-The crystal_functions module aims at providing the user
-a python interface to the CRYSTAL code. The central data structure, called Crystal_object is created by the file_readwrite by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the Crystal_objects.
+The CRYSTALpytools module aims at providing the user
+a python interface to the CRYSTAL code. The central data structure, called Crystal_object is created by the crystal_io by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the Crystal_objects.
 
 ![crystal_object](doc/crystal_object.jpg)
 
 The following flowcharts cover a wide range of workflows where
-crystal_functions can be used. In order to run the CRYSTAL
+CRYSTALpytools can be used. In order to run the CRYSTAL
 calculation, input data needs to be written to file. Nonetheless,
 crystal_function offers a much more approach flexible to do so.
 
@@ -105,21 +105,21 @@ This case applied to when the calculations were run on a different machine and t
 
 ![output_analysis](doc/output_analysis.png)
 
-The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in crystal_functions/file_readwrite.py. To access them, please use:
+The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in CRYSTALpytools/crystal_io.py. To access them, please use:
 
 ```console
-from crystal_functions.file_readwrite import Crystal_output
+from CRYSTALpytools.crystal_io import Crystal_output
 
 Crystal_output('output_name.out')
 ```
 
-Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a crystal_functions function and not, for example, a pymatgen one with a similar name.
+Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a CRYSTALpytools function and not, for example, a pymatgen one with a similar name.
 
 ## Testing
-To test the crystal_functions please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
+To test the CRYSTALpytools please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
 
 ```console
-from crystal_functions.unit_test import *
+from CRYSTALpytools.unit_test import *
 
 test_all('./data_test/')
 ```

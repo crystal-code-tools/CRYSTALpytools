@@ -2,12 +2,12 @@ date Tue 5 Apr 2022 16:28:17 BST
 hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 21.3.0 Darwin Kernel Version 21.3.0: Wed Jan 5 21:37:58 PST 2022; root:xnu-8019.80.24~20/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.out
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.out
 crystal executable in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.d12
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.d12
 temporary directory /Users/brunocamino/crystal/tmp
-external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.gui
-external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom_inp.gui
+external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.gui
+external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom_inp.gui
 MGO BULK - GEOMETRY TEST
 CRYSTAL
 0 0 0
@@ -1162,15 +1162,15 @@ total 6608
 -rw-r--r--  1 brunocamino  admin   12102  5 Apr 16:29 optc002
 -rw-r--r--  1 brunocamino  admin   12102  5 Apr 16:29 optc003
 -rw-r--r--  1 brunocamino  admin   12102  5 Apr 16:29 optc004
-wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.f98
-file optcxxx saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.optstory/optc001 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.optstory/optc002 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.optstory/optc003 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.optstory/optc004
-file HESSOPT.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.hessopt
-file OPTINFO.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.optinfo
-file SCFOUT.LOG saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.SCFLOG
-file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.f20
-file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.xyz
-geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.gui
-file PPAN.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.ppan
-file PPAN.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_optgeom.ppan
+wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.f98
+file optcxxx saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.optstory/optc001 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.optstory/optc002 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.optstory/optc003 /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.optstory/optc004
+file HESSOPT.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.hessopt
+file OPTINFO.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.optinfo
+file SCFOUT.LOG saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.SCFLOG
+file fort.20 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.f20
+file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.xyz
+geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.gui
+file PPAN.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.ppan
+file PPAN.DAT saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_optgeom.ppan
 temporary directory /Users/brunocamino/crystal/tmp removed

@@ -2,12 +2,12 @@ date Fri 25 Feb 2022 10:05:49 GMT
 hostname MacBook-Pro-3.local
 system Darwin MacBook-Pro-3.local 21.3.0 Darwin Kernel Version 21.3.0: Wed Jan 5 21:37:58 PST 2022; root:xnu-8019.80.24~20/RELEASE_ARM64_T8101 arm64
 user brunocamino
-output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.out
+output data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.out
 crystal executable in /Users/brunocamino/crystal
-input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.d12
+input data in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.d12
 temporary directory /Users/brunocamino/crystal/tmp
-external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.gui
-external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo_inp.gui
+external geometry input from /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.gui
+external geometry input saved in /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo_inp.gui
 MGO BULK - GEOMETRY TEST
 CRYSTAL
 0 0 0
@@ -672,8 +672,8 @@ total 3576
 -rw-r--r--  1 brunocamino  admin  127172 25 Feb 10:05 fort.9
 -rw-r--r--  1 brunocamino  admin   16552 25 Feb 10:05 fort.95
 -rw-r--r--  1 brunocamino  admin  323770 25 Feb 10:05 fort.98
-wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f9
-file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.f98
-file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.xyz
-geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/crystal_functions/examples/data/mgo.gui
+wave function binary file /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.f9
+file fort.98 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.f98
+file fort.33 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.xyz
+geometry input file fort.34 saved as /Users/brunocamino/Desktop/Imperial/crystal-code-tools/CRYSTALpytools/examples/data/mgo.gui
 temporary directory /Users/brunocamino/crystal/tmp removed
