@@ -227,7 +227,7 @@ class Crystal_input:
 
                 gui_file_name = input_name[:-4]+'.gui'
                 gui_obj = cry_pmg2gui(external_obj)
-                gui_objwrite_crystal_gui(gui_file_name)
+                gui_obj.write_crystal_gui(gui_file_name)
 
             else:
                 print(
@@ -1306,7 +1306,7 @@ class Properties_input:
 
         if doss_range == [-1, -1]:
             doss_block.append(
-                str(units.eV_to_H(e_range[0]))+' '+str(units.eV_to_H(e_range[1])+'\n'))
+                str(units.eV_to_H(e_range[0]))+' '+str(units.eV_to_H(e_range[1]))+'\n')
 
         doss_block.append('END\n')
 

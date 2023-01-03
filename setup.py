@@ -4,7 +4,7 @@ long_description = 'Python tools for the <a href="https://www.crystal.unito.it/i
 
 setuptools.setup(
     name="CRYSTALpytools",        
-    version="2023.01.03",
+    version="2023.01.05",
     author_email="crystalcodetools@gmail.com",
     description="Python tools for the CRYSTAL code developed and mantained by the CRYSTAL code developers.",
     long_description=long_description,
