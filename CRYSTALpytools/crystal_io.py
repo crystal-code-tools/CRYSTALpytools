@@ -3,7 +3,7 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 """
-from . import units
+from units import *
 
 class Crystal_input:
     # This creates a crystal_input object
@@ -536,7 +536,7 @@ class Crystal_output:
                         float(self.data[len(self.data)-i+3].split()[4]))
                     self.band_gap = np.array(band_gap_spin)
                     return self.band_gap
-        if band_gap_spin == []:
+        if self.spin_pol = True and band_gap_spin == []:
             print(
                 'DEV WARNING: check this output and the band gap function in crystal_io')
 
