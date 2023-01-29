@@ -15,8 +15,17 @@ def eV_to_H(energy):
     # Conversion from eV to Hartree
     return energy*constants.physical_constants['electron volt-hartree relationship'][0]
 
+def H_to_kjmol(energy):
+    # Conversion from Hartree to kJ / mol
+    return energy*(constants.physical_constants['Hartree energy'][0] * 1e-3 * constants.Avogadro)
+
+def kjmol_to_H(energy):
+    # Conversion from kJ / mol to Hartree
+    return energy/(constants.physical_constants['Hartree energy'][0] * 1e-3 * constants.Avogadro)
+
 def au_to_angstrom(length):
-    return length*constants.physical_constants['atomic unit of length'][0]/10**-10
+    return length*(constants.physical_constants['atomic unit of length'][0] * 1e10)
 
 def angstrom_to_au(length):
-    return length/constants.physical_constants['atomic unit of length'][0]/10**-10
+    return length/(constants.physical_constants['atomic unit of length'][0] * 1e10)
+
