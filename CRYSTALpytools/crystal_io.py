@@ -3,7 +3,7 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 """
-from units import *
+from CRYSTALpytools.units import *
 
 class Crystal_input:
     # This creates a crystal_input object
@@ -536,7 +536,7 @@ class Crystal_output:
                         float(self.data[len(self.data)-i+3].split()[4]))
                     self.band_gap = np.array(band_gap_spin)
                     return self.band_gap
-        if self.spin_pol = True and band_gap_spin == []:
+        if self.spin_pol == True and band_gap_spin == []:
             print(
                 'DEV WARNING: check this output and the band gap function in crystal_io')
 
@@ -911,7 +911,7 @@ class Crystal_output:
         for i, line in enumerate(self.data):
 # Keywords in gradient calculation
             if re.match(r'\s*CENTRAL POINT', line):
-                edft = np.append(edft, float(line.strip().split()[2]) * 2625.500256)
+                edft = np.append(edft, H_to_kjmol(float(line.strip().split()[2])))
 
             if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])

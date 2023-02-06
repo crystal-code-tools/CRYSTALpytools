@@ -73,12 +73,13 @@ class Mode:
                             Unit: KJ/mol cell
         """
         import numpy as np
+        import scipy.constants as scst
 
         if self.ncalc > 1:
             raise Exception(
                 'This module is limited to a single frequency calculation.')
 
-        hbar_freq = self.frequency[0] * 6.022141 * 6.626070E-2
+        hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e9
         self.zp_energy = 0.5 * hbar_freq
 
         return self.zp_energy
@@ -96,6 +97,7 @@ class Mode:
                         given mode. Unit: KJ/mol cell
         """
         import numpy as np
+        import scipy.constants as scst
 
         if self.ncalc > 1:
             raise Exception(
@@ -108,8 +110,8 @@ class Mode:
             self.U_vib = self.zp_energy
             return self.U_vib
 
-        hbar_freq = self.frequency[0] * 6.022141 * 6.626070E-2
-        kb_t = 1.380649E-3 * 6.022141 * temperature
+        hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e9
+        kb_t = scst.k * scst.Avogadro * temperature * 1e-3
         expon = np.exp(hbar_freq / kb_t)
         self.U_vib = self.zp_energy + hbar_freq / (expon - 1)
 
@@ -127,6 +129,7 @@ class Mode:
                           Unit: J/mol cell*K
         """
         import numpy as np
+        import scipy.constants as scst
 
         if self.ncalc > 1:
             raise Exception(
@@ -136,11 +139,11 @@ class Mode:
             self.entropy = 0
             return self.entropy
 
-        hbar_freq = self.frequency[0] * 6.022141 * 6.626070E-2
-        kb_t = 1.380649E-3 * 6.022141 * temperature
+        hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e12
+        kb_t = scst.k * scst.Avogadro * temperature
         expon = np.exp(hbar_freq / kb_t)
         entS = kb_t * (hbar_freq / kb_t / (expon - 1) - np.log(1 - 1 / expon))
-        self.entropy = entS / temperature * 1000
+        self.entropy = entS / temperature
 
         return self.entropy
 
@@ -157,6 +160,7 @@ class Mode:
             Unit: J/mol cell*K
         """
         import numpy as np
+        import scipy.constants as scst
 
         if self.ncalc > 1:
             raise Exception(
@@ -166,12 +170,11 @@ class Mode:
             self.C_v = 0
             return self.C_v
 
-        hbar_freq = self.frequency[0] * 6.022141 * 6.626070E-2
-        kb_t = 1.380649E-3 * 6.022141 * temperature
+        hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e12
+        kb_t = scst.k * scst.Avogadro * temperature
         expon = np.exp(hbar_freq / kb_t)
 
-        self.C_v = hbar_freq**2 / kb_t / \
-            temperature * expon / (expon - 1)**2 * 1000
+        self.C_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
 
         return self.C_v
 
@@ -564,6 +567,7 @@ class Harmonic(Crystal_output):
         """
         import warnings
         import numpy as np
+        import scipy.constants as scst
 
         # Generate temperature and pressure series
         if temptpress:
@@ -598,10 +602,10 @@ class Harmonic(Crystal_output):
             gibbs_t = []
             U_vib_t, entropy_t, C_v_t = self._phonon_sumup(
                 temperature=T, calculate_zp=False)
-            helm_t = -entropy_t * T / 1000 + U_vib_t + self.edft
+            helm_t = -entropy_t * T * 1e-3 + U_vib_t + self.edft
 
             for p in self.pressure:
-                gibbs_tp = p * self.volume * 0.602214 + helm_t
+                gibbs_tp = p * self.volume * scst.Avogadro * 1e-24 + helm_t
                 gibbs_t.append(gibbs_tp)
 
             # nTemp * nqpoint
@@ -650,17 +654,20 @@ class Harmonic(Crystal_output):
         Output:
             filename, text file.
         """
+        import scipy.constants as scst
+        from CRYSTALpytools.units import eV_to_H
+
         if not self.write_out:
             print('Harmonic.write_out = False, return to empty.')
             return
 
         file = open(self.filename, 'w')
         file.write('%-21s%12.4e%-15s%12.4e%-10s\n' %
-                   ('# DFT TOTAL ENERGY = ', self.edft / 96.485340,
+                   ('# DFT TOTAL ENERGY = ', eV_to_H(self.edft),
                     ' eV,         = ', self.edft, ' kJ/mol'))
         file.write('%-21s%12.6f%-15s%12.6f%-10s\n' %
                    ('# CELL VOLUME      = ', self.volume,
-                    ' Angstrom^3, = ', self.volume * 0.602214, ' cm^3/mol'))
+                    ' Angstrom^3, = ', self.volume * scst.Avogadro * 1e-24, ' cm^3/mol'))
         file.write('%s\n' % '# LATTICE PARAMETERS (ANGSTROM, DEGREE)')
         file.write('%12s%12s%12s%12s%12s%12s\n' % ('A', 'B', 'C',
                                                    'ALPHA', 'BETA', 'GAMMA'))
@@ -717,12 +724,12 @@ class Quasi_harmonic:
     self.eos_method, edft_eos_fit, Fitting method of equation of states
     self.eos, edft_eos_fit, Fitted equation of states
     self.fit_order, freq_polynomial_fit, The optimal order of polynomial fit
-    self.temerature, thermodynamics, Temperature series. Unit: K
-    self.pressure, thermodynamics, Pressure series. Unit: GPa
-    self.equilibrium_volume, thermodynamics, V(T, p). Unit: Angstrom^3
-    self.helmholtz, thermodynamics, F(T, V). Unit: kJ/mol
-    self.gibbs, thermodynamics, G(T, p). Unit: kJ/mol
-    self.entropy, thermodynamics, S(T, V). Unit: J/mol*K
+    self.temerature, thermo_freq / thermo_eos, Temperature series. Unit: K
+    self.pressure, thermo_freq / thermo_eos, Pressure series. Unit: GPa
+    self.equilibrium_volume, thermo_freq / thermo_eos, V(T, p). Unit: Angstrom^3
+    self.helmholtz, thermo_freq / thermo_eos, F(T, V). Unit: kJ/mol
+    self.gibbs, thermo_freq / thermo_eos, G(T, p). Unit: kJ/mol
+    self.entropy, thermo_freq / thermo_eos, S(T, V). Unit: J/mol*K
     """
 
     def __init__(self, temperature=[], pressure=[],
@@ -1183,7 +1190,7 @@ class Quasi_harmonic:
 
         return freq, eigvt, close_overlap
 
-    def edft_eos_fit(self, method):
+    def edft_eos_fit(self, method, **fitargs):
         """
         Fit electron total energy according to equation of states. Not a
         standalone method.
@@ -1191,14 +1198,35 @@ class Quasi_harmonic:
         Input:
             method: string, Name of EoS used. Consistent with requirements of
                     pymatgen (https://pymatgen.org/pymatgen.analysis.eos.html).
+
+        Optional Inputs:
+            order: int, limited to the DeltaFactor method
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
+                int, limited to the NumericalEOS method
+
         Output:
             self.eos_method, string, Equation of State used
             self.eos, pymatgen EOS object, Fitted equation of state.
         """
+        import re
         from pymatgen.analysis.eos import EOS
+        import scipy.constants as scst
 
         self.eos_method = method
+# Commented due to the inhierant problem of pymatgen EOS object
+#         if re.findall(r'deltafactor', method, re.I):
+#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft, order=fitargs['order'])
+
+#         elif re.findall(r'numerical_eos', method, re.I):
+#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft,
+#                                        min_ndata_factor=fitargs['min_ndata_factor'],
+#                                        max_poly_order_factor=fitargs['max_poly_order_factor'],
+#                                        min_poly_order_factor=fitargs['min_poly_order_factor'])
+
+#         else:
+#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
         self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
+
         if self.write_out:
             file = open(self.filename, 'a+')
             file.write('%s%s\n' % (
@@ -1212,7 +1240,7 @@ class Quasi_harmonic:
                        ('E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
             file.write('%16.4f%16.4f%12.4f%12.4f\n' % (self.eos.e0,
                                                        self.eos.v0,
-                                                       self.eos.b0 * 1.660539,
+                                                       self.eos.b0 * 10 / scst.Avogadro,
                                                        self.eos.b1))
             file.write('\n')
             file.close()
@@ -1346,9 +1374,9 @@ class Quasi_harmonic:
 
         return ha.gibbs[0, 0, 0]
 
-    def thermodynamics(self, eos_method='birch_murnaghan', poly_order=[2, 3],
-                       min_method='BFGS', volume_bound=None, mutewarning=False,
-                       **temptpress):
+    def thermo_freq(self, eos_method='birch_murnaghan', poly_order=[2, 3],
+                    min_method='BFGS', volume_bound=None, mutewarning=False,
+                    **temptpress):
         """
         1. Fit E_DFT and frequencies (if that has not been done) according to
         methods specified. 
@@ -1369,8 +1397,14 @@ class Quasi_harmonic:
             volume_bound: turple-like, Boundary conditions of equilibrium
                           volumes. Unit: Angstrom^3
             mutewarning, bool, Whether print out warning messages.
+
+        Optional Inputs:
             temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
             pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
+            order: int, limited to the DeltaFactor method
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
+                int, limited to the NumericalEOS method
+
         Output:
             self.temperature, nTempt*1 array, List of temperatures. Unit: K
             self.pressure, nPress*1 array, List of pressures. Unit: GPa
@@ -1388,6 +1422,7 @@ class Quasi_harmonic:
         """
         import numpy as np
         import warnings
+        import re
         from scipy.optimize import minimize
 
         # Generate temperature and pressure series
@@ -1415,6 +1450,30 @@ class Quasi_harmonic:
             warnings.warn(
                 'DFT total energy is already fitted. To keep the consistency, it will not be updated.', stacklevel=2)
         else:
+            # Commented due to the inhierant problem of pymatgen EOS object
+            #             if re.findall(r'deltafactor', eos_method, re.I):
+            #                 if 'order' not in temptpress.keys():
+            #                     temptpress.update({'order' : 3})
+
+            #                 self.edft_eos_fit(method=eos_method, order=temptpress['order'])
+
+            #             elif re.findall(r'numerical_eos', eos_method, re.I):
+            #                 if 'min_ndata_factor' not in temptpress.keys():
+            #                     temptpress.update({'min_ndata_factor' : 3})
+
+            #                 if 'max_poly_order_factor' not in temptpress.keys():
+            #                     temptpress.update({'max_poly_order_factor' : 5})
+
+            #                 if 'min_poly_order_factor' not in temptpress.keys():
+            #                     temptpress.update({'min_poly_order_factor' : 2})
+
+            #                 self.edft_eos_fit(method=eos_method,
+            #                                   min_ndata_factor=temptpress['min_ndata_factor'],
+            #                                   max_poly_order_factor=temptpress['max_poly_order_factor'],
+            #                                   min_poly_order_factor=temptpress['min_poly_order_factor'])
+
+            #             else:
+            #                 self.edft_eos_fit(method=eos_method)
             self.edft_eos_fit(method=eos_method)
 
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
@@ -1522,8 +1581,8 @@ class Quasi_harmonic:
 
         return self
 
-    def eos_thermodynamics(self, eos_method='birch_murnaghan', poly_order=[2, 3],
-                           mutewarning=False, **temptpress):
+    def thermo_eos(self, eos_method='birch_murnaghan', poly_order=[2, 3],
+                   mutewarning=False, **temptpress):
         """
         Obtain thermodynamic properties by fitting equation of states F(V). 
         Exact sorting and fitting of frequency-volume relationship is disabled,
@@ -1531,13 +1590,19 @@ class Quasi_harmonic:
         harmonic phonons. 
 
         Input:
-            temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
-            pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
+
             eos_method: string, Equation of state used to fit F. For EOSs 
                         supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
             poly_order: list/array, List of the highest order of polynomials to
                         be fitted (G(T) for entropy).
             mutewarning, bool, Whether print out warning messages.
+
+        Optional Inputs:
+            temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
+            pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
+            order: int, limited to the DeltaFactor method
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
+                int, limited to the NumericalEOS method
 
         Output:
             self.thermo_eos_method: string, Equation of state used to fit F.
@@ -1550,6 +1615,7 @@ class Quasi_harmonic:
         """
         import numpy as np
         import warnings
+        import re
         from CRYSTALpytools.thermodynamics import Harmonic
         from pymatgen.analysis.eos import EOS
         from scipy.optimize import fmin
@@ -1602,6 +1668,30 @@ class Quasi_harmonic:
             [len(self.pressure), len(self.temperature)], dtype=float)
         v = symbols('v')
         for idx_t, t in enumerate(self.temperature):
+            # Commented due to the inhierant problem of pymatgen EOS object
+            #             if re.findall(r'deltafactor', eos_method, re.I):
+            #                 if 'order' not in temptpress.keys():
+            #                     temptpress.update({'order' : 3})
+
+            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t], order=temptpress['order'])
+
+            #             elif re.findall(r'numerical_eos', eos_method, re.I):
+            #                 if 'min_ndata_factor' not in temptpress.keys():
+            #                     temptpress.update({'min_ndata_factor' : 3})
+
+            #                 if 'max_poly_order_factor' not in temptpress.keys():
+            #                     temptpress.update({'max_poly_order_factor' : 5})
+
+            #                 if 'min_poly_order_factor' not in temptpress.keys():
+            #                     temptpress.update({'min_poly_order_factor' : 2})
+
+            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t],
+            #                                             min_ndata_factor=temptpress['min_ndata_factor'],
+            #                                             max_poly_order_factor=temptpress['max_poly_order_factor'],
+            #                                             min_poly_order_factor=temptpress['min_poly_order_factor'])
+
+            #             else:
+            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
             hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
             self.thermo_eos.append(hfe_t(v))
             press_t = -diff(hfe_t(v), v)
