@@ -1466,33 +1466,33 @@ class Properties_output:
         data = self.data
 
         # Reads the header information
-        NROW = int(data[0].split()[1])
-        NCOL = int(data[0].split()[2])
-        STEPX = float(data[0].split()[3])
-        STEPY = float(data[0].split()[4])
-        COSXY = float(data[0].split()[5])
+        nrow = int(data[0].split()[1])
+        ncol = int(data[0].split()[2])
+        stepx = float(data[0].split()[3])
+        stepy = float(data[0].split()[4])
+        cosxy = float(data[0].split()[5])
 
         A = np.array([float(data[1].split()[0]), float(data[1].split()[1]), float(data[1].split()[2])])
         B = np.array([float(data[1].split()[3]), float(data[1].split()[4]), float(data[1].split()[5])])
 
         C = np.array([float(data[2].split()[0]), float(data[2].split()[1]), float(data[2].split()[2])])
-        NAF = int(data[2].split()[3])
-        LDIM = int(data[2].split()[4])
+        naf = int(data[2].split()[3])
+        ldim = int(data[2].split()[4])
 
-        self.header = (NROW, NCOL, STEPX, STEPY, COSXY, A, B, C, NAF, LDIM)
+        self.header = (nrow, ncol, stepx, stepy, cosxy, A, B, C, naf, ldim)
 
         # Elaborates the header data
-        skip = 6 + NAF
+        skip = 6 + naf
 
         for i in range(2, 20):
-            if (NROW % i) == 0:
-                NROW_split = int(NROW/i)
+            if (nrow % i) == 0:
+                nrow_split = int(nrow/i)
 
         for i in range(2, 20):
-            if (NCOL % i) == 0:
-                NCOL_split = int(NCOL/i)
+            if (ncol % i) == 0:
+                ncol_split = int(ncol/i)
 
-        blines = (NROW*NCOL)/6
+        blines = (nrow*ncol)/6
         if (blines % 6) == 0:
             blines = int(blines)
         else:
@@ -1502,15 +1502,15 @@ class Properties_output:
         check = np.zeros(3, dtype=int)
         if 'm' in which_prop:
             check[0] = 1
-            self.dens_m = np.zeros((NROW, NCOL, 3), dtype=float)
+            self.dens_m = np.zeros((nrow, ncol, 3), dtype=float)
         if 'j' in which_prop:
             check[1] = 1
-            self.dens_j = np.zeros((NROW, NCOL, 3), dtype=float)
+            self.dens_j = np.zeros((nrow, ncol, 3), dtype=float)
         if 'J' in which_prop:
             check[2] = 1
-            self.dens_JX = np.zeros((NROW, NCOL, 3), dtype=float)
-            self.dens_JY = np.zeros((NROW, NCOL, 3), dtype=float)
-            self.dens_JZ = np.zeros((NROW, NCOL, 3), dtype=float)
+            self.dens_JX = np.zeros((nrow, ncol, 3), dtype=float)
+            self.dens_JY = np.zeros((nrow, ncol, 3), dtype=float)
+            self.dens_JZ = np.zeros((nrow, ncol, 3), dtype=float)
         if (not check[0]) and (not check[1]) and (not check[2]):
             print('Error: Invalid Entry. Only the m, j, and J charachters are supported')
             sys.exit(1)
@@ -1527,7 +1527,7 @@ class Properties_output:
                     self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_m[r, s, 1] = data[i+iamhere+blines+skip].split()[j]
                     self.dens_m[r, s, 2] = data[i+iamhere+(2*blines)+(2*skip)].split()[j]
-                    if s == (NCOL - 1):
+                    if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
@@ -1545,7 +1545,7 @@ class Properties_output:
                     self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_j[r, s, 1] = data[i+iamhere+blines+skip].split()[j]
                     self.dens_j[r, s, 2] = data[i+iamhere+2*blines+2*skip].split()[j]
-                    if s == (NCOL - 1):
+                    if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
@@ -1569,7 +1569,7 @@ class Properties_output:
                     self.dens_JZ[r, s, 0] = data[i+iamhere+(6*blines)+(6*skip)].split()[j]
                     self.dens_JZ[r, s, 1] = data[i+iamhere+(7*blines)+(7*skip)].split()[j]
                     self.dens_JZ[r, s, 2] = data[i+iamhere+(8*blines)+(8*skip)].split()[j]
-                    if s == (NCOL - 1):
+                    if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:

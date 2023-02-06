@@ -10,22 +10,22 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     for i in range(2, 20):
             if (header[0] % i) == 0:
-                NROW_split = int(header[0]/i)
+                nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
             if (header[1] % i) == 0:
-                NCOL_split = int(header[1]/i)
+                ncol_split = int(header[1]/i)
 
     # initializes the arrays
-    projx_m = np.zeros((NROW_split, NCOL_split), dtype=float)
-    projy_m = np.zeros((NROW_split, NCOL_split), dtype=float)
+    projx_m = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_m = np.zeros((nrow_split, ncol_split), dtype=float)
     mod_m = np.zeros((header[0], header[1]), dtype=float)
 
     # Generates the meshgrid
     mesh_x = np.zeros((header[0], header[1]), dtype=float)
     mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((NROW_split, NCOL_split), dtype=float)
-    mesh_projy = np.zeros((NROW_split, NCOL_split), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
     T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
                   [header[4]*header[2], header[3]]]) # Change of basis matrix
@@ -40,30 +40,30 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     r = 0
     s = 0
-    step_NROW = int(header[0]/NROW_split)
-    step_NCOL = int(header[1]/NCOL_split)
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
             mesh_projx[i, j] = mesh_x[r, s]
             mesh_projy[i, j] = mesh_y[r, s]
-            s += step_NCOL
+            s += step_ncol
         s = 0
-        r += step_NROW
+        r += step_nrow
 
     # Creates the orthogonal vectorial basis for the projections
     CB = header[7] - header[6]
     BA = header[6] - header[5]
     if header[4] == 0:
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
     else:
         BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
 
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
@@ -72,16 +72,16 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    MOD_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
 
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
-            projx_m[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_NROW), int(j*step_NCOL), 0], dens[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v2)
-            projy_m[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_NROW), int(j*step_NCOL, 0)], dens[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v1)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol, 0)], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     # Plotting
 
@@ -101,22 +101,22 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     for i in range(2, 20):
             if (header[0] % i) == 0:
-                NROW_split = int(header[0]/i)
+                nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
             if (header[1] % i) == 0:
-                NCOL_split = int(header[1]/i)
+                ncol_split = int(header[1]/i)
 
     # initializes the arrays
-    projx_j = np.zeros((NROW_split, NCOL_split), dtype=float)
-    projy_j = np.zeros((NROW_split, NCOL_split), dtype=float)
+    projx_j = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_j = np.zeros((nrow_split, ncol_split), dtype=float)
     mod_j = np.zeros((header[0], header[1]), dtype=float)
 
     # Generates the meshgrid
     mesh_x = np.zeros((header[0], header[1]), dtype=float)
     mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((NROW_split, NCOL_split), dtype=float)
-    mesh_projy = np.zeros((NROW_split, NCOL_split), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
     T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
                   [header[4]*header[2], header[3]]]) # Change of basis matrix
@@ -131,30 +131,30 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     r = 0
     s = 0
-    step_NROW = int(header[0]/NROW_split)
-    step_NCOL = int(header[1]/NCOL_split)
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
             mesh_projx[i, j] = mesh_x[r, s]
             mesh_projy[i, j] = mesh_y[r, s]
-            s += step_NCOL
+            s += step_ncol
         s = 0
-        r += step_NROW
+        r += step_nrow
 
     # Creates the orthogonal vectorial basis for the projections
     CB = header[7] - header[6]
     BA = header[6] - header[5]
     if header[4] == 0:
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
     else:
         BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
 
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
@@ -163,16 +163,16 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    MOD_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
 
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
-            projx_j[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_NROW), int(j*step_NCOL), 0], dens[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v2)
-            projy_j[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_NROW), int(j*step_NCOL), 0], dens[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v1)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
 
     j = plt.figure()
@@ -191,28 +191,28 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
 
     for i in range(2, 20):
             if (header[0] % i) == 0:
-                NROW_split = int(header[0]/i)
+                nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
             if (header[1] % i) == 0:
-                NCOL_split = int(header[1]/i)
+                ncol_split = int(header[1]/i)
 
     # initializes the arrays
-    projx_JX = np.zeros((NROW_split, NCOL_split), dtype=float)
-    projy_JX = np.zeros((NROW_split, NCOL_split), dtype=float)
+    projx_JX = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JX = np.zeros((nrow_split, ncol_split), dtype=float)
     mod_JX = np.zeros((header[0], header[1]), dtype=float)
-    projx_JY = np.zeros((NROW_split, NCOL_split), dtype=float)
-    projy_JY = np.zeros((NROW_split, NCOL_split), dtype=float)
+    projx_JY = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JY = np.zeros((nrow_split, ncol_split), dtype=float)
     mod_JY = np.zeros((header[0], header[1]), dtype=float)
-    projx_JZ = np.zeros((NROW_split, NCOL_split), dtype=float)
-    projy_JZ = np.zeros((NROW_split, NCOL_split), dtype=float)
+    projx_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
     mod_JZ = np.zeros((header[0], header[1]), dtype=float)
 
     # Generates the meshgrid
     mesh_x = np.zeros((header[0], header[1]), dtype=float)
     mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((NROW_split, NCOL_split), dtype=float)
-    mesh_projy = np.zeros((NROW_split, NCOL_split), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
     T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
                   [header[4]*header[2], header[3]]]) # Change of basis matrix
@@ -227,30 +227,30 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
 
     r = 0
     s = 0
-    step_NROW = int(header[0]/NROW_split)
-    step_NCOL = int(header[1]/NCOL_split)
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
             mesh_projx[i, j] = mesh_x[r, s]
             mesh_projy[i, j] = mesh_y[r, s]
-            s += step_NCOL
+            s += step_ncol
         s = 0
-        r += step_NROW
+        r += step_nrow
 
     # Creates the orthogonal vectorial basis for the projections
     CB = header[7] - header[6]
     BA = header[6] - header[5]
     if header[4] == 0:
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
     else:
         BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        MOD_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        MOD_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/MOD_BA
-        v2 = CB/MOD_CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
 
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
@@ -261,28 +261,28 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    MOD_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
 
-    for i in range(0, NROW_split):
-        for j in range(0, NCOL_split):
-            projx_JX[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JX[int(i*step_NROW), int(j*step_NCOL), 0], dens_JX[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JX[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v2)
-            projy_JX[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JX[int(i*step_NROW), int(j*step_NCOL), 0], dens_JX[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JX[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v1)
-            projx_JY[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JY[int(i*step_NROW), int(j*step_NCOL), 0], dens_JY[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JY[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v2)
-            projy_JY[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JY[int(i*step_NROW), int(j*step_NCOL), 0], dens_JY[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JY[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v1)
-            projx_JZ[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JZ[int(i*step_NROW), int(j*step_NCOL), 0], dens_JZ[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JZ[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v2)
-            projy_JZ[i, j] = np.dot((1/(MOD_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JZ[int(i*step_NROW), int(j*step_NCOL), 0], dens_JZ[int(i*step_NROW), int(j*step_NCOL), 1], \
-                                                       dens_JZ[int(i*step_NROW), int(j*step_NCOL), 2]]), ABC_normal)), v1)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+            projx_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+            projx_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     # Plotting
 
