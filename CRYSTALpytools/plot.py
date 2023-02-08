@@ -4,6 +4,315 @@
 Created on 29/03/2022
 """
 
+def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    for i in range(2, 20):
+            if (header[0] % i) == 0:
+                nrow_split = int(header[0]/i)
+
+    for i in range(2, 20):
+            if (header[1] % i) == 0:
+                ncol_split = int(header[1]/i)
+
+    # initializes the arrays
+    projx_m = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_m = np.zeros((nrow_split, ncol_split), dtype=float)
+    mod_m = np.zeros((header[0], header[1]), dtype=float)
+
+    # Generates the meshgrid
+    mesh_x = np.zeros((header[0], header[1]), dtype=float)
+    mesh_y = np.zeros((header[0], header[1]), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
+
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
+                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
+            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
+
+    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_y = mesh_y * 0.529177249
+
+    r = 0
+    s = 0
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            mesh_projx[i, j] = mesh_x[r, s]
+            mesh_projy[i, j] = mesh_y[r, s]
+            s += step_ncol
+        s = 0
+        r += step_nrow
+
+    # Creates the orthogonal vectorial basis for the projections
+    CB = header[7] - header[6]
+    BA = header[6] - header[5]
+    if header[4] == 0:
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+    else:
+        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+
+    # Calculates the modulus of the vectorial field
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mod_m[i, j] = np.sqrt((dens[i, j, 0]**2)+(dens[i, j, 1]**2)+(dens[i, j, 2]**2))
+
+    # Calculates the projections of the vectors in the ABC plane
+    ABC_normal = np.cross(BA, CB)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol, 0)], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+
+    # Plotting
+
+    m = plt.figure()
+    m = plt.contourf(mesh_x, mesh_y, mod_m, colormapdens, cmap='cool')
+    m = plt.colorbar(mappable=m)
+    m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale = quivscale)
+    m = plt.xlabel('$\AA$')
+    m = plt.ylabel('$\AA$')
+    m = plt.savefig(name, dpi = dpi)
+
+    plt.show()
+
+def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    for i in range(2, 20):
+            if (header[0] % i) == 0:
+                nrow_split = int(header[0]/i)
+
+    for i in range(2, 20):
+            if (header[1] % i) == 0:
+                ncol_split = int(header[1]/i)
+
+    # initializes the arrays
+    projx_j = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_j = np.zeros((nrow_split, ncol_split), dtype=float)
+    mod_j = np.zeros((header[0], header[1]), dtype=float)
+
+    # Generates the meshgrid
+    mesh_x = np.zeros((header[0], header[1]), dtype=float)
+    mesh_y = np.zeros((header[0], header[1]), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
+
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
+                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
+            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
+
+    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_y = mesh_y * 0.529177249
+
+    r = 0
+    s = 0
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            mesh_projx[i, j] = mesh_x[r, s]
+            mesh_projy[i, j] = mesh_y[r, s]
+            s += step_ncol
+        s = 0
+        r += step_nrow
+
+    # Creates the orthogonal vectorial basis for the projections
+    CB = header[7] - header[6]
+    BA = header[6] - header[5]
+    if header[4] == 0:
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+    else:
+        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+
+    # Calculates the modulus of the vectorial field
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mod_j[i, j] = np.sqrt((dens[i, j, 0]**2)+(dens[i, j, 1]**2)+(dens[i, j, 2]**2))
+
+    # Calculates the projections of the vectors in the ABC plane
+    ABC_normal = np.cross(BA, CB)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+
+
+    j = plt.figure()
+    j = plt.contourf(mesh_x, mesh_y, mod_j, colormapdens, cmap='winter')
+    j = plt.colorbar(mappable=j)
+    j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale = quivscale)
+    j = plt.xlabel('$\AA$')
+    j = plt.ylabel('$\AA$')
+    j = plt.savefig(name, dpi = dpi)
+
+    plt.show()
+
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi = 400):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    for i in range(2, 20):
+            if (header[0] % i) == 0:
+                nrow_split = int(header[0]/i)
+
+    for i in range(2, 20):
+            if (header[1] % i) == 0:
+                ncol_split = int(header[1]/i)
+
+    # initializes the arrays
+    projx_JX = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JX = np.zeros((nrow_split, ncol_split), dtype=float)
+    mod_JX = np.zeros((header[0], header[1]), dtype=float)
+    projx_JY = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JY = np.zeros((nrow_split, ncol_split), dtype=float)
+    mod_JY = np.zeros((header[0], header[1]), dtype=float)
+    projx_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
+    projy_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
+    mod_JZ = np.zeros((header[0], header[1]), dtype=float)
+
+    # Generates the meshgrid
+    mesh_x = np.zeros((header[0], header[1]), dtype=float)
+    mesh_y = np.zeros((header[0], header[1]), dtype=float)
+    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
+    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
+
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
+                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
+            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
+
+    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_y = mesh_y * 0.529177249
+
+    r = 0
+    s = 0
+    step_nrow = int(header[0]/nrow_split)
+    step_ncol = int(header[1]/ncol_split)
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            mesh_projx[i, j] = mesh_x[r, s]
+            mesh_projy[i, j] = mesh_y[r, s]
+            s += step_ncol
+        s = 0
+        r += step_nrow
+
+    # Creates the orthogonal vectorial basis for the projections
+    CB = header[7] - header[6]
+    BA = header[6] - header[5]
+    if header[4] == 0:
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+    else:
+        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
+        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
+        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
+        v1 = BA/mod_BA
+        v2 = CB/mod_CB
+
+    # Calculates the modulus of the vectorial field
+    for i in range(0, header[0]):
+        for j in range(0, header[1]):
+            mod_JX[i, j] = np.sqrt((dens_JX[i, j, 0]**2)+(dens_JX[i, j, 1]**2)+(dens_JX[i, j, 2]**2))
+            mod_JY[i, j] = np.sqrt((dens_JY[i, j, 0]**2)+(dens_JY[i, j, 1]**2)+(dens_JY[i, j, 2]**2))
+            mod_JZ[i, j] = np.sqrt((dens_JZ[i, j, 0]**2)+(dens_JZ[i, j, 1]**2)+(dens_JZ[i, j, 2]**2))
+
+    # Calculates the projections of the vectors in the ABC plane
+    ABC_normal = np.cross(BA, CB)
+    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+
+    for i in range(0, nrow_split):
+        for j in range(0, ncol_split):
+            projx_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+            projx_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+            projx_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+
+    # Plotting
+
+    JX = plt.figure()
+    JX = plt.contourf(mesh_x, mesh_y, mod_JX, colormapdens, cmap='summer')
+    JX = plt.colorbar(mappable=JX)
+    JX = plt.quiver(mesh_projx, mesh_projy, projx_JX, projy_JX, scale = quivscale)
+    JX = plt.xlabel('$\AA$')
+    JX = plt.ylabel('$\AA$')
+    JX = plt.savefig(name+'_JX', dpi = dpi)
+
+    JY = plt.figure()
+    JY = plt.contourf(mesh_x, mesh_y, mod_JY, colormapdens, cmap='summer')
+    JY = plt.colorbar(mappable=JY)
+    JY = plt.quiver(mesh_projx, mesh_projy, projx_JY, projy_JY, scale = quivscale)
+    JY = plt.xlabel('$\AA$')
+    JY = plt.ylabel('$\AA$')
+    JY = plt.savefig(name+'_JY', dpi = dpi)
+
+    JZ = plt.figure()
+    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, colormapdens, cmap='summer')
+    JZ = plt.colorbar(mappable=JZ)
+    JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ, projy_JZ, scale = quivscale)
+    JZ = plt.xlabel('$\AA$')
+    JZ = plt.ylabel('$\AA$')
+    JZ = plt.savefig(name+'_JZ', dpi = dpi)
+
+    plt.show()
+
+
 def plot_cry_bands(bands, k_labels=None, energy_range=None, title=False, not_scaled=False, save_to_file=False, mode='single', linestl='-',
                    linewidth=1, color='blue', fermi='forestgreen', k_range=None, labels=None, figsize=None, scheme=None,
                    sharex=True, sharey=True):
@@ -1392,18 +1701,23 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     elif case == 'szy':
         col = 10
     elif case == 'szz':
-        col = 11            
+        col = 11
 
     else:
         sys.exit('please, choose a valid chioce')
 
+<<<<<<< HEAD
     vol = seebeck_obj.volume    
 
     x = []  
+=======
+    x = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
+<<<<<<< HEAD
     carrier=[]
     for k in range(0, len(seebeck_obj.all_data)):
         carrier.append(np.array(seebeck_obj.all_data[k].apply(
@@ -1412,6 +1726,9 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
 
 
     y = []  
+=======
+    y = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col])*1000000)))
@@ -1515,12 +1832,13 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         sys.exit('please, choose a valid chioce')
 
     vol= sigma_obj.volume
-    
-    x = []  
+
+    x = []
     for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
+<<<<<<< HEAD
 
     carrier=[]
     for k in range(0, len(sigma_obj.all_data)):
@@ -1529,10 +1847,14 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
 
     y = []  
+=======
+    y = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
+<<<<<<< HEAD
     yneg = [] 
     ypos = []
     xpos = []
@@ -1565,6 +1887,8 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     endx=[]
     endy=[] 
     
+=======
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
     for k in range(0, len(sigma_obj.all_data)):
         endx=[xposfin[k][-1],xnegfin[k][0]]
@@ -1594,7 +1918,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
- 
+
     if save_to_file != False:
         save_plot(save_to_file)
 
@@ -1633,14 +1957,20 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     elif case == 'szy':
         col = 10
     elif case == 'szz':
-        col = 11      
+        col = 11
     else:
         sys.exit('please, choose a valid chioce')
 
     vol= seebeck_obj.volume
+<<<<<<< HEAD
     
   
     x = [] 
+=======
+
+
+    x = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
@@ -1648,6 +1978,10 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     
     
 
+<<<<<<< HEAD
+=======
+    y = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
                     lambda x: float(x.split()[col])*1000000)))
@@ -1721,8 +2055,12 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         plt.xscale('log') 
         plt.title('Seebeck at different T')   
     plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+<<<<<<< HEAD
     plt.show()
  
+=======
+
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     if save_to_file != False:
         save_plot(save_to_file)
 
@@ -1759,13 +2097,13 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         sys.exit('please, choose a valid chioce')
 
     vol= sigma_obj.volume
-    
-    x = []  
+
+    x = []
     for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
 
-    y = []  
+    y = []
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
@@ -1837,7 +2175,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.xscale('log')
     plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
- 
+
     if save_to_file != False:
         save_plot(save_to_file)
 
@@ -1847,7 +2185,7 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
     import matplotlib.pyplot as plt
     import numpy as np
     import time
-    
+
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
 
@@ -1875,11 +2213,11 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'pfzy':
         col = 10
     elif case == 'pfzz':
-        col = 11      
+        col = 11
     else:
         sys.exit('please, choose a valid chioce')
 
-    if case == 'pfxx':    
+    if case == 'pfxx':
         cols = 3
     elif case == 'pfxy':
         cols = 4
@@ -1896,15 +2234,16 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'pfzy':
         cols = 7
     elif case == 'pfzz':
-        cols = 8      
+        cols = 8
     else:
-        sys.exit('please, choose a valid chioce')    
+        sys.exit('please, choose a valid chioce')
 
-    x = []  
+    x = []
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
+<<<<<<< HEAD
     vol= sigma_obj.volume        
     carrier = []        
 
@@ -2107,18 +2446,24 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         
 
     yse = []  
+=======
+    yse = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    ysi = [] 
+    ysi = []
     for k in range(0, len(sigma_obj.all_data)):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
 
+<<<<<<< HEAD
 
     
     
+=======
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     pf_meta = []
     for i in range(0, len(yse)):
         pf_meta.append(yse[i] * yse[i])
@@ -2128,6 +2473,7 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         pf.append(pf_meta[i] * ysi[i])
 
 
+<<<<<<< HEAD
     ysineg = [] 
     ysipos = []
     xsipos = []
@@ -2208,6 +2554,8 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         
     
     from matplotlib.pyplot import figure 
+=======
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
     for k in range(0, len(seebeck_obj.all_data)):
         endx=[xsiposfin[k][-1],xsinegfin[k][0]]
@@ -2253,7 +2601,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     import matplotlib.pyplot as plt
     import numpy as np
     import time
-    
+
     ktot = float(input(
         'Please insert the value of ktot in W-1K-1m-1'))
     case = input(
@@ -2283,11 +2631,11 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'ztzy':
         col = 10
     elif case == 'ztzz':
-        col = 11      
+        col = 11
     else:
         sys.exit('please, choose a valid chioce')
 
-    if case == 'ztxx':    
+    if case == 'ztxx':
         cols = 3
     elif case == 'ztxy':
         cols = 4
@@ -2304,38 +2652,38 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'ztzy':
         cols = 7
     elif case == 'ztzz':
-        cols = 8      
+        cols = 8
     else:
-        sys.exit('please, choose a valid chioce')    
+        sys.exit('please, choose a valid chioce')
 
-    x = []  
+    x = []
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    yse = []  
+    yse = []
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    ysi = []   
+    ysi = []
     for k in range(0, len(sigma_obj.all_data)):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
-    
-    
+
+
     pf_meta = []
     for i in range(0, len(yse)):
         pf_meta.append(yse[i] * yse[i])
 
     pf = []
     for i in range(0, len(pf_meta)):
-        pf.append(pf_meta[i] * ysi[i])    
-    
-    zt = []  
+        pf.append(pf_meta[i] * ysi[i])
+
+    zt = []
     for i in range(0, len(pf_meta)):
         zt.append((pf[i] * seebeck_obj.temp[i])/ktot)
-    
+
 
     for k in range(0, len(seebeck_obj.all_data)):
         plt.figure()
@@ -2370,8 +2718,8 @@ def plot_cry_multiseebeck(*seebeck):
     k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
     minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
     maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
-    
-    
+
+
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
 
@@ -2400,7 +2748,7 @@ def plot_cry_multiseebeck(*seebeck):
         col = 10
     elif case == 'szz':
         col = 11
-    
+
     else:
         sys.exit('please, choose a valid chioce')
 
@@ -2412,7 +2760,7 @@ def plot_cry_multiseebeck(*seebeck):
 
             
 
-        x = []  
+        x = []
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
              lambda x: float(x.split()[0]))))
@@ -2424,11 +2772,12 @@ def plot_cry_multiseebeck(*seebeck):
 
 
 
-        y = []  
+        y = []
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col])*1000000)))
 
+<<<<<<< HEAD
         yneg = [] 
         ypos = []
         xpos = []
@@ -2468,6 +2817,11 @@ def plot_cry_multiseebeck(*seebeck):
         plt.plot(endx,endy,color= colours[i])
         plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
         plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i])    
+=======
+
+
+        plt.plot(x[k], y[k], label=str(n.title))
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.xlim(minpot, maxpot)
@@ -2513,9 +2867,10 @@ def plot_cry_multisigma(*sigma):
         col = 7
     elif case == 'szz':
         col = 8
-    
+
     else:
         sys.exit('please, choose a valid chioce')
+<<<<<<< HEAD
     
     i=0
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
@@ -2524,10 +2879,19 @@ def plot_cry_multisigma(*sigma):
         
     
         x = []  
+=======
+
+
+
+    for n in sigma:
+
+        x = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
+<<<<<<< HEAD
 
         carrier=[]
         for kq in range(0, len(n.all_data)):
@@ -2536,10 +2900,14 @@ def plot_cry_multisigma(*sigma):
 
 
         y = []  
+=======
+        y = []
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col]))))
 
+<<<<<<< HEAD
         yneg = [] 
         ypos = []
         xpos = []
@@ -2582,6 +2950,10 @@ def plot_cry_multisigma(*sigma):
         plt.plot(endx,endy,color= colours[i])
         plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
         plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i]) 
+=======
+
+        plt.plot(x[k], y[k], label=str(n.title))
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
@@ -2589,9 +2961,13 @@ def plot_cry_multisigma(*sigma):
         plt.xlim(minpot, maxpot)
         i=1+i
     plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
+<<<<<<< HEAD
     plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight') 
     
     
+=======
+    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+>>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
@@ -2681,7 +3057,7 @@ def plot_cry_young(theta, phi, S):
                     rtmp = a[i] * a[j] * a[k] * a[l] * (S[v, u] / rf)
                     e = e + rtmp
     E_tmp = 1 / e  # is the Young Modulus of each cycle
-    return E_tmp 
+    return E_tmp
 
 
 def plot_cry_comp(theta, phi, S):
@@ -2690,16 +3066,16 @@ def plot_cry_comp(theta, phi, S):
 
     C2V = np.array(
             [
-                [0, 5, 4], 
-                [5, 1, 3], 
+                [0, 5, 4],
+                [5, 1, 3],
                 [4, 3, 2]
                 ]
             )
 
     a = np.array(
             [
-                np.sin(theta) * np.cos(phi), 
-                np.sin(theta) * np.sin(phi), 
+                np.sin(theta) * np.cos(phi),
+                np.sin(theta) * np.sin(phi),
                 np.cos(theta),
                 ]
             )
@@ -2729,8 +3105,8 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
 
     C2V = np.array(
             [
-                [0, 5, 4], 
-                [5, 1, 3], 
+                [0, 5, 4],
+                [5, 1, 3],
                 [4, 3, 2],
                 ]
             )
@@ -2797,8 +3173,8 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
 
     C2V = np.array(
             [
-                [0, 5, 4], 
-                [5, 1, 3], 
+                [0, 5, 4],
+                [5, 1, 3],
                 [4, 3, 2],
                 ]
             )
@@ -2845,8 +3221,8 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
                                     rf = 2
                                 if u >= 3 and v < 3:
                                     rf = 2
-                                num = (a[i] * a[j] * b[k] * b[l] * S[v, u])/rf 
-                                den = (a[i] * a[j] * a[k] * a[l] * S[v, u])/rf 
+                                num = (a[i] * a[j] * b[k] * b[l] * S[v, u])/rf
+                                den = (a[i] * a[j] * a[k] * a[l] * S[v, u])/rf
                                 poisson_num = poisson_num + num
                                 poisson_den = poisson_den + den
                 poisson_chi[chi_idx] = - poisson_num / poisson_den
@@ -2863,7 +3239,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
 
 
 def plot_cry_ela(*args):
-    
+
     import numpy as np
     import matplotlib.pyplot as plt
     import math
@@ -2886,7 +3262,7 @@ def plot_cry_ela(*args):
         Sref = np.linalg.inv(Cref)
     if len(args) > 4:
         sys.exit("Too many arguments!")
-        
+
     # Inverse of the matrix C in GPa (Compliance)
     S = np.linalg.inv(C)
 
@@ -2949,7 +3325,7 @@ def plot_cry_ela(*args):
         print(choose, "is an invalid plotting choice")
         sys.exit(1)
 
-    
+
     # Convert to Cartesian coordinates for 3D representation
     X = R * np.sin(theta_2D) * np.cos(phi_2D)
     Y = R * np.sin(theta_2D) * np.sin(phi_2D)
@@ -2994,7 +3370,7 @@ def plot_cry_ela(*args):
 
     plt.show()
     fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
-        
+
 
 def save_plot(path_to_file):
 
