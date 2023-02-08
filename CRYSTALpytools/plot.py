@@ -1706,18 +1706,13 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-<<<<<<< HEAD
     vol = seebeck_obj.volume    
 
     x = []  
-=======
-    x = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-<<<<<<< HEAD
     carrier=[]
     for k in range(0, len(seebeck_obj.all_data)):
         carrier.append(np.array(seebeck_obj.all_data[k].apply(
@@ -1726,9 +1721,6 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
 
 
     y = []  
-=======
-    y = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col])*1000000)))
@@ -1838,7 +1830,6 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-<<<<<<< HEAD
 
     carrier=[]
     for k in range(0, len(sigma_obj.all_data)):
@@ -1847,14 +1838,10 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
 
     y = []  
-=======
-    y = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-<<<<<<< HEAD
     yneg = [] 
     ypos = []
     xpos = []
@@ -1887,8 +1874,6 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     endx=[]
     endy=[] 
     
-=======
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
     for k in range(0, len(sigma_obj.all_data)):
         endx=[xposfin[k][-1],xnegfin[k][0]]
@@ -1962,15 +1947,9 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         sys.exit('please, choose a valid chioce')
 
     vol= seebeck_obj.volume
-<<<<<<< HEAD
     
   
     x = [] 
-=======
-
-
-    x = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
@@ -1978,10 +1957,6 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     
     
 
-<<<<<<< HEAD
-=======
-    y = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
                     lambda x: float(x.split()[col])*1000000)))
@@ -2055,12 +2030,8 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         plt.xscale('log') 
         plt.title('Seebeck at different T')   
     plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
-<<<<<<< HEAD
     plt.show()
  
-=======
-
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     if save_to_file != False:
         save_plot(save_to_file)
 
@@ -2243,7 +2214,6 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-<<<<<<< HEAD
     vol= sigma_obj.volume        
     carrier = []        
 
@@ -2446,9 +2416,6 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         
 
     yse = []  
-=======
-    yse = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
@@ -2458,12 +2425,9 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
 
-<<<<<<< HEAD
 
     
     
-=======
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
     pf_meta = []
     for i in range(0, len(yse)):
         pf_meta.append(yse[i] * yse[i])
@@ -2473,7 +2437,6 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         pf.append(pf_meta[i] * ysi[i])
 
 
-<<<<<<< HEAD
     ysineg = [] 
     ysipos = []
     xsipos = []
@@ -2554,8 +2517,6 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         
     
     from matplotlib.pyplot import figure 
-=======
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
     for k in range(0, len(seebeck_obj.all_data)):
         endx=[xsiposfin[k][-1],xsinegfin[k][0]]
@@ -2777,7 +2738,6 @@ def plot_cry_multiseebeck(*seebeck):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col])*1000000)))
 
-<<<<<<< HEAD
         yneg = [] 
         ypos = []
         xpos = []
@@ -2817,11 +2777,6 @@ def plot_cry_multiseebeck(*seebeck):
         plt.plot(endx,endy,color= colours[i])
         plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
         plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i])    
-=======
-
-
-        plt.plot(x[k], y[k], label=str(n.title))
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.xlim(minpot, maxpot)
@@ -2870,7 +2825,6 @@ def plot_cry_multisigma(*sigma):
 
     else:
         sys.exit('please, choose a valid chioce')
-<<<<<<< HEAD
     
     i=0
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
@@ -2879,19 +2833,10 @@ def plot_cry_multisigma(*sigma):
         
     
         x = []  
-=======
-
-
-
-    for n in sigma:
-
-        x = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
-<<<<<<< HEAD
 
         carrier=[]
         for kq in range(0, len(n.all_data)):
@@ -2900,14 +2845,10 @@ def plot_cry_multisigma(*sigma):
 
 
         y = []  
-=======
-        y = []
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col]))))
 
-<<<<<<< HEAD
         yneg = [] 
         ypos = []
         xpos = []
@@ -2950,10 +2891,6 @@ def plot_cry_multisigma(*sigma):
         plt.plot(endx,endy,color= colours[i])
         plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
         plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i]) 
-=======
-
-        plt.plot(x[k], y[k], label=str(n.title))
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
@@ -2961,13 +2898,9 @@ def plot_cry_multisigma(*sigma):
         plt.xlim(minpot, maxpot)
         i=1+i
     plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
-<<<<<<< HEAD
     plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight') 
     
     
-=======
-    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
->>>>>>> d7fa118f99864ed69cc17db2f1a0f139b24d4341
 
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
