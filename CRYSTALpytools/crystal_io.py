@@ -3,7 +3,7 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 """
-from . import units
+from CRYSTALpytools import units
 
 class Crystal_input:
     # This creates a crystal_input object
