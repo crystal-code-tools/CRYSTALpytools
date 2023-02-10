@@ -323,12 +323,15 @@ class Crystal_output:
 
         import re
 
+
         self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
                 self.final_energy = units.H_to_eV(float(line.split()[7]))
+                return self.final_energy
             elif re.match(r'^ == SCF ENDED', line) != None:
                 self.final_energy = units.H_to_eV(float(line.split()[8]))
+                return self.final_energy
 
         if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
@@ -796,6 +799,11 @@ class Crystal_output:
         except:
             return "WARNING: this is not a CONFCNT analysis."
 
+        for line in self.data[::-1]:
+            if '----' in line:
+                dash_line = line.rstrip().lstrip()
+                break
+
         for i, line in enumerate(self.data[begin:]):
             if re.match(r'^ COMPOSITION', line):
                 self.n_classes = line.split()[9]
@@ -812,7 +820,7 @@ class Crystal_output:
         config_list = np.delete(config_list, warning)
         atom1_begin = np.where(config_list == original_atom)[0]
         atom1_end = np.where(
-            config_list == '--------------------------------------------------------------------------')[0]
+            config_list == dash_line)[0]
         atom2_begin = np.where(config_list == 'XX')[0]
         atom2_end = np.where(
             config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
@@ -830,6 +838,7 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
+
         return [self.atom_type1, self.atom_type2]
 
     """
@@ -911,7 +920,7 @@ class Crystal_output:
         for i, line in enumerate(self.data):
 # Keywords in gradient calculation
             if re.match(r'\s*CENTRAL POINT', line):
-                edft = np.append(edft, H_to_kjmol(float(line.strip().split()[2])))
+                edft = np.append(edft, units.H_to_kjmol(float(line.strip().split()[2])))
 
             if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
