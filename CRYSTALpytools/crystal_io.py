@@ -798,16 +798,12 @@ class Crystal_output:
                 '                             CONFIGURATION ANALYSIS\n')
         except:
             return "WARNING: this is not a CONFCNT analysis."
-<<<<<<< HEAD
 
         for line in self.data[::-1]:
             if '----' in line:
                 dash_line = line.rstrip().lstrip()
                 break
 
-=======
-
->>>>>>> upstream/main
         for i, line in enumerate(self.data[begin:]):
             if re.match(r'^ COMPOSITION', line):
                 self.n_classes = line.split()[9]
