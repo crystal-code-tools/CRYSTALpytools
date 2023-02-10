@@ -920,7 +920,7 @@ class Crystal_output:
         for i, line in enumerate(self.data):
 # Keywords in gradient calculation
             if re.match(r'\s*CENTRAL POINT', line):
-                edft = np.append(edft, H_to_kjmol(float(line.strip().split()[2])))
+                edft = np.append(edft, units.H_to_kjmol(float(line.strip().split()[2])))
 
             if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])

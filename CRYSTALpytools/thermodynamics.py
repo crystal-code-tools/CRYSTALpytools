@@ -5,6 +5,7 @@ A comprehensive module for lattice dynamics based on harmonic and quasiharmonic
 approximations.
 """
 from CRYSTALpytools.crystal_io import Crystal_output
+from CRYSTApytools import units
 
 
 class Mode:
