@@ -850,7 +850,7 @@ class Crystal_output:
         self.nmode: get_mode, Number of vibrational modes at all qpoints
         self.frequency: get_mode, Frequencies of all modes at all qpoints.
                         Unit: THz
-        self.eigenvector: get_eigenvector, Eigenvectors (classical amplitude)
+        self.eigenvector: get_phonon_eigenvector, Eigenvectors (classical amplitude)
                           of all atoms all modes at all qpoints. Unit: Angstrom
     """
 
@@ -1005,7 +1005,7 @@ class Crystal_output:
 
         return self.nmode, self.frequency
 
-    def get_eigenvector(self):
+    def get_phonon_eigenvector(self):
         """
         Get corresponding mode eigenvectors for all modes on all
         atoms in the supercell.
@@ -1103,14 +1103,16 @@ class Crystal_output:
             self.eigenvector
         """
         import numpy as np
+        import warnings
 
         for q, freq in enumerate(self.frequency):
             if freq[0] > -1e-4:
                 continue
 
-            print(
-                'WARNING: Negative frequencies detected - Calculated thermodynamics might be inaccurate.')
-            print('WARNING: Negative frequencies will be substituted by NaN.')
+            warnings.warn(
+                'Negative frequencies detected - Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by NaN.',
+                stacklevel=2
+            )
 
             neg_rank = np.where(freq <= -1e-4)[0]
             self.frequency[q, neg_rank] = np.nan
