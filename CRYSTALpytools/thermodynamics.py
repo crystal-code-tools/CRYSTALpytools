@@ -5,7 +5,7 @@ A comprehensive module for lattice dynamics based on harmonic and quasiharmonic
 approximations.
 """
 from CRYSTALpytools.crystal_io import Crystal_output
-from CRYSTApytools import units
+from CRYSTALpytools import units
 
 
 class Mode:
@@ -349,7 +349,7 @@ class Harmonic(Crystal_output):
             self.mode.append(qmode)
 
         if read_eigenvector:
-            super(Harmonic, self).get_eigenvector()
+            super(Harmonic, self).get_phonon_eigenvector()
 
         if auto_calc:
             self.thermodynamics(sumphonon=True)
@@ -837,7 +837,7 @@ class Quasi_harmonic:
 
         file = Crystal_output().read_cry_output(input_file)
         file.get_mode()
-        file.get_eigenvector()
+        file.get_phonon_eigenvector()
         file.clean_imaginary()
 
         # Get volume/structure/dimensionality. Only to be used with QHA files
