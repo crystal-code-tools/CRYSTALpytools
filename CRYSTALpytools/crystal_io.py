@@ -791,14 +791,14 @@ class Crystal_output:
 
         import re
         import numpy as np
-
+        
         # Check this is a configuration analysis calculation
         try:
             begin = self.data.index(
                 '                             CONFIGURATION ANALYSIS\n')
         except:
             return "WARNING: this is not a CONFCNT analysis."
-
+        
         for line in self.data[::-1]:
             if '----' in line:
                 dash_line = line.rstrip().lstrip()
