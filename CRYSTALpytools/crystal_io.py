@@ -268,19 +268,34 @@ class Crystal_output:
             print('EXITING: a .out file needs to be specified')
             sys.exit(1)
 
-        # Check the calculation converged
-        self.converged = False
+        # Check the calculation terminated correctly
+        self.terminated = False
 
         for i, line in enumerate(self.data[::-1]):
             if re.match(r'^ EEEEEEEEEE TERMINATION', line):
-                self.converged = True
+                self.terminated = True
                 # This is the end of output
                 self.eoo = len(self.data)-1-i
                 break
 
-        if self.converged == False:
+        if self.terminated == False:
             self.eoo = len(self.data)
 
+        # Check if the scf converged
+        self.converged = False
+        for line in self.data:
+            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
+                self.converged = True
+                break
+
+        # Check if the geometry optimisation converged
+        self.opt_converged = False
+
+        for line in self.data[::-1]:
+            if bool(re.search('OPT END - CONVERGED', line) ) == True:
+                self.opt_converged = True
+                break
+        
         return self
 
     def get_dielectric_tensor(self):
@@ -559,12 +574,7 @@ class Crystal_output:
 
         dimensionality = self.get_dimensionality()
 
-        # Check if the geometry optimisation converged
-        self.opt_converged = False
-        for line in self.data:
-            if re.match(r'^  FINAL OPTIMIZED GEOMETRY', line):
-                self.opt_converged = True
-                break
+        
 
         # Find the last geometry
         for i, line in enumerate(self.data):
