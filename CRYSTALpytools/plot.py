@@ -3171,7 +3171,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         return poisson_max
 
 
-def plot_cry_ela(*args):
+def plot_cry_ela(choose, ndeg, *args):
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -3181,128 +3181,100 @@ def plot_cry_ela(*args):
     from mpl_toolkits.mplot3d import axes3d, Axes3D
     from matplotlib import cm, colors, animation
 
-    if len(args) == 3:
-        compare = False
-        C = args[0]
-        ndeg = args[1]
-        choose = args[2]
-    if len(args) == 4:
-        compare = True
-        C = args[0]
-        Cref = args[1]
-        ndeg = args[2]
-        choose = args[3]
-        Sref = np.linalg.inv(Cref)
-    if len(args) > 4:
-        sys.exit("Too many arguments!")
+    i = 0
+    R = [None] * len(args)
+    tmin = []
+    tmax = []
 
-    # Inverse of the matrix C in GPa (Compliance)
-    S = np.linalg.inv(C)
+    # Compute elastic properties for each tensor -->
+    for C in args: 
 
-    # One dimentional array of theta from 0 to pi
-    theta_1D = np.linspace(0, np.pi, ndeg)
-    # One dimentional array of phi from 0 to 2pi
-    phi_1D = np.linspace(0, 2 * np.pi, ndeg)
-    # Make a 2D array for theta and phi
-    theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
+        # Inverse of the matrix C in GPa (Compliance)
+        S = np.linalg.inv(C)
 
-    if choose == "young":
-        R = plot_cry_young(theta_2D, phi_2D, S)
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_young(theta_2D, phi_1D, Sref)
-    elif choose == "comp":
-        R = plot_cry_comp(theta_2D, phi_2D, S)
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_comp(theta_2D, phi_2D, Sref)
-    elif choose == "shear avg":
-        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "avg")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "avg")
-    elif choose == "shear min":
-        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "min")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "min")
-    elif choose == "shear max":
-        R = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "max")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_shear(theta_1D, phi_1D, Sref, ndeg, "max")
-    elif choose == "poisson avg":
-        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "avg")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "avg")
-    elif choose == "poisson min":
-        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "min")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "min")
-    elif choose == "poisson max":
-        R = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
-        if compare is False:
-            Rref = R
-        else:
-            Rref = plot_cry_poisson(theta_1D, phi_1D, Sref, ndeg, "max")
-    else:
-        print(choose, "is an invalid plotting choice")
-        sys.exit(1)
+        # One dimentional array of theta from 0 to pi
+        theta_1D = np.linspace(0, np.pi, ndeg)
+        # One dimentional array of phi from 0 to 2pi
+        phi_1D = np.linspace(0, 2 * np.pi, ndeg)
+        # Make a 2D array for theta and phi
+        theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
 
+        # Call to function
+        if choose == "young":
+            R[i] = plot_cry_young(theta_2D, phi_2D, S)
+        elif choose == "comp":
+            R[i] = plot_cry_comp(theta_2D, phi_2D, S)
+        elif choose == "shear avg":
+            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "avg")
+        elif choose == "shear min":
+            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "min")
+        elif choose == "shear max":
+            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "max")
+        elif choose == "poisson avg":
+            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "avg")
+        elif choose == "poisson min":
+            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "min")
+        elif choose == "poisson max":
+            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
 
-    # Convert to Cartesian coordinates for 3D representation
-    X = R * np.sin(theta_2D) * np.cos(phi_2D)
-    Y = R * np.sin(theta_2D) * np.sin(phi_2D)
-    Z = R * np.cos(theta_2D)
+        i += 1
+    # <--  
 
-    norm = colors.Normalize(vmin=np.min(Rref), vmax=np.max(Rref), clip=False)
-    fig, ax = plt.subplots(subplot_kw=dict(projection="3d"))
+    # Find highest and lowest values -->
+    for k in range(i):
+        tmin.append(np.min(R[k]))
+        tmax.append(np.max(R[k]))
+    vmin = min(tmin)
+    vmax = max(tmax)
+    # <--
 
-    ax.plot_surface(
-        X,
-        Y,
-        Z,
-        rstride=1,
-        cstride=1,
-        facecolors=cm.jet(norm(R)),
-        antialiased=True,
-        alpha=0.75,
-    )
+    # Create plot for each tensor -->
+    for k in range(i):
+        X = R[k] * np.sin(theta_2D) * np.cos(phi_2D)
+        Y = R[k] * np.sin(theta_2D) * np.sin(phi_2D)
+        Z = R[k] * np.cos(theta_2D)
 
-    m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
-    m.set_array(R)
-    fig.colorbar(m, shrink=0.7, location="left")
+        norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
+        fig, ax = plt.subplots(subplot_kw=dict(projection="3d"))
 
-    # Make the planes transparent
-    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    # Make the grid lines transparent
-    #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-    #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-    #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-    # Fixing limits
-    ax.set_xlim(-1 * np.max(R), np.max(R))
-    ax.set_ylim(-1 * np.max(R), np.max(R))
-    ax.set_zlim3d(-1 * np.max(R), np.max(R))
-    ax.locator_params(nbins=5)  # tight=True,
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
+        ax.plot_surface(
+            X,
+            Y,
+            Z,
+            rstride=1,
+            cstride=1,
+            facecolors=cm.jet(norm(R[k])),
+            antialiased=True,
+            alpha=0.75,
+        )
 
-    ax.set_box_aspect(aspect = (1,1,1)) # Fix aspect ratio
+        m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
+        m.set_array(R[k])
+        fig.colorbar(m, shrink=0.7, location="left")
 
-    plt.show()
-    fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
+        # Make the planes transparent
+        ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # Make the grid lines transparent
+        #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # Fixing limits
+        ax.set_xlim(-1 * np.max(R), np.max(R))
+        ax.set_ylim(-1 * np.max(R), np.max(R))
+        ax.set_zlim3d(-1 * np.max(R), np.max(R))
+        ax.locator_params(nbins=5)  # tight=True,
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+
+        ax.set_box_aspect(aspect = (1,1,1)) # Fix aspect ratio
+
+        plt.show()
+        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
+
+        # <--
 
 
 def save_plot(path_to_file):
