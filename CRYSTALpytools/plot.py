@@ -4,17 +4,18 @@
 Created on 29/03/2022
 """
 
-def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
+
+def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     import matplotlib.pyplot as plt
     import numpy as np
 
     for i in range(2, 20):
-            if (header[0] % i) == 0:
-                nrow_split = int(header[0]/i)
+        if (header[0] % i) == 0:
+            nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
-            if (header[1] % i) == 0:
-                ncol_split = int(header[1]/i)
+        if (header[1] % i) == 0:
+            ncol_split = int(header[1]/i)
 
     # initializes the arrays
     projx_m = np.zeros((nrow_split, ncol_split), dtype=float)
@@ -27,15 +28,15 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
     mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
     mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
-                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
+                  [header[4]*header[2], header[3]]])  # Change of basis matrix
 
     for i in range(0, header[0]):
         for j in range(0, header[1]):
             mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
             mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
 
-    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
     mesh_y = mesh_y * 0.529177249
 
     r = 0
@@ -68,44 +69,47 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi = 400):
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
         for j in range(0, header[1]):
-            mod_m[i, j] = np.sqrt((dens[i, j, 0]**2)+(dens[i, j, 1]**2)+(dens[i, j, 2]**2))
+            mod_m[i, j] = np.sqrt((dens[i, j, 0]**2) +
+                                  (dens[i, j, 1]**2)+(dens[i, j, 2]**2))
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 +
+                         ABC_normal[1]**2 + ABC_normal[2]**2)
 
     for i in range(0, nrow_split):
         for j in range(0, ncol_split):
-            projx_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
-                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol, 0)], dens[int(i*step_nrow), int(j*step_ncol), 1], \
-                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
+            projx_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
+                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol, 0)], dens[int(i*step_nrow), int(j*step_ncol), 1],
+                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     # Plotting
 
     m = plt.figure()
     m = plt.contourf(mesh_x, mesh_y, mod_m, colormapdens, cmap='cool')
     m = plt.colorbar(mappable=m)
-    m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale = quivscale)
+    m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale=quivscale)
     m = plt.xlabel('$\AA$')
     m = plt.ylabel('$\AA$')
-    m = plt.savefig(name, dpi = dpi)
+    m = plt.savefig(name, dpi=dpi)
 
     plt.show()
 
-def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
+
+def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
     import matplotlib.pyplot as plt
     import numpy as np
 
     for i in range(2, 20):
-            if (header[0] % i) == 0:
-                nrow_split = int(header[0]/i)
+        if (header[0] % i) == 0:
+            nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
-            if (header[1] % i) == 0:
-                ncol_split = int(header[1]/i)
+        if (header[1] % i) == 0:
+            ncol_split = int(header[1]/i)
 
     # initializes the arrays
     projx_j = np.zeros((nrow_split, ncol_split), dtype=float)
@@ -118,15 +122,15 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
     mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
     mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
-                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
+                  [header[4]*header[2], header[3]]])  # Change of basis matrix
 
     for i in range(0, header[0]):
         for j in range(0, header[1]):
             mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
             mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
 
-    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
     mesh_y = mesh_y * 0.529177249
 
     r = 0
@@ -159,43 +163,45 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi = 400):
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
         for j in range(0, header[1]):
-            mod_j[i, j] = np.sqrt((dens[i, j, 0]**2)+(dens[i, j, 1]**2)+(dens[i, j, 2]**2))
+            mod_j[i, j] = np.sqrt((dens[i, j, 0]**2) +
+                                  (dens[i, j, 1]**2)+(dens[i, j, 2]**2))
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 +
+                         ABC_normal[1]**2 + ABC_normal[2]**2)
 
     for i in range(0, nrow_split):
         for j in range(0, ncol_split):
-            projx_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
-                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1], \
-                                                       dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-
+            projx_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
+                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
+            projy_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
+                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     j = plt.figure()
     j = plt.contourf(mesh_x, mesh_y, mod_j, colormapdens, cmap='winter')
     j = plt.colorbar(mappable=j)
-    j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale = quivscale)
+    j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale=quivscale)
     j = plt.xlabel('$\AA$')
     j = plt.ylabel('$\AA$')
-    j = plt.savefig(name, dpi = dpi)
+    j = plt.savefig(name, dpi=dpi)
 
     plt.show()
 
-def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi = 400):
+
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi=400):
     import matplotlib.pyplot as plt
     import numpy as np
 
     for i in range(2, 20):
-            if (header[0] % i) == 0:
-                nrow_split = int(header[0]/i)
+        if (header[0] % i) == 0:
+            nrow_split = int(header[0]/i)
 
     for i in range(2, 20):
-            if (header[1] % i) == 0:
-                ncol_split = int(header[1]/i)
+        if (header[1] % i) == 0:
+            ncol_split = int(header[1]/i)
 
     # initializes the arrays
     projx_JX = np.zeros((nrow_split, ncol_split), dtype=float)
@@ -214,15 +220,15 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
     mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
 
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0], \
-                  [header[4]*header[2], header[3]]]) # Change of basis matrix
+    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
+                  [header[4]*header[2], header[3]]])  # Change of basis matrix
 
     for i in range(0, header[0]):
         for j in range(0, header[1]):
             mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
             mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
 
-    mesh_x = mesh_x * 0.529177249 # Bohr to Angstrom conversion
+    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
     mesh_y = mesh_y * 0.529177249
 
     r = 0
@@ -255,33 +261,37 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     # Calculates the modulus of the vectorial field
     for i in range(0, header[0]):
         for j in range(0, header[1]):
-            mod_JX[i, j] = np.sqrt((dens_JX[i, j, 0]**2)+(dens_JX[i, j, 1]**2)+(dens_JX[i, j, 2]**2))
-            mod_JY[i, j] = np.sqrt((dens_JY[i, j, 0]**2)+(dens_JY[i, j, 1]**2)+(dens_JY[i, j, 2]**2))
-            mod_JZ[i, j] = np.sqrt((dens_JZ[i, j, 0]**2)+(dens_JZ[i, j, 1]**2)+(dens_JZ[i, j, 2]**2))
+            mod_JX[i, j] = np.sqrt(
+                (dens_JX[i, j, 0]**2)+(dens_JX[i, j, 1]**2)+(dens_JX[i, j, 2]**2))
+            mod_JY[i, j] = np.sqrt(
+                (dens_JY[i, j, 0]**2)+(dens_JY[i, j, 1]**2)+(dens_JY[i, j, 2]**2))
+            mod_JZ[i, j] = np.sqrt(
+                (dens_JZ[i, j, 0]**2)+(dens_JZ[i, j, 1]**2)+(dens_JZ[i, j, 2]**2))
 
     # Calculates the projections of the vectors in the ABC plane
     ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 + ABC_normal[1]**2 + ABC_normal[2]**2)
+    mod_normal = np.sqrt(ABC_normal[0]**2 +
+                         ABC_normal[1]**2 + ABC_normal[2]**2)
 
     for i in range(0, nrow_split):
         for j in range(0, ncol_split):
-            projx_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+            projx_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1], \
+            projy_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-            projx_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+            projx_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1], \
+            projy_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-            projx_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+            projx_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal, \
-                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1], \
+            projy_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
+                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1],
                                                        dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     # Plotting
@@ -289,26 +299,29 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JX = plt.figure()
     JX = plt.contourf(mesh_x, mesh_y, mod_JX, colormapdens, cmap='summer')
     JX = plt.colorbar(mappable=JX)
-    JX = plt.quiver(mesh_projx, mesh_projy, projx_JX, projy_JX, scale = quivscale)
+    JX = plt.quiver(mesh_projx, mesh_projy, projx_JX,
+                    projy_JX, scale=quivscale)
     JX = plt.xlabel('$\AA$')
     JX = plt.ylabel('$\AA$')
-    JX = plt.savefig(name+'_JX', dpi = dpi)
+    JX = plt.savefig(name+'_JX', dpi=dpi)
 
     JY = plt.figure()
     JY = plt.contourf(mesh_x, mesh_y, mod_JY, colormapdens, cmap='summer')
     JY = plt.colorbar(mappable=JY)
-    JY = plt.quiver(mesh_projx, mesh_projy, projx_JY, projy_JY, scale = quivscale)
+    JY = plt.quiver(mesh_projx, mesh_projy, projx_JY,
+                    projy_JY, scale=quivscale)
     JY = plt.xlabel('$\AA$')
     JY = plt.ylabel('$\AA$')
-    JY = plt.savefig(name+'_JY', dpi = dpi)
+    JY = plt.savefig(name+'_JY', dpi=dpi)
 
     JZ = plt.figure()
     JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, colormapdens, cmap='summer')
     JZ = plt.colorbar(mappable=JZ)
-    JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ, projy_JZ, scale = quivscale)
+    JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ,
+                    projy_JZ, scale=quivscale)
     JZ = plt.xlabel('$\AA$')
     JZ = plt.ylabel('$\AA$')
-    JZ = plt.savefig(name+'_JZ', dpi = dpi)
+    JZ = plt.savefig(name+'_JZ', dpi=dpi)
 
     plt.show()
 
@@ -1550,10 +1563,11 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
     import time
     import sys
 
-    if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB') :
-            pass
+    if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB'):
+        pass
     else:
-        sys.exit('Difference option only allowed for SURFLAPP, SURFLAPM, SURFRHOO and SURFELFB file')
+        sys.exit(
+            'Difference option only allowed for SURFLAPP, SURFLAPM, SURFRHOO and SURFELFB file')
 
     n_punti_x = contour_obj.npx
 
@@ -1664,9 +1678,6 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
     plt.show()
 
 
-    
-            
-
 def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
 
     import sys
@@ -1706,66 +1717,65 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    vol = seebeck_obj.volume    
+    vol = seebeck_obj.volume
 
-    x = []  
+    x = []
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    carrier=[]
+    carrier = []
     for k in range(0, len(seebeck_obj.all_data)):
         carrier.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
 
-
-
-    y = []  
+    y = []
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col])*1000000)))
 
-    yneg = [] 
+    yneg = []
     ypos = []
     xpos = []
     xneg = []
     yposfin = []
     xposfin = []
     ynegfin = []
-    xnegfin = []        
+    xnegfin = []
 
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(carrier[k])):
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(carrier[k])):
             if carrier[k][j] >= 0:
                 xpos.append(x[k][j])
                 ypos.append(y[k][j])
             else:
                 xneg.append(x[k][j])
-                yneg.append(y[k][j]) 
+                yneg.append(y[k][j])
         yposfin.append(ypos)
         ynegfin.append(yneg)
         xposfin.append(xpos)
         xnegfin.append(xneg)
-        xpos=[]
-        ypos=[]
-        xneg=[]
-        yneg=[]
-           
-       
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-    
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']   
+        xpos = []
+        ypos = []
+        xneg = []
+        yneg = []
 
-    endx=[]
-    endy=[]     
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+
+    endx = []
+    endy = []
 
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.axhline(0, color='k')
@@ -1775,21 +1785,24 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
-    from matplotlib.pyplot import figure    
+    from matplotlib.pyplot import figure
     figure(figsize=(7, 7))
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[k])
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.axhline(0, color='k')
-        plt.title('Seebeck at different T')   
-    plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+        plt.title('Seebeck at different T')
+    plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     plt.show()
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
@@ -1823,65 +1836,64 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    vol= sigma_obj.volume
+    vol = sigma_obj.volume
 
     x = []
     for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-
-    carrier=[]
+    carrier = []
     for k in range(0, len(sigma_obj.all_data)):
         carrier.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
 
-
-    y = []  
+    y = []
     for k in range(0, len(sigma_obj.all_data)):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    yneg = [] 
+    yneg = []
     ypos = []
     xpos = []
     xneg = []
     yposfin = []
     xposfin = []
     ynegfin = []
-    xnegfin = []        
+    xnegfin = []
 
-    for k in range(0, len(sigma_obj.all_data)): 
-        for j in range(0,len(x[k])):
+    for k in range(0, len(sigma_obj.all_data)):
+        for j in range(0, len(x[k])):
             if carrier[k][j] >= 0:
                 xpos.append(x[k][j])
                 ypos.append(y[k][j])
             else:
                 xneg.append(x[k][j])
-                yneg.append(y[k][j]) 
+                yneg.append(y[k][j])
         yposfin.append(ypos)
         ynegfin.append(yneg)
         xposfin.append(xpos)
         xnegfin.append(xneg)
-        xpos=[]
-        ypos=[]
-        xneg=[]
-        yneg=[]
-        
+        xpos = []
+        ypos = []
+        xneg = []
+        yneg = []
+
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-    colours=[]
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
-    endx=[]
-    endy=[] 
-    
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+    endx = []
+    endy = []
 
     for k in range(0, len(sigma_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(sigma_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
@@ -1892,17 +1904,19 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         plt.show()
 
     for k in range(0, len(sigma_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(sigma_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[k])
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.title('Sigma at different T')
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-    plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
     if save_to_file != False:
         save_plot(save_to_file)
@@ -1946,22 +1960,19 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    vol= seebeck_obj.volume
-    
-  
-    x = [] 
+    vol = seebeck_obj.volume
+
+    x = []
     for k in range(0, len(seebeck_obj.all_data)):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
-    y = [] 
-    
-    
+    y = []
 
     for k in range(0, len(seebeck_obj.all_data)):
         y.append(np.array(seebeck_obj.all_data[k].apply(
-                    lambda x: float(x.split()[col])*1000000)))
+            lambda x: float(x.split()[col])*1000000)))
 
-    yneg = [] 
+    yneg = []
     ypos = []
     xpos = []
     xneg = []
@@ -1969,43 +1980,38 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     xposfin = []
     ynegfin = []
     xnegfin = []
-    
-    
-    
- 
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(x[k])):
+
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(x[k])):
             if x[k][j] >= 0:
                 xpos.append(x[k][j])
                 ypos.append(y[k][j])
             else:
                 xneg.append(x[k][j])
-                yneg.append(y[k][j]) 
+                yneg.append(y[k][j])
         yposfin.append(ypos)
         ynegfin.append(yneg)
         xposfin.append(xpos)
         xnegfin.append(xneg)
-        xpos=[]
-        ypos=[]
-        xneg=[]
-        yneg=[]
-        
-    
+        xpos = []
+        ypos = []
+        xneg = []
+        yneg = []
 
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
 
-        
-    colours=[]
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
-           
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
 
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.axhline(0, color='k')
@@ -2016,24 +2022,27 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
 
     from matplotlib.pyplot import figure
 
-    figure(figsize=(7, 7)) 
+    figure(figsize=(7, 7))
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color= colours[k])
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-        plt.xscale('log') 
-        plt.title('Seebeck at different T')   
-    plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+        plt.xscale('log')
+        plt.title('Seebeck at different T')
+    plt.savefig('seebeck_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     plt.show()
- 
+
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
 
@@ -2067,7 +2076,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     else:
         sys.exit('please, choose a valid chioce')
 
-    vol= sigma_obj.volume
+    vol = sigma_obj.volume
 
     x = []
     for k in range(0, len(sigma_obj.all_data)):
@@ -2079,7 +2088,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         y.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    yneg = [] 
+    yneg = []
     ypos = []
     xpos = []
     xneg = []
@@ -2087,46 +2096,42 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     xposfin = []
     ynegfin = []
     xnegfin = []
-    
-    
-    
- 
-    for k in range(0, len(sigma_obj.all_data)): 
-        for j in range(0,len(x[k])):
+
+    for k in range(0, len(sigma_obj.all_data)):
+        for j in range(0, len(x[k])):
             if x[k][j] >= 0:
                 xpos.append(x[k][j])
                 ypos.append(y[k][j])
             else:
                 xneg.append(x[k][j])
-                yneg.append(y[k][j]) 
+                yneg.append(y[k][j])
         yposfin.append(ypos)
         ynegfin.append(yneg)
         xposfin.append(xpos)
         xnegfin.append(xneg)
-        xpos=[]
-        ypos=[]
-        xneg=[]
-        yneg=[]
-        
-    
+        xpos = []
+        ypos = []
+        xneg = []
+        yneg = []
 
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
 
-        
-    colours=[]
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
 
     for k in range(0, len(sigma_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(sigma_obj.temp[k])+' K')
-        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
-        plt.title('Sigma at '+ str(sigma_obj.temp[k]) + 'K')
+        plt.title('Sigma at ' + str(sigma_obj.temp[k]) + 'K')
         plt.legend(loc='upper left', fontsize=12)
         plt.xscale('log')
         plt.savefig('sigma_carrier_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
@@ -2134,21 +2139,24 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         plt.show()
 
     for k in range(0, len(sigma_obj.all_data)):
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xposfin[k], yposfin[k], color= colours[k], label=str(sigma_obj.temp[k])+' K')
-        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color= colours[k])
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(abs(np.array(xnegfin[k])), ynegfin[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.title('Sigma at different T')
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.xscale('log')
-    plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
@@ -2214,29 +2222,25 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
         x.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[0]))))
 
-    vol= sigma_obj.volume        
-    carrier = []        
+    vol = sigma_obj.volume
+    carrier = []
 
-    yse = []  
+    yse = []
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
 
-    ysi = [] 
+    ysi = []
     for k in range(0, len(sigma_obj.all_data)):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
 
- 
-
-
-    carrier=[]
+    carrier = []
     for k in range(0, len(seebeck_obj.all_data)):
         carrier.append(np.array(seebeck_obj.all_data[k].apply(
-            lambda x: (float(x.split()[2])/vol)))) 
+            lambda x: (float(x.split()[2])/vol))))
 
-
-    ysineg = [] 
+    ysineg = []
     ysipos = []
     xsipos = []
     xsineg = []
@@ -2245,55 +2249,50 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
     ysinegfin = []
     xsinegfin = []
 
-    yseneg = [] 
+    yseneg = []
     ysepos = []
     xsepos = []
     xseneg = []
     yseposfin = []
     xseposfin = []
     ysenegfin = []
-    xsenegfin = []         
+    xsenegfin = []
 
-
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(carrier[k])):
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(carrier[k])):
             if carrier[k][j] >= 0:
                 xsipos.append(x[k][j])
                 ysipos.append(ysi[k][j])
             else:
                 xsineg.append(x[k][j])
-                ysineg.append(ysi[k][j]) 
+                ysineg.append(ysi[k][j])
         ysiposfin.append(np.array(ysipos))
         ysinegfin.append(np.array(ysineg))
         xsiposfin.append(np.array(xsipos))
         xsinegfin.append(np.array(xsineg))
-        xsipos=[]
-        ysipos=[]
-        xsineg=[]
-        ysineg=[]
+        xsipos = []
+        ysipos = []
+        xsineg = []
+        ysineg = []
 
-     
-
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(carrier[k])):
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(carrier[k])):
             if carrier[k][j] >= 0:
                 xsepos.append(x[k][j])
                 ysepos.append(yse[k][j])
             else:
                 xseneg.append(x[k][j])
-                yseneg.append(yse[k][j]) 
-                
+                yseneg.append(yse[k][j])
+
         yseposfin.append(np.array(ysepos))
         ysenegfin.append(np.array(yseneg))
         xseposfin.append(np.array(xsepos))
         xsenegfin.append(np.array(xseneg))
-        xsepos=[]
-        ysepos=[]
-        xseneg=[]
-        yseneg=[]    
-       
-     
-    
+        xsepos = []
+        ysepos = []
+        xseneg = []
+        yseneg = []
+
     pf_meta_pos = []
     for i in range(0, len(yseposfin)):
         pf_meta_pos.append(yseposfin[i]*yseposfin[i])
@@ -2308,21 +2307,22 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
     pf_neg = []
     for i in range(0, len(pf_meta_neg)):
-        pf_neg.append(pf_meta_neg[i] * ysinegfin[i])  
+        pf_neg.append(pf_meta_neg[i] * ysinegfin[i])
 
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
 
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')  
-    
-    colours=[]
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
 
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xsiposfin[k][-1],xsinegfin[k][0]]
-        endy=[pf_pos[k][-1],pf_neg[k][0]]
+        endx = [xsiposfin[k][-1], xsinegfin[k][0]]
+        endy = [pf_pos[k][-1], pf_neg[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xsiposfin[k], pf_pos[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(xsinegfin[k], pf_neg[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xsiposfin[k], pf_pos[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(xsinegfin[k], pf_neg[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
         plt.axhline(0, color='k')
@@ -2330,23 +2330,26 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
         plt.legend(loc='upper left', fontsize=12)
         plt.show()
 
-    from matplotlib.pyplot import figure  
+    from matplotlib.pyplot import figure
 
     figure(figsize=(7, 7))
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xsiposfin[k][-1],xsinegfin[k][0]]
-        endy=[pf_pos[k][-1],pf_neg[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xsiposfin[k], pf_pos[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(xsinegfin[k], pf_neg[k], '--', color= colours[k])
+        endx = [xsiposfin[k][-1], xsinegfin[k][0]]
+        endy = [pf_pos[k][-1], pf_neg[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xsiposfin[k], pf_pos[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(xsinegfin[k], pf_neg[k], '--', color=colours[k])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.title('Power Factor at different T')
-        
-    plt.savefig('powerfactor_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+
+    plt.savefig('powerfactor_potential_different_T_' + time.strftime(
+        "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
 
@@ -2354,7 +2357,7 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     import matplotlib.pyplot as plt
     import numpy as np
     import time
-    
+
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
 
@@ -2382,11 +2385,11 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'pfzy':
         col = 10
     elif case == 'pfzz':
-        col = 11      
+        col = 11
     else:
         sys.exit('please, choose a valid chioce')
 
-    if case == 'pfxx':    
+    if case == 'pfxx':
         cols = 3
     elif case == 'pfxy':
         cols = 4
@@ -2403,19 +2406,18 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     elif case == 'pfzy':
         cols = 7
     elif case == 'pfzz':
-        cols = 8      
+        cols = 8
     else:
-        sys.exit('please, choose a valid chioce')  
+        sys.exit('please, choose a valid chioce')
 
-    vol= sigma_obj.volume      
+    vol = sigma_obj.volume
 
-    x = []  
-    for k in range(0, len(sigma_obj.all_data)):      
+    x = []
+    for k in range(0, len(sigma_obj.all_data)):
         x.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: (float(x.split()[2])/vol))))
-        
 
-    yse = []  
+    yse = []
     for k in range(0, len(seebeck_obj.all_data)):
         yse.append(np.array(seebeck_obj.all_data[k].apply(
             lambda x: float(x.split()[col]))))
@@ -2425,9 +2427,6 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
 
-
-    
-    
     pf_meta = []
     for i in range(0, len(yse)):
         pf_meta.append(yse[i] * yse[i])
@@ -2436,8 +2435,7 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     for i in range(0, len(pf_meta)):
         pf.append(pf_meta[i] * ysi[i])
 
-
-    ysineg = [] 
+    ysineg = []
     ysipos = []
     xsipos = []
     xsineg = []
@@ -2446,54 +2444,49 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     ysinegfin = []
     xsinegfin = []
 
-    yseneg = [] 
+    yseneg = []
     ysepos = []
     xsepos = []
     xseneg = []
     yseposfin = []
     xseposfin = []
     ysenegfin = []
-    xsenegfin = []         
+    xsenegfin = []
 
-
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(x[k])):
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(x[k])):
             if x[k][j] >= 0:
                 xsipos.append(x[k][j])
                 ysipos.append(ysi[k][j])
             else:
                 xsineg.append(x[k][j])
-                ysineg.append(ysi[k][j]) 
+                ysineg.append(ysi[k][j])
         ysiposfin.append(np.array(ysipos))
         ysinegfin.append(np.array(ysineg))
         xsiposfin.append(np.array(xsipos))
         xsinegfin.append(np.array(xsineg))
-        xsipos=[]
-        ysipos=[]
-        xsineg=[]
-        ysineg=[]
+        xsipos = []
+        ysipos = []
+        xsineg = []
+        ysineg = []
 
-    
-
-    for k in range(0, len(seebeck_obj.all_data)): 
-        for j in range(0,len(x[k])):
+    for k in range(0, len(seebeck_obj.all_data)):
+        for j in range(0, len(x[k])):
             if x[k][j] >= 0:
                 xsepos.append(x[k][j])
                 ysepos.append(yse[k][j])
             else:
                 xseneg.append(x[k][j])
-                yseneg.append(yse[k][j])       
+                yseneg.append(yse[k][j])
         yseposfin.append(np.array(ysepos))
         ysenegfin.append(np.array(yseneg))
         xseposfin.append(np.array(xsepos))
         xsenegfin.append(np.array(xseneg))
-        xsepos=[]
-        ysepos=[]
-        xseneg=[]
-        yseneg=[]    
-       
-  
-    
+        xsepos = []
+        ysepos = []
+        xseneg = []
+        yseneg = []
+
     pf_meta_pos = []
     for i in range(0, len(yseposfin)):
         pf_meta_pos.append(yseposfin[i]*yseposfin[i])
@@ -2508,23 +2501,24 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
 
     pf_neg = []
     for i in range(0, len(pf_meta_neg)):
-        pf_neg.append(pf_meta_neg[i] * ysinegfin[i])  
+        pf_neg.append(pf_meta_neg[i] * ysinegfin[i])
 
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')        
-    
-    colours=[]
-    colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
-        
-    
-    from matplotlib.pyplot import figure 
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+
+    from matplotlib.pyplot import figure
 
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xsiposfin[k][-1],xsinegfin[k][0]]
-        endy=[pf_pos[k][-1],pf_neg[k][0]]
+        endx = [xsiposfin[k][-1], xsinegfin[k][0]]
+        endy = [pf_pos[k][-1], pf_neg[k][0]]
         plt.figure()
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xsiposfin[k], pf_pos[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(abs(xsinegfin[k]), pf_neg[k], '--', color= colours[k])
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xsiposfin[k], pf_pos[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(xsinegfin[k]), pf_neg[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
         plt.axhline(0, color='k')
@@ -2535,26 +2529,28 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
             "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
         plt.show()
 
-    from matplotlib.pyplot import figure    
+    from matplotlib.pyplot import figure
     figure(figsize=(7, 7))
     for k in range(0, len(seebeck_obj.all_data)):
-        endx=[xsiposfin[k][-1],xsinegfin[k][0]]
-        endy=[pf_pos[k][-1],pf_neg[k][0]]
-        plt.plot(endx,endy,color= colours[k])
-        plt.plot(xsiposfin[k], pf_pos[k], color= colours[k], label=str(seebeck_obj.temp[k])+' K')
-        plt.plot(abs(xsinegfin[k]), pf_neg[k], '--', color= colours[k])
+        endx = [xsiposfin[k][-1], xsinegfin[k][0]]
+        endy = [pf_pos[k][-1], pf_neg[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xsiposfin[k], pf_pos[k], color=colours[k],
+                 label=str(seebeck_obj.temp[k])+' K')
+        plt.plot(abs(xsinegfin[k]), pf_neg[k], '--', color=colours[k])
         plt.xlabel('Charge Carrier Concentration (cm$^{-3}$)', fontsize=12)
         plt.ylabel('Power Factor (10$^{-12}$WK$^{-2}$m$^{-1}$)', fontsize=12)
         plt.title('Power Factor at different T')
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-        plt.xscale('log')  
-    plt.savefig('powerfactor_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
-    #plt.show()
+        plt.xscale('log')
+    plt.savefig('powerfactor_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
+    # plt.show()
 
-    
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 
@@ -2632,7 +2628,6 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         ysi.append(np.array(sigma_obj.all_data[k].apply(
             lambda x: float(x.split()[cols]))))
 
-
     pf_meta = []
     for i in range(0, len(yse)):
         pf_meta.append(yse[i] * yse[i])
@@ -2644,7 +2639,6 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     zt = []
     for i in range(0, len(pf_meta)):
         zt.append((pf[i] * seebeck_obj.temp[i])/ktot)
-
 
     for k in range(0, len(seebeck_obj.all_data)):
         plt.figure()
@@ -2665,9 +2659,11 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         plt.title('ZT at different T')
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-    plt.savefig('zt_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
+    plt.savefig('zt_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     if save_to_file != False:
         save_plot(save_to_file)
+
 
 def plot_cry_multiseebeck(*seebeck):
 
@@ -2676,10 +2672,12 @@ def plot_cry_multiseebeck(*seebeck):
     import numpy as np
     import time
 
-    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
-    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
-    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
-
+    k = int(input(
+        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(
+        input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(
+        input('Inser the higher value of chemical potential you want to plot in eV'))
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
@@ -2714,78 +2712,73 @@ def plot_cry_multiseebeck(*seebeck):
         sys.exit('please, choose a valid chioce')
 
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-    
-    i=0
+
+    i = 0
     for n in seebeck:
         vol = n.volume
-
-            
 
         x = []
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
-             lambda x: float(x.split()[0]))))
+                lambda x: float(x.split()[0]))))
 
-        carrier=[]
+        carrier = []
         for kq in range(0, len(n.all_data)):
             carrier.append(np.array(n.all_data[kq].apply(
                 lambda x: (float(x.split()[2])/vol))))
-
-
 
         y = []
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col])*1000000)))
 
-        yneg = [] 
+        yneg = []
         ypos = []
         xpos = []
         xneg = []
         yposfin = []
         xposfin = []
         ynegfin = []
-        xnegfin = []        
+        xnegfin = []
 
-        for kq in range(0, len(n.all_data)): 
-            for j in range(0,len(carrier[kq])):
+        for kq in range(0, len(n.all_data)):
+            for j in range(0, len(carrier[kq])):
                 if carrier[kq][j] >= 0:
                     xpos.append(x[kq][j])
                     ypos.append(y[kq][j])
                 else:
                     xneg.append(x[kq][j])
-                    yneg.append(y[kq][j]) 
+                    yneg.append(y[kq][j])
             yposfin.append(ypos)
             ynegfin.append(yneg)
             xposfin.append(xpos)
             xnegfin.append(xneg)
-            xpos=[]
-            ypos=[]
-            xneg=[]
-            yneg=[]
-           
-       
-        
-        colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']   
+            xpos = []
+            ypos = []
+            xneg = []
+            yneg = []
 
-        endx=[]
-        endy=[]         
+        colours = ['royalblue', 'orange', 'green', 'red',
+                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
 
-    
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[i])
-        plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i])    
+        endx = []
+        endy = []
+
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[i])
+        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
         plt.xlim(minpot, maxpot)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-        i=1+i
-    plt.title('MultiSeebeck '+ str(n.temp[k]) + ' K')
-    plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight')
-    
+        i = 1+i
+    plt.title('MultiSeebeck ' + str(n.temp[k]) + ' K')
+    plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
+
 
 def plot_cry_multisigma(*sigma):
 
@@ -2794,11 +2787,12 @@ def plot_cry_multisigma(*sigma):
     import numpy as np
     import time
 
-    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
-    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
-    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
-    
-
+    k = int(input(
+        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(
+        input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(
+        input('Inser the higher value of chemical potential you want to plot in eV'))
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
@@ -2825,82 +2819,73 @@ def plot_cry_multisigma(*sigma):
 
     else:
         sys.exit('please, choose a valid chioce')
-    
-    i=0
+
+    i = 0
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
     for n in sigma:
-        vol= n.volume
-        
-    
-        x = []  
+        vol = n.volume
+
+        x = []
         for kq in range(0, len(n.all_data)):
             x.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[0]))))
 
-
-        carrier=[]
+        carrier = []
         for kq in range(0, len(n.all_data)):
             carrier.append(np.array(n.all_data[kq].apply(
                 lambda x: (float(x.split()[2])/vol))))
 
-
-        y = []  
+        y = []
         for kq in range(0, len(n.all_data)):
             y.append(np.array(n.all_data[kq].apply(
                 lambda x: float(x.split()[col]))))
 
-        yneg = [] 
+        yneg = []
         ypos = []
         xpos = []
         xneg = []
         yposfin = []
         xposfin = []
         ynegfin = []
-        xnegfin = []        
+        xnegfin = []
 
-        for kq in range(0, len(n.all_data)): 
-            for j in range(0,len(x[kq])):
+        for kq in range(0, len(n.all_data)):
+            for j in range(0, len(x[kq])):
                 if carrier[kq][j] >= 0:
                     xpos.append(x[kq][j])
                     ypos.append(y[kq][j])
                 else:
                     xneg.append(x[kq][j])
-                    yneg.append(y[kq][j]) 
+                    yneg.append(y[kq][j])
             yposfin.append(ypos)
             ynegfin.append(yneg)
             xposfin.append(xpos)
             xnegfin.append(xneg)
-            xpos=[]
-            ypos=[]
-            xneg=[]
-            yneg=[]
-        
-        
-        colours=[]
-        colours=['royalblue','orange','green','red','purple','brown','pink','grey','olive','cyan']
-        endx=[]
-        endy=[] 
-    
+            xpos = []
+            ypos = []
+            xneg = []
+            yneg = []
 
+        colours = []
+        colours = ['royalblue', 'orange', 'green', 'red',
+                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+        endx = []
+        endy = []
 
-       
-
-        
-        endx=[xposfin[k][-1],xnegfin[k][0]]
-        endy=[yposfin[k][-1],ynegfin[k][0]]
-        plt.plot(endx,endy,color= colours[i])
-        plt.plot(xposfin[k], yposfin[k], color= colours[i], label=str(n.title))
-        plt.plot(xnegfin[k], ynegfin[k], '--', color= colours[i]) 
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[i])
+        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
         plt.xlabel('Chemical Potential (eV)', fontsize=12)
         plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
         plt.axhline(0, color='k')
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
         plt.xlim(minpot, maxpot)
-        i=1+i
-    plt.title('MultiSigma '+ str(sigma[0].temp[k]) + ' K')
-    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg',format='jpg',dpi=100,bbox_inches='tight') 
-    
-    
+        i = 1+i
+    plt.title('MultiSigma ' + str(sigma[0].temp[k]) + ' K')
+    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
 
 def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
@@ -2952,21 +2937,21 @@ def plot_cry_young(theta, phi, S):
     # C2V = np.array([[1,6,5],[6,2,4],[5,4,3]])
     # Since python start counting from zero all numbers must be subtracted by 1
     C2V = np.array(
-            [
-                [0, 5, 4],
-                [5, 1, 3],
-                [4, 3, 2]
-                ]
-            )
+        [
+            [0, 5, 4],
+            [5, 1, 3],
+            [4, 3, 2]
+        ]
+    )
     # print("The Matrix to convert Cartesian into Voigs Notation: \n", C2V)
     # creating the 1x3 vector "a"
     a = np.array(
-            [
-                np.sin(theta) * np.cos(phi),
-                np.sin(theta) * np.sin(phi),
-                np.cos(theta),
-                ]
-            )
+        [
+            np.sin(theta) * np.cos(phi),
+            np.sin(theta) * np.sin(phi),
+            np.cos(theta),
+        ]
+    )
     # e is a pseudo Young modulus value folowing the relation 1/e
     e = 0.0
     # i,j,k,l are updatable indices refering to cartesian notation that
@@ -2998,20 +2983,20 @@ def plot_cry_comp(theta, phi, S):
     import numpy as np
 
     C2V = np.array(
-            [
-                [0, 5, 4],
-                [5, 1, 3],
-                [4, 3, 2]
-                ]
-            )
+        [
+            [0, 5, 4],
+            [5, 1, 3],
+            [4, 3, 2]
+        ]
+    )
 
     a = np.array(
-            [
-                np.sin(theta) * np.cos(phi),
-                np.sin(theta) * np.sin(phi),
-                np.cos(theta),
-                ]
-            )
+        [
+            np.sin(theta) * np.cos(phi),
+            np.sin(theta) * np.sin(phi),
+            np.cos(theta),
+        ]
+    )
     B = 0.0
 
     for i in range(3):
@@ -3037,12 +3022,12 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     import numpy as np
 
     C2V = np.array(
-            [
-                [0, 5, 4],
-                [5, 1, 3],
-                [4, 3, 2],
-                ]
-            )
+        [
+            [0, 5, 4],
+            [5, 1, 3],
+            [4, 3, 2],
+        ]
+    )
     shear_chi = np.zeros(ndeg)
     shear_min = np.zeros((ndeg, ndeg))
     shear_max = np.zeros((ndeg, ndeg))
@@ -3085,7 +3070,8 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
                                     rf = 2
                                 if u >= 3 and v < 3:
                                     rf = 2
-                                rtmp = a[i] * b[j] * a[k] * b[l] * (S[v, u] / rf)
+                                rtmp = a[i] * b[j] * a[k] * \
+                                    b[l] * (S[v, u] / rf)
                                 shear_tmp = shear_tmp + rtmp
                 shear_chi[chi_idx] = 1 / (4 * shear_tmp)
             shear_min[phi_idx, theta_idx] = np.amin(shear_chi)
@@ -3105,12 +3091,12 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     import numpy as np
 
     C2V = np.array(
-            [
-                [0, 5, 4],
-                [5, 1, 3],
-                [4, 3, 2],
-                ]
-            )
+        [
+            [0, 5, 4],
+            [5, 1, 3],
+            [4, 3, 2],
+        ]
+    )
     poisson_chi = np.zeros(ndeg)
     poisson_min = np.zeros((ndeg, ndeg))
     poisson_max = np.zeros((ndeg, ndeg))
@@ -3187,7 +3173,7 @@ def plot_cry_ela(choose, ndeg, *args):
     tmax = []
 
     # Compute elastic properties for each tensor -->
-    for C in args: 
+    for C in args:
 
         # Inverse of the matrix C in GPa (Compliance)
         S = np.linalg.inv(C)
@@ -3218,7 +3204,7 @@ def plot_cry_ela(choose, ndeg, *args):
             R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
 
         i += 1
-    # <--  
+    # <--
 
     # Find highest and lowest values -->
     for k in range(i):
@@ -3269,10 +3255,11 @@ def plot_cry_ela(choose, ndeg, *args):
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
 
-        ax.set_box_aspect(aspect = (1,1,1)) # Fix aspect ratio
+        ax.set_box_aspect(aspect=(1, 1, 1))  # Fix aspect ratio
 
         plt.show()
-        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") + ".jpg", dpi=200)
+        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") +
+                    ".jpg", dpi=200)
 
         # <--
 
@@ -3281,7 +3268,7 @@ def save_plot(path_to_file):
 
     from os import path
     import sys
-    import matplotlib as plt
+    import matplotlib.pyplot as plt
 
     folder = path.split(path_to_file)[0]
     if path.exists(folder) == True:
