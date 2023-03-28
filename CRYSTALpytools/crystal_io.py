@@ -3,7 +3,7 @@
 """
 Created on Fri Nov 19 18:28:28 2021
 """
-from units import *
+from CRYSTALpytools import units
 
 
 class Crystal_input:
@@ -320,8 +320,10 @@ class Crystal_output:
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
                 self.final_energy = units.H_to_eV(float(line.split()[7]))
+                return self.final_energy
             elif re.match(r'^ == SCF ENDED', line) != None:
                 self.final_energy = units.H_to_eV(float(line.split()[8]))
+                return self.final_energy
 
         if self.final_energy == None:
             print('WARNING: no final energy found in the output file. energy = None')
@@ -534,7 +536,7 @@ class Crystal_output:
                         float(self.data[len(self.data)-i+3].split()[4]))
                     self.band_gap = np.array(band_gap_spin)
                     return self.band_gap
-        if self.spin_pol = True and band_gap_spin == []:
+        if self.spin_pol == True and band_gap_spin == []:
             print(
                 'DEV WARNING: check this output and the band gap function in crystal_io')
 
@@ -794,6 +796,11 @@ class Crystal_output:
         except:
             return "WARNING: this is not a CONFCNT analysis."
 
+        for line in self.data[::-1]:
+            if '----' in line:
+                dash_line = line.rstrip().lstrip()
+                break
+
         for i, line in enumerate(self.data[begin:]):
             if re.match(r'^ COMPOSITION', line):
                 self.n_classes = line.split()[9]
@@ -810,7 +817,7 @@ class Crystal_output:
         config_list = np.delete(config_list, warning)
         atom1_begin = np.where(config_list == original_atom)[0]
         atom1_end = np.where(
-            config_list == '--------------------------------------------------------------------------')[0]
+            config_list == dash_line)[0]
         atom2_begin = np.where(config_list == 'XX')[0]
         atom2_end = np.where(
             config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
@@ -828,6 +835,7 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
+
         return [self.atom_type1, self.atom_type2]
 
     """
@@ -839,7 +847,7 @@ class Crystal_output:
         self.nmode: get_mode, Number of vibrational modes at all qpoints
         self.frequency: get_mode, Frequencies of all modes at all qpoints.
                         Unit: THz
-        self.eigenvector: get_eigenvector, Eigenvectors (classical amplitude)
+        self.eigenvector: get_phonon_eigenvector, Eigenvectors (classical amplitude)
                           of all atoms all modes at all qpoints. Unit: Angstrom
     """
 
@@ -879,7 +887,7 @@ class Crystal_output:
 
         Note: edft is a list to make the script compatible with QHA output. The
               sampled HA calculations in QHA output are recognized as HA
-              calculations at various qpoints. 
+              calculations at various qpoints.
 
               For other cases, self.edft is an array of the same numbers,
               corresponding to the number of qpoints.
@@ -909,8 +917,8 @@ class Crystal_output:
         for i, line in enumerate(self.data):
             # Keywords in gradient calculation
             if re.match(r'\s*CENTRAL POINT', line):
-                edft = np.append(edft, float(
-                    line.strip().split()[2]) * 2625.500256)
+                edft = np.append(edft, units.H_to_kjmol(
+                    float(line.strip().split()[2])))
 
             if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
@@ -997,7 +1005,7 @@ class Crystal_output:
 
         return self.nmode, self.frequency
 
-    def get_eigenvector(self):
+    def get_phonon_eigenvector(self):
         """
         Get corresponding mode eigenvectors for all modes on all
         atoms in the supercell.
@@ -1095,14 +1103,16 @@ class Crystal_output:
             self.eigenvector
         """
         import numpy as np
+        import warnings
 
         for q, freq in enumerate(self.frequency):
             if freq[0] > -1e-4:
                 continue
 
-            print(
-                'WARNING: Negative frequencies detected - Calculated thermodynamics might be inaccurate.')
-            print('WARNING: Negative frequencies will be substituted by NaN.')
+            warnings.warn(
+                'Negative frequencies detected - Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by NaN.',
+                stacklevel=2
+            )
 
             neg_rank = np.where(freq <= -1e-4)[0]
             self.frequency[q, neg_rank] = np.nan
@@ -1453,6 +1463,145 @@ class Properties_output:
         except:
             print('EXITING: a CRYSTAL properties file needs to be specified')
             sys.exit(1)
+
+    def read_vecfield(self, properties_output, which_prop):
+        # Reads the .f25 file to return a data array containing
+        # one or more density property between: Particle Number Density,
+        # Orbital Current Density, Spin Density and Spin-Current Density.
+        # which_prop allows to know a-priori which density property
+        # has been selected by the user to be printed in the .f25 file
+
+        import numpy as np
+
+        self.read_file(properties_output)
+
+        data = self.data
+
+        # Reads the header information
+        nrow = int(data[0].split()[1])
+        ncol = int(data[0].split()[2])
+        stepx = float(data[0].split()[3])
+        stepy = float(data[0].split()[4])
+        cosxy = float(data[0].split()[5])
+
+        A = np.array([float(data[1].split()[0]), float(
+            data[1].split()[1]), float(data[1].split()[2])])
+        B = np.array([float(data[1].split()[3]), float(
+            data[1].split()[4]), float(data[1].split()[5])])
+
+        C = np.array([float(data[2].split()[0]), float(
+            data[2].split()[1]), float(data[2].split()[2])])
+        naf = int(data[2].split()[3])
+        ldim = int(data[2].split()[4])
+
+        self.header = (nrow, ncol, stepx, stepy, cosxy, A, B, C, naf, ldim)
+
+        # Elaborates the header data
+        skip = 6 + naf
+
+        for i in range(2, 20):
+            if (nrow % i) == 0:
+                nrow_split = int(nrow/i)
+
+        for i in range(2, 20):
+            if (ncol % i) == 0:
+                ncol_split = int(ncol/i)
+
+        blines = (nrow*ncol)/6
+        if (blines % 6) == 0:
+            blines = int(blines)
+        else:
+            blines = int(blines) + 1
+
+        # Reads the types of density property requested by the user and initializes the data arrays
+        check = np.zeros(3, dtype=int)
+        if 'm' in which_prop:
+            check[0] = 1
+            self.dens_m = np.zeros((nrow, ncol, 3), dtype=float)
+        if 'j' in which_prop:
+            check[1] = 1
+            self.dens_j = np.zeros((nrow, ncol, 3), dtype=float)
+        if 'J' in which_prop:
+            check[2] = 1
+            self.dens_JX = np.zeros((nrow, ncol, 3), dtype=float)
+            self.dens_JY = np.zeros((nrow, ncol, 3), dtype=float)
+            self.dens_JZ = np.zeros((nrow, ncol, 3), dtype=float)
+        if (not check[0]) and (not check[1]) and (not check[2]):
+            print('Error: Invalid Entry. Only the m, j, and J charachters are supported')
+            sys.exit(1)
+
+        # Gathers the data
+        iamhere = 0
+
+        if check[0]:
+            iamhere = 3
+            r = 0
+            s = 0
+            for i in range(0, blines):
+                for j in range(0, len(data[i+iamhere].split())):
+                    self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
+                    self.dens_m[r, s, 1] = data[i +
+                                                iamhere+blines+skip].split()[j]
+                    self.dens_m[r, s, 2] = data[i+iamhere +
+                                                (2*blines)+(2*skip)].split()[j]
+                    if s == (ncol - 1):
+                        r += 1
+                        s = 0
+                    else:
+                        s += 1
+            iamhere = iamhere + 3*blines + 2*skip
+        if check[1]:
+            if iamhere == 0:
+                iamhere = 3
+            else:
+                iamhere = iamhere + skip
+            r = 0
+            s = 0
+            for i in range(0, blines):
+                for j in range(0, len(data[i+iamhere].split())):
+                    self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
+                    self.dens_j[r, s, 1] = data[i +
+                                                iamhere+blines+skip].split()[j]
+                    self.dens_j[r, s, 2] = data[i +
+                                                iamhere+2*blines+2*skip].split()[j]
+                    if s == (ncol - 1):
+                        r += 1
+                        s = 0
+                    else:
+                        s += 1
+            iamhere = iamhere + 3*blines + 2*skip
+        if check[2]:
+            if iamhere == 0:
+                iamhere = 3
+            else:
+                iamhere = iamhere + skip
+            r = 0
+            s = 0
+            for i in range(0, blines):
+                for j in range(0, len(data[i+iamhere].split())):
+                    self.dens_JX[r, s, 0] = data[i+iamhere].split()[j]
+                    self.dens_JX[r, s, 1] = data[i +
+                                                 iamhere+blines+skip].split()[j]
+                    self.dens_JX[r, s, 2] = data[i+iamhere +
+                                                 (2*blines)+(2*skip)].split()[j]
+                    self.dens_JY[r, s, 0] = data[i+iamhere +
+                                                 (3*blines)+(3*skip)].split()[j]
+                    self.dens_JY[r, s, 1] = data[i+iamhere +
+                                                 (4*blines)+(4*skip)].split()[j]
+                    self.dens_JY[r, s, 2] = data[i+iamhere +
+                                                 (5*blines)+(5*skip)].split()[j]
+                    self.dens_JZ[r, s, 0] = data[i+iamhere +
+                                                 (6*blines)+(6*skip)].split()[j]
+                    self.dens_JZ[r, s, 1] = data[i+iamhere +
+                                                 (7*blines)+(7*skip)].split()[j]
+                    self.dens_JZ[r, s, 2] = data[i+iamhere +
+                                                 (8*blines)+(8*skip)].split()[j]
+                    if s == (ncol - 1):
+                        r += 1
+                        s = 0
+                    else:
+                        s += 1
+        return self
 
     def read_cry_bands(self, properties_output):
         # This class contains the bands objects created from reading the
