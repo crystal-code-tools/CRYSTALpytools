@@ -339,17 +339,13 @@ class Harmonic(Crystal_output):
             self.edft = self.edft[0]
 
         # Transfer the modes in self.freqency into lists of mode objects
-        self.mode = []
-        for qpoint in self.frequency:
-            qmode = []
-            for m, mode in enumerate(qpoint):
-                qmode.append(
-                    Mode(rank=m + 1, frequency=[mode], volume=[self.volume]))
-
-            self.mode.append(qmode)
-
         if read_eigenvector:
             super(Harmonic, self).get_phonon_eigenvector()
+        else:
+            self.eigenvector = []
+
+        self.from_frequency(self.edft, self.qpoint, self.frequency, self.eigenvector,
+                            structure=self.structure)
 
         if auto_calc:
             self.thermodynamics(sumphonon=True)
@@ -357,7 +353,7 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def from_data(self, edft, mode, **geometry):
+    def from_mode(self, edft, mode, **geometry):
         """
         Generate a Harmonic object by specifying data. Not recommanded to be
         used as a standalone method.
@@ -398,6 +394,83 @@ class Harmonic(Crystal_output):
         self.edft = edft
         self.mode = mode
         self.nqpoint = len(mode)
+        self.nmode = np.array([len(q) for q in self.mode])
+
+        return self
+
+    def from_frequency(self, edft, qpoint, frequency, eigenvector, **geometry):
+        """
+        Generate a Harmonic object by specifying frequency and eigenvector. 
+        Not recommanded to be used as a standalone method.
+
+        Input:
+            edft: float, Electron total energy
+            qpoint: nqpoint * 3 array, Fractional coordinates of qpoint
+            frequency: nqpoint * nmode array, Array of frequencies. Unit: THz
+            eigenvector: nqpoint * nmode * natom * 3 array / list, Corresponding
+                         normalized eigenvectors. 
+            structure: Optional, Pymatgen structure object
+            natom: Optional, int, number of atoms
+            volume: Optional, float, volume of the simulation cell.
+                    Unit Angstrom^3
+        Output:
+            self.nqpoint, int, Number of qpoints.
+            self.nmode, nqpoint * 1 array, Number of modes at each q point.
+            self.mode, nqpoint * nmode array, List of mode objects at Gamma.
+            self.structure, pymatgen Structure object, the calculation cell,
+                            reduced by SCELPHONO.
+            self.natom, int, Number of atoms in the reduced calculation cell.
+            self.volume, float, The volume the reduced calculation cell.
+        """
+        import numpy as np
+
+        if hasattr(self, "volume"):
+            raise Exception(
+                "Data exists. The current command will be ignored.")
+
+        for key, value in geometry.items():
+            if key == 'structure':
+                self.structure = value
+                self.natom = len(value.species)
+                self.volume = value.lattice.volume
+                break
+            elif key == 'natom':
+                self.natom = int(value)
+            elif key == 'volume':
+                self.volume = float(value)
+
+        if np.size(qpoint, 0) != np.size(frequency, 0):
+            raise Exception(
+                "The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
+        if len(eigenvector) != 0 and np.size(eigenvector, 1) != np.size(frequency, 1):
+            raise Exception(
+                "The 2nd dimension (n mode) of 'frequency' and 'eigenvector' are not consistent.")
+
+        self.edft = edft
+        self.nqpoint = np.size(qpoint, 0)
+        self.qpoint = qpoint
+        self.frequency = frequency
+        if len(eigenvector) != 0:
+            self.eigenvector = eigenvector
+
+        # Transfer the modes in self.freqency into lists of mode objects
+        self.mode = []
+        for q, qpoint_freq in enumerate(frequency):
+            qmode = []
+            for m, mode_freq in enumerate(qpoint_freq):
+                if len(eigenvector) != 0:
+                    qmode.append(Mode(rank=m + 1,
+                                      frequency=[mode_freq],
+                                      volume=[self.volume],
+                                      eigenvector=[eigenvector[q, m]])
+                                 )
+                else:
+                    qmode.append(Mode(rank=m + 1,
+                                      frequency=[mode_freq],
+                                      volume=[self.volume])
+                                 )
+
+            self.mode.append(qmode)
         self.nmode = np.array([len(q) for q in self.mode])
 
         return self
@@ -907,16 +980,10 @@ class Quasi_harmonic:
         ha_list = []
         for idx_c in range(self.ncalc):
             ha = Harmonic(write_out=False)
-            # The first one is pre-opt geom
-            ha.structure = structures[idx_c + 1]
-            ha.natom = len(ha.structure.species)
-            ha.volume = ha.structure.lattice.volume
-            ha.edft = file.edft[idx_c]
-            ha.nqpoint = 1
-            ha.qpoint = [0, 0, 0]
-            ha.nmode = np.array([file.nmode[idx_c]])
-            ha.frequency = np.array([file.frequency[idx_c]])
-            ha.eigenvector = np.array([file.eigenvector[idx_c]])
+            ha.from_frequency(file.edft[idx_c], np.array([[0, 0, 0]]),
+                              np.array([file.frequency[idx_c]]),
+                              np.array([file.eigenvector[idx_c]]),
+                              structure=structures[idx_c + 1])  # The first one is pre-opt geom
             ha_list.append(ha)
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
@@ -1355,7 +1422,7 @@ class Quasi_harmonic:
 
             num_mode.append(num_mode_q)
 
-        ha = Harmonic(write_out=False).from_data(self.eos(volume),
+        ha = Harmonic(write_out=False).from_mode(self.eos(volume),
                                                  num_mode, volume=volume)
 
         return ha
