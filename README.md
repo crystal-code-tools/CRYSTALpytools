@@ -126,5 +126,3 @@ test_all('./data_test/')
 where './data_test/' is the path to the test folder.
 
 All values should return True if the test is passed.
-
-test
