@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-A comprehensive module for lattice dynamics based on harmonic and quasiharmonic
-approximations.
+A post-processing module for DFT lattice dynamics by harmonic and quasiharmonic
+approximations (HA/QHA).
 """
 from CRYSTALpytools.crystal_io import Crystal_output
 from CRYSTALpytools import units
@@ -10,50 +10,29 @@ from CRYSTALpytools import units
 
 class Mode:
     """
-    Class Mode - store important information for a given vibrational mode. Can
-    be used for a single harmonic phonon calculation and multiple calculations
-    on the same system.
-
-    Initialization:
-        self.rank, __init__, The rank of the mode object. Start from 1.
-        self.ncalc, __init__, The number of harmonic frequency calculations.
-        self.frequency, __init__, Frequencies of the mode. Unit: THz
-        self.volume, __init__, Cell volumes of harmonic calculations.
-                     Unit: Angstrom^3
-        self.eigenvector, __init__, Corresponding eigenvectors. Unit: Angstrom
-
-    Limited to ncalc = 1 cases:
-        self.zp_energy, get_zp_energy, Zero point energy of the mode.
-                        Unit: KJ/mol cell
-        self.U_vib, get_U_vib, Vibration contribution to internal energy,
-                    including zero-point energy. Unit: KJ/mol cell
-        self.entropy, get_entropy, Entropy of the mode. Unit: J/mol cell*K
-        self.C_v, get_C_v, Constant volume specific heat. Unit: J/mol cell*K
-
-    Limited to ncalc > 1 cases:
-        self.poly_fit, polynomial_fit, dictionary of numpy polynomial objects.
-                       Key: orders of power, Value: fitted polynomials
-        self.poly_fit_rsqaure, polynomial_fit, dictionary of the goodness o
-                               fittings, characterized by R^2.
+    Store important information for a given vibrational mode and do analysis at
+    mode-level. Not recommanded to be used individually.
     """
 
     def __init__(self, rank=0, frequency=[], volume=[], eigenvector=[]):
         """
-        Input:
-            rank, int, The rank of the mode object, from 1.
-            frequency, ncalc * 1 array / list, Frequencies of the mode.
-                       Unit: THz. Note: Not angular frequency, which is
-                       frequency * 2pi
-            volume, ncalc * 1 array / list, Lattice volumes of harmonic
-                    calculations. Unit: Angstrom^3
-            eigenvector, ncalc * natom * 3 array / list, Corresponding
-                         eigenvectors. Unit: Angstrom
-        Output:
-            self.rank
-            self.ncalc, int, The number of harmonic calculations
-            self.frequency
-            self.volume
-            self.eigenvector
+        Args:
+            rank (int): The rank of the mode object, from 1.
+            frequency (Union[array[float], list[float]]): Frequencies of the
+                mode (Ncalc\*1). Unit: THz. Note: **NOT** angular frequency, 
+                which is frequency * 2pi.
+            volume (Union[array[float], list[float]]): Lattice volumes of 
+                harmonic calculations (Ncalc\*1). Unit: Angstrom^3
+            eigenvector (Union[array[float], list[float]]): Corresponding
+                normalized eigenvectors (Ncalc\*Natom\*3).
+
+        Returns:
+            self.rank (int)
+            self.ncalc (int): The number of harmonic calculations (typically at
+                different volumes)
+            self.frequency (array[float])
+            self.volume (array[float])
+            self.eigenvector (array[float])
         """
         import numpy as np
 
@@ -65,13 +44,17 @@ class Mode:
 
     def get_zp_energy(self):
         """
-        Get the zero-point energy of a single mode. Limited to ncalc = 1 cases.
+        Get the zero-point energy of a single mode with the following equation. 
+        Limited to ncalc = 1 cases.
 
-        Input:
-            -
-        Output:
-            self.zp_energy, float, Zero-point energy of a given mode.
-                            Unit: KJ/mol cell
+        .. math::
+
+            E^{zp}_{i,\\mathbf{q}}=\\frac{1}{2}\\hbar\\omega_{i,\\mathbf{q}}
+
+        Returns:
+            self.zp_energy (float): Zero-point energy. Unit: KJ/mol
+
+        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
@@ -87,15 +70,26 @@ class Mode:
 
     def get_U_vib(self, temperature=298.15):
         """
-        Get the vibration contribution to internal energy of a single mode.
-        Limited to ncalc = 1 cases. U_vib includes zero-point energy.
+        Get the vibration contribution to internal energy (including zero-point
+        energy) of a single mode with the following equation. Limited to 
+        ncalc = 1 cases.
 
-        Input:
-            temperature: float, the temperature where the thermal contribution
-                         is computed.
-        Output:
-            self.U_vib, float, Vibration contribution to internal energy of a
-                        given mode. Unit: KJ/mol cell
+        .. math::
+
+            U^{vib}_{i,\\mathbf{q}}\\left(T\\right)=E^{zp}_{i,\\mathbf{q}}+
+            \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{\\exp{\\left(
+                \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T}
+            \\right)}-1}
+
+        Args:
+            temperature (float, optional): Temperature where the quantity is 
+                computed. Unit: K
+
+        Returns:
+            self.U_vib (float): Vibration contribution to internal energy. 
+                Unit: KJ/mol
+
+        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
@@ -120,14 +114,30 @@ class Mode:
 
     def get_entropy(self, temperature):
         """
-        Get the entropy of a single mode. Limited to ncalc = 1 cases.
+        Get the entropy of a single mode with the following equation. Limited
+        to ncalc = 1 cases.
 
-        Input:
-            temperature: float, the temperature where the thermal contribution
-                         is computed.
-        Output:
-            self.entropy, float, The entropy of a given mode.
-                          Unit: J/mol cell*K
+        .. math::
+
+            S_{i,\\mathbf{q}}\\left(T\\right)=k_{B}\\left\\{
+                \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T\\left[
+                    \\exp{\\left(
+                        \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T}
+                    \\right)}-1
+                \\right]}-\\ln{\\left[
+                    1-\\exp{\\left(
+                        -\\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T}
+                    \\right)}
+                \\right]}
+            \\right\\}
+
+        Args:
+            temperature (float, optional): Unit: K
+
+        Returns:
+            self.entropy (float): Entropy. Unit: J/mol\*K
+
+        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
@@ -150,15 +160,31 @@ class Mode:
 
     def get_C_v(self, temperature):
         """
-        Get the constant volume specific heat of a single mode. Limited to
-        ncalc = 1 cases.
+        Get the constant volume specific heat of a single mode with the 
+        following equation. Limited to ncalc = 1 cases.
 
-        Input:
-            temperature: float, the temperature where the thermal contribution
-                         is computed.
-        Output:
-            self.C_v, float, The constant volume specific heat of a given mode.
-            Unit: J/mol cell*K
+        .. math::
+
+            C^{V}_{i,\\mathbf{q}}=
+            \\frac{\\left(\\hbar\\omega_{i,\\mathbf{q}}\\right)^{2}}{k_{B}T^{2}}
+            \\frac{\\exp{
+            \\left(
+                \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T}
+            \\right)}
+            }{\\left[
+                \\exp{\\left(
+                    \\frac{\\hbar\\omega_{i,\\mathbf{q}}}{k_{B}T}
+                \\right)-1}
+            \\right]^{2}
+            }
+
+        Args:
+            temperature (float, optional): Unit: K
+
+        Returns:
+            self.C_v (float): Constant volume specific heat. Unit: J/mol\*K
+
+        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
@@ -184,16 +210,19 @@ class Mode:
         Fit phonon frequency as the polynomial function of volume with
         perturbation theory. Limited to ncalc > 1 cases.
 
-        Input:
-            eq_point, int, The DFT total energy minimum point with equilibrium
-                           volume
-            order, norder * 1 list, The orders of polynomials to be fitted.
-        Output:
-            self.poly_fit, norder * 1 dictionary, the dictionary of numpy
-                           polynomial objects. Key: orders of power, Value:
-                           fitted polynomials
-            self.poly_fit_rsquare, norder * 1 dictionary, the dictionary of the
-                                   goodness of fittings, characterized by R^2.
+        Args:
+            eq_point (int): The index (not rank) corresponds to the DFT total
+                energy minimum (typically the unstrained geometry).
+            order (Union[array[int], list[int]], optional): Orders of
+                polynomials used.
+
+        Returns:
+            self.poly_fit (Dict[int, NumPy Polynomial]): Key - orders of power, 
+                Value - fitted NumPy polynomials
+            self.poly_fit_rsquare (Dict[int, float]): Key - orders of power, 
+                Value - goodness of fittings, characterized by R^2.
+
+        :raise Exception: If ``self.ncalc`` <= 1.
         """
         import numpy as np
         import warnings
@@ -234,53 +263,29 @@ class Mode:
 
 class Harmonic(Crystal_output):
     """
-    Class Harmonic, inherited from the Crystal_output class, with thermodynamic
+    Inherited from the Crystal_output class and has thermodynamic-specific 
     attributes. Used for harmonic phonon calclulations. Harmonic object can be
     defined by either a harmonic phonon calculation output file or manually set
     the all the information (usually for QHA).
-
-    Inherited attributes:
-        self.edft (length should be 1)
-        self.nqpoint
-        self.qpoint
-        self.nmode
-        self.frequency
-        self.eigenvector
-
-    New attributes:
-        self.strucrure, The pymatgen Structure object of the calculation cell.
-        self.mode, The list of mode objects.
-        self.temperature, The temperature range for HA thermodynamics.
-        self.pressure, The pressure range for HA thermodynamics.
-        self.helmholtz, Helmholtz free energy of the cell, at HA level.
-                        Unit: KJ/mol cell
-        self.gibbs, Gibbs free energy of the cell, at HA level.
-                    Unit: KJ/mol cell
-        * Following attributes are the summed up values of corresponding
-          attributes of class Mode.
-        self.U_vib, thermodynamics
-        self.zp_energy, thermodynamics
-        self.entropy, thermodynamics
-        self.C_v, thermodynamics
     """
 
     def __init__(self, temperature=[], pressure=[],
                  write_out=True, filename='HA-thermodynamics.dat'):
         """
-        Initialization.
+        Args:
+            temperature (Union[array[float], list[float]], optional): 
+                Temperatures where thermodynamic properties are computed. Unit: K
+            pressure (Union[array[float], list[float]], optional): Pressures
+                where the thermodyanmic properties are calculated. Unit: GPa
+            write_out (bool, optional): Wheter to print out HA thermodynamic properties
+                in a separate text file.
+            filename (str, optional): Name of the printed-out file, valid if
+                ``write_out`` = True.
 
-        Input:
-            temperature, nTempt * 1 array / list, Temperatures where the
-                         thermodynamic properties are computed. Unit: K
-            pressure, npress * 1 array / list, Pressures where the
-                      thermodyanmic properties are calculated. Unit: GPa
-            write_out, bool, Wheter to print out HA thermodynamic properties.
-            filename, str, Name of the printed-out file, used only if
-                      write_out = True.
-        Note: Temperature can also be defined in 'thermodynamics' method, which
-              will cover the settings during initialisation.
-        Output: 
-            -
+        **Note**
+
+        Temperatures and pressures can also be defined by 
+        ``self.thermodynamics``, whose entries always cover the entries here.
         """
         import numpy as np
 
@@ -299,42 +304,44 @@ class Harmonic(Crystal_output):
     def from_file(self, output_name, scelphono=[], read_eigenvector=False,
                   auto_calc=True):
         """
-        Generate the Harominc object from a HA file.
+        Generate the Harominc object from a HA output file.
 
-        Input:
-            output_name, str, Name of the output file.
-            scellphono, ndimension * ndimension list, Supercell manipulation
-                        matrix used for vibrational properties. Should be the
-                        same as 'SCELPHONO' keyword in CRYSTAL input file. 3x3
-                        list is also allowed.
-            read_eigenvector, bool, Whether reading eigenvectors, i.e.,
-                              normalised modes from outputs.
-            auto_calc, bool, Whether to automatically launch thermodynamic
-                       calculations. Parameters defined during initialization
-                       will be used.
-        Output:
-            self.strucrure, pymatgen Structure object, the calculation cell,
-                            reduced by SCELPHONO.
-            self.natom, int, The number of atoms in the reduced calculation cell.
-            self.volume, float, The volume the reduced calculation cell.
-            self.mode, nqpoint * nmode array, List of mode objects at all
-                       qpoints.
+        Args:
+            output_name (str): Name of the output file.
+            scellphono (Union[array[float], list[float]], optional):
+                Supercell manipulation matrix used for vibrational properties. 
+                Should be the same as 'SCELPHONO' keyword in CRYSTAL input file.
+                By default a 1\*1\*1 'SCELPHONO' is assumed.
+            read_eigenvector (bool, optional): Whether to read eigenvectors from
+                the output.
+            auto_calc (bool, optional): Whether to automatically launch
+                thermodynamic calculations. Parameters defined during
+                initialization will be used.
+
+        Returns:
+            self.strucrure (PyMatGen Structure): Cell reduced by SCELPHONO.
+            self.natom (int): Number of atoms in the reduced cell.
+            self.volume (float): Volume of the reduced cell. Unit: Angstrom^3
+            self.mode (list[Mode]): List of mode objects at all the qpoints.
+
+        :raise Exception: If computational data is stored in the object.
+        :raise Exception: If a QHA output file is read.
         """
         import numpy as np
         from CRYSTALpytools.thermodynamics import Mode
 
         if hasattr(self, "volume"):
             raise Exception(
-                "Data exists. Cannot overwriting the existing data.")
+                "Data exists. Cannot overwrite the existing data.")
 
         super(Harmonic, self).read_cry_output(output_name)
         super(Harmonic, self).get_mode()
         super(Harmonic, self).clean_imaginary()
         self._generate_structure(scelphono=scelphono)
 
-        if len(self.edft) != 1:
+        if len(np.unique(self.edft)) != 1:
             raise Exception(
-                "Only a single frequency calculation is premitted.")
+                "Only the frequency calculations at constant volumes are premitted.")
         else:
             self.edft = self.edft[0]
 
@@ -344,8 +351,8 @@ class Harmonic(Crystal_output):
         else:
             self.eigenvector = []
 
-        self.from_frequency(self.edft, self.qpoint, self.frequency, self.eigenvector,
-                            structure=self.structure)
+        self.from_frequency(self.edft, self.qpoint, self.frequency,
+                            self.eigenvector, structure=self.structure)
 
         if auto_calc:
             self.thermodynamics(sumphonon=True)
@@ -353,26 +360,29 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def from_mode(self, edft, mode, **geometry):
+    def from_mode(self, edft, mode, **kwargs):
         """
         Generate a Harmonic object by specifying data. Not recommanded to be
         used as a standalone method.
 
-        Input:
-            edft: float, Electron total energy
-            mode: nqpoint * nmode array, List of mode objects.
-            structure: Optional, Pymatgen structure object
-            natom: Optional, int, number of atoms
-            volume: Optional, float, volume of the simulation cell.
-                    Unit Angstrom^3
-        Output:
-            self.nqpoint, int, Number of qpoints.
-            self.nmode, nqpoint * 1 array, Number of modes at each q point.
-            self.mode, nqpoint * nmode array, List of mode objects at Gamma.
-            self.structure, pymatgen Structure object, the calculation cell,
-                            reduced by SCELPHONO.
-            self.natom, int, Number of atoms in the reduced calculation cell.
-            self.volume, float, The volume the reduced calculation cell.
+        Args:
+            edft (float): Electron total energy
+            mode (list[Mode]): List of mode objects.
+            structure (PyMatGen Structure, optional): Cell reduced by 'SCELPHONO'
+            natom (int, optional): Number of atoms
+            volume (float, optional): Cell volume. Unit: Angstrom^3
+
+        **Note**: The user should define either 'structure' or 'natom' + 'volume'.
+
+        Returns:
+            self.nqpoint (int): Number of qpoints.
+            self.nmode (array[int]): Number of modes at each q point.
+            self.mode (list[Mode])
+            self.structure (PyMatGen Structure, optional)
+            self.natom (int)
+            self.volume (float)
+
+        :raise Exception: If computational data is stored in the object.
         """
         import numpy as np
 
@@ -380,7 +390,7 @@ class Harmonic(Crystal_output):
             raise Exception(
                 "Data exists. The current command will be ignored.")
 
-        for key, value in geometry.items():
+        for key, value in kwargs.items():
             if key == 'structure':
                 self.structure = value
                 self.natom = len(value.species)
@@ -398,29 +408,34 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def from_frequency(self, edft, qpoint, frequency, eigenvector, **geometry):
+    def from_frequency(self, edft, qpoint, frequency, eigenvector, **kwargs):
         """
         Generate a Harmonic object by specifying frequency and eigenvector. 
         Not recommanded to be used as a standalone method.
 
-        Input:
-            edft: float, Electron total energy
-            qpoint: nqpoint * 3 array, Fractional coordinates of qpoint
-            frequency: nqpoint * nmode array, Array of frequencies. Unit: THz
-            eigenvector: nqpoint * nmode * natom * 3 array / list, Corresponding
-                         normalized eigenvectors. 
-            structure: Optional, Pymatgen structure object
-            natom: Optional, int, number of atoms
-            volume: Optional, float, volume of the simulation cell.
-                    Unit Angstrom^3
-        Output:
-            self.nqpoint, int, Number of qpoints.
-            self.nmode, nqpoint * 1 array, Number of modes at each q point.
-            self.mode, nqpoint * nmode array, List of mode objects at Gamma.
-            self.structure, pymatgen Structure object, the calculation cell,
-                            reduced by SCELPHONO.
-            self.natom, int, Number of atoms in the reduced calculation cell.
-            self.volume, float, The volume the reduced calculation cell.
+        Args:
+            edft (float): Electron total energy
+            qpoint (list[tuple[array[float], float]]): Fractional coordinate 
+                and weight of qpoint
+            frequency (array[float]): Array of frequencies. Unit: THz
+            eigenvector (array[float]): Normalized eigenvectors. 
+            structure (PyMatGen Structure, optional)
+            natom (int, optional)
+            volume (float, optional)
+
+        **Note**: The user should define either 'structure' or 'natom' + 'volume'.
+
+        Returns:
+            self.nqpoint (int)
+            self.nmode (array[int])
+            self.mode (list[Mode])
+            self.structure (PyMatGen Structure, optional)
+            self.natom (int)
+            self.volume (float)
+
+        :raise Exception: If computational data is stored in the object.
+        :raise Exception: If the 1st dimension (nqpoint) of ``qpoint`` and ``frequency`` are not consistent.
+        :raise Exception: If the 2nd dimension (nfreq) of ``frequency`` and ``eigenvector`` are not consistent and ``eigenvector`` is not ``[]``.
         """
         import numpy as np
 
@@ -478,17 +493,17 @@ class Harmonic(Crystal_output):
     def _generate_structure(self, scelphono):
         """
         Eliminate the influences of the keyword 'SCELPHONO' and generate the
-        pymatgen 'structure' object of the actual cell used for phonon
+        PyMatGen Structure object of the actual cell used for phonon 
         calculation. Not a standalone method.
 
-        Input:
-            scellphono, ndimension * ndimension list. 3*3 list is also allowed.
-        Output:
-            self.structure, pymatgen Structure object. The calculation cell
-                            without 'SCELPHONO' expansion.
-            self.natom, int, Number of atoms in the cell.
-            self.volume, float, pymatgen structure.volume. Cell volume.
-                         Unit: Angstrom^3
+        Args:
+            scellphono (Union[list[int],array[int]]): ndimension\*ndimension or 
+                3\*3 matrix corresponds to the 'SCELPHONO' keyword.
+
+        Returns:
+            self.structure (PyMatGen Structure)
+            self.natom (int)
+            self.volume (float)
         """
         from CRYSTALpytools.convert import cry_out2pmg
         from pymatgen.core.structure import Structure
@@ -537,27 +552,25 @@ class Harmonic(Crystal_output):
     def _phonon_sumup(self, temperature, calculate_zp):
         """
         Summing up inidival phonon modes at each q point. Translational modes
-        with frequencies = 0 are skipped.
-
-        Not a standalone method. For thermodynamics, use 'self.thermodyanmics'
+        with frequencies = 0 are skipped. Not a standalone method. For 
+        thermodynamics, use 'self.thermodyanmics'
         instead.
 
-        Input:
-            temperature, float, The temperature where the U_vib, entropy and
-                         C_v are calculated.
-            calculate_zp, bool, Calculate zero-point energy or temperature
-                          dependent properties.
-        Output:
-            zp_energy, nqpoint * 1 array, Zero-point energy at a given q point.
-                       Returned if temperature = None.
-            U_vib, nqpoint * 1 array, Vibrational contribution to internal
-                   energy at constant temperature and all q points. Returned
-                   if temperature is given.
-            entropy, nqpoint * 1 array, Entropy at constant temperature and
-                     given q point. Returned if temperature is given.
-            C_v, nqpoint * 1 array, Constant volume specific heat at constant
-                 temperature and given q point. Returned if temperature is
-                 given.
+        Args:
+            temperature (float)
+            calculate_zp (bool): Calculate zero-point energy or temperature
+                dependent properties.
+
+        Returns:
+            zp_energy (array[float]): Zero-point energy at a q point. Returned
+                if ``calculate_zp = True``.
+            U_vib (array[float]): Vibrational contribution to internal energy 
+                at constant temperature and a q point. Returned if 
+                ``calculate_zp = False``.
+            entropy (array[float]): Entropy at constant temperature and a q 
+                point. Returned if ``calculate_zp = False``.
+            C_v (array[float]): Constant volume specific heat at constant
+                 temperature and a q point. Returned if ``calculate_zp = False``.
         """
         import numpy as np
 
@@ -600,72 +613,67 @@ class Harmonic(Crystal_output):
         else:
             return U_vib, entropy, C_v
 
-    def thermodynamics(self, sumphonon=True, mutewarning=False, **temptpress):
+    def thermodynamics(self, sumphonon=True, mutewarning=False, **kwargs):
         """
         Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
         and Helmholtz free energy) of the given system, at all qpoints and the
         whole temperature range.
 
-        Input:
-            temperature, Optional, nTempt * 1 array / list, Temperatures where
-                         the thermodynamic properties are computed. Unit: K
-            pressure, Optional, npress * 1 array / list, Pressures where the
-                      thermodyanmic properties are calculated. Unit: GPa
-            sumphonon, bool, Whether summing up the phonon contributions across
-                       the first Brillouin zone and take average.
-            mutewarning, bool, Whether print out warning messages of updating
-                               temperature and pressure.
-        Output:
-            self.helmholtz, nqpoint * nTempt numpy array, Helmholtz free
-                            energy. Unit: KJ/mol cell
-            self.gibbs, nqpoint * nTempt * npress numpy array, Gibbs free 
-                        energy. Unit: KJ/mol cell
-            self.zp_energy, nqpoint * 1 numpy array, Zero-point energy.
-                            Unit: KJ/mol cell
-            self.U_vib, nqpoint * nTempt numpy array, Vibrational contribute to
-                        internal energy. Unit: KJ/mol cell
-            self.entropy, nqpoint * nTempt numpy array, Entropy.
-                          Unit: J/mol cell*K
-            self.C_v, nqpoint * nTempt numpy array, Constant volume specific
-                      heat. Unit: J/mol cell*K
+        Args:
+            temperature (Union[array[float], list[float]], optional): 
+                Temperature. Unit: K
+            pressure (Union[array[float], list[float]], optional):
+                Pressure. Unit: GPa
+            sumphonon (bool): Whether to sum up the phonon contributions across
+                the sampled q points and take weighted-average.
+            mutewarning (bool): Whether print out warning messages of updated
+                temperature and pressure (For QHA).
 
-        Generated, not returned output:
-            self.temperature, nTempt * 1 array / list, Temperature range.
-                              Unit: K
-            self.pressure, nPress * 1 array / list, Pressure range.
-                              Unit: K
+        Returns:
+            self.helmholtz (array[float]): Helmholtz free energy 
+                (nqpoint\*ntemperature). Unit: KJ/mol
+            self.gibbs (array[float]): Gibbs free energy 
+                (nqpoint\*ntemperature\*npressure). Unit: KJ/mol
+            self.zp_energy (array[float]): Zero-point energy. (nqpoint\*1). 
+                Unit: KJ/mol
+            self.U_vib (array[float]): Vibrational contribution to internal 
+                energy (nqpoint\*ntemperature). Unit: KJ/mol
+            self.entropy (array[float]): Entropy (nqpoint\*ntemperature)
+                Unit: J/mol\*K
+            self.C_v (array[float]): Constant volume specific heat 
+                (nqpoint\*ntemperature). Unit: J/mol\*K
 
-        Note: If sumphonon = True, the thermodyanmic properties of phonon 
-              dispersion are summed. In this case, nqpoint = 1 but the
-              dimension is kept.
+
+        **Note**: If ``sumphonon = True``, nqpoint = 1.
+
+        :raise ValueError: If temperature and pressure are defined neither here nor during initialization
         """
         import warnings
         import numpy as np
         import scipy.constants as scst
 
         # Generate temperature and pressure series
-        if temptpress:
-            if 'temperature' in temptpress:
+        if kwargs:
+            if 'temperature' in kwargs:
                 if hasattr(self, 'temperature') and not mutewarning:
                     warnings.warn(
                         'Temperature attribute exists. Input temperatures will be used to update the attribute.')
 
-                self.temperature = np.array(
-                    temptpress['temperature'], dtype=float)
+                self.temperature = np.array(kwargs['temperature'], dtype=float)
 
-            if 'pressure' in temptpress:
+            if 'pressure' in kwargs:
                 if hasattr(self, 'pressure') and not mutewarning:
                     warnings.warn(
                         'Pressure attribute exists. Input pressures will be used to update the attribute.')
 
-                self.pressure = np.array(temptpress['pressure'], dtype=float)
+                self.pressure = np.array(kwargs['pressure'], dtype=float)
         else:
             if not hasattr(self, 'temperature') or \
                not hasattr(self, 'pressure'):
                 raise ValueError(
                     'Temperature and pressure should be specified.')
 
-        self.zp_energy = self._phonon_sumup(temperature=0., calculate_zp=True)
+        zp_energy = self._phonon_sumup(temperature=0., calculate_zp=True)
         U_vib = []
         entropy = []
         C_v = []
@@ -690,43 +698,35 @@ class Harmonic(Crystal_output):
             # nTemp * npress * nqpoint
             gibbs.append(gibbs_t)
 
-        U_vib = np.transpose(np.array(U_vib, dtype=float))
-        entropy = np.transpose(np.array(entropy, dtype=float))
-        C_v = np.transpose(np.array(C_v, dtype=float))
-        helmholtz = np.transpose(np.array(helmholtz, dtype=float))
-        gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
-
         if sumphonon:
-            self.U_vib = np.array([np.sum(U_vib, axis=0)]) / self.nqpoint
-            self.entropy = np.array([np.sum(entropy, axis=0)]) / self.nqpoint
-            self.C_v = np.array([np.sum(C_v, axis=0)]) / self.nqpoint
-            self.helmholtz = np.array(
-                [np.sum(helmholtz, axis=0)]) / self.nqpoint
-            self.gibbs = np.array([np.sum(gibbs, axis=0)]) / self.nqpoint
-            self.nqpoint = 1
-            self.qpoint = np.array([[0., 0., 0.]], dtype=float)
+            wt = np.array([qp[1] for qp in self.qpoint])
+            self.zp_energy = np.array(np.dot(zp_energy, wt))
+            self.U_vib = np.array(np.dot(U_vib, wt))
+            self.entropy = np.array(np.dot(entropy, wt))
+            self.C_v = np.array(np.dot(C_v, wt))
+            self.helmholtz = np.array(np.dot(helmholtz, wt))
+            self.gibbs = np.array(np.dot(gibbs, wt))
         else:
-            self.U_vib = U_vib
-            self.entropy = entropy
-            self.C_v = C_v
-            self.helmholtz = helmholtz
-            self.gibbs = gibbs
+            self.zp_energy = zp_energy
+            self.U_vib = np.transpose(np.array(U_vib, dtype=float))
+            self.entropy = np.transpose(np.array(entropy, dtype=float))
+            self.C_v = np.transpose(np.array(C_v, dtype=float))
+            self.helmholtz = np.transpose(np.array(helmholtz, dtype=float))
+            self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
 
         return self.helmholtz, self.gibbs, self.zp_energy, self.U_vib,\
             self.entropy, self.C_v
 
     def print_results(self):
         """
-        Print a single output file for HA thermodynamics. Used if write_out=True.
+        Print HA thermodynamic results into an external file. Used if 
+        ``write_out = True``.
 
-        Note: Phonon dispersions are forced to be summed to keep the output
+        **Note**
+
+        Phonon dispersions are forced to be summed to keep the output
         succinct if the automatic scheme (write_out=True) is launched. To get
-        verbose outputs, directly use this attribute.
-
-        Input:
-            -
-        Output:
-            filename, text file.
+        verbose outputs, directly call this method.
         """
         import scipy.constants as scst
         from CRYSTALpytools.units import eV_to_H
@@ -786,43 +786,24 @@ class Harmonic(Crystal_output):
 
 class Quasi_harmonic:
     """
-    Class Quasi_haromic - Generate and arrange harmonic phonons, store the
-    fitted, volume dependent QHA phonon information and obtain the QHA
-    thermodynamic properties.
-
-    self.ncalc, from_HA_files, The number of phonon calculations.
-    self.combined_phonon, from_HA_files, Sampled calculation as Harmonic object
-    self.combined_volume, from_HA_files, A list of volumes.
-    self.combined_edft, from_HA_files, A list of DFT total energies.
-    self.combined_mode, from_HA_files, A list of mode objects.
-    self.eos_method, edft_eos_fit, Fitting method of equation of states
-    self.eos, edft_eos_fit, Fitted equation of states
-    self.fit_order, freq_polynomial_fit, The optimal order of polynomial fit
-    self.temerature, thermo_freq / thermo_eos, Temperature series. Unit: K
-    self.pressure, thermo_freq / thermo_eos, Pressure series. Unit: GPa
-    self.equilibrium_volume, thermo_freq / thermo_eos, V(T, p). Unit: Angstrom^3
-    self.helmholtz, thermo_freq / thermo_eos, F(T, V). Unit: kJ/mol
-    self.gibbs, thermo_freq / thermo_eos, G(T, p). Unit: kJ/mol
-    self.entropy, thermo_freq / thermo_eos, S(T, V). Unit: J/mol*K
+    Generate and rearrange harmonic phonons, store the fitted, volume-dependent
+    QHA phonon information and obtain the QHA thermodynamic properties.
     """
 
     def __init__(self, temperature=[], pressure=[],
                  write_out=True, filename='QHA-Fit.dat'):
         """
-        Initialization.
+        Args:
+            temperature (Union[array[float], list[float]], optional): Unit: K
+            pressure (Union[array[float], list[float]], optional): Unit: GPa
+            write_out (bool): Whether to print the key information into a file.
+            filename (str): Name of the output file. Valid if 
+                ``write_out = True``.
 
-        Input:
-            temperature, nTempt * 1 array / list, Temperatures where the
-                         thermodynamic properties are computed. Unit: K
-            pressure, npress * 1 array / list, Pressures where the
-                      thermodyanmic properties are calculated. Unit: GPa
-            write_out, bool, Whether to record the key information into a file.
-            filename, str, Name of the printed-out file, used only if
-                      write_out = True.
-        Note: Temperature can also be defined in 'thermodynamics' method, which
-              will cover the settings during initialisation.
-        Output: 
-            -
+        **Note**
+
+        Temperatures and pressures can also be defined by 
+        ``self.thermodynamics``, whose entries always cover the entries here.
         """
         import numpy as np
 
@@ -842,16 +823,21 @@ class Quasi_harmonic:
         """
         Read data from individual HA calculation outputs.
 
-        Input:
-            input_files, ncalc*1 list, List of phonon output filenames.
-            scelphono, ndimen*ndimen or 3*3 list / array, Same to the
-                       'SCELPHONO' keyword of CRYSTAL17 input.
-            overlap, float, The threshold of close mode overlaps
-            sort_phonon, bool, Whether to check phonon continuity. 
-        Output:
-            self.ncalc, int, Number of HA phonon calculations.
-            self.combined_phonon, self.combined_volume, self.combined_edft,
-            self.combined_mode, refer the method 'combine_data'
+        Args:
+            input_files (list[str]): List of phonon output filenames.
+            scelphono (Union[array[float], list[float]], optional): Corresponds
+                to the 'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or 
+                ndimension\*ndimension. By default a 1\*1\*1 'SCELPHONO' is 
+                assumed.
+            overlap (float, optional): The threshold of close mode overlaps.
+            sort_phonon (bool, optional): Whether to check phonon continuity.
+
+        Returns:
+            self.ncalc (int): Number of HA phonon calculations.
+            self.combined_phonon (list[Harmonic]): List of Harmonic objects.
+            self.combined_volume (list[float]): Volumes. Unit: Angstrom^3
+            self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol
+            self.combined_mode (list[Mode]): List of mode objects.
         """
         from CRYSTALpytools.thermodynamics import Harmonic
         import warnings
@@ -885,11 +871,20 @@ class Quasi_harmonic:
         """
         Read data from a single QHA calculation at Gamma point.
 
-        Input:
-            input_file, string or 1*1 list, Name of QHA output file. Only 1
-                        file is permitted
+        Args:
+            input_files (Union[str, list[str]]): Only 1 QHA file is permitted.
+            scelphono (Union[array[float], list[float]], optional)
+            overlap (float, optional)
+            sort_phonon (bool, optional)
 
-        Other Input/output are consistent with 'from_HA_files'
+        Returns:
+            self.ncalc (int)
+            self.combined_phonon (list[Harmonic])
+            self.combined_volume (list[float])
+            self.combined_edft (list[float])
+            self.combined_mode (list[Mode])
+
+        :raise Exception: If multiple files are defined.
         """
         from CRYSTALpytools.crystal_io import Crystal_output
         from CRYSTALpytools.thermodynamics import Harmonic
@@ -994,29 +989,21 @@ class Quasi_harmonic:
 
     def _combine_data(self, ha_list, overlap, sort_phonon):
         """
-        Combine the HA calculation data and rearrange it according to modes.
-        Not a standalone method.
+        Combine the HA calculation data and rearrange it in the ascending order 
+        of volumes. Not a standalone method.
 
-        NOTE: All the input data will be rearranged in the low-to-high sequence
-              according to volumes.
+        Args:
+            ha_list (list[Harmonic]): List of harmonic objects.
+            overlap (float)
+            sort_phonon (bool)
 
-        Input:
-            ha_list, ncalc * 1 list, The list of harmonic objects.
-            overlap, float, The threshold of close mode overlaps
-            sort_phonon, bool, Whether to check phonon continuity. 
-        Output:
-            combined_phonon, list of Harmonic objects, Sampled calculations
-            combined_volume, ncalc * 1 list, A list of volumes.
-                             Unit: Angstrom^3
-            combined_edft, ncalc * 1 list, A list of DFT total energies.
-                           Unit: KJ / mol cell
-            combined_mode, nqpoint * nmode list, A list of mode objects. Each
-                           mode object stands for a vibrational mode at the
-                           given q point and stores ncalc HA values for volume,
-                           frequency and eigenvector.
-                           mode.volume: ncalc * 1 array
-                           mode.frequency: ncalc * 1 array
-                           mode.eigenvector: ncalc * natom * 3 array
+        Returns:
+            combined_phonon (list[Harmonic])
+            combined_volume (list[float])
+            combined_edft (list[float])
+            combined_mode (list[Mode])
+
+        :raise Exception: If number of q points, modes or atoms are not consistent across the HA calculations.
         """
         import numpy as np
         import warnings
@@ -1162,30 +1149,33 @@ class Quasi_harmonic:
 
         return combined_phonon, combined_volume, combined_edft, combined_mode
 
-    def _phonon_continuity(self, freq, eigvt, symm=None, overlap=0.4):
+    @staticmethod
+    def _phonon_continuity(freq, eigvt, symm=None, overlap=0.4):
         """
         Rearrange phonon modes by their continuity. If the difference between
-        the maximum scalar product of correspondin eigenvectors (normalized to 
+        the maximum scalar product of corresponding eigenvectors (normalized to 
         1) and scalar products of other modes is less than 0.4, warning is
-        printed due to the potential overlap of modes. Adopted from CRYSTAL17,
+        printed due to the potential overlap of modes. Adopted from CRYSTAL17.
 
-        Erba A. J. Chem. Phys., 2014 141 124115.
+        .. note::
+
+            A. Erba, *J. Chem. Phys.*, 2014, **141**, 124115.
 
         Not a standalone method.
 
-        Input:
-            freq, ncalc * nmode array, Phonon frequencies.
-            eigvt, ncalc * nmode * natom * 3 array, Eigenvectores normalized to
-                   1 of corresponding modes
-            symm, ncalc * nmode array, Sub-group numbers of corresponding modes
-                  (Not supported at the current implementation)
-            overlap, float, The threshold of close mode overlaps
-        Output:
-            freq, ncalc * nmode array, Sorted phonon frequencies
-            eigvt, ncalc * nmode * natom * 3 array, Sorted eigenvectores
-            close_overlap, ncalc * nmode * nmode boolian array, Whether close
-                           overlap is identified at previous calculation (2nd 
-                           dimension) and the current calculation (3rd).
+        Args:
+            freq (array[float]): Phonon frequencies. Unit: THz
+            eigvt (array[float]): Eigenvectores normalized to 1
+            symm (array[float]): Sub-group numbers of corresponding modes.
+                *Not implemented*
+            overlap (float): The threshold of close mode overlaps.
+
+        Returns:
+            freq (array[float]): Sorted phonon frequencies
+            eigvt (array[float]): Sorted eigenvectores
+            close_overlap (array[bool]):ncalc\*nmode\*nmode. Whether close 
+                overlap is identified between the previous calculation (2nd 
+                dimension) and the current one (3rd).
         """
         import numpy as np
 
@@ -1258,23 +1248,20 @@ class Quasi_harmonic:
 
         return freq, eigvt, close_overlap
 
-    def edft_eos_fit(self, method, **fitargs):
+    def edft_eos_fit(self, method, **kwargs):
         """
-        Fit electron total energy according to equation of states. Not a
-        standalone method.
+        Fit electron total energy according to equation of states. 
 
-        Input:
-            method: string, Name of EoS used. Consistent with requirements of
-                    pymatgen (https://pymatgen.org/pymatgen.analysis.eos.html).
+        Args:
+            method (str): Name of EoS used. Consistent with
+                `PyMatGen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
+            order (int): For the DeltaFactor method. *Not implemented*
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int):
+                For the NumericalEOS method. *Not implemented*
 
-        Optional Inputs:
-            order: int, limited to the DeltaFactor method
-            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
-                int, limited to the NumericalEOS method
-
-        Output:
-            self.eos_method, string, Equation of State used
-            self.eos, pymatgen EOS object, Fitted equation of state.
+        Returns:
+            self.eos_method (string): Name of the fitted equation of state
+            self.eos (PyMatGen EOS): The fitted equation of state.
         """
         import re
         from pymatgen.analysis.eos import EOS
@@ -1317,17 +1304,16 @@ class Quasi_harmonic:
 
     def freq_polynomial_fit(self, order):
         """
-        Fit phonon frequencies as polynomial functions of volumes. Not a
-        standalone method.
+        Fit phonon frequencies as polynomial functions of volumes. 
 
-        Input:
-            order, list/array, List of the highest order of polynomials to be
-                   fitted. Default: [2, 3] (quadratic, cubic)
-        Output:
-            self.fit_order, int, The optimal order of polynomial fit.
+        Args:
+            order (Union[list[int], array[int]]): The order of polynomials used.
 
-        Also see 'self.poly_fit' and 'self.poly_fit_rsquare' attributes of mode
-        object
+        Returns:
+            self.fit_order (int): The optimal order of polynomial fit.
+
+        Please also refer to ``self.poly_fit`` and ``self.poly_fit_rsquare`` 
+        attributes of Mode class.
         """
         import numpy as np
 
@@ -1396,10 +1382,13 @@ class Quasi_harmonic:
         Get numerical phonon frequencies from fitted analytical expressions and
         generate harmonic phonon objects. Not a standalone method.
 
-        Input:
-            volume, float, The volume of harmonic lattice. Unit: Angstrom^3
-        Output:
-            ha, Harmonic, Harmonic phonon object with numerical data.
+        Args:
+            volume (float): Unit: Angstrom^3
+
+        Returns:
+            ha (Harmonic): Harmonic phonon object with numerical data.
+
+        :raise Exception: If frequency is not fitted as function of volumes.
         """
         import numpy as np
         from CRYSTALpytools.thermodynamics import Harmonic
@@ -1432,10 +1421,13 @@ class Quasi_harmonic:
         Get Gibbs free energy from the Harmonic phonon object. Used only for
         minimizing G(V; T, p) by SciPy. Not a standalone method.
 
-        Input:
-            volume, float, The volume of lattice (V). Unit: Angstrom^3
-            temperature, float, T, argument. Unit: K
-            pressure, float, p, argument. Unit: GPa
+        Args:
+            volume (float)
+            temperature (float)
+            pressure (float)
+
+        Returns:
+            ha.gibbs (float): Gibbs free energy. Unit: KJ/mol
         """
         ha = self._get_harmonic_phonon(volume)
         ha.thermodynamics(temperature=[temperature], pressure=[pressure])
@@ -1444,49 +1436,44 @@ class Quasi_harmonic:
 
     def thermo_freq(self, eos_method='birch_murnaghan', poly_order=[2, 3],
                     min_method='BFGS', volume_bound=None, mutewarning=False,
-                    **temptpress):
+                    **kwargs):
         """
-        1. Fit E_DFT and frequencies (if that has not been done) according to
-        methods specified. 
-        2. Calculate the 0 pressure equilibrium volume and pressure-independent
-        properties (Helmholtz free energy, Entropy and Constant-volume specific
-        heat) at given temperatures.
-        3. Calculate pressure-dependent proerties (Gibbs free energy)
+        Obtain thermodynamic properties by explicitly fitting phonon 
+        frequencies as polynomial functions of volume. DFT total energies are
+        fitted as a function of volume by equation of states (EOS).
 
-        Input:
-            eos_method: string, Equation of state used to fit E_DFT. For EOSs
-                        supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
-            poly_order: list/array, List of the highest order of polynomials to
-                        be fitted.
-            min_method: string, Minimisation algorithms. Parameterized and
-                        tested algos: 
-                        * BFGS(no boundary)
-                        * L-BFGS-B(with boundary)
-            volume_bound: turple-like, Boundary conditions of equilibrium
-                          volumes. Unit: Angstrom^3
-            mutewarning, bool, Whether print out warning messages.
+        Args:
+            eos_method (str, optional): EOS used to fit DFT total energies. 
+            poly_order (Union[array[int], list[int]], optional): The order of 
+                polynomials used to fit frequency as the function of volumes.
+            min_method (string, optional): Minimisation algorithms. 
+            volume_bound (turple-like, optional), Boundary conditions of 
+                equilibrium volumes. Unit: Angstrom^3
+            mutewarning (bool, optional): Whether print out warning messages.
+            temperature (array[float], optional): Unit: K
+            pressure (array[float], optional): Unit: GPa
+            order (int, optional): For DeltaFactor EOS. *Not implemented*
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
+                For Numerical EOS. *Not implemented*
 
-        Optional Inputs:
-            temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
-            pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
-            order: int, limited to the DeltaFactor method
-            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
-                int, limited to the NumericalEOS method
+        **Notes**
 
-        Output:
-            self.temperature, nTempt*1 array, List of temperatures. Unit: K
-            self.pressure, nPress*1 array, List of pressures. Unit: GPa
-            self.equilibrium_volume, nPress*nTempt array, Equilibrium volumes
-                                     at given temperature and pressure. Unit:
-                                     Angstrom^3
-            self.helmholtz, nPress*nTempt array, Helmholtz free energy at given
-                            volume. Unit: kJ/mol
-            self.gibbs, nPress*nTempt array, Gibbs free energy at given volume.
-                        Unit: kJ/mol
-            self.entropy, nPress*nTempt array, Entropy at given volume. Unit:
-                          J/mol*K
+        1. EOS supported by ``eos_method`` are consistent with `PyMatGen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
+        2. Parameterized and tested algorithms for ``min_method``: 
+            * BFGS(no boundary)
+            * L-BFGS-B(with boundary)
 
-        Optional outputs, see comments in edft_eos_fit, freq_polynomial_fit
+        Returns:
+            self (Quasi_harmonic)
+
+        **New Attributes**
+
+        * ``self.temperature`` in K and ``self.pressure`` in GPa.
+        * ``self.equilibrium_volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3
+        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol
+        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K
+
+        :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
         import numpy as np
         import warnings
@@ -1494,21 +1481,20 @@ class Quasi_harmonic:
         from scipy.optimize import minimize
 
         # Generate temperature and pressure series
-        if temptpress:
-            if 'temperature' in temptpress:
+        if kwargs:
+            if 'temperature' in kwargs:
                 if hasattr(self, 'temperature') and not mutewarning:
                     warnings.warn(
                         'Temperature attribute exists. Input temperatures will be used to update the attribute.', stacklevel=2)
 
-                self.temperature = np.array(
-                    temptpress['temperature'], dtype=float)
+                self.temperature = np.array(kwargs['temperature'], dtype=float)
 
-            if 'pressure' in temptpress:
+            if 'pressure' in kwargs:
                 if hasattr(self, 'pressure') and not mutewarning:
                     warnings.warn(
                         'Pressure attribute exists. Input pressures will be used to update the attribute.', stacklevel=2)
 
-                self.pressure = np.array(temptpress['pressure'], dtype=float)
+                self.pressure = np.array(kwargs['pressure'], dtype=float)
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
@@ -1520,25 +1506,25 @@ class Quasi_harmonic:
         else:
             # Commented due to the inhierant problem of pymatgen EOS object
             #             if re.findall(r'deltafactor', eos_method, re.I):
-            #                 if 'order' not in temptpress.keys():
-            #                     temptpress.update({'order' : 3})
+            #                 if 'order' not in kwargs.keys():
+            #                     kwargs.update({'order' : 3})
 
-            #                 self.edft_eos_fit(method=eos_method, order=temptpress['order'])
+            #                 self.edft_eos_fit(method=eos_method, order=kwargs['order'])
 
             #             elif re.findall(r'numerical_eos', eos_method, re.I):
-            #                 if 'min_ndata_factor' not in temptpress.keys():
-            #                     temptpress.update({'min_ndata_factor' : 3})
+            #                 if 'min_ndata_factor' not in kwargs.keys():
+            #                     kwargs.update({'min_ndata_factor' : 3})
 
-            #                 if 'max_poly_order_factor' not in temptpress.keys():
-            #                     temptpress.update({'max_poly_order_factor' : 5})
+            #                 if 'max_poly_order_factor' not in kwargs.keys():
+            #                     kwargs.update({'max_poly_order_factor' : 5})
 
-            #                 if 'min_poly_order_factor' not in temptpress.keys():
-            #                     temptpress.update({'min_poly_order_factor' : 2})
+            #                 if 'min_poly_order_factor' not in kwargs.keys():
+            #                     kwargs.update({'min_poly_order_factor' : 2})
 
             #                 self.edft_eos_fit(method=eos_method,
-            #                                   min_ndata_factor=temptpress['min_ndata_factor'],
-            #                                   max_poly_order_factor=temptpress['max_poly_order_factor'],
-            #                                   min_poly_order_factor=temptpress['min_poly_order_factor'])
+            #                                   min_ndata_factor=kwargs['min_ndata_factor'],
+            #                                   max_poly_order_factor=kwargs['max_poly_order_factor'],
+            #                                   min_poly_order_factor=kwargs['min_poly_order_factor'])
 
             #             else:
             #                 self.edft_eos_fit(method=eos_method)
@@ -1650,36 +1636,31 @@ class Quasi_harmonic:
         return self
 
     def thermo_eos(self, eos_method='birch_murnaghan', poly_order=[2, 3],
-                   mutewarning=False, **temptpress):
+                   mutewarning=False, **kwargs):
         """
-        Obtain thermodynamic properties by fitting equation of states F(V). 
-        Exact sorting and fitting of frequency-volume relationship is disabled,
-        EoSs are fitted according to the Helmholtz free energy of sampled 
-        harmonic phonons. 
+        Obtain thermodynamic properties by fitting EOS, which is fitted by the 
+        Helmholtz free energies of sampled harmonic phonons. The explicit 
+        sorting and fitting of frequency-volume relationship is disabled.
 
-        Input:
+        Args:
 
-            eos_method: string, Equation of state used to fit F. For EOSs 
-                        supported, refer https://pymatgen.org/pymatgen.analysis.eos.html
-            poly_order: list/array, List of the highest order of polynomials to
-                        be fitted (G(T) for entropy).
-            mutewarning, bool, Whether print out warning messages.
+            eos_method (str, optional)
+            poly_order (Union[array[int], list[int]], optional): Order of 
+                polynomials used to fit Gibbs free energy to get entropy.
+            mutewarning (bool, optional)
+            temperature (Union[array[float], list[float]], optional): Unit: K
+            pressure (Union[array[float], list[float]], optional): Unit: GPa
+            order (int, optional): For DeltaFactor EOS. *Not implemented*
+            min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
+                For Numerical EOS. *Not implemented*
 
-        Optional Inputs:
-            temperature: Optional, nTempt*1 list/array, Temperatures. Unit: K
-            pressure: Optional, nPress*1 list/array, Pressures. Unit: GPa
-            order: int, limited to the DeltaFactor method
-            min_ndata_factor, max_poly_order_factor, min_poly_order_factor:
-                int, limited to the NumericalEOS method
+        Returns:
+            self (Quasi_harmonic)
 
-        Output:
-            self.thermo_eos_method: string, Equation of state used to fit F.
-            self.thermo_eos: nTempt*1 list, List of adiabatic EoS at given
-                             temperatures
+        New Attributes are consistent with the ``thermo_freq`` method
 
-        self.temperature, self.pressure, self.equilibrium_volume, 
-        self.helmholtz, self.gibbs, self.entropy are consistent with method
-        'thermodynamics'.
+        :raise Exception: If the number of HA calculations is less than 4.
+        :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
         import numpy as np
         import warnings
@@ -1694,23 +1675,23 @@ class Quasi_harmonic:
             raise Exception('Insufficient database. Increase HA phonons')
 
         # Generate temperature and pressure series
-        if temptpress:
-            if 'temperature' in temptpress:
+        if kwargs:
+            if 'temperature' in kwargs:
                 if hasattr(self, 'temperature') and not mutewarning:
                     warnings.warn(
                         'Temperature attribute exists. Input temperatures will be used to update the attribute.',
                         stacklevel=2)
 
                 self.temperature = np.array(
-                    temptpress['temperature'], dtype=float)
+                    kwargs['temperature'], dtype=float)
 
-            if 'pressure' in temptpress:
+            if 'pressure' in kwargs:
                 if hasattr(self, 'pressure') and not mutewarning:
                     warnings.warn(
                         'Pressure attribute exists. Input pressures will be used to update the attribute.',
                         stacklevel=2)
 
-                self.pressure = np.array(temptpress['pressure'], dtype=float)
+                self.pressure = np.array(kwargs['pressure'], dtype=float)
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
@@ -1738,25 +1719,25 @@ class Quasi_harmonic:
         for idx_t, t in enumerate(self.temperature):
             # Commented due to the inhierant problem of pymatgen EOS object
             #             if re.findall(r'deltafactor', eos_method, re.I):
-            #                 if 'order' not in temptpress.keys():
-            #                     temptpress.update({'order' : 3})
+            #                 if 'order' not in kwargs.keys():
+            #                     kwargs.update({'order' : 3})
 
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t], order=temptpress['order'])
+            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t], order=kwargs['order'])
 
             #             elif re.findall(r'numerical_eos', eos_method, re.I):
-            #                 if 'min_ndata_factor' not in temptpress.keys():
-            #                     temptpress.update({'min_ndata_factor' : 3})
+            #                 if 'min_ndata_factor' not in kwargs.keys():
+            #                     kwargs.update({'min_ndata_factor' : 3})
 
-            #                 if 'max_poly_order_factor' not in temptpress.keys():
-            #                     temptpress.update({'max_poly_order_factor' : 5})
+            #                 if 'max_poly_order_factor' not in kwargs.keys():
+            #                     kwargs.update({'max_poly_order_factor' : 5})
 
-            #                 if 'min_poly_order_factor' not in temptpress.keys():
-            #                     temptpress.update({'min_poly_order_factor' : 2})
+            #                 if 'min_poly_order_factor' not in kwargs.keys():
+            #                     kwargs.update({'min_poly_order_factor' : 2})
 
             #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t],
-            #                                             min_ndata_factor=temptpress['min_ndata_factor'],
-            #                                             max_poly_order_factor=temptpress['max_poly_order_factor'],
-            #                                             min_poly_order_factor=temptpress['min_poly_order_factor'])
+            #                                             min_ndata_factor=kwargs['min_ndata_factor'],
+            #                                             max_poly_order_factor=kwargs['max_poly_order_factor'],
+            #                                             min_poly_order_factor=kwargs['min_poly_order_factor'])
 
             #             else:
             #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
