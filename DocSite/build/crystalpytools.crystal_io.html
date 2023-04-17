@@ -316,8 +316,8 @@ phonon frequencies are calculated).</p>
 <li><p><strong>self.edft</strong> (<em>array[float]</em>) – Energy (in kJ/mol) reported in ‘CENTERAL
 POINT’ line (DFT + corrected energy)</p></li>
 <li><p><strong>self.nqpoint</strong> (<em>int</em>) – Number of q points</p></li>
-<li><p><strong>self.qpoint</strong> (<em>list[tuple[array[float], float]]</em>) – A nqpoint list of
-2*1 tuples whose first element is a 3*1 array of q point
+<li><p><strong>self.qpoint</strong> (<em>list[list[array[float], float]]</em>) – A nqpoint list of
+2*1 list whose first element is a 3*1 array of q point
 fractional coordinates and the second is its weight.</p></li>
 </ul>
 </dd>

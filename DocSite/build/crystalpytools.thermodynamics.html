@@ -196,7 +196,7 @@ Not recommanded to be used as a standalone method.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>edft</strong> (<em>float</em>) – Electron total energy</p></li>
-<li><p><strong>qpoint</strong> (<em>list</em><em>[</em><em>tuple</em><em>[</em><em>array</em><em>[</em><em>float</em><em>]</em><em>, </em><em>float</em><em>]</em><em>]</em>) – Fractional coordinate
+<li><p><strong>qpoint</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>array</em><em>[</em><em>float</em><em>]</em><em>, </em><em>float</em><em>]</em><em>]</em>) – Fractional coordinate
 and weight of qpoint</p></li>
 <li><p><strong>frequency</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Array of frequencies. Unit: THz</p></li>
 <li><p><strong>eigenvector</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Normalized eigenvectors.</p></li>
@@ -229,40 +229,6 @@ and weight of qpoint</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.from_mode">
-<span class="sig-name descname"><span class="pre">from_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edft</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.from_mode" title="Permalink to this definition"></a></dt>
-<dd><p>Generate a Harmonic object by specifying data. Not recommanded to be
-used as a standalone method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>edft</strong> (<em>float</em>) – Electron total energy</p></li>
-<li><p><strong>mode</strong> (<em>list</em><em>[</em><a class="reference internal" href="#CRYSTALpytools.thermodynamics.Mode" title="CRYSTALpytools.thermodynamics.Mode"><em>Mode</em></a><em>]</em>) – List of mode objects.</p></li>
-<li><p><strong>structure</strong> (<em>PyMatGen Structure</em><em>, </em><em>optional</em>) – Cell reduced by ‘SCELPHONO’</p></li>
-<li><p><strong>natom</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of atoms</p></li>
-<li><p><strong>volume</strong> (<em>float</em><em>, </em><em>optional</em>) – Cell volume. Unit: Angstrom^3</p></li>
-</ul>
-</dd>
-</dl>
-<p><strong>Note</strong>: The user should define either ‘structure’ or ‘natom’ + ‘volume’.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>self.nqpoint</strong> (<em>int</em>) – Number of qpoints.</p></li>
-<li><p><strong>self.nmode</strong> (<em>array[int]</em>) – Number of modes at each q point.</p></li>
-<li><p><strong>self.mode</strong> (<em>list[Mode]</em>)</p></li>
-<li><p><strong>self.structure</strong> (<em>PyMatGen Structure, optional</em>)</p></li>
-<li><p><strong>self.natom</strong> (<em>int</em>)</p></li>
-<li><p><strong>self.volume</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If computational data is stored in the object.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.print_results">
 <span class="sig-name descname"><span class="pre">print_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.print_results" title="Permalink to this definition"></a></dt>
 <dd><p>Print HA thermodynamic results into an external file. Used if
@@ -279,6 +245,9 @@ verbose outputs, directly call this method.</p>
 <dd><p>Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
 and Helmholtz free energy) of the given system, at all qpoints and the
 whole temperature range.</p>
+<p>The Helmholtz free energy is defined as:</p>
+<div class="math notranslate nohighlight">
+\[F(p,V) = E_{DFT} + F_{vib}(T) = E_{DFT} + U_{vib}(T) - TS(T)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -708,7 +677,7 @@ fitted as a function of volume by equation of states (EOS).</p>
 <li><p><strong>poly_order</strong> (<em>Union</em><em>[</em><em>array</em><em>[</em><em>int</em><em>]</em><em>, </em><em>list</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – The order of
 polynomials used to fit frequency as the function of volumes.</p></li>
 <li><p><strong>min_method</strong> (<em>string</em><em>, </em><em>optional</em>) – Minimisation algorithms.</p></li>
-<li><p><strong>volume_bound</strong> (<em>turple-like</em><em>, </em><em>optional</em>) – equilibrium volumes. Unit: Angstrom^3</p></li>
+<li><p><strong>volume_bound</strong> (<em>tuple-like</em><em>, </em><em>optional</em>) – equilibrium volumes. Unit: Angstrom^3</p></li>
 <li><p><strong>mutewarning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether print out warning messages.</p></li>
 <li><p><strong>temperature</strong> (<em>array</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Unit: K</p></li>
 <li><p><strong>pressure</strong> (<em>array</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Unit: GPa</p></li>
