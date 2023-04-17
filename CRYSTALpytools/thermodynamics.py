@@ -351,60 +351,11 @@ class Harmonic(Crystal_output):
         else:
             self.eigenvector = []
 
-        self.from_frequency(self.edft, self.qpoint, self.frequency,
-                            self.eigenvector, structure=self.structure)
+        self.from_frequency(self.edft, self.qpoint, self.frequency, self.eigenvector)
 
         if auto_calc:
             self.thermodynamics(sumphonon=True)
             self.print_results()
-
-        return self
-
-    def from_mode(self, edft, mode, **kwargs):
-        """
-        Generate a Harmonic object by specifying data. Not recommanded to be
-        used as a standalone method.
-
-        Args:
-            edft (float): Electron total energy
-            mode (list[Mode]): List of mode objects.
-            structure (PyMatGen Structure, optional): Cell reduced by 'SCELPHONO'
-            natom (int, optional): Number of atoms
-            volume (float, optional): Cell volume. Unit: Angstrom^3
-
-        **Note**: The user should define either 'structure' or 'natom' + 'volume'.
-
-        Returns:
-            self.nqpoint (int): Number of qpoints.
-            self.nmode (array[int]): Number of modes at each q point.
-            self.mode (list[Mode])
-            self.structure (PyMatGen Structure, optional)
-            self.natom (int)
-            self.volume (float)
-
-        :raise Exception: If computational data is stored in the object.
-        """
-        import numpy as np
-
-        if hasattr(self, "volume"):
-            raise Exception(
-                "Data exists. The current command will be ignored.")
-
-        for key, value in kwargs.items():
-            if key == 'structure':
-                self.structure = value
-                self.natom = len(value.species)
-                self.volume = value.lattice.volume
-                break
-            elif key == 'natom':
-                self.natom = int(value)
-            elif key == 'volume':
-                self.volume = float(value)
-
-        self.edft = edft
-        self.mode = mode
-        self.nqpoint = len(mode)
-        self.nmode = np.array([len(q) for q in self.mode])
 
         return self
 
@@ -415,7 +366,7 @@ class Harmonic(Crystal_output):
 
         Args:
             edft (float): Electron total energy
-            qpoint (list[tuple[array[float], float]]): Fractional coordinate 
+            qpoint (list[list[array[float], float]]): Fractional coordinate 
                 and weight of qpoint
             frequency (array[float]): Array of frequencies. Unit: THz
             eigenvector (array[float]): Normalized eigenvectors. 
@@ -439,11 +390,11 @@ class Harmonic(Crystal_output):
         """
         import numpy as np
 
-        if hasattr(self, "volume"):
+        if hasattr(self, "mode"):
             raise Exception(
                 "Data exists. The current command will be ignored.")
 
-        for key, value in geometry.items():
+        for key, value in kwargs.items():
             if key == 'structure':
                 self.structure = value
                 self.natom = len(value.species)
@@ -454,7 +405,7 @@ class Harmonic(Crystal_output):
             elif key == 'volume':
                 self.volume = float(value)
 
-        if np.size(qpoint, 0) != np.size(frequency, 0):
+        if len(qpoint) != np.size(frequency, 0):
             raise Exception(
                 "The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
         if len(eigenvector) != 0 and np.size(eigenvector, 1) != np.size(frequency, 1):
@@ -462,7 +413,7 @@ class Harmonic(Crystal_output):
                 "The 2nd dimension (n mode) of 'frequency' and 'eigenvector' are not consistent.")
 
         self.edft = edft
-        self.nqpoint = np.size(qpoint, 0)
+        self.nqpoint = len(qpoint)
         self.qpoint = qpoint
         self.frequency = frequency
         if len(eigenvector) != 0:
@@ -575,12 +526,12 @@ class Harmonic(Crystal_output):
         import numpy as np
 
         if calculate_zp:
-            zp_energy = np.array([], dtype=float)
+            zp_energy = []
         else:
             T = temperature
-            U_vib = np.array([], dtype=float)
-            entropy = np.array([], dtype=float)
-            C_v = np.array([], dtype=float)
+            U_vib = []
+            entropy = []
+            C_v = []
 
         for qpoint in self.mode:
             if calculate_zp:
@@ -602,15 +553,19 @@ class Harmonic(Crystal_output):
                     C_v_q += mode.get_C_v(temperature=T)
 
             if calculate_zp:
-                zp_energy = np.append(zp_energy, zp_energy_q)
+                zp_energy.append(zp_energy_q)
             else:
-                U_vib = np.append(U_vib, U_vib_q)
-                entropy = np.append(entropy, entropy_q)
-                C_v = np.append(C_v, C_v_q)
+                U_vib.append(U_vib_q)
+                entropy.append(entropy_q)
+                C_v.append(C_v_q)
 
         if calculate_zp:
+            zp_energy = np.array(zp_energy, dtype=float)
             return zp_energy
         else:
+            U_vib = np.array(U_vib, dtype=float)
+            entropy = np.array(entropy, dtype=float)
+            C_v = np.array(C_v, dtype=float)
             return U_vib, entropy, C_v
 
     def thermodynamics(self, sumphonon=True, mutewarning=False, **kwargs):
@@ -618,6 +573,12 @@ class Harmonic(Crystal_output):
         Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
         and Helmholtz free energy) of the given system, at all qpoints and the
         whole temperature range.
+
+        The Helmholtz free energy is defined as:
+
+        .. math::
+
+            F(p,V) = E_{DFT} + F_{vib}(T) = E_{DFT} + U_{vib}(T) - TS(T)
 
         Args:
             temperature (Union[array[float], list[float]], optional): 
@@ -682,8 +643,8 @@ class Harmonic(Crystal_output):
 
         for T in self.temperature:
             gibbs_t = []
-            U_vib_t, entropy_t, C_v_t = self._phonon_sumup(
-                temperature=T, calculate_zp=False)
+            U_vib_t, entropy_t, C_v_t = self._phonon_sumup(temperature=T,
+                                                           calculate_zp=False)
             helm_t = -entropy_t * T * 1e-3 + U_vib_t + self.edft
 
             for p in self.pressure:
@@ -700,12 +661,14 @@ class Harmonic(Crystal_output):
 
         if sumphonon:
             wt = np.array([qp[1] for qp in self.qpoint])
-            self.zp_energy = np.array(np.dot(zp_energy, wt))
-            self.U_vib = np.array(np.dot(U_vib, wt))
-            self.entropy = np.array(np.dot(entropy, wt))
-            self.C_v = np.array(np.dot(C_v, wt))
-            self.helmholtz = np.array(np.dot(helmholtz, wt))
-            self.gibbs = np.array(np.dot(gibbs, wt))
+            self.nqpoint = 1
+            self.qpoint = [[np.array([0., 0., 0.]), 1.]]
+            self.zp_energy = np.array([np.dot(zp_energy, wt)])
+            self.U_vib = np.array([np.dot(U_vib, wt)])
+            self.entropy = np.array([np.dot(entropy, wt)])
+            self.C_v = np.array([np.dot(C_v, wt)])
+            self.helmholtz = np.array([np.dot(helmholtz, wt)])
+            self.gibbs = np.array([np.dot(gibbs, wt)])
         else:
             self.zp_energy = zp_energy
             self.U_vib = np.transpose(np.array(U_vib, dtype=float))
@@ -779,7 +742,7 @@ class Harmonic(Crystal_output):
                     file.write('%18.6e%2s' % (gibbs_p, ''))
 
             file.write('\n\n\n')
-            file.close()
+        file.close()
 
         return
 
@@ -864,6 +827,8 @@ class Quasi_harmonic:
         self.combined_phonon, self.combined_volume, self.combined_edft, \
             self.combined_mode = self._combine_data(ha_list, overlap=overlap,
                                                     sort_phonon=sort_phonon)
+        self.nqpoint = ha_list[0].nqpoint
+        self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
 
         return self
 
@@ -984,6 +949,8 @@ class Quasi_harmonic:
         self.combined_phonon, self.combined_volume, self.combined_edft, \
             self.combined_mode = self._combine_data(ha_list, overlap=overlap,
                                                     sort_phonon=sort_phonon)
+        self.nqpoint = 1
+        self.qpoint = [[np.array([0., 0., 0.]), 1.]]
 
         return self
 
@@ -1403,16 +1370,14 @@ class Quasi_harmonic:
             num_mode_q = []
             for idx_m, mode in enumerate(mode_q):
                 d_vol = volume - self.combined_volume[eq_point]
-                freq = mode.poly_fit[self.fit_order](d_vol) \
-                    + mode_q[idx_m].frequency[eq_point]
-                num_mode_q.append(
-                    Mode(rank=idx_m + 1, frequency=[freq], volume=[volume])
-                )
-
+                freq = mode.poly_fit[self.fit_order](d_vol) + mode_q[idx_m].frequency[eq_point]
+                num_mode_q.append(freq)
             num_mode.append(num_mode_q)
 
-        ha = Harmonic(write_out=False).from_mode(self.eos(volume),
-                                                 num_mode, volume=volume)
+        num_mode = np.array(num_mode)
+        ha = Harmonic(write_out=False).from_frequency(
+            self.eos(volume), self.qpoint, num_mode, [], volume=volume
+        )
 
         return ha
 
@@ -1447,7 +1412,7 @@ class Quasi_harmonic:
             poly_order (Union[array[int], list[int]], optional): The order of 
                 polynomials used to fit frequency as the function of volumes.
             min_method (string, optional): Minimisation algorithms. 
-            volume_bound (turple-like, optional), Boundary conditions of 
+            volume_bound (tuple-like, optional), Boundary conditions of 
                 equilibrium volumes. Unit: Angstrom^3
             mutewarning (bool, optional): Whether print out warning messages.
             temperature (array[float], optional): Unit: K

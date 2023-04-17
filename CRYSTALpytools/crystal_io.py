@@ -878,8 +878,8 @@ class Crystal_output:
             self.edft (array[float]): Energy (in kJ/mol) reported in 'CENTERAL 
                 POINT' line (DFT + corrected energy)
             self.nqpoint (int): Number of q points
-            self.qpoint (list[tuple[array[float], float]]): A nqpoint list of
-                2\*1 tuples whose first element is a 3\*1 array of q point
+            self.qpoint (list[list[array[float], float]]): A nqpoint list of
+                2\*1 list whose first element is a 3\*1 array of q point
                 fractional coordinates and the second is its weight.
 
         **Note**
@@ -915,20 +915,20 @@ class Crystal_output:
             if re.match(r'\s*DISPERSION K POINT NUMBER', line):
                 coord = np.array(line.strip().split()[7:10], dtype=float)
                 weight = float(line.strip().split()[-1])
-                self.qpoint.append((coord / shrink, weight))
+                self.qpoint.append([coord / shrink, weight])
                 self.nqpoint += 1
 
 # HA Gamma point calculation
         if self.nqpoint == 0 and len(edft) == 1:
             self.nqpoint = 1
-            self.qpoint = [(np.array([0, 0, 0], dtype=float), 1.)]
+            self.qpoint = [[np.array([0, 0, 0], dtype=float), 1.]]
             self.edft = edft
 # QHA Gamma point calculation
         elif self.nqpoint == 0 and len(edft) > 1:
             self.nqpoint = len(edft)
             for i in range(self.nqpoint):
                 self.qpoint.append(
-                    (np.array([0, 0, 0], dtype=float), 1.)
+                    [np.array([0, 0, 0], dtype=float), 1.]
                 )
             self.edft = edft
 # HA dispersion calculation
