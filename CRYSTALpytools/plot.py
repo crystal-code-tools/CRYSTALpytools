@@ -3157,7 +3157,8 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         return poisson_max
 
 
-def plot_cry_ela(choose, ndeg, *args):
+def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
+                 transparency=False):
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -3259,7 +3260,7 @@ def plot_cry_ela(choose, ndeg, *args):
 
         plt.show()
         fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") +
-                    ".jpg", dpi=200)
+                    filetype, dpi=dpi, transparent=transparency)
 
         # <--
 
