@@ -276,14 +276,17 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     gui.symmops = []
     
     if symmetry == True:
+        n_symmops = 0
         if dimensionality == 3:
             symmops = SpacegroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
 
             for symmop in symmops:
-                gui.symmops.extend(symmop.rotation_matrix.tolist())
-                gui.symmops.append(symmop.translation_vector.tolist())
+                if np.all(symmop.translation_vector == 0.):
+                    n_symmops += 1
+                    gui.symmops.extend(symmop.rotation_matrix.tolist())
+                    gui.symmops.append(symmop.translation_vector.tolist())
             
-            gui.n_symmops = int(len(symmops))
+            gui.n_symmops = n_symmops
 
         elif dimensionality == 2:
 
@@ -298,11 +301,12 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
             sg = SpacegroupAnalyzer(structure)
             ops = sg.get_symmetry_operations(cartesian=True)
             for op in ops:
-                if op.translation_vector[2] == 0.:
+                if np.all(op.translation_vector == 0.):
+                    n_symmops += 1
                     gui.symmops.extend(op.rotation_matrix.tolist())
                     gui.symmops.append(op.translation_vector.tolist())
          
-            gui.n_symmops = int(len(gui.symmops)/4)
+            gui.n_symmops = n_symmops
 
         elif dimensionality == 1:
             print('WARNING: check the polymer is correctly centered in the cell and that the correct symmops are used.')      
