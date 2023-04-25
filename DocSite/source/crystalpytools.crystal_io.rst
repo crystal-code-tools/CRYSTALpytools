@@ -1,0 +1,8 @@
+CRYSTALpytools.crystal_io module
+===================================
+
+.. automodule:: CRYSTALpytools.crystal_io
+   :members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
