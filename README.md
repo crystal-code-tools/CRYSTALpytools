@@ -66,7 +66,7 @@ Tutorials can be found in the [tutorial folder](tutorial/)
 
 The CRYSTALpytools module aims at providing the user a python interface to the CRYSTAL code. The central data structure, called Crystal_object is created by the crystal_io by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the Crystal_objects.
 
-![crystal_object](DocSite/source/_static/crystal_object.jpg)
+![crystal_object](docs_source/_static/crystal_object.jpg)
 
 The following flowcharts cover a wide range of workflows where CRYSTALpytools can be used. In order to run the CRYSTAL calculation, input data needs to be written to file. Nonetheless, CRYSTALpytools offers a much more approach flexible to do so.
 
@@ -75,17 +75,17 @@ Despite trying to be as comprehensive as possible, these flowcharts will not cov
 ### Start from a pymatgen object
 This is the most flexible approach. Pymatgen gives the user the option to <a href="https://pymatgen.org/pymatgen.ext.matproj.html?highlight=mprester#pymatgen.ext.matproj.MPRester">download structures</a> from the Materials Project database.
 
-![pymatgen_start](DocSite/source/_static/pymatgen_start.png)
+![pymatgen_start](docs_source/_static/pymatgen_start.png)
 
 ### Start from CRYSTAL input file or manually prepare the input
 In some instances, for example when studying a material for which you already have an input file, it might be easier to create a Crystal_input object by reading the information from file. Some researchers might find it easier to manually prepare the input. This means that the input lines are specified as lists in python and then written to file using the wry_cry_input function.
 
-![crystal_start](DocSite/source/_static/crystal_start.png)
+![crystal_start](docs_source/_static/crystal_start.png)
 
 ### Output analysis only
 This case applied to when the calculations were run on a different machine and the user might be interested in analysing the output. The inputs can be generated from any of the two workflows above by stopping before execution.
 
-![output_analysis](DocSite/source/_static/output_analysis.png)
+![output_analysis](docs_source/_static/output_analysis.png)
 
 The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in CRYSTALpytools/crystal_io.py. To access them, please use:
 

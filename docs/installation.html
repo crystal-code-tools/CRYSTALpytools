@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; CRYSTALpytools 2023.04.04 documentation</title>
+  <title>Installation &mdash; CRYSTALpytools 2023.04.04 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.ico"/>
@@ -18,7 +18,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="introduction.html" /> 
+    <link rel="next" title="Examples and Tutorials" href="examples_and_tutorials.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,7 +30,7 @@
 
           
           
-          <a href="#" class="icon icon-home">
+          <a href="index.html" class="icon icon-home">
             CRYSTALpytools
           </a>
 <div role="search">
@@ -40,13 +41,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-crystalpytools">Install CRYSTALpytools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials.html">Examples and Tutorials</a></li>
@@ -77,17 +78,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">CRYSTALpytools</a>
+          <a href="index.html">CRYSTALpytools</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Introduction</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/master/docs_source/index.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/master/docs_source/installation.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -95,15 +96,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="toctree-wrapper compound">
-</div>
-<a class="reference internal image-reference" href="_images/CRYSTAL_logo.png"><img alt="CRYSTALpytools" class="align-center" src="_images/CRYSTAL_logo.png" style="width: 200px;" /></a>
-<section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
-<p>The CRYSTALpytools python package contains functions that allow the user to access the <a class="reference external" href="https://www.crystal.unito.it/index.html">CRYSTAL code</a> input, output and execution from a python infrastructure, such as Jupyter Notebooks. Although they can achieve this goal on their own, they achieve their full potential when used together with <a class="reference external" href="https://pymatgen.org/index.html">PyMatGen</a>. In this latter scenario, the CRYSTALpytools could be seen as a layer between CRYSTAL and pymatgen.</p>
-<p>In January 2022 the first stable version (v2022.1.10) was released.</p>
-</section>
-<section id="installation">
+  <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <section id="create-a-conda-anaconda-environment">
 <h2>Create a conda/anaconda environment<a class="headerlink" href="#create-a-conda-anaconda-environment" title="Permalink to this heading"></a></h2>
@@ -162,66 +155,13 @@
 <p>All values should return True if the test is passed.</p>
 </section>
 </section>
-<section id="examples-and-tutorials">
-<h1>Examples and Tutorials<a class="headerlink" href="#examples-and-tutorials" title="Permalink to this heading"></a></h1>
-<p>Each function is documented in Jupyter Notebooks that can be found in the <a class="reference external" href="https://github.com/crystal-code-tools/CRYSTALpytools/tree/main/examples">example folder</a>. There is one notebook per function file (e.g. the functions contained in ‘crystal_io.py’ are explained in the ‘examples/crystal_io.ipynb’ notebook).</p>
-<p>Tutorials can be found in the <a class="reference external" href="https://github.com/crystal-code-tools/CRYSTALpytools/tree/main/tutorial">tutorial folder</a>.</p>
-</section>
-<section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
-<p>The CRYSTALpytools module aims at providing the user a python interface to the CRYSTAL code. The central data structure, called <code class="docutils literal notranslate"><span class="pre">Crystal_object</span></code>, is created by the <code class="docutils literal notranslate"><span class="pre">crystal_io</span></code> by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the <code class="docutils literal notranslate"><span class="pre">Crystal_objects</span></code>.</p>
-<figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="_images/crystal_object.jpg"><img alt="crystal_object" src="_images/crystal_object.jpg" style="width: 600px;" /></a>
-<figcaption>
-<p><span class="caption-text">The general structure of CRYSTALpytools</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>The following flowcharts cover a wide range of workflows where CRYSTALpytools can be used. In order to run the CRYSTAL calculation, input data needs to be written to file. Nonetheless, CRYSTALpytools offers a much more approach flexible to do so.</p>
-<p>Despite trying to be as comprehensive as possible, these flowcharts will not cover all possible scenarios. Should you have any question please feel free to contact the maintainers of this repository.</p>
-<section id="start-from-a-pymatgen-object">
-<h2>Start from a pymatgen object<a class="headerlink" href="#start-from-a-pymatgen-object" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="_images/pymatgen_start.png"><img alt="pymatgen_start" src="_images/pymatgen_start.png" style="width: 500px;" /></a>
-<figcaption>
-<p><span class="caption-text">Starting a calculation from the Materials Project Database and Python in-line commands</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>This is the most flexible approach. Pymatgen gives the user the option to download structures from <a class="reference external" href="https://pymatgen.org/pymatgen.ext.matproj.html?highlight=mprester#pymatgen.ext.matproj.MPRester">the Materials Project database</a>.</p>
-</section>
-<section id="start-from-crystal-input-file-or-manually-prepare-the-input">
-<h2>Start from CRYSTAL input file or manually prepare the input<a class="headerlink" href="#start-from-crystal-input-file-or-manually-prepare-the-input" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="_images/crystal_start.png"><img alt="crystal_start" src="_images/crystal_start.png" style="width: 550px;" /></a>
-<figcaption>
-<p><span class="caption-text">Staring a calculation from the CRYSTAL input file (d12/d3)</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>In some instances, for example when studying a material for which you already have an input file, it might be easier to create a Crystal_input object by reading the information from file. Some researchers might find it easier to manually prepare the input. This means that the input lines are specified as lists in python and then written to file using the <code class="docutils literal notranslate"><span class="pre">write_crystal_input</span></code> function.</p>
-</section>
-<section id="output-analysis-only">
-<h2>Output analysis only<a class="headerlink" href="#output-analysis-only" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="_images/output_analysis.png"><img alt="output_analysis" src="_images/output_analysis.png" style="width: 450px;" /></a>
-<figcaption>
-<p><span class="caption-text">The Post-processing of CRYSTAL output files</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>This case applied to when the calculations were run on a different machine and the user might be interested in analysing the output. The inputs can be generated from any of the two workflows above by stopping before execution.</p>
-<p>The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in ‘CRYSTALpytools/crystal_io.py’. To access them, please use:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CRYSTALpytools.crystal_io</span> <span class="kn">import</span> <span class="n">Crystal_output</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Crystal_output</span><span class="p">()</span><span class="o">.</span><span class="n">read_cry_output</span><span class="p">(</span><span class="s1">&#39;output_name.out&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Each individual function contains either ‘crystal’ or ‘cry’ in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a CRYSTALpytools function and not, for example, a pymatgen one with a similar name.</p>
-</section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples_and_tutorials.html" class="btn btn-neutral float-right" title="Examples and Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
