@@ -12,28 +12,27 @@ class Mode:
     """
     Store important information for a given vibrational mode and do analysis at
     mode-level. Not recommanded to be used individually.
+
+    Args:
+        rank (int): The rank of the mode object, from 1.
+        frequency (array[float] | list[float]): Frequencies of the mode
+            (Ncalc\*1). Unit: THz. Note: **NOT** angular frequency, which is 
+            frequency * 2pi.
+        volume (array[float] | list[float]): Lattice volumes of harmonic
+            calculations (Ncalc\*1). Unit: Angstrom^3
+        eigenvector (array[float] | list[float]): Corresponding normalized 
+            eigenvectors (Ncalc\*Natom\*3).
+
+    Returns:
+        self.rank (int)
+        self.ncalc (int): The number of harmonic calculations (typically at
+            different volumes)
+        self.frequency (array[float])
+        self.volume (array[float])
+        self.eigenvector (array[float])
     """
 
     def __init__(self, rank=0, frequency=[], volume=[], eigenvector=[]):
-        """
-        Args:
-            rank (int): The rank of the mode object, from 1.
-            frequency (Union[array[float], list[float]]): Frequencies of the
-                mode (Ncalc\*1). Unit: THz. Note: **NOT** angular frequency, 
-                which is frequency * 2pi.
-            volume (Union[array[float], list[float]]): Lattice volumes of 
-                harmonic calculations (Ncalc\*1). Unit: Angstrom^3
-            eigenvector (Union[array[float], list[float]]): Corresponding
-                normalized eigenvectors (Ncalc\*Natom\*3).
-
-        Returns:
-            self.rank (int)
-            self.ncalc (int): The number of harmonic calculations (typically at
-                different volumes)
-            self.frequency (array[float])
-            self.volume (array[float])
-            self.eigenvector (array[float])
-        """
         import numpy as np
 
         self.rank = rank
@@ -213,7 +212,7 @@ class Mode:
         Args:
             eq_point (int): The index (not rank) corresponds to the DFT total
                 energy minimum (typically the unstrained geometry).
-            order (Union[array[int], list[int]], optional): Orders of
+            order (array[int] | list[int]], optional): Orders of
                 polynomials used.
 
         Returns:
@@ -267,26 +266,30 @@ class Harmonic(Crystal_output):
     attributes. Used for harmonic phonon calclulations. Harmonic object can be
     defined by either a harmonic phonon calculation output file or manually set
     the all the information (usually for QHA).
+
+    Args:
+        temperature (array[float] | list[float], optional): Temperatures
+            where thermodynamic properties are computed. Unit: K
+        pressure (array[float] | list[float], optional): Pressures where
+            the thermodyanmic properties are calculated. Unit: GPa
+        write_out (bool, optional): Wheter to print out HA thermodynamic 
+            properties in a separate text file.
+        filename (str, optional): Name of the printed-out file, valid if
+            ``write_out`` = True.
+
+    **Note**
+
+    Temperatures and pressures can also be defined by ``self.thermodynamics``,
+    whose entries always cover the entries here.
+
+    Usage::
+
+        ha = Harmonic(temperature=[0, 100, 200, 300], pressure=[0.,])
+        ha.from_file('harmonic_phonon.out')
     """
 
     def __init__(self, temperature=[], pressure=[],
                  write_out=True, filename='HA-thermodynamics.dat'):
-        """
-        Args:
-            temperature (Union[array[float], list[float]], optional): 
-                Temperatures where thermodynamic properties are computed. Unit: K
-            pressure (Union[array[float], list[float]], optional): Pressures
-                where the thermodyanmic properties are calculated. Unit: GPa
-            write_out (bool, optional): Wheter to print out HA thermodynamic properties
-                in a separate text file.
-            filename (str, optional): Name of the printed-out file, valid if
-                ``write_out`` = True.
-
-        **Note**
-
-        Temperatures and pressures can also be defined by 
-        ``self.thermodynamics``, whose entries always cover the entries here.
-        """
         import numpy as np
 
         if len(temperature) > 0:
@@ -308,7 +311,7 @@ class Harmonic(Crystal_output):
 
         Args:
             output_name (str): Name of the output file.
-            scellphono (Union[array[float], list[float]], optional):
+            scellphono (array[float] | list[float], optional):
                 Supercell manipulation matrix used for vibrational properties. 
                 Should be the same as 'SCELPHONO' keyword in CRYSTAL input file.
                 By default a 1\*1\*1 'SCELPHONO' is assumed.
@@ -448,7 +451,7 @@ class Harmonic(Crystal_output):
         calculation. Not a standalone method.
 
         Args:
-            scellphono (Union[list[int],array[int]]): ndimension\*ndimension or 
+            scellphono (list[int] | array[int]): ndimension\*ndimension or 
                 3\*3 matrix corresponds to the 'SCELPHONO' keyword.
 
         Returns:
@@ -581,9 +584,9 @@ class Harmonic(Crystal_output):
             F(p,V) = E_{DFT} + F_{vib}(T) = E_{DFT} + U_{vib}(T) - TS(T)
 
         Args:
-            temperature (Union[array[float], list[float]], optional): 
+            temperature (array[float] | list[float], optional): 
                 Temperature. Unit: K
-            pressure (Union[array[float], list[float]], optional):
+            pressure (array[float] | list[float], optional):
                 Pressure. Unit: GPa
             sumphonon (bool): Whether to sum up the phonon contributions across
                 the sampled q points and take weighted-average.
@@ -751,22 +754,30 @@ class Quasi_harmonic:
     """
     Generate and rearrange harmonic phonons, store the fitted, volume-dependent
     QHA phonon information and obtain the QHA thermodynamic properties.
+
+    Args:
+        temperature (array[float] | list[float], optional): Unit: K
+        pressure (array[float] | list[float], optional): Unit: GPa
+        write_out (bool): Whether to print the key information into a file.
+        filename (str): Name of the output file. Valid if 
+                ``write_out = True``.
+
+    **Note**
+
+    Temperatures and pressures can also be defined by ``self.thermodynamics``,
+    whose entries always cover the entries here.
+
+    Usage::
+
+        qha = Quasi_harmonic()
+        qha.from_QHA_file('qha_phonon.out')
+        qha.thermo_freq(eos_method='birch_murnaghan', temperature=[0, 100, 200, 300], pressure=[0., 0.5, 1.]):
     """
 
     def __init__(self, temperature=[], pressure=[],
                  write_out=True, filename='QHA-Fit.dat'):
         """
-        Args:
-            temperature (Union[array[float], list[float]], optional): Unit: K
-            pressure (Union[array[float], list[float]], optional): Unit: GPa
-            write_out (bool): Whether to print the key information into a file.
-            filename (str): Name of the output file. Valid if 
-                ``write_out = True``.
-
-        **Note**
-
-        Temperatures and pressures can also be defined by 
-        ``self.thermodynamics``, whose entries always cover the entries here.
+        
         """
         import numpy as np
 
@@ -788,7 +799,7 @@ class Quasi_harmonic:
 
         Args:
             input_files (list[str]): List of phonon output filenames.
-            scelphono (Union[array[float], list[float]], optional): Corresponds
+            scelphono (array[float] | list[float]], optional): Corresponds
                 to the 'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or 
                 ndimension\*ndimension. By default a 1\*1\*1 'SCELPHONO' is 
                 assumed.
@@ -837,8 +848,8 @@ class Quasi_harmonic:
         Read data from a single QHA calculation at Gamma point.
 
         Args:
-            input_files (Union[str, list[str]]): Only 1 QHA file is permitted.
-            scelphono (Union[array[float], list[float]], optional)
+            input_files (str | list[str]): Only 1 QHA file is permitted.
+            scelphono (array[float] | list[float], optional)
             overlap (float, optional)
             sort_phonon (bool, optional)
 
@@ -1274,7 +1285,7 @@ class Quasi_harmonic:
         Fit phonon frequencies as polynomial functions of volumes. 
 
         Args:
-            order (Union[list[int], array[int]]): The order of polynomials used.
+            order (list[int] | array[int]): The order of polynomials used.
 
         Returns:
             self.fit_order (int): The optimal order of polynomial fit.
@@ -1409,7 +1420,7 @@ class Quasi_harmonic:
 
         Args:
             eos_method (str, optional): EOS used to fit DFT total energies. 
-            poly_order (Union[array[int], list[int]], optional): The order of 
+            poly_order (array[int] | list[int], optional): The order of 
                 polynomials used to fit frequency as the function of volumes.
             min_method (string, optional): Minimisation algorithms. 
             volume_bound (tuple-like, optional), Boundary conditions of 
@@ -1610,11 +1621,11 @@ class Quasi_harmonic:
         Args:
 
             eos_method (str, optional)
-            poly_order (Union[array[int], list[int]], optional): Order of 
+            poly_order (array[int] | list[int], optional): Order of 
                 polynomials used to fit Gibbs free energy to get entropy.
             mutewarning (bool, optional)
-            temperature (Union[array[float], list[float]], optional): Unit: K
-            pressure (Union[array[float], list[float]], optional): Unit: GPa
+            temperature (array[float] | list[float], optional): Unit: K
+            pressure (array[float] | list[float], optional): Unit: GPa
             order (int, optional): For DeltaFactor EOS. *Not implemented*
             min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
                 For Numerical EOS. *Not implemented*
