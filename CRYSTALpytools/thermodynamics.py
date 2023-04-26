@@ -776,9 +776,6 @@ class Quasi_harmonic:
 
     def __init__(self, temperature=[], pressure=[],
                  write_out=True, filename='QHA-Fit.dat'):
-        """
-        
-        """
         import numpy as np
 
         if len(temperature) > 0:
