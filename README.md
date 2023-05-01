@@ -66,7 +66,7 @@ Tutorials can be found in the [tutorial folder](tutorial/)
 
 The CRYSTALpytools module aims at providing the user a python interface to the CRYSTAL code. The central data structure, called Crystal_object is created by the crystal_io by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the Crystal_objects.
 
-![crystal_object](docs_source/_static/crystal_object.jpg)
+![crystal_object](docs_source/_static/crystal_object.png)
 
 The following flowcharts cover a wide range of workflows where CRYSTALpytools can be used. In order to run the CRYSTAL calculation, input data needs to be written to file. Nonetheless, CRYSTALpytools offers a much more approach flexible to do so.
 
