@@ -68,35 +68,6 @@ The CRYSTALpytools module aims at providing the user a python interface to the C
 
 ![crystal_object](docs_source/_static/crystal_object.png)
 
-The following flowcharts cover a wide range of workflows where CRYSTALpytools can be used. In order to run the CRYSTAL calculation, input data needs to be written to file. Nonetheless, CRYSTALpytools offers a much more approach flexible to do so.
-
-Despite trying to be as comprehensive as possible, these flowcharts will not cover all possible scenarios. Should you have any question please feel free to contact the maintainers of this repository.
-
-### Start from a pymatgen object
-This is the most flexible approach. Pymatgen gives the user the option to <a href="https://pymatgen.org/pymatgen.ext.matproj.html?highlight=mprester#pymatgen.ext.matproj.MPRester">download structures</a> from the Materials Project database.
-
-![pymatgen_start](docs_source/_static/pymatgen_start.png)
-
-### Start from CRYSTAL input file or manually prepare the input
-In some instances, for example when studying a material for which you already have an input file, it might be easier to create a Crystal_input object by reading the information from file. Some researchers might find it easier to manually prepare the input. This means that the input lines are specified as lists in python and then written to file using the wry_cry_input function.
-
-![crystal_start](docs_source/_static/crystal_start.png)
-
-### Output analysis only
-This case applied to when the calculations were run on a different machine and the user might be interested in analysing the output. The inputs can be generated from any of the two workflows above by stopping before execution.
-
-![output_analysis](docs_source/_static/output_analysis.png)
-
-The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in CRYSTALpytools/crystal_io.py. To access them, please use:
-
-``` python
-from CRYSTALpytools.crystal_io import Crystal_output
-
-Crystal_output().read_cry_output('output_name.out')
-```
-
-Each individual function contains either 'crystal' or 'cry' in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a CRYSTALpytools function and not, for example, a pymatgen one with a similar name.
-
 ## Testing
 To test the CRYSTALpytools please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
 

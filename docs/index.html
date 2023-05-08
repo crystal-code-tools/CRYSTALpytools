@@ -51,12 +51,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials.html">Examples and Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#start-from-a-pymatgen-object">Start from a pymatgen object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#start-from-crystal-input-file-or-manually-prepare-the-input">Start from CRYSTAL input file or manually prepare the input</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#output-analysis-only">Output analysis only</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="crystalpytools.html">Module-specific Docs</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
@@ -177,45 +172,6 @@
 <p><span class="caption-text">The general structure of CRYSTALpytools</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
-<p>The following flowcharts cover a wide range of workflows where CRYSTALpytools can be used. In order to run the CRYSTAL calculation, input data needs to be written to file. Nonetheless, CRYSTALpytools offers a much more approach flexible to do so.</p>
-<p>Despite trying to be as comprehensive as possible, these flowcharts will not cover all possible scenarios. Should you have any question please feel free to contact the maintainers of this repository.</p>
-<section id="start-from-a-pymatgen-object">
-<h2>Start from a pymatgen object<a class="headerlink" href="#start-from-a-pymatgen-object" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="_images/pymatgen_start.png"><img alt="pymatgen_start" src="_images/pymatgen_start.png" style="width: 500px;" /></a>
-<figcaption>
-<p><span class="caption-text">Starting a calculation from the Materials Project Database and Python in-line commands</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>This is the most flexible approach. Pymatgen gives the user the option to download structures from <a class="reference external" href="https://pymatgen.org/pymatgen.ext.matproj.html?highlight=mprester#pymatgen.ext.matproj.MPRester">the Materials Project database</a>.</p>
-</section>
-<section id="start-from-crystal-input-file-or-manually-prepare-the-input">
-<h2>Start from CRYSTAL input file or manually prepare the input<a class="headerlink" href="#start-from-crystal-input-file-or-manually-prepare-the-input" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="_images/crystal_start.png"><img alt="crystal_start" src="_images/crystal_start.png" style="width: 550px;" /></a>
-<figcaption>
-<p><span class="caption-text">Staring a calculation from the CRYSTAL input file (d12/d3)</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>In some instances, for example when studying a material for which you already have an input file, it might be easier to create a Crystal_input object by reading the information from file. Some researchers might find it easier to manually prepare the input. This means that the input lines are specified as lists in python and then written to file using the <code class="docutils literal notranslate"><span class="pre">write_crystal_input</span></code> function.</p>
-</section>
-<section id="output-analysis-only">
-<h2>Output analysis only<a class="headerlink" href="#output-analysis-only" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="_images/output_analysis.png"><img alt="output_analysis" src="_images/output_analysis.png" style="width: 450px;" /></a>
-<figcaption>
-<p><span class="caption-text">The Post-processing of CRYSTAL output files</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>This case applied to when the calculations were run on a different machine and the user might be interested in analysing the output. The inputs can be generated from any of the two workflows above by stopping before execution.</p>
-<p>The functions are divided into files depending on their ultimate goal. For example, all the i/o functions are saved in ‘CRYSTALpytools/crystal_io.py’. To access them, please use:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CRYSTALpytools.crystal_io</span> <span class="kn">import</span> <span class="n">Crystal_output</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Crystal_output</span><span class="p">()</span><span class="o">.</span><span class="n">read_cry_output</span><span class="p">(</span><span class="s1">&#39;output_name.out&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Each individual function contains either ‘crystal’ or ‘cry’ in its name. This was chosen, despite making the names of the functions longer, in order to avoid ambiguity. This means that when calling a function, you will know that it refers to a CRYSTALpytools function and not, for example, a pymatgen one with a similar name.</p>
-</section>
 </section>
 
 
