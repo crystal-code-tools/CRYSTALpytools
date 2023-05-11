@@ -419,6 +419,7 @@ class Harmonic(Crystal_output):
         self.nqpoint = len(qpoint)
         self.qpoint = qpoint
         self.frequency = frequency
+        self.clean_imaginary()
         if len(eigenvector) != 0:
             self.eigenvector = eigenvector
 
