@@ -1,8 +1,83 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Python Wrapper for CRYSTAL inputs. crystal/properties keywords and blocks are
-included.
+Python wrapper for CRYSTAL inputs. Provides basic classes, methods and
+attributes to read, operate and write CRYSTAL d12/d3 files.
+
+**Note for users**
+
+Check documentations of crystal_io.
+
+
+**Note for developers**
+
+Structure of classes:
+    CRYSTAL keywords are used as methods. Calling a method modifies the
+    corresponding attributes.
+
+    Keyword-like attributes (keyword not paired with ``END``) are named as
+    ``_attr`` and the corresponding method should be ``attr()``
+
+    Block-like attributes (keyword closed with 'END') are named as
+    ``_block_attr``. The corresponding method is ``set_attr()``. Another method
+    with ``@property`` decorator should be set in such way that when called
+    without ``_block_attr`` existing, create a new one, otherwise return to it.
+
+    ``_block_bg`` attribute has the keyword or undefined 1st line of a block.
+    In class Optgeom, that is 'OPTGEOM\n' and in Geom, that is title line. When
+    it is empty, it should be set as ``None``.
+
+    ``_block_ed`` attribute has the ending line of a block. In class BasisSet,
+    by default that is '99 0\nENDBS\n'. When it is empty, it should be set as
+    ``None``.
+
+    When ``_block_bg`` and ``_block_ed`` are both ``''`` (note that is not
+    ``None``), the whole block will be regarded as empty and its data will not
+    be updated.
+
+    ``_block_data`` attribute has the d12/d3 formatted text of the whole block.
+
+    ``_block_dict`` attribute is a dictionary whose keys are CRYSTAL keywords
+    and values are corresponding attributes. The sequence of key-value pairs
+    should follow the requirement of d12/d3 files.
+
+    ``_block_key`` and ``_block_value`` are sorted, non-repeated lists of keys
+    and values defined in ``_block_dict``.
+
+Add keyword-related methods
+    Case 1: 3 basic blocks, Geom, BasisSet and SCF. A BlockBASE class should be
+    created.
+
+    Case 2: Keywords closed by END, such as 'OPTGEOM'. A BlockBASE class should
+    be created.
+
+    Case 3: Keywords with 'matrix-like' (ndimen\*ndimen) inputs, such as
+    'SUPERCEL'. Use ``set_matrix`` + ``assign_keyword``.
+
+    Case 4: Keywords with 'list-like' (nline + a list of nline, or 1 line of
+    multiple values) inputs, such as 'ATOMSPIN'. Use ``set_list`` +
+    ``assign_keyword``.
+
+    Case 5: Keywords with 0 or 1 line input, such as 'TOLDEE' and 'CVOLOPT'.
+    Use ``assign_keyword``.
+
+    Case 6: Other irregular keywords, such as 'SHRINK'. Design a specical
+    scheme and use ``assign_keyword``.
+
+Conflictions
+    To address conflictions between 2 'keyword-like' inputs, one can simply
+    direct 2 different keywords to the same attribute in ``_block_dict``.
+
+    To address conflitions involving 'block-like' inputs, ``clean_conflict``
+    method should be used.
+
+Planned developements
+    Add Properties_inputBASE
+
+    Redo 'FIXINDEX' of SCF block. Make an individual class for GEOM / BASE /
+    GEBA. The current implementation does not support GEBA.
+
+    Add CPHF / QHA / EOS blocks
 """
 
 
@@ -41,11 +116,11 @@ class BlockBASE():
 
         Args:
             key (str): CRYSTAL keyword
-            shape (list[int]): 1D list. Shape of input text. Length: Number of 
+            shape (list[int]): 1D list. Shape of input text. Length: Number of
                 lines; Element: Number of values
             value (list | str): If value =
-                * list, a 1D list of arguments  
-                * None or a list begins with None, return to keyword only  
+                * list, a 1D list of arguments
+                * None or a list begins with None, return to keyword only
                 * '' or a list begins with '', Clean everything
 
         Returns:
@@ -172,10 +247,12 @@ class BlockBASE():
         """
         Clean all the keyword-related attributes (accessible attributes).
 
-        .. Note::
+        .. note::
+
             This method directly deletes all the attributes. Alternatively, by
             setting an attribute with '', the attribute is kept but its old
             values are erased.
+
         """
         self._block_bg = ''
         self._block_ed = ''
@@ -189,8 +266,8 @@ class BlockBASE():
 
     def update_block(self):
         """
-        Update the '_block_data' attribute: Summarizing all the settings to 
-        '_block_data' attribute for inspection and print
+        Update the ``_block_data`` attribute: Summarizing all the settings to
+        ``_block_data`` attribute for inspection and print
         """
         self._block_data = ''
         if self._block_bg != '' or self._block_ed != '':
@@ -288,13 +365,24 @@ class Crystal_inputBASE(BlockBASE):
         Geom subblock
 
         Args:
-            obj (Geom): A block object of 'GEOM' submodule.
+            obj (Geom | str): A block object of 'GEOM' submodule. Or a string
+                in CRYSTAL d12 format.
         """
         self._block_geom = Geom()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_geom.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_geom.clean_block()
+            else:
+                dimen_list = ['CRYSTAL\n', 'SLAB\n', 'POLYMER\n', 'MOLECULE\n',
+                              'HELIX\n', 'EXTERNAL\n', 'DLVINPUT\n']
+                title = obj.split('\n')[0]
+                if title in dimen_list: # No title line
+                    self._block_geom.analyze_text(obj)
+                else: # Have title line
+                    self._block_geom.title(title)
+                    self._block_geom.analyze_text(obj)
         else:
             self._block_geom = obj
 
@@ -309,13 +397,17 @@ class Crystal_inputBASE(BlockBASE):
         Basis set subblock
 
         Args:
-            obj (BasisSet): A block object of basis set submodule.
+            obj (BasisSet | str): A block object of basis set submodule. Or a
+                string in CRYSTAL d12 format
         """
         self._block_basisset = BasisSet()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_basisset.clean_block()
+        elif type(obj) == str:
+            if obj == '':# Clean data
+                self._block_basisset.clean_block()
+            else:
+                self._block_basisset.analyze_text(obj)
         else:
             self._block_basisset = obj
 
@@ -330,13 +422,17 @@ class Crystal_inputBASE(BlockBASE):
         SCF subblock
 
         Args:
-            obj (SCF): A block object of SCF submodule.
+            obj (SCF | str): A block object of SCF submodule. Or a string in
+                CRYSTAL d12 format
         """
         self._block_scf = SCF()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_scf.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_scf.clean_block()
+            else:
+                self._block_scf.analyze_text(obj)
         else:
             self._block_scf = obj
 
@@ -421,24 +517,24 @@ class Geom(BlockBASE):
         self._block_ed = 'ENDGEOM\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'CRYSTAL': '_basegeom',
-            'SLAB': '_basegeom',
-            'POLYMER': '_basegeom',
-            'HELIX': '_basegeom',
-            'MOLECULE': '_basegeom',
-            'EXTERNAL': '_basegeom',
-            'DLVINPUT': '_basegeom',
-            'SUPERCEL': '_sp_matrix',
-            'SUPERCELL': '_sp_matrix',
-            'SUPERCON': '_sp_matrix',
-            'SCELCONF': '_sp_matrix',
-            'SCELPHONO': '_sp_matrix',
-            'EXTPRT': '_extprt',
-            'CIFPRT': '_cifprt',
-            'CIFPRTSYM': '_cifprtsym',
-            'TESTGEOM': '_testgeom',
-            'OPTGEOM': 'optgeom',  # Sub-block properties must be named without the initial underscore
-            'FREQCALC': 'freqcalc',
+            'CRYSTAL'   : '_basegeom',
+            'SLAB'      : '_basegeom',
+            'POLYMER'   : '_basegeom',
+            'HELIX'     : '_basegeom',
+            'MOLECULE'  : '_basegeom',
+            'EXTERNAL'  : '_basegeom',
+            'DLVINPUT'  : '_basegeom',
+            'SUPERCEL'  : '_sp_matrix',
+            'SUPERCELL' : '_sp_matrix',
+            'SUPERCON'  : '_sp_matrix',
+            'SCELCONF'  : '_sp_matrix',
+            'SCELPHONO' : '_sp_matrix',
+            'EXTPRT'    : '_extprt',
+            'CIFPRT'    : '_cifprt',
+            'CIFPRTSYM' : '_cifprtsym',
+            'TESTGEOM'  : '_testgeom',
+            'OPTGEOM'   : 'optgeom',  # Sub-block properties must be named without the initial underscore
+            'FREQCALC'  : 'freqcalc',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -662,7 +758,8 @@ class Geom(BlockBASE):
         Optgeom subblock
 
         Args:
-            obj (Optgeom): A block object of 'OPTGEOM' submodule.
+            obj (Optgeom | str): A block object of 'OPTGEOM' submodule. Or a
+                string in CRYSTAL d12 format
         """
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_optgeom', conflict)
@@ -670,8 +767,11 @@ class Geom(BlockBASE):
         self._block_optgeom = Optgeom()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_optgeom.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_optgeom.clean_block()
+            else:
+                self._block_optgeom.analyze_text(obj)
         else:
             self._block_optgeom = obj
 
@@ -689,7 +789,8 @@ class Geom(BlockBASE):
         Freqcalc subblock
 
         Args:
-            obj (Freqcalc): A block object of 'FREQCALC' submodule.
+            obj (Freqcalc | str): A block object of 'FREQCALC' submodule. Or a
+                string in CRYSTAL d12 format
         """
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_freqcalc', conflict)
@@ -697,8 +798,11 @@ class Geom(BlockBASE):
         self._block_freqcalc = Freqcalc()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_freqcalc.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_freqcalc.clean_block()
+            else:
+                self._block_freqcalc.analyze_text(obj)
         else:
             self._block_freqcalc = obj
 
@@ -713,27 +817,27 @@ class Optgeom(BlockBASE):
         self._block_ed = 'ENDOPT\n'
         self._block_data = ''
         self._block_dict = {
-            'FULLOPTG': '_opttype',
-            'CELLONLY': '_opttype',
-            'INTREDUN': '_opttype',
-            'ITATOCEL': '_opttype',
-            'CVOLOPT': '_opttype',
-            'HESSIDEN': '_opthess',
-            'HESSMOD1': '_opthess',
-            'HESSMOD2': '_opthess',
-            'HESSNUM': '_opthess',
-            'TOLDEG': '_toldeg',
-            'TOLDEX': '_toldex',
-            'TOLDEE': '_toldee',
-            'MAXCYCLE': '_maxcycle',
-            'FRAGMENT': '_fragment',
-            'RESTART': '_restart',
-            'FINALRUN': '_finalrun',
-            'EXTPRESS': '_extpress',
-            'ALLOWTRUSTR': '_usetrustr',
-            'NOTRUSTR': '_usetrustr',
-            'MAXTRADIUS': '_maxtradius',
-            'TRUSTRADIUS': '_trustradius'
+            'FULLOPTG'    : '_opttype',
+            'CELLONLY'    : '_opttype',
+            'INTREDUN'    : '_opttype',
+            'ITATOCEL'    : '_opttype',
+            'CVOLOPT'     : '_opttype',
+            'HESSIDEN'    : '_opthess',
+            'HESSMOD1'    : '_opthess',
+            'HESSMOD2'    : '_opthess',
+            'HESSNUM'     : '_opthess',
+            'TOLDEG'      : '_toldeg',
+            'TOLDEX'      : '_toldex',
+            'TOLDEE'      : '_toldee',
+            'MAXCYCLE'    : '_maxcycle',
+            'FRAGMENT'    : '_fragment',
+            'RESTART'     : '_restart',
+            'FINALRUN'    : '_finalrun',
+            'EXTPRESS'    : '_extpress',
+            'ALLOWTRUSTR' : '_usetrustr',
+            'NOTRUSTR'    : '_usetrustr',
+            'MAXTRADIUS'  : '_maxtradius',
+            'TRUSTRADIUS' : '_trustradius'
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -840,17 +944,17 @@ class Freqcalc(BlockBASE):
         self._block_ed = 'ENDFREQ\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'NOOPTGEOM': '_nooptgeom',  # A tailored sub-block
-            'PREOPTGEOM': 'optgeom',  # A tailored sub-block
-            'DISPERSION': '_dispersion',
-            'BANDS': '_bands',
-            'NUMDERIV': '_numderiv',
-            'STEPSIZE': '_stepsize',
-            'RESTART': '_restart',
-            'MODES': '_modes',
-            'NOMODES': '_modes',
-            'PRESSURE': '_pressure',
-            'TEMPERAT': '_temperat',
+            'NOOPTGEOM'  : '_nooptgeom',  # A tailored sub-block
+            'PREOPTGEOM' : 'optgeom',  # A tailored sub-block
+            'DISPERSION' : '_dispersion',
+            'BANDS'      : '_bands',
+            'NUMDERIV'   : '_numderiv',
+            'STEPSIZE'   : '_stepsize',
+            'RESTART'    : '_restart',
+            'MODES'      : '_modes',
+            'NOMODES'    : '_modes',
+            'PRESSURE'   : '_pressure',
+            'TEMPERAT'   : '_temperat',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -944,8 +1048,8 @@ class BasisSet(BlockBASE):
         self._block_ed = '99 0\nENDBS\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'BASISSET': '_basisset',
-            'GHOSTS': '_ghosts',
+            'BASISSET' : '_basisset',
+            'GHOSTS'   : '_ghosts',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -1024,25 +1128,25 @@ class SCF(BlockBASE):
         self._block_ed = 'ENDSCF\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'FIXINDEX': '_fixbg',
-            'DFT': 'dft',  # DFT sub-block
-            'DFTD3': 'dftd3',  # DFTD3 sub-block
-            'GCP': 'gcp',  # GCP sub-block
-            'GCPAUTO': '_gcpauto',
-            'SMEAR': '_smear',
-            'ATOMSPIN': '_atomspin',
-            'TOLDEE': '_toldee',
-            'MAXCYCLE': '_maxcycle',
-            'GUESSP': '_guessp',
-            'FMIXING': '_fmixing',
-            'TOLINTEG': '_tolinteg',
-            'LDREMO': '_ldremo',
-            'BIPOSIZE': '_biposize',
-            'EXCHSIZE': '_exchsize',
-            'SHRINK': '_shrink',
-            'PPAN': '_ppan',
-            'GEOM': 'fixgeom',  # FIXINDEX - GEOM subblock
-            'BASE': 'fixbase',  # FIXINDEX - BASE subblock. GEBA subblock not supported
+            'FIXINDEX' : '_fixbg',
+            'DFT'      : 'dft',  # DFT sub-block
+            'DFTD3'    : 'dftd3',  # DFTD3 sub-block
+            'GCP'      : 'gcp',  # GCP sub-block
+            'GCPAUTO'  : '_gcpauto',
+            'SMEAR'    : '_smear',
+            'ATOMSPIN' : '_atomspin',
+            'TOLDEE'   : '_toldee',
+            'MAXCYCLE' : '_maxcycle',
+            'GUESSP'   : '_guessp',
+            'FMIXING'  : '_fmixing',
+            'TOLINTEG' : '_tolinteg',
+            'LDREMO'   : '_ldremo',
+            'BIPOSIZE' : '_biposize',
+            'EXCHSIZE' : '_exchsize',
+            'SHRINK'   : '_shrink',
+            'PPAN'     : '_ppan',
+            'GEOM'     : 'fixgeom',  # FIXINDEX - GEOM subblock
+            'BASE'     : 'fixbase',  # FIXINDEX - BASE subblock. GEBA subblock not supported
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -1063,13 +1167,17 @@ class SCF(BlockBASE):
         DFT subblock
 
         Args:
-            obj (DFT): A block object of 'DFT' submodule.
+            obj (DFT | str): A block object of 'DFT' submodule. Or a string in
+                CRYSTAL d12 format
         """
         self._block_dft = DFT()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_dft.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_dft.clean_block()
+            else:
+                self._block_dft.analyze_text(obj)
         else:
             self._block_dft = obj
 
@@ -1087,13 +1195,17 @@ class SCF(BlockBASE):
         DFTD3 subblock
 
         Args:
-            obj (DFTD3): A block object of 'DFTD3' submodule.
+            obj (DFTD3 | str): A block object of 'DFTD3' submodule. Or a string
+                in CRYSTAL d12 format
         """
         self._block_dftd3 = DFTD3()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_dftd3.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_dftd3.clean_block()
+            else:
+                self._block_dftd3.analyze_text(obj)
         else:
             self._block_dftd3 = obj
 
@@ -1111,13 +1223,17 @@ class SCF(BlockBASE):
         GCP subblock
 
         Args:
-            obj (GCP): A block object of 'GCP' submodule.
+            obj (GCP | str): A block object of 'GCP' submodule. Or a string in
+                CRYSTAL d12 format.
         """
         self._block_gcp = DFTD3()
         if obj == None:  # Initialize block
             return
-        elif obj == '':  # Clean data
-            self._block_gcp.clean_block()
+        elif type(obj) == str:
+            if obj == '': # Clean data
+                self._block_gcp.clean_block()
+            else:
+                self._block_gcp.analyze_text(obj)
         else:
             self._block_gcp = obj
 
@@ -1271,17 +1387,17 @@ class DFT(BlockBASE):
         self._block_ed = 'ENDDFT\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'SPIN': '_spin',
-            'EXCHANGE': '_exchange',
-            'CORRELAT': '_correlat',
-            'DFT': '_xcfunc',
-            'OLDGRID': '_gridsz',
-            'LGRID': '_gridsz',
-            'XLGRID': '_gridsz',
-            'XXLGRID': '_gridsz',
-            'XXXLGRID': '_gridsz',
-            'RADIAL': '_gridr',
-            'ANGULAR': '_grida',
+            'SPIN'     : '_spin',
+            'EXCHANGE' : '_exchange',
+            'CORRELAT' : '_correlat',
+            'DFT'      : '_xcfunc',
+            'OLDGRID'  : '_gridsz',
+            'LGRID'    : '_gridsz',
+            'XLGRID'   : '_gridsz',
+            'XXLGRID'  : '_gridsz',
+            'XXXLGRID' : '_gridsz',
+            'RADIAL'   : '_gridr',
+            'ANGULAR'  : '_grida',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -1356,19 +1472,19 @@ class DFTD3(BlockBASE):
         self._block_ed = 'END\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'VERSION': '_version',
-            'FUNC': '_func',
-            'ABC': '_abc',
-            'S6': '_s6',
-            'S8': '_s8',
-            'A1': '_a1',
-            'A2': '_a2',
-            'RS6': '_rs6',
-            'RS8': '_rs8',
-            'RADIUS': '_radius',
-            'CNRADIUS': '_cnradius',
-            'ABCRADIUS': '_abcradius',
-            'PRINTC6': '_printc6',
+            'VERSION'   : '_version',
+            'FUNC'      : '_func',
+            'ABC'       : '_abc',
+            'S6'        : '_s6',
+            'S8'        : '_s8',
+            'A1'        : '_a1',
+            'A2'        : '_a2',
+            'RS6'       : '_rs6',
+            'RS8'       : '_rs8',
+            'RADIUS'    : '_radius',
+            'CNRADIUS'  : '_cnradius',
+            'ABCRADIUS' : '_abcradius',
+            'PRINTC6'   : '_printc6',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -1429,13 +1545,13 @@ class GCP(BlockBASE):
         self._block_ed = 'END\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'METHOD': '_method',
-            'SIGMA': '_sigma',
-            'ALPHA': '_alpha',
-            'BETA': '_beta',
-            'ETA': '_eta',
-            'RADIUS': '_radius',
-            'PRINTEMISS': '_printemiss',
+            'METHOD'     : '_method',
+            'SIGMA'      : '_sigma',
+            'ALPHA'      : '_alpha',
+            'BETA'       : '_beta',
+            'ETA'        : '_eta',
+            'RADIUS'     : '_radius',
+            'PRINTEMISS' : '_printemiss',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
