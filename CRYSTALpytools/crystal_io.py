@@ -4,233 +4,171 @@
 Created on Fri Nov 19 18:28:28 2021
 """
 from CRYSTALpytools import units
+from CRYSTALpytools.crystal_wrapper import Crystal_inputBASE
 
 
-class Crystal_input:
-    # This creates a crystal_input object
+class Crystal_input(Crystal_inputBASE):
+    """
+    Crystal input object inherited from Crystal_inputBASE.
+
+    **Note for users**
+
+    ``Crystal_input`` object is strictly structured by 'blocks', which, in 
+    general, is defined as keywords that are closed by 'END'. All the blocks
+    are organized in layers and each corresponds to a list of keywords that can
+    be called and set.The current structure of ``Crystal_input`` is listed 
+    below:
+
+    # Layer 1: ``geom``, ``basisset``, ``scf``
+    # Layer 2: ``optgeom``, ``freqcalc``, ``dft``, ``dftd3``, ``gcp``, ``fixindex``
+    # Layer 3: ``preoptgeom``, ``geom``, ``base``
+
+    For example, to set force convergence threshold of a optimization run:
+
+    Usage::
+
+        obj = Crystal_input()
+        obj.geom.optgeom.toldeg(0.0001)
+
+    In principle, by calling the 'block-like' attribute, a 'block-like' object
+    will be automatically generated if the attribute is empty. The exception is
+    the 3rd layer attributes, which must be set by ``set_attr()`` method. A
+    warning message is printed to indicate the name of the opened sub-block 
+    since it usually does not correspond to CRYSTAL keywords to avoid potential
+    conflicts.
+
+    Usage::
+
+        obj.geom.freqcalc.set_preoptgeom()
+        obj.geom.freqcalc.optgeom.toldeg(0.0003)
+
+    Methods and sub-blocks of ``Crystal_input`` usually have the same name as 
+    corresponding keywords. One can setup, change or clean the keyword by 
+    calling the corresponding method.
+
+    Usage::
+
+        obj.scf.toldee(9) # Set SCF TOLDEE = 9
+        obj.scf.toldee('') # Clean the TOLDEE keyword and value
+        obj.scf.ppan() # Print PPAN keyword, without value
+
+    Though one can set CRYSTAL input object by manually setting up all the 
+    attributes, it is also possible to read a template d12 file and do
+    modifications.
+
+    Usage::
+
+        obj.optgeom('') # Remove OPTGEOM block
+        obj.to_file('scf.d12') # Print it into file
+
+    It is also possible to set individual blocks by a string. The ``set_block`` 
+    method should be used. The keyword for the block itself should not be 
+    included.
+
+    Usage:: 
+
+        obj.scf.set_dft('SPIN\nEXCHANGE\nPBE\nCORRELAT\nP86\n')
+
+    For basis set, it can be read from an external basis set file. '99 0' and
+    'END' should not be included.
+
+    Usage::
+
+        obj.basisset.bs_from_file('mybasis.txt')
+
+    To examine the data in a block object, including Crystal_input obj itself:
+
+    Usage::
+
+        obj.data
+
+    """
 
     def __init__(self):
-        # Initialise the object
+        super(Crystal_input, self).__init__()
 
-        pass
+    def crystal_from_cif(self, file, symprec=0.01, angle_tolerance=5.0):
+        """
+        Read geometry from cif file and put infomation under 'CRYSTAL' keyword.
+        3D structure only. CIF files with a single geometry only.
 
-    def add_ghost(self, ghost_atoms):
-        # Add ghost functions to the input object
+        .. note::
 
-        if self.is_basisset == True:
-            self.bs_block.append('GHOSTS\n')
-            self.bs_block.append('%s\n' % len(ghost_atoms))
-            self.bs_block.append(' '.join([str(x) for x in ghost_atoms])+'\n')
-        else:
-            self.bs_block.insert(-1, 'GHOSTS\n')
-            self.bs_block.insert(-1, '%s\n' % len(ghost_atoms))
-            self.bs_block.insert(-1, ' '.join([str(x)
-                                               for x in ghost_atoms])+'\n')
+            Coordinates of corresponding atoms may not consistent with the 
+            original CIF file, in which case coordinates of another symmetry
+            equivalent atom is used.
 
-    def add_guessp(self):
-        # Add the GUESSP keyword functions to the input object
+            When multiple choices of periodic cell exist (typically for 
+            low-symmetric non-orthgonal systems such as monoclinic or trilinic
+            cells), this method might lead to errors due to the inconsistent
+            choice of periodic cell between CRYSTAL and pymatgen.
 
-        self.scf_block.insert(-1, 'GUESSP\n')
+        Args:
+            file (str): CIF file name
+            symprec (float): If not none, finds the symmetry of the structure.
+                See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            angle_tolerance (float): See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+        """
+        import numpy as np
+        from pymatgen.core.structure import IStructure
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-    def from_blocks(self, geom_block, bs_block, func_block, scf_block, title='Input generated by CRYSTALpytools'):
-        # Build the input from blocks
-        # All the blocks are list of strings or lists
+        struc = IStructure.from_file(file, primitive=True)
+        analyzer = SpacegroupAnalyzer(
+            struc, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_symm = analyzer.get_symmetrized_structure()
 
-        self.geom_block = geom_block
-        self.bs_block = bs_block
-        self.func_block = func_block
-        self.scf_block = scf_block
-        self.title = [title+'\n']
+        sg = analyzer.get_space_group_number()
+        latt = []
+        if sg >= 1 and sg < 3:  # trilinic
+            for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 3 and sg < 16:  # monoclinic
+            for i in ['a', 'b', 'c', 'beta']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 16 and sg < 75:  # orthorhombic
+            for i in ['a', 'b', 'c']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 75 and sg < 143:  # tetragonal
+            for i in ['a', 'c']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 143 and sg < 168:  # trigonal
+            for i in ['a', 'alpha']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 168 and sg < 195:  # hexagonal
+            for i in ['a', 'c']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        else:  # cubic
+            latt.append(round(struc_sym.lattice.a, 6))
 
-        if 'BASISSET\n' in self.bs_block:
-            self.is_basisset = True
+        natom = len(struc_symm.equivalent_sites)
+        eq_atom = int(len(struc_symm.species) / natom)
+        atominfo = []
+        for i in range(natom):
+            idx_eq = int(i * eq_atom)
+            atominfo.append([
+                int(struc_symm.species[idx_eq].Z),
+                round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8),
+                round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8),
+                round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+            ])
 
-        return self
+        super(Crystal_input, self).geom.crystal(
+            IGR=sg, latt=latt, atom=atominfo)
 
-    def from_file(self, input_name):
-        # input_name: name of the input file
-
-        import sys
-
-        self.name = input_name
-
-        try:
-            if input_name[-3:] != 'd12':
-                input_name = input_name+'.d12'
-            file = open(input_name, 'r')
-            data = file.readlines()
-            file.close()
-        except:
-            print('EXITING: a .d12 file needs to be specified')
-            sys.exit(1)
-
-        # The first line is the title
-        self.title = [data[0]]
-
-        # Check is the basis set is a built in one
-        if 'BASISSET\n' in data:
-            end_index = []
-            if 'OPTGEOM\n' in data:
-                end_index = [i for i, s in enumerate(data) if 'END' in s]
-                end_index.insert(1, data.index('BASISSET\n')+1)
-            else:
-                end_index.append(data.index('BASISSET\n')-1)
-                end_index.append(data.index('BASISSET\n')+1)
-                end_index.extend([i for i, s in enumerate(
-                    data[end_index[1]:]) if 'END' in s])
-            self.is_basisset = True
-        else:
-            end_index = [i for i, s in enumerate(data) if 'END' in s]
-            self.is_basisset = False
-
-        self.geom_block = []
-        self.bs_block = []
-        self.func_block = []
-        self.scf_block = []
-
-        if len(end_index) == 4:
-            self.geom_block = data[1:end_index[0]+1]
-            self.bs_block = data[end_index[0]+1:end_index[1]+1]
-            self.func_block = data[end_index[1]+1:end_index[2]+1]
-            for i in range(end_index[2]+1, end_index[-1]):
-                self.scf_block.append(data[i])
-                '''if data[i+1][0].isnumeric():
-                    self.scf_block.append([data[i], data[i+1]])
-                else:
-                    if data[i][0].isalpha():
-                        self.scf_block.append(data[i])
-                    else:
-                        pass'''
-            # The loop cannot go over the last element
-            self.scf_block.append('ENDSCF\n')
-
-        elif len(end_index) == 5:
-            self.geom_block = data[:end_index[1]+1]
-            self.bs_block = data[end_index[1]+1:end_index[2]+1]
-            self.func_block = data[end_index[2]+1:end_index[3]+1]
-
-            for i in range(end_index[3]+1, end_index[-1]):
-                if data[i+1][0].isnumeric():
-                    self.scf_block.append([data[i], data[i+1]])
-                else:
-                    if data[i][0].isalpha():
-                        self.scf_block.append(data[i])
-                    else:
-                        pass
-            # The loop cannot go over the last element
-            self.scf_block.append('ENDSCF\n')
-
-        return self
-
-    def opt_to_sp(self):
-        # Make an optgeom calculation into single_point
-
-        if 'OPTGEOM\n' in self.geom_block:
-            init = self.geom_block.index('OPTGEOM\n')
-            final = self.geom_block.index('END\n')
-            del self.geom_block[init:final+1]
-
-    def print_input(self):
-        # Print the whole input file
-
-        if len(self.__dict__) > 0:
-
-            blocks = [self.geom_block, self.bs_block,
-                      self.func_block, self.scf_block]
-
-            if self.title is not None:
-                print(self.title[0][:-1])
-            else:
-                print('CRYSTALpytools generated input')
-            for block in blocks:
-                for line in block:
-                    if type(line) == list:
-                        print(line[0][:-1])
-                        print(line[1][:-1])
-                    else:
-                        print(line[:-1])
-        else:
-            print('The input is initialised, but the blocks were not defined')
-
-    def remove_ghost(self):
-        # Remove ghost functions from the input object
-
-        if 'GHOST\n' in self.bs_block:
-            del self.bs_block[-3:-1]
-
-    def sp_to_opt(self, opt_options=[]):
-        # Make a single point calculation into an optgeom
-
-        if 'OPTGEOM\n' not in self.geom_block:
-            if self.is_basisset == True:
-                self.geom_block.append('OPTGEOM\n')
-                self.geom_block.extend(opt_options)
-                self.geom_block.append('END\n')
-            else:
-                self.geom_block.insert(-1, 'OPTGEOM\n')
-                for option in opt_options:
-                    self.geom_block.insert(-1, option)
-                self.geom_block.insert(-1, 'END\n')
-
-    def write_crystal_input(self, input_name, external_obj=None):
-        # Write a CRYSTAL input file (to file)
-
-        # input_name is the name of the imput that is going to be written (.d12)
-        # crystal_input is an object belonging to the crystal_input Class.
-        # external_obj is the ASE or pymatgen object that is going to be written in the gui file
-
-        import itertools
-        import sys
-        from pymatgen.io.ase import AseAtomsAdaptor
-        from CRYSTALpytools.convert import cry_pmg2gui
-
-        geom_block = self.geom_block
-        bs_block = self.bs_block
-        func_block = self.func_block
-        scf_block = self.scf_block
-
-        if self.title is None:
-            title = ['Input generated using CRYSTALpytools\n']
-        else:
-            title = self.title
-
-        # if there is an external object, we want to have the EXTERNAL
-        # keyword in the geom_block. If it's not present, this means
-        # adding it and keeping the rest of the input
-        if external_obj != None:
-            if 'EXTERNAL\n' not in geom_block:
-                new_geom_block = []
-                new_geom_block.append('EXTERNAL\n')
-                for i, line in enumerate(geom_block[2:]):
-                    if line.split()[0].replace('.', '', 1).isdigit() == False:
-                        for line1 in geom_block[i+2:]:
-                            new_geom_block.append(line1)
-                        break
-                geom_block = new_geom_block
-            if 'ase.atoms' in str(type(external_obj)):
-                # Transform into a pymatgen object to use the extra tools pymatgen has
-                external_obj = AseAtomsAdaptor().get_structure(external_obj)
-
-                gui_file_name = input_name[:-4]+'.gui'
-                gui_obj = cry_pmg2gui(external_obj)
-                gui_obj.write_crystal_gui(gui_file_name)
-
-            elif 'pymatgen.core' in str(type(external_obj)):
-
-                gui_file_name = input_name[:-4]+'.gui'
-                gui_obj = cry_pmg2gui(external_obj)
-                gui_obj.write_crystal_gui(gui_file_name)
-
-            else:
-                print(
-                    'EXITING: external object format not recognised, please specfy an ASE or pymatgen object')
-                sys.exit(1)
-
-        with open(input_name, 'w') as file:
-            cry_input = list(itertools.chain(title, geom_block, bs_block,
-                                             func_block, scf_block))
-            for line in cry_input:
-                file.writelines(line)
+        return
 
 
 class Crystal_output:
