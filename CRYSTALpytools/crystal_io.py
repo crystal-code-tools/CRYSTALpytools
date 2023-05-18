@@ -892,12 +892,18 @@ class Crystal_output:
     def get_mode(self):
         """
         Get the number of modes at all q points and the corresponding vibrational
-        frequencies.
+        frequencies and intensities.
 
         Returns:
             self.nmode (array[int]): Number of modes at q point.
             self.frequency (array[float]): nqpoint \* nmode array of vibrational
                 frequency. Unit: THz
+            self.intens (array[float]): nqpoint \* nmode array of harmonic
+            intensiy. Unit: km/mol
+            self.IR (array[bool]): nqpoint \* nmode array of boolean values
+            specifying whether the mode is IR active
+            self.Raman (array[bool]): nqpoint \* nmode array of boolean values
+            specifying whether the mode is Raman active
         """
         import numpy as np
         import re
@@ -906,6 +912,9 @@ class Crystal_output:
             self.get_q_info()
 
         self.frequency = np.array([], dtype=float)
+        self.intens = np.array([], dtype=float)
+        self.IR = np.array([], dtype=bool)
+        self.Raman = np.array([], dtype=bool)
 
         countline = 0
         while countline < len(self.data):
@@ -921,15 +930,24 @@ class Crystal_output:
                 is_freq = True
 
             while self.data[countline].strip() and is_freq:
-                line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
-                                       self.data[countline])
+                line_data = self.data[countline].split()
                 if line_data:
                     nm_a = int(line_data[0].strip('-'))
                     nm_b = int(line_data[1])
                     freq = float(line_data[4])
+                    intens = float(line_data[-2].strip(')'))
+                    IR = line_data[-4] == 'A'
+                    Raman = line_data[-1] == 'A'
+                    if (nm_b-nm_a == 1):
+                        intens = intens/2
+                    elif(nm_b-nm_a == 2):
+                        intens = intens/3
 
                 for mode in range(nm_a, nm_b + 1):
                     self.frequency = np.append(self.frequency, freq)
+                    self.intens = np.append(self.intens, intens)
+                    self.IR = np.append(self.IR, IR)
+                    self.Raman = np.append(self.Raman, Raman)
 
                 countline += 1
 
@@ -937,8 +955,11 @@ class Crystal_output:
 
         self.frequency = np.reshape(self.frequency, (self.nqpoint, -1))
         self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
+        self.intens = np.reshape(self.intens, (self.nqpoint, -1))
+        self.IR = np.reshape(self.IR, (self.nqpoint, -1))
+        self.Raman = np.reshape(self.Raman, (self.nqpoint, -1))
 
-        return self.nmode, self.frequency
+        return self.nmode, self.frequency, self.intens, self.IR, self.Raman
 
     def get_phonon_eigenvector(self):
         """
