@@ -34,4 +34,4 @@ jobs:
           dir_docs: docs_source
           sphinxapiopts: ''
           sphinxapiexclude: '../docs/*setup* ../docs/*.ipynb ../docs/test*'
-          sphinxopts: '-b html ./ -o ../docs/'
+          sphinxopts: '-o ../docs/'
