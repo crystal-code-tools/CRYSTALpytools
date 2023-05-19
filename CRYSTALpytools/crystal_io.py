@@ -4,7 +4,7 @@
 Created on Fri Nov 19 18:28:28 2021
 """
 from CRYSTALpytools import units
-from CRYSTALpytools.base.inpbase import Crystal_inputBASE
+from CRYSTALpytools.base.crysd12 import Crystal_inputBASE
 
 
 class Crystal_input(Crystal_inputBASE):
@@ -1075,7 +1075,7 @@ class Crystal_output:
             self.frequency[q, neg_rank] = np.nan
 
             if hasattr(self, 'eigenvector'):
-                if self.eigenvector != [] and self.eigenvector != None:
+                if len(self.eigenvector) != 0:
                     natom = int(self.nmode[q] / 3)
                     nan_eigvt = np.full([natom, 3], np.nan)
                     self.eigenvector[q, neg_rank] = nan_eigvt
