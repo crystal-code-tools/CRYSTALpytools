@@ -31,7 +31,7 @@ jobs:
         uses: uibcdf/action-sphinx-docs-to-gh-pages@v1.1.0
         with:
           branch: main
-          dir_docs: docs_source
+          dir_docs: docs
           sphinxapiopts: ''
-          sphinxapiexclude: '../docs/*setup* ../docs/*.ipynb ../docs/test*'
-          sphinxopts: '-o ../docs/'
+          sphinxapiexclude: '*setup* *.ipynb test*'
+          sphinxopts: '-o docs/ CRYSTALpytools/ '
