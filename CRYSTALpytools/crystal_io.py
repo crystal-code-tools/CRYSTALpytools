@@ -19,9 +19,9 @@ class Crystal_input(Crystal_inputBASE):
     be called and set.The current structure of ``Crystal_input`` is listed
     below:
 
-    # Layer 1: ``geom``, ``basisset``, ``scf``
-    # Layer 2: ``optgeom``, ``freqcalc``, ``dft``, ``dftd3``, ``gcp``, ``fixindex``
-    # Layer 3: ``preoptgeom``, ``geom``, ``base``
+    Layer #. ``geom``, ``basisset``, ``scf``  
+    Layer #. ``optgeom``, ``freqcalc``, ``dft``, ``dftd3``, ``gcp``, ``fixindex``  
+    Layer #. ``preoptgeom``, ``geom``, ``base``  
 
     For example, to set force convergence threshold of a optimization run:
 
@@ -68,7 +68,7 @@ class Crystal_input(Crystal_inputBASE):
 
     Usage::
 
-        obj.scf.set_dft('SPIN\nEXCHANGE\nPBE\nCORRELAT\nP86\n')
+        obj.scf.set_dft('SPIN\\nEXCHANGE\\nPBE\\nCORRELAT\\nP86\\n')
 
     For basis set, it can be read from an external basis set file. '99 0' and
     'END' should not be included.

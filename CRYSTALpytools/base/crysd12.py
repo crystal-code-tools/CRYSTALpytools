@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Classes and methods of keywords used in 'crystal' input file (d12).
+"""
 from CRYSTALpytools.base.input import BlockBASE
 
 class Crystal_inputBASE(BlockBASE):
