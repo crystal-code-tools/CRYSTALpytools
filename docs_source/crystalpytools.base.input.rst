@@ -36,15 +36,15 @@ Structure of classes
 Add keyword-related methods
 ---------------------------
 
-Layer #. ``Crystal_inputBASE`` or ``Properties_inputBASE`` Objects. 
+Layer 1: ``Crystal_inputBASE`` or ``Properties_inputBASE`` Objects. 
 
-Layer #. 3 basic blocks, Geom, BasisSet and SCF. A BlockBASE class should be created.
+Layer 2: 3 basic blocks, Geom, BasisSet and SCF. A BlockBASE class should be created.
 
-Layer #. Sub-blocks closed by END, such as 'OPTGEOM'. A BlockBASE class should be created. 
+Layer 3: Sub-blocks closed by END, such as 'OPTGEOM'. A BlockBASE class should be created. 
 
-Layer 2 and 3 should be created as the value of ``_block_attr`` attribute of the upper layer, with corresponding ``set_attr`` method and ``attr()`` method decorated by ``@property``
+   Layer 2 and 3 should be created as the value of ``_block_attr`` attribute of the upper layer, with corresponding ``set_attr`` method and ``attr()`` method decorated by ``@property``
 
-Layer #. Keyword-like inputs.
+Layer 4: Keyword-like inputs.
 
    * Keywords with 'matrix-like' (ndimen\*ndimen) inputs, such as 'SUPERCEL'. Use ``set_matrix`` + ``assign_keyword``.
    * Keywords with 'list-like' (nline + a list of nline, or 1 line of multiple values) inputs, such as 'ATOMSPIN'. Use ``set_list`` + ``assign_keyword``.  
@@ -61,11 +61,11 @@ To address conflicts involving 'block-like' inputs, the ``clean_conflict`` metho
 Planned developments
 ~~~~~~~~~~~~~~~~~~~~~
 
-# Add Properties_inputBASE
+#. Add Properties_inputBASE
 
-# Redo 'FIXINDEX' of SCF block. Make an individual class for GEOM / BASE / GEBA. The current implementation does not support GEBA.
+#. Redo 'FIXINDEX' of SCF block. Make an individual class for GEOM / BASE / GEBA. The current implementation does not support GEBA.
 
-# Add CPHF / QHA / EOS blocks 
+#. Add CPHF / QHA / EOS blocks 
 
 .. automodule:: CRYSTALpytools.base.input
    :members:
