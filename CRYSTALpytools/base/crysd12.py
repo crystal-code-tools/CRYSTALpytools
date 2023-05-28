@@ -759,10 +759,10 @@ class BasisSet(BlockBASE):
         import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = 'ENDBS\n'
+        if hasattr(self, '_basisset'):
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
 
         bs_obj = BasisSetBASE.from_bse(name, element)
         self._basisset = bs_obj.data
@@ -785,10 +785,10 @@ class BasisSet(BlockBASE):
         import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = 'ENDBS\n'
+        if hasattr(self, '_basisset'):
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
 
         bs_obj = BasisSetBASE.from_string(string, fmt)
         self._basisset = bs_obj.data
@@ -811,10 +811,10 @@ class BasisSet(BlockBASE):
         import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = 'ENDBS\n'
+        if hasattr(self, '_basisset'):
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
 
         bs_obj = BasisSetBASE.from_file(file, fmt)
         self._basisset = bs_obj.data
@@ -834,10 +834,10 @@ class BasisSet(BlockBASE):
         """
         import warnings
 
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = 'ENDBS\n'
+        if hasattr(self, '_basisset'):
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
 
         self._basisset = bs_obj.data
 

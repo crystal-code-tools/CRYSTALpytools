@@ -252,7 +252,7 @@ class BasisSetBASE():
     @classmethod
     def from_bse(cls, name, element):
         """
-        Download basis set definitions from BSE
+        Download basis set definitions from BSE.
 
         Args:
             name (str): Basis set's name.
@@ -260,9 +260,9 @@ class BasisSetBASE():
         """
         import basis_set_exchange as bse
 
-        bs = bse.get_basis(name, elements=element, fmt='crystal')
+        bs_str = bse.get_basis(name, elements=element, fmt='crystal')
 
-        return cls._set_atom(bs)
+        return cls()._set_atom(bs_str)
 
     @classmethod
     def from_string(cls, bs_str, fmt='crystal'):
@@ -279,23 +279,23 @@ class BasisSetBASE():
         if not re.match(r'^crystal$', fmt, re.IGNORECASE):
             bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
 
-        return cls._set_atom(bs_str)
+        return cls()._set_atom(bs_str)
 
     @classmethod
     def from_file(cls, file, fmt='crystal'):
         """
-        Define a basis set from a file
+        Define a basis set from a file.
         """
         import re
         import basis_set_exchange as bse
 
         bs_file = open(file, 'r')
         bs_str = bs_file.read()
-        bs_fle.close()
+        bs_file.close()
         if not re.match(r'^crystal$', fmt, re.IGNORECASE):
             bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
 
-        return cls._set_atom(bs_str)
+        return cls()._set_atom(bs_str)
 
     def _set_atom(self, info):
         """
@@ -341,22 +341,26 @@ class BasisSetBASE():
 
         return bs_str
 
-    def to_file(self, file='BASISSET.DAT'):
+    def to_file(self, file='BASISSET.DAT', fmt='crystal'):
         """
-        Print basis set information in CRYSTAL format into a file.
+        Print formatted data into a text file.
 
         Args:
-            file (str): Basis set file name.
+            file (str)
+            fmt (str): Output format
         """
-        import os.path
+        import os
+        import re
         import warnings
+        import basis_set_exchange as bse
 
+        f = open(file, 'w+')
         if os.path.isfile(file):
-            warnings.warn(
-                "File '{}' exists. Its content will be erased.".format(file))
+            warnings.warn('File exists. New entry will be attached to the end.')
 
-        f = open(file, 'w')
-        f.write('%s' % self.data)
+        bs_str = self.data
+        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
+            bs_str = bse.convert_formatted_basis_str(bs_str, 'crystal', fmt)
+
+        f.write('%s' % bs_str)
         f.close()
-
-        return
