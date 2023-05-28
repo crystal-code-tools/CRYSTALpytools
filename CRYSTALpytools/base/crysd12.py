@@ -3,7 +3,7 @@
 """
 Classes and methods of keywords used in 'crystal' input file (d12).
 """
-from CRYSTALpytools.base.input import BlockBASE
+from CRYSTALpytools.base.inputbase import BlockBASE
 
 class Crystal_inputBASE(BlockBASE):
     """

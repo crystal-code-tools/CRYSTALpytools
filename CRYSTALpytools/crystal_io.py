@@ -118,7 +118,11 @@ class Crystal_input(Crystal_inputBASE):
         struc = IStructure.from_file(file, primitive=True)
         analyzer = SpacegroupAnalyzer(
             struc, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_symm = analyzer.get_symmetrized_structure()
+        # Analyze the refined geometry
+        struc2 = analyzer.get_refined_structure()
+        analyzer2 = SpacegroupAnalyzer(
+            struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_symm = analyzer2.get_symmetrized_structure()
 
         sg = analyzer.get_space_group_number()
         latt = []
@@ -161,10 +165,16 @@ class Crystal_input(Crystal_inputBASE):
         for i in range(natom):
             idx_eq = int(i * eq_atom)
             atominfo.append([
-                int(struc_symm.species[idx_eq].Z),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                '{:<3}'.format(struc_symm.species[idx_eq].Z),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
+                ),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8)
+                ),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                )
             ])
 
         super(Crystal_input, self).geom.crystal(

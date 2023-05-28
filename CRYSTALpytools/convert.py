@@ -80,16 +80,24 @@ def cry_gui2ase(gui_file):
     return AseAtomsAdaptor().get_atoms(cry_gui2pmg(gui_file))
 
 
-def cry_gui2cif(cif_file_name, gui):
-    #Read a CRYSTAL structure (gui) file and save a cif file
-    # cif_file_name: name (including path) of the cif file to be saved
-    # gui_file: CRYSTAL gui object
+def cry_gui2cif(cif_file_name, gui, symprec=None, angle_tolerance=None):
+    """
+    Read a CRYSTAL structure (gui) file and save a cif file. The CifWriter
+    object of PyMatGen is called.
 
+    Args:
+        cif_file_name (str): Name (including path) of the cif file to be saved
+        gui (Crystal_gui): CRYSTALpytools gui object
+        symprec (float): Refer to `CifWriter's manual <https://pymatgen.org/pymatgen.io.cif.html#pymatgen.io.cif.CifWriter>`_.
+        angle_tolerance (float): Refer to `CifWriter's manual <https://pymatgen.org/pymatgen.io.cif.html#pymatgen.io.cif.CifWriter>`_
+    """
     from pymatgen.io.cif import CifWriter
 
     structure = cry_gui2pmg(gui)
-    
-    CifWriter(structure).write_file(cif_file_name)
+
+    CifWriter(structure,
+              symprec=symprec,
+              angle_tolerance=angle_tolerance).write_file(cif_file_name)
 
 
 def cry_gui2pmg(gui, vacuum=10, molecule = True):
@@ -237,16 +245,15 @@ def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
 
 
 def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
-    #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
-    #Vacuum needs to be included because pymatgen only includes 3D symmetry
-    # molecule = True generates a Molecule pymatgen object for 0D structures
-    # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
-    
+    """
+    Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
+    Vacuum needs to be included because pymatgen only includes 3D symmetry
+    """
     #from . import crystal_io
     from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
-    
+
     import numpy as np
     import sys
     import copy
@@ -260,12 +267,12 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
         lattice_vectors = np.identity(3)*500.
     elif dimensionality > 0:
         lattice_vectors = copy.deepcopy(structure.lattice.matrix)
-    
+
     gui.dimensionality = dimensionality
 
     if dimensionality == 2:
         lattice_vectors[2][2] = 500.
-    
+
     if dimensionality == 1:
         lattice_vectors[1][1] = 500.
         lattice_vectors[2][2] = 500.
@@ -274,7 +281,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
     gui.n_atoms = structure.num_sites
     gui.space_group = SpacegroupAnalyzer(structure).get_space_group_number()
     gui.symmops = []
-    
+
     if symmetry == True:
         n_symmops = 0
         if dimensionality == 3:
@@ -285,7 +292,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
                     n_symmops += 1
                     gui.symmops.extend(symmop.rotation_matrix.tolist())
                     gui.symmops.append(symmop.translation_vector.tolist())
-            
+
             gui.n_symmops = n_symmops
 
         elif dimensionality == 2:
@@ -297,7 +304,7 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
             translation = np.array([0.0, 0.0, -0.5])
             structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
-            
+
             sg = SpacegroupAnalyzer(structure)
             ops = sg.get_symmetry_operations(cartesian=True)
             for op in ops:
@@ -305,16 +312,16 @@ def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
                     n_symmops += 1
                     gui.symmops.extend(op.rotation_matrix.tolist())
                     gui.symmops.append(op.translation_vector.tolist())
-         
+
             gui.n_symmops = n_symmops
 
         elif dimensionality == 1:
-            print('WARNING: check the polymer is correctly centered in the cell and that the correct symmops are used.')      
+            print('WARNING: check the polymer is correctly centered in the cell and that the correct symmops are used.')
 
         elif dimensionality == 0:
             print('WARNING: 0D in development')
             sys.exit(1)
-     
+
     else:
         gui.n_symmops = 1
         gui.symmops.extend(np.identity(3).tolist())
