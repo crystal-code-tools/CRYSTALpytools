@@ -246,22 +246,56 @@ class BasisSetBASE():
 
     """
 
-    def __init__(self, name=None, element=[]):
-        if name == None:
-            pass
-        else:
-            self.__call__(name=name, element=element)
+    def __init__(self):
+        pass
 
-    def __call__(self, name=None, element=[]):
+    @classmethod
+    def from_bse(cls, name, element):
+        """
+        Download basis set definitions from BSE
+
+        Args:
+            name (str): Basis set's name.
+            element (list[str] | list[int]): List of elements.
+        """
         import basis_set_exchange as bse
 
-        if name == None:
-            return self
-
         bs = bse.get_basis(name, elements=element, fmt='crystal')
-        self._set_atom(bs)
 
-        return self
+        return cls._set_atom(bs)
+
+    @classmethod
+    def from_string(cls, bs_str, fmt='crystal'):
+        """
+        Define basis set from a string.
+
+        Args:
+            bs_str (str)
+            fmt (str): Format string. Consistent with BSE python API.
+        """
+        import re
+        import basis_set_exchange as bse
+
+        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
+            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
+
+        return cls._set_atom(bs_str)
+
+    @classmethod
+    def from_file(cls, file, fmt='crystal'):
+        """
+        Define a basis set from a file
+        """
+        import re
+        import basis_set_exchange as bse
+
+        bs_file = open(file, 'r')
+        bs_str = bs_file.read()
+        bs_fle.close()
+        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
+            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
+
+        return cls._set_atom(bs_str)
 
     def _set_atom(self, info):
         """

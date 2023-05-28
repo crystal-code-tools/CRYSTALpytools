@@ -764,7 +764,7 @@ class BasisSet(BlockBASE):
                 "The 'BASISSET' keyword is in use. It will be cleaned.")
             self._block_ed = 'ENDBS\n'
 
-        bs_obj = BasisSetBASE(name, element)
+        bs_obj = BasisSetBASE.from_bse(name, element)
         self._basisset = bs_obj.data
 
         if filename != None:
@@ -772,6 +772,8 @@ class BasisSet(BlockBASE):
 
     def from_string(self, string, fmt='crystal', filename=None):
         """
+        Basis set from a string
+
         Args:
             string (str): A line of string. Use '\n' to break lines. The ending
                 line '99 0' is needed but not 'END'.
@@ -780,9 +782,7 @@ class BasisSet(BlockBASE):
             filename (None | str): If not None, print basis set definitions to
                 a text file
         """
-        import re
         import warnings
-        import basis_set_exchange as bse
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if 'BASISSET' in self._basisset:
@@ -790,12 +790,7 @@ class BasisSet(BlockBASE):
                 "The 'BASISSET' keyword is in use. It will be cleaned.")
             self._block_ed = 'ENDBS\n'
 
-        if re.match(r'^crystal$', fmt, re.IGNORECASE):
-            bs_obj = BasisSetBASE()._set_atom(string)
-        else:
-            bs_str = bse.convert_formatted_basis_str(string, fmt, 'crystal')
-            bs_obj = BasisSetBASE()._set_atom(bs_str)
-
+        bs_obj = BasisSetBASE.from_string(string, fmt)
         self._basisset = bs_obj.data
 
         if filename != None:
@@ -803,6 +798,8 @@ class BasisSet(BlockBASE):
 
     def from_file(self, file, fmt='crystal', filename=None):
         """
+        Basis set from a file
+
         Args:
             file (file): A formatted text file with basis set definitions. The
                 ending line '99 0' is needed but not 'END'.
@@ -811,9 +808,7 @@ class BasisSet(BlockBASE):
             filename (None | str): If not None, print basis set definitions to
                 a text file
         """
-        import re
         import warnings
-        import basis_set_exchange as bse
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if 'BASISSET' in self._basisset:
@@ -821,15 +816,7 @@ class BasisSet(BlockBASE):
                 "The 'BASISSET' keyword is in use. It will be cleaned.")
             self._block_ed = 'ENDBS\n'
 
-        bs_file = open(file, 'r')
-        bs_str = bs_file.read()
-        bs_fle.close()
-        if re.match(r'^crystal$', fmt, re.IGNORECASE):
-            bs_obj = BasisSetBASE()._set_atom(bs_str)
-        else:
-            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
-            bs_obj = BasisSetBASE()._set_atom(bs_str)
-
+        bs_obj = BasisSetBASE.from_file(file, fmt)
         self._basisset = bs_obj.data
 
         if filename != None:
@@ -846,7 +833,6 @@ class BasisSet(BlockBASE):
                 a text file
         """
         import warnings
-        from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if 'BASISSET' in self._basisset:
             warnings.warn(
@@ -857,6 +843,12 @@ class BasisSet(BlockBASE):
 
         if filename != None:
             bs_obj.to_file(file=filename)
+
+    def clean_bs(self):
+        """
+        Clean basis set definition
+        """
+        self._basisset = ''
 
     def ghosts(self, NA=None, LA=[]):
         shape, value = super(BasisSet, self).set_list(NA, LA)
