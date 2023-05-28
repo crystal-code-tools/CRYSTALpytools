@@ -1,4 +1,4 @@
-CRYSTALpytools.base.input module
+CRYSTALpytools.base.inputbase module
 ================================
 
 Python wrapper for CRYSTAL inputs. Provides basic classes, methods and attributes to read, operate and write CRYSTAL d12/d3 files.
@@ -67,7 +67,7 @@ Planned developments
 
 #. Add CPHF / QHA / EOS blocks 
 
-.. automodule:: CRYSTALpytools.base.input
+.. automodule:: CRYSTALpytools.base.inputbase
    :members:
    :private-members:
    :undoc-members:
