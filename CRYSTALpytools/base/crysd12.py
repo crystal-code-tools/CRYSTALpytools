@@ -31,6 +31,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (Geom | str): A block object of 'GEOM' submodule. Or a string
                 in CRYSTAL d12 format.
         """
+        from CRYSTALpytools.base.crysd12 import Geom
+
         self._block_geom = Geom()
         if obj == None:  # Initialize block
             return
@@ -63,6 +65,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (BasisSet | str): A block object of basis set submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import BasisSet
+
         self._block_basisset = BasisSet()
         if obj == None:  # Initialize block
             return
@@ -88,6 +92,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (SCF | str): A block object of SCF submodule. Or a string in
                 CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import SCF
+
         self._block_scf = SCF()
         if obj == None:  # Initialize block
             return
@@ -432,6 +438,8 @@ class Geom(BlockBASE):
             obj (Optgeom | str): A block object of 'OPTGEOM' submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import Optgeom
+
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_optgeom', conflict)
 
@@ -463,6 +471,8 @@ class Geom(BlockBASE):
             obj (Freqcalc | str): A block object of 'FREQCALC' submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import Freqcalc
+
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_freqcalc', conflict)
 
@@ -716,7 +726,7 @@ class BasisSet(BlockBASE):
 
     def __init__(self):
         self._block_bg = ''
-        self._block_ed = '99 0\nENDBS\n'
+        self._block_ed = 'ENDBS\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
             'BASISSET' : '_basisset',
@@ -730,61 +740,123 @@ class BasisSet(BlockBASE):
     def basisset(self, NAME=None):
         self._basisset = super(BasisSet, self).assign_keyword(
             'BASISSET', [1, ], NAME)
-        # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
         if NAME == '':
-            self._block_ed = '99 0\nENDBS\n'
-        else:
+            self._block_ed = 'ENDBS\n'
+        else: # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
             self._block_ed = None
 
-    def from_string(self, string):
+    def from_bse(self, name, element, filename=None):
+        """
+        Download basis set definitions from `Basis Set Exchange <https://www.basissetexchange.org/>`_.
+
+        Args:
+            name (str): Basis set's name.
+            element (list[str] | list[int]): List of elements, specified by
+                either atomic number or label.
+            filename (None | str): If not None, print basis set definitions to
+                a text file
+        """
+        import warnings
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        if 'BASISSET' in self._basisset:
+            warnings.warn(
+                "The 'BASISSET' keyword is in use. It will be cleaned.")
+            self._block_ed = 'ENDBS\n'
+
+        bs_obj = BasisSetBASE(name, element)
+        self._basisset = bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_string(self, string, fmt='crystal', filename=None):
         """
         Args:
             string (str): A line of string. Use '\n' to break lines. The ending
-            lines '99 0' and 'END' are not needed.
+                line '99 0' is needed but not 'END'.
+            fmt (str): Format of basis set string. if not 'crystal', this
+                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
+            filename (None | str): If not None, print basis set definitions to
+                a text file
         """
         import re
         import warnings
+        import basis_set_exchange as bse
+        from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        self._basisset = ''
         if 'BASISSET' in self._basisset:
             warnings.warn(
                 "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = '99 0\nENDBS\n'
+            self._block_ed = 'ENDBS\n'
 
-        value = string.split('\n')
-        for v in value[::-1]:
-            v = v.strip()
-            if re.match(r'^99\s+0', v) or re.match(r'^END', v) or v == '':
-                value.remove(v)
-        shape = [1 for v in value]
-        self._basisset = super(
-            BasisSet, self).assign_keyword(None, shape, value)
+        if re.match(r'^crystal$', fmt, re.IGNORECASE):
+            bs_obj = BasisSetBASE()._set_atom(string)
+        else:
+            bs_str = bse.convert_formatted_basis_str(string, fmt, 'crystal')
+            bs_obj = BasisSetBASE()._set_atom(bs_str)
 
-    def from_file(self, file):
+        self._basisset = bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_file(self, file, fmt='crystal', filename=None):
         """
         Args:
-            file (file): A formatted text file with basis set definitions. The 
-            ending lines '99 0' and 'END' are not needed.
+            file (file): A formatted text file with basis set definitions. The
+                ending line '99 0' is needed but not 'END'.
+            fmt (str): Format of basis set string. if not 'crystal', this
+                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
+            filename (None | str): If not None, print basis set definitions to
+                a text file
         """
+        import re
         import warnings
+        import basis_set_exchange as bse
+        from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        self._basisset = ''
         if 'BASISSET' in self._basisset:
             warnings.warn(
                 "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = '99 0\nENDBS\n'
+            self._block_ed = 'ENDBS\n'
 
-        bs = open(file, 'r')
-        value = bs.read()
-        bs.close()
-        value = value.strip().split('\n')
-        for v in value[::-1]:
-            v = v.strip()
-            if re.match(r'^99\s+0', v) or re.match(r'^END', v) or v == '':
-                value.remove(v)
-        shape = [1 for v in value]
-        self._basisset = super(
-            BasisSet, self).assign_keyword(None, shape, value)
+        bs_file = open(file, 'r')
+        bs_str = bs_file.read()
+        bs_fle.close()
+        if re.match(r'^crystal$', fmt, re.IGNORECASE):
+            bs_obj = BasisSetBASE()._set_atom(bs_str)
+        else:
+            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
+            bs_obj = BasisSetBASE()._set_atom(bs_str)
+
+        self._basisset = bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_obj(self, bs_obj, filename=None):
+        """
+        Define basis set from a BasisSetBASE object.
+
+        Args:
+            bs_obj (BasisSetBASE): A CRYSTALpytools.base.basisset.BasisSetBASE
+                object.
+            filename (None | str): If not None, print basis set definitions to
+                a text file
+        """
+        import warnings
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        if 'BASISSET' in self._basisset:
+            warnings.warn(
+                "The 'BASISSET' keyword is in use. It will be cleaned.")
+            self._block_ed = 'ENDBS\n'
+
+        self._basisset = bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
 
     def ghosts(self, NA=None, LA=[]):
         shape, value = super(BasisSet, self).set_list(NA, LA)
@@ -849,6 +921,8 @@ class SCF(BlockBASE):
             obj (DFT | str): A block object of 'DFT' submodule. Or a string in
                 CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import DFT
+
         self._block_dft = DFT()
         if obj == None:  # Initialize block
             return
@@ -877,6 +951,8 @@ class SCF(BlockBASE):
             obj (DFTD3 | str): A block object of 'DFTD3' submodule. Or a string
                 in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import DFTD3
+
         self._block_dftd3 = DFTD3()
         if obj == None:  # Initialize block
             return
@@ -905,7 +981,9 @@ class SCF(BlockBASE):
             obj (GCP | str): A block object of 'GCP' submodule. Or a string in
                 CRYSTAL d12 format.
         """
-        self._block_gcp = DFTD3()
+        from CRYSTALpytools.base.crysd12 import GCP
+
+        self._block_gcp = GCP()
         if obj == None:  # Initialize block
             return
         elif type(obj) == str:

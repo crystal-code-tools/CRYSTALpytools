@@ -23,7 +23,7 @@ Structure of classes
 
 #. ``_block_bg`` attribute has the keyword or undefined 1st line of a block. In class Optgeom, that is 'OPTGEOM\n' and in Geom, that is title line. When it is empty, it should be set as ``None``.
 
-#. Similarly, ``_block_ed`` attribute has the ending line of a block. In class BasisSet, by default that is '99 0\nENDBS\n'. When it is empty, it should be set as ``None``.
+#. Similarly, ``_block_ed`` attribute has the ending line of a block. In class BasisSet, by default that is 'ENDBS\n'. When it is empty, it should be set as ``None``.
 
 #. When ``_block_bg`` and ``_block_ed`` are both ``''`` (note that is not ``None``), the whole block is regarded as empty and its data will not be updated.
 
