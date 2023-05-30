@@ -1,16 +1,9 @@
 CRYSTALpytools.base.inputbase module
-================================
+====================================
+
+.. _ref-base-inputbase:
 
 Python wrapper for CRYSTAL inputs. Provides basic classes, methods and attributes to read, operate and write CRYSTAL d12/d3 files.
-
-Note for users
-~~~~~~~~~~~~~~
-
-Check documentations of crystal_io.
-
-
-Note for developers
-~~~~~~~~~~~~~~~~~~~
 
 Structure of classes
 --------------------
@@ -59,7 +52,7 @@ To address conflicts between 2 'keyword-like' inputs, one can simply direct 2 di
 To address conflicts involving 'block-like' inputs, the ``clean_conflict`` method should be used. Check the explanations below.
 
 Planned developments
-~~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 #. Add Properties_inputBASE
 

@@ -1,6 +1,8 @@
 CRYSTALpytools.base.basisset module
 ===================================
 
+.. _ref-base-basisset:
+
 A base module for CRYSTAL basis set, including objects respectively for the basis set file, atom, shell and Gaussian type functions (GTF). The `Basis Set Exchange (BSE) Python API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ is used to get and convert basis sets.
 
 To call and modify parameters of a certain GTF, which is usually needed when optimizing basis set:
