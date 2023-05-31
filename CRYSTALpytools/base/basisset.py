@@ -95,6 +95,8 @@ class BS_Atom():
         The type of basis set should be consistent for all the shells.
         Otherwise unexpected errors might happen.
 
+        Free effective core pseudopotential (ECP) definition not supported.
+
     Args:
         z (int): Convential atomic number Z.
         info (list(str)): String in Crystal BS format
@@ -111,6 +113,7 @@ class BS_Atom():
         self.conventional_atomic_number(z)
         self.nshell = 0
         self.shell = []
+        self.ecp = None
         set_stdbs = False
         info.append('')  # Avoid index out of range error
         for idx, line in enumerate(info):
@@ -130,6 +133,10 @@ class BS_Atom():
                 else:  # Standard STO-3G / 3(6)-21G* basis sets
                     set_stdbs = True
                     break
+            elif re.match(r'^[A-Z]+', line): # ECP line
+                if re.match(r'^INPUT', line):
+                    raise ValueError('Free-format ECP not supported')
+                self.ecp = line
             else:
                 continue
 
@@ -223,6 +230,9 @@ That might lead to discripencies in basis set definitions.''')
         """
         bs_str = ''
         bs_str += format('%-5i%-5i\n' % (self.zconv, self.nshell))
+        if self.ecp != None:
+            bs_str += format('%s\n' % self.ecp)
+
         for s in self.shell:
             bs_str += s.data
 
@@ -250,7 +260,7 @@ class BasisSetBASE():
         pass
 
     @classmethod
-    def from_bse(cls, name, element):
+    def from_bse(cls, name, element, zconv=None):
         """
         Download basis set definitions from BSE.
 
@@ -262,7 +272,7 @@ class BasisSetBASE():
 
         bs_str = bse.get_basis(name, elements=element, fmt='crystal')
 
-        return cls()._set_atom(bs_str)
+        return cls()._set_atom(bs_str, zconv)
 
     @classmethod
     def from_string(cls, bs_str, fmt='crystal'):
@@ -297,12 +307,15 @@ class BasisSetBASE():
 
         return cls()._set_atom(bs_str)
 
-    def _set_atom(self, info):
+    def _set_atom(self, info, zconv=None):
         """
         Assign basis set parameters at atom level.
 
         Args:
             info (str): String in Crystal format
+            zconv (list[int]): If not none, use the conventional atomic number.
+                Its length must be nelement. Its sequence must be consistent
+                with basis set's
         """
         import re
         from CRYSTALpytools.base.basisset import BS_Atom
@@ -317,8 +330,10 @@ class BasisSetBASE():
                 if re.match(r'^99\s+0$', line):
                     atom_range.append(idx)
                     break
-
-                z = int(line.split()[0])  # Conventional atomic number
+                if zconv == None:
+                    z = int(line.split()[0])  # Conventional atomic number
+                else:
+                    z = zconv[len(atom_range) - 1]
                 atom_list.append(z)
                 atom_range.append(idx)
 
