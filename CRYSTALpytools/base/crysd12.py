@@ -780,7 +780,7 @@ class BasisSet(BlockBASE):
         Basis set from a string
 
         Args:
-            string (str): A line of string. Use '\n' to break lines. The ending
+            string (str): A line of string. Use '\\n' to break lines. The ending
                 line '99 0' is needed but not 'END'.
             fmt (str): Format of basis set string. if not 'crystal', this
                 method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.

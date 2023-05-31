@@ -39,8 +39,8 @@ class Crystal_input(Crystal_inputBASE):
                 conditions along x, y, z axis
             gui_name (str): *Limited to keyword = EXTERNAL*. Gui file's name.
             symprec (float): *Limited to keyword = CRYSTAL*. If not none,
-                finds the symmetry of the structure. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer<https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
-            angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer<https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+                finds the symmetry of the structure. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
         """
         import re
         from pymatgen.core.structure import IStructure
@@ -75,7 +75,7 @@ class Crystal_input(Crystal_inputBASE):
 
     def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
         """
-        PyMatGen IStructure object to 'CRYSTAL' input block
+        Pymatgen IStructure object to 'CRYSTAL' input block
 
         .. note::
 

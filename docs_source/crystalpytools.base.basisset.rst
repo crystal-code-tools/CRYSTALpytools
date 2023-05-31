@@ -8,13 +8,14 @@ A base module for CRYSTAL basis set, including objects respectively for the basi
 To call and modify parameters of a certain GTF, which is usually needed when optimizing basis set:
 
 .. code-block::
+
     >>> bs = BasisSetBASE.from_bse('6-311G*', ['C', 'H']) # Download 6-311G* BS from BSE
     >>> bs.atom[6].shell[1].gtf[2].exp = 1.46000 # Change the exponent of the 3rd GTF, 2nd shell, C atom (called by conventional atomic number)
     >>> bs.atom[6].shell[1].gtf[2].contr = 0.001 # Contraction
     >>> bs.atom[6].shell[1].gtf[2].pceof = 0.815854 # sp coefficient
 
 .. automodule:: CRYSTALpytools.base.basisset
-   :members:
-   :private-members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :private-members:
+    :undoc-members:
+    :show-inheritance:
