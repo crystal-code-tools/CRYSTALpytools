@@ -3,7 +3,7 @@ CRYSTALpytools.base.crysd12 module
 
 .. _ref-base-crysd12:
 
-The ``Crystal_inputBASE`` object is strictly structured by 'blocks', which, in general, is defined as keywords that are closed by 'END'. It is inherited from the :ref:```BlockBASE`` <ref-base-inputbase>` object and is inherited by the :ref:```Crystal_input`` <ref-crystalio>` object. All the blocks are organized in layers and each corresponds to a list of keywords that can be called and set. The current structure of ``Crystal_inputBASE`` is listed below:
+The ``Crystal_inputBASE`` object is strictly structured by 'blocks', which, in general, is defined as keywords that are closed by 'END'. It is inherited from the :ref:`BlockBASE <ref-base-inputbase>` object and is inherited by the :ref:`Crystal_input <ref-crystalio>` object. All the blocks are organized in layers and each corresponds to a list of keywords that can be called and set. The current structure of ``Crystal_inputBASE`` is listed below:
 
 Layer 1: ``geom``, ``basisset``, ``scf``  
 
@@ -11,7 +11,7 @@ Layer 2: ``optgeom``, ``freqcalc``, ``dft``, ``dftd3``, ``gcp``, ``fixindex``
 
 Layer 3: ``preoptgeom``, ``geom``, ``base``  
 
-For the usages of :ref:```BlockBASE`` <ref-base-inputbase>` and :ref:```Crystal_input`` <ref-crystalio>` objects, please refer to the corresponding documentations.
+For the usages of :ref:`BlockBASE <ref-base-inputbase>` and :ref:`Crystal_input <ref-crystalio>` objects, please refer to the corresponding documentations.
 
 For example, to set force convergence threshold of a optimization run:
 
@@ -49,7 +49,7 @@ It is also possible to set individual blocks by a string. The ``set_block`` meth
 
     >>> obj.scf.set_dft('SPIN\\nEXCHANGE\\nPBE\\nCORRELAT\\nP86\\n')
 
-For basis set, it is not a typical ``BlockBASE`` object (though it inherits ``BlockBASE``). When 'BASISSET' keyword is used, it is called in the same way as other blocks. When explicit definitions of basis set are used, it can be defined via formatted string, file, `Basis Set Exchange (BSE) <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ and :ref:```BasisSetBASE`` <ref-base-basisset>` object. The ending line '99 0' is required.
+For basis set, it is not a typical ``BlockBASE`` object (though it inherits ``BlockBASE``). When 'BASISSET' keyword is used, it is called in the same way as other blocks. When explicit definitions of basis set are used, it can be defined via formatted string, file, `Basis Set Exchange (BSE) <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ and :ref:`BasisSetBASE <ref-base-basisset>` object. The ending line '99 0' is required.
 
 .. code-block::
 
