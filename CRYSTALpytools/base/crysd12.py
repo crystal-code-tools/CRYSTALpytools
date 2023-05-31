@@ -751,8 +751,10 @@ class BasisSet(BlockBASE):
 
         Args:
             name (str): Basis set's name.
-            element (list[str] | list[int]): List of elements, specified by
-                either atomic number or label.
+            element (list[str] | list[int] | list[list[str | int, int]]): List
+                of elements, specified by either atomic number or label. When
+                a nelement\*2 list is used, the second entry is recognized as
+                conventional atomic numbers.
             filename (None | str): If not None, print basis set definitions to
                 a text file
         """
@@ -760,12 +762,21 @@ class BasisSet(BlockBASE):
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if hasattr(self, '_basisset'):
-            warnings.warn('The previous basis set will be erased.', stacklevel=2)
             if 'BASISSET' in self._basisset:
+                warnings.warn('The previous basis set will be erased.', stacklevel=2)
+                self._basisset = ''
                 self._block_ed = 'ENDBS\n'
+        else:
+            self._basisset = ''
 
-        bs_obj = BasisSetBASE.from_bse(name, element)
-        self._basisset = bs_obj.data
+        if type(element[0]) == list or type(element[0]) == tuple:
+            element_real = [i[0] for i in element]
+            zconv = [i[1] for i in element]
+            bs_obj = BasisSetBASE.from_bse(name, element_real, zconv)
+        else:
+            bs_obj = BasisSetBASE.from_bse(name, element)
+
+        self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
@@ -786,12 +797,15 @@ class BasisSet(BlockBASE):
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if hasattr(self, '_basisset'):
-            warnings.warn('The previous basis set will be erased.', stacklevel=2)
             if 'BASISSET' in self._basisset:
+                warnings.warn('The previous basis set will be erased.', stacklevel=2)
+                self._basisset = ''
                 self._block_ed = 'ENDBS\n'
+        else:
+            self._basisset = ''
 
         bs_obj = BasisSetBASE.from_string(string, fmt)
-        self._basisset = bs_obj.data
+        self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
@@ -812,12 +826,15 @@ class BasisSet(BlockBASE):
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
         if hasattr(self, '_basisset'):
-            warnings.warn('The previous basis set will be erased.', stacklevel=2)
             if 'BASISSET' in self._basisset:
+                warnings.warn('The previous basis set will be erased.', stacklevel=2)
+                self._basisset = ''
                 self._block_ed = 'ENDBS\n'
+        else:
+            self._basisset = ''
 
         bs_obj = BasisSetBASE.from_file(file, fmt)
-        self._basisset = bs_obj.data
+        self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
@@ -835,11 +852,14 @@ class BasisSet(BlockBASE):
         import warnings
 
         if hasattr(self, '_basisset'):
-            warnings.warn('The previous basis set will be erased.', stacklevel=2)
             if 'BASISSET' in self._basisset:
+                warnings.warn('The previous basis set will be erased.', stacklevel=2)
+                self._basisset = ''
                 self._block_ed = 'ENDBS\n'
+        else:
+            self._basisset = ''
 
-        self._basisset = bs_obj.data
+        self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)

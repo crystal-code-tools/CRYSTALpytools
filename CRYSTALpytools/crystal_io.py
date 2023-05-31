@@ -16,11 +16,14 @@ class Crystal_input(Crystal_inputBASE):
     def __init__(self):
         super(Crystal_input, self).__init__()
 
-    def geom_from_cif(self, file, keyword='EXTERNAL', pbc=[True, True, True],
-                      gui_name='fort.34', symprec=0.01, angle_tolerance=5.0):
+    def geom_from_cif(self, file, zconv=None, keyword='EXTERNAL',
+                      pbc=[True, True, True], gui_name='fort.34',
+                      symprec=0.01, angle_tolerance=5.0):
         """
         Read geometry from cif file and put infomation to geom block, either as
         'EXTERNAL' or 'CRYSTAL'. CIF files with a single geometry only.
+
+        CIF with Symmetry is required.
 
         .. note::
 
@@ -29,6 +32,9 @@ class Crystal_input(Crystal_inputBASE):
         Args:
             file (str): CIF file.
             keyword (str): 'EXTERNAL' or 'CRYSTAL'.
+            zconv (list[list[int, int]]): 1st element: The **index** of atom;
+                2nd element: The new conventional atomic number. Atoms of the
+                irreducible unit is required.
             pbc (list[bool]): *Limited to keyword = EXTERNAL*. Periodic boundary
                 conditions along x, y, z axis
             gui_name (str): *Limited to keyword = EXTERNAL*. Gui file's name.
@@ -40,39 +46,34 @@ class Crystal_input(Crystal_inputBASE):
         from pymatgen.core.structure import IStructure
 
         struc = IStructure.from_file(file)
-        self.geom_from_pmg(struc, keyword, pbc, gui_name, symprec, angle_tolerance)
+        self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
 
         return
 
-    def geom_from_pmg(self, struc, keyword='EXTERNAL', pbc=[True, True, True],
-                      gui_name='fort.34', symprec=0.01, angle_tolerance=5.0):
+    def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
+                      pbc=[True, True, True], gui_name='fort.34',
+                      symprec=0.01, angle_tolerance=5.0):
         """
         Read geometry defined by PyMatGen structure object and put infomation
         into geom block, either as 'EXTERNAL' or 'CRYSTAL'.
 
-        Args:
-            struc (Structure): PyMatGen Structure object.
-            keyword (str): See ``geom_from_cif``
-            pbc (list[bool]): See ``geom_from_cif``
-            gui_name (str): See ``geom_from_cif``
-            symprec (float): See ``geom_from_cif``
-            angle_tolerance (float): See ``geom_from_cif``
+        See ``geom_from_cif`` for definition of arguments.
         """
         import re
         from CRYSTALpytools.convert import cry_pmg2gui
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
             super(Crystal_input, self).geom.external()
-            gui = cry_pmg2gui(struc, pbc=pbc, symmetry=True)
-            gui.write_gui(gui_name, symm=True, pseudo_atoms=[])
+            gui = cry_pmg2gui(struc, pbc=pbc, symmetry=True, zconv=zconv)
+            gui.write_gui(gui_name, symm=True)
         elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
-            self._pmg2input(struc, symprec=symprec, angle_tolerance=angle_tolerance)
+            self._pmg2input(struc, zconv, symprec=symprec, angle_tolerance=angle_tolerance)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
         return
 
-    def _pmg2input(self, struc, symprec=0.01, angle_tolerance=5.0):
+    def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
         """
         PyMatGen IStructure object to 'CRYSTAL' input block
 
@@ -85,7 +86,6 @@ class Crystal_input(Crystal_inputBASE):
             When multiple choices of periodic cell exist, this method might
             lead to errors due to the inconsistent choice of periodic cell
             between CRYSTAL and pymatgen.
-
         """
         import numpy as np
         from pymatgen.core.structure import IStructure
@@ -137,10 +137,20 @@ class Crystal_input(Crystal_inputBASE):
         natom = len(struc_symm.equivalent_sites)
         eq_atom = int(len(struc_symm.species) / natom)
         atominfo = []
+        if zconv != None:
+            z_atom_index = [i[0] for i in zconv]
         for i in range(natom):
             idx_eq = int(i * eq_atom)
+            if zconv == None:
+                z_input = struc_symm.species[idx_eq].Z
+            else:
+                try:
+                    atom_to_sub = z_atom_index.index(i)
+                    z_input = zconv[atom_to_sub][1]
+                except ValueError:
+                    z_input = struc_symm.species[idx_eq].Z
             atominfo.append([
-                '{:<3}'.format(struc_symm.species[idx_eq].Z),
+                '{:<3}'.format(z_input),
                 '{0:11.8f}'.format(
                     round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
                 ),
@@ -152,8 +162,7 @@ class Crystal_input(Crystal_inputBASE):
                 )
             ])
 
-        super(Crystal_input, self).geom.crystal(
-            IGR=sg, latt=latt, atom=atominfo)
+        super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atominfo)
 
         return
 
@@ -2251,6 +2260,8 @@ class Crystal_gui:
                 ))
             else:
                 file.writelines('{:5d}{:5d}\n'.format(1, 1))
+
+        file.close()
 
 
 class Crystal_density():

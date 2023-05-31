@@ -253,7 +253,7 @@ def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
     return structure
 
 
-def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True):
+def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
     """
     Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
     Vacuum needs to be included because pymatgen only includes 3D symmetry.
@@ -262,6 +262,8 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True):
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
         pbc (list[bool]): Periodic boundary conditions along the x, y, z directions.
         symmetry (bool): Do symmetry analysis.
+        zconv (list[list[int, int]]): 1st element: The **index** of atom;
+                2nd element: The new conventional atomic number.
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -387,6 +389,10 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True):
 
         gui.atom_number = list(structure.atomic_numbers)
         gui.atom_positions = structure.cart_coords.tolist()
+
+    if zconv != None:
+        for atom in zconv:
+            gui.atom_number[atom[0]] = atom[1]
 
     return gui
 
