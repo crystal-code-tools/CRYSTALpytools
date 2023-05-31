@@ -10,7 +10,7 @@ from CRYSTALpytools.base.crysd12 import Crystal_inputBASE
 
 class Crystal_input(Crystal_inputBASE):
     """
-    Crystal input object inherited from the :ref:```Crystal_inputBASE``<ref-base-crysd12>`
+    Crystal input object inherited from the :ref:```Crystal_inputBASE`` <ref-base-crysd12>`
     object. For the basic set-ups of keywords, please refer to manuals there.
     """
     def __init__(self):
