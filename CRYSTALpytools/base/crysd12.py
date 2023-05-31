@@ -745,7 +745,7 @@ class BasisSet(BlockBASE):
         else: # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
             self._block_ed = None
 
-    def from_bse(self, name, element, filename=None):
+    def from_bse(self, name, element, filename=None, append=False):
         """
         Download basis set definitions from `Basis Set Exchange <https://www.basissetexchange.org/>`_.
 
@@ -757,18 +757,12 @@ class BasisSet(BlockBASE):
                 conventional atomic numbers.
             filename (None | str): If not None, print basis set definitions to
                 a text file
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway.
         """
-        import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if hasattr(self, '_basisset'):
-            if 'BASISSET' in self._basisset:
-                warnings.warn('The previous basis set will be erased.', stacklevel=2)
-                self._basisset = ''
-                self._block_ed = 'ENDBS\n'
-        else:
-            self._basisset = ''
-
+        self._check_bs(append)
         if type(element[0]) == list or type(element[0]) == tuple:
             element_real = [i[0] for i in element]
             zconv = [i[1] for i in element]
@@ -781,7 +775,7 @@ class BasisSet(BlockBASE):
         if filename != None:
             bs_obj.to_file(file=filename)
 
-    def from_string(self, string, fmt='crystal', filename=None):
+    def from_string(self, string, fmt='crystal', filename=None, append=False):
         """
         Basis set from a string
 
@@ -790,27 +784,19 @@ class BasisSet(BlockBASE):
                 line '99 0' is needed but not 'END'.
             fmt (str): Format of basis set string. if not 'crystal', this
                 method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
-            filename (None | str): If not None, print basis set definitions to
-                a text file
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
         """
-        import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if hasattr(self, '_basisset'):
-            if 'BASISSET' in self._basisset:
-                warnings.warn('The previous basis set will be erased.', stacklevel=2)
-                self._basisset = ''
-                self._block_ed = 'ENDBS\n'
-        else:
-            self._basisset = ''
-
+        self._check_bs(append)
         bs_obj = BasisSetBASE.from_string(string, fmt)
         self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
 
-    def from_file(self, file, fmt='crystal', filename=None):
+    def from_file(self, file, fmt='crystal', filename=None, append=False):
         """
         Basis set from a file
 
@@ -819,56 +805,57 @@ class BasisSet(BlockBASE):
                 ending line '99 0' is needed but not 'END'.
             fmt (str): Format of basis set string. if not 'crystal', this
                 method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
-            filename (None | str): If not None, print basis set definitions to
-                a text file
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
         """
-        import warnings
         from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        if hasattr(self, '_basisset'):
-            if 'BASISSET' in self._basisset:
-                warnings.warn('The previous basis set will be erased.', stacklevel=2)
-                self._basisset = ''
-                self._block_ed = 'ENDBS\n'
-        else:
-            self._basisset = ''
-
+        self._check_bs(append)
         bs_obj = BasisSetBASE.from_file(file, fmt)
         self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
 
-    def from_obj(self, bs_obj, filename=None):
+    def from_obj(self, bs_obj, filename=None, append=False):
         """
         Define basis set from a BasisSetBASE object.
 
         Args:
             bs_obj (BasisSetBASE): A CRYSTALpytools.base.basisset.BasisSetBASE
                 object.
-            filename (None | str): If not None, print basis set definitions to
-                a text file
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
         """
-        import warnings
-
-        if hasattr(self, '_basisset'):
-            if 'BASISSET' in self._basisset:
-                warnings.warn('The previous basis set will be erased.', stacklevel=2)
-                self._basisset = ''
-                self._block_ed = 'ENDBS\n'
-        else:
-            self._basisset = ''
-
+        self._check_bs(append)
         self._basisset += bs_obj.data
 
         if filename != None:
             bs_obj.to_file(file=filename)
 
-    def clean_bs(self):
+    def _check_bs(self, append):
         """
-        Clean basis set definition
+        Check basis set definitions. Not an independent method that designed to
+        be called.
         """
-        self._basisset = ''
+        import warnings
+        import re
+
+        if hasattr(self, '_basisset') and append == False:
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            self._basisset = ''
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
+        elif hasattr(self, '_basisset') and append == True:
+            if 'BASISSET' in self._basisset:
+                warnings.warn("'BASISSET' detected. The previous definition will be erased anyway.",
+                              stacklevel=2)
+                self._basisset = ''
+                self._block_ed = 'ENDBS\n'
+            else:
+                self._basisset = re.sub(r'99\s+0\n$', "", self._basisset)
+        else:
+            self._basisset = ''
 
     def ghosts(self, NA=None, LA=[]):
         shape, value = super(BasisSet, self).set_list(NA, LA)
