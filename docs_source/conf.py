@@ -82,7 +82,7 @@ html_context = {
     'display_github'  : True,
     'github_user'     : 'crystal-code-tools',
     'github_repo'     : 'CRYSTALpytools',
-    'github_version'  : 'master',
+    'github_version'  : 'main',
     'conf_py_path'    : '/docs_source/',
 }
 
