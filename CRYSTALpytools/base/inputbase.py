@@ -128,7 +128,7 @@ class BlockBASE():
             return [], None
 
         if len(args) != 2 or int(args[0]) != len(args[1]):
-            return InputeError('Input format error. Arguments should be int + list')
+            return ValueError('Input format error. Arguments should be int + list')
 
         shape = [1, ]
         value = [int(args[0]), ]
