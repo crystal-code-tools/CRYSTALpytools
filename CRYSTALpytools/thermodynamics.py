@@ -1565,7 +1565,7 @@ class Quasi_harmonic:
                 self.equilibrium_volume[idx_p, idx_t] = params['vol'].x[0]
 
                 if (params['vol'].x[0] < min(self.combined_volume) or params['vol'].x[0] > max(self.combined_volume)) and not mutewarning:
-                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f'
+                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
                                   % (params['vol'].x[0], t, p), stacklevel=2)
 
         # Calculate other thermodynamic properties
@@ -1583,11 +1583,11 @@ class Quasi_harmonic:
 
         # Bulk modulus - Fit EOS at each pressure
         self.k_t = np.zeros([len(self.pressure), len(self.temperature)])
-        self.thermo_eos = []
-        self.thermo_eos_method = eos_method
+        self.fe_eos = []
+        self.fe_eos_method = eos_method
         v = symbols('v')
         for idx_t, t in enumerate(self.temperature):
-            # thermo_eos should be upated everytime this method is called.
+            # fe_eos should be upated everytime this method is called.
             # Polynomial / Deltafactor
             if 'order' in kwargs.keys():
                 eos, _ = self.eos_fit(self.equilibrium_volume[:, idx_t],
@@ -1605,7 +1605,7 @@ class Quasi_harmonic:
                 eos, _ = self.eos_fit(self.equilibrium_volume[:, idx_t],
                                       self.helmholtz[:, idx_t], eos_method, write_out=False)
 
-            self.thermo_eos.append(eos)
+            self.fe_eos.append(eos)
             df = diff(eos(v), v, 2)
             lam_df = lambdify(v, df, 'numpy')
             self.k_t[:, idx_t] = \
@@ -1641,186 +1641,6 @@ class Quasi_harmonic:
                                 self.gibbs[idx_p, idx_t],
                                 self.entropy[idx_p, idx_t],
                                 self.k_t[idx_p, idx_t]))
-
-                file.write('\n')
-
-            file.write('\n')
-            file.close()
-
-        return self
-
-    def thermo_eos(self, eos_method='birch_murnaghan', poly_order=[2, 3],
-                   mutewarning=False, **kwargs):
-        """
-        Obtain thermodynamic properties by fitting EOS, which is fitted by the 
-        Helmholtz free energies of sampled harmonic phonons. The explicit 
-        sorting and fitting of frequency-volume relationship is disabled.
-
-        Args:
-
-            eos_method (str, optional)
-            poly_order (array[int] | list[int], optional): Order of 
-                polynomials used to fit Gibbs free energy to get entropy.
-            mutewarning (bool, optional)
-            temperature (array[float] | list[float], optional): Unit: K
-            pressure (array[float] | list[float], optional): Unit: GPa
-            order (int, optional): For DeltaFactor EOS. *Not implemented*
-            min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
-                For Numerical EOS. *Not implemented*
-
-        Returns:
-            self (Quasi_harmonic)
-
-        New Attributes are consistent with the ``thermo_freq`` method
-
-        :raise Exception: If the number of HA calculations is less than 4.
-        :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
-        """
-        import numpy as np
-        import warnings
-        import re
-        from CRYSTALpytools.thermodynamics import Harmonic
-        from pymatgen.analysis.eos import EOS
-        from scipy.optimize import fmin
-        from sympy import diff, lambdify, symbols
-
-        # Check the number of calculations
-        if self.ncalc < 4:
-            raise Exception('Insufficient database. Increase HA phonons')
-
-        # Generate temperature and pressure series
-        if kwargs:
-            if 'temperature' in kwargs:
-                if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn(
-                        'Temperature attribute exists. Input temperatures will be used to update the attribute.',
-                        stacklevel=2)
-
-                self.temperature = np.array(
-                    kwargs['temperature'], dtype=float)
-
-            if 'pressure' in kwargs:
-                if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn(
-                        'Pressure attribute exists. Input pressures will be used to update the attribute.',
-                        stacklevel=2)
-
-                self.pressure = np.array(kwargs['pressure'], dtype=float)
-
-        if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
-            raise ValueError('Temperature and pressure should be specified.')
-
-        # Data for fitting
-        helmholtz = np.zeros([len(self.temperature), self.ncalc], dtype=float)
-        for idx_c, calc in enumerate(self.combined_phonon):
-            hfe_c, _, _, _, _, _ = calc.thermodynamics(
-                sumphonon=True, mutewarning=True, temperature=self.temperature, pressure=[0.]
-            )
-            helmholtz[:, idx_c] = hfe_c
-
-        # Fit EOS, get p-V-T
-        self.thermo_eos_method = eos_method
-        self.thermo_eos = []
-        self.equilibrium_volume = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.helmholtz = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.gibbs = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.entropy = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        v = symbols('v')
-        for idx_t, t in enumerate(self.temperature):
-            # Commented due to the inhierant problem of pymatgen EOS object
-            #             if re.findall(r'deltafactor', eos_method, re.I):
-            #                 if 'order' not in kwargs.keys():
-            #                     kwargs.update({'order' : 3})
-
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t], order=kwargs['order'])
-
-            #             elif re.findall(r'numerical_eos', eos_method, re.I):
-            #                 if 'min_ndata_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_ndata_factor' : 3})
-
-            #                 if 'max_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'max_poly_order_factor' : 5})
-
-            #                 if 'min_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_poly_order_factor' : 2})
-
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t],
-            #                                             min_ndata_factor=kwargs['min_ndata_factor'],
-            #                                             max_poly_order_factor=kwargs['max_poly_order_factor'],
-            #                                             min_poly_order_factor=kwargs['min_poly_order_factor'])
-
-            #             else:
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
-            hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
-            self.thermo_eos.append(hfe_t(v))
-            press_t = -diff(hfe_t(v), v)
-            for idx_p, p in enumerate(self.pressure):
-                pau = p * 0.602214  # GPa --> kJ/mol.Angstrom^3
-                lam_p = lambdify(v, (press_t - pau)**2, 'numpy')
-                fit = fmin(lam_p, hfe_t.v0, full_output=True, disp=False)
-                self.equilibrium_volume[idx_p, idx_t] = fit[0]
-                self.helmholtz[idx_p, idx_t] = hfe_t(fit[0])
-                self.gibbs[idx_p, idx_t] = hfe_t(fit[0]) + pau * fit[0]
-
-                if (fit[0] < min(self.combined_volume) or fit[0] > max(self.combined_volume)) and not mutewarning:
-                    warnings.warn(
-                        'Optimised volume exceeds the sampled range. Special care should be taken of.', stacklevel=2)
-                    warnings.warn('  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f' % (
-                        fit[0], t, p), stacklevel=2)
-
-        # Second fit G(T; p), get entropy by S=-(\frac{\partial G}{\partial T})_{p}
-        t = symbols('t')
-        if max(poly_order) > len(self.temperature) - 1 and not mutewarning:
-            warnings.warn(
-                'Temperature series not sufficient for the order of polynomial fitting.', stacklevel=2)
-            warnings.warn('Too high values will be removed.', stacklevel=2)
-
-        poly_order = list(set(poly_order))
-        poly_order = [p for p in poly_order if p <= len(self.temperature) - 1]
-
-        for idx_p, gibbs in enumerate(self.gibbs):
-            r_square = np.array([], dtype=float)
-            func = []
-            for order in poly_order:
-                func_order = np.polynomial.polynomial.Polynomial.fit(
-                    self.temperature, gibbs, order)
-                func.append(func_order)
-                ss_res = np.sum((gibbs - func_order(self.temperature))**2)
-                ss_tot = np.sum((gibbs - np.mean(gibbs))**2)
-                r_square = np.append(r_square, 1 - ss_res / ss_tot)
-
-            fit_func = func[np.argmax(r_square)]
-            entropy = -diff(fit_func(t), t) * 1000.
-            for idx_t, tempt in enumerate(self.temperature):
-                self.entropy[idx_p, idx_t] = entropy.evalf(subs={'t': tempt})
-
-        # Print output file
-        if self.write_out:
-            file = open(self.filename, 'a+')
-            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES - EOS FIT')
-            file.write(
-                '%s\n\n' % '  Thermodynamic properties obtained by overall fitting of equation of states.')
-            file.write('%s%s\n' % ('## EQUATION OF STATES: ', eos_method))
-            file.write('%s%i\n' % ('## G(T) POLYNOMIAL ORDER: ',
-                                   poly_order[np.argmax(r_square)]))
-            file.write(
-                '%s\n' % '  WARNING: Entropy at low temperature is probably inaccurate due to the poor fitting of G(T) near 0K.')
-            for idx_p, press in enumerate(self.pressure):
-                file.write('%s%6.2f%s\n\n' %
-                           ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
-                file.write('%4s%6s%4s%16s%2s%18s%4s%16s%4s%16s\n' %
-                           ('', 'T(K)', '', 'Vol(Angstrom^3)', '', 'Helmholtz(kJ/mol)', '', 'Gibbs(kJ/mol)', '', 'Entropy(J/mol*K)'))
-                for idx_t, tempt in enumerate(self.temperature):
-                    file.write('%4s%6.1f%4s%16.4f%4s%16.8e%4s%16.8e%4s%16.8e\n' %
-                               ('', tempt,
-                                '', self.equilibrium_volume[idx_p, idx_t],
-                                '', self.helmholtz[idx_p, idx_t],
-                                '', self.gibbs[idx_p, idx_t],
-                                '', self.entropy[idx_p, idx_t]))
 
                 file.write('\n')
 
@@ -1913,3 +1733,163 @@ class Quasi_harmonic:
 
         return self
 
+    def thermo_eos(self, eos_method='birch_murnaghan', poly_order=[2, 3],
+                   mutewarning=False, **kwargs):
+        """
+        Obtain thermodynamic properties by fitting EOS, which is fitted by the
+        Helmholtz free energies of sampled harmonic phonons. The explicit
+        sorting and fitting of frequency-volume relationship is disabled.
+
+        For arguments and returns, see ``self.thermo_freq``.
+
+        .. note::
+
+            To get entropy, Gibbs free energy is fitted as the polynomial
+            functions of temperature at constant pressure. That leads to
+            decreased accuracy around 0K.
+
+        :raise Exception: If the number of HA calculations is less than 4.
+        :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
+        """
+        import numpy as np
+        import warnings
+        import re
+        from scipy.optimize import fmin
+        import scipy.constants as scst
+        from sympy import diff, lambdify, symbols
+
+        # Check the number of calculations
+        if self.ncalc < 4:
+            raise Exception('Insufficient database. Increase HA phonons')
+
+        # Generate temperature and pressure series
+        if kwargs:
+            if 'temperature' in kwargs:
+                if hasattr(self, 'temperature') and not mutewarning:
+                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
+                                  stacklevel=2)
+                self.temperature = np.array(kwargs['temperature'], dtype=float)
+
+            if 'pressure' in kwargs:
+                if hasattr(self, 'pressure') and not mutewarning:
+                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
+                                  stacklevel=2)
+                self.pressure = np.array(kwargs['pressure'], dtype=float)
+
+        if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
+            raise ValueError('Temperature and pressure should be specified.')
+
+        # Get data for fitting. Helmholtz: nTempt*nCalc matrix
+        helmholtz = np.zeros([len(self.temperature), self.ncalc], dtype=float)
+        for idx_c, calc in enumerate(self.combined_phonon):
+            hfe_c, _, _, _, _, _ = calc.thermodynamics(
+                sumphonon=True, mutewarning=True,
+                temperature=self.temperature, pressure=[0.])
+            helmholtz[:, idx_c] = hfe_c
+
+        # Fit EOS
+        eos_method = eos_method.casefold()
+        if hasattr(self, 'fe_eos') and not mutewarning:
+            warnings.warn('Harmonic free energy EOS is fitted. To keep the consistency, it will not be updated.',
+                          stacklevel=2)
+        else:
+            self.fe_eos_method = eos_method
+            self.fe_eos = []
+            for idx_t, t in enumerate(self.temperature):
+                # Polynomial / Deltafactor
+                if 'order' in kwargs.keys():
+                    eos, _ = self.eos_fit(self.combined_volume, helmholtz[idx_t, :],
+                                          eos_method, write_out=False, order=kwargs['order'])
+                # Numerical
+                elif eos_method == 'numerical_eos':
+                    if 'min_ndata_factor' not in kwargs.keys():
+                        kwargs['min_ndata_factor'] = 3
+                    if 'max_poly_order_factor' not in kwargs.keys():
+                        kwargs['max_poly_order_factor'] = 5
+                    if 'min_poly_order_factor' not in kwargs.keys():
+                        kwargs['min_poly_order_factor'] = 2
+                    eos, _ = self.eos_fit(self.combined_volume, helmholtz[idx_t, :],
+                                          eos_method, write_out=False,
+                                          min_ndata_factor=kwargs['min_ndata_factor'],
+                                          max_poly_order_factor=kwargs['max_poly_order_factor'],
+                                          min_poly_order_factor=kwargs['min_poly_order_factor'])
+                else:
+                    eos, _ = self.eos_fit(self.combined_volume, helmholtz[idx_t, :],
+                                          eos_method, write_out=False)
+                self.fe_eos.append(eos)
+        # Get thermoproperties
+        self.equilibrium_volume = np.zeros([len(self.pressure), len(self.temperature)])
+        self.helmholtz = np.zeros([len(self.pressure), len(self.temperature)])
+        self.gibbs = np.zeros([len(self.pressure), len(self.temperature)])
+        self.entropy = np.zeros([len(self.pressure), len(self.temperature)])
+        self.k_t = np.zeros([len(self.pressure), len(self.temperature)])
+        v = symbols('v')
+        for idx_t, eos in enumerate(self.fe_eos):
+            p_eos = -diff(eos(v), v, 1)
+            for idx_p, p in enumerate(self.pressure):
+                p_kj = p * scst.Avogadro / 1e24  # GPa --> kJ/mol.Angstrom^3
+                lam_p = lambdify(v, (p_eos - p_kj)**2, 'numpy')
+                fit = fmin(lam_p, eos.v0, full_output=True, disp=False)
+                if np.isnan(fit[0]) == True:
+                    raise ValueError('EOS fitting failed at %6.2f K, %6.2f GPa. More sampling points needed.' % (self.temperature[idx_t], p))
+                if (fit[0] < min(self.combined_volume) or fit[0] > max(self.combined_volume)) and not mutewarning:
+                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
+                                  % (fit[0], t, p), stacklevel=2)
+                self.equilibrium_volume[idx_p, idx_t] = fit[0]
+                self.helmholtz[idx_p, idx_t] = eos(fit[0])
+                self.gibbs[idx_p, idx_t] = eos(fit[0]) + p_kj * fit[0]
+
+        # Second fit G(T; p), get entropy by S=-(\frac{\partial G}{\partial T})_{p}
+        if max(poly_order) > len(self.temperature) - 1 and not mutewarning:
+            warnings.warn('Temperature series not sufficient for the order of polynomial fitting.\n Too high values will be removed.\n',
+                          stacklevel=2)
+
+        poly_order = list(set(poly_order))
+        poly_order = [p for p in poly_order if p <= len(self.temperature) - 1]
+
+        for idx_p, gibbs in enumerate(self.gibbs):
+            r_square = np.array([], dtype=float)
+            func = []
+            for order in poly_order:
+                func_order = np.polynomial.polynomial.Polynomial.fit(self.temperature, gibbs, order)
+                func.append(func_order)
+                res = np.sum((gibbs - func_order(self.temperature))**2)
+                tot = np.sum((gibbs - np.mean(gibbs))**2)
+                r_square = np.append(r_square, 1 - res / tot)
+
+            entropy = func[np.argmax(r_square)].deriv(1)
+            self.entropy[idx_p, :] = -entropy(self.temperature) * 1000.
+
+        # Compute bulk modulus
+        v = symbols('v')
+        for idx_t, eos in enumerate(self.fe_eos):
+            df = diff(eos(v), v, 2)
+            lam_df = lambdify(v, df, 'numpy')
+            self.k_t[:, idx_t] = self.equilibrium_volume[:, idx_t] * lam_df(self.equilibrium_volume[:, idx_t]) * 1e24 / scst.Avogadro
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES - EOS FIT')
+            file.write('%s\n\n' % '  Thermodynamic properties obtained by overall fitting of equation of states.')
+            file.write('%s%s\n' % ('## EQUATION OF STATES: ', eos_method))
+            file.write('%s%i\n' % ('## G(T) POLYNOMIAL ORDER: ', poly_order[np.argmax(r_square)]))
+            file.write('%s\n' % '  WARNING: Entropy at low temperature is probably inaccurate due to the poor fitting of G(T) near 0K.')
+            for idx_p, press in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
+                file.write('%10s%20s%20s%20s%20s%20s\n' %
+                           ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)', 'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'Bulk K_T(GPa)'))
+                for idx_t, tempt in enumerate(self.temperature):
+                    file.write('%10.1f%20.4f%20.8e%20.8e%20.8e%20.8e\n' %
+                               (tempt, self.equilibrium_volume[idx_p, idx_t],
+                                self.helmholtz[idx_p, idx_t],
+                                self.gibbs[idx_p, idx_t],
+                                self.entropy[idx_p, idx_t],
+                                self.k_t[idx_p, idx_t]))
+
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
