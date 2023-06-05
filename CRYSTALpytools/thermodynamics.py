@@ -1488,20 +1488,17 @@ class Quasi_harmonic:
         from sympy import diff, lambdify, symbols
 
         # Generate temperature and pressure series
-        if kwargs:
-            if 'temperature' in kwargs:
-                if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
-                                  stacklevel=2)
+        if 'temperature' in kwargs:
+            if hasattr(self, 'temperature') and not mutewarning:
+                warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
+                              stacklevel=2)
+            self.temperature = np.array(kwargs['temperature'], dtype=float)
 
-                self.temperature = np.array(kwargs['temperature'], dtype=float)
-
-            if 'pressure' in kwargs:
-                if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
-                                  stacklevel=2)
-
-                self.pressure = np.array(kwargs['pressure'], dtype=float)
+        if 'pressure' in kwargs:
+            if hasattr(self, 'pressure') and not mutewarning:
+                warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
+                              stacklevel=2)
+            self.pressure = np.array(kwargs['pressure'], dtype=float)
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
@@ -1657,7 +1654,7 @@ class Quasi_harmonic:
 
         .. note::
 
-            The simplfied Grüneisen model is lauched, equivalent to using
+            The Grüneisen model is used to fit frequencies, equivalent to using
             ``self.thermo_freq(poly_order=[1,])``.
 
         For arguments, see ``self.thermo_freq``.
@@ -1763,18 +1760,17 @@ class Quasi_harmonic:
             raise Exception('Insufficient database. Increase HA phonons')
 
         # Generate temperature and pressure series
-        if kwargs:
-            if 'temperature' in kwargs:
-                if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
-                                  stacklevel=2)
-                self.temperature = np.array(kwargs['temperature'], dtype=float)
+        if 'temperature' in kwargs:
+            if hasattr(self, 'temperature') and not mutewarning:
+                warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
+                              stacklevel=2)
+            self.temperature = np.array(kwargs['temperature'], dtype=float)
 
-            if 'pressure' in kwargs:
-                if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
-                                  stacklevel=2)
-                self.pressure = np.array(kwargs['pressure'], dtype=float)
+        if 'pressure' in kwargs:
+            if hasattr(self, 'pressure') and not mutewarning:
+                warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
+                              stacklevel=2)
+            self.pressure = np.array(kwargs['pressure'], dtype=float)
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
@@ -1887,6 +1883,115 @@ class Quasi_harmonic:
                                 self.entropy[idx_p, idx_t],
                                 self.k_t[idx_p, idx_t]))
 
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def alpha_vol(self, poly_order=[2, 3], plot=True, fit_fig='expansion_fit.png'):
+        """
+        Fit the thermal expansion curve and get thermal expansion coefficients.
+
+        The volumetric thermal expansion coefficient at constant pressure is
+        defined below.
+
+        .. math::
+
+            \alpha_{V}(T) = \frac{1}{V(T)}\left(\frac{\partial V(T)}{\partial T}\right)_{p}
+
+        Args:
+            poly_order (list[int]): *method = 'polynomial'*, order of polynomials.
+            plot (bool): Plot V-T curves to examine the goodness of fitting. An
+                interactive window will pump out to let user to specify the
+                optimial fitting.
+            fit_fig (str): File name for fittings. A temperal figure is printed
+                to help the user choose the optimal fitting.
+
+        **New attributes**
+
+        * ``self.vol_fit`` nPressure\*1 list of Numpy object, the fitted volume V(T)  
+        * ``self.equilibrium_alpha`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
+        """
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import warnings
+
+        if not hasattr(self, 'equilibrium_volume'):
+            raise AttributeError('Equilibrium volume should be fit first.')
+
+        poly_order = np.array(poly_order)
+        # Polynomial fitting
+        func = []
+        rs = []
+        for idx_p, v_p in enumerate(self.equilibrium_volume):
+            func_p = []
+            rs_p = []
+            for i in poly_order:
+                poly = np.polynomial.polynomial.Polynomial.fit(self.temperature, v_p, i)
+                r_square = 1 - np.sum((v_p - poly(self.temperature))**2) / np.sum((v_p - np.mean(v_p))**2)
+                func_p.append(poly)
+                rs_p.append(r_square)
+            func.append(func_p)
+            rs.append(rs_p)
+
+        # Get the optimal fit
+        rs = np.array(rs) # npress * npolyorder
+        rs_mean = np.array([np.mean(rs[:, i]) for i in range(len(poly_order))])
+        if plot == False:
+            fit_order_idx = np.argmin(rs_mean)
+            fit_order = poly_order[fit_order_idx]
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+            cmap = np.vstack([np.linspace([0, 0, 1], [0, 1, 1], 20, endpoint=False),
+                              np.linspace([0, 1, 1], [0, 1, 0], 20, endpoint=False),
+                              np.linspace([0, 1, 0], [1, 1, 0], 20, endpoint=False),
+                              np.linspace([1, 1, 0], [1, 0, 0], 21, endpoint=True)])
+            for idx_p, v_p in enumerate(self.equilibrium_volume):
+                ax.scatter(self.temperature, v_p, color='k', marker='D', s=40)
+                for idx_i, i in enumerate(poly_order):
+                    t_interp = np.linspace(self.temperature.min() * 0.95,
+                                           self.temperature.max() * 1.05, 1000)
+                    c = cmap[int(idx_i / len(poly_order) * 101)]
+                    if idx_p == 0:
+                        txt = 'Order {:d}, R^2 {:.2f}'.format(i, rs_mean[idx_i])
+                        ax.plot(t_interp, func[idx_p][idx_i](t_interp), color=c, label=txt)
+                    else:
+                        ax.plot(t_interp, func[idx_p][idx_i](t_interp), color=c)
+
+            ax.legend(loc='lower right')
+            fig.savefig(fname=fit_fig, dpi=200)
+            # Choose optimal fit
+            fit_order = input('Set the optimal fit: ')
+            for idx, i in enumerate(poly_order):
+                if int(i) == fit_order:
+                    break
+            fit_order_idx = idx
+
+        self.vol_fit = [i[fit_order_idx] for i in func]
+        fit_rs = [i[fit_order_idx] for i in rs]
+
+        # Expansion coefficients
+        self.equilibrium_alpha = np.zeros([len(self.pressure), len(self.temperature)])
+        for idx_p, v_p in enumerate(self.equilibrium_volume):
+            self.equilibrium_alpha[idx_p, :] = \
+                self.vol_fit[idx_p].deriv(1)(self.temperature) / self.vol_fit[idx_p](self.temperature)
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# THERMAL EXPANSION COEFFICIENTS')
+            file.write('%s\n\n' % '  To get thermal expansion coefficients, equilibrium volumes are fit as polynomial function of temperature at constant pressure.')
+            file.write('%s%i\n' % ('## OPTIMAL ORDER OF POLYNOMIAL: ', fit_order))
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s%6.4f\n\n' %
+                           ('## EXPANSIONS AT ', p, '  GPa, R^2 = ', fit_rs[idx_p]))
+                file.write('%10s%20s%20s\n' %
+                           ('T(K)', 'Vol(Angstrom^3)', 'alpha_V'))
+                for idx_t, t in enumerate(self.temperature):
+                    file.write('%10.1f%20.4f%20.8e\n' %
+                               (t, self.vol_fit[idx_p](t), self.equilibrium_alpha[idx_p, idx_t]))
                 file.write('\n')
 
             file.write('\n')
