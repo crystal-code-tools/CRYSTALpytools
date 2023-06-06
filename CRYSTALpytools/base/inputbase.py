@@ -40,10 +40,9 @@ class BlockBASE():
             key (str): CRYSTAL keyword
             shape (list[int]): 1D list. Shape of input text. Length: Number of
                 lines; Element: Number of values
-            value (list | str): If value =
-                * list, a 1D list of arguments
-                * None or a list begins with None, return to keyword only
-                * '' or a list begins with '', Clean everything
+            value (list | str): List, a 1D list of arguments; ``None`` or a list
+                begins with ``None``, return to keyword only; ``''`` or a list begins
+                with ``''``, Clean everything
 
         Returns:
             text (str): CRYSTAL input
@@ -85,11 +84,11 @@ class BlockBASE():
         expansion matrix and strain tensor.
 
         Args:
-            mx (list | str): ndimen \* ndimen list, None or ''
+            mx (list | str): ``ndimen*ndimen`` list, ``None``, or ``''``
 
         Returns:
-            shape (list): ndimen\*1 1D list. All elements are ndimen. Or [].
-            value (list): ndimen\**2\*1 1D list. Flattened matrix, None or ''.
+            shape (list): ``ndimen*1`` 1D list. All elements are ndimen.
+            value (list): ``ndimen*2*1`` 1D list. Flattened matrix.
         """
         import numpy as np
 
@@ -114,10 +113,8 @@ class BlockBASE():
         known dimensions. Such as atom coordinate list.
 
         Args:
-            \*args : If \*args is
-                * '': Clean data. Shape = [], value = ''.
-                * None: Keyword only. Shape = [], value = None.
-                * *int, list*: int for length of the list, list for list data
+            \*args : ``''``, Clean data; ``None``, Return keyword only; 
+                ``int, list``, int for length of the list, list for list data
         Returns:
             shape (list): 1 + length 1D list or []
             args (list): Flattened list, [] or ''
