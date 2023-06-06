@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Nov 19 18:28:28 2021
+Objects of input / output files of CRYSTAL. Methods to edit or substract data
+from corresponding files are provided.
 """
 from CRYSTALpytools import units
 from CRYSTALpytools.base.crysd12 import Crystal_inputBASE
@@ -9,90 +10,72 @@ from CRYSTALpytools.base.crysd12 import Crystal_inputBASE
 
 class Crystal_input(Crystal_inputBASE):
     """
-    Crystal input object inherited from Crystal_inputBASE.
-
-    **Note for users**
-
-    ``Crystal_input`` object is strictly structured by 'blocks', which, in
-    general, is defined as keywords that are closed by 'END'. All the blocks
-    are organized in layers and each corresponds to a list of keywords that can
-    be called and set.The current structure of ``Crystal_input`` is listed
-    below:
-
-    # Layer 1: ``geom``, ``basisset``, ``scf``
-    # Layer 2: ``optgeom``, ``freqcalc``, ``dft``, ``dftd3``, ``gcp``, ``fixindex``
-    # Layer 3: ``preoptgeom``, ``geom``, ``base``
-
-    For example, to set force convergence threshold of a optimization run:
-
-    Usage::
-
-        obj = Crystal_input()
-        obj.geom.optgeom.toldeg(0.0001)
-
-    In principle, by calling the 'block-like' attribute, a 'block-like' object
-    will be automatically generated if the attribute is empty. The exception is
-    the 3rd layer attributes, which must be set by ``set_attr()`` method. A
-    warning message is printed to indicate the name of the opened sub-block
-    since it usually does not correspond to CRYSTAL keywords to avoid potential
-    conflicts.
-
-    Usage::
-
-        obj.geom.freqcalc.set_preoptgeom()
-        obj.geom.freqcalc.optgeom.toldeg(0.0003)
-
-    Methods and sub-blocks of ``Crystal_input`` usually have the same name as
-    corresponding keywords. One can setup, change or clean the keyword by
-    calling the corresponding method.
-
-    Usage::
-
-        obj.scf.toldee(9) # Set SCF TOLDEE = 9
-        obj.scf.toldee('') # Clean the TOLDEE keyword and value
-        obj.scf.ppan() # Print PPAN keyword, without value
-
-    Though one can set CRYSTAL input object by manually setting up all the
-    attributes, it is also possible to read a template d12 file and do
-    modifications.
-
-    Usage::
-
-        obj.from_file('opt.d12')
-        obj.geom.optgeom('') # Remove OPTGEOM block
-        obj.to_file('scf.d12') # Print it into file
-
-    It is also possible to set individual blocks by a string. The ``set_block``
-    method should be used. The keyword for the block itself should not be
-    included.
-
-    Usage::
-
-        obj.scf.set_dft('SPIN\nEXCHANGE\nPBE\nCORRELAT\nP86\n')
-
-    For basis set, it can be read from an external basis set file. '99 0' and
-    'END' should not be included.
-
-    Usage::
-
-        obj.basisset.bs_from_file('mybasis.txt')
-
-    To examine the data in a block object, including Crystal_input obj itself,
-    call the ``data`` attribute.
-
-    Usage::
-
-        obj.data
-
+    Crystal input object inherited from the :ref:`Crystal_inputBASE <ref-base-crysd12>`
+    object. For the basic set-ups of keywords, please refer to manuals there.
     """
-
     def __init__(self):
         super(Crystal_input, self).__init__()
 
-    def crystal_from_cif(self, file, symprec=0.01, angle_tolerance=5.0):
+    def geom_from_cif(self, file, zconv=None, keyword='EXTERNAL',
+                      pbc=[True, True, True], gui_name='fort.34',
+                      symprec=0.01, angle_tolerance=5.0):
         """
-        Read geometry from cif file and put infomation under 'CRYSTAL' keyword.
-        3D structure only. CIF files with a single geometry only.
+        Read geometry from cif file and put infomation to geom block, either as
+        'EXTERNAL' or 'CRYSTAL'. CIF files with a single geometry only.
+
+        CIF with Symmetry is required.
+
+        .. note::
+
+            CIF files should have the '.cif' extension.
+
+        Args:
+            file (str): CIF file.
+            keyword (str): 'EXTERNAL' or 'CRYSTAL'.
+            zconv (list[list[int, int]]): 1st element: The **index** of atom;
+                2nd element: The new conventional atomic number. Atoms of the
+                irreducible unit is required.
+            pbc (list[bool]): *Limited to keyword = EXTERNAL*. Periodic boundary
+                conditions along x, y, z axis
+            gui_name (str): *Limited to keyword = EXTERNAL*. Gui file's name.
+            symprec (float): *Limited to keyword = CRYSTAL*. If not none,
+                finds the symmetry of the structure. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+        """
+        import re
+        from pymatgen.core.structure import IStructure
+
+        struc = IStructure.from_file(file)
+        self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
+
+        return
+
+    def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
+                      pbc=[True, True, True], gui_name='fort.34',
+                      symprec=0.01, angle_tolerance=5.0):
+        """
+        Read geometry defined by PyMatGen structure object and put infomation
+        into geom block, either as 'EXTERNAL' or 'CRYSTAL'.
+
+        See ``geom_from_cif`` for definition of arguments.
+        """
+        import re
+        from CRYSTALpytools.convert import cry_pmg2gui
+
+        if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
+            super(Crystal_input, self).geom.external()
+            gui = cry_pmg2gui(struc, pbc=pbc, symmetry=True, zconv=zconv)
+            gui.write_gui(gui_name, symm=True)
+        elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
+            self._pmg2input(struc, zconv, symprec=symprec, angle_tolerance=angle_tolerance)
+        else:
+            raise ValueError("Input keyword format error: {}".format(keyword))
+
+        return
+
+    def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
+        """
+        Pymatgen IStructure object to 'CRYSTAL' input block
 
         .. note::
 
@@ -100,25 +83,21 @@ class Crystal_input(Crystal_inputBASE):
             original CIF file, in which case coordinates of another symmetry
             equivalent atom is used.
 
-            When multiple choices of periodic cell exist (typically for
-            low-symmetric non-orthgonal systems such as monoclinic or trilinic
-            cells), this method might lead to errors due to the inconsistent
-            choice of periodic cell between CRYSTAL and pymatgen.
-
-        Args:
-            file (str): CIF file name
-            symprec (float): If not none, finds the symmetry of the structure.
-                See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
-            angle_tolerance (float): See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            When multiple choices of periodic cell exist, this method might
+            lead to errors due to the inconsistent choice of periodic cell
+            between CRYSTAL and pymatgen.
         """
         import numpy as np
         from pymatgen.core.structure import IStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        struc = IStructure.from_file(file, primitive=True)
         analyzer = SpacegroupAnalyzer(
             struc, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_symm = analyzer.get_symmetrized_structure()
+        # Analyze the refined geometry
+        struc2 = analyzer.get_refined_structure()
+        analyzer2 = SpacegroupAnalyzer(
+            struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_symm = analyzer2.get_symmetrized_structure()
 
         sg = analyzer.get_space_group_number()
         latt = []
@@ -158,17 +137,32 @@ class Crystal_input(Crystal_inputBASE):
         natom = len(struc_symm.equivalent_sites)
         eq_atom = int(len(struc_symm.species) / natom)
         atominfo = []
+        if zconv != None:
+            z_atom_index = [i[0] for i in zconv]
         for i in range(natom):
             idx_eq = int(i * eq_atom)
+            if zconv == None:
+                z_input = struc_symm.species[idx_eq].Z
+            else:
+                try:
+                    atom_to_sub = z_atom_index.index(i)
+                    z_input = zconv[atom_to_sub][1]
+                except ValueError:
+                    z_input = struc_symm.species[idx_eq].Z
             atominfo.append([
-                int(struc_symm.species[idx_eq].Z),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8),
-                round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                '{:<3}'.format(z_input),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
+                ),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8)
+                ),
+                '{0:11.8f}'.format(
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                )
             ])
 
-        super(Crystal_input, self).geom.crystal(
-            IGR=sg, latt=latt, atom=atominfo)
+        super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atominfo)
 
         return
 
@@ -496,22 +490,22 @@ class Crystal_output:
                 'DEV WARNING: check this output and the band gap function in crystal_io')
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
-        # Return the last optimised geometry
+        """
+        Return the last optimised geometry
 
-        # write_gui_file == True writes the last geometry to the gui file
-        # symm_info == 'pymatgen' uses the symmetry info from a pymatgen object
-        # otherwise it is taken from the existing gui file
-
+        Args:
+            write_gui_file (bool): Whether to write the last geometry to gui
+                file.
+            symm_info (str): 'pymatgen' to use symmetry info from a pymatgen
+                object, otherwise it is taken from the existing gui file
+        """
         import re
         from mendeleev import element
         import numpy as np
-        import sys
         from pymatgen.core.structure import Structure, Molecule
         from CRYSTALpytools.convert import cry_pmg2gui
 
         dimensionality = self.get_dimensionality()
-
-        
 
         # Find the last geometry
         for i, line in enumerate(self.data):
@@ -596,9 +590,17 @@ class Crystal_output:
 
                         structure = Structure(lattice, self.atom_numbers,
                                               self.atom_positions_cart, coords_are_cartesian=True)
-                        gui_object = cry_pmg2gui(structure)
+                        if dimensionality == 0:
+                            pbc = [False, False, False]
+                        elif dimensionality == 1:
+                            pbc = [True, False, False]
+                        elif dimensionality == 2:
+                            pbc = [True, True, False]
+                        else:
+                            pbc = [True, True, True]
+                        gui_object = cry_pmg2gui(structure, pbc=pbc)
 
-                        gui_object.write_crystal_gui(gui_file)
+                        gui_object.write_gui(gui_file)
                     else:
                         gui_file = symm_info
                         try:
@@ -606,10 +608,8 @@ class Crystal_output:
                             gui_data = file.readlines()
                             file.close()
                         except:
-                            print(
-                                'EXITING: a .gui file with the same name as the input need to be present in the directory.')
-                            sys.exit(1)
-
+                            raise FileNotFoundError(
+                                'A .gui file with the same name as the input need to be present in the directory.')
                         # Replace the lattice vectors with the optimised ones
                         for i, vector in enumerate(lattice.tolist()):
                             gui_data[i+1] = ' '.join([str(x)
@@ -2164,21 +2164,21 @@ class Properties_output:
 
 
 class Crystal_gui:
-    # This class reads a CRYSTAL gui file and generates an object
-
+    """
+    This class can read a CRYSTAL gui file into an object or substrate
+    information of the object to generate a gui file.
+    """
     def __init__(self):
-        # Initialise the Crystal_gui
-
         pass
 
-    def read_cry_gui(self, gui_file):
-        # gui_filename: name of the gui file
+    def read_gui(self, gui_file):
+        """
+        This is used mainly to convert the object into an ASE or pymatgen
+        object.
 
-        # gui_file is the CRYSTAL structure (gui) file
-        # This is used mainly to convert the object into an ASE or pymatgen object
-
-        import sys
-
+        Args:
+            gui_file (str): The CRYSTAL structure (gui) file
+        """
         try:
             if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and 'optc' not in gui_file:
                 gui_file = gui_file + '.gui'
@@ -2186,8 +2186,7 @@ class Crystal_gui:
             data = file.readlines()
             file.close()
         except:
-            print('EXITING: a .gui file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError('A .gui file needs to be specified')
 
         self.dimensionality = int(data[0].split()[0])
         self.lattice = []
@@ -2208,51 +2207,61 @@ class Crystal_gui:
 
         return self
 
-    def write_crystal_gui(self, gui_file, symm=True, pseudo_atoms=[]):
-        # Write a CRYSTAL gui file (to file)
-        # gui_file is the name of the gui that is going to be written (including .gui)
-        # ext_structure is the structure object from ase or pymatgen
-        # dimensionality is the dimensionality of the system
-        # symm == True includes the symmops
-        # pseudo_atoms is a list of atoms whose core is described by a pseudopotential
+    def write_gui(self, gui_file, symm=True, pseudo_atoms=[]):
+        """
+        Write a CRYSTAL gui file (to file)
 
+        Args:
+            gui_file (str): The name of the gui that is going to be written (
+                including .gui).
+            symm (bool): Whether to include symmetry operations.
+            pseudo_atoms (list[int]): A list of atoms whose core is described
+                by a pseudopotential
+        """
         import numpy as np
 
         with open(gui_file, 'w') as file:
 
             # First line
-            file.writelines('%s   1   1\n' % self.dimensionality)
+            file.writelines('%4s   1   1\n' % self.dimensionality)
             # Cell vectors
             for vector in self.lattice:
-                file.writelines(
-                    ' '.join((format(np.round(n, 12), '.12E')) for n in vector)+'\n')
+                file.writelines('{}\n'.format(
+                    ''.join(['{0: 20.12E}'.format(np.round(n, 12)) for n in vector])
+                ))
             # N symm ops
-            file.writelines('{}\n'.format(str(self.n_symmops)))
+            file.writelines('{:5d}\n'.format(self.n_symmops))
 
             # symm ops
             for symmops in self.symmops:
                 file.writelines('{}\n'.format(
-                    # ' '.join(str(np.around(n, 8)) for n in symmops)))
-                    ' '.join(str(format(np.round(n, 12), '.12E')) for n in symmops)))
-
+                    ''.join(['{0: 20.12f}'.format(np.round(n, 12)) for n in symmops])
+                ))
             # N atoms
-            file.writelines('{}\n'.format(self.n_atoms))
+            file.writelines('{:5d}\n'.format(self.n_atoms))
 
             # atom number (including pseudopotentials) + coordinates cart
             for i in range(self.n_atoms):
                 if self.atom_number[i] in pseudo_atoms:
-                    file.writelines('{} {}\n'.format(int(self.atom_number[i])+200,
-                                                     ' '.join([str(x) for x in self.atom_positions[i]])))
+                    file.writelines('{:5d}{}\n'.format(
+                        int(self.atom_number[i])+200,
+                        ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
+                    ))
                 else:
-                    file.writelines('{} {}\n'.format(self.atom_number[i],
-                                                     ' '.join([str(format(np.round(x, 12), '.12E')) for x in self.atom_positions[i]])))
+                    file.writelines('{:5d}{}\n'.format(
+                        int(self.atom_number[i]),
+                        ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
+                    ))
 
             # space group + n symm ops
             if symm == True:
-                file.writelines('{} {}'.format(
-                    self.space_group, self.n_symmops))
+                file.writelines('{:5d}{:5d}\n'.format(
+                    self.space_group, self.n_symmops
+                ))
             else:
-                file.writelines('1 1')
+                file.writelines('{:5d}{:5d}\n'.format(1, 1))
+
+        file.close()
 
 
 class Crystal_density():

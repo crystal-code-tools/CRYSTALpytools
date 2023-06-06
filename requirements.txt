@@ -1,4 +1,7 @@
 pymatgen>=2022
 numpy
+sympy
+scipy
 mendeleev
 ase
+basis-set-exchange>0.9.1

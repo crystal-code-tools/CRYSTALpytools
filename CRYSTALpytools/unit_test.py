@@ -387,7 +387,7 @@ def convert_test(folder_path):
 
     test_attr.append('cry_gui2pmg')
     mgo_gui = Crystal_gui()
-    mgo_gui.read_cry_gui(gui_file)
+    mgo_gui.read_gui(gui_file)
     pmg_obj = cry_gui2pmg(mgo_gui)
     
     lattice_matrix = np.round(np.array([[-1.29819297e-16,  2.12011001e+00,  2.12011001e+00],

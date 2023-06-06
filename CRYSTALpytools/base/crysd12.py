@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from CRYSTALpytools.base.input import BlockBASE
+"""
+Classes and methods of keywords used in 'crystal' input file (d12).
+"""
+from CRYSTALpytools.base.inputbase import BlockBASE
 
 class Crystal_inputBASE(BlockBASE):
     """
@@ -28,6 +31,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (Geom | str): A block object of 'GEOM' submodule. Or a string
                 in CRYSTAL d12 format.
         """
+        from CRYSTALpytools.base.crysd12 import Geom
+
         self._block_geom = Geom()
         if obj == None:  # Initialize block
             return
@@ -60,6 +65,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (BasisSet | str): A block object of basis set submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import BasisSet
+
         self._block_basisset = BasisSet()
         if obj == None:  # Initialize block
             return
@@ -85,6 +92,8 @@ class Crystal_inputBASE(BlockBASE):
             obj (SCF | str): A block object of SCF submodule. Or a string in
                 CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import SCF
+
         self._block_scf = SCF()
         if obj == None:  # Initialize block
             return
@@ -429,6 +438,8 @@ class Geom(BlockBASE):
             obj (Optgeom | str): A block object of 'OPTGEOM' submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import Optgeom
+
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_optgeom', conflict)
 
@@ -460,6 +471,8 @@ class Geom(BlockBASE):
             obj (Freqcalc | str): A block object of 'FREQCALC' submodule. Or a
                 string in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import Freqcalc
+
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
         super(Geom, self).clean_conflict('_block_freqcalc', conflict)
 
@@ -713,7 +726,7 @@ class BasisSet(BlockBASE):
 
     def __init__(self):
         self._block_bg = ''
-        self._block_ed = '99 0\nENDBS\n'
+        self._block_ed = 'ENDBS\n'
         self._block_data = ''
         self._block_dict = {  # The sequence of keywords should follow rules in the manual
             'BASISSET' : '_basisset',
@@ -727,61 +740,122 @@ class BasisSet(BlockBASE):
     def basisset(self, NAME=None):
         self._basisset = super(BasisSet, self).assign_keyword(
             'BASISSET', [1, ], NAME)
-        # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
         if NAME == '':
-            self._block_ed = '99 0\nENDBS\n'
-        else:
+            self._block_ed = 'ENDBS\n'
+        else: # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
             self._block_ed = None
 
-    def from_string(self, string):
+    def from_bse(self, name, element, filename=None, append=False):
         """
+        Download basis set definitions from `Basis Set Exchange <https://www.basissetexchange.org/>`_.
+
         Args:
-            string (str): A line of string. Use '\n' to break lines. The ending
-            lines '99 0' and 'END' are not needed.
+            name (str): Basis set's name.
+            element (list[str] | list[int] | list[list[str | int, int]]): List
+                of elements, specified by either atomic number or label. When
+                a nelement\*2 list is used, the second entry is recognized as
+                conventional atomic numbers.
+            filename (None | str): If not None, print basis set definitions to
+                a text file
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway.
         """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        self._check_bs(append)
+        if type(element[0]) == list or type(element[0]) == tuple:
+            element_real = [i[0] for i in element]
+            zconv = [i[1] for i in element]
+            bs_obj = BasisSetBASE.from_bse(name, element_real, zconv)
+        else:
+            bs_obj = BasisSetBASE.from_bse(name, element)
+
+        self._basisset += bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_string(self, string, fmt='crystal', filename=None, append=False):
+        """
+        Basis set from a string
+
+        Args:
+            string (str): A line of string. Use '\\n' to break lines. The ending
+                line '99 0' is needed but not 'END'.
+            fmt (str): Format of basis set string. if not 'crystal', this
+                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        self._check_bs(append)
+        bs_obj = BasisSetBASE.from_string(string, fmt)
+        self._basisset += bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_file(self, file, fmt='crystal', filename=None, append=False):
+        """
+        Basis set from a file
+
+        Args:
+            file (file): A formatted text file with basis set definitions. The
+                ending line '99 0' is needed but not 'END'.
+            fmt (str): Format of basis set string. if not 'crystal', this
+                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        self._check_bs(append)
+        bs_obj = BasisSetBASE.from_file(file, fmt)
+        self._basisset += bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def from_obj(self, bs_obj, filename=None, append=False):
+        """
+        Define basis set from a BasisSetBASE object.
+
+        Args:
+            bs_obj (BasisSetBASE): A CRYSTALpytools.base.basisset.BasisSetBASE
+                object.
+            filename (None | str): See ``from_bse``
+            append (bool): See ``from_bse``
+        """
+        self._check_bs(append)
+        self._basisset += bs_obj.data
+
+        if filename != None:
+            bs_obj.to_file(file=filename)
+
+    def _check_bs(self, append):
+        """
+        Check basis set definitions. Not an independent method that designed to
+        be called.
+        """
+        import warnings
         import re
-        import warnings
 
-        self._basisset = ''
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = '99 0\nENDBS\n'
-
-        value = string.split('\n')
-        for v in value[::-1]:
-            v = v.strip()
-            if re.match(r'^99\s+0', v) or re.match(r'^END', v) or v == '':
-                value.remove(v)
-        shape = [1 for v in value]
-        self._basisset = super(
-            BasisSet, self).assign_keyword(None, shape, value)
-
-    def from_file(self, file):
-        """
-        Args:
-            file (file): A formatted text file with basis set definitions. The 
-            ending lines '99 0' and 'END' are not needed.
-        """
-        import warnings
-
-        self._basisset = ''
-        if 'BASISSET' in self._basisset:
-            warnings.warn(
-                "The 'BASISSET' keyword is in use. It will be cleaned.")
-            self._block_ed = '99 0\nENDBS\n'
-
-        bs = open(file, 'r')
-        value = bs.read()
-        bs.close()
-        value = value.strip().split('\n')
-        for v in value[::-1]:
-            v = v.strip()
-            if re.match(r'^99\s+0', v) or re.match(r'^END', v) or v == '':
-                value.remove(v)
-        shape = [1 for v in value]
-        self._basisset = super(
-            BasisSet, self).assign_keyword(None, shape, value)
+        if hasattr(self, '_basisset') and append == False:
+            warnings.warn('The previous basis set will be erased.', stacklevel=2)
+            self._basisset = ''
+            if 'BASISSET' in self._basisset:
+                self._block_ed = 'ENDBS\n'
+        elif hasattr(self, '_basisset') and append == True:
+            if 'BASISSET' in self._basisset:
+                warnings.warn("'BASISSET' detected. The previous definition will be erased anyway.",
+                              stacklevel=2)
+                self._basisset = ''
+                self._block_ed = 'ENDBS\n'
+            else:
+                self._basisset = re.sub(r'99\s+0\n$', "", self._basisset)
+        else:
+            self._basisset = ''
 
     def ghosts(self, NA=None, LA=[]):
         shape, value = super(BasisSet, self).set_list(NA, LA)
@@ -846,6 +920,8 @@ class SCF(BlockBASE):
             obj (DFT | str): A block object of 'DFT' submodule. Or a string in
                 CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import DFT
+
         self._block_dft = DFT()
         if obj == None:  # Initialize block
             return
@@ -874,6 +950,8 @@ class SCF(BlockBASE):
             obj (DFTD3 | str): A block object of 'DFTD3' submodule. Or a string
                 in CRYSTAL d12 format
         """
+        from CRYSTALpytools.base.crysd12 import DFTD3
+
         self._block_dftd3 = DFTD3()
         if obj == None:  # Initialize block
             return
@@ -902,7 +980,9 @@ class SCF(BlockBASE):
             obj (GCP | str): A block object of 'GCP' submodule. Or a string in
                 CRYSTAL d12 format.
         """
-        self._block_gcp = DFTD3()
+        from CRYSTALpytools.base.crysd12 import GCP
+
+        self._block_gcp = GCP()
         if obj == None:  # Initialize block
             return
         elif type(obj) == str:
