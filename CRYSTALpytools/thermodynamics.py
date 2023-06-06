@@ -1472,7 +1472,7 @@ class Quasi_harmonic:
 
         .. math::
 
-            V(T,p)=\\text{min}(G(V;T,p))=\\text{min}(E_{0}(V)+F_{vib}(V;T,p)+pV)
+            V(T,p)=\\text{min}[G(V;T,p)]=\\text{min}[E_{0}(V)+F_{vib}(V;T,p)+pV)]
 
         Args:
             eos_method (str, optional): EOS used to fit DFT total energy and
@@ -1638,13 +1638,13 @@ class Quasi_harmonic:
         Grüneisen parameters and related properties. The macroscopic Grüneisen
         parameter is defined as:
 
-        ..math::
+        .. math::
 
             \\gamma=\\sum_{\\textbf{q}i}\\frac{\\gamma_{\\textbf{q}i}C_{V,\\textbf{q}i}}{C_{V}}
 
         Thermal expansion coefficient in Grüneisen model:
 
-        ..math::
+        .. math::
 
             \\alpha_{V}^{gru}=\\frac{\\gamma C_{V}}{K_{T}V}
 
@@ -1764,7 +1764,7 @@ class Quasi_harmonic:
         Constant pressure specific heat is obtained by taking the second
         derivative of :math:`G`.
 
-        ..math::
+        .. math::
 
             C_{p}=-T\\left(\\frac{\\partial^{2}G}{\\partial T^{2}}\\right)_{p}
 
