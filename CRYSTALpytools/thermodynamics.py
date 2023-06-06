@@ -67,7 +67,7 @@ class Mode:
 
         return self.zp_energy
 
-    def get_U_vib(self, temperature=298.15):
+    def get_u_vib(self, temperature=298.15):
         """
         Get the vibration contribution to internal energy (including zero-point
         energy) of a single mode with the following equation. Limited to 
@@ -85,7 +85,7 @@ class Mode:
                 computed. Unit: K
 
         Returns:
-            self.U_vib (float): Vibration contribution to internal energy. 
+            self.u_vib (float): Vibration contribution to internal energy. 
                 Unit: KJ/mol
 
         :raise Exception: If ``self.ncalc`` > 1.
@@ -101,15 +101,15 @@ class Mode:
             self.get_zp_energy()
 
         if temperature == 0:
-            self.U_vib = self.zp_energy
-            return self.U_vib
+            self.u_vib = self.zp_energy
+            return self.u_vib
 
         hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e9
         kb_t = scst.k * scst.Avogadro * temperature * 1e-3
         expon = np.exp(hbar_freq / kb_t)
-        self.U_vib = self.zp_energy + hbar_freq / (expon - 1)
+        self.u_vib = self.zp_energy + hbar_freq / (expon - 1)
 
-        return self.U_vib
+        return self.u_vib
 
     def get_entropy(self, temperature):
         """
@@ -157,7 +157,7 @@ class Mode:
 
         return self.entropy
 
-    def get_C_v(self, temperature):
+    def get_c_v(self, temperature):
         """
         Get the constant volume specific heat of a single mode with the 
         following equation. Limited to ncalc = 1 cases.
@@ -181,7 +181,7 @@ class Mode:
             temperature (float, optional): Unit: K
 
         Returns:
-            self.C_v (float): Constant volume specific heat. Unit: J/mol\*K
+            self.c_v (float): Constant volume specific heat. Unit: J/mol\*K
 
         :raise Exception: If ``self.ncalc`` > 1.
         """
@@ -193,16 +193,16 @@ class Mode:
                 'This module is limited to a single frequency calculation.')
 
         if temperature == 0:
-            self.C_v = 0
-            return self.C_v
+            self.c_v = 0
+            return self.c_v
 
         hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e12
         kb_t = scst.k * scst.Avogadro * temperature
         expon = np.exp(hbar_freq / kb_t)
 
-        self.C_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
+        self.c_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
 
-        return self.C_v
+        return self.c_v
 
     def polynomial_fit(self, order=[2, 3]):
         """
@@ -543,12 +543,12 @@ class Harmonic(Crystal_output):
         Returns:
             zp_energy (array[float]): Zero-point energy at a q point. Returned
                 if ``calculate_zp = True``.
-            U_vib (array[float]): Vibrational contribution to internal energy 
+            u_vib (array[float]): Vibrational contribution to internal energy 
                 at constant temperature and a q point. Returned if 
                 ``calculate_zp = False``.
             entropy (array[float]): Entropy at constant temperature and a q 
                 point. Returned if ``calculate_zp = False``.
-            C_v (array[float]): Constant volume specific heat at constant
+            c_v (array[float]): Constant volume specific heat at constant
                  temperature and a q point. Returned if ``calculate_zp = False``.
         """
         import numpy as np
@@ -557,17 +557,17 @@ class Harmonic(Crystal_output):
             zp_energy = []
         else:
             T = temperature
-            U_vib = []
+            u_vib = []
             entropy = []
-            C_v = []
+            c_v = []
 
         for qpoint in self.mode:
             if calculate_zp:
                 zp_energy_q = 0.
             else:
-                U_vib_q = 0.
+                u_vib_q = 0.
                 entropy_q = 0.
-                C_v_q = 0.
+                c_v_q = 0.
             # Remove the translational modes
             for mode in qpoint:
                 if np.isnan(mode.frequency) or mode.frequency <= 1e-5:
@@ -576,29 +576,29 @@ class Harmonic(Crystal_output):
                 if calculate_zp:
                     zp_energy_q += mode.get_zp_energy()
                 else:
-                    U_vib_q += mode.get_U_vib(temperature=T)
+                    u_vib_q += mode.get_u_vib(temperature=T)
                     entropy_q += mode.get_entropy(temperature=T)
-                    C_v_q += mode.get_C_v(temperature=T)
+                    c_v_q += mode.get_c_v(temperature=T)
 
             if calculate_zp:
                 zp_energy.append(zp_energy_q)
             else:
-                U_vib.append(U_vib_q)
+                u_vib.append(u_vib_q)
                 entropy.append(entropy_q)
-                C_v.append(C_v_q)
+                c_v.append(c_v_q)
 
         if calculate_zp:
             zp_energy = np.array(zp_energy, dtype=float)
             return zp_energy
         else:
-            U_vib = np.array(U_vib, dtype=float)
+            u_vib = np.array(u_vib, dtype=float)
             entropy = np.array(entropy, dtype=float)
-            C_v = np.array(C_v, dtype=float)
-            return U_vib, entropy, C_v
+            c_v = np.array(c_v, dtype=float)
+            return u_vib, entropy, c_v
 
     def thermodynamics(self, sumphonon=True, mutewarning=False, **kwargs):
         """
-        Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
+        Calculate the thermodynamic properties (zp_energy, u_vib, entropy, c_v
         and Helmholtz free energy) of the given system, at all qpoints and the
         whole temperature range.
 
@@ -625,11 +625,11 @@ class Harmonic(Crystal_output):
                 (nqpoint\*ntemperature\*npressure). Unit: KJ/mol
             self.zp_energy (array[float]): Zero-point energy. (nqpoint\*1). 
                 Unit: KJ/mol
-            self.U_vib (array[float]): Vibrational contribution to internal 
+            self.u_vib (array[float]): Vibrational contribution to internal 
                 energy (nqpoint\*ntemperature). Unit: KJ/mol
             self.entropy (array[float]): Entropy (nqpoint\*ntemperature)
                 Unit: J/mol\*K
-            self.C_v (array[float]): Constant volume specific heat 
+            self.c_v (array[float]): Constant volume specific heat 
                 (nqpoint\*ntemperature). Unit: J/mol\*K
 
 
@@ -663,26 +663,26 @@ class Harmonic(Crystal_output):
                     'Temperature and pressure should be specified.')
 
         zp_energy = self._phonon_sumup(temperature=0., calculate_zp=True)
-        U_vib = []
+        u_vib = []
         entropy = []
-        C_v = []
+        c_v = []
         helmholtz = []
         gibbs = []
 
         for T in self.temperature:
             gibbs_t = []
-            U_vib_t, entropy_t, C_v_t = self._phonon_sumup(temperature=T,
+            u_vib_t, entropy_t, c_v_t = self._phonon_sumup(temperature=T,
                                                            calculate_zp=False)
-            helm_t = -entropy_t * T * 1e-3 + U_vib_t + self.edft
+            helm_t = -entropy_t * T * 1e-3 + u_vib_t + self.edft
 
             for p in self.pressure:
                 gibbs_tp = p * self.volume * scst.Avogadro * 1e-24 + helm_t
                 gibbs_t.append(gibbs_tp)
 
             # nTemp * nqpoint
-            U_vib.append(U_vib_t)
+            u_vib.append(u_vib_t)
             entropy.append(entropy_t)
-            C_v.append(C_v_t)
+            c_v.append(c_v_t)
             helmholtz.append(helm_t)
             # nTemp * npress * nqpoint
             gibbs.append(gibbs_t)
@@ -692,21 +692,21 @@ class Harmonic(Crystal_output):
             self.nqpoint = 1
             self.qpoint = [[np.array([0., 0., 0.]), 1.]]
             self.zp_energy = np.array([np.dot(zp_energy, wt)])
-            self.U_vib = np.array([np.dot(U_vib, wt)])
+            self.u_vib = np.array([np.dot(u_vib, wt)])
             self.entropy = np.array([np.dot(entropy, wt)])
-            self.C_v = np.array([np.dot(C_v, wt)])
+            self.c_v = np.array([np.dot(c_v, wt)])
             self.helmholtz = np.array([np.dot(helmholtz, wt)])
             self.gibbs = np.array([np.dot(gibbs, wt)])
         else:
             self.zp_energy = zp_energy
-            self.U_vib = np.transpose(np.array(U_vib, dtype=float))
+            self.u_vib = np.transpose(np.array(u_vib, dtype=float))
             self.entropy = np.transpose(np.array(entropy, dtype=float))
-            self.C_v = np.transpose(np.array(C_v, dtype=float))
+            self.c_v = np.transpose(np.array(c_v, dtype=float))
             self.helmholtz = np.transpose(np.array(helmholtz, dtype=float))
             self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
 
-        return self.helmholtz, self.gibbs, self.zp_energy, self.U_vib,\
-            self.entropy, self.C_v
+        return self.helmholtz, self.gibbs, self.zp_energy, self.u_vib,\
+            self.entropy, self.c_v
 
     def print_results(self):
         """
@@ -750,8 +750,8 @@ class Harmonic(Crystal_output):
                         'C_V(J/mol*K)', 'Helmholtz(kJ/mol)'))
             for t, tempt in enumerate(self.temperature):
                 file.write('%8.2f%18.6e%18.6e%18.6e%18.6e\n' %
-                           (tempt, self.U_vib[q, t], self.entropy[q, t],
-                            self.C_v[q, t], self.helmholtz[q, t]))
+                           (tempt, self.u_vib[q, t], self.entropy[q, t],
+                            self.c_v[q, t], self.helmholtz[q, t]))
 
             file.write('\n')
             file.write('%s\n' % '  Gibbs free energy')
@@ -1438,6 +1438,19 @@ class Quasi_harmonic:
 
         return ha.gibbs[0, 0, 0]
 
+    @staticmethod
+    def _poly_no_cst(param, x, y):
+        """
+        Define a polynomial without constant term. Fit \Delta f(\Delta x).
+        Orders low to high. For SciPy.
+        """
+        import numpy as np
+
+        express = np.zeros([len(x)])
+        for order, p in enumerate(param):
+            express += p * x**(order + 1)
+        return ((express - y)**2)**0.5
+
     def thermo_freq(self, eos_method='birch_murnaghan', poly_order=[2, 3],
                     min_method='BFGS', volume_bound=None, mutewarning=False,
                     **kwargs):
@@ -1473,19 +1486,17 @@ class Quasi_harmonic:
 
         **New Attributes**
 
-        * ``self.temperature`` in K and ``self.pressure`` in GPa.
-        * ``self.equilibrium_volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3
-        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol
-        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K
-        * ``self.k_t``, nPressure\*nTemperature, Isothermal bulk modulus. Unit: GPa.
+        * ``self.temperature`` in K and ``self.pressure`` in GPa.  
+        * ``self.volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3  
+        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol  
+        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K  
+        * ``self.e0_eos`` and ``self.e0_eos_method`` Pymatgen EOS objects and string. EOS used to fit DFT energy.
 
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
         import numpy as np
         import warnings
         from scipy.optimize import minimize
-        import scipy.constants as scst
-        from sympy import diff, lambdify, symbols
 
         # Generate temperature and pressure series
         if 'temperature' in kwargs:
@@ -1547,7 +1558,7 @@ class Quasi_harmonic:
         }
 
         # Gibbs(V; T, p) minimization nPress*nTempt list
-        self.equilibrium_volume = np.zeros([len(self.pressure), len(self.temperature)])
+        self.volume = np.zeros([len(self.pressure), len(self.temperature)])
         v_init = np.mean(self.combined_volume)
 
         for idx_p, p in enumerate(self.pressure):
@@ -1559,7 +1570,7 @@ class Quasi_harmonic:
                           'p': p,
                           'volume_bound': volume_bound}
                 exec(methods[min_method], params)
-                self.equilibrium_volume[idx_p, idx_t] = params['vol'].x[0]
+                self.volume[idx_p, idx_t] = params['vol'].x[0]
 
                 if (params['vol'].x[0] < min(self.combined_volume) or params['vol'].x[0] > max(self.combined_volume)) and not mutewarning:
                     warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
@@ -1569,44 +1580,16 @@ class Quasi_harmonic:
         self.helmholtz = np.zeros([len(self.pressure), len(self.temperature)])
         self.gibbs = np.zeros([len(self.pressure), len(self.temperature)])
         self.entropy = np.zeros([len(self.pressure), len(self.temperature)])
+        self.c_v = np.zeros([len(self.pressure), len(self.temperature)])
         for idx_p, p in enumerate(self.pressure):
             for idx_t, t in enumerate(self.temperature):
-                vol = self.equilibrium_volume[idx_p, idx_t]
+                vol = self.volume[idx_p, idx_t]
                 ha = self._get_harmonic_phonon(vol)
                 ha.thermodynamics(temperature=[t], pressure=[p], mutewarning=True)
                 self.helmholtz[idx_p, idx_t] = ha.helmholtz[0, 0]
                 self.gibbs[idx_p, idx_t] = ha.gibbs[0, 0, 0]
                 self.entropy[idx_p, idx_t] = ha.entropy[0, 0]
-
-        # Bulk modulus - Fit EOS at each pressure
-        self.k_t = np.zeros([len(self.pressure), len(self.temperature)])
-        self.fe_eos = []
-        self.fe_eos_method = eos_method
-        v = symbols('v')
-        for idx_t, t in enumerate(self.temperature):
-            # fe_eos should be upated everytime this method is called.
-            # Polynomial / Deltafactor
-            if 'order' in kwargs.keys():
-                eos, _ = self.eos_fit(self.equilibrium_volume[:, idx_t],
-                                      self.helmholtz[:, idx_t], eos_method,
-                                      write_out=False, order=kwargs['order'])
-            # Numerical
-            elif eos_method == 'numerical_eos':
-                eos, _ = self.eos_fit(self.equilibrium_volume[:, idx_t],
-                                      self.helmholtz[:, idx_t], eos_method, write_out=False,
-                                      min_ndata_factor=kwargs['min_ndata_factor'],
-                                      max_poly_order_factor=kwargs['max_poly_order_factor'],
-                                      min_poly_order_factor=kwargs['min_poly_order_factor'])
-            # Other
-            else:
-                eos, _ = self.eos_fit(self.equilibrium_volume[:, idx_t],
-                                      self.helmholtz[:, idx_t], eos_method, write_out=False)
-
-            self.fe_eos.append(eos)
-            df = diff(eos(v), v, 2)
-            lam_df = lambdify(v, df, 'numpy')
-            self.k_t[:, idx_t] = \
-                self.equilibrium_volume[:, idx_t] * lam_df(self.equilibrium_volume[:, idx_t]) * 1e24 / scst.Avogadro
+                self.c_v[idx_p, idx_t] = ha.c_v[0, 0]
 
         # Print output file
         if self.write_out:
@@ -1630,14 +1613,14 @@ class Quasi_harmonic:
                            ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
                 file.write('%10s%20s%20s%20s%20s%20s\n' %
                            ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)',
-                            'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'Bulk K_T(GPa)'))
+                            'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'C_V(J/mol*K)'))
                 for idx_t, tempt in enumerate(self.temperature):
                     file.write('%10.2f%20.4f%20.8e%20.8e%20.8e%20.8e\n' %
-                               (tempt, self.equilibrium_volume[idx_p, idx_t],
+                               (tempt, self.volume[idx_p, idx_t],
                                 self.helmholtz[idx_p, idx_t],
                                 self.gibbs[idx_p, idx_t],
                                 self.entropy[idx_p, idx_t],
-                                self.k_t[idx_p, idx_t]))
+                                self.c_v[idx_p, idx_t]))
 
                 file.write('\n')
 
@@ -1695,13 +1678,13 @@ class Quasi_harmonic:
                 if idx_m == 0 or idx_m == 1 or idx_m == 2:
                     continue
                 # Mode specific Gruneisen matrix, nTempt*nPress
-                g_mq = mode.get_gruneisen(order=[1,], volume=self.equilibrium_volume)
+                g_mq = mode.get_gruneisen(order=[1,], volume=self.volume)
                 # Get matrix C_v, nTempt*nPress
                 C_v = np.zeros([len(self.pressure), len(self.temperature)], dtype=float)
                 for idx_t, t in enumerate(self.temperature):
                     if t > 1e-4: # > 0K
                         kb_t = scst.k * scst.Avogadro * t
-                        hbar_freq = mode.poly_fit[1](self.equilibrium_volume[:, idx_t]) * scst.Avogadro * scst.h * 1e12
+                        hbar_freq = mode.poly_fit[1](self.volume[:, idx_t]) * scst.Avogadro * scst.h * 1e12
                         expon = np.exp(hbar_freq / kb_t)
                         C_v[:, idx_t] = hbar_freq**2 / kb_t / t * expon / (expon - 1)**2
                     else:
@@ -1737,13 +1720,18 @@ class Quasi_harmonic:
         Helmholtz free energies of sampled harmonic phonons. The explicit
         sorting and fitting of frequency-volume relationship is disabled.
 
-        For arguments and returns, see ``self.thermo_freq``.
-
         .. note::
 
-            To get entropy, Gibbs free energy is fitted as the polynomial
-            functions of temperature at constant pressure. That leads to
-            decreased accuracy around 0K.
+            To get entropy and constant pressure specific heat, Gibbs free
+            energy is fitted as the polynomial functions of temperature. That
+            leads to decreased accuracy around 0K and requires ``poly_order``
+            >= 2.
+
+        **New attributes**
+
+        * ``self.fe_eos`` and ``self.fe_eos_method`` nTemperature\*1 list of Pymatgen EOS objects and string. EOSs used to fit HA free energy at constant temperature.
+
+        For arguments and other attributes, see ``self.thermo_freq``.
 
         :raise Exception: If the number of HA calculations is less than 4.
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
@@ -1814,11 +1802,11 @@ class Quasi_harmonic:
                                           eos_method, write_out=False)
                 self.fe_eos.append(eos)
         # Get thermoproperties
-        self.equilibrium_volume = np.zeros([len(self.pressure), len(self.temperature)])
+        self.volume = np.zeros([len(self.pressure), len(self.temperature)])
         self.helmholtz = np.zeros([len(self.pressure), len(self.temperature)])
         self.gibbs = np.zeros([len(self.pressure), len(self.temperature)])
         self.entropy = np.zeros([len(self.pressure), len(self.temperature)])
-        self.k_t = np.zeros([len(self.pressure), len(self.temperature)])
+        self.c_p = np.zeros([len(self.pressure), len(self.temperature)])
         v = symbols('v')
         for idx_t, eos in enumerate(self.fe_eos):
             p_eos = -diff(eos(v), v, 1)
@@ -1831,11 +1819,11 @@ class Quasi_harmonic:
                 if (fit[0] < min(self.combined_volume) or fit[0] > max(self.combined_volume)) and not mutewarning:
                     warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
                                   % (fit[0], t, p), stacklevel=2)
-                self.equilibrium_volume[idx_p, idx_t] = fit[0]
+                self.volume[idx_p, idx_t] = fit[0]
                 self.helmholtz[idx_p, idx_t] = eos(fit[0])
                 self.gibbs[idx_p, idx_t] = eos(fit[0]) + p_kj * fit[0]
 
-        # Second fit G(T; p), get entropy by S=-(\frac{\partial G}{\partial T})_{p}
+        # Second fit G(T; p), get entropy and C_p
         if max(poly_order) > len(self.temperature) - 1 and not mutewarning:
             warnings.warn('Temperature series not sufficient for the order of polynomial fitting.\n Too high values will be removed.\n',
                           stacklevel=2)
@@ -1847,6 +1835,9 @@ class Quasi_harmonic:
             r_square = np.array([], dtype=float)
             func = []
             for order in poly_order:
+                if order < 2:
+                    warnings.warn('The minimum order of polynomial is 2.')
+                    continue
                 func_order = np.polynomial.polynomial.Polynomial.fit(self.temperature, gibbs, order)
                 func.append(func_order)
                 res = np.sum((gibbs - func_order(self.temperature))**2)
@@ -1855,13 +1846,8 @@ class Quasi_harmonic:
 
             entropy = func[np.argmax(r_square)].deriv(1)
             self.entropy[idx_p, :] = -entropy(self.temperature) * 1000.
-
-        # Compute bulk modulus
-        v = symbols('v')
-        for idx_t, eos in enumerate(self.fe_eos):
-            df = diff(eos(v), v, 2)
-            lam_df = lambdify(v, df, 'numpy')
-            self.k_t[:, idx_t] = self.equilibrium_volume[:, idx_t] * lam_df(self.equilibrium_volume[:, idx_t]) * 1e24 / scst.Avogadro
+            c_p = func[np.argmax(r_square)].deriv(2)
+            self.c_p[idx_p, :] = -c_p(self.temperature) * 1000 * self.temperature
 
         # Print output file
         if self.write_out:
@@ -1874,14 +1860,15 @@ class Quasi_harmonic:
             for idx_p, press in enumerate(self.pressure):
                 file.write('%s%6.2f%s\n\n' % ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
                 file.write('%10s%20s%20s%20s%20s%20s\n' %
-                           ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)', 'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'Bulk K_T(GPa)'))
+                           ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)', 
+                            'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'C_p(J/mol*K)'))
                 for idx_t, tempt in enumerate(self.temperature):
                     file.write('%10.1f%20.4f%20.8e%20.8e%20.8e%20.8e\n' %
-                               (tempt, self.equilibrium_volume[idx_p, idx_t],
+                               (tempt, self.volume[idx_p, idx_t],
                                 self.helmholtz[idx_p, idx_t],
                                 self.gibbs[idx_p, idx_t],
                                 self.entropy[idx_p, idx_t],
-                                self.k_t[idx_p, idx_t]))
+                                self.c_p[idx_p, idx_t]))
 
                 file.write('\n')
 
@@ -1890,16 +1877,20 @@ class Quasi_harmonic:
 
         return self
 
-    def alpha_vol(self, poly_order=[2, 3], plot=True, fit_fig='expansion_fit.png'):
+    def expansion_vol(self, poly_order=[2, 3], plot=True, fit_fig='expansion_fit.png'):
         """
-        Fit the thermal expansion curve and get thermal expansion coefficients.
+        Fit the thermal expansion curve and get thermal expansion coefficients
+        at equilibrium volumes obtained by ``thermo_freq``, ``thermo_gruneisen``
+        and ``thermo_eos``.
 
         The volumetric thermal expansion coefficient at constant pressure is
         defined below.
 
         .. math::
 
-            \alpha_{V}(T) = \frac{1}{V(T)}\left(\frac{\partial V(T)}{\partial T}\right)_{p}
+            \\alpha_{V}(T) = \\frac{1}{V(T)}\\left(
+                \\frac{\\partial V(T)}{\\partial T}
+            \\right)_{p}
 
         Args:
             poly_order (list[int]): *method = 'polynomial'*, order of polynomials.
@@ -1912,25 +1903,34 @@ class Quasi_harmonic:
         **New attributes**
 
         * ``self.vol_fit`` nPressure\*1 list of Numpy object, the fitted volume V(T)  
-        * ``self.equilibrium_alpha`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
+        * ``self.alpha_v`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
         """
         import numpy as np
+        from scipy.optimize import least_squares
         import matplotlib.pyplot as plt
         import warnings
 
-        if not hasattr(self, 'equilibrium_volume'):
+        if not hasattr(self, 'volume'):
             raise AttributeError('Equilibrium volume should be fit first.')
 
         poly_order = np.array(poly_order)
         # Polynomial fitting
         func = []
         rs = []
-        for idx_p, v_p in enumerate(self.equilibrium_volume):
+        idx_tmin = np.argmin(self.temperature)
+        tmin = self.temperature[idx_tmin]
+        dt = self.temperature - tmin
+        for idx_p, v_p in enumerate(self.volume):
             func_p = []
             rs_p = []
-            for i in poly_order:
-                poly = np.polynomial.polynomial.Polynomial.fit(self.temperature, v_p, i)
-                r_square = 1 - np.sum((v_p - poly(self.temperature))**2) / np.sum((v_p - np.mean(v_p))**2)
+            vmin = v_p[idx_tmin]
+            dv = v_p - vmin
+            for order in poly_order:
+                opt = least_squares(self._poly_no_cst,
+                                    np.array([1. for i in range(order)]),
+                                    args=(dt, dv))
+                poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
+                r_square = 1 - np.sum((dv - poly(dt))**2) / np.sum((dv - np.mean(dv))**2)
                 func_p.append(poly)
                 rs_p.append(r_square)
             func.append(func_p)
@@ -1948,17 +1948,18 @@ class Quasi_harmonic:
                               np.linspace([0, 1, 1], [0, 1, 0], 20, endpoint=False),
                               np.linspace([0, 1, 0], [1, 1, 0], 20, endpoint=False),
                               np.linspace([1, 1, 0], [1, 0, 0], 21, endpoint=True)])
-            for idx_p, v_p in enumerate(self.equilibrium_volume):
+            for idx_p, v_p in enumerate(self.volume):
                 ax.scatter(self.temperature, v_p, color='k', marker='D', s=40)
+                vmin = v_p[idx_tmin]
+                dv = v_p - vmin
                 for idx_i, i in enumerate(poly_order):
-                    t_interp = np.linspace(self.temperature.min() * 0.95,
-                                           self.temperature.max() * 1.05, 1000)
+                    t_interp = np.linspace(self.temperature.min(), self.temperature.max(), 1000)
                     c = cmap[int(idx_i / len(poly_order) * 101)]
                     if idx_p == 0:
-                        txt = 'Order {:d}, R^2 {:.2f}'.format(i, rs_mean[idx_i])
-                        ax.plot(t_interp, func[idx_p][idx_i](t_interp), color=c, label=txt)
+                        txt = 'Order {:d}, R^2 {:.4f}'.format(i, rs_mean[idx_i])
+                        ax.plot(t_interp, vmin + func[idx_p][idx_i](t_interp - tmin), color=c, label=txt)
                     else:
-                        ax.plot(t_interp, func[idx_p][idx_i](t_interp), color=c)
+                        ax.plot(t_interp, vmin + func[idx_p][idx_i](t_interp - tmin), color=c)
 
             ax.legend(loc='lower right')
             fig.savefig(fname=fit_fig, dpi=200)
@@ -1973,10 +1974,14 @@ class Quasi_harmonic:
         fit_rs = [i[fit_order_idx] for i in rs]
 
         # Expansion coefficients
-        self.equilibrium_alpha = np.zeros([len(self.pressure), len(self.temperature)])
-        for idx_p, v_p in enumerate(self.equilibrium_volume):
-            self.equilibrium_alpha[idx_p, :] = \
-                self.vol_fit[idx_p].deriv(1)(self.temperature) / self.vol_fit[idx_p](self.temperature)
+        self.alpha_v = np.zeros([len(self.pressure), len(self.temperature)])
+        for idx_p, v_p in enumerate(self.volume):
+            vmin = v_p[idx_tmin]
+            dv = v_p - vmin
+            self.alpha_v[idx_p, :] = \
+                self.vol_fit[idx_p].deriv(1)(dt) / (self.vol_fit[idx_p](dt) + vmin)
+
+        self.alpha_v[:, idx_tmin] = 0. # Lowest temperature, alpha = 0
 
         # Print output file
         if self.write_out:
@@ -1989,9 +1994,173 @@ class Quasi_harmonic:
                            ('## EXPANSIONS AT ', p, '  GPa, R^2 = ', fit_rs[idx_p]))
                 file.write('%10s%20s%20s\n' %
                            ('T(K)', 'Vol(Angstrom^3)', 'alpha_V'))
+                vmin = self.volume[idx_p, idx_tmin]
                 for idx_t, t in enumerate(self.temperature):
                     file.write('%10.1f%20.4f%20.8e\n' %
-                               (t, self.vol_fit[idx_p](t), self.equilibrium_alpha[idx_p, idx_t]))
+                               (t, vmin + self.vol_fit[idx_p](t - tmin), self.alpha_v[idx_p, idx_t]))
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def bulk_modulus(self, adiabatic=True, **kwargs):
+        """
+        Calculate isothermal and adiabatic bulk moduli at equilibrium volumes
+        obtained by ``thermo_freq``, ``thermo_gruneisen`` and ``thermo_eos``.
+
+        The following equations are used:
+
+        .. math::
+
+            K_{T}(p;T) = V(p;T)\\left(
+                \\frac{\\partial^{2}F(V;T)}{\\partial V^{2}}
+            \\right)_{T}
+
+            K_{S} = K_{T} + \\frac{\\alpha^{2}_{V}VTK^{2}_{T}}{C_{V}}
+
+        To get KT, Helmholtz free energy is fit as EOS function of volume at
+        constant temperature. For ``self.thermo_eos()``, that means doing
+        nothing; For ``self.thermo_freq()``, EOS fitting is required, whose
+        form is consistent with EOS used for DFT energies.
+
+        Args:
+            adiabatic (bool): Whether to fit adiabatic bulk modulus. Thermal
+                expansion coefficient needed.
+            order, min_ndata_factor, max_poly_order_factor, min_poly_order_factor
+                (int, optional): To restore EOS.
+
+        **New attributes**
+
+        * ``self.k_t`` nPressure\*nTemperature array, isothermal bulk modulus.  
+        * ``self.k_s`` nPressure\*nTemperature array, adiabatic bulk modulus.  
+        """
+        import scipy.constants as scst
+        from sympy import diff, lambdify, symbols
+        import copy
+        import numpy as np
+
+        if adiabatic == True and not hasattr(self, 'alpha_v'):
+            raise AttributeError('Expansion coefficient should be fit at first.')
+
+        # Fit EOS
+        if not hasattr(self, 'fe_eos'): # thermo_freq
+            self.fe_eos = []
+            self.fe_eos_method = self.e0_eos_method
+            for idx_t, t in enumerate(self.temperature):
+                # Polynomial / Deltafactor
+                if 'order' in kwargs.keys():
+                    eos, _ = self.eos_fit(
+                        self.volume[:, idx_t], self.helmholtz[:, idx_t],
+                        self.e0_eos_method, write_out=False, order=kwargs['order'])
+                # Numerical
+                elif self.e0_eos_method == 'numerical_eos':
+                    if 'min_ndata_factor' not in kwargs.keys():
+                        kwargs['min_ndata_factor'] = 3
+                    if 'max_poly_order_factor' not in kwargs.keys():
+                        kwargs['max_poly_order_factor'] = 5
+                    if 'min_poly_order_factor' not in kwargs.keys():
+                        kwargs['min_poly_order_factor'] = 2
+
+                    eos, _ = self.eos_fit(
+                        self.volume[:, idx_t], self.helmholtz[:, idx_t],
+                        self.e0_eos_method, write_out=False,
+                        min_ndata_factor=kwargs['min_ndata_factor'],
+                        max_poly_order_factor=kwargs['max_poly_order_factor'],
+                        min_poly_order_factor=kwargs['min_poly_order_factor'])
+                else:
+                    eos, _ = self.eos_fit(
+                        self.volume[:, idx_t], self.helmholtz[:, idx_t],
+                        self.e0_eos_method, write_out=False)
+                self.fe_eos.append(eos)
+
+        # Get K_T
+        self.k_t = np.zeros([len(self.pressure), len(self.temperature)])
+        v = symbols('v')
+        for idx_t, eos in enumerate(self.fe_eos):
+            df = diff(eos(v), v, 2)
+            lam_df = lambdify(v, df, 'numpy')
+            self.k_t[:, idx_t] = self.volume[:, idx_t] * lam_df(self.volume[:, idx_t]) * 1e24 / scst.Avogadro
+        # Get K_S
+        if adiabatic == True:
+            self.specific_heat()
+            self.k_s = self.k_t + self.alpha_v**2 * self.volume * self.temperature * self.k_t**2 * 1e-21 * scst.Avogadro / self.c_v
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA BULK MODULI')
+            file.write('%s\n\n' % '  Isothermal and adiabatic bulk moduli.')
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## BULK MODULI K_T and K_S AT ', p, '  GPa'))
+                if adiabatic == True:
+                    file.write('%10s%20s%20s\n' % ('T(K)', 'K_T(GPa)', 'K_S(GPa)'))
+                    for idx_t, t in enumerate(self.temperature):
+                        file.write('%10.1f%20.8e%20.8e\n' %
+                                   (t, self.k_t[idx_p, idx_t], self.k_s[idx_p, idx_t]))
+                    file.write('\n')
+                else:
+                    file.write('%10s%20s\n' % ('T(K)', 'K_T(GPa)', 'K_S(GPa)'))
+                    for idx_t, t in enumerate(self.temperature):
+                        file.write('%10.1f%20.8e\n' %
+                                   (t, self.k_t[idx_p, idx_t]))
+                    file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def specific_heat(self):
+        """
+        Calculate constant volume or pressure specific heat at equilibrium
+        volumes obtained by ``thermo_freq``, ``thermo_gruneisen`` and
+        ``thermo_eos``.
+
+        The following equation is used:
+
+        .. math::
+
+            C_{p} - C_{V} = \\alpha_{V}^{2}K_{T}VT
+
+        **New attributes**
+
+        * ``self.c_v`` or ``self.c_p``  Dependents on the fitting method.
+
+        .. note::
+
+            Due to the different strageties adopted, this method fits ``self.c_p``
+            by ``self.c_v`` when ``thermo_freq`` and ``thermo_gruneisen`` was
+            used. ``self.c_v`` is obtained by when ``thermo_eos`` is used.
+        """
+        import numpy as np
+        import warnings
+        import scipy.constants as scst
+
+        if not hasattr(self, 'alpha_v') or not hasattr(self, 'k_t'):
+            raise AttributeError(
+                'Expansion coefficient and bulk modulus should be fit at first.')
+
+        if not hasattr(self, 'c_p'): # thermo_freq
+            self.c_p = self.c_v + self.alpha_v**2 * self.k_t * self.volume * self.temperature * 1e-21 * scst.Avogadro
+        elif not hasattr(self, 'c_v'): # thermo_eos
+            self.c_v = self.c_p - self.alpha_v**2 * self.k_t * self.volume * self.temperature * 1e-21 * scst.Avogadro
+        else:
+            warnings.warn("Attributes 'c_v' and 'c_p' both exist. Nothing is updated.")
+            return self
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA SPECIFIC HEAT')
+            file.write('%s\n\n' % '  Constant volume and pressure specific heat.')
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## SPECIFIC HEAT C_V and C_P AT ', p, '  GPa'))
+                file.write('%10s%20s%20s\n' % ('T(K)', 'C_v(J/mol*K)', 'C_p(J/mol*K)'))
+                for idx_t, t in enumerate(self.temperature):
+                    file.write('%10.1f%20.8e%20.8e\n' %
+                               (t, self.c_v[idx_p, idx_t], self.c_p[idx_p, idx_t]))
                 file.write('\n')
 
             file.write('\n')
