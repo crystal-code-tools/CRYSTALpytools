@@ -1874,7 +1874,7 @@ class Quasi_harmonic:
         tmin = self.temperature[idx_tmin]
         dt = self.temperature - tmin
         for idx_p, gibbs in enumerate(self.gibbs):
-            r_square = np.array([], dtype=float)
+            r_square = []
             func = []
             for order in poly_order:
                 if order < 2:
@@ -2010,6 +2010,7 @@ class Quasi_harmonic:
             fig.savefig(fname=fit_fig, dpi=200)
             # Choose optimal fit
             fit_order = input('Set the optimal fit: ')
+            fit_order = int(fit_order)
             for idx, i in enumerate(poly_order):
                 if int(i) == fit_order:
                     break
