@@ -339,7 +339,6 @@ class Harmonic(Crystal_output):
 
         super(Harmonic, self).read_cry_output(output_name)
         super(Harmonic, self).get_mode()
-        super(Harmonic, self).clean_imaginary()
         self._generate_structure(scelphono=scelphono)
 
         if len(np.unique(self.edft)) != 1:
@@ -364,7 +363,9 @@ class Harmonic(Crystal_output):
 
     def from_frequency(self, edft, qpoint, frequency, eigenvector, **kwargs):
         """
-        Generate a Harmonic object by specifying frequency and eigenvector. 
+        Generate a Harmonic object by specifying frequency and eigenvector and
+        clean imaginary frequencies.
+
         Not recommanded to be used as a standalone method.
 
         Args:
@@ -421,6 +422,7 @@ class Harmonic(Crystal_output):
         self.frequency = frequency
         if len(eigenvector) != 0:
             self.eigenvector = eigenvector
+        super(Harmonic, self).clean_imaginary()
 
         # Transfer the modes in self.freqency into lists of mode objects
         self.mode = []

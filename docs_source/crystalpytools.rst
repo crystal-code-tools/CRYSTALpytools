@@ -16,3 +16,4 @@ Submodules
 	crystalpytools.execute
 	crystalpytools.plot
 	crystalpytools.thermodynamics
+	Developers<crystalpytools.dev>
