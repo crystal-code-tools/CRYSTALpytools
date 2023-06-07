@@ -10,8 +10,7 @@ from CRYSTALpytools import units
 
 class Mode:
     """
-    Store important information for a given vibrational mode and do analysis at
-    mode-level. Not recommanded to be used individually.
+    Defines a vibrational mode and do analysis per mode.
 
     Args:
         rank (int): The rank of the mode object, from 1.
@@ -43,8 +42,7 @@ class Mode:
 
     def get_zp_energy(self):
         """
-        Get the zero-point energy of a single mode with the following equation. 
-        Limited to ncalc = 1 cases.
+        Get the zero-point energy of a single mode. *ncalc = 1 only*.
 
         .. math::
 
@@ -52,14 +50,12 @@ class Mode:
 
         Returns:
             self.zp_energy (float): Zero-point energy. Unit: KJ/mol
-
-        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
 
         if self.ncalc > 1:
-            raise Exception(
+            raise AttributeError(
                 'This module is limited to a single frequency calculation.')
 
         hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e9
@@ -67,11 +63,10 @@ class Mode:
 
         return self.zp_energy
 
-    def get_U_vib(self, temperature=298.15):
+    def get_u_vib(self, temperature=298.15):
         """
         Get the vibration contribution to internal energy (including zero-point
-        energy) of a single mode with the following equation. Limited to 
-        ncalc = 1 cases.
+        energy) of a single mode. *ncalc = 1 only*.
 
         .. math::
 
@@ -81,40 +76,37 @@ class Mode:
             \\right)}-1}
 
         Args:
-            temperature (float, optional): Temperature where the quantity is 
+            temperature (float, optional): Temperature where the quantity is
                 computed. Unit: K
 
         Returns:
-            self.U_vib (float): Vibration contribution to internal energy. 
+            self.u_vib (float): Vibration contribution to internal energy.
                 Unit: KJ/mol
-
-        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
 
         if self.ncalc > 1:
-            raise Exception(
+            raise AttributeError(
                 'This module is limited to a single frequency calculation.')
 
         if not hasattr(self, 'zp_energy'):
             self.get_zp_energy()
 
-        if temperature == 0:
-            self.U_vib = self.zp_energy
-            return self.U_vib
+        if temperature == 0 or self.frequency[0] < 1e-4:
+            self.u_vib = self.zp_energy
+            return self.u_vib
 
         hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e9
         kb_t = scst.k * scst.Avogadro * temperature * 1e-3
         expon = np.exp(hbar_freq / kb_t)
-        self.U_vib = self.zp_energy + hbar_freq / (expon - 1)
+        self.u_vib = self.zp_energy + hbar_freq / (expon - 1)
 
-        return self.U_vib
+        return self.u_vib
 
     def get_entropy(self, temperature):
         """
-        Get the entropy of a single mode with the following equation. Limited
-        to ncalc = 1 cases.
+        Get the entropy of a single mode. *ncalc = 1 only*.
 
         .. math::
 
@@ -135,17 +127,15 @@ class Mode:
 
         Returns:
             self.entropy (float): Entropy. Unit: J/mol\*K
-
-        :raise Exception: If ``self.ncalc`` > 1.
         """
         import numpy as np
         import scipy.constants as scst
 
         if self.ncalc > 1:
-            raise Exception(
+            raise AttributeError(
                 'This module is limited to a single frequency calculation.')
 
-        if temperature == 0:
+        if temperature == 0 or self.frequency[0] < 1e-4:
             self.entropy = 0
             return self.entropy
 
@@ -157,10 +147,9 @@ class Mode:
 
         return self.entropy
 
-    def get_C_v(self, temperature):
+    def get_c_v(self, temperature):
         """
-        Get the constant volume specific heat of a single mode with the 
-        following equation. Limited to ncalc = 1 cases.
+        Get the constant volume specific heat of a single mode. *ncalc = 1 only*.
 
         .. math::
 
@@ -181,53 +170,56 @@ class Mode:
             temperature (float, optional): Unit: K
 
         Returns:
-            self.C_v (float): Constant volume specific heat. Unit: J/mol\*K
-
-        :raise Exception: If ``self.ncalc`` > 1.
+            self.c_v (float): Constant volume specific heat. Unit: J/mol\*K
         """
         import numpy as np
         import scipy.constants as scst
 
         if self.ncalc > 1:
-            raise Exception(
+            raise AttributeError(
                 'This module is limited to a single frequency calculation.')
 
-        if temperature == 0:
-            self.C_v = 0
-            return self.C_v
+        if temperature == 0 or self.frequency[0] < 1e-4:
+            self.c_v = 0
+            return self.c_v
 
         hbar_freq = self.frequency[0] * scst.Avogadro * scst.h * 1e12
         kb_t = scst.k * scst.Avogadro * temperature
         expon = np.exp(hbar_freq / kb_t)
 
-        self.C_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
+        self.c_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
 
-        return self.C_v
+        return self.c_v
 
-    def polynomial_fit(self, eq_point, order=[2, 3]):
+    def polynomial_fit(self, order=[2, 3]):
         """
-        Fit phonon frequency as the polynomial function of volume with
-        perturbation theory. Limited to ncalc > 1 cases.
+        Fit phonon frequency as the polynomial function of volume. *ncalc > 1 only*.
+
+        .. note::
+
+            To improve the accuracy of fittings, :math:`\\Delta\\omega(\\Delta V)`
+            is fitted as a polynomial function without the constant term.
+
+            :math:`\\Delta V=V-V_{min}` is used so HA phonons of the most compact
+            structure is kept. See 'FIXINDEX' keyword in CRYSTAL manual for
+            further information.
 
         Args:
-            eq_point (int): The index (not rank) corresponds to the DFT total
-                energy minimum (typically the unstrained geometry).
-            order (array[int] | list[int]], optional): Orders of
-                polynomials used.
+            order (array[int] | list[int]], optional): Orders of polynomials.
 
         Returns:
-            self.poly_fit (Dict[int, NumPy Polynomial]): Key - orders of power, 
+            self.poly_fit (Dict[int, NumPy Polynomial]): Key - orders of power,
                 Value - fitted NumPy polynomials
-            self.poly_fit_rsquare (Dict[int, float]): Key - orders of power, 
+            self.poly_fit_rsquare (Dict[int, float]): Key - orders of power,
                 Value - goodness of fittings, characterized by R^2.
-
-        :raise Exception: If ``self.ncalc`` <= 1.
         """
         import numpy as np
         import warnings
+        from scipy.optimize import least_squares
+        from CRYSTALpytools.thermodynamics import Quasi_harmonic
 
         if self.ncalc <= 1:
-            raise Exception(
+            raise AttributeError(
                 'This modulus is limited to multiple frequency calculations.')
 
         if max(order) > self.ncalc - 1:
@@ -241,30 +233,78 @@ class Mode:
         self.poly_fit = {}
         self.poly_fit_rsqaure = {}
 
-        vol_fit = self.volume - self.volume[eq_point]
-        freq_fit = self.frequency - self.frequency[eq_point]
+        if self.rank == 1 or self.rank == 2 or self.rank == 3:
+            for i in order:
+                self.poly_fit[i] = np.polynomial.polynomial.Polynomial(
+                    [0. for i in range(i + 1)])
+                self.poly_fit_rsqaure[i] = 1.
 
+            return order, self.poly_fit, self.poly_fit_rsqaure
+
+        qha = Quasi_harmonic(write_out=False)
+        idx_vmin = np.argmin(self.volume)
+        vmin = self.volume[idx_vmin]
+        fmin = self.frequency[idx_vmin]
+        dv = self.volume - vmin
+        df = self.frequency - fmin
         for i in order:
-            func = np.polynomial.polynomial.Polynomial.fit(
-                vol_fit, freq_fit, i)
-            self.poly_fit.update({i: func})
-            if np.all(abs(self.frequency) < 1E-4):
-                r_square = 1.
-            else:
-                ss_res = np.sum((self.frequency - func(self.volume))**2)
-                ss_tot = np.sum((self.frequency - np.mean(self.frequency))**2)
-                r_square = 1 - ss_res / ss_tot
-
-            self.poly_fit_rsqaure.update({i: r_square})
+            opt = least_squares(qha._poly_no_cst,
+                                np.array([1. for j in range(i)]),
+                                args=(dv, df))
+            poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
+            self.poly_fit[i] = poly
+            self.poly_fit_rsqaure[i] = 1 - np.sum((df - poly(dv))**2) / np.sum((df - np.mean(df))**2)
 
         return order, self.poly_fit, self.poly_fit_rsqaure
+
+    def get_gruneisen(self, order, volume):
+        """
+        Return to mode Grüneisen parameter. *ncalc > 1 only*.
+
+        .. math::
+
+            \\gamma = -\\frac{V}{\\omega(V)}\\frac{\\partial\\omega}{\\partial V}
+
+        Args:
+            order (int | list[int]): See ``polynomial_fit``
+            volume (float | array): Typically the equilibrium volume
+
+        Returns:
+            self.gruneisen (dict): Key, order; Value, Gruneisen parameter
+        """
+        import numpy as np
+
+        if not hasattr(self, 'poly_fit'):
+            raise AttributeError(
+                'Polynomial fitting is required to get Gruneisen parameters.')
+
+        order = list(set(order))
+        self.gruneisen = {}
+        if type(volume) == float:
+            volume = np.array([volume])
+        else:
+            volume = np.array(volume)
+
+        if self.rank == 1 or self.rank == 2 or self.rank == 3:
+            for i in order:
+                self.gruneisen[i] = np.zeros(volume.shape)
+            return self.gruneisen
+
+        idx_vmin = np.argmin(self.volume)
+        vmin = self.volume[idx_vmin]
+        fmin = self.frequency[idx_vmin]
+        dv = volume - vmin
+        for i in order:
+            dpoly = self.poly_fit[i].deriv(1)
+            self.gruneisen[i] = -dpoly(dv) * volume / (self.poly_fit[i](dv) + fmin)
+
+        return self.gruneisen
 
 
 class Harmonic(Crystal_output):
     """
-    Inherited from the Crystal_output class and has thermodynamic-specific 
-    attributes. Used for harmonic phonon calclulations. Harmonic object can be
-    defined by either a harmonic phonon calculation output file or manually set
+    Inherited from the Crystal_output class for harmonic phonon calclulations.
+    It can be parameterized either from a CRYSTAL output file or by setting
     the all the information (usually for QHA).
 
     Args:
@@ -272,12 +312,10 @@ class Harmonic(Crystal_output):
             where thermodynamic properties are computed. Unit: K
         pressure (array[float] | list[float], optional): Pressures where
             the thermodyanmic properties are calculated. Unit: GPa
-        write_out (bool, optional): Wheter to print out HA thermodynamic 
+        write_out (bool, optional): Wheter to print out HA thermodynamic
             properties in a separate text file.
         filename (str, optional): Name of the printed-out file, valid if
             ``write_out`` = True.
-
-    **Note**
 
     Temperatures and pressures can also be defined by ``self.thermodynamics``,
     whose entries always cover the entries here.
@@ -312,9 +350,8 @@ class Harmonic(Crystal_output):
         Args:
             output_name (str): Name of the output file.
             scellphono (array[float] | list[float], optional):
-                Supercell manipulation matrix used for vibrational properties. 
-                Should be the same as 'SCELPHONO' keyword in CRYSTAL input file.
-                By default a 1\*1\*1 'SCELPHONO' is assumed.
+                The 'SCELPHONO' keyword in CRYSTAL input file. By default a
+                1\*1\*1 'SCELPHONO' is assumed.
             read_eigenvector (bool, optional): Whether to read eigenvectors from
                 the output.
             auto_calc (bool, optional): Whether to automatically launch
@@ -327,14 +364,14 @@ class Harmonic(Crystal_output):
             self.volume (float): Volume of the reduced cell. Unit: Angstrom^3
             self.mode (list[Mode]): List of mode objects at all the qpoints.
 
-        :raise Exception: If computational data is stored in the object.
-        :raise Exception: If a QHA output file is read.
+        :raise AttributeError: If computational data is stored in the object.
+        :raise ValueError: If a QHA output file is read.
         """
         import numpy as np
         from CRYSTALpytools.thermodynamics import Mode
 
         if hasattr(self, "volume"):
-            raise Exception(
+            raise AttributeError(
                 "Data exists. Cannot overwrite the existing data.")
 
         super(Harmonic, self).read_cry_output(output_name)
@@ -342,7 +379,7 @@ class Harmonic(Crystal_output):
         self._generate_structure(scelphono=scelphono)
 
         if len(np.unique(self.edft)) != 1:
-            raise Exception(
+            raise ValueError(
                 "Only the frequency calculations at constant volumes are premitted.")
         else:
             self.edft = self.edft[0]
@@ -366,8 +403,6 @@ class Harmonic(Crystal_output):
         Generate a Harmonic object by specifying frequency and eigenvector and
         clean imaginary frequencies.
 
-        Not recommanded to be used as a standalone method.
-
         Args:
             edft (float): Electron total energy
             qpoint (list[list[array[float], float]]): Fractional coordinate 
@@ -378,7 +413,7 @@ class Harmonic(Crystal_output):
             natom (int, optional)
             volume (float, optional)
 
-        **Note**: The user should define either 'structure' or 'natom' + 'volume'.
+        The user should define either ``structure`` or ``natom`` + ``volume``.
 
         Returns:
             self.nqpoint (int)
@@ -388,14 +423,14 @@ class Harmonic(Crystal_output):
             self.natom (int)
             self.volume (float)
 
-        :raise Exception: If computational data is stored in the object.
-        :raise Exception: If the 1st dimension (nqpoint) of ``qpoint`` and ``frequency`` are not consistent.
-        :raise Exception: If the 2nd dimension (nfreq) of ``frequency`` and ``eigenvector`` are not consistent and ``eigenvector`` is not ``[]``.
+        :raise AttributeError: If computational data is stored in the object.
+        :raise ValueError: If the 1st dimension (nqpoint) of ``qpoint`` and ``frequency`` are not consistent.
+        :raise ValueError: If the 2nd dimension (nfreq) of ``frequency`` and ``eigenvector`` are not consistent and ``eigenvector`` is not ``[]``.
         """
         import numpy as np
 
         if hasattr(self, "mode"):
-            raise Exception(
+            raise AttributeError(
                 "Data exists. The current command will be ignored.")
 
         for key, value in kwargs.items():
@@ -410,10 +445,10 @@ class Harmonic(Crystal_output):
                 self.volume = float(value)
 
         if len(qpoint) != np.size(frequency, 0):
-            raise Exception(
+            raise ValueError(
                 "The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
         if len(eigenvector) != 0 and np.size(eigenvector, 1) != np.size(frequency, 1):
-            raise Exception(
+            raise ValueError(
                 "The 2nd dimension (n mode) of 'frequency' and 'eigenvector' are not consistent.")
 
         self.edft = edft
@@ -448,16 +483,15 @@ class Harmonic(Crystal_output):
 
     def _generate_structure(self, scelphono):
         """
-        Eliminate the influences of the keyword 'SCELPHONO' and generate the
-        PyMatGen Structure object of the actual cell used for phonon 
-        calculation. Not a standalone method.
+        Restore the primitive geometry expanded by 'SCELPHONO' and generate the
+        Pymatgen Structure of the cell used for phonon calculation.
 
         Args:
-            scellphono (list[int] | array[int]): ndimension\*ndimension or 
+            scellphono (list[int] | array[int]): ndimension\*ndimension or
                 3\*3 matrix corresponds to the 'SCELPHONO' keyword.
 
         Returns:
-            self.structure (PyMatGen Structure)
+            self.structure (Pymatgen Structure)
             self.natom (int)
             self.volume (float)
         """
@@ -508,9 +542,8 @@ class Harmonic(Crystal_output):
     def _phonon_sumup(self, temperature, calculate_zp):
         """
         Summing up inidival phonon modes at each q point. Translational modes
-        with frequencies = 0 are skipped. Not a standalone method. For 
-        thermodynamics, use 'self.thermodyanmics'
-        instead.
+        with frequencies = 0 are skipped. For thermodynamics, directly call
+        ``self.thermodyanmics()``.
 
         Args:
             temperature (float)
@@ -520,12 +553,12 @@ class Harmonic(Crystal_output):
         Returns:
             zp_energy (array[float]): Zero-point energy at a q point. Returned
                 if ``calculate_zp = True``.
-            U_vib (array[float]): Vibrational contribution to internal energy 
+            u_vib (array[float]): Vibrational contribution to internal energy 
                 at constant temperature and a q point. Returned if 
                 ``calculate_zp = False``.
             entropy (array[float]): Entropy at constant temperature and a q 
                 point. Returned if ``calculate_zp = False``.
-            C_v (array[float]): Constant volume specific heat at constant
+            c_v (array[float]): Constant volume specific heat at constant
                  temperature and a q point. Returned if ``calculate_zp = False``.
         """
         import numpy as np
@@ -534,17 +567,17 @@ class Harmonic(Crystal_output):
             zp_energy = []
         else:
             T = temperature
-            U_vib = []
+            u_vib = []
             entropy = []
-            C_v = []
+            c_v = []
 
         for qpoint in self.mode:
             if calculate_zp:
                 zp_energy_q = 0.
             else:
-                U_vib_q = 0.
+                u_vib_q = 0.
                 entropy_q = 0.
-                C_v_q = 0.
+                c_v_q = 0.
             # Remove the translational modes
             for mode in qpoint:
                 if np.isnan(mode.frequency) or mode.frequency <= 1e-5:
@@ -553,66 +586,64 @@ class Harmonic(Crystal_output):
                 if calculate_zp:
                     zp_energy_q += mode.get_zp_energy()
                 else:
-                    U_vib_q += mode.get_U_vib(temperature=T)
+                    u_vib_q += mode.get_u_vib(temperature=T)
                     entropy_q += mode.get_entropy(temperature=T)
-                    C_v_q += mode.get_C_v(temperature=T)
+                    c_v_q += mode.get_c_v(temperature=T)
 
             if calculate_zp:
                 zp_energy.append(zp_energy_q)
             else:
-                U_vib.append(U_vib_q)
+                u_vib.append(u_vib_q)
                 entropy.append(entropy_q)
-                C_v.append(C_v_q)
+                c_v.append(c_v_q)
 
         if calculate_zp:
             zp_energy = np.array(zp_energy, dtype=float)
             return zp_energy
         else:
-            U_vib = np.array(U_vib, dtype=float)
+            u_vib = np.array(u_vib, dtype=float)
             entropy = np.array(entropy, dtype=float)
-            C_v = np.array(C_v, dtype=float)
-            return U_vib, entropy, C_v
+            c_v = np.array(c_v, dtype=float)
+            return u_vib, entropy, c_v
 
     def thermodynamics(self, sumphonon=True, mutewarning=False, **kwargs):
         """
-        Calculate the thermodynamic properties (zp_energy, U_vib, entropy, C_v
-        and Helmholtz free energy) of the given system, at all qpoints and the
-        whole temperature range.
+        Calculate the thermodynamic properties (zp_energy, u_vib, entropy, c_v
+        and Gibbs and Helmholtz free energy) of the HA system at all qpoints
+        and the whole temperature/pressure range.
 
-        The Helmholtz free energy is defined as:
+        Other parameters are the sum of corresponding attributes of all the
+        ``Mode objects``. The Helmholtz and Gibbs free energies are defined as:
 
         .. math::
 
             F(p,V) = E_{DFT} + F_{vib}(T) = E_{DFT} + U_{vib}(T) - TS(T)
 
+            G(p, V) = F + pV
+
         Args:
-            temperature (array[float] | list[float], optional): 
-                Temperature. Unit: K
-            pressure (array[float] | list[float], optional):
-                Pressure. Unit: GPa
+            temperature (array[float] | list[float], optional): Unit: K
+            pressure (array[float] | list[float], optional): Unit: GPa
             sumphonon (bool): Whether to sum up the phonon contributions across
                 the sampled q points and take weighted-average.
             mutewarning (bool): Whether print out warning messages of updated
                 temperature and pressure (For QHA).
 
         Returns:
-            self.helmholtz (array[float]): Helmholtz free energy 
-                (nqpoint\*ntemperature). Unit: KJ/mol
-            self.gibbs (array[float]): Gibbs free energy 
-                (nqpoint\*ntemperature\*npressure). Unit: KJ/mol
-            self.zp_energy (array[float]): Zero-point energy. (nqpoint\*1). 
-                Unit: KJ/mol
-            self.U_vib (array[float]): Vibrational contribution to internal 
-                energy (nqpoint\*ntemperature). Unit: KJ/mol
-            self.entropy (array[float]): Entropy (nqpoint\*ntemperature)
-                Unit: J/mol\*K
-            self.C_v (array[float]): Constant volume specific heat 
-                (nqpoint\*ntemperature). Unit: J/mol\*K
+            self.helmholtz (array[float]): nqpoint\*ntemperature. Unit: KJ/mol
+            self.gibbs (array[float]): nqpoint\*ntemperature\*npressure. Unit: KJ/mol
+            self.zp_energy (array[float]): Zero-point energy. nqpoint\*1. Unit: KJ/mol
+            self.u_vib (array[float]): Vibrational contribution to internal
+                energy. nqpoint\*ntemperature. Unit: KJ/mol
+            self.entropy (array[float]): nqpoint\*ntemperature. Unit: J/mol\*K
+            self.c_v (array[float]): Constant volume specific heat. 
+                nqpoint\*ntemperature. Unit: J/mol\*K
 
+        .. note::
 
-        **Note**: If ``sumphonon = True``, nqpoint = 1.
+            If ``sumphonon = True``, nqpoint = 1.
 
-        :raise ValueError: If temperature and pressure are defined neither here nor during initialization
+        :raise AttributeError: If temperature and pressure are defined neither here nor during initialization
         """
         import warnings
         import numpy as np
@@ -622,44 +653,38 @@ class Harmonic(Crystal_output):
         if kwargs:
             if 'temperature' in kwargs:
                 if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn(
-                        'Temperature attribute exists. Input temperatures will be used to update the attribute.')
-
+                    warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.')
                 self.temperature = np.array(kwargs['temperature'], dtype=float)
 
             if 'pressure' in kwargs:
                 if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn(
-                        'Pressure attribute exists. Input pressures will be used to update the attribute.')
-
+                    warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.')
                 self.pressure = np.array(kwargs['pressure'], dtype=float)
         else:
-            if not hasattr(self, 'temperature') or \
-               not hasattr(self, 'pressure'):
-                raise ValueError(
-                    'Temperature and pressure should be specified.')
+            if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
+                raise AttributeError('Temperature and pressure should be specified.')
 
         zp_energy = self._phonon_sumup(temperature=0., calculate_zp=True)
-        U_vib = []
+        u_vib = []
         entropy = []
-        C_v = []
+        c_v = []
         helmholtz = []
         gibbs = []
 
         for T in self.temperature:
             gibbs_t = []
-            U_vib_t, entropy_t, C_v_t = self._phonon_sumup(temperature=T,
+            u_vib_t, entropy_t, c_v_t = self._phonon_sumup(temperature=T,
                                                            calculate_zp=False)
-            helm_t = -entropy_t * T * 1e-3 + U_vib_t + self.edft
+            helm_t = -entropy_t * T * 1e-3 + u_vib_t + self.edft
 
             for p in self.pressure:
                 gibbs_tp = p * self.volume * scst.Avogadro * 1e-24 + helm_t
                 gibbs_t.append(gibbs_tp)
 
             # nTemp * nqpoint
-            U_vib.append(U_vib_t)
+            u_vib.append(u_vib_t)
             entropy.append(entropy_t)
-            C_v.append(C_v_t)
+            c_v.append(c_v_t)
             helmholtz.append(helm_t)
             # nTemp * npress * nqpoint
             gibbs.append(gibbs_t)
@@ -669,32 +694,30 @@ class Harmonic(Crystal_output):
             self.nqpoint = 1
             self.qpoint = [[np.array([0., 0., 0.]), 1.]]
             self.zp_energy = np.array([np.dot(zp_energy, wt)])
-            self.U_vib = np.array([np.dot(U_vib, wt)])
+            self.u_vib = np.array([np.dot(u_vib, wt)])
             self.entropy = np.array([np.dot(entropy, wt)])
-            self.C_v = np.array([np.dot(C_v, wt)])
+            self.c_v = np.array([np.dot(c_v, wt)])
             self.helmholtz = np.array([np.dot(helmholtz, wt)])
             self.gibbs = np.array([np.dot(gibbs, wt)])
         else:
             self.zp_energy = zp_energy
-            self.U_vib = np.transpose(np.array(U_vib, dtype=float))
+            self.u_vib = np.transpose(np.array(u_vib, dtype=float))
             self.entropy = np.transpose(np.array(entropy, dtype=float))
-            self.C_v = np.transpose(np.array(C_v, dtype=float))
+            self.c_v = np.transpose(np.array(c_v, dtype=float))
             self.helmholtz = np.transpose(np.array(helmholtz, dtype=float))
             self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
 
-        return self.helmholtz, self.gibbs, self.zp_energy, self.U_vib,\
-            self.entropy, self.C_v
+        return self.helmholtz, self.gibbs, self.zp_energy, self.u_vib,\
+            self.entropy, self.c_v
 
     def print_results(self):
         """
-        Print HA thermodynamic results into an external file. Used if 
+        Print HA thermodynamic results into an external file. Used if
         ``write_out = True``.
 
-        **Note**
-
-        Phonon dispersions are forced to be summed to keep the output
-        succinct if the automatic scheme (write_out=True) is launched. To get
-        verbose outputs, directly call this method.
+        Phonon dispersions are forced to be summed if the automatic scheme
+        (``write_out=True``) is launched. To get verbose outputs, call
+        ``self.thermodynamics()`` first and then call ``self.print_results()``.
         """
         import scipy.constants as scst
         from CRYSTALpytools.units import eV_to_H
@@ -727,8 +750,8 @@ class Harmonic(Crystal_output):
                         'C_V(J/mol*K)', 'Helmholtz(kJ/mol)'))
             for t, tempt in enumerate(self.temperature):
                 file.write('%8.2f%18.6e%18.6e%18.6e%18.6e\n' %
-                           (tempt, self.U_vib[q, t], self.entropy[q, t],
-                            self.C_v[q, t], self.helmholtz[q, t]))
+                           (tempt, self.u_vib[q, t], self.entropy[q, t],
+                            self.c_v[q, t], self.helmholtz[q, t]))
 
             file.write('\n')
             file.write('%s\n' % '  Gibbs free energy')
@@ -761,10 +784,7 @@ class Quasi_harmonic:
         temperature (array[float] | list[float], optional): Unit: K
         pressure (array[float] | list[float], optional): Unit: GPa
         write_out (bool): Whether to print the key information into a file.
-        filename (str): Name of the output file. Valid if 
-                ``write_out = True``.
-
-    **Note**
+        filename (str): Name of the output file. Valid if ``write_out = True``.
 
     Temperatures and pressures can also be defined by ``self.thermodynamics``,
     whose entries always cover the entries here.
@@ -799,8 +819,8 @@ class Quasi_harmonic:
         Args:
             input_files (list[str]): List of phonon output filenames.
             scelphono (array[float] | list[float]], optional): Corresponds
-                to the 'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or 
-                ndimension\*ndimension. By default a 1\*1\*1 'SCELPHONO' is 
+                to the 'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or
+                ndimension\*ndimension. By default a 1\*1\*1 'SCELPHONO' is
                 assumed.
             overlap (float, optional): The threshold of close mode overlaps.
             sort_phonon (bool, optional): Whether to check phonon continuity.
@@ -859,7 +879,7 @@ class Quasi_harmonic:
             self.combined_edft (list[float])
             self.combined_mode (list[Mode])
 
-        :raise Exception: If multiple files are defined.
+        :raise ValueError: If multiple files are defined.
         """
         from CRYSTALpytools.crystal_io import Crystal_output
         from CRYSTALpytools.thermodynamics import Harmonic
@@ -874,7 +894,7 @@ class Quasi_harmonic:
             return self
 
         if isinstance(input_file, list) and len(input_file) > 1:
-            raise Exception("Only a single QHA file is permitted")
+            raise ValueError("Only a single QHA file is permitted")
         elif isinstance(input_file, list) and len(input_file) == 1:
             input_file = input_file[0]
 
@@ -966,8 +986,8 @@ class Quasi_harmonic:
 
     def _combine_data(self, ha_list, overlap, sort_phonon):
         """
-        Combine the HA calculation data and rearrange it in the ascending order 
-        of volumes. Not a standalone method.
+        Combine the HA calculation data and rearrange it in the ascending order
+        of volumes.
 
         Args:
             ha_list (list[Harmonic]): List of harmonic objects.
@@ -1114,8 +1134,8 @@ class Quasi_harmonic:
                             for idx_msort in range(nmode):
                                 if close_overlap[idx_q, idx_mref, idx_csort, idx_msort]:
                                     file.write(
-                                        '%10i%2s%8i%2s%9i%2s%9i\n' % (
-                                            idx_mref + 1, '', idx_csort - 1, '', idx_csort, '', idx_msort + 1)
+                                        '%10i%2s%8i%2s%9i%2s%9i\n' %
+                                        (idx_mref + 1, '', idx_csort - 1, '', idx_csort, '', idx_msort + 1)
                                     )
                                 else:
                                     continue
@@ -1130,15 +1150,13 @@ class Quasi_harmonic:
     def _phonon_continuity(freq, eigvt, symm=None, overlap=0.4):
         """
         Rearrange phonon modes by their continuity. If the difference between
-        the maximum scalar product of corresponding eigenvectors (normalized to 
+        the maximum scalar product of corresponding eigenvectors (normalized to
         1) and scalar products of other modes is less than 0.4, warning is
         printed due to the potential overlap of modes. Adopted from CRYSTAL17.
 
         .. note::
 
             A. Erba, *J. Chem. Phys.*, 2014, **141**, 124115.
-
-        Not a standalone method.
 
         Args:
             freq (array[float]): Phonon frequencies. Unit: THz
@@ -1150,8 +1168,8 @@ class Quasi_harmonic:
         Returns:
             freq (array[float]): Sorted phonon frequencies
             eigvt (array[float]): Sorted eigenvectores
-            close_overlap (array[bool]):ncalc\*nmode\*nmode. Whether close 
-                overlap is identified between the previous calculation (2nd 
+            close_overlap (array[bool]):ncalc\*nmode\*nmode. Whether close
+                overlap is identified between the previous calculation (2nd
                 dimension) and the current one (3rd).
         """
         import numpy as np
@@ -1225,63 +1243,67 @@ class Quasi_harmonic:
 
         return freq, eigvt, close_overlap
 
-    def edft_eos_fit(self, method, **kwargs):
+    def eos_fit(self, volume, energy, method, write_out=True, **kwargs):
         """
-        Fit electron total energy according to equation of states. 
+        Fit energy-volume relationship by equation of states.
 
         Args:
+            volume (array[float]): Unit: Angstrom^3
+            energy (array[float]): Unit: kJ/mol
             method (str): Name of EoS used. Consistent with
-                `PyMatGen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
-            order (int): For the DeltaFactor method. *Not implemented*
+                `Pymatgen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
+            write_out (bool): Whether to print EOS information.
+            order (int): For DeltaFactor / Polynomial methods.
             min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int):
-                For the NumericalEOS method. *Not implemented*
+                For the NumericalEOS method.
 
         Returns:
-            self.eos_method (string): Name of the fitted equation of state
-            self.eos (PyMatGen EOS): The fitted equation of state.
+            eos (Pymatgen EOS): The fitted equation of state.
+            eos_method (string): Name of the fitted equation of state
         """
         import re
-        from pymatgen.analysis.eos import EOS
+        from pymatgen.analysis.eos import Murnaghan, Birch, BirchMurnaghan, \
+            PourierTarantola, Vinet, DeltaFactor, NumericalEOS, PolynomialEOS
         import scipy.constants as scst
 
-        self.eos_method = method
-# Commented due to the inhierant problem of pymatgen EOS object
-#         if re.findall(r'deltafactor', method, re.I):
-#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft, order=fitargs['order'])
 
-#         elif re.findall(r'numerical_eos', method, re.I):
-#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft,
-#                                        min_ndata_factor=fitargs['min_ndata_factor'],
-#                                        max_poly_order_factor=fitargs['max_poly_order_factor'],
-#                                        min_poly_order_factor=fitargs['min_poly_order_factor'])
+        eos_method = method
+        classes = {
+            "murnaghan"         : Murnaghan,
+            "birch"             : Birch,
+            "birch_murnaghan"   : BirchMurnaghan,
+            "pourier_tarantola" : PourierTarantola,
+            "vinet"             : Vinet,
+            "deltafactor"       : DeltaFactor,
+            "numerical_eos"     : NumericalEOS,
+            "polynomial"        : PolynomialEOS,
+        }
+        eos = classes[method](volume, energy)
+        eos_command = 'eos.fit('
+        # Polynomial / Deltafactor / Numerical
+        for idx, key in enumerate(kwargs.keys()):
+            value = list(kwargs.values())[idx]
+            eos_command += ', {}={}'.format(key, value)
+        eos_command += ')'
+        eval(eos_command)
 
-#         else:
-#             self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
-        self.eos = EOS(method).fit(self.combined_volume, self.combined_edft)
-
-        if self.write_out:
+        if self.write_out and write_out == True:
             file = open(self.filename, 'a+')
-            file.write('%s%s\n' % (
-                '# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
-            file.write(
-                '%s\n' % '  Electron total energy is fitted as the function of volume, of which the')
-            file.write('%s\n\n' %
-                       '  formalism is given by equation of states.')
-
-            file.write('%16s%16s%12s%12s\n' %
+            file.write('%s%s\n' % ('# EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: ', method))
+            file.write('%s\n' % '  Electron total energy is fitted as the function of volume, of which the')
+            file.write('%s\n\n' % '  formalism is given by equation of states.')
+            file.write('%16s%16s%12s%12s\n' % 
                        ('E0(kJ/mol)', 'V0(Angstrom^3)', 'B0(GPa)', 'B1'))
-            file.write('%16.4f%16.4f%12.4f%12.4f\n' % (self.eos.e0,
-                                                       self.eos.v0,
-                                                       self.eos.b0 * 10 / scst.Avogadro,
-                                                       self.eos.b1))
+            file.write('%16.4f%16.4f%12.4f%12.4f\n' %
+                       (eos.e0, eos.v0, eos.b0 * 1e24 / scst.Avogadro, eos.b1))
             file.write('\n')
             file.close()
 
-        return self.eos
+        return eos, method
 
     def freq_polynomial_fit(self, order):
         """
-        Fit phonon frequencies as polynomial functions of volumes. 
+        Fit phonon frequencies as polynomial functions of volumes.
 
         Args:
             order (list[int] | array[int]): The order of polynomials used.
@@ -1289,13 +1311,12 @@ class Quasi_harmonic:
         Returns:
             self.fit_order (int): The optimal order of polynomial fit.
 
-        Please also refer to ``self.poly_fit`` and ``self.poly_fit_rsquare`` 
+        Please also refer to ``self.poly_fit`` and ``self.poly_fit_rsquare``
         attributes of Mode class.
         """
         import numpy as np
 
         rsquare_tot = np.array([[od, 0] for od in order], dtype=float)
-        eq_point = np.argmin(self.combined_edft)
 
         if self.write_out:
             file = open(self.filename, 'a+')
@@ -1312,14 +1333,13 @@ class Quasi_harmonic:
                            ('## POLYNOMIAL FIT AT QPOINT #', idx_q))
 
             for mode in mode_q:
-                order_new, _, _ = mode.polynomial_fit(eq_point=eq_point,
-                                                      order=order)
+                order_new, _, _ = mode.polynomial_fit(order=order)
                 for key, value in mode.poly_fit_rsqaure.items():
                     rsquare_q[key] += value / len(mode_q)
 
                 if self.write_out:
                     file.write('%-8s%7s%14s%s\n' %
-                               ('  Mode #', 'Order', 'R^2', '  Coeff low to high'))
+                               ('  Mode #', 'Order', 'R^2', '  Coeff low to high (Constant term = 0)'))
                     for idx_od, od in enumerate(order_new):
                         if idx_od == 0:
                             file.write('%8i' % mode.rank)
@@ -1328,7 +1348,9 @@ class Quasi_harmonic:
 
                         file.write('%7i%2s%12.6f%2s' %
                                    (od, '', mode.poly_fit_rsqaure[od], ''))
-                        for c in mode.poly_fit[od].convert().coef:
+                        for idx_c, c in enumerate(mode.poly_fit[od].convert().coef):
+                            if idx_c == 0:
+                                continue
                             file.write('%12.4e' % c)
 
                         file.write('\n')
@@ -1371,30 +1393,30 @@ class Quasi_harmonic:
         from CRYSTALpytools.thermodynamics import Harmonic
         from CRYSTALpytools.thermodynamics import Mode
 
-        if not hasattr(self, 'fit_order') or not hasattr(self, 'eos'):
+        if not hasattr(self, 'fit_order') or not hasattr(self, 'e0_eos'):
             raise Exception('ERROR: Analytical expressions unavailable.')
 
-        eq_point = np.argmin(self.combined_edft)
-        num_mode = []
+        num_freq = []
         for mode_q in self.combined_mode:
-            num_mode_q = []
-            for idx_m, mode in enumerate(mode_q):
-                d_vol = volume - self.combined_volume[eq_point]
-                freq = mode.poly_fit[self.fit_order](d_vol) + mode_q[idx_m].frequency[eq_point]
-                num_mode_q.append(freq)
-            num_mode.append(num_mode_q)
+            num_freq_q = []
+            for mode in mode_q:
+                idx_vmin = np.argmin(mode.volume)
+                vmin = mode.volume[idx_vmin]
+                fmin = mode.frequency[idx_vmin]
+                dv = volume - vmin
+                num_freq_q.append(mode.poly_fit[self.fit_order](dv) + fmin)
+            num_freq.append(num_freq_q)
 
-        num_mode = np.array(num_mode)
+        num_freq = np.array(num_freq)
         ha = Harmonic(write_out=False).from_frequency(
-            self.eos(volume), self.qpoint, num_mode, [], volume=volume
-        )
+            self.e0_eos(volume), self.qpoint, num_freq, [], volume=volume)
 
         return ha
 
     def _minimize_gibbs(self, volume, temperature, pressure):
         """
         Get Gibbs free energy from the Harmonic phonon object. Used only for
-        minimizing G(V; T, p) by SciPy. Not a standalone method.
+        minimizing :math:`G(V;T, p)` by SciPy.
 
         Args:
             volume (float)
@@ -1409,106 +1431,126 @@ class Quasi_harmonic:
 
         return ha.gibbs[0, 0, 0]
 
+    @staticmethod
+    def _poly_no_cst(param, x, y):
+        """
+        Define a polynomial :math:`\\Delta f(\\Delta x)` without constant term.
+        Orders low to high. For SciPy.
+        """
+        import numpy as np
+
+        express = np.zeros([len(x)])
+        for order, p in enumerate(param):
+            express += p * x**(order + 1)
+        return ((express - y)**2)**0.5
+
+    def _clean_attr(self):
+        """
+        When temperature / pressure are changed, thermodynamic attributes are
+        removed to keep consistency.
+        """
+        attr_list = ['volume', 'helmholtz', 'gibbs', 'entropy', 'c_v', 'c_p',
+                     'k_t', 'k_s', 'fe_eos_method', 'fe_eos', 'gruneisen',
+                     'alpha_vgru', 'c_pgru', 'k_sgru', 'alpha_v', 'vol_fit']
+
+        for attr in attr_list:
+            if hasattr(self, attr):
+                delattr(self,attr)
+
+        return self
+
     def thermo_freq(self, eos_method='birch_murnaghan', poly_order=[2, 3],
                     min_method='BFGS', volume_bound=None, mutewarning=False,
                     **kwargs):
         """
-        Obtain thermodynamic properties by explicitly fitting phonon 
+        Obtain thermodynamic properties by explicitly fitting phonon
         frequencies as polynomial functions of volume. DFT total energies are
         fitted as a function of volume by equation of states (EOS).
 
+        The equilibrium volume is fitted by minimizing Gibbs free energy at
+        constant temperature and pressure.
+
+        .. math::
+
+            V(T,p)=\\text{min}[G(V;T,p)]=\\text{min}[E_{0}(V)+F_{vib}(V;T,p)+pV)]
+
         Args:
-            eos_method (str, optional): EOS used to fit DFT total energies. 
-            poly_order (array[int] | list[int], optional): The order of 
+            eos_method (str, optional): EOS used to fit DFT total energy and
+                Helmholtz free energy (to get bulk modules).
+            poly_order (array[int] | list[int], optional): The order of
                 polynomials used to fit frequency as the function of volumes.
-            min_method (string, optional): Minimisation algorithms. 
-            volume_bound (tuple-like, optional), Boundary conditions of 
+            min_method (string, optional): Minimisation algorithms.
+            volume_bound (tuple-like, optional), Boundary conditions of
                 equilibrium volumes. Unit: Angstrom^3
             mutewarning (bool, optional): Whether print out warning messages.
             temperature (array[float], optional): Unit: K
             pressure (array[float], optional): Unit: GPa
-            order (int, optional): For DeltaFactor EOS. *Not implemented*
+            order (int, optional): For DeltaFactor / Polynomial EOSs.
             min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
-                For Numerical EOS. *Not implemented*
+                For Numerical EOS.
 
-        **Notes**
+        .. note::
 
-        1. EOS supported by ``eos_method`` are consistent with `PyMatGen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
-        2. Parameterized and tested algorithms for ``min_method``: 
-            * BFGS(no boundary)
-            * L-BFGS-B(with boundary)
+            #. Valid entries of ``eos_method`` are consistent with `PyMatGen <https://pymatgen.org/pymatgen.analysis.eos.html>`_.
+            #. Parameterized and tested algorithms for ``min_method``:
+                * BFGS(no boundary)
+                * L-BFGS-B(with boundary)
 
         Returns:
             self (Quasi_harmonic)
 
         **New Attributes**
 
-        * ``self.temperature`` in K and ``self.pressure`` in GPa.
-        * ``self.equilibrium_volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3
-        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol
-        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K
+        * ``self.temperature`` in K and ``self.pressure`` in GPa.  
+        * ``self.volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3  
+        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol  
+        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K  
+        * ``self.c_v``, nPressure\*nTemperature, Constant volume specific heat. Unit: J/mol\*K  
+        * ``self.e0_eos`` and ``self.e0_eos_method`` Pymatgen EOS objects and string. EOS used to fit DFT energy.  
 
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
         import numpy as np
         import warnings
-        import re
         from scipy.optimize import minimize
 
         # Generate temperature and pressure series
-        if kwargs:
-            if 'temperature' in kwargs:
-                if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn(
-                        'Temperature attribute exists. Input temperatures will be used to update the attribute.', stacklevel=2)
+        if 'temperature' in kwargs:
+            if hasattr(self, 'temperature') and not mutewarning:
+                warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
+                              stacklevel=2)
+            self.temperature = np.array(kwargs['temperature'], dtype=float)
+            self._clean_attr()
 
-                self.temperature = np.array(kwargs['temperature'], dtype=float)
-
-            if 'pressure' in kwargs:
-                if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn(
-                        'Pressure attribute exists. Input pressures will be used to update the attribute.', stacklevel=2)
-
-                self.pressure = np.array(kwargs['pressure'], dtype=float)
+        if 'pressure' in kwargs:
+            if hasattr(self, 'pressure') and not mutewarning:
+                warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
+                              stacklevel=2)
+            self.pressure = np.array(kwargs['pressure'], dtype=float)
+            self._clean_attr()
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
 
         # Fit DFT total energy, if not done yet. Otherwise, fitted values will not be covered.
-        if hasattr(self, 'eos') and not mutewarning:
-            warnings.warn(
-                'DFT total energy is already fitted. To keep the consistency, it will not be updated.', stacklevel=2)
+        if hasattr(self, 'e0_eos') and not mutewarning:
+            warnings.warn('DFT total energy is already fitted. To keep the consistency, it will not be updated.',
+                          stacklevel=2)
         else:
-            # Commented due to the inhierant problem of pymatgen EOS object
-            #             if re.findall(r'deltafactor', eos_method, re.I):
-            #                 if 'order' not in kwargs.keys():
-            #                     kwargs.update({'order' : 3})
-
-            #                 self.edft_eos_fit(method=eos_method, order=kwargs['order'])
-
-            #             elif re.findall(r'numerical_eos', eos_method, re.I):
-            #                 if 'min_ndata_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_ndata_factor' : 3})
-
-            #                 if 'max_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'max_poly_order_factor' : 5})
-
-            #                 if 'min_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_poly_order_factor' : 2})
-
-            #                 self.edft_eos_fit(method=eos_method,
-            #                                   min_ndata_factor=kwargs['min_ndata_factor'],
-            #                                   max_poly_order_factor=kwargs['max_poly_order_factor'],
-            #                                   min_poly_order_factor=kwargs['min_poly_order_factor'])
-
-            #             else:
-            #                 self.edft_eos_fit(method=eos_method)
-            self.edft_eos_fit(method=eos_method)
-
+            eos_method = eos_method.casefold()
+            eos_command = 'self.eos_fit(self.combined_volume, self.combined_edft, eos_method'
+            # Polynomial / Deltafactor / Numerical
+            for idx, key in enumerate(kwargs.keys()):
+                if key == 'temperature' or key == 'pressure':
+                    continue
+                value = list(kwargs.values())[idx]
+                eos_command += ', {}={}'.format(key, value)
+            eos_command += ')'
+            self.e0_eos, self.e0_eos_method = eval(eos_command)
         # Fit frequencies, if not done yet. Otherwise, fitted values will not be covered.
         if hasattr(self, 'fit_order') and not mutewarning:
-            warnings.warn(
-                'Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.', stacklevel=2)
+            warnings.warn('Frequency is already fitted to polynomials. To keep the consistency, it will not be updated.',
+                          stacklevel=2)
         else:
             self.freq_polynomial_fit(order=poly_order)
 
@@ -1519,12 +1561,11 @@ class Quasi_harmonic:
         }
 
         # Gibbs(V; T, p) minimization nPress*nTempt list
-        self.equilibrium_volume = []
+        self.volume = np.zeros([len(self.pressure), len(self.temperature)])
         v_init = np.mean(self.combined_volume)
 
-        for p in self.pressure:
-            eq_vol_p = []
-            for t in self.temperature:
+        for idx_p, p in enumerate(self.pressure):
+            for idx_t, t in enumerate(self.temperature):
                 params = {'self': self,
                           'minimize': minimize,
                           'v_init': v_init,
@@ -1532,58 +1573,38 @@ class Quasi_harmonic:
                           'p': p,
                           'volume_bound': volume_bound}
                 exec(methods[min_method], params)
-                eq_vol_p.append(params['vol'].x[0])
+                self.volume[idx_p, idx_t] = params['vol'].x[0]
 
-                if (params['vol'].x[0] < min(self.combined_volume)
-                    or params['vol'].x[0] > max(self.combined_volume)) \
-                   and not mutewarning:
-                    warnings.warn(
-                        'Optimised volume exceeds the sampled range. Special care should be taken of.',
-                        stacklevel=2
-                    )
-                    warnings.warn(
-                        '  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f'
-                        % (params['vol'].x[0], t, p), stacklevel=2
-                    )
-
-            self.equilibrium_volume.append(eq_vol_p)
-
-        self.equilibrium_volume = np.array(self.equilibrium_volume)
+                if (params['vol'].x[0] < min(self.combined_volume) or params['vol'].x[0] > max(self.combined_volume)) and not mutewarning:
+                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
+                                  % (params['vol'].x[0], t, p), stacklevel=2)
 
         # Calculate other thermodynamic properties
-        self.helmholtz = []
-        self.gibbs = []
-        self.entropy = []
+        self.helmholtz = np.zeros(self.volume.shape)
+        self.gibbs = np.zeros(self.volume.shape)
+        self.entropy = np.zeros(self.volume.shape)
+        self.c_v = np.zeros(self.volume.shape)
         for idx_p, p in enumerate(self.pressure):
-            helmholtz_p = []
-            gibbs_p = []
-            entropy_p = []
             for idx_t, t in enumerate(self.temperature):
-                vol = self.equilibrium_volume[idx_p, idx_t]
+                vol = self.volume[idx_p, idx_t]
                 ha = self._get_harmonic_phonon(vol)
-                ha.thermodynamics(temperature=[t], pressure=[
-                                  p], mutewarning=True)
-                helmholtz_p.append(ha.helmholtz[0, 0])
-                gibbs_p.append(ha.gibbs[0, 0, 0])
-                entropy_p.append(ha.entropy[0, 0])
-
-            self.helmholtz.append(helmholtz_p)
-            self.gibbs.append(gibbs_p)
-            self.entropy.append(entropy_p)
-
-        self.helmholtz = np.array(self.helmholtz)
-        self.gibbs = np.array(self.gibbs)
-        self.entropy = np.array(self.entropy)
+                ha.thermodynamics(temperature=[t], pressure=[p], mutewarning=True)
+                self.helmholtz[idx_p, idx_t] = ha.helmholtz[0, 0]
+                self.gibbs[idx_p, idx_t] = ha.gibbs[0, 0, 0]
+                self.entropy[idx_p, idx_t] = ha.entropy[0, 0]
+                self.c_v[idx_p, idx_t] = ha.c_v[0, 0]
 
         # Print output file
         if self.write_out:
             file = open(self.filename, 'a+')
-            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES')
-            file.write('%s\n\n' % '  Thermodynamic properties fitted by QHA.')
+            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES - FREQUENCY')
+            file.write('%s\n\n' % '  QHA thermodynamic properties by explicitly fitting frequencies.')
             file.write('%s%6i\n' %
                        ('## FREQUENCY POLYNOMIAL ORDER: ', self.fit_order))
             file.write('%s%s\n' %
                        ('## EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
+            file.write('%s%s\n' %
+                       ('## HELMHOLTZ FREE ENERGY EOS: ', eos_method))
             if volume_bound:
                 file.write('%s\n' % (
                     '## CONSTRAINED VOLUME MINIMIZATION LAUNCHED. VOLUME BOUNDARIES (UNIT: ANGSTROM^3):'))
@@ -1593,16 +1614,132 @@ class Quasi_harmonic:
             for idx_p, press in enumerate(self.pressure):
                 file.write('%s%6.2f%s\n\n' %
                            ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
-                file.write('%4s%6s%4s%16s%2s%18s%4s%16s%4s%16s\n' %
-                           ('', 'T(K)', '', 'Vol(Angstrom^3)', '', 'Helmholtz(kJ/mol)', '', 'Gibbs(kJ/mol)', '', 'Entropy(J/mol*K)'))
+                file.write('%10s%20s%20s%20s%20s%20s\n' %
+                           ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)',
+                            'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'C_V(J/mol*K)'))
                 for idx_t, tempt in enumerate(self.temperature):
-                    file.write('%4s%6.1f%4s%16.4f%4s%16.8e%4s%16.8e%4s%16.8e\n' %
-                               ('', tempt,
-                                '', self.equilibrium_volume[idx_p, idx_t],
-                                '', self.helmholtz[idx_p, idx_t],
-                                '', self.gibbs[idx_p, idx_t],
-                                '', self.entropy[idx_p, idx_t]))
+                    file.write('%10.2f%20.4f%20.8e%20.8e%20.8e%20.8e\n' %
+                               (tempt, self.volume[idx_p, idx_t],
+                                self.helmholtz[idx_p, idx_t],
+                                self.gibbs[idx_p, idx_t],
+                                self.entropy[idx_p, idx_t],
+                                self.c_v[idx_p, idx_t]))
 
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def thermo_gruneisen(self, eos_method='birch_murnaghan', min_method='BFGS',
+                         volume_bound=None, mutewarning=False, **kwargs):
+        """
+        Grüneisen parameters and related properties. The macroscopic Grüneisen
+        parameter is defined as:
+
+        .. math::
+
+            \\gamma=\\sum_{\\textbf{q}i}\\frac{\\gamma_{\\textbf{q}i}C_{V,\\textbf{q}i}}{C_{V}}
+
+        Thermal expansion coefficient in Grüneisen model:
+
+        .. math::
+
+            \\alpha_{V}^{gru}=\\frac{\\gamma C_{V}}{K_{T}V}
+
+        .. note::
+
+            The Grüneisen model is used to fit frequencies, equivalent to using
+            ``self.thermo_freq(poly_order=[1,])``.
+
+        For arguments, see ``self.thermo_freq``.
+
+        Returns:
+            self.gamma(array): npressure\*ntemperature array of macroscopic
+                Grüneisen parameter. Temperature should > 0.
+        """
+        import numpy as np
+        import scipy.constants as scst
+        import warnings
+
+        if hasattr(self, 'fit_order'):
+            raise AttributeError('self.gruneisen cannot be used when self.thermo_freq is already used.')
+
+        command = 'self.thermo_freq(eos_method=eos_method, poly_order=[1,], min_method=min_method, volume_bound=volume_bound, mutewarning=mutewarning'
+
+        for idx, key in enumerate(kwargs.keys()):
+            value = list(kwargs.values())[idx]
+            if type(value) == np.ndarray:
+                value = list(value)
+            command += ', {}={}'.format(key, value)
+        command += ')'
+        eval(command)
+
+        # Get mode-specific Grüneisen parameter
+        for idx_q, mode_q in enumerate(self.combined_mode):
+            for idx_m, mode in enumerate(mode_q):
+                self.combined_mode[idx_q][idx_m].get_gruneisen(order=[1,], volume=self.volume)
+
+        # Macroscopic Grüneisen parameter
+        sum_gCv = np.zeros(self.volume.shape, dtype=float)
+        for idx_q, mode_q in enumerate(self.combined_mode):
+            for idx_m, mode in enumerate(mode_q):
+                c_v = np.zeros(self.volume.shape, dtype=float)
+                if idx_m == 0 or idx_m == 1 or idx_m == 2:
+                    continue
+                # Get matrix C_v, nTempt*nPress
+                idx_vmin = np.argmin(mode.volume)
+                vmin = mode.volume[idx_vmin]
+                fmin = mode.frequency[idx_vmin]
+                dv = self.volume - vmin
+                for idx_t, t in enumerate(self.temperature):
+                    if t > 1e-4: # > 0K
+                        kb_t = scst.k * scst.Avogadro * t
+                        hbar_freq = (fmin + mode.poly_fit[1](dv[:, idx_t])) * scst.Avogadro * scst.h * 1e12
+                        expon = np.exp(hbar_freq / kb_t)
+                        c_v[:, idx_t] = hbar_freq**2 / kb_t / t * expon / (expon - 1)**2
+                    else:
+                        c_v[:, idx_t] = 0.
+                sum_gCv += c_v * mode.gruneisen[1]
+
+        # Get K_T, EOS keywords
+        command = 'self.bulk_modulus(adiabatic=False'
+        for idx, key in enumerate(kwargs.keys()):
+            if key == 'temperature' or key == 'pressure':
+                continue
+            command += ', {}={}'.format(key, list(kwargs.values())[idx])
+        command += ')'
+        eval(command)
+
+        self.alpha_vgru = sum_gCv / self.k_t / self.volume / 1e-21 / scst.Avogadro
+        self.c_pgru = self.c_v + self.alpha_vgru**2 * self.k_t * self.volume * self.temperature * 1e-21 * scst.Avogadro
+
+        self.gruneisen = np.zeros(self.volume.shape)
+        self.k_sgru = np.zeros(self.volume.shape)
+        for idx_t, t in enumerate(self.temperature):
+            if t < 1e-4: # 0K
+                continue
+            self.gruneisen[:, idx_t] = sum_gCv[:, idx_t] / self.c_v[:, idx_t]
+            self.k_sgru[:, idx_t] = self.k_t[:, idx_t] + \
+                self.alpha_vgru[:, idx_t]**2 * self.volume[:, idx_t] * t * self.k_t[:, idx_t]**2 * 1e-21 * scst.Avogadro / self.c_v[:, idx_t]
+
+        # print out options
+        if self.write_out == True:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES - GRÜENEISEN MODEL')
+            file.write('%s\n\n' % '  Linear dependency of frequency with volume is assumed.')
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## GRÜENEISEN THERMODYNAMICS AT ', p, '  GPa'))
+                file.write('%10s%10s%20s%20s%20s%20s%20s\n' %
+                           ('T(K)', 'GRÜ PARAM','alpha_VGRÜ(K^-1)',
+                            'C_v(J/mol*K)', 'C_pGRÜ(J/mol*K)',
+                            'K_T(GPa)', 'K_SGRÜ(GPa)'))
+                for idx_t, t in enumerate(self.temperature):
+                    file.write('%10.1f%10.4f%20.8e%20.8e%20.8e%20.8e%20.8e\n' %
+                               (t, self.gruneisen[idx_p, idx_t], self.alpha_vgru[idx_p, idx_t],
+                                self.c_v[idx_p, idx_t], self.c_pgru[idx_p, idx_t],
+                                self.k_t[idx_p, idx_t], self.k_sgru[idx_p, idx_t]))
                 file.write('\n')
 
             file.write('\n')
@@ -1613,26 +1750,34 @@ class Quasi_harmonic:
     def thermo_eos(self, eos_method='birch_murnaghan', poly_order=[2, 3],
                    mutewarning=False, **kwargs):
         """
-        Obtain thermodynamic properties by fitting EOS, which is fitted by the 
-        Helmholtz free energies of sampled harmonic phonons. The explicit 
+        Obtain thermodynamic properties by fitting EOS, which is fitted by the
+        Helmholtz free energies of sampled harmonic phonons. The explicit
         sorting and fitting of frequency-volume relationship is disabled.
 
-        Args:
+        Entropy is obtained by taking the derivation of Gibbs free energy at
+        constant pressure.
 
-            eos_method (str, optional)
-            poly_order (array[int] | list[int], optional): Order of 
-                polynomials used to fit Gibbs free energy to get entropy.
-            mutewarning (bool, optional)
-            temperature (array[float] | list[float], optional): Unit: K
-            pressure (array[float] | list[float], optional): Unit: GPa
-            order (int, optional): For DeltaFactor EOS. *Not implemented*
-            min_ndata_factor, max_poly_order_factor, min_poly_order_factor (int, optional):
-                For Numerical EOS. *Not implemented*
+        .. math::
 
-        Returns:
-            self (Quasi_harmonic)
+            S=-\\left(\\frac{\\partial G}{\\partial T}\\right)_{p}
 
-        New Attributes are consistent with the ``thermo_freq`` method
+        Constant pressure specific heat is obtained by taking the second
+        derivative of :math:`G`.
+
+        .. math::
+
+            C_{p}=-T\\left(\\frac{\\partial^{2}G}{\\partial T^{2}}\\right)_{p}
+
+        .. note::
+
+            ``poly_order`` should >= 2.
+
+        **New attributes**
+
+        * ``self.c_p``, nPressure\*nTemperature, Constant pressure specific heat. Unit: J/mol\*K  
+        * ``self.fe_eos`` and ``self.fe_eos_method`` nTemperature\*1 list of Pymatgen EOS objects and string. EOSs used to fit HA free energy at constant temperature.
+
+        For arguments and other attributes, see ``self.thermo_freq``.
 
         :raise Exception: If the number of HA calculations is less than 4.
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
@@ -1640,9 +1785,8 @@ class Quasi_harmonic:
         import numpy as np
         import warnings
         import re
-        from CRYSTALpytools.thermodynamics import Harmonic
-        from pymatgen.analysis.eos import EOS
-        from scipy.optimize import fmin
+        from scipy.optimize import fmin, least_squares
+        import scipy.constants as scst
         from sympy import diff, lambdify, symbols
 
         # Check the number of calculations
@@ -1650,139 +1794,397 @@ class Quasi_harmonic:
             raise Exception('Insufficient database. Increase HA phonons')
 
         # Generate temperature and pressure series
-        if kwargs:
-            if 'temperature' in kwargs:
-                if hasattr(self, 'temperature') and not mutewarning:
-                    warnings.warn(
-                        'Temperature attribute exists. Input temperatures will be used to update the attribute.',
-                        stacklevel=2)
+        if 'temperature' in kwargs:
+            if hasattr(self, 'temperature') and not mutewarning:
+                warnings.warn('Temperature attribute exists. Input temperatures will be used to update the attribute.',
+                              stacklevel=2)
+            self.temperature = np.array(kwargs['temperature'], dtype=float)
+            self._clean_attr()
 
-                self.temperature = np.array(
-                    kwargs['temperature'], dtype=float)
-
-            if 'pressure' in kwargs:
-                if hasattr(self, 'pressure') and not mutewarning:
-                    warnings.warn(
-                        'Pressure attribute exists. Input pressures will be used to update the attribute.',
-                        stacklevel=2)
-
-                self.pressure = np.array(kwargs['pressure'], dtype=float)
+        if 'pressure' in kwargs:
+            if hasattr(self, 'pressure') and not mutewarning:
+                warnings.warn('Pressure attribute exists. Input pressures will be used to update the attribute.',
+                              stacklevel=2)
+            self.pressure = np.array(kwargs['pressure'], dtype=float)
+            self._clean_attr()
 
         if not hasattr(self, 'temperature') or not hasattr(self, 'pressure'):
             raise ValueError('Temperature and pressure should be specified.')
 
-        # Data for fitting
+        # Get data for fitting. Helmholtz: nTempt*nCalc matrix
         helmholtz = np.zeros([len(self.temperature), self.ncalc], dtype=float)
         for idx_c, calc in enumerate(self.combined_phonon):
             hfe_c, _, _, _, _, _ = calc.thermodynamics(
-                sumphonon=True, mutewarning=True, temperature=self.temperature, pressure=[0.]
-            )
+                sumphonon=True, mutewarning=True,
+                temperature=self.temperature, pressure=[0.])
             helmholtz[:, idx_c] = hfe_c
 
-        # Fit EOS, get p-V-T
-        self.thermo_eos_method = eos_method
-        self.thermo_eos = []
-        self.equilibrium_volume = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.helmholtz = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.gibbs = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
-        self.entropy = np.zeros(
-            [len(self.pressure), len(self.temperature)], dtype=float)
+        # Fit EOS
+        eos_method = eos_method.casefold()
+        if hasattr(self, 'fe_eos') and not mutewarning:
+            warnings.warn('Harmonic free energy EOS is fitted. To keep the consistency, it will not be updated.',
+                          stacklevel=2)
+        else:
+            self.fe_eos_method = eos_method
+            self.fe_eos = []
+            for idx_t, t in enumerate(self.temperature):
+                eos_command = 'self.eos_fit(self.combined_volume, helmholtz[idx_t, :], eos_method, write_out=False'
+                # Polynomial / Deltafactor / Numerical
+                for idx, key in enumerate(kwargs.keys()):
+                    if key == 'temperature' or key == 'pressure':
+                        continue
+                    value = list(kwargs.values())[idx]
+                    eos_command += ', {}={}'.format(key, value)
+                eos_command += ')'
+                eos, _ = eval(eos_command)
+                self.fe_eos.append(eos)
+        # Get thermoproperties
+        self.volume = np.zeros([len(self.pressure), len(self.temperature)])
+        self.helmholtz = np.zeros(self.volume.shape)
+        self.gibbs = np.zeros(self.volume.shape)
+        self.entropy = np.zeros(self.volume.shape)
+        self.c_p = np.zeros(self.volume.shape)
         v = symbols('v')
-        for idx_t, t in enumerate(self.temperature):
-            # Commented due to the inhierant problem of pymatgen EOS object
-            #             if re.findall(r'deltafactor', eos_method, re.I):
-            #                 if 'order' not in kwargs.keys():
-            #                     kwargs.update({'order' : 3})
-
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t], order=kwargs['order'])
-
-            #             elif re.findall(r'numerical_eos', eos_method, re.I):
-            #                 if 'min_ndata_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_ndata_factor' : 3})
-
-            #                 if 'max_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'max_poly_order_factor' : 5})
-
-            #                 if 'min_poly_order_factor' not in kwargs.keys():
-            #                     kwargs.update({'min_poly_order_factor' : 2})
-
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t],
-            #                                             min_ndata_factor=kwargs['min_ndata_factor'],
-            #                                             max_poly_order_factor=kwargs['max_poly_order_factor'],
-            #                                             min_poly_order_factor=kwargs['min_poly_order_factor'])
-
-            #             else:
-            #                 hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
-            hfe_t = EOS(eos_method).fit(self.combined_volume, helmholtz[idx_t])
-            self.thermo_eos.append(hfe_t(v))
-            press_t = -diff(hfe_t(v), v)
+        for idx_t, eos in enumerate(self.fe_eos):
+            p_eos = -diff(eos(v), v, 1)
             for idx_p, p in enumerate(self.pressure):
-                pau = p * 0.602214  # GPa --> kJ/mol.Angstrom^3
-                lam_p = lambdify(v, (press_t - pau)**2, 'numpy')
-                fit = fmin(lam_p, hfe_t.v0, full_output=True, disp=False)
-                self.equilibrium_volume[idx_p, idx_t] = fit[0]
-                self.helmholtz[idx_p, idx_t] = hfe_t(fit[0])
-                self.gibbs[idx_p, idx_t] = hfe_t(fit[0]) + pau * fit[0]
-
+                p_kj = p * scst.Avogadro / 1e24  # GPa --> kJ/mol.Angstrom^3
+                lam_p = lambdify(v, (p_eos - p_kj)**2, 'numpy')
+                fit = fmin(lam_p, eos.v0, full_output=True, disp=False)
+                if np.isnan(fit[0]) == True:
+                    raise ValueError('EOS fitting failed at %6.2f K, %6.2f GPa. More sampling points needed.' % (self.temperature[idx_t], p))
                 if (fit[0] < min(self.combined_volume) or fit[0] > max(self.combined_volume)) and not mutewarning:
-                    warnings.warn(
-                        'Optimised volume exceeds the sampled range. Special care should be taken of.', stacklevel=2)
-                    warnings.warn('  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f' % (
-                        fit[0], t, p), stacklevel=2)
+                    warnings.warn('Optimised volume exceeds the sampled range. Special care should be taken of.\n  Volume: %12.4f, Temperature: %6.2f, Pressure: %6.2f\n'
+                                  % (fit[0], t, p), stacklevel=2)
+                self.volume[idx_p, idx_t] = fit[0]
+                self.helmholtz[idx_p, idx_t] = eos(fit[0])
+                self.gibbs[idx_p, idx_t] = eos(fit[0]) + p_kj * fit[0]
 
-        # Second fit G(T; p), get entropy by S=-(\frac{\partial G}{\partial T})_{p}
-        t = symbols('t')
+        # Second fit G(T; p), get entropy and C_p
         if max(poly_order) > len(self.temperature) - 1 and not mutewarning:
-            warnings.warn(
-                'Temperature series not sufficient for the order of polynomial fitting.', stacklevel=2)
-            warnings.warn('Too high values will be removed.', stacklevel=2)
+            warnings.warn('Temperature series not sufficient for the order of polynomial fitting.\n Too high values will be removed.\n',
+                          stacklevel=2)
 
         poly_order = list(set(poly_order))
         poly_order = [p for p in poly_order if p <= len(self.temperature) - 1]
 
+        idx_tmin = np.argmin(self.temperature)
+        tmin = self.temperature[idx_tmin]
+        dt = self.temperature - tmin
         for idx_p, gibbs in enumerate(self.gibbs):
-            r_square = np.array([], dtype=float)
+            r_square = []
             func = []
             for order in poly_order:
-                func_order = np.polynomial.polynomial.Polynomial.fit(
-                    self.temperature, gibbs, order)
-                func.append(func_order)
-                ss_res = np.sum((gibbs - func_order(self.temperature))**2)
-                ss_tot = np.sum((gibbs - np.mean(gibbs))**2)
-                r_square = np.append(r_square, 1 - ss_res / ss_tot)
+                if order < 2:
+                    warnings.warn('The minimum order of polynomial is 2. Skip this entry.')
+                    continue
+                gmin = gibbs[idx_tmin]
+                dg = gibbs - gmin
+                opt = least_squares(self._poly_no_cst,
+                                    np.array([1. for i in range(order)]),
+                                    args=(dt, dg))
+                poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
+                func.append(poly)
+                r_square.append(1 - np.sum((dg - poly(dt))**2) / np.sum((dg - np.mean(dg))**2))
 
-            fit_func = func[np.argmax(r_square)]
-            entropy = -diff(fit_func(t), t) * 1000.
-            for idx_t, tempt in enumerate(self.temperature):
-                self.entropy[idx_p, idx_t] = entropy.evalf(subs={'t': tempt})
+            entropy = func[np.argmax(r_square)].deriv(1)
+            self.entropy[idx_p, :] = -entropy(dt) * 1000.
+            c_p = func[np.argmax(r_square)].deriv(2)
+            self.c_p[idx_p, :] = -c_p(dt) * 1000 * self.temperature
 
         # Print output file
         if self.write_out:
             file = open(self.filename, 'a+')
             file.write('%s\n' % '# QHA THERMODYNAMIC PROPERTIES - EOS FIT')
-            file.write(
-                '%s\n\n' % '  Thermodynamic properties obtained by overall fitting of equation of states.')
+            file.write('%s\n\n' % '  Thermodynamic properties obtained by overall fitting of equation of states.')
             file.write('%s%s\n' % ('## EQUATION OF STATES: ', eos_method))
-            file.write('%s%i\n' % ('## G(T) POLYNOMIAL ORDER: ',
-                                   poly_order[np.argmax(r_square)]))
-            file.write(
-                '%s\n' % '  WARNING: Entropy at low temperature is probably inaccurate due to the poor fitting of G(T) near 0K.')
+            file.write('%s%i\n' % ('## G(T) POLYNOMIAL ORDER: ', poly_order[np.argmax(r_square)]))
+            file.write('%s\n' % '  WARNING: Entropy at low temperature is probably inaccurate due to the poor fitting of G(T) near 0K.')
             for idx_p, press in enumerate(self.pressure):
-                file.write('%s%6.2f%s\n\n' %
-                           ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
-                file.write('%4s%6s%4s%16s%2s%18s%4s%16s%4s%16s\n' %
-                           ('', 'T(K)', '', 'Vol(Angstrom^3)', '', 'Helmholtz(kJ/mol)', '', 'Gibbs(kJ/mol)', '', 'Entropy(J/mol*K)'))
+                file.write('%s%6.2f%s\n\n' % ('## THERMODYNAMIC PROPERTIES AT ', press, '  GPa'))
+                file.write('%10s%20s%20s%20s%20s%20s\n' %
+                           ('T(K)', 'Vol(Angstrom^3)', 'Helmholtz(kJ/mol)', 
+                            'Gibbs(kJ/mol)', 'Entropy(J/mol*K)', 'C_p(J/mol*K)'))
                 for idx_t, tempt in enumerate(self.temperature):
-                    file.write('%4s%6.1f%4s%16.4f%4s%16.8e%4s%16.8e%4s%16.8e\n' %
-                               ('', tempt,
-                                '', self.equilibrium_volume[idx_p, idx_t],
-                                '', self.helmholtz[idx_p, idx_t],
-                                '', self.gibbs[idx_p, idx_t],
-                                '', self.entropy[idx_p, idx_t]))
+                    file.write('%10.1f%20.4f%20.8e%20.8e%20.8e%20.8e\n' %
+                               (tempt, self.volume[idx_p, idx_t],
+                                self.helmholtz[idx_p, idx_t],
+                                self.gibbs[idx_p, idx_t],
+                                self.entropy[idx_p, idx_t],
+                                self.c_p[idx_p, idx_t]))
 
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def expansion_vol(self, poly_order=[2, 3], plot=True, fit_fig='expansion_fit.png'):
+        """
+        Fit the thermal expansion curve and get thermal expansion coefficients
+        at equilibrium volumes.
+
+        The volumetric thermal expansion coefficient at constant pressure:
+
+        .. math::
+
+            \\alpha_{V}(T) = \\frac{1}{V(T)}\\left(\\frac{\\partial V(T)}{\\partial T}\\right)_{p}
+
+        Args:
+            poly_order (list[int]): *method = 'polynomial'*, order of polynomials.
+            plot (bool): Plot V-T curves to examine the goodness of fitting. An
+                interactive window will pump out to let user to specify the
+                optimial fitting.
+            fit_fig (str): File name for fittings. A temperal figure is printed
+                to help the user choose the optimal fitting.
+
+        **New attributes**
+
+        * ``self.vol_fit`` nPressure\*1 list of Numpy object, the fitted volume V(T)  
+        * ``self.alpha_v`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
+        """
+        import numpy as np
+        from scipy.optimize import least_squares
+        import matplotlib.pyplot as plt
+        import warnings
+
+        if not hasattr(self, 'volume'):
+            raise AttributeError('Equilibrium volume should be fit first.')
+
+        poly_order = np.array(poly_order)
+        # Polynomial fitting
+        func = []
+        rs = []
+        idx_tmin = np.argmin(self.temperature)
+        tmin = self.temperature[idx_tmin]
+        dt = self.temperature - tmin
+        for idx_p, v_p in enumerate(self.volume):
+            func_p = []
+            rs_p = []
+            vmin = v_p[idx_tmin]
+            dv = v_p - vmin
+            for order in poly_order:
+                opt = least_squares(self._poly_no_cst,
+                                    np.array([1. for i in range(order)]),
+                                    args=(dt, dv))
+                poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
+                r_square = 1 - np.sum((dv - poly(dt))**2) / np.sum((dv - np.mean(dv))**2)
+                func_p.append(poly)
+                rs_p.append(r_square)
+            func.append(func_p)
+            rs.append(rs_p)
+
+        # Get the optimal fit
+        rs = np.array(rs) # npress * npolyorder
+        rs_mean = np.array([np.mean(rs[:, i]) for i in range(len(poly_order))])
+        if plot == False:
+            fit_order_idx = np.argmin(rs_mean)
+            fit_order = poly_order[fit_order_idx]
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+            cmap = np.vstack([np.linspace([0, 0, 1], [0, 1, 1], 20, endpoint=False),
+                              np.linspace([0, 1, 1], [0, 1, 0], 20, endpoint=False),
+                              np.linspace([0, 1, 0], [1, 1, 0], 20, endpoint=False),
+                              np.linspace([1, 1, 0], [1, 0, 0], 21, endpoint=True)])
+            for idx_p, v_p in enumerate(self.volume):
+                ax.scatter(self.temperature, v_p, color='k', marker='D', s=40)
+                vmin = v_p[idx_tmin]
+                dv = v_p - vmin
+                for idx_i, i in enumerate(poly_order):
+                    t_interp = np.linspace(self.temperature.min(), self.temperature.max(), 1000)
+                    c = cmap[int(idx_i / len(poly_order) * 101)]
+                    if idx_p == 0:
+                        txt = 'Order {:d}, R^2 {:.4f}'.format(i, rs_mean[idx_i])
+                        ax.plot(t_interp, vmin + func[idx_p][idx_i](t_interp - tmin), color=c, label=txt)
+                    else:
+                        ax.plot(t_interp, vmin + func[idx_p][idx_i](t_interp - tmin), color=c)
+
+            ax.legend(loc='lower right')
+            fig.savefig(fname=fit_fig, dpi=200)
+            # Choose optimal fit
+            fit_order = input('Set the optimal fit: ')
+            fit_order = int(fit_order)
+            for idx, i in enumerate(poly_order):
+                if int(i) == fit_order:
+                    break
+            fit_order_idx = idx
+
+        self.vol_fit = [i[fit_order_idx] for i in func]
+        fit_rs = [i[fit_order_idx] for i in rs]
+
+        # Expansion coefficients
+        self.alpha_v = np.zeros([len(self.pressure), len(self.temperature)])
+        for idx_p, v_p in enumerate(self.volume):
+            vmin = v_p[idx_tmin]
+            dv = v_p - vmin
+            self.alpha_v[idx_p, :] = \
+                self.vol_fit[idx_p].deriv(1)(dt) / (self.vol_fit[idx_p](dt) + vmin)
+
+        self.alpha_v[:, idx_tmin] = 0. # Lowest temperature, alpha = 0
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# THERMAL EXPANSION COEFFICIENTS')
+            file.write('%s\n\n' % '  To get thermal expansion coefficients, equilibrium volumes are fit as polynomial function of temperature at constant pressure.')
+            file.write('%s%i\n' % ('## OPTIMAL ORDER OF POLYNOMIAL: ', fit_order))
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s%6.4f\n\n' %
+                           ('## EXPANSIONS AT ', p, '  GPa, R^2 = ', fit_rs[idx_p]))
+                file.write('%10s%20s%20s\n' %
+                           ('T(K)', 'Vol(Angstrom^3)', 'alpha_V(K^-1)'))
+                vmin = self.volume[idx_p, idx_tmin]
+                for idx_t, t in enumerate(self.temperature):
+                    file.write('%10.1f%20.4f%20.8e\n' %
+                               (t, vmin + self.vol_fit[idx_p](t - tmin), self.alpha_v[idx_p, idx_t]))
+                file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def bulk_modulus(self, adiabatic=True, **kwargs):
+        """
+        Calculate isothermal and adiabatic bulk moduli at equilibrium volumes.
+
+        The following equations are used:
+
+        .. math::
+
+            K_{T}(p;T) = V(p;T)\\left(\\frac{\\partial^{2}F(V;T)}{\\partial V^{2}}\\right)_{T}
+
+            K_{S} = K_{T} + \\frac{\\alpha^{2}_{V}VTK^{2}_{T}}{C_{V}}
+
+        To get :math:`K_{T}`, Helmholtz free energy is fit as isothermal EOSs.
+        For ``self.thermo_eos()``, that means doing nothing; For
+        ``self.thermo_freq()``, EOS fitting is required, whose form is the same
+        as EOS used for :math:`E_{0}`.
+
+        Args:
+            adiabatic (bool): Whether to fit adiabatic bulk modulus. Thermal
+                expansion coefficient needed.
+            order, min_ndata_factor, max_poly_order_factor, min_poly_order_factor
+                (int, optional): To restore EOS.
+
+        **New attributes**
+
+        * ``self.k_t`` nPressure\*nTemperature array, isothermal bulk modulus.  
+        * ``self.k_s`` nPressure\*nTemperature array, adiabatic bulk modulus.  
+        """
+        import scipy.constants as scst
+        from sympy import diff, lambdify, symbols
+        import copy
+        import numpy as np
+
+        if adiabatic == True and not hasattr(self, 'alpha_v'):
+            raise AttributeError('Expansion coefficient should be fit at first.')
+
+        # Fit EOS
+        if not hasattr(self, 'fe_eos'): # thermo_freq
+            self.fe_eos = []
+            self.fe_eos_method = self.e0_eos_method
+            for idx_t, t in enumerate(self.temperature):
+                eos_command = 'self.eos_fit(self.volume[:, idx_t], self.helmholtz[:, idx_t], self.e0_eos_method, write_out=False'
+                # Polynomial / Deltafactor / Numerical
+                for idx, key in enumerate(kwargs.keys()):
+                    value = list(kwargs.values())[idx]
+                    eos_command += ', {}={}'.format(key, value)
+                eos_command += ')'
+                eos, _ = eval(eos_command)
+                self.fe_eos.append(eos)
+
+        # Get K_T
+        self.k_t = np.zeros(self.volume.shape)
+        v = symbols('v')
+        for idx_t, eos in enumerate(self.fe_eos):
+            df = diff(eos(v), v, 2)
+            lam_df = lambdify(v, df, 'numpy')
+            self.k_t[:, idx_t] = self.volume[:, idx_t] * lam_df(self.volume[:, idx_t]) * 1e24 / scst.Avogadro
+        # Get K_S
+        if adiabatic == True:
+            self.specific_heat()
+            for idx_t, t in enumerate(self.temperature):
+                if t > 1e-4: #0K
+                    self.k_s[:, idx_t] = self.k_t[:, idx_t] + \
+                        self.alpha_v[:, idx_t]**2 * self.volume[:, idx_t] * t * self.k_t[:, idx_t]**2 * 1e-21 * scst.Avogadro\
+                        / self.c_v[:, idx_t]
+                else:
+                    self.k_s[:, idx_t] = 0.
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA BULK MODULI')
+            file.write('%s\n\n' % '  Isothermal and adiabatic bulk moduli.')
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## BULK MODULI K_T and K_S AT ', p, '  GPa'))
+                if adiabatic == True:
+                    file.write('%10s%20s%20s\n' % ('T(K)', 'K_T(GPa)', 'K_S(GPa)'))
+                    for idx_t, t in enumerate(self.temperature):
+                        file.write('%10.1f%20.8e%20.8e\n' %
+                                   (t, self.k_t[idx_p, idx_t], self.k_s[idx_p, idx_t]))
+                    file.write('\n')
+                else:
+                    file.write('%10s%20s\n' % ('T(K)', 'K_T(GPa)'))
+                    for idx_t, t in enumerate(self.temperature):
+                        file.write('%10.1f%20.8e\n' % (t, self.k_t[idx_p, idx_t]))
+                    file.write('\n')
+
+            file.write('\n')
+            file.close()
+
+        return self
+
+    def specific_heat(self):
+        """
+        Calculate constant volume or pressure specific heat at equilibrium
+        volumes.
+
+        The following equation is used:
+
+        .. math::
+
+            C_{p} - C_{V} = \\alpha_{V}^{2}K_{T}VT
+
+        **New attributes**
+
+        * ``self.c_v`` or ``self.c_p``  Dependents on the fitting method.
+
+        .. note::
+
+            This method fits ``self.c_p`` by ``self.c_v`` when ``thermo_freq``
+            and ``thermo_gruneisen`` was used. ``self.c_v`` is obtained by when
+            ``thermo_eos`` is used.
+        """
+        import numpy as np
+        import warnings
+        import scipy.constants as scst
+
+        if not hasattr(self, 'alpha_v') or not hasattr(self, 'k_t'):
+            raise AttributeError(
+                'Expansion coefficient and bulk modulus should be fit at first.')
+
+        if not hasattr(self, 'c_p'): # thermo_freq
+            self.c_p = self.c_v + self.alpha_v**2 * self.k_t * self.volume * self.temperature * 1e-21 * scst.Avogadro
+        elif not hasattr(self, 'c_v'): # thermo_eos
+            self.c_v = self.c_p - self.alpha_v**2 * self.k_t * self.volume * self.temperature * 1e-21 * scst.Avogadro
+        else:
+            warnings.warn("Attributes 'c_v' and 'c_p' both exist. Nothing is updated.")
+            return self
+
+        # Print output file
+        if self.write_out:
+            file = open(self.filename, 'a+')
+            file.write('%s\n' % '# QHA SPECIFIC HEAT')
+            file.write('%s\n\n' % '  Constant volume and pressure specific heat.')
+            for idx_p, p in enumerate(self.pressure):
+                file.write('%s%6.2f%s\n\n' % ('## SPECIFIC HEAT C_V and C_P AT ', p, '  GPa'))
+                file.write('%10s%20s%20s\n' % ('T(K)', 'C_v(J/mol*K)', 'C_p(J/mol*K)'))
+                for idx_t, t in enumerate(self.temperature):
+                    file.write('%10.1f%20.8e%20.8e\n' %
+                               (t, self.c_v[idx_p, idx_t], self.c_p[idx_p, idx_t]))
                 file.write('\n')
 
             file.write('\n')
