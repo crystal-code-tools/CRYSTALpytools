@@ -631,7 +631,7 @@ class Harmonic(Crystal_output):
 
         Returns:
             self.helmholtz (array[float]): nqpoint\*ntemperature. Unit: KJ/mol
-            self.gibbs (array[float]): nqpoint\*ntemperature\*npressure. Unit: KJ/mol
+            self.gibbs (array[float]): nqpoint\*nPressure\*nTemperature. Unit: KJ/mol
             self.zp_energy (array[float]): Zero-point energy. nqpoint\*1. Unit: KJ/mol
             self.u_vib (array[float]): Vibrational contribution to internal
                 energy. nqpoint\*ntemperature. Unit: KJ/mol
@@ -699,13 +699,14 @@ class Harmonic(Crystal_output):
             self.c_v = np.array([np.dot(c_v, wt)])
             self.helmholtz = np.array([np.dot(helmholtz, wt)])
             self.gibbs = np.array([np.dot(gibbs, wt)])
+            self.gibbs = np.transpose(self.gibbs)
         else:
             self.zp_energy = zp_energy
             self.u_vib = np.transpose(np.array(u_vib, dtype=float))
             self.entropy = np.transpose(np.array(entropy, dtype=float))
             self.c_v = np.transpose(np.array(c_v, dtype=float))
             self.helmholtz = np.transpose(np.array(helmholtz, dtype=float))
-            self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 0, 1))
+            self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 1, 0))
 
         return self.helmholtz, self.gibbs, self.zp_energy, self.u_vib,\
             self.entropy, self.c_v
@@ -727,10 +728,10 @@ class Harmonic(Crystal_output):
             return
 
         file = open(self.filename, 'w')
-        file.write('%-21s%12.4e%-15s%12.4e%-10s\n' %
+        file.write('%21s%16.8e%15s%20.10e%s\n' %
                    ('# DFT TOTAL ENERGY = ', eV_to_H(self.edft),
                     ' eV,         = ', self.edft, ' kJ/mol'))
-        file.write('%-21s%12.6f%-15s%12.6f%-10s\n' %
+        file.write('%21s%16.4f%15s%20.4f%s\n' %
                    ('# CELL VOLUME      = ', self.volume,
                     ' Angstrom^3, = ', self.volume * scst.Avogadro * 1e-24, ' cm^3/mol'))
         file.write('%s\n' % '# LATTICE PARAMETERS (ANGSTROM, DEGREE)')
@@ -742,34 +743,27 @@ class Harmonic(Crystal_output):
         for q in range(self.nqpoint):
             file.write('%-40s%5i\n\n' %
                        ('# HARMONIC THERMODYNAMICS AT QPOINT #', q))
-            file.write('%-23s%12.6e%8s\n\n' %
-                       ('  zero point energy = ', self.zp_energy[q], ' kJ/mol'))
-            file.write('%s\n' % '  temperature dependent properties')
-            file.write('%8s%18s%18s%18s%18s\n' %
-                       ('    T(K)', 'U_vib(kJ/mol)', 'Entropy(J/mol*K)',
+            file.write('%s%20.10e%s\n\n' %
+                       ('## ZERO POINT ENERGY = ', self.zp_energy[q], ' kJ/mol'))
+            file.write('%s\n\n' % '## TEMPERATURE DEPENDENT PROPERTIES')
+            file.write('%8s%20s%20s%20s%20s\n' %
+                       ('T(K)', 'U_vib(kJ/mol)', 'Entropy(J/mol*K)',
                         'C_V(J/mol*K)', 'Helmholtz(kJ/mol)'))
             for t, tempt in enumerate(self.temperature):
-                file.write('%8.2f%18.6e%18.6e%18.6e%18.6e\n' %
+                file.write('%8.2f%20.10e%20.10e%20.10e%20.10e\n' %
                            (tempt, self.u_vib[q, t], self.entropy[q, t],
                             self.c_v[q, t], self.helmholtz[q, t]))
 
             file.write('\n')
-            file.write('%s\n' % '  Gibbs free energy')
-            file.write('%-30s' % '    rows    : pressure (GPa)  ')
-            for p in self.pressure:
-                file.write('%8.3f%1s' % (p, ''))
-
+            for idx_p, gibbs_p in enumerate(self.gibbs[q]):
+                file.write('%s%8.2f\n\n' % ('## GIBBS FREE ENERGY AT', self.pressure[idx_p]))
+                file.write('%8s%20s\n' % ('T(K)', 'Gibbs(kJ/mol)'))
+                for idx_t, gibbs_t in enumerate(gibbs_p):
+                    file.write('%8.2f%20.10e\n' % (self.temperature[idx_t], gibbs_t))
+                file.write('\n')
             file.write('\n')
-            file.write('%-30s' % '    columns : temperature (K) ')
-            for t in self.temperature:
-                file.write('%8.3f%1s' % (t, ''))
 
-            for gibbs_t in self.gibbs[q]:
-                file.write('\n%4s' % '')
-                for gibbs_p in gibbs_t:
-                    file.write('%18.6e%2s' % (gibbs_p, ''))
-
-            file.write('\n\n\n')
+        file.write('\n')
         file.close()
 
         return
