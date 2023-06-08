@@ -398,6 +398,107 @@ class Harmonic(Crystal_output):
 
         return self
 
+    def from_phonopy(self, yaml_name, edft, read_band=True, **kwargs):
+        """
+        Build a Harmonic object from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        'band.yaml' file.
+
+        Args:
+            yaml_name (str): Filename of Phonopy band structure file.
+            edft (float): DFT energy
+            read_band (bool): If *True*, read all the q points in band.yaml file.
+            q_id (list[int]): *read_band = False only*. Specify the id (from 0)
+                of q point to be read. nqpoint\*1 list.
+            q_coord (list[list]): *read_band = False only*. Specify the
+                coordinates of q point to be read. nqpoint\*3 list.
+
+        ``q_id`` and ``q_coord`` should not be set simultaneously. If set,
+        ``q_id`` takes priority and ``q_coord`` is ignored.
+
+        :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
+        :raise Exception: If q point is not found.
+        """
+        import yaml
+        import numpy as np
+        from CRYSTALpytools.units import au_to_angstrom
+        from pymatgen.core.structure import Structure
+
+        file = open(yaml_name, 'r', errors='ignore')
+        data = yaml.safe_load(file)
+        if data['length_unit'] == 'angstrom':
+            unit_len = 1.0
+        elif data['length_unit'] == 'au':
+            unit_len = au_to_angstrom(1.0)
+        else:
+            raise Exception("Unknown length unit. Available options: au, angstrom.")
+
+        # Get structure
+        latt = np.array(data['lattice'], dtype=float) * unit_len
+        spec = []
+        coord = []
+        for idx_a, atom in enumerate(data['points']):
+            spec.append(atom['symbol'])
+            coord.append(atom['coordinates'])
+        structure = Structure(lattice=latt, species=spec, coords=coord)
+        natom = len(spec)
+
+        if read_band == False:
+            qinfo = []
+            for key, value in kwargs.items():
+                if key == 'q_id':
+                    qinfo = np.array(value, dtype=int)
+                elif key == 'q_coord':
+                    if qinfo != []:
+                        continue
+                    qinfo = np.array(value, dtype=float)
+            nqpoint = len(qinfo)
+        else:
+            nqpoint = data['nqpoint']
+
+        qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
+        nmode = np.array([3 * natom for i in range(nqpoint)]) # No fragment phonon is assumed.
+        frequency = np.zeros([nqpoint, 3 * natom])
+        # Read phonon
+        real_q = 0
+        for idx_p, phonon in enumerate(data['phonon']):
+            if real_q == nqpoint:
+                break
+
+            if read_band == True:
+                qpoint[idx_p][0] = np.array(phonon['q-position'])
+                frequency[idx_p, :] = np.array(
+                    [i['frequency'] for i in phonon['band']]
+                )
+                real_q += 1
+            else:
+                if len(qinfo.shape) == 1: # qpoint
+                    if idx_p == qinfo[real_q]:
+                        qpoint[real_q][0] = np.array(phonon['q-position'])
+                        frequency[real_q, :] = np.array(
+                            [i['frequency'] for i in phonon['band']]
+                        )
+                        real_q += 1
+                    else:
+                        continue
+                else: # qcoord
+                    coord = np.array(phonon['q-position'])
+                    if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
+                        qpoint[real_q][0] = coord
+                        frequency[real_q, :] = np.array(
+                            [i['frequency'] for i in phonon['band']]
+                        )
+                        real_q += 1
+                    else:
+                        continue
+        if real_q < nqpoint:
+            raise Exception('Some q points are missing from the yaml file.')
+
+        # set object
+        self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency,
+                            eigenvector=[], structure=structure)
+
+        return self
+
     def from_frequency(self, edft, qpoint, frequency, eigenvector, **kwargs):
         """
         Generate a Harmonic object by specifying frequency and eigenvector and
@@ -405,10 +506,10 @@ class Harmonic(Crystal_output):
 
         Args:
             edft (float): Electron total energy
-            qpoint (list[list[array[float], float]]): Fractional coordinate 
+            qpoint (list[list[array[float], float]]): Fractional coordinate
                 and weight of qpoint
             frequency (array[float]): Array of frequencies. Unit: THz
-            eigenvector (array[float]): Normalized eigenvectors. 
+            eigenvector (array[float]): Normalized eigenvectors.
             structure (PyMatGen Structure, optional)
             natom (int, optional)
             volume (float, optional)
