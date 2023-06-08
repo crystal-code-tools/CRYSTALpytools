@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath('../../CRYSTALpytools'))
 # -- Project information -----------------------------------------------------
 
 from CRYSTALpytools import __author__, __version__
-import datetime.datetime.now
+import datetime
 
 year = datetime.datetime.now().date().strftime("%Y")
 project = 'CRYSTALpytools'
