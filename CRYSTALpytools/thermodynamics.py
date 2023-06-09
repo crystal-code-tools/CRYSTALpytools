@@ -398,22 +398,22 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def from_phonopy(self, yaml_name, edft, read_band=True, **kwargs):
+    def from_phonopy(self, yaml_name, edft, q_id=None, q_coord=None):
         """
         Build a Harmonic object from `Phonopy <https://phonopy.github.io/phonopy/>`_
-        'band.yaml' file.
+        'band.yaml' or 'qpoints.yaml' file.
 
         Args:
             yaml_name (str): Filename of Phonopy band structure file.
             edft (float): DFT energy
-            read_band (bool): If *True*, read all the q points in band.yaml file.
-            q_id (list[int]): *read_band = False only*. Specify the id (from 0)
-                of q point to be read. nqpoint\*1 list.
-            q_coord (list[list]): *read_band = False only*. Specify the
-                coordinates of q point to be read. nqpoint\*3 list.
+            q_id (list[int]): Specify the id (from 0) of q points to be read.
+                nqpoint\*1 list.
+            q_coord (list[list]): Specify the coordinates of q points to be
+                read. nqpoint\*3 list.
 
         ``q_id`` and ``q_coord`` should not be set simultaneously. If set,
-        ``q_id`` takes priority and ``q_coord`` is ignored.
+        ``q_id`` takes priority and ``q_coord`` is ignored. If both are none,
+        all the points will be read.
 
         :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
         :raise Exception: If q point is not found.
@@ -442,18 +442,15 @@ class Harmonic(Crystal_output):
         structure = Structure(lattice=latt, species=spec, coords=coord)
         natom = len(spec)
 
-        if read_band == False:
-            qinfo = []
-            for key, value in kwargs.items():
-                if key == 'q_id':
-                    qinfo = np.array(value, dtype=int)
-                elif key == 'q_coord':
-                    if qinfo != []:
-                        continue
-                    qinfo = np.array(value, dtype=float)
-            nqpoint = len(qinfo)
-        else:
+        if q_id == None and q_coord == None:
             nqpoint = data['nqpoint']
+            qinfo = np.array(range(nqpoint), dtype=int)
+        elif q_id != None:
+            qinfo = np.array(q_id, dtype=int)
+            nqpoint = len(qinfo)
+        elif q_id == None and q_coord != None:
+            qinfo = np.array(q_coord, dtype=float)
+            nqpoint = len(qinfo)
 
         qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
         nmode = np.array([3 * natom for i in range(nqpoint)]) # No fragment phonon is assumed.
@@ -464,32 +461,22 @@ class Harmonic(Crystal_output):
             if real_q == nqpoint:
                 break
 
-            if read_band == True:
-                qpoint[idx_p][0] = np.array(phonon['q-position'])
-                frequency[idx_p, :] = np.array(
-                    [i['frequency'] for i in phonon['band']]
-                )
-                real_q += 1
-            else:
-                if len(qinfo.shape) == 1: # qpoint
-                    if idx_p == qinfo[real_q]:
-                        qpoint[real_q][0] = np.array(phonon['q-position'])
-                        frequency[real_q, :] = np.array(
-                            [i['frequency'] for i in phonon['band']]
-                        )
-                        real_q += 1
-                    else:
-                        continue
-                else: # qcoord
-                    coord = np.array(phonon['q-position'])
-                    if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
-                        qpoint[real_q][0] = coord
-                        frequency[real_q, :] = np.array(
-                            [i['frequency'] for i in phonon['band']]
-                        )
-                        real_q += 1
-                    else:
-                        continue
+            if len(qinfo.shape) == 1: # q_id and all q points
+                if idx_p == qinfo[real_q]:
+                    qpoint[real_q][0] = np.array(phonon['q-position'])
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+            else: # q_coord
+                coord = np.array(phonon['q-position'])
+                if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
+                    qpoint[real_q][0] = coord
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+
         if real_q < nqpoint:
             raise Exception('Some q points are missing from the yaml file.')
 
@@ -921,11 +908,15 @@ class Quasi_harmonic:
             sort_phonon (bool, optional): Whether to check phonon continuity.
 
         Returns:
-            self.ncalc (int): Number of HA phonon calculations.
-            self.combined_phonon (list[Harmonic]): List of Harmonic objects.
-            self.combined_volume (list[float]): Volumes. Unit: Angstrom^3
-            self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol
-            self.combined_mode (list[Mode]): List of mode objects.
+            self (Quasi_harmonic)
+
+        **New Attributes**
+
+        * self.ncalc (int): Number of HA phonon calculations.  
+        * self.combined_phonon (list[Harmonic]): List of Harmonic objects.  
+        * self.combined_volume (list[float]): Volumes. Unit: Angstrom^3  
+        * self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol  
+        * self.combined_mode (list[Mode]): List of mode objects.  
         """
         from CRYSTALpytools.thermodynamics import Harmonic
         import warnings
@@ -937,8 +928,7 @@ class Quasi_harmonic:
 
         self.ncalc = len(input_files)
         if self.ncalc == 1:
-            warnings.warn(
-                'Single frequency calculation detected! QHA is deteriorated to HA.')
+            warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
 
         ha_list = [
             Harmonic(write_out=False).from_file(
@@ -967,12 +957,7 @@ class Quasi_harmonic:
             overlap (float, optional)
             sort_phonon (bool, optional)
 
-        Returns:
-            self.ncalc (int)
-            self.combined_phonon (list[Harmonic])
-            self.combined_volume (list[float])
-            self.combined_edft (list[float])
-            self.combined_mode (list[Mode])
+        Returned attributes are consistent with ``Quasi_harmonic.from_HA_files``.
 
         :raise ValueError: If multiple files are defined.
         """
@@ -1076,6 +1061,53 @@ class Quasi_harmonic:
                                                     sort_phonon=sort_phonon)
         self.nqpoint = 1
         self.qpoint = [[np.array([0., 0., 0.]), 1.]]
+
+        return self
+
+    def from_phonopy_files(self, yaml_name, edft, q_id=None, q_coord=None):
+        """
+        Build a QHA object from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        'band.yaml' or 'qpoints.yaml' file.
+
+        Args:
+            yaml_name (list[str]): ncalc\*1 string list of phonopy 'band.yaml'
+                or 'qpoints.yaml' files.
+            edft (list[float]): ncalc\*1 list / array of DFT energies.
+            q_id (list[int]): See ``Harmonic.from_phonopy``.
+            q_coord (list[list]): See ``Harmonic.from_phonopy``.
+
+        .. note::
+
+            ``q_id`` and ``q_coord`` should be set once and are applicable to
+            all the yaml files.
+
+        Returned attributes are consistent with ``Quasi_harmonic.from_HA_files``.
+        """
+        import numpy as np
+        from CRYSTALpytools.thermodynamics import Harmonic
+        import warnings
+
+        if hasattr(self, "ncalc"):
+            warnings.warn('Data exists. The current command will be ignored.')
+
+            return self
+
+        self.ncalc = len(input_files)
+        if self.ncalc == 1:
+            warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
+
+        ha_list = [
+            Harmonic(write_out=False).from_phonopy(
+                yaml_name[i], edft[i], q_id, q_coord
+            ) for i in range(self.ncalc)
+        ]
+
+        self.combined_phonon, self.combined_volume, self.combined_edft, \
+            self.combined_mode = self._combine_data(ha_list,
+                                                    overlap=0.4,
+                                                    sort_phonon=False) # Eigenvector not available
+        self.nqpoint = ha_list[0].nqpoint
+        self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
 
         return self
 
@@ -1867,12 +1899,15 @@ class Quasi_harmonic:
 
             ``poly_order`` should >= 2.
 
+        Returns:
+            self (Quasi_harmonic)
+
         **New attributes**
 
         * ``self.c_p``, nPressure\*nTemperature, Constant pressure specific heat. Unit: J/mol\*K  
         * ``self.fe_eos`` and ``self.fe_eos_method`` nTemperature\*1 list of Pymatgen EOS objects and string. EOSs used to fit HA free energy at constant temperature.
 
-        For arguments and other attributes, see ``self.thermo_freq``.
+        For arguments and other attributes, see ``Quasi_harmonic.thermo_freq``.
 
         :raise Exception: If the number of HA calculations is less than 4.
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
@@ -2034,6 +2069,9 @@ class Quasi_harmonic:
             fit_fig (str): File name for fittings. A temperal figure is printed
                 to help the user choose the optimal fitting.
 
+        Returns:
+            self (Quasi_harmonic)
+
         **New attributes**
 
         * ``self.vol_fit`` nPressure\*1 list of Numpy object, the fitted volume V(T)  
@@ -2163,6 +2201,9 @@ class Quasi_harmonic:
             order, min_ndata_factor, max_poly_order_factor, min_poly_order_factor
                 (int, optional): To restore EOS.
 
+        Returns:
+            self (Quasi_harmonic)
+
         **New attributes**
 
         * ``self.k_t`` nPressure\*nTemperature array, isothermal bulk modulus.  
@@ -2242,6 +2283,9 @@ class Quasi_harmonic:
         .. math::
 
             C_{p} - C_{V} = \\alpha_{V}^{2}K_{T}VT
+
+        Returns:
+            self (Quasi_harmonic)
 
         **New attributes**
 
