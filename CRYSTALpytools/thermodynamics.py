@@ -398,13 +398,15 @@ class Harmonic(Crystal_output):
 
         return self
 
-    def from_phonopy(self, yaml_name, edft, q_id=None, q_coord=None):
+    def from_phonopy(self, phono_yaml, struc_yaml=None, edft=None, q_id=None, q_coord=None):
         """
         Build a Harmonic object from `Phonopy <https://phonopy.github.io/phonopy/>`_
         'band.yaml' or 'qpoints.yaml' file.
 
         Args:
-            yaml_name (str): Filename of Phonopy band structure file.
+            phono_yaml (str): Phonopy band.yaml or qpoint.yaml file
+            struc_yaml (str): Phonopy phonopy.yaml or phonopy_disp.yaml file.
+                *Needed only if a qpoint.yaml file is read.*
             edft (float): DFT energy
             q_id (list[int]): Specify the id (from 0) of q points to be read.
                 nqpoint\*1 list.
@@ -422,23 +424,49 @@ class Harmonic(Crystal_output):
         import numpy as np
         from CRYSTALpytools.units import au_to_angstrom
         from pymatgen.core.structure import Structure
+        import warnings
 
-        file = open(yaml_name, 'r', errors='ignore')
+        if edft == None:
+            edft = 0.
+            warnings.warn('DFT energy is set to 0.')
+
+        file = open(phono_yaml, 'r', errors='ignore')
         data = yaml.safe_load(file)
-        if data['length_unit'] == 'angstrom':
+        file.close()
+        if struc_yaml != None:
+            struc_file = open(struc_yaml, 'r')
+            struc_data = yaml.safe_load(struc_file)
+            struc_file.close()
+        else:
+            struc_data = data
+
+        # Get unit
+        try: # band.yaml
+            len_unit = struc_data['length_unit']
+        except KeyError: # phonopy.yaml
+            len_unit = struc_data['physical_unit']['length']
+
+        if len_unit == 'angstrom':
             unit_len = 1.0
-        elif data['length_unit'] == 'au':
+        elif len_unit == 'au':
             unit_len = au_to_angstrom(1.0)
         else:
             raise Exception("Unknown length unit. Available options: au, angstrom.")
 
         # Get structure
-        latt = np.array(data['lattice'], dtype=float) * unit_len
         spec = []
         coord = []
-        for idx_a, atom in enumerate(data['points']):
-            spec.append(atom['symbol'])
-            coord.append(atom['coordinates'])
+        try: # band.yaml
+            latt = np.array(struc_data['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(struc_data['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+        except KeyError: # phonopy.yaml
+            latt = np.array(struc_data['primitive_cell']['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(struc_data['primitive_cell']['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+
         structure = Structure(lattice=latt, species=spec, coords=coord)
         natom = len(spec)
 
@@ -1064,14 +1092,17 @@ class Quasi_harmonic:
 
         return self
 
-    def from_phonopy_files(self, yaml_name, edft, q_id=None, q_coord=None):
+    def from_phonopy_files(self, phono_yaml, struc_yaml=None, edft=None, q_id=None, q_coord=None):
         """
         Build a QHA object from `Phonopy <https://phonopy.github.io/phonopy/>`_
         'band.yaml' or 'qpoints.yaml' file.
 
         Args:
-            yaml_name (list[str]): ncalc\*1 string list of phonopy 'band.yaml'
-                or 'qpoints.yaml' files.
+            phono_yaml (list[str]): ncalc\*1 list of Phonopy band.yaml or
+                qpoint.yaml files
+            struc_yaml (list[str]): ncalc\*1 list of Phonopy phonopy.yaml or
+                phonopy_disp.yaml files. *Needed only if a qpoint.yaml file is
+                read.*
             edft (list[float]): ncalc\*1 list / array of DFT energies.
             q_id (list[int]): See ``Harmonic.from_phonopy``.
             q_coord (list[list]): See ``Harmonic.from_phonopy``.
@@ -1089,16 +1120,22 @@ class Quasi_harmonic:
 
         if hasattr(self, "ncalc"):
             warnings.warn('Data exists. The current command will be ignored.')
-
             return self
 
         self.ncalc = len(input_files)
         if self.ncalc == 1:
             warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
 
+        if edft == None:
+            warnings.warn('DFT energy is set to 0.')
+            edft = np.zeros([self.ncalc, 1])
+
+        if struc_yaml == None:
+            struc_yaml = [None for i in range(self.ncalc)]
+
         ha_list = [
             Harmonic(write_out=False).from_phonopy(
-                yaml_name[i], edft[i], q_id, q_coord
+                phono_yaml[i], struc_yaml[i], edft[i], q_id, q_coord
             ) for i in range(self.ncalc)
         ]
 
