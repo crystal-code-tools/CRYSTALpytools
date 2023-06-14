@@ -241,7 +241,7 @@ class Mode:
 
             return order, self.poly_fit, self.poly_fit_rsqaure
 
-        qha = Quasi_harmonic(write_out=False)
+        qha = Quasi_harmonic(filename=None)
         idx_vmin = np.argmin(self.volume)
         vmin = self.volume[idx_vmin]
         fmin = self.frequency[idx_vmin]
@@ -524,7 +524,7 @@ class Harmonic():
 
     def from_frequency(self, edft, qpoint, frequency, eigenvector,
                        structure=None, natom=None, volume=None,
-                       imaginary_tol=-1e-4, q_overlap_tol=1e-4):
+                       imaginary_tol=-1e-4, q_overlap_tol=1e-4, ignore_natom=False):
         """
         Generate a Harmonic object by specifying frequency and eigenvector.
         Imaginary modes and overlapped q points are forced to be cleaned.
@@ -541,6 +541,7 @@ class Harmonic():
             imaginary_tol (float): The threshold of negative frequencies.
             q_overlap_tol (float): The threshold of overlapping points, defined
                 as the 2nd norm of the difference of fractional q vectors
+            ignore_natom (bool): Developer only.
 
         .. note::
 
@@ -574,7 +575,10 @@ class Harmonic():
             self.natom = int(natom)
             self.volume = float(volume)
         else:
-            raise ValueError('Geometry is not sufficiently defined. Structure or volume + natom are needed.')
+            if ignore_natom == False:
+                raise ValueError('Geometry is not sufficiently defined. Structure or volume + natom are needed.')
+            else:
+                self.volume = float(volume)
 
         if len(qpoint) != np.size(frequency, 0):
             raise ValueError("The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
@@ -801,7 +805,7 @@ class Harmonic():
             warnings.warn('Output file not specified. Return.')
             return
 
-        Output.write_HA_result(self, self.filename)
+        Output.write_HA_result(self)
         return
 
 
@@ -893,9 +897,19 @@ class Quasi_harmonic:
         ]
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-        self.combined_mode = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+        self.combined_mode, close_overlap = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
         self.nqpoint = ha_list[0].nqpoint
         self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
+
+        if ha_list[0].eigenvector == []:
+            do_eigvt = False
+        else:
+            do_eigvt = True
+        if self.filename != None:
+            Output.write_QHA_combinedata(self)
+
+            if mode_sort_tol != None and do_eigvt == True:
+                Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
 
@@ -961,7 +975,17 @@ class Quasi_harmonic:
             ha_list.append(ha)
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-            self.combined_mode = self._combine_data(ha_list, mode_sort_tol)
+        self.combined_mode, close_overlap = self._combine_data(ha_list, mode_sort_tol)
+
+        if ha_list[0].eigenvector == []:
+            do_eigvt = False
+        else:
+            do_eigvt = True
+        if self.filename != None:
+            Output.write_QHA_combinedata(self)
+
+            if mode_sort_tol != None and do_eigvt == True:
+                Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
 
@@ -1025,9 +1049,19 @@ class Quasi_harmonic:
         ]
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-        self.combined_mode = self._combine_data(ha_list, mode_sort_tol=None) # Eigenvector not available
+        self.combined_mode, close_overlap = self._combine_data(ha_list, mode_sort_tol=None) # Eigenvector not available
         self.nqpoint = ha_list[0].nqpoint
         self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
+
+        if ha_list[0].eigenvector == []:
+            do_eigvt = False
+        else:
+            do_eigvt = True
+        if self.filename != None:
+            Output.write_QHA_combinedata(self)
+
+            if mode_sort_tol != None and do_eigvt == True:
+                Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
 
@@ -1070,7 +1104,7 @@ class Quasi_harmonic:
         if ha_list[0].eigenvector == []:
             do_eigvt = False
         else:
-            do_eigct = True
+            do_eigvt = True
 
         combined_phonon = []
         # Volume, ncalc * 1 array
@@ -1097,8 +1131,8 @@ class Quasi_harmonic:
             combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
 
         # Sort phonon modes if requested
+        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
         if mode_sort_tol != None and do_eigvt == True:
-            close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
             for idx_q in range(nqpoint):
                 combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
                     = self._phonon_continuity(combined_freq[idx_q],
@@ -1142,13 +1176,8 @@ class Quasi_harmonic:
 
             combined_mode.append(combined_mode_q)
 
-        if self.filename != None:
-            Output.write_QHA_combinedata(self, self.filename)
-
-            if mode_sort_tol != None and do_eigvt == True:
-                Output.write_QHA_sortphonon(self, close_overlap, self.filename)
-
-        return combined_phonon, combined_volume, combined_edft, combined_mode
+        return combined_phonon, combined_volume, combined_edft, combined_mode,\
+               close_overlap
 
     @staticmethod
     def _phonon_continuity(freq, eigvt, symm=None, mode_sort_tol=0.4):
@@ -1242,7 +1271,7 @@ class Quasi_harmonic:
                     sort_pdt = abs(np.sum(
                         eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
                     ))
-                    if ref_pdt - sort_pdt < overlap:
+                    if ref_pdt - sort_pdt < mode_sort_tol:
                         close_overlap[ref_c, ref_m, sort_m] = 1
 
         return freq, eigvt, close_overlap
@@ -1360,7 +1389,7 @@ class Quasi_harmonic:
 
         num_freq = np.array(num_freq)
         ha = Harmonic(filename=None, autocalc=False).from_frequency(
-            self.e0_eos(volume), self.qpoint, num_freq, [], volume=volume)
+            self.e0_eos(volume), self.qpoint, num_freq, [], volume=volume, ignore_natom=True)
 
         return ha
 
@@ -1377,6 +1406,7 @@ class Quasi_harmonic:
         Returns:
             ha.gibbs (float): Gibbs free energy. Unit: KJ/mol
         """
+        volume = volume[0]
         ha = self._get_harmonic_phonon(volume)
         ha.thermodynamics(temperature=[temperature], pressure=[pressure])
 
@@ -1722,10 +1752,9 @@ class Quasi_harmonic:
         # Get data for fitting. Helmholtz: nTempt*nCalc matrix
         helmholtz = np.zeros([len(self.temperature), self.ncalc], dtype=float)
         for idx_c, calc in enumerate(self.combined_phonon):
-            hfe_c, _, _, _, _, _ = calc.thermodynamics(
-                sumphonon=True, mutewarning=True,
-                temperature=self.temperature, pressure=[0.])
-            helmholtz[:, idx_c] = hfe_c
+            calc.thermodynamics(sumphonon=True, mutewarning=True,
+                                temperature=self.temperature, pressure=[0.])
+            helmholtz[:, idx_c] = calc.helmholtz
 
         # Fit EOS
         eos_method = eos_method.casefold()
@@ -2091,7 +2120,7 @@ def _restore_pcel(crysout, scelphono):
                 all_species.append(data[2].capitalize())
                 idx_line += 1
             all_coord = np.array(all_coord, dtype=float)
-            scel_mx = np.vstack([vec1, vec2, vec3])
+            scel_latt = np.vstack([vec1, vec2, vec3])
 
             # Molecule 0D
             if ndimen == 0:
@@ -2117,7 +2146,7 @@ def _restore_pcel(crysout, scelphono):
                         pcel_coord.append(coord)
                         pcel_species.append(all_species[i])
             else:
-                pcel_latt = Lattice(scel_mx, pbc=pbc[ndimen])
+                pcel_latt = Lattice(scel_latt, pbc=pbc[ndimen])
                 pcel_coord = all_coord
                 pcel_species = all_species
 
@@ -2242,6 +2271,9 @@ class Output():
                 overlap is identified between the previous calculation (2nd
                 dimension) and the current one (3rd).
         """
+        import numpy as np
+
+        nmode = len(qha.combined_mode)
         file = open(qha.filename, 'a+')
         file.write('%s\n\n' % '## CLOSE OVERLAPS OF PHONON FREQUENCIES')
         for idx_q, mode_q in enumerate(qha.combined_mode):
@@ -2265,7 +2297,7 @@ class Output():
         return
 
     @classmethod
-    def write_QHA_eosfit(cls, qha, order):
+    def write_QHA_eosfit(cls, qha, eos, method):
         """
         Write QHA phonon eos fit information.
 
@@ -2323,7 +2355,7 @@ class Output():
             file.write('%s%8i\n' % ('## POLYNOMIAL FIT GOODNESS AT QPOINT #', idx_q))
             file.write('%8s%12s\n' % ('Order', 'R^2'))
             for idx_od, od in enumerate(order):
-                file.write('%8i%12.6f\n' % (od, rsquare_q[idx_od]))
+                file.write('%8i%12.6f\n' % (od, rsquare_q[idx_q, idx_od]))
             file.write('\n')
 
         file.write('%s%8i\n\n' % ('## THE OPTIMAL ORDER OF POLYNOMIAL =', qha.fit_order))
@@ -2457,6 +2489,7 @@ class Output():
         import numpy as np
 
         idx_tmin = np.argmin(qha.temperature)
+        tmin = qha.temperature[idx_tmin]
 
         file = open(qha.filename, 'a+')
         file.write('%s\n' % '# THERMAL EXPANSION COEFFICIENTS')

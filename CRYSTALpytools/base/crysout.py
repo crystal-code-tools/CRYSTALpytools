@@ -198,7 +198,8 @@ class PhononBASE():
 
             if len(crysout.intens) != 0:
                 crysout.intens[q, neg_rank] = np.nan
-                crysout.IR[q, neg_rank] = False
-                crysout.Raman[q, neg_rank] = False
+                for n in neg_rank:
+                    crysout.IR[q][n] = False
+                    crysout.Raman[q][n] = False
 
         return crysout

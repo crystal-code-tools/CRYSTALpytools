@@ -926,6 +926,9 @@ class Crystal_output:
             self.intens = []
             self.IR = []
             self.Raman = []
+        else:
+            self.intens = np.array(self.intens)
+
         if self.eigenvector != []:
             self.eigenvector = np.array(self.eigenvector)
 
@@ -944,8 +947,7 @@ class Crystal_output:
         """
         import warnings
 
-        warnings.warn('This method is deprecated. Use `get_phonon`.',
-                      DeprecationWarning, stacklevel=2)
+        warnings.warn('This method is deprecated. Use `get_phonon`.', stacklevel=2)
         return self
 
     def get_mode(self):
