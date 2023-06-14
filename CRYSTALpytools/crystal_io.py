@@ -945,7 +945,7 @@ class Crystal_output:
         import warnings
 
         warnings.warn('This method is deprecated. Use `get_phonon`.',
-                      warnings.DeprecationWarning)
+                      DeprecationWarning, stacklevel=2)
         return self
 
     def get_mode(self):
