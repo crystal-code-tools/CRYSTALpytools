@@ -145,6 +145,8 @@ class PhononBASE():
         overlap = np.array(overlap, dtype=int)
         weight = np.array([i[1] for i in crysout.qpoint])
         for idx_q in range(crysout.nqpoint, 1, -1):
+            if len(overlap) == 0: # No overlap
+                break
             for idx_o in np.where(overlap[:, 1] == idx_q)[0]:
                 crysout.nqpoint -= 1
                 del crysout.qpoint[overlap[idx_o, 1]]
@@ -190,7 +192,7 @@ class PhononBASE():
             crysout.frequency[q, neg_rank] = np.nan
 
             if len(crysout.eigenvector) != 0:
-                natom = int(nmode[q] / 3)
+                natom = int(crysout.nmode[q] / 3)
                 nan_eigvt = np.full([natom, 3], np.nan)
                 crysout.eigenvector[q, neg_rank] = nan_eigvt
 

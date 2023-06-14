@@ -789,7 +789,7 @@ class Crystal_output:
         return [self.atom_type1, self.atom_type2]
 
     def get_phonon(self, read_eigvt=False, rm_imaginary=True, rm_overlap=True,
-                   imaginary_tol=-1e-4, overlap_tol=1e-4):
+                   imaginary_tol=-1e-4, q_overlap_tol=1e-4):
         """
         Read phonon-related properties from output file.
 
@@ -802,7 +802,7 @@ class Crystal_output:
                 points and recalculate their weights.
             imaginary_tol (float): *``rm_imaginary`` = True only* The threshold
                 of negative frequencies.
-            overlap_tol (float): *``rm_overlap`` = True only* The threshold of
+            q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
                 overlapping points, defined as the 2nd norm of the difference
                 of fractional q vectors
 
@@ -934,7 +934,7 @@ class Crystal_output:
             self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
 
         if rm_overlap == True and self.nqpoint > 1:
-            self = PhononBASE.clean_q_overlap(self, threshold=overlap_tol)
+            self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
 
         return self
 

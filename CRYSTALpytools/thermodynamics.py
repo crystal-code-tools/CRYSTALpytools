@@ -301,11 +301,11 @@ class Mode:
         return self.gruneisen
 
 
-class Harmonic(Crystal_output):
+class Harmonic():
     """
-    Inherited from the Crystal_output class for harmonic phonon calclulations.
-    It can be parameterized either from a CRYSTAL output file or by setting
-    the all the information (usually for QHA).
+    A class for harmonic phonon calclulations. It can be parameterized from a
+    CRYSTAL output file, phonopy ouput file or by setting all the information
+    (usually for QHA).
 
     Args:
         temperature (array[float] | list[float], optional): Temperatures
@@ -326,7 +326,7 @@ class Harmonic(Crystal_output):
         ha.from_file('harmonic_phonon.out')
     """
 
-    def __init__(self, temperature=[], pressure=[],
+    def __init__(self, temperature=[], pressure=[], autocalc=False,
                  write_out=True, filename='HA-thermodynamics.dat'):
         import numpy as np
 
@@ -336,69 +336,70 @@ class Harmonic(Crystal_output):
         if len(pressure) > 0:
             self.pressure = np.array(pressure, dtype=float)
 
+        self.autocalc = autocalc
         self.write_out = write_out
         if self.write_out:
             self.filename = filename
         else:
             self.filename = 'no file'
 
-    def from_file(self, output_name, scelphono=[], read_eigenvector=False,
-                  auto_calc=True):
+    def from_file(self, output_name, scelphono=[], read_eigvt=False,
+                  imaginary_tol=-1e-4, q_overlap_tol=1e-4):
         """
-        Generate the Harominc object from a HA output file.
+        Generate the Harominc object from a HA output file. Imaginary modes and
+        overlapped q points are forced to be cleaned.
 
         Args:
             output_name (str): Name of the output file.
             scellphono (array[float] | list[float], optional):
                 The 'SCELPHONO' keyword in CRYSTAL input file. By default a
                 1\*1\*1 'SCELPHONO' is assumed.
-            read_eigenvector (bool, optional): Whether to read eigenvectors from
-                the output.
-            auto_calc (bool, optional): Whether to automatically launch
-                thermodynamic calculations. Parameters defined during
-                initialization will be used.
+            read_eigvt (bool): Whether to read eigenvectors from output.
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
 
         Returns:
-            self.strucrure (PyMatGen Structure): Cell reduced by SCELPHONO.
+            self.structure (PyMatGen Structure): Cell reduced by SCELPHONO.
             self.natom (int): Number of atoms in the reduced cell.
             self.volume (float): Volume of the reduced cell. Unit: Angstrom^3
+            self.edft (float)
+            self.nqpoint (int)
+            self.qpoint (list)
+            self.nmode (array[int])
             self.mode (list[Mode]): List of mode objects at all the qpoints.
 
-        :raise AttributeError: If computational data is stored in the object.
         :raise ValueError: If a QHA output file is read.
         """
         import numpy as np
+        from CRYSTALpytools.crystal_io import Crystal_output
         from CRYSTALpytools.thermodynamics import Mode
+        import warnings
 
         if hasattr(self, "volume"):
-            raise AttributeError(
-                "Data exists. Cannot overwrite the existing data.")
+            warnings.warn("Data exists. Cannot overwrite the existing data.")
+            return self
 
-        super(Harmonic, self).read_cry_output(output_name)
-        super(Harmonic, self).get_mode()
-        self._generate_structure(scelphono=scelphono)
+        output = Crystal_output().read_cry_output(output_name)
+        output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
+        strucs = _restore_pcel(output, scelphono)
 
-        if len(np.unique(self.edft)) != 1:
-            raise ValueError(
-                "Only the frequency calculations at constant volumes are premitted.")
-        else:
-            self.edft = self.edft[0]
+        if len(strucs) != 1: # strucs and edft must have only 1 valid entry
+            raise ValueError("Only the frequency calculations at constant volumes are premitted.")
 
         # Transfer the modes in self.freqency into lists of mode objects
-        if read_eigenvector:
-            super(Harmonic, self).get_phonon_eigenvector()
-        else:
-            self.eigenvector = []
+        self.from_frequency(output.edft[0], output.qpoint, output.frequency,
+                            output.eigenvector, structure=strucs[0],
+                            imaginary_tol=imaginary_tol, q_overlap_tol=q_overlap_tol)
 
-        self.from_frequency(self.edft, self.qpoint, self.frequency, self.eigenvector)
-
-        if auto_calc:
+        # Autocalc
+        if self.autocalc == True:
             self.thermodynamics(sumphonon=True)
-            self.print_results()
 
         return self
 
-    def from_phonopy(self, phono_yaml, struc_yaml=None, edft=None, q_id=None, q_coord=None):
+    def from_phonopy(self, phono_yaml, struc_yaml=None, edft=None,
+                     imaginary_tol=-1e-4, q_overlap_tol=1e-4, q_id=None, q_coord=None):
         """
         Build a Harmonic object from `Phonopy <https://phonopy.github.io/phonopy/>`_
         'band.yaml' or 'qpoints.yaml' file.
@@ -408,6 +409,9 @@ class Harmonic(Crystal_output):
             struc_yaml (str): Phonopy phonopy.yaml or phonopy_disp.yaml file.
                 *Needed only if a qpoint.yaml file is read.*
             edft (float): DFT energy
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
             q_id (list[int]): Specify the id (from 0) of q points to be read.
                 nqpoint\*1 list.
             q_coord (list[list]): Specify the coordinates of q points to be
@@ -426,6 +430,9 @@ class Harmonic(Crystal_output):
         from pymatgen.core.structure import Structure
         import warnings
 
+        if hasattr(self, "volume"):
+            warnings.warn("Data exists. Cannot overwrite the existing data.")
+            return self
         if edft == None:
             edft = 0.
             warnings.warn('DFT energy is set to 0.')
@@ -510,14 +517,17 @@ class Harmonic(Crystal_output):
 
         # set object
         self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency,
-                            eigenvector=[], structure=structure)
+                            eigenvector=[], structure=structure,
+                            imaginary_tol=imaginary_tol, q_overlap_tol=q_overlap_tol)
 
         return self
 
-    def from_frequency(self, edft, qpoint, frequency, eigenvector, **kwargs):
+    def from_frequency(self, edft, qpoint, frequency, eigenvector,
+                       structure=None, natom=None, volume=None,
+                       imaginary_tol=-1e-4, q_overlap_tol=1e-4):
         """
-        Generate a Harmonic object by specifying frequency and eigenvector and
-        clean imaginary frequencies.
+        Generate a Harmonic object by specifying frequency and eigenvector.
+        Imaginary modes and overlapped q points are forced to be cleaned.
 
         Args:
             edft (float): Electron total energy
@@ -525,133 +535,87 @@ class Harmonic(Crystal_output):
                 and weight of qpoint
             frequency (array[float]): Array of frequencies. Unit: THz
             eigenvector (array[float]): Normalized eigenvectors.
-            structure (PyMatGen Structure, optional)
-            natom (int, optional)
-            volume (float, optional)
+            structure (Pymatgen Structure)
+            natom (int)
+            volume (float)
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
 
-        The user should define either ``structure`` or ``natom`` + ``volume``.
+        .. note::
+
+            The user should define either ``structure`` or ``natom`` + ``volume``.
 
         Returns:
+            self.structure (PyMatGen Structure): Cell reduced by SCELPHONO.
+            self.natom (int): Number of atoms in the reduced cell.
+            self.volume (float): Volume of the reduced cell. Unit: Angstrom^3
+            self.edft (float)
             self.nqpoint (int)
+            self.qpoint (list)
             self.nmode (array[int])
-            self.mode (list[Mode])
-            self.structure (PyMatGen Structure, optional)
-            self.natom (int)
-            self.volume (float)
+            self.mode (list[Mode]): List of mode objects at all the qpoints.
 
         :raise AttributeError: If computational data is stored in the object.
-        :raise ValueError: If the 1st dimension (nqpoint) of ``qpoint`` and ``frequency`` are not consistent.
-        :raise ValueError: If the 2nd dimension (nfreq) of ``frequency`` and ``eigenvector`` are not consistent and ``eigenvector`` is not ``[]``.
+        :raise ValueError: If neither of the 2 available options are defined.
         """
+        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.thermodynamics import Mode
         import numpy as np
 
         if hasattr(self, "mode"):
-            raise AttributeError(
-                "Data exists. The current command will be ignored.")
+            raise AttributeError("Data exists. The current command will be ignored.")
 
-        for key, value in kwargs.items():
-            if key == 'structure':
-                self.structure = value
-                self.natom = len(value.species)
-                self.volume = value.lattice.volume
-                break
-            elif key == 'natom':
-                self.natom = int(value)
-            elif key == 'volume':
-                self.volume = float(value)
+        if structure != None:
+            self.structure = structure
+            self.natom = len(structure.species)
+            self.volume = structure.lattice.volume
+        elif natom != None and volume != None:
+            self.natom = int(natom)
+            self.volume = float(volume)
+        else:
+            raise ValueError('Geometry is not sufficiently defined. Structure or volume + natom are needed.')
 
         if len(qpoint) != np.size(frequency, 0):
-            raise ValueError(
-                "The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
+            raise ValueError("The 1st dimension (n qpoint) of 'qpoint' and 'frequency' are not consistent.")
         if len(eigenvector) != 0 and np.size(eigenvector, 1) != np.size(frequency, 1):
-            raise ValueError(
-                "The 2nd dimension (n mode) of 'frequency' and 'eigenvector' are not consistent.")
+            raise ValueError("The 2nd dimension (n mode) of 'frequency' and 'eigenvector' are not consistent.")
 
         self.edft = edft
         self.nqpoint = len(qpoint)
         self.qpoint = qpoint
+        self.nmode = np.array([len(q) for q in frequency])
         self.frequency = frequency
-        if len(eigenvector) != 0:
-            self.eigenvector = eigenvector
-        super(Harmonic, self).clean_imaginary()
+        self.intens = []
+        self.IR = []
+        self.Raman = []
+        self.eigenvector = eigenvector
+        ## Note: Harmonic object is not a crystal_output project, but has the
+        ## same attributes
+        self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
+        self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
 
         # Transfer the modes in self.freqency into lists of mode objects
         self.mode = []
-        for q, qpoint_freq in enumerate(frequency):
+        for q, freq_q in enumerate(self.frequency):
             qmode = []
-            for m, mode_freq in enumerate(qpoint_freq):
-                if len(eigenvector) != 0:
+            for m, freq_m in enumerate(freq_q):
+                if len(self.eigenvector) != 0:
                     qmode.append(Mode(rank=m + 1,
-                                      frequency=[mode_freq],
+                                      frequency=[freq_m],
                                       volume=[self.volume],
-                                      eigenvector=[eigenvector[q, m]])
-                                 )
+                                      eigenvector=[self.eigenvector[q, m]]))
                 else:
                     qmode.append(Mode(rank=m + 1,
-                                      frequency=[mode_freq],
-                                      volume=[self.volume])
-                                 )
+                                      frequency=[freq_m],
+                                      volume=[self.volume]))
 
             self.mode.append(qmode)
-        self.nmode = np.array([len(q) for q in self.mode])
 
-        return self
-
-    def _generate_structure(self, scelphono):
-        """
-        Restore the primitive geometry expanded by 'SCELPHONO' and generate the
-        Pymatgen Structure of the cell used for phonon calculation.
-
-        Args:
-            scellphono (list[int] | array[int]): ndimension\*ndimension or
-                3\*3 matrix corresponds to the 'SCELPHONO' keyword.
-
-        Returns:
-            self.structure (Pymatgen Structure)
-            self.natom (int)
-            self.volume (float)
-        """
-        from CRYSTALpytools.convert import cry_out2pmg
-        from pymatgen.core.structure import Structure
-        import numpy as np
-
-        ndimen = self.get_dimensionality()
-
-        if not scelphono or not ndimen:
-            self.structure = cry_out2pmg(self, vacuum=100)
-            self.natom = len(self.structure.species)
-            self.volume = self.structure.volume
-
-            return self
-
-        scell_mx = np.eye(3, dtype=float)
-        scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]
-        shrink_mx = np.linalg.pinv(scell_mx)
-
-        scel = cry_out2pmg(self, vacuum=100)
-
-        pcel_lattice = np.dot(scel.lattice.matrix, shrink_mx)
-        all_coord = np.dot(scel.cart_coords,
-                           np.linalg.pinv(pcel_lattice)).tolist()
-        all_species = scel.species
-
-        pcel_coord = []
-        pcel_species = []
-
-        for i, coord in enumerate(all_coord):
-            if any(x > 0.5 or x <= -0.5 for x in coord):
-                continue
-            else:
-                pcel_coord.append(coord)
-                pcel_species.append(all_species[i])
-
-        pcel_natom = len(pcel_species)
-        pcel_charge = int(scel.charge * pcel_natom / len(all_species))
-
-        self.structure = Structure(
-            pcel_lattice, pcel_species, pcel_coord, pcel_charge)
-        self.natom = len(self.structure.species)
-        self.volume = self.structure.volume
+        # Delete useless attribute
+        delattr(self, 'intens')
+        delattr(self, 'IR')
+        delattr(self, 'Raman')
 
         return self
 
@@ -922,18 +886,22 @@ class Quasi_harmonic:
         else:
             self.filename = 'no file'
 
-    def from_HA_files(self, input_files, scelphono=[], overlap=0.4, sort_phonon=True):
+    def from_HA_files(self, input_files, scelphono=[], imaginary_tol=-1e-4,
+                      q_overlap_tol=1e-4, mode_sort_tol=0.4):
         """
-        Read data from individual HA calculation outputs.
+        Read data from individual HA calculation outputs. Imaginary modes and
+        overlapped q points are forced to be cleaned.
 
         Args:
             input_files (list[str]): List of phonon output filenames.
-            scelphono (array[float] | list[float]], optional): Corresponds
-                to the 'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or
-                ndimension\*ndimension. By default a 1\*1\*1 'SCELPHONO' is
-                assumed.
-            overlap (float, optional): The threshold of close mode overlaps.
-            sort_phonon (bool, optional): Whether to check phonon continuity.
+            scelphono (array[float] | list[float]): Corresponds to the
+                'SCELPHONO' keyword in CRYSTAL. Either 3\*3 or ndimension\*ndimension.
+                By default a 1\*1\*1 'SCELPHONO' is assumed.
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
+            mode_sort_tol (float | None): The threshold of close mode
+                overlaps. If none, do not sort modes.
 
         Returns:
             self (Quasi_harmonic)
@@ -951,47 +919,55 @@ class Quasi_harmonic:
 
         if hasattr(self, "ncalc"):
             warnings.warn('Data exists. The current command will be ignored.')
-
             return self
 
-        self.ncalc = len(input_files)
-        if self.ncalc == 1:
-            warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
+        if len(input_files) == 1:
+            raise Exception('Only 1 input file! Use Harmonic object or from_QHA_file method.')
+        else:
+            self.ncalc = len(input_files)
+
+        if mode_sort_tol != None:
+            read_eigvt = True
+        else:
+            read_eigvt = False
 
         ha_list = [
-            Harmonic(write_out=False).from_file(
+            Harmonic(write_out=False, autocalc=False).from_file(
                 file,
                 scelphono=scelphono,
-                read_eigenvector=True,
-                auto_calc=False
+                read_eigvt=read_eigvt,
+                imaginary_tol=imaginary_tol,
+                q_overlap_tol=q_overlap_tol
             ) for file in input_files
         ]
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-            self.combined_mode = self._combine_data(ha_list, overlap=overlap,
-                                                    sort_phonon=sort_phonon)
+        self.combined_mode = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
         self.nqpoint = ha_list[0].nqpoint
         self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
 
         return self
 
-    def from_QHA_file(self, input_file, scelphono=[], overlap=0.4, sort_phonon=True):
+    def from_QHA_file(self, input_file, scelphono=[], imaginary_tol=-1e-4,
+                      q_overlap_tol=1e-4, mode_sort_tol=0.4):
         """
-        Read data from a single QHA calculation at Gamma point.
+        Read data from a single QHA calculation at Gamma point. Imaginary modes
+        and overlapped q points are forced to be cleaned.
 
         Args:
             input_files (str | list[str]): Only 1 QHA file is permitted.
-            scelphono (array[float] | list[float], optional)
-            overlap (float, optional)
-            sort_phonon (bool, optional)
+            scelphono (array[float] | list[float])
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
+            mode_sort_tol (float | None): The threshold of close mode
+                overlaps. If none, do not sort modes.
 
         Returned attributes are consistent with ``Quasi_harmonic.from_HA_files``.
 
         :raise ValueError: If multiple files are defined.
         """
-        from CRYSTALpytools.crystal_io import Crystal_output
         from CRYSTALpytools.thermodynamics import Harmonic
-        from CRYSTALpytools.thermodynamics import Mode
         import warnings
         import re
         import numpy as np
@@ -1006,93 +982,41 @@ class Quasi_harmonic:
         elif isinstance(input_file, list) and len(input_file) == 1:
             input_file = input_file[0]
 
-        file = Crystal_output().read_cry_output(input_file)
-        file.get_mode()
-        file.get_phonon_eigenvector()
-        file.clean_imaginary()
+        if mode_sort_tol != None:
+            read_eigvt = True
+        else:
+            read_eigvt = False
 
-        # Get volume/structure/dimensionality. Only to be used with QHA files
-        structures = []
-        for idx_line, line in enumerate(file.data):
-            if re.match(
-                r'^\s+GEOMETRY\sFOR\sWAVE\sFUNCTION\s\-\sDIMENSIONALITY', line
-            ):
-                ndimen = int(line.strip().split()[9])
-            elif re.match(
-                r'^\s+DIRECT\sLATTICE\sVECTORS\sCARTESIAN\sCOMPONENTS\s\(ANGSTROM\)',
-                line
-            ):
-                idx_line += 2
-                vec1 = np.array(file.data[idx_line].strip().split()[
-                                0:3], dtype=float)
-                vec2 = np.array(
-                    file.data[idx_line + 1].strip().split()[0:3], dtype=float)
-                vec3 = np.array(
-                    file.data[idx_line + 2].strip().split()[0:3], dtype=float)
+        output = Crystal_output().read_cry_output(input_file)
+        output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
+        strucs = _restore_pcel(output, scelphono)
 
-                idx_line += 9
-                all_species = []
-                all_coords = np.array([], dtype=float)
-                while re.match(
-                    r'^\s+[0-9]+\s+[0-9]+\s+[A-Z]+', file.data[idx_line]
-                ):
-                    line_info = file.data[idx_line].strip().split()
-                    all_coords = np.append(
-                        all_coords, np.array(line_info[3:], dtype=float))
-                    all_species.append(line_info[2].capitalize())
-                    idx_line += 1
-
-                all_coords = np.reshape(all_coords, [-1, 3])
-
-                scell_mx = np.eye(3, dtype=float)
-                if scelphono:
-                    scell_mx[: ndimen, : ndimen] = np.array(
-                        scelphono)[: ndimen, : ndimen]
-                    shrink_mx = np.linalg.pinv(scell_mx)
-                    pcel_lattice = np.dot(
-                        np.stack([vec1, vec2, vec3]), shrink_mx)
-                    all_coords = np.dot(
-                        all_coords, np.linalg.pinv(pcel_lattice)).tolist()
-
-                    pcel_coord = []
-                    pcel_species = []
-                    for i, coord in enumerate(all_coords):
-                        if any(x > 0.5 or x <= -0.5 for x in coord):
-                            continue
-                        else:
-                            pcel_coord.append(coord)
-                            pcel_species.append(all_species[i])
-
-                else:
-                    pcel_lattice = np.stack([vec1, vec2, vec3])
-                    pcel_coord = all_coords
-                    pcel_species = all_species
-
-                struc = Structure(lattice=pcel_lattice, species=pcel_species,
-                                  coords=pcel_coord, coords_are_cartesian=False)
-                structures.append(struc)
-            else:
-                continue
-
-        self.ncalc = file.nqpoint
-        ha_list = []
-        for idx_c in range(self.ncalc):
-            ha = Harmonic(write_out=False)
-            ha.from_frequency(file.edft[idx_c], np.array([[0, 0, 0]]),
-                              np.array([file.frequency[idx_c]]),
-                              np.array([file.eigenvector[idx_c]]),
-                              structure=structures[idx_c + 1])  # The first one is pre-opt geom
-            ha_list.append(ha)
-
-        self.combined_phonon, self.combined_volume, self.combined_edft, \
-            self.combined_mode = self._combine_data(ha_list, overlap=overlap,
-                                                    sort_phonon=sort_phonon)
+        self.ncalc = output.nqpoint
         self.nqpoint = 1
         self.qpoint = [[np.array([0., 0., 0.]), 1.]]
 
+        ha_list = []
+        for idx_c in range(self.ncalc):
+            ha = Harmonic(write_out=False, autocalc=False)
+            if read_eigvt == True:
+                ha.from_frequency(output.edft[idx_c], [[np.zeros([3,]), 1.]],
+                                  np.array([output.frequency[idx_c],]),
+                                  np.array([output.eigenvector[idx_c],]),
+                                  structure=strucs[idx_c])
+            else:
+                ha.from_frequency(output.edft[idx_c], [[np.zeros([3,]), 1.]],
+                                  np.array([output.frequency[idx_c],]),
+                                  [], structure=strucs[idx_c])
+            ha_list.append(ha)
+
+        self.combined_phonon, self.combined_volume, self.combined_edft, \
+            self.combined_mode = self._combine_data(ha_list, mode_sort_tol)
+
         return self
 
-    def from_phonopy_files(self, phono_yaml, struc_yaml=None, edft=None, q_id=None, q_coord=None):
+    def from_phonopy_files(self, phono_yaml, struc_yaml=None, edft=None,
+                           imaginary_tol=-1e-4, q_overlap_tol=1e-4,
+                           q_id=None, q_coord=None):
         """
         Build a QHA object from `Phonopy <https://phonopy.github.io/phonopy/>`_
         'band.yaml' or 'qpoints.yaml' file.
@@ -1104,6 +1028,9 @@ class Quasi_harmonic:
                 phonopy_disp.yaml files. *Needed only if a qpoint.yaml file is
                 read.*
             edft (list[float]): ncalc\*1 list / array of DFT energies.
+            imaginary_tol (float): The threshold of negative frequencies.
+            q_overlap_tol (float): The threshold of overlapping points, defined
+                as the 2nd norm of the difference of fractional q vectors
             q_id (list[int]): See ``Harmonic.from_phonopy``.
             q_coord (list[list]): See ``Harmonic.from_phonopy``.
 
@@ -1122,41 +1049,45 @@ class Quasi_harmonic:
             warnings.warn('Data exists. The current command will be ignored.')
             return self
 
-        self.ncalc = len(input_files)
-        if self.ncalc == 1:
-            warnings.warn('Single frequency calculation detected! QHA is deteriorated to HA.')
+        if len(input_files) == 1:
+            raise Exception('Only 1 input file! Use Harmonic object or from_QHA_file method.')
+        else:
+            self.ncalc = len(input_files)
 
         if edft == None:
             warnings.warn('DFT energy is set to 0.')
-            edft = np.zeros([self.ncalc, 1])
+            edft = np.zeros([self.ncalc,])
 
         if struc_yaml == None:
             struc_yaml = [None for i in range(self.ncalc)]
 
         ha_list = [
-            Harmonic(write_out=False).from_phonopy(
-                phono_yaml[i], struc_yaml[i], edft[i], q_id, q_coord
+            Harmonic(write_out=False, autocalc=False).from_phonopy(
+                phono_yaml=phono_yaml[i],
+                struc_yaml=struc_yaml[i],
+                edft=edft[i],
+                imaginary_tol=imaginary_tol,
+                q_overlap_tol=q_overlap_tol,
+                q_id=q_id,
+                q_coord=q_coord
             ) for i in range(self.ncalc)
         ]
 
         self.combined_phonon, self.combined_volume, self.combined_edft, \
-            self.combined_mode = self._combine_data(ha_list,
-                                                    overlap=0.4,
-                                                    sort_phonon=False) # Eigenvector not available
+        self.combined_mode = self._combine_data(ha_list, mode_sort_tol=None) # Eigenvector not available
         self.nqpoint = ha_list[0].nqpoint
         self.qpoint = ha_list[0].qpoint # consistency of nqpoint is checked, but not qpoint.
 
         return self
 
-    def _combine_data(self, ha_list, overlap, sort_phonon):
+    def _combine_data(self, ha_list, mode_sort_tol):
         """
         Combine the HA calculation data and rearrange it in the ascending order
         of volumes.
 
         Args:
             ha_list (list[Harmonic]): List of harmonic objects.
-            overlap (float)
-            sort_phonon (bool)
+            mode_sort_tol (float | None)
 
         Returns:
             combined_phonon (list[Harmonic])
@@ -1178,15 +1109,16 @@ class Quasi_harmonic:
         for index, ha_phonon in enumerate(ha_list):
             sorted_vol[index, :] = [index, ha_phonon.volume]
             # Check whether the numbers of modes and atoms are consistent.
-            if (natom - ha_phonon.natom) != 0 or \
-                    not np.all((nmode - ha_phonon.nmode) == 0) or \
-                    nqpoint - ha_phonon.nqpoint != 0:
-                raise Exception(
-                    'The number of qpoints, modes or atoms is not consistent across the sampling points'
-                )
+            if (natom - ha_phonon.natom) != 0 or not np.all((nmode - ha_phonon.nmode) == 0) \
+            or nqpoint - ha_phonon.nqpoint != 0:
+                raise Exception('The number of qpoints, modes or atoms is not consistent across the sampling points')
 
         sorted_vol = sorted_vol[np.argsort(sorted_vol[:, 1])]
         nmode = nmode[0]
+        if ha_list[0].eigenvector == []:
+            do_eigvt = False
+        else:
+            do_eigct = True
 
         combined_phonon = []
         # Volume, ncalc * 1 array
@@ -1203,47 +1135,58 @@ class Quasi_harmonic:
             combined_volume[idx_new] = idx_vol[1]
             combined_edft[idx_new] = ha_phonon.edft
             combined_freq[idx_new] = ha_phonon.frequency
-            combined_eigvt[idx_new] = ha_phonon.eigenvector
+            if do_eigvt == True:
+                combined_eigvt[idx_new] = ha_phonon.eigenvector
 
         # ncalc * nqpoint * nmode array to nqpoint * ncalc * nmode array
         combined_freq = np.transpose(combined_freq, axes=[1, 0, 2])
-        # ncalc * nqpoint * nmode * natom * 3 array to
-        # nqpoint * ncalc * nmode * natom * 3 array
-        combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
-        if sort_phonon:
+        if do_eigvt == True:
+            # ncalc * nqpoint * nmode * natom * 3 array to nqpoint * ncalc * nmode * natom * 3 array
+            combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
+
+        # Sort phonon modes if requested
+        if mode_sort_tol != None and do_eigvt == True:
             close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
             for idx_q in range(nqpoint):
                 combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
                     = self._phonon_continuity(combined_freq[idx_q],
                                               combined_eigvt[idx_q],
-                                              overlap=overlap)
-        # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
-        combined_freq = np.transpose(combined_freq, axes=[0, 2, 1])
-        # nqpoint * ncalc * nmode * natom * 3 array to
-        # nqpoint *  nmode * ncalc * natom * 3 array
-        combined_eigvt = np.transpose(combined_eigvt, axes=[0, 2, 1, 3, 4])
-        if sort_phonon:
+                                              mode_sort_tol=mode_sort_tol)
             # nqpoint * ncalc * nmode_ref * nmode_sort array to
             # nqpoint * nmode_ref * ncalc * nmode_sort array
             close_overlap = np.transpose(close_overlap, axes=[0, 2, 1, 3])
-            for idx_q, qpoint in enumerate(close_overlap):
-                overlap_numbers = np.sum(qpoint)
-                if overlap_numbers >= 1.:
-                    warnings.warn(
-                        'Close overlap of phonon modes detected at qpoint: %3i, %6i overlaps out of %6i modes.'
-                        % (idx_q, int(overlap_numbers), int(nqpoint * nmode)), stacklevel=2
-                    )
+            for q, overlap_q in enumerate(close_overlap):
+                overlap_numbers = np.sum(overlap_q)
+                if overlap_numbers > 0:
+                    warnings.warn('Close overlap of phonon modes detected at qpoint: %3i, %6i overlaps out of %6i modes.'
+                                  % (q, int(overlap_numbers), int(nqpoint * nmode)),
+                                  stacklevel=2)
+        elif mode_sort_tol != None and do_eigvt == False:
+            warnings.warn('Eigenvectors not read. Mode sorting not available.')
+
+        # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
+        combined_freq = np.transpose(combined_freq, axes=[0, 2, 1])
+        if do_eigvt == True:
+            # nqpoint * ncalc * nmode * natom * 3 array to nqpoint *  nmode * ncalc * natom * 3 array
+            combined_eigvt = np.transpose(combined_eigvt, axes=[0, 2, 1, 3, 4])
 
         combined_mode = []
         for idx_q in range(nqpoint):
             combined_mode_q = []
             for idx_m in range(nmode):
-                combined_mode_q.append(
-                    Mode(rank=idx_m + 1,
-                         frequency=combined_freq[idx_q, idx_m, :],
-                         volume=combined_volume,
-                         eigenvector=combined_eigvt[idx_q, idx_m, :])
-                )
+                if do_eigvt == True:
+                    combined_mode_q.append(
+                        Mode(rank=idx_m + 1,
+                             frequency=combined_freq[idx_q, idx_m, :],
+                             volume=combined_volume,
+                             eigenvector=combined_eigvt[idx_q, idx_m, :])
+                    )
+                else:
+                    combined_mode_q.append(
+                        Mode(rank=idx_m + 1,
+                             frequency=combined_freq[idx_q, idx_m, :],
+                             volume=combined_volume)
+                    )
 
             combined_mode.append(combined_mode_q)
 
@@ -1281,7 +1224,7 @@ class Quasi_harmonic:
 
                 file.write('\n')
 
-            if sort_phonon:
+            if mode_sort_tol != None and do_eigvt == True::
                 file.write('%s\n\n' %
                            '## CLOSE OVERLAPS OF PHONON FREQUENCIES')
                 for idx_q, qpoint in enumerate(combined_mode):
@@ -1311,7 +1254,7 @@ class Quasi_harmonic:
         return combined_phonon, combined_volume, combined_edft, combined_mode
 
     @staticmethod
-    def _phonon_continuity(freq, eigvt, symm=None, overlap=0.4):
+    def _phonon_continuity(freq, eigvt, symm=None, mode_sort_tol=0.4):
         """
         Rearrange phonon modes by their continuity. If the difference between
         the maximum scalar product of corresponding eigenvectors (normalized to
@@ -1327,7 +1270,7 @@ class Quasi_harmonic:
             eigvt (array[float]): Eigenvectores normalized to 1
             symm (array[float]): Sub-group numbers of corresponding modes.
                 *Not implemented*
-            overlap (float): The threshold of close mode overlaps.
+            mode_sort_tol (float): The threshold of close mode overlaps.
 
         Returns:
             freq (array[float]): Sorted phonon frequencies
@@ -2367,3 +2310,93 @@ class Quasi_harmonic:
             file.close()
 
         return self
+
+
+def _restore_pcel(crysout, scelphono):
+    """
+    Restore the primitive geometry expanded by 'SCELPHONO' and generate the
+    Pymatgen Structure of the cell used for phonon calculation.
+
+    Args:
+        crysout (Crystal_output): :code:`CRYSTALpytools.io.Crystal_output` object.
+        scellphono (list[int] | array[int]): ndimension\*ndimension or 3\*3
+            matrix corresponds to the 'SCELPHONO' keyword.
+
+    Returns:
+        structures (list[Structure]): A list of Pymatgen Structure objects.
+            nCalc\*1. For HA phonons and dispersions, nCalc=1. For QHA,
+            nCalc=sampled HA points.
+    """
+    from pymatgen.core.structure import Structure, Molecule
+    from pymatgen.core.lattice import Lattice
+    import numpy as np
+    import re
+    import warnings
+
+    ndimen = crysout.get_dimensionality()
+    pbc = {3 : (True, True, True),
+           2 : (True, True, False),
+           1 : (True, False, False)}
+    # Get structure. Address the issue with QHA file
+    idx_line = 0
+    structures = []
+    while idx_line < len(crysout.data):
+        if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS',
+                    crysout.data[idx_line]):
+            idx_line += 2
+            vec1 = np.array(crysout.data[idx_line].strip().split()[0:3], dtype=float)
+            vec2 = np.array(crysout.data[idx_line + 1].strip().split()[0:3], dtype=float)
+            vec3 = np.array(crysout.data[idx_line + 2].strip().split()[0:3], dtype=float)
+
+            idx_line += 9
+            all_species = []
+            all_coord = []
+            while re.match(r'^\s+[0-9]+\s+[0-9]+\s+[A-Z]+', crysout.data[idx_line]):
+                data = crysout.data[idx_line].strip().split()
+                all_coord.append(data[3:])
+                all_species.append(data[2].capitalize())
+                idx_line += 1
+            all_coord = np.array(all_coord, dtype=float)
+            scel_mx = np.vstack([vec1, vec2, vec3])
+
+            # Molecule 0D
+            if ndimen == 0:
+                warnings.warn('0D system is used. There is nothing to reduce.')
+                structures.append(Molecule(species=all_species, coords=all_coord))
+                idx_line += 1
+                continue
+
+            # Periodic systems
+            if scelphono != []:
+                scell_mx = np.eye(3, dtype=float)
+                scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]
+                shrink_mx = np.linalg.pinv(scell_mx)
+                pcel_mx = np.dot(scel_latt, shrink_mx)
+                pcel_latt = Lattice(pcel_mx, pbc=pbc[ndimen])
+                all_coord = np.dot(all_coord, np.linalg.pinv(pcel_mx)).tolist()
+                pcel_coord = []
+                pcel_species = []
+                for i, coord in enumerate(all_coord):
+                    if any(x > 0.5 or x <= -0.5 for x in coord[0:ndimen]):
+                        continue
+                    else:
+                        pcel_coord.append(coord)
+                        pcel_species.append(all_species[i])
+            else:
+                pcel_latt = Lattice(scel_mx, pbc=pbc[ndimen])
+                pcel_coord = all_coord
+                pcel_species = all_species
+
+            struc = Structure(lattice=pcel_latt, species=pcel_species,
+                              coords=pcel_coord, coords_are_cartesian=False)
+            structures.append(struc)
+            idx_line += 1
+        else:
+            idx_line += 1
+
+    if structures == []:
+        raise Exception('Valid structure not found.')
+    elif len(structures) > 1: # QHA / HA + PREOPTGEOM, the first entry is pre-optimized geometry
+        structures = structures[1:]
+
+    return structures
