@@ -2012,6 +2012,7 @@ class Quasi_harmonic:
             self.k_t[:, idx_t] = self.volume[:, idx_t] * lam_df(self.volume[:, idx_t]) * 1e24 / scst.Avogadro
         # Get K_S
         if adiabatic == True:
+            self.k_s = np.zeros(self.volume.shape)
             self.specific_heat()
             for idx_t, t in enumerate(self.temperature):
                 if t > 1e-4: #0K
