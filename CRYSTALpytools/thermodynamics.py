@@ -15,11 +15,11 @@ class Mode:
     Args:
         rank (int): The rank of the mode object, from 1.
         frequency (array[float] | list[float]): Frequencies of the mode
-            (Ncalc\*1). Unit: THz. Note: **NOT** angular frequency, which is 
+            (Ncalc\*1). Unit: THz. Note: **NOT** angular frequency, which is
             frequency * 2pi.
         volume (array[float] | list[float]): Lattice volumes of harmonic
             calculations (Ncalc\*1). Unit: Angstrom^3
-        eigenvector (array[float] | list[float]): Corresponding normalized 
+        eigenvector (array[float] | list[float]): Corresponding normalized
             eigenvectors (Ncalc\*Natom\*3).
 
     Returns:
@@ -215,7 +215,7 @@ class Mode:
         """
         import numpy as np
         import warnings
-        from scipy.optimize import least_squares
+        from scipy.optimize import minimize
         from CRYSTALpytools.thermodynamics import Quasi_harmonic
 
         if self.ncalc <= 1:
@@ -248,9 +248,9 @@ class Mode:
         dv = self.volume - vmin
         df = self.frequency - fmin
         for i in order:
-            opt = least_squares(qha._poly_no_cst,
-                                np.array([1. for j in range(i)]),
-                                args=(dv, df))
+            opt = minimize(qha._poly_no_cst,
+                           np.array([1. for j in range(i)]),
+                           args=(dv, df), method='BFGS', jac='3-point')
             poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
             self.poly_fit[i] = poly
             self.poly_fit_rsqaure[i] = 1 - np.sum((df - poly(dv))**2) / np.sum((df - np.mean(df))**2)
@@ -395,7 +395,7 @@ class Harmonic():
 
         return self
 
-    def from_phonopy(self, phono_yaml, struc_yaml=None, edft=None,
+    def from_phonopy(self, phono_yaml, struc_yaml=None, edft=None, scale=1.0,
                      imaginary_tol=-1e-4, q_overlap_tol=1e-4, q_id=None, q_coord=None):
         """
         Build a Harmonic object from `Phonopy <https://phonopy.github.io/phonopy/>`_
@@ -405,7 +405,8 @@ class Harmonic():
             phono_yaml (str): Phonopy band.yaml or qpoint.yaml file
             struc_yaml (str): Phonopy phonopy.yaml or phonopy_disp.yaml file.
                 *Needed only if a qpoint.yaml file is read.*
-            edft (float): DFT energy
+            edft (float): DFT energy. Unit: kJ/mol
+            scale (float): Scaling factor of phonon frequency.
             imaginary_tol (float): The threshold of negative frequencies.
             q_overlap_tol (float): The threshold of overlapping points, defined
                 as the 2nd norm of the difference of fractional q vectors
@@ -513,7 +514,7 @@ class Harmonic():
             raise Exception('Some q points are missing from the yaml file.')
 
         # set object
-        self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency,
+        self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency*scale,
                             eigenvector=[], structure=structure,
                             imaginary_tol=imaginary_tol, q_overlap_tol=q_overlap_tol)
         # Autocalc
@@ -1416,14 +1417,15 @@ class Quasi_harmonic:
     def _poly_no_cst(param, x, y):
         """
         Define a polynomial :math:`\\Delta f(\\Delta x)` without constant term.
-        Orders low to high. For SciPy.
+        Orders low to high. For SciPy. Functions of vectors not supported.
         """
         import numpy as np
 
         express = np.zeros([len(x)])
         for order, p in enumerate(param):
             express += p * x**(order + 1)
-        return ((express - y)**2)**0.5
+        rmsd = (np.sum((express - y)**2) / len(y))**0.5
+        return rmsd
 
     def _clean_attr(self):
         """
@@ -1722,7 +1724,7 @@ class Quasi_harmonic:
         import numpy as np
         import warnings
         import re
-        from scipy.optimize import fmin, least_squares
+        from scipy.optimize import fmin, minimize
         import scipy.constants as scst
         from sympy import diff, lambdify, symbols
         from CRYSTALpytools.thermodynamics import Output
@@ -1817,9 +1819,9 @@ class Quasi_harmonic:
                     continue
                 gmin = gibbs[idx_tmin]
                 dg = gibbs - gmin
-                opt = least_squares(self._poly_no_cst,
-                                    np.array([1. for i in range(order)]),
-                                    args=(dt, dg))
+                opt = minimize(self._poly_no_cst,
+                               np.array([1. for i in range(order)]),
+                               args=(dt, dg), method='BFGS', jac='3-point')
                 poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
                 func.append(poly)
                 r_square.append(1 - np.sum((dg - poly(dt))**2) / np.sum((dg - np.mean(dg))**2))
@@ -1864,7 +1866,7 @@ class Quasi_harmonic:
         * ``self.alpha_v`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
         """
         import numpy as np
-        from scipy.optimize import least_squares
+        from scipy.optimize import minimize
         import matplotlib.pyplot as plt
         import warnings
         from CRYSTALpytools.thermodynamics import Output
@@ -1872,6 +1874,12 @@ class Quasi_harmonic:
         if not hasattr(self, 'volume'):
             raise AttributeError('Equilibrium volume should be fit first.')
 
+        if max(poly_order) > self.ncalc - 1:
+            warnings.warn('Reference data not sufficient for the order of polynomial fitting.')
+            warnings.warn('Too high values will be removed.')
+
+        poly_order = list(set(poly_order))
+        poly_order = [p for p in poly_order if p <= self.ncalc - 1]
         poly_order = np.array(poly_order)
         # Polynomial fitting
         func = []
@@ -1885,9 +1893,9 @@ class Quasi_harmonic:
             vmin = v_p[idx_tmin]
             dv = v_p - vmin
             for order in poly_order:
-                opt = least_squares(self._poly_no_cst,
-                                    np.array([1. for i in range(order)]),
-                                    args=(dt, dv))
+                opt = minimize(self._poly_no_cst,
+                               np.array([1. for i in range(order)]),
+                               args=(dt, dv), method='BFGS', jac='3-point')
                 poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
                 r_square = 1 - np.sum((dv - poly(dt))**2) / np.sum((dv - np.mean(dv))**2)
                 func_p.append(poly)
@@ -1899,7 +1907,7 @@ class Quasi_harmonic:
         rs = np.array(rs) # npress * npolyorder
         rs_mean = np.array([np.mean(rs[:, i]) for i in range(len(poly_order))])
         if plot == False:
-            fit_order_idx = np.argmin(rs_mean)
+            fit_order_idx = np.argmax(rs_mean)
             fit_order = poly_order[fit_order_idx]
         else:
             fig, ax = plt.subplots(1, 1, figsize=(8, 6))
@@ -2137,7 +2145,7 @@ def _restore_pcel(crysout, scelphono):
                 shrink_mx = np.linalg.pinv(scell_mx)
                 pcel_mx = np.dot(scel_latt, shrink_mx)
                 pcel_latt = Lattice(pcel_mx, pbc=pbc[ndimen])
-                all_coord = np.dot(all_coord, np.linalg.pinv(pcel_mx)).tolist()
+                all_coord = np.dot(all_coord, np.linalg.pinv(pcel_mx)).tolist() # Fractional!
                 pcel_coord = []
                 pcel_species = []
                 for i, coord in enumerate(all_coord):
@@ -2146,13 +2154,15 @@ def _restore_pcel(crysout, scelphono):
                     else:
                         pcel_coord.append(coord)
                         pcel_species.append(all_species[i])
+                struc = Structure(lattice=pcel_latt, species=pcel_species,
+                                  coords=pcel_coord, coords_are_cartesian=False)
             else:
                 pcel_latt = Lattice(scel_latt, pbc=pbc[ndimen])
-                pcel_coord = all_coord
+                pcel_coord = all_coord # Cartesian!
                 pcel_species = all_species
+                struc = Structure(lattice=pcel_latt, species=pcel_species,
+                                  coords=pcel_coord, coords_are_cartesian=True)
 
-            struc = Structure(lattice=pcel_latt, species=pcel_species,
-                              coords=pcel_coord, coords_are_cartesian=False)
             structures.append(struc)
             idx_line += 1
         else:

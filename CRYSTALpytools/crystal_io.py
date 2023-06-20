@@ -99,7 +99,7 @@ class Crystal_input(Crystal_inputBASE):
             struc2, symprec=symprec, angle_tolerance=angle_tolerance)
         struc_symm = analyzer2.get_symmetrized_structure()
 
-        sg = analyzer.get_space_group_number()
+        sg = analyzer2.get_space_group_number()
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
             for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
