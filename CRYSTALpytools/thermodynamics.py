@@ -1862,8 +1862,10 @@ class Quasi_harmonic:
 
         **New attributes**
 
-        * ``self.vol_fit`` nPressure\*1 list of Numpy object, the fitted volume V(T)  
-        * ``self.alpha_v`` nPressure\*nTemperature array, expansion coefficients at equilibrium volumes
+        * ``self.vol_fit`` nPressure\*1 list of Numpy polynomial object,
+        the fitted volume V(T)  
+        * ``self.alpha_v`` nPressure\*nTemperature array, expansion
+        coefficients at equilibrium volumes
         """
         import numpy as np
         from scipy.optimize import minimize
@@ -2082,6 +2084,239 @@ class Quasi_harmonic:
             Output.write_specific_heat(self)
 
         return self
+
+    def expansion_lin(self, poly_order=[2, 3]):
+        """
+        Fit linear expansions of lattice parameters by the 2-order Taylor
+        expansion.
+
+        .. math::
+
+            F(\\mathbf{p})=F_{0}(\\mathbf{p_{0}})+\\mathbf{\\Delta p}^{T}\\mathbf{H}\\mathbf{\\Delta p}
+
+        :math::`F` is Helmholtz free energy. :math:`\mathbf{p}` is the
+        vector of lattice parameters. :math:`\mathbf{\Delta p}` means the
+        difference between the fitted and equilibrium lattice parameters.
+        :math:`\mathbf{H}` is the Hessian of :math:`F` and displacements
+        along lattice parameters.
+
+        The optimized lattice parameters at :math:`E_{0}` level are used
+        for fitting.
+
+        The RMS deviations (RMSD) from equilibrium Gibbs free energy at
+        :math:`T, p` is minimized. But deviations from equilibrium volume
+        might occur. RMSD of Gibbs free energy is available in output file
+        only.
+
+        This method requires a larger number of HA calculations to ensure
+        a small RMSD. Typically the number of HA calculations should
+        follow the equation below, otherwise the warning massage is given.
+
+        .. math::
+
+            n_{HA} \\geq n_{latt} + \\sum_{i=1}^{n_{latt}}i
+
+        :math:`n_{latt}` is the lenth of the minimial set of lattice parameters.
+
+        .. note::
+
+            N. Raimbault, V. Athavale and M. Rossi, *Phys. Rev. Materials*, 2019, **3**, 053605.
+
+        Args:
+            poly_order (list[int]): Order of polynomials used to fit the
+                linear expansion coefficients. The optimal fit across the
+                sampled temperature and pressure range of a certain lattice
+                parameter is automatically chosen based on :math:`R^{2}`.
+
+        Returns:
+            self (Quasi_harmonic)
+
+        **New attributes**
+
+        * ``self.lattice`` nPressure\*nTemperature\*nLattice array. The
+        equilibrium values of minimal set of lattice parameters.  
+        * ``self.latt_fit`` nPressure\*nLattice list of Numpy polynomial
+        object, the fitted a(v). Linear part only.  
+        * ``self.alpha_latt`` nPressure\*nTemperature\*nLattice array.
+        Linear expansion coefficients. Linear part only.
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from CRYSTALpytools.thermodynamics import Output
+        from scipy.optimize import minimize
+        import numpy as np
+        import warnings
+
+        if not hasattr(self, 'volume'):
+            raise AttributeError('Equilibrium volume should be fit first.')
+
+        if not hasattr(self.combined_phonon[0], 'structure'):
+            raise AttributeError('No lattice information is found in input HA calculations.')
+
+        if max(poly_order) > len(self.temperature) - 1:
+            warnings.warn('Sampled temperature points are not sufficient for the order of polynomial fitting. Some values will be removed.',
+                          stacklevel=2)
+
+        poly_order = list(set(poly_order))
+        poly_order = [p for p in poly_order if p <= self.ncalc - 1]
+        poly_order = np.array(poly_order)
+
+        # Analyze the refined geometry and return to reference lattice vectors
+        latt_ref = []
+        for phonon in self.combined_phonon:
+            struc = phonon.structure
+            analyzer = SpacegroupAnalyzer(struc)
+            ref_struc = analyzer.get_refined_structure()
+            analyzer2 = SpacegroupAnalyzer(ref_struc)
+            symm_struc = analyzer2.get_symmetrized_structure()
+            sg = analyzer2.get_space_group_number()
+            latt = []
+            if sg >= 1 and sg < 3:  # trilinic
+                for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
+                    latt.append(round(
+                        getattr(symm_struc.lattice, i), 10
+                    ))
+            elif sg >= 3 and sg < 16:  # monoclinic
+                for i in ['a', 'b', 'c', 'beta']:
+                    latt.append(round(
+                        getattr(symm_struc.lattice, i), 10
+                    ))
+            elif sg >= 16 and sg < 75:  # orthorhombic
+                for i in ['a', 'b', 'c']:
+                    latt.append(round(
+                        getattr(symm_struc.lattice, i), 10
+                    ))
+            elif sg >= 75 and sg < 195:  # tetragonal, hexagonal and trigonal
+                for i in ['a', 'c']:
+                    latt.append(round(
+                        getattr(symm_struc.lattice, i), 10
+                    ))
+            else:  # cubic
+                self.lattice = self.volume**(1 / 3)
+                warnings.warn('''Cubic lattice! Use self.expansion_vol.
+self.lattice is stored as a nPressure * nTemperature array.''')
+                return self
+
+            latt_ref.append(latt)
+
+        latt_ref = np.array(latt_ref)
+        x0 = np.average(latt_ref, axis=0)
+        # Hessian initial guess - elementary matrix
+        hess_dimen = len(x0)
+        hess_init_mx = np.eye(hess_dimen)
+        hess_init = []
+        for i in range(hess_dimen):
+            for j in range(i, hess_dimen):
+                hess_init.append(hess_init_mx[i, j])
+        x0 = np.concatenate([x0, hess_init])
+        if self.ncalc < len(x0):
+            warnings.warn('The number of sampled points is less than number of unknowns. Large deviation is expected.', 
+                          stacklevel=2)
+
+        # Minimize error of Gibbs free energy
+        self.lattice = np.zeros([len(self.pressure), len(self.temperature), hess_dimen])
+        e_err = np.zeros([len(self.pressure), len(self.temperature)], dtype=float)
+        for idx_p, p in enumerate(self.pressure):
+            for idx_t, t in enumerate(self.temperature):
+                fe_eq = self.gibbs[idx_p, idx_t]
+                fe_ref = []
+                for v in self.combined_volume:
+                    ha = self._get_harmonic_phonon(v)
+                    ha.thermodynamics(temperature=[t,], pressure=[p,])
+                    fe_ref.append(ha.gibbs[0, 0, 0])
+                fe_ref = np.array(fe_ref)
+                opt_out = minimize(self._minimize_latt, x0,
+                                   args=(fe_eq, latt_ref, fe_ref),
+                                   method='BFGS', jac='3-point')
+                self.lattice[idx_p, idx_t, :] = opt_out.x[:hess_dimen]
+                e_err[idx_p, idx_t] = opt_out.fun
+
+        # Polynomial fit: For thermal expansion coefficients. Linear part only.
+        if sg >= 1 and sg < 75: # abc
+            latt_fit = self.lattice[:, :, 0:3]
+        elif sg >= 75 and sg < 195: # ac
+            latt_fit = self.lattice[:, :, 0:2]
+
+        r_square = np.zeros([latt_fit.shape[0], latt_fit.shape[2], len(poly_order)]) # nPress * nLatt * nOrder
+        poly_fit = [[[None for i in range(len(poly_order))] for j in range(latt_fit.shape[2])] for k in range(latt_fit.shape[0])] # nPress * nLatt * nOrder
+        idx_tmin = np.argmin(self.temperature)
+        dt = self.temperature - self.temperature[idx_tmin]
+        for idx_p, p in enumerate(self.pressure):
+            latt_t = self.lattice[idx_p, :, :] # nTempt * nLatt
+            latt_t = np.transpose(latt_t, axes=(1, 0)) # nLatt * nTempt
+            for idx_latt, latt in enumerate(latt_t):
+                dlatt = latt - latt[idx_tmin]
+                for idx_order, order in enumerate(poly_order):
+                    opt_out = minimize(self._poly_no_cst,
+                                       np.array([1. for i in range(order)]),
+                                       args=(dt, dlatt),
+                                       method='BFGS', jac='3-point')
+                    poly = np.polynomial.polynomial.Polynomial(np.insert(opt_out.x, 0, 0.))
+                    poly_fit[idx_p][idx_latt][idx_order] = poly
+                    rs = 1 - np.sum((dlatt - poly(dt))**2) / np.sum((dlatt - np.mean(dlatt))**2)
+                    r_square[idx_p, idx_latt, idx_order] = rs
+
+        # Find the optimal fit
+        self.latt_fit = [[None for i in range(latt_fit.shape[2])] for j in range(latt_fit.shape[0])] # nPress * nLatt
+        fit_order = [None for i in range(latt_fit.shape[2])] # nLatt * 1 list
+        r_square = np.transpose(r_square, (1, 0, 2)) # nLatt * nPress * nOrder
+        for idx_latt, rs_latt in enumerate(r_square):
+            rs_mean = np.array([np.mean(rs_latt[:, i]) for i in range(len(poly_order))])
+            fit_order_idx = np.argmax(rs_mean)
+            fit_order[idx_latt] = poly_order[fit_order_idx]
+            for idx_p in range(latt_fit.shape[0]):
+                self.latt_fit[idx_p][idx_latt] = poly_fit[idx_p][idx_latt][fit_order_idx]
+        # Numerize the linear expansion
+        self.alpha_latt = np.zeros([latt_fit.shape[0], latt_fit.shape[1], latt_fit.shape[2]]) # nPress * nTempt * nLatt
+        idx_tmin = np.argmin(self.temperature)
+        dt = self.temperature - self.temperature[idx_tmin]
+        for idx_p, p in enumerate(self.pressure):
+            for idx_t, t in enumerate(self.pressure):
+                for idx_latt in range(latt_fit.shape[2]):
+                    lattmin = self.lattice[idx_p, idx_t, idx_tmin]
+                    self.alpha_latt[idx_p, :, idx_latt] = \
+                        self.latt_fit[idx_p][idx_latt].deriv(1)(dt) / (self.latt_fit[idx_p][idx_latt](dt) + lattmin)
+        # Lowest temperature, alpha = 0
+        self.alpha_latt[:, idx_tmin, :] = 0.
+
+        # Print output file
+        if self.filename != None:
+            Output.write_expansion_latt(self, e_err, fit_order,
+                                        r_square[:, :, fit_order_idx])
+
+        return self
+
+    @staticmethod
+    def _minimize_latt(x, fe_eq, latt_ref, fe_ref):
+        """
+        Minimize the RMSD between pHp^T and the difference of Gibbs free
+        energy. For Scipy. For fitting lattice parameters in ``self.expansion_vol``.
+        """
+        import numpy as np
+        from scipy.constants import pi
+
+        # Build lattice vector
+        hess_dimen = latt_ref.shape[1]
+        p = np.array(x[0:hess_dimen])
+        # Build Hessian
+        Hess = np.zeros([hess_dimen, hess_dimen])
+        hess_list = x[-int(hess_dimen * (hess_dimen + 1) / 2):]
+        count_elem = 0
+        for i in range(hess_dimen):
+            for j in range(i, hess_dimen):
+                Hess[i, j] = hess_list[count_elem]
+                if i != j:
+                    Hess[j, i] = hess_list[count_elem]
+                count_elem += 1
+
+        # Reference data
+        dfe = fe_ref - fe_eq
+        rmsd = 0.
+        for idx_ref, ref in enumerate(latt_ref):
+            dp = p - ref
+            rmsd += (np.matmul(np.matmul(dp, Hess), np.transpose(dp)) - dfe[idx_ref])**2
+        rmsd = (rmsd / latt_ref.shape[0])**0.5 # Return to RMS deviation
+
+        return rmsd
 
 
 def _restore_pcel(crysout, scelphono):
@@ -2577,4 +2812,62 @@ class Output():
         file.write('\n')
         file.close()
 
+        return
+
+    @classmethod
+    def write_expansion_latt(cls, qha, e_err, fit_order, r_square):
+        """
+        Write linear expansion information.
+
+        Args:
+            qha (Quasi_harmonic): :code:`CRYSTALpytools.thermodynamic.Quasi_harmonic`
+                object.
+            e_err (array): RMS deviation of Gibbs free energy at T and p.
+            fit_order (array): The order of polynomials used for fitting
+                lattice parameter.
+            r_square (array): R^2 of fitting. nLatt\*nPress
+        """
+        import numpy as np
+
+        idx_tmin = np.argmin(qha.temperature)
+        tmin = qha.temperature[idx_tmin]
+        nlatt = qha.lattice.shape[2]
+        nalpha = qha.alpha_latt.shape[2]
+
+        file = open(qha.filename, 'a+')
+        file.write('%s\n' % '# LINEAR THERMAL EXPANSION FIT')
+        file.write('%s\n' % '  Equilibrium lattices parameters are fitted with HA geometries.')
+        file.write('%s\n\n' % '  Lattice parameters at constant pressures are fitted as polynomial functions.')
+        for idx_p, p in enumerate(qha.pressure):
+            file.write('%s%6.2f%s\n\n' % ('## EQ. LATTICE AT ', p, '  GPa'))
+            file.write('%10s' % 'T(K)')
+            for i in range(nlatt):
+                file.write('%18s%2i' % ('Latt. Param.', i + 1))
+            file.write('%20s\n' % 'RMSD (kJ/mol)')
+            for idx_t, tempt in enumerate(qha.temperature):
+                file.write('%10.2f' % tempt)
+                for i in range(nlatt):
+                    file.write('%20.6f' % qha.lattice[idx_p, idx_t, i])
+                file.write('%20.6f\n' % e_err[idx_p, idx_t])
+            file.write('\n')
+            file.write('%s%6.2f%s\n\n' % ('## LATTICE EXPANSION AT ', p, '  GPa'))
+            file.write('%10s' % 'T(K)')
+            for i in range(nalpha):
+                file.write('%18s%2i%8s%8s' % ('alpha_l(K^-1)', i + 1, 'Order', 'R^2'))
+            file.write('\n')
+            for idx_t, tempt in enumerate(qha.temperature):
+                file.write('%10.2f' % tempt)
+                for i in range(nlatt):
+                    if idx_t == 0:
+                        file.write('%20.8e%8i%8.4f' %
+                                   (qha.alpha_latt[idx_p, idx_t, i],
+                                    fit_order[i],
+                                    r_square[i, idx_p]))
+                    else:
+                        file.write('%20.8e%8s%8s' % (qha.alpha_latt[idx_p, idx_t, i], '', ''))
+                file.write('\n')
+            file.write('\n')
+
+        file.write('\n')
+        file.close()
         return
