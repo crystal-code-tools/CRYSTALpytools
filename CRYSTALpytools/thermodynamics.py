@@ -2842,7 +2842,7 @@ class Output():
             file.write('%s%6.2f%s\n\n' % ('## EQ. LATTICE AT ', p, '  GPa'))
             file.write('%10s' % 'T(K)')
             for i in range(nlatt):
-                file.write('%18s%2i' % ('Latt. Param.', i + 1))
+                file.write('%18s%2i' % ('Latt. Param. -', i + 1))
             file.write('%20s\n' % 'RMSD (kJ/mol)')
             for idx_t, tempt in enumerate(qha.temperature):
                 file.write('%10.2f' % tempt)
@@ -2851,20 +2851,18 @@ class Output():
                 file.write('%20.6f\n' % e_err[idx_p, idx_t])
             file.write('\n')
             file.write('%s%6.2f%s\n\n' % ('## LATTICE EXPANSION AT ', p, '  GPa'))
+            for i in range(nlatt):
+                file.write('%s%8i\n' % ('  Latt. Param. No. =', i + 1))
+                file.write('%s%8i\n' % ('  Order of fitting =', fit_order[i]))
+                file.write('%s%8.4f\n\n' % ('  R^2 of fitting   =', r_square[i, idx_p]))
             file.write('%10s' % 'T(K)')
             for i in range(nalpha):
-                file.write('%18s%2i%8s%8s' % ('alpha_l(K^-1)', i + 1, 'Order', 'R^2'))
+                file.write('%18s%2i' % ('alpha_l(K^-1) -', i + 1))
             file.write('\n')
             for idx_t, tempt in enumerate(qha.temperature):
                 file.write('%10.2f' % tempt)
                 for i in range(nlatt):
-                    if idx_t == 0:
-                        file.write('%20.8e%8i%8.4f' %
-                                   (qha.alpha_latt[idx_p, idx_t, i],
-                                    fit_order[i],
-                                    r_square[i, idx_p]))
-                    else:
-                        file.write('%20.8e%8s%8s' % (qha.alpha_latt[idx_p, idx_t, i], '', ''))
+                    file.write('%20.8e' % qha.alpha_latt[idx_p, idx_t, i])
                 file.write('\n')
             file.write('\n')
 
