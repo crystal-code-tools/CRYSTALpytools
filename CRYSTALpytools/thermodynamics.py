@@ -215,7 +215,7 @@ class Mode:
         """
         import numpy as np
         import warnings
-        from scipy.optimize import minimize
+        from scipy.optimize import least_squares
         from CRYSTALpytools.thermodynamics import Quasi_harmonic
 
         if self.ncalc <= 1:
@@ -248,9 +248,9 @@ class Mode:
         dv = self.volume - vmin
         df = self.frequency - fmin
         for i in order:
-            opt = minimize(qha._poly_no_cst,
-                           np.array([1. for j in range(i)]),
-                           args=(dv, df), method='BFGS', jac='3-point')
+            opt = least_squares(qha._poly_no_cst,
+                                np.array([1. for j in range(i)]),
+                                args=(dv, df))
             poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
             self.poly_fit[i] = poly
             self.poly_fit_rsqaure[i] = 1 - np.sum((df - poly(dv))**2) / np.sum((df - np.mean(df))**2)
@@ -1424,8 +1424,7 @@ class Quasi_harmonic:
         express = np.zeros([len(x)])
         for order, p in enumerate(param):
             express += p * x**(order + 1)
-        rmsd = (np.sum((express - y)**2) / len(y))**0.5
-        return rmsd
+        return express - y
 
     def _clean_attr(self):
         """
@@ -1724,7 +1723,7 @@ class Quasi_harmonic:
         import numpy as np
         import warnings
         import re
-        from scipy.optimize import fmin, minimize
+        from scipy.optimize import fmin, least_squares
         import scipy.constants as scst
         from sympy import diff, lambdify, symbols
         from CRYSTALpytools.thermodynamics import Output
@@ -1819,9 +1818,9 @@ class Quasi_harmonic:
                     continue
                 gmin = gibbs[idx_tmin]
                 dg = gibbs - gmin
-                opt = minimize(self._poly_no_cst,
-                               np.array([1. for i in range(order)]),
-                               args=(dt, dg), method='BFGS', jac='3-point')
+                opt = least_squares(self._poly_no_cst,
+                                    np.array([1. for i in range(order)]),
+                                    args=(dt, dg))
                 poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
                 func.append(poly)
                 r_square.append(1 - np.sum((dg - poly(dt))**2) / np.sum((dg - np.mean(dg))**2))
@@ -1868,7 +1867,7 @@ class Quasi_harmonic:
         coefficients at equilibrium volumes
         """
         import numpy as np
-        from scipy.optimize import minimize
+        from scipy.optimize import least_squares
         import matplotlib.pyplot as plt
         import warnings
         from CRYSTALpytools.thermodynamics import Output
@@ -1895,9 +1894,9 @@ class Quasi_harmonic:
             vmin = v_p[idx_tmin]
             dv = v_p - vmin
             for order in poly_order:
-                opt = minimize(self._poly_no_cst,
-                               np.array([1. for i in range(order)]),
-                               args=(dt, dv), method='BFGS', jac='3-point')
+                opt = least_squares(self._poly_no_cst,
+                                    np.array([1. for i in range(order)]),
+                                    args=(dt, dv))
                 poly = np.polynomial.polynomial.Polynomial(np.insert(opt.x, 0, 0.))
                 r_square = 1 - np.sum((dv - poly(dt))**2) / np.sum((dv - np.mean(dv))**2)
                 func_p.append(poly)
@@ -2085,28 +2084,29 @@ class Quasi_harmonic:
 
         return self
 
-    def expansion_lin(self, poly_order=[2, 3]):
+    def expansion_lin(self, poly_order=[2, 3], interp=None):
         """
         Fit linear expansions of lattice parameters by the 2-order Taylor
         expansion.
 
         .. math::
 
-            F(\\mathbf{p})=F_{0}(\\mathbf{p_{0}})+\\mathbf{\\Delta p}^{T}\\mathbf{H}\\mathbf{\\Delta p}
+            G(\\mathbf{p})=G_{0}(\\mathbf{p_{0}})+\\Delta\\mathbf{p}^{T}\\mathbf{H}\\Delta\\mathbf{p}
 
-        :math::`F` is Helmholtz free energy. :math:`\mathbf{p}` is the
-        vector of lattice parameters. :math:`\mathbf{\Delta p}` means the
+        :math::`G` is Gibbs free energy. :math:`\mathbf{p}` is the vector
+        of lattice parameters. :math:`\Delta\mathbf{p}` means the
         difference between the fitted and equilibrium lattice parameters.
-        :math:`\mathbf{H}` is the Hessian of :math:`F` and displacements
+        :math:`\mathbf{H}` is the Hessian of :math:`G` and displacements
         along lattice parameters.
 
-        The optimized lattice parameters at :math:`E_{0}` level are used
-        for fitting.
+        The RMS deviations (RMSD) of the following equation is minimized
+        at constant temperature and pressure. But deviations from
+        equilibrium volume might occur. RMSD of Gibbs free energy is
+        available in output file only.
 
-        The RMS deviations (RMSD) from equilibrium Gibbs free energy at
-        :math:`T, p` is minimized. But deviations from equilibrium volume
-        might occur. RMSD of Gibbs free energy is available in output file
-        only.
+        .. math::
+
+            \\mathbf{p_{0}} = \\min\\left\\{\\Delta\\mathbf{p}^{T}\\mathbf{H}\\Delta\\mathbf{p} - [G(\\mathbf{p})-G_{0}(T,p)]\\right\\}
 
         This method requires a larger number of HA calculations to ensure
         a small RMSD. Typically the number of HA calculations should
@@ -2117,6 +2117,7 @@ class Quasi_harmonic:
             n_{HA} \\geq n_{latt} + \\sum_{i=1}^{n_{latt}}i
 
         :math:`n_{latt}` is the lenth of the minimial set of lattice parameters.
+        The optimized lattice parameters at DFT level are used for fitting.
 
         .. note::
 
@@ -2127,6 +2128,8 @@ class Quasi_harmonic:
                 linear expansion coefficients. The optimal fit across the
                 sampled temperature and pressure range of a certain lattice
                 parameter is automatically chosen based on :math:`R^{2}`.
+            interp (int): Number of interpolated geometries. All the HA
+                geometries are used besides the interpolated ones.
 
         Returns:
             self (Quasi_harmonic)
@@ -2141,8 +2144,9 @@ class Quasi_harmonic:
         Linear expansion coefficients. Linear part only.
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from pymatgen.core.lattice import Lattice
         from CRYSTALpytools.thermodynamics import Output
-        from scipy.optimize import minimize
+        from scipy.optimize import least_squares
         import numpy as np
         import warnings
 
@@ -2199,6 +2203,71 @@ self.lattice is stored as a nPressure * nTemperature array.''')
             latt_ref.append(latt)
 
         latt_ref = np.array(latt_ref)
+        # Add interpolated points
+        if interp != None:
+            # Lattice
+            interp_latt = np.linspace(np.min(latt_ref, axis=0),
+                                      np.max(latt_ref, axis=0),
+                                      interp + 2)
+            latt_ref = np.vstack([latt_ref, interp_latt[1:-1, :]])
+            ncalc = self.ncalc + interp
+            # Volume
+            combined_volume = self.combined_volume
+            for latt in interp_latt:
+                if len(latt) == 6:
+                    combined_volume = np.append(
+                        combined_volume,
+                        Lattice.from_parameters(a=latt[0],
+                                                b=latt[1],
+                                                c=latt[2],
+                                                alpha=latt[3],
+                                                beta=latt[4],
+                                                gamma=latt[5]).volume
+                    )
+                elif len(latt) == 4:
+                    combined_volume = np.append(
+                        combined_volume,
+                        Lattice.from_parameters(a=latt[0],
+                                                b=latt[1],
+                                                c=latt[2],
+                                                alpha=90.,
+                                                beta=latt[3],
+                                                gamma=90.).volume
+                    )
+                elif len(latt) == 3:
+                    combined_volume = np.append(
+                        combined_volume,
+                        Lattice.from_parameters(a=latt[0],
+                                                b=latt[1],
+                                                c=latt[2],
+                                                alpha=90.,
+                                                beta=90.,
+                                                gamma=90.).volume
+                    )
+                elif len(latt) == 2 and sg >= 75 and sg < 143: # Tetragonal
+                     combined_volume = np.append(
+                        combined_volume,
+                        Lattice.from_parameters(a=latt[0],
+                                                b=latt[0],
+                                                c=latt[1],
+                                                alpha=90.,
+                                                beta=90.,
+                                                gamma=90.).volume
+                    )
+                elif len(latt) == 2 and sg >= 143 and sg < 195: # Hexagonal and trigonal
+                     combined_volume = np.append(
+                        combined_volume,
+                        Lattice.from_parameters(a=latt[0],
+                                                b=latt[0],
+                                                c=latt[1],
+                                                alpha=90.,
+                                                beta=90.,
+                                                gamma=120.).volume
+                    )
+        else:
+            ncalc = self.ncalc
+            combined_volume = self.combined_volume
+
         x0 = np.average(latt_ref, axis=0)
         # Hessian initial guess - elementary matrix
         hess_dimen = len(x0)
@@ -2208,8 +2277,8 @@ self.lattice is stored as a nPressure * nTemperature array.''')
             for j in range(i, hess_dimen):
                 hess_init.append(hess_init_mx[i, j])
         x0 = np.concatenate([x0, hess_init])
-        if self.ncalc < len(x0):
-            warnings.warn('The number of sampled points is less than number of unknowns. Large deviation is expected.', 
+        if ncalc < len(x0):
+            warnings.warn('The number of sampled points is less than number of unknowns. Large deviation is expected.',
                           stacklevel=2)
 
         # Minimize error of Gibbs free energy
@@ -2219,14 +2288,13 @@ self.lattice is stored as a nPressure * nTemperature array.''')
             for idx_t, t in enumerate(self.temperature):
                 fe_eq = self.gibbs[idx_p, idx_t]
                 fe_ref = []
-                for v in self.combined_volume:
+                for v in combined_volume:
                     ha = self._get_harmonic_phonon(v)
                     ha.thermodynamics(temperature=[t,], pressure=[p,])
                     fe_ref.append(ha.gibbs[0, 0, 0])
                 fe_ref = np.array(fe_ref)
-                opt_out = minimize(self._minimize_latt, x0,
-                                   args=(fe_eq, latt_ref, fe_ref),
-                                   method='BFGS', jac='3-point')
+                opt_out = least_squares(self._minimize_latt, x0,
+                                        args=(fe_eq, latt_ref, fe_ref))
                 self.lattice[idx_p, idx_t, :] = opt_out.x[:hess_dimen]
                 e_err[idx_p, idx_t] = opt_out.fun
 
@@ -2246,10 +2314,9 @@ self.lattice is stored as a nPressure * nTemperature array.''')
             for idx_latt, latt in enumerate(latt_t):
                 dlatt = latt - latt[idx_tmin]
                 for idx_order, order in enumerate(poly_order):
-                    opt_out = minimize(self._poly_no_cst,
-                                       np.array([1. for i in range(order)]),
-                                       args=(dt, dlatt),
-                                       method='BFGS', jac='3-point')
+                    opt_out = least_squares(self._poly_no_cst,
+                                            np.array([1. for i in range(order)]),
+                                            args=(dt, dlatt))
                     poly = np.polynomial.polynomial.Polynomial(np.insert(opt_out.x, 0, 0.))
                     poly_fit[idx_p][idx_latt][idx_order] = poly
                     rs = 1 - np.sum((dlatt - poly(dt))**2) / np.sum((dlatt - np.mean(dlatt))**2)
