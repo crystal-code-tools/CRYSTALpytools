@@ -91,74 +91,77 @@ class Crystal_input(Crystal_inputBASE):
         from pymatgen.core.structure import IStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        analyzer = SpacegroupAnalyzer(
-            struc, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer = SpacegroupAnalyzer(struc, symprec=symprec, angle_tolerance=angle_tolerance)
         # Analyze the refined geometry
         struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(
-            struc2, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_symm = analyzer2.get_symmetrized_structure()
+        analyzer2 = SpacegroupAnalyzer(struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_pri = analyzer2.get_primitive_standard_structure()
+        analyzer3 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_pri = analyzer3.get_symmetrized_structure()
 
         sg = analyzer2.get_space_group_number()
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
             for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 3 and sg < 16:  # monoclinic
             for i in ['a', 'b', 'c', 'beta']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 16 and sg < 75:  # orthorhombic
             for i in ['a', 'b', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 75 and sg < 143:  # tetragonal
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
-        elif sg >= 143 and sg < 168:  # trigonal
-            for i in ['a', 'alpha']:
-                latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
-                ))
-        elif sg >= 168 and sg < 195:  # hexagonal
+        elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
+            struc_pri = analyzer3.get_conventional_standard_structure()
+            analyzer4 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+            struc_pri = analyzer4.get_symmetrized_structure()
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
+                ))
+        elif sg >= 168 and sg < 195:  # hexagonal and trigonal
+            for i in ['a', 'c']:
+                latt.append(round(
+                    getattr(struc_pri.lattice, i), 6
                 ))
         else:  # cubic
-            latt.append(round(struc_sym.lattice.a, 6))
+            latt.append(round(struc_pri.lattice.a, 6))
 
-        natom = len(struc_symm.equivalent_sites)
-        eq_atom = int(len(struc_symm.species) / natom)
+        natom = len(struc_pri.equivalent_sites)
+        eq_atom = int(len(struc_pri.species) / natom)
         atominfo = []
         if zconv != None:
             z_atom_index = [i[0] for i in zconv]
         for i in range(natom):
             idx_eq = int(i * eq_atom)
             if zconv == None:
-                z_input = struc_symm.species[idx_eq].Z
+                z_input = struc_pri.species[idx_eq].Z
             else:
                 try:
                     atom_to_sub = z_atom_index.index(i)
                     z_input = zconv[atom_to_sub][1]
                 except ValueError:
-                    z_input = struc_symm.species[idx_eq].Z
+                    z_input = struc_pri.species[idx_eq].Z
             atominfo.append([
                 '{:<3}'.format(z_input),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[0], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[1], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[2], 8)
                 )
             ])
 
