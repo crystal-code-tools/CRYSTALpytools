@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Classes and methods of keywords used in 'crystal' output file.
+Classes and methods to phrase 'crystal' output file.
 """
 
 class PhononBASE():

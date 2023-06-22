@@ -1277,11 +1277,11 @@ class Properties_output:
         pass
 
     def read_file(self, properties_output):
-        # Function to parse the properties output file.
-        # It is not meant to be calles directly, but to be used by the
-        # functions below to read the properties file.
-
-        import sys
+        """
+        Function to parse the properties output file. It is not meant to
+        be called directly, but to be used by the functions below to read
+        the properties file.
+        """
         import os
 
         self.file_name = properties_output
@@ -1299,8 +1299,7 @@ class Properties_output:
             self.title = os.path.split(properties_output)[1]
 
         except:
-            print('EXITING: a CRYSTAL properties file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_vecfield(self, properties_output, which_prop):
         # Reads the .f25 file to return a data array containing
@@ -1521,45 +1520,26 @@ class Properties_output:
         return self
 
     def read_cry_doss(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL doss files
-        # Returns an array where the band energy is expressed in eV
+        """
+        Generate doss object from CRYSTAL DOSS.DAT file. Energy unit: eV.
 
+        Args:
+            properties_output (str)
+
+        Returns:
+            self.doss (DOSBASE): A DOS base object
+        """
         import re
         import numpy as np
+        from CRYSTALpytools.base.propout import DOSBASE
 
         self.read_file(properties_output)
+        if '-%-' in self.data[0]: #fort.25 file format
+            self.doss = DOSBASE.f25_parser(self.data)
+        else: #DOSS.DAT file format
+            self.doss = DOSBASE.DOSS_parser(self.data)
 
-        data = self.data
-
-        # Read the information about the file
-        self.n_energy = int(data[0].split()[2])
-        self.n_proj = int(data[0].split()[4])
-        self.spin = int(data[0].split()[6])
-        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
-
-        first_energy = 4
-
-        # Allocate the doss as np arrays
-        self.doss = np.zeros(
-            (self.n_energy, self.n_proj+1, self.spin), dtype=float)
-
-        # Read the doss and store them into a numpy array
-        for i, line in enumerate(data[first_energy:first_energy+self.n_energy]):
-            self.doss[i, :self.n_proj+1,
-                      0] = np.array([float(n) for n in line.split()])
-
-        if self.spin == 2:
-            # line where the first beta energy is. Written this way to help identify
-            first_energy_beta = first_energy + self.n_energy + 3
-            for i, line in enumerate(data[first_energy_beta:-1]):
-                self.doss[i, :self.n_proj+1,
-                          1] = np.array([float(n) for n in line.split()])
-
-        # Convert all the energy to eV
-        self.doss[:, 0, :] = units.H_to_eV(self.doss[:, 0, :])
-
-        return self
+        return self.doss
 
     def read_cry_contour(self, properties_output):
 
