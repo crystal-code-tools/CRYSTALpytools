@@ -48,7 +48,7 @@ class Crystal_input(Crystal_inputBASE):
         struc = IStructure.from_file(file)
         self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
 
-        return
+        return self
 
     def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
                       pbc=[True, True, True], gui_name='fort.34',
@@ -71,7 +71,7 @@ class Crystal_input(Crystal_inputBASE):
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
-        return
+        return self
 
     def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
         """
@@ -1441,96 +1441,55 @@ class Properties_output:
         return self
 
     def read_cry_bands(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL band files
-        # Returns an array where the band energy is expressed in eV
+        """
+        Deprecated.
+        """
+        import warnings
 
-        import re
-        import numpy as np
+        warnings.warn('Deprecated. Use read_bands instead.')
+        return self.read_bands(properties_output)
+
+    def read_bands(self, properties_output):
+        """
+        Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
+        Energy unit: eV.
+
+        Args:
+            properties_output (str): File name
+
+        Returns:
+            self.bands (BandsBASE): A Bands base object
+        """
+        from CRYSTALpytools.base.propout import BandsBASE
 
         self.read_file(properties_output)
+        if '-%-' in self.data[0]: #fort.25 file format
+            self.bands = BandsBASE.f25_parser(self.data)
+        else: #BAND.DAT file format
+            self.bands = BandsBASE.BAND_parser(self.data)
 
-        data = self.data
-
-        # Read the information about the file
-        # number of k points in the calculation
-        self.n_kpoints = int(data[0].split()[2])
-        # number of bands in the calculation
-        self.n_bands = int(data[0].split()[4])
-        self.spin = int(data[0].split()[6])  # number of spin
-        # number of tick in the band plot
-        self.n_tick = int(data[1].split()[2])+1
-        self.k_point_inp_coordinates = []
-        self.n_points = []
-        # finds all the coordinates of the ticks and the k points
-        """for i in range(self.n_tick):
-            self.n_points.append(int(data[2+i].split()[1]))
-            coord = []
-            for j in range(3):
-                l = re.findall('\d+', data[2+i].split()[2])
-                coord.append(float(l[j])/float(l[3]))
-            self.k_point_inp_coordinates.append(coord)
-        self.k_point_inp_coordinates = np.array(self.k_point_inp_coordinates)
-        self.k_point_coordinates = [self.k_point_inp_coordinates[0]]
-        for i in range(1, self.n_tick):
-            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(
-                self.n_points[i]-self.n_points[i-1])
-            for j in range(self.n_points[i]-self.n_points[i-1]):
-                # coordinates of the k_points in the calculation
-                self.k_point_coordinates.append(
-                    (self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())"""
-        self.tick_position = []  # positions of the ticks
-        self.tick_label = []  # tick labels
-        for i in range(self.n_tick):
-            self.tick_position.append(
-                float(data[16+self.n_tick+i*2].split()[4]))
-            self.tick_label.append(
-                str(data[17+self.n_tick+i*2].split()[3][2:]))
-        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
-
-        # Allocate the bands as np arrays
-        self.bands = np.zeros(
-            (self.n_bands, self.n_kpoints, self.spin), dtype=float)
-
-        # Allocate the k_points a one dimensional array
-        self.k_point_plot = np.zeros(self.n_kpoints)
-
-        # line where the first band is. Written this way to help identify
-        # where the error might be if there are different file lenghts
-        first_k = 2 + self.n_tick + 14 + 2*self.n_tick + 2
-
-        # Read the bands and store them into a numpy array
-        for i, line in enumerate(data[first_k:first_k+self.n_kpoints]):
-            self.bands[:self.n_bands+1, i,
-                       0] = np.array([float(n) for n in line.split()[1:]])
-            self.k_point_plot[i] = float(line.split()[0])
-
-        if self.spin == 2:
-            # line where the first beta band is. Written this way to help identify
-            first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
-            for i, line in enumerate(data[first_k_beta:-1]):
-                self.bands[:self.n_bands+1, i,
-                           1] = np.array([float(n) for n in line.split()[1:]])
-
-        # Convert all the energy to eV
-        self.bands[:, :, :] = units.H_to_eV(self.bands[:, :, :])
-
-        # Calculate the direct/indirect band gaps
-
-        return self
+        return self.bands
 
     def read_cry_doss(self, properties_output):
         """
-        Generate doss object from CRYSTAL DOSS.DAT file. Energy unit: eV.
+        Deprecated.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use read_doss instead.')
+        return self.read_doss(properties_output)
+
+    def read_doss(self, properties_output):
+        """
+        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
+        Energy unit: eV.
 
         Args:
-            properties_output (str)
+            properties_output (str): File name
 
         Returns:
             self.doss (DOSBASE): A DOS base object
         """
-        import re
-        import numpy as np
         from CRYSTALpytools.base.propout import DOSBASE
 
         self.read_file(properties_output)
