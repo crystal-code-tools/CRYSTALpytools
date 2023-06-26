@@ -328,7 +328,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
                      not_scaled=False, energy_range=None, k_range=None,
                      color='blue', labels=None, linestl='-', linewidth=1,
                      line_freq0=None, title=None, figsize=None,
-                     scheme=None, sharex=True, sharey=True, save_to_file=False):
+                     scheme=None, sharex=True, sharey=True, save_to_file=None):
     """
     A wrapper of plot_cry_bands for electron band structure.
 
@@ -367,15 +367,22 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     else:
         raise ValueError('Unknown unit.')
 
-    if unit != bands.unit:
-        if unit == 'cm-1':
-            bands.bands[:, :, :] = thz_to_cm(bands.bands[:, :, :])
-        else:
-            bands.bands[:, :, :] = cm_to_thz(bands.bands[:, :, :])
-        bands.unit = unit
+
+    if not (isinstance(bands, list) or isinstance(bands, tuple)):
+        bands = [bands]
 
     if line_freq0 == None:
         line_freq0 = (1., 0., 0., 0.) # Transparent
+
+    for b in bands:
+        if unit != b.unit:
+            if unit == 'cm-1':
+                b.bands[:, :, :] = thz_to_cm(b.bands[:, :, :])
+            else:
+                b.bands[:, :, :] = cm_to_thz(b.bands[:, :, :])
+            b.unit = unit
+    if len(bands) == 1:
+        bands = bands[0]
 
     fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
@@ -396,7 +403,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
                        not_scaled=False, energy_range=None, k_range=None,
                        color='blue', labels=None, linestl='-', linewidth=1,
                        fermi='forestgreen', title=None, figsize=None,
-                       scheme=None, sharex=True, sharey=True, save_to_file=False):
+                       scheme=None, sharex=True, sharey=True, save_to_file=None):
     """
     A wrapper of plot_cry_bands for electron band structure.
 
@@ -435,12 +442,18 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     else:
         raise ValueError('Unknown unit.')
 
-    if unit != bands.unit:
-        if unit == 'eV':
-            bands.bands[:, :, :] = H_to_eV(bands.bands[:, :, :])
-        else:
-            bands.bands[:, :, :] = eV_to_H(bands.bands[:, :, :])
-        bands.unit = unit
+    if not (isinstance(bands, list) or isinstance(bands, tuple)):
+        bands = [bands]
+
+    for b in bands:
+        if unit != b.unit:
+            if unit == 'eV':
+                b.bands[:, :, :] = H_to_eV(b.bands[:, :, :])
+            else:
+                b.bands[:, :, :] = eV_to_H(b.bands[:, :, :])
+            b.unit = unit
+    if len(bands) == 1:
+        bands = bands[0]
 
     fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
@@ -710,7 +723,7 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         hsp[len(hsp)-1] = xmax
 
-        y_band = np.linspace(ymin-3, ymax+3, 2)
+        y_band = np.linspace(ymin*1.05, ymax*1.05, 2)
 
         for j in hsp:
             x_band = np.ones(2)*j
@@ -722,7 +735,7 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         ax.plot(x, y, color=fermi, linewidth=2.5)
 
         # definition of the plot title
-        if title is not False:
+        if title is not None:
             fig.suptitle(title)
 
         if not isinstance(bands, list):
@@ -984,14 +997,20 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     else:
         raise ValueError('Unknown unit.')
 
-    if unit != doss.unit:
-        if unit == 'eV':
-            doss.doss[:, 0, :] = H_to_eV(doss.doss[:, 0, :])
-            doss.doss[:, 1:, :] = eV_to_H(doss.doss[:, 1:, :])
-        else:
-            doss.doss[:, 0, :] = eV_to_H(doss.doss[:, 0, :])
-            doss.doss[:, 1:, :] = H_to_eV(doss.doss[:, 1:, :])
-        doss.unit = unit
+    if not (isinstance(doss, list) or isinstance(doss, tuple)):
+        doss = [doss]
+
+    for d in doss:
+        if unit != d.unit:
+            if unit == 'eV':
+                d.doss[:, 0, :] = H_to_eV(d.doss[:, 0, :])
+                d.doss[:, 1:, :] = eV_to_H(d.doss[:, 1:, :])
+            else:
+                d.doss[:, 0, :] = eV_to_H(d.doss[:, 0, :])
+                d.doss[:, 1:, :] = H_to_eV(d.doss[:, 1:, :])
+            d.unit = unit
+    if len(doss) == 1:
+        doss = doss[0]
 
     fig = plot_cry_doss(doss, color=color, fermi=fermi, overlap=overlap,
                         labels=labels, figsize=figsize, linestl=linestl,
@@ -1050,17 +1069,23 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     else:
         raise ValueError('Unknown unit.')
 
-    if unit != doss.unit:
-        if unit == 'cm-1':
-            doss.doss[:, 0, :] = thz_to_cm(doss.doss[:, 0, :])
-            doss.doss[:, 1:, :] = cm_to_thz(doss.doss[:, 1:, :])
-        else:
-            doss.doss[:, 0, :] = cm_to_thz(doss.doss[:, 0, :])
-            doss.doss[:, 1:, :] = thz_to_cm(doss.doss[:, 1:, :])
-        doss.unit = unit
+    if not (isinstance(doss, list) or isinstance(doss, tuple)):
+        doss = [doss]
+
+    for d in doss:
+        if unit != d.unit:
+            if unit == 'cm-1':
+                d.doss[:, 0, :] = thz_to_cm(d.doss[:, 0, :])
+                d.doss[:, 1:, :] = cm_to_thz(d.doss[:, 1:, :])
+            else:
+                d.doss[:, 0, :] = cm_to_thz(d.doss[:, 0, :])
+                d.doss[:, 1:, :] = thz_to_cm(d.doss[:, 1:, :])
+            d.unit = unit
 
     if line_freq0 == None:
         line_freq0 = (1., 0., 0., 0.) # Transparent
+    if len(doss) == 1:
+        doss = doss[0]
 
     fig = plot_cry_doss(doss, color=color, fermi=line_freq0, overlap=overlap,
                         labels=labels, figsize=figsize, linestl=linestl,
@@ -1250,12 +1275,12 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
                             ax.plot(dx_beta, doss.doss[:, projection, 1], color=color,
                                     linestyle='--', linewidth=linewidth)
 
-        yfermi_level = np.linspace(ymin-6, ymax+6, 2)
+        yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
         xfermi_level = np.zeros(2)
         if beta == accepted_beta[0]:
             ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
         else:
-            yfermi_level = np.linspace(-ymax-5, ymax+5, 2)
+            yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
             ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
         y_zero = np.zeros(2)
         x_zero = np.linspace(xmin, xmax, 2)
@@ -1267,33 +1292,30 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
         else:
             if doss.spin == 1:
                 ymin = 0
-                plt.ylim(ymin, ymax+5)
+                plt.ylim(ymin, ymax*1.05)
             elif doss.spin == 2:
                 if beta == accepted_beta[0]:
                     ymin = 0
-                    plt.ylim(ymin, ymax+5)
+                    plt.ylim(ymin, ymax*1.05)
                 elif beta == accepted_beta[1]:
-                    plt.ylim(ymin-5, ymax+5)
-
-        if title is not None:
-            plt.title(title)
-
-        if labels is not None:
-            plt.legend()
+                    plt.ylim(ymin*1.05, ymax*1.05)
 
     # Plot for overlap == False
     else:
         # Error checks on colors, labels, and linestl
         if isinstance(color, list):
-            warnings.warn('When overlap is false color should be a string!')
+            warnings.warn('When overlap is false color should be a string!',
+                          stacklevel=2)
             color = 'blue'
 
         if isinstance(labels, list):
-            warnings.warn('When overlap is false labels should be a string!')
+            warnings.warn('When overlap is false labels should be a string!',
+                          stacklevel=2)
             labels = None
 
         if isinstance(linestl, list):
-            warnings.warn('When overlap is false color should be a string!')
+            warnings.warn('When overlap is false color should be a string!',
+                          stacklevel=2)
             linestl = '-'
 
         # Creation of dx for the plot
@@ -1332,7 +1354,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
                 if doss.spin == 1:
                     ymin = 0
                     ymax = np.amax(doss.doss[:, projection+1])
-                    yfermi = np.linspace(ymin, ymax, 2)
+                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
                     axs[projection].plot(dx, doss.doss[:, projection+1],
                                          color=color, linestyle=linestl, linewidth=linewidth)
                     axs[projection].plot(xfermi, yfermi, color=fermi, linewidth=1.5)
@@ -1375,7 +1397,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
                 if doss.spin == 1:
                     ymin = 0
                     ymax = np.amax(doss.doss[:, projection])
-                    yfermi = np.linspace(ymin, ymax, 2)
+                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
                     axs[index].plot(dx, doss.doss[:, projection],
                                     color=color, linestyle=linestl, linewidth=linewidth)
                     axs[index].plot(xfermi, yfermi, color=fermi, linewidth=1.5)
@@ -1387,7 +1409,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
                     if beta == accepted_beta[0]:
                         ymin = 0
                         ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
+                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
                         axs[index].plot(dx_alpha, doss.doss[:, projection, 0], color=color,
                                         linestyle='-', linewidth=linewidth, label='Alpha')
                         axs[index].plot(dx_beta, -doss.doss[:, projection, 1], color=color,
@@ -1401,7 +1423,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
                     elif beta == accepted_beta[1]:
                         ymin = -np.amax(doss.doss[:, projection, :])
                         ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
+                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
                         axs[index].plot(dx_alpha, doss.doss[:, projection, 0], color=color,
                                         linestyle='-', linewidth=linewidth, label='Alpha')
                         axs[index].plot(dx_beta, doss.doss[:, projection, 1], color=color,
@@ -1421,6 +1443,11 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
         xmin = energy_range[0]
         xmax = energy_range[1]
     plt.xlim(xmin, xmax)
+
+    if title is not None:
+        fig.suptitle(title)
+    if labels is not None:
+        plt.legend()
 
     return fig
 
@@ -1609,7 +1636,8 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         # Error check on linestl_doss length when the prj kwargs is used
         elif (prj is not None) and (len(color_doss) != len(prj)):
             if len(color_doss) > len(prj):
-                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!',
+                              stacklevel=2)
             else:
                 raise ValueError("You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
     else:
@@ -1631,7 +1659,8 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         # Error check on labels length when the prj kwargs is used
         elif (prj is not None) and (len(labels) != len(prj)):
             if len(labels) > len(prj):
-                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!')
+                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!',
+                              stacklevel=2)
             else:
                 raise ValueError("You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
     else:
@@ -1646,9 +1675,10 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     # DOS beta state
     if dos_beta == 'up':
         spin_idx = -1 # DOS in crystal output is distinguished by +/- sign already
+        line_0 = False
     elif dos_beta == 'down':
         spin_idx = 1
-        line_0 = True # Plot a vertical line at 0 DOS
+        line_0 = True
     else:
         raise ValueError("'dos_beta' should be either 'up' or 'down'.")
     if doss.doss.shape[2] == 2:
@@ -1716,7 +1746,8 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     else:
         argplt = range(1, doss.doss.shape[1])
 
-    if line_0 == True:
+    # Plot a vertical line at 0 DOS. Only for spin polarized cases
+    if line_0 == True and doss.spin == 2:
         xmin_dos = np.amin(doss.doss[:, argplt, 1])
         xmax_dos = np.amax(doss.doss[:, argplt, 0])
         # make the scale symmetric, for comparison
@@ -1750,7 +1781,6 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
 
             elif doss.spin == 2:
                 if doss.n_proj > 1:
-                    print(color_doss[projection-1], labels[projection-1])
                     axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[projection-1],
                                 label=labels[projection-1], linestyle='-', linewidth=linewidth)
                     axs[1].plot(doss.doss[:, projection, 1], dx_beta, color=color_doss[projection-1],
@@ -1819,7 +1849,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         axs[0].set_xticklabels(hsp_label)
 
     xfermi_bd = np.linspace(xmin_bd, xmax_bd, 2)
-    xfermi_dos = np.linspace(xmin_dos, xmax_dos, 2)
+    xfermi_dos = np.linspace(xmin_dos*1.05, xmax_dos*1.05, 2)
     yfermi = np.zeros(2)
 
     # Plot of fermi level lines both in the band and the doss plot

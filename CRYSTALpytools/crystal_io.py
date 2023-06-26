@@ -1446,10 +1446,10 @@ class Properties_output:
         """
         import warnings
 
-        warnings.warn('Deprecated. Use read_bands instead.')
-        return self.read_bands(properties_output)
+        warnings.warn('Deprecated. Use read_electron_band instead.')
+        return self.read_electron_band(properties_output)
 
-    def read_bands(self, properties_output):
+    def read_electron_band(self, properties_output):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
         Energy unit: eV.
@@ -1476,10 +1476,10 @@ class Properties_output:
         """
         import warnings
 
-        warnings.warn('Deprecated. Use read_doss instead.')
-        return self.read_doss(properties_output)
+        warnings.warn('Deprecated. Use read_electron_dos instead.')
+        return self.read_electron_dos(properties_output)
 
-    def read_doss(self, properties_output):
+    def read_electron_dos(self, properties_output):
         """
         Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
         Energy unit: eV.
