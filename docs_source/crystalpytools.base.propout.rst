@@ -1,9 +1,9 @@
-CRYSTALpytools.base.crysout module
+CRYSTALpytools.base.propout module
 ==================================
 
-.. _ref-base-crysout:
+.. _ref-base-propout:
 
-.. automodule:: CRYSTALpytools.base.crysout
+.. automodule:: CRYSTALpytools.base.propout
    :members:
    :private-members:
    :undoc-members:
