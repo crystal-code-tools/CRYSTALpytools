@@ -9,6 +9,8 @@ from CRYSTALpytools import thermodynamics
 from CRYSTALpytools import units
 from CRYSTALpytools import utils
 
+from importlib.metadata import version
+
 __author__ = "CRYSTALpytools Development Team"
 __email__ = "crystalcodetools@gmail.com"
-__version__ = "2023.04.04"
+__version__ = version('CRYSTALpytools')
