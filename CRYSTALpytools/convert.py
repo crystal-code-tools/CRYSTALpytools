@@ -28,6 +28,7 @@ def cry_ase2gui(structure, pbc=[True, True, True], symmetry=True):
 def cry_bands2pmg(output, bands, labels=None):
     """
     Transform a CRYSTAL bands object into a Pymatgen bands object.
+    
     Args:
         output: Crystal output object.
         bands: Crystal bands object.
@@ -83,6 +84,7 @@ def cry_bands2pmg(output, bands, labels=None):
 def cry_gui2ase(gui_file):
     """
     Transform a CRYSTAL structure (gui) file into an ASE atoms object.
+    
     Args:
         gui_file (str): Path to the CRYSTAL structure (gui) file.
         
@@ -119,6 +121,7 @@ def cry_gui2cif(cif_file_name, gui, symprec=0.01, angle_tolerance=5.0):
 def cry_gui2pmg(gui, vacuum=10, molecule = True):
     """
     Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
+    
     Args:
         gui: CRYSTAL structure (gui) object.
         vacuum (float): Vacuum distance.
@@ -168,6 +171,7 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
 def cry_gui2xyz(xyz_file_name, gui):
     """
     Transform a CRYSTAL structure (gui) file into an XYZ file.
+    
     Args:
         xyz_file_name (str): Name (including path) of the XYZ file to be saved.
         gui: CRYSTAL structure (gui) object.
@@ -429,6 +433,7 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
 def cry_out2xyz(xyz_file_name, output):
     """
     Transform a CRYSTAL output object into an XYZ file.
+    
     Args:
         xyz_file_name (str): Name (including path) of the XYZ file to be saved.
         output: CRYSTAL output object.
