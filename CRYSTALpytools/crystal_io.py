@@ -167,7 +167,7 @@ class Crystal_input(Crystal_inputBASE):
         return
 
 
-class CrystalOutput:
+class Crystal_output:
     """This class reads a CRYSTAL output and generates an object."""
 
     def __init__(self):
