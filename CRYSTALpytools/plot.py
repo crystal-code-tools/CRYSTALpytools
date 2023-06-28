@@ -112,6 +112,20 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
 
 
 def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
+    """
+    Plots a 2D vector field.
+
+    Args:
+        header (list): Header information.
+        dens (ndarray): Array representing the vector field density.
+        colormapdens (str): Colormap for density.
+        quivscale (float): Scale factor for the vector field.
+        name (str): Name of the output file.
+        dpi (int, optional): DPI (dots per inch) for the output image. Defaults to 400.
+
+    Returns:
+        None
+    """
     import matplotlib.pyplot as plt
     import numpy as np
 

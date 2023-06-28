@@ -10,9 +10,11 @@ def cry_ase2gui(structure, pbc=[True, True, True], symmetry=True):
     a CRYSTAL structure (gui) object.
 
     Args:
-        structure (ASE Structure)
-        pbc (list[bool]): Periodic boundary conditions.
-        symmetry (bool)
+        structure (ASE Structure): ASE Structure object.
+        symmetry (bool): Perform symmetry analysis.
+        
+    Returns:
+        Crystal_gui: CRYSTAL structure (gui) object.
     """
     # First transform into pmg and then write the gui
 
@@ -24,15 +26,16 @@ def cry_ase2gui(structure, pbc=[True, True, True], symmetry=True):
 
 
 def cry_bands2pmg(output, bands, labels=None):
-    # WORK IN TRANSFORMATION
-    #Transform a CRYSTAL bands object into a pymatgen bands object
-
-    # output_file is a crystal output object
-    # bands is a crystal bands object
-        # classBandStructure(kpoints, eigenvals, lattice, efermi, labels_dict=None, coords_are_cartesian=False,
-        # structure=None, projections=None)
-    # labels are the k point labels to display in the band structure
-    
+    """
+    Transform a CRYSTAL bands object into a Pymatgen bands object.
+    Args:
+        output: Crystal output object.
+        bands: Crystal bands object.
+        labels (list): K point labels to display in the band structure.
+        
+    Returns:
+        BandStructureSymmLine: Pymatgen band structure object.
+    """
     import numpy as np
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     
@@ -78,10 +81,14 @@ def cry_bands2pmg(output, bands, labels=None):
     
 
 def cry_gui2ase(gui_file):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
+    """
+    Transform a CRYSTAL structure (gui) file into an ASE atoms object.
+    Args:
+        gui_file (str): Path to the CRYSTAL structure (gui) file.
+        
+    Returns:
+        Atoms: ASE atoms object.
+    """
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -110,10 +117,16 @@ def cry_gui2cif(cif_file_name, gui, symprec=0.01, angle_tolerance=5.0):
 
 
 def cry_gui2pmg(gui, vacuum=10, molecule = True):
-    #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
-    #Vacuum needs to be included because pymatgen only includes 3D symmetry
-    # molecule = True generates a Molecule pymatgen object for 0D structures
-    # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
+    """
+    Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
+    Args:
+        gui: CRYSTAL structure (gui) object.
+        vacuum (float): Vacuum distance.
+        molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+        
+    Returns:
+        Structure or Molecule: Pymatgen Structure or Molecule object.
+    """
     
     from pymatgen.core.structure import Structure, Molecule
     import numpy as np
@@ -153,10 +166,12 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
 
 
 def cry_gui2xyz(xyz_file_name, gui):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
+    """
+    Transform a CRYSTAL structure (gui) file into an XYZ file.
+    Args:
+        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
+        gui: CRYSTAL structure (gui) object.
+    """
 
     from pymatgen.io.xyz import XYZ
     import sys
@@ -171,13 +186,17 @@ def cry_gui2xyz(xyz_file_name, gui):
 
 
 def cry_out2ase(output, initial=False, vacuum=10):
-    #Transform a CRYSTAL output object into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
+    """
+    Transform a CRYSTAL output object into an ASE atoms object.
 
-    # output_file is a crystal output object
-    # initial == False reads the last geometry of the output file
-    # dimensionality is the dimensionality of the system  
-    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
+    Args:
+        output: Crystal output object.
+        initial (bool): Read the last geometry of the output file.
+        vacuum (float): Vacuum distance.
+        
+    Returns:
+        Atoms: ASE atoms object.
+    """
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -185,12 +204,15 @@ def cry_out2ase(output, initial=False, vacuum=10):
 
 
 def cry_out2cif(cif_file_name, output):
-    #Save a CRYSTAL structure (gui) object as a cif file
-    #The gui file is first transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
-
+    """
+    Save a CRYSTAL output object as a CIF file.
     from pymatgen.io.cif import CifWriter
+
+    Args:
+        cif_file_name (str): Name (including path) of the CIF file to be saved.
+        output: Crystal output object.
+    """
+
 
     structure = cry_gui2pmg(output)
     
@@ -198,11 +220,18 @@ def cry_out2cif(cif_file_name, output):
 
 
 def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
-    #Transform a CRYSTAL output object into a pymatgen structure object
+    """
+    Transform a CRYSTAL output object into a pymatgen structure object.
 
-    # output_file is a crystal output object
-    # initial == False reads the last geometry of the output file
-    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
+    Args:
+        output (CRYSTAL output object): CRYSTAL output object.
+        vacuum (float): Vacuum distance.
+        initial (bool): Read the last geometry of the output file.
+        molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+        
+    Returns:
+        Structure: Pymatgen Structure object.
+    """
     
     from pymatgen.core.structure import Structure, Molecule
     import numpy as np
@@ -398,11 +427,12 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
 
 
 def cry_out2xyz(xyz_file_name, output):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
-
+    """
+    Transform a CRYSTAL output object into an XYZ file.
+    Args:
+        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
+        output: CRYSTAL output object.
+    """
     from pymatgen.io.xyz import XYZ
     import sys
 
