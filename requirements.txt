@@ -1,10 +1,10 @@
+pymatgen>=2022.7.25
+numpy
+sympy>=1.11.1
+scipy>=1.9.0
+mendeleev>=0.14.0
 ase>=3.22.1
 basis_set_exchange>=0.9.1
 matplotlib>=3.5.3
-mendeleev>=0.14.0
-numpy>=1.23.0
 pandas>=1.4.3
-pymatgen>=2022.7.25
 PyYAML>=6.0
-scipy>=1.9.0
-sympy>=1.11.1
