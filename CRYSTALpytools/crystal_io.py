@@ -171,10 +171,10 @@ class Crystal_input(Crystal_inputBASE):
 
 
 class Crystal_output:
-    # This class reads a CRYSTAL output and generates an object
+    """This class reads a CRYSTAL output and generates an object."""
 
     def __init__(self):
-        # Initialise the Crystal_output
+        """TEST"""
 
         pass
 
