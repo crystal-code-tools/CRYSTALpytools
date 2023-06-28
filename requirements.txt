@@ -7,5 +7,4 @@ pandas>=1.4.3
 pymatgen>=2022.7.25
 PyYAML>=6.0
 scipy>=1.9.0
-setuptools>=66.0.0
 sympy>=1.11.1
