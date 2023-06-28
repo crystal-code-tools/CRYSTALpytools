@@ -566,7 +566,14 @@ class Optgeom(BlockBASE):
             'ALLOWTRUSTR' : '_usetrustr',
             'NOTRUSTR'    : '_usetrustr',
             'MAXTRADIUS'  : '_maxtradius',
-            'TRUSTRADIUS' : '_trustradius'
+            'TRUSTRADIUS' : '_trustradius',
+            'ONELOG'      : '_printonelog',
+            'NOXYZ'       : '_printxyz',
+            'NOSYMMOPS'   : '_printsymmops',
+            'PRINTFORCES' : '_printforces',
+            'PRINTHESS'   : '_printhess',
+            'PRINTOPT'    : '_printopt',
+            'PRINT'       : '_print',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -661,6 +668,27 @@ class Optgeom(BlockBASE):
                 self.notrustr('')
         self._trustradius = super(Optgeom, self).assign_keyword(
             'TRUSTRADIUS', [1, ], TRADIUS)
+
+    def onelog(self, key='ONELOG'):
+        self._printonelog = super(Optgeom, self).assign_keyword(key, [])
+
+    def noxyz(self, key='NOXYZ'):
+        self._printxyz = super(Optgeom, self).assign_keyword(key, [])
+
+    def nosymmops(self, key='NOSYMMOPS'):
+        self._printsymmops = super(Optgeom, self).assign_keyword(key, [])
+
+    def printforces(self, key='PRINTFORCES'):
+        self._printforces = super(Optgeom, self).assign_keyword(key, [])
+
+    def printhess(self, key='PRINTHESS'):
+        self._printhess = super(Optgeom, self).assign_keyword(key, [])
+
+    def printopt(self, key='PRINTOPT'):
+        self._printopt = super(Optgeom, self).assign_keyword(key, [])
+
+    def print(self, key='PRINT'):
+        self._print = super(Optgeom, self).assign_keyword(key, [])
 
 
 class Freqcalc(BlockBASE):
