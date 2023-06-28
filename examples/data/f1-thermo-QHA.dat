@@ -1446,121 +1446,12 @@
                       773.4232              107.7833
                       794.3085              108.1936
 
+
 ## CLOSE OVERLAPS OF PHONON FREQUENCIES
 
 ### CLOSE OVERLAPS AT QPOINT #       0
 
-  Calc_Ref  Mode_Ref  Calc_Sort  Mode_Sort
-         7         1          2         20
-         9         0          1        102
-         9         1          2        102
-        10         1          2         15
-        10         1          2         18
-        10         1          2         23
-        10         1          2         31
-        14         1          2         21
-        14         1          2         26
-        14         1          2         35
-        15         1          2         18
-        15         1          2         23
-        15         1          2         31
-        15         1          2         38
-        16         0          1        101
-        16         1          2        101
-        18         0          1         16
-        18         0          1         23
-        18         1          2         23
-        19         0          1          4
-        19         1          2         21
-        19         1          2         26
-        19         1          2         35
-        20         0          1          7
-        20         1          2         33
-        21         0          1         14
-        21         1          2        104
-        23         0          1         18
-        24         1          2        103
-        25         0          1          6
-        26         0          1         14
-        26         1          2         35
-        30         1          2         36
-        32         1          2         26
-        32         1          2         35
-        33         0          1         20
-        35         0          1         19
-        35         0          1         32
-        36         0          1         30
-        57         0          1        117
-        57         1          2        117
-        58         0          1        118
-        58         1          2        118
-        59         0          1        119
-        59         1          2        119
-        60         0          1        120
-        60         1          2        120
-        69         0          1        105
-        69         1          2        105
-        70         1          2        107
-        71         0          1        108
-        71         1          2        108
-        72         0          1        106
-        72         1          2        106
-        73         0          1        133
-        73         1          2        133
-        74         0          1        134
-        74         1          2        134
-        75         0          1        136
-        75         1          2        136
-        76         0          1        135
-        76         1          2        135
-        86         0          1         91
-        86         0          1        113
-        86         1          2         54
-        86         1          2         91
-        86         1          2        113
-        87         0          1         53
-        87         0          1         89
-        87         0          1        114
-        87         1          2        114
-        90         0          1         88
-        90         1          2        115
-        91         0          1         86
-        95         1          2         85
-       101         0          1         16
-       101         1          2         16
-       102         0          1          9
-       104         0          1         21
-       105         0          1         69
-       105         1          2         69
-       106         0          1         72
-       106         1          2         72
-       108         0          1         71
-       108         1          2         71
-       114         0          1         87
-       114         1          2         87
-       115         0          1         90
-       115         1          2         90
-       117         0          1         57
-       117         1          2         57
-       118         0          1         58
-       118         1          2         58
-       119         0          1         59
-       119         1          2         59
-       120         0          1         60
-       120         1          2         60
-       133         0          1         73
-       134         0          1         74
-       135         0          1         76
-       135         1          2         76
-       136         0          1         75
-       143         0          1        198
-       143         1          2        198
-       144         0          1        200
-       144         1          2        200
-       198         0          1        143
-       198         1          2        143
-       200         0          1        144
-       200         1          2        144
+  Calc_Ref  Mode_Ref Calc_Sort Mode_Sort
 
 # EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: birch_murnaghan
   Electron total energy is fitted as the function of volume, of which the
@@ -1572,973 +1463,733 @@
 # POLYNOMIAL FIT OF MODE FREQUENCY
   Frequency of each vibrational mode is fitted as the polynomial function of
   volume, with specified orders of power.
+  Mode #   Order         R^2  Coeff low to high (Constant term = 0)
+       1       2  1.000000  
+               3  1.000000  
 
-## POLYNOMIAL FIT AT QPOINT #       0
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       1      2      1.000000  
-              3      1.000000  
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       2      2      1.000000  
-              3      1.000000  
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       3      2      1.000000  
-              3      1.000000  
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       4      2      0.442541   -2.3051e-03  5.9549e-06
-              3      0.999996    1.6068e-02 -9.8273e-04  1.1764e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       5      2      0.994490   -6.5321e-03  4.9338e-05
-              3      1.000000   -8.4521e-03  1.5270e-04 -1.2301e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       6      2      0.672185   -1.4138e-02  1.4341e-04
-              3      0.999999    2.1216e-02 -1.7594e-03  2.2644e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       7      2      0.129688    2.4521e-03 -4.4648e-05
-              3      0.999980    1.2613e-02 -5.9127e-04  6.5028e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       8      2      0.998095   -8.6312e-03  4.6307e-05
-              3      1.000000   -6.7968e-03 -5.2443e-05  1.1753e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-       9      2      0.997660    5.0784e-04 -1.1636e-04
-              3      1.000000   -1.6699e-03  8.7505e-07 -1.3953e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      10      2      0.974966   -1.6056e-03 -4.9563e-05
-              3      0.999998    3.5398e-03 -3.2617e-04  3.2891e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      11      2      0.999898   -7.6190e-03 -2.1907e-06
-              3      1.000000   -8.1590e-03  2.6880e-05 -3.4599e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      12      2      0.997396   -6.3820e-03  2.0626e-05
-              3      1.000000   -4.5225e-03 -7.9472e-05  1.1913e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      13      2      0.991100   -7.4342e-03 -1.4031e-05
-              3      1.000000   -1.2766e-02  2.7302e-04 -3.4163e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      14      2      0.916304   -9.1996e-03  2.0008e-05
-              3      0.999999    8.5550e-03 -9.3539e-04  1.1368e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      15      2      0.997371   -9.5314e-03  1.2004e-05
-              3      1.000000   -6.3571e-03 -1.5888e-04  2.0337e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      16      2      0.998426   -5.4191e-03 -3.9013e-05
-              3      1.000000   -3.2858e-03 -1.5386e-04  1.3668e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      17      2      0.995791   -8.3901e-03 -3.1707e-06
-              3      1.000000   -1.2211e-02  2.0253e-04 -2.4481e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      18      2      0.948228   -8.4381e-03 -8.6862e-06
-              3      0.999999    6.5972e-03 -8.1770e-04  9.6256e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      19      2      0.953772   -7.7479e-03  1.9191e-05
-              3      0.999999    2.7732e-03 -5.4680e-04  6.7333e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      20      2      0.705149   -8.5305e-03  5.1333e-05
-              3      0.999999    1.9880e-02 -1.4777e-03  1.8195e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      21      2      0.996911   -5.9229e-03 -4.2830e-05
-              3      1.000000   -2.6413e-03 -2.1949e-04  2.1025e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      22      2      0.999828   -9.8429e-03  2.6788e-05
-              3      1.000000   -1.0596e-02  6.7343e-05 -4.8267e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      23      2      0.976335   -8.5806e-03  5.5721e-05
-              3      1.000000   -2.5273e-03 -2.7015e-04  3.8784e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      24      2      0.999608   -9.4862e-03 -1.2671e-05
-              3      1.000000   -8.0788e-03 -8.8438e-05  9.0174e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      25      2      0.895757   -3.6752e-03 -2.3318e-05
-              3      0.999998    8.8711e-03 -6.9834e-04  8.0309e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      26      2      0.993509   -1.1559e-02  5.0829e-05
-              3      1.000000   -6.6314e-03 -2.1444e-04  3.1571e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      27      2      0.995074   -6.4663e-03  1.9557e-05
-              3      1.000000   -3.8255e-03 -1.2260e-04  1.6919e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      28      2      0.999775   -1.0707e-02  6.2584e-06
-              3      1.000000   -9.6292e-03 -5.1781e-05  6.9076e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      29      2      0.999557   -7.8210e-03  2.9004e-05
-              3      1.000000   -6.9178e-03 -1.9618e-05  5.7868e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      30      2      0.990106   -1.1969e-02  5.8922e-05
-              3      1.000000   -5.8819e-03 -2.6875e-04  3.8998e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      31      2      0.908654   -1.4258e-02  1.2332e-04
-              3      0.999999    3.1324e-03 -8.1249e-04  1.1135e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      32      2      0.999954   -9.3741e-03  3.0458e-06
-              3      1.000000   -9.8056e-03  2.6270e-05 -2.7640e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      33      2      0.934515   -1.6142e-02  1.2987e-04
-              3      0.999999    1.0760e-03 -7.9666e-04  1.1024e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      34      2      0.999058   -1.0169e-02  2.2548e-05
-              3      1.000000   -8.2691e-03 -7.9707e-05  1.2170e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      35      2      0.938412   -1.8946e-02  1.6111e-04
-              3      1.000000   -2.1597e-04 -8.4716e-04  1.2000e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      36      2      0.951729   -1.8083e-02  1.3920e-04
-              3      1.000000   -1.2498e-03 -7.6698e-04  1.0785e-05
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      37      2      0.999124   -6.8562e-03  1.0935e-05
-              3      1.000000   -8.1276e-03  7.9378e-05 -8.1459e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      38      2      0.999708   -9.9453e-03  5.0064e-05
-              3      1.000000   -1.0783e-02  9.5188e-05 -5.3704e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      39      2      0.998258   -1.1465e-02  3.5939e-05
-              3      1.000000   -1.4169e-02  1.8149e-04 -1.7323e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      40      2      0.999569   -1.1381e-02  2.3362e-05
-              3      1.000000   -1.2820e-02  1.0082e-04 -9.2190e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      41      2      0.995300   -5.1747e-03  2.5855e-05
-              3      1.000000   -3.3861e-03 -7.0431e-05  1.1459e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      42      2      0.999097   -6.8475e-03  2.7470e-05
-              3      1.000000   -5.7411e-03 -3.2092e-05  7.0887e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      43      2      0.991258   -4.8699e-03  1.8696e-05
-              3      1.000000   -2.3517e-03 -1.1687e-04  1.6134e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      44      2      0.999962   -6.3129e-03  1.8009e-05
-              3      1.000000   -6.0881e-03  5.9078e-06  1.4402e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      45      2      0.994098   -3.0015e-03  1.3145e-05
-              3      1.000000   -4.1878e-03  7.7012e-05 -7.6011e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      46      2      0.996538   -3.2558e-03  4.5971e-06
-              3      1.000000   -2.0211e-03 -6.1869e-05  7.9104e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      47      2      0.999765   -3.5964e-03  1.0446e-05
-              3      1.000000   -3.9142e-03  2.7550e-05 -2.0356e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      48      2      0.999591   -3.9438e-03  9.7989e-06
-              3      1.000000   -3.4681e-03 -1.5810e-05  3.0479e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      49      2      0.999951   -7.4515e-04 -2.6845e-06
-              3      1.000000   -7.0155e-04 -5.0317e-06  2.7935e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      50      2      0.999537   -1.9502e-03  5.7633e-06
-              3      1.000000   -2.1910e-03  1.8722e-05 -1.5423e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      51      2      0.998138   -4.0387e-03  4.8982e-06
-              3      1.000000   -2.9054e-03 -5.6111e-05  7.2611e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      52      2      0.999458   -4.5266e-03  9.0585e-06
-              3      1.000000   -3.8771e-03 -2.5904e-05  4.1611e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      53      2      0.970516   -8.0792e-04 -1.6379e-05
-              3      0.999985    1.3705e-03 -1.3326e-04  1.3882e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      54      2      0.999105   -3.9094e-03  5.4279e-06
-              3      1.000000   -3.1594e-03 -3.4946e-05  4.8051e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      55      2      0.950168   -3.0591e-04 -1.6413e-05
-              3      0.999973    1.7753e-03 -1.2807e-04  1.3259e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      56      2      0.998371   -2.1235e-03 -9.9377e-06
-              3      1.000000   -1.3617e-03 -5.0946e-05  4.8806e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      57      2      0.993610    3.2188e-04 -1.4762e-05
-              3      0.999857    6.2784e-04 -3.0844e-05  1.8848e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      58      2      0.900083   -2.9009e-04 -1.9521e-06
-              3      1.000000   -1.1745e-03  4.5661e-05 -5.6667e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      59      2      0.998414   -6.0924e-04 -1.1932e-05
-              3      1.000000   -2.4387e-04 -3.1601e-05  2.3409e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      60      2      0.996967   -8.7713e-04 -8.0291e-06
-              3      1.000000   -1.3880e-03  1.9475e-05 -3.2734e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      61      2      0.999808   -2.4667e-03  3.9028e-07
-              3      1.000000   -2.2315e-03 -1.2273e-05  1.5072e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      62      2      0.999861   -2.6240e-03  3.2922e-06
-              3      1.000000   -2.8229e-03  1.3996e-05 -1.2739e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      63      2      0.999686   -3.4674e-03  4.7485e-06
-              3      1.000000   -3.0736e-03 -1.6451e-05  2.5231e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      64      2      0.996263   -3.9774e-03  1.5959e-05
-              3      1.000000   -5.2651e-03  8.5277e-05 -8.2499e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      65      2      0.826085   -9.9480e-04  7.8932e-06
-              3      0.999887    9.1303e-04 -9.4424e-05  1.2148e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      66      2      0.943287    8.7895e-05 -3.6831e-06
-              3      0.997666    3.0757e-04 -1.5121e-05  1.3320e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      67      2      0.953952   -1.1748e-04  9.7692e-07
-              3      1.000000   -1.6811e-05 -4.4426e-06  6.4501e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      68      2      0.999907   -1.0470e-03  7.0296e-06
-              3      1.000000   -1.0905e-03  9.3712e-06 -2.7869e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      69      2      0.984733    8.1030e-04 -2.1920e-05
-              3      0.999899    2.8562e-04  6.6666e-06 -3.4186e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      70      2      1.000000    1.0261e-03 -2.8961e-05
-              3      0.999991    1.0118e-03 -2.8262e-05 -7.8013e-09
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      71      2      0.982507    1.5094e-03 -3.3249e-05
-              3      0.999930    8.4162e-04  3.0386e-06 -4.3352e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      72      2      0.932074    3.8317e-04 -1.1846e-05
-              3      1.000000   -2.8335e-04  2.4034e-05 -4.2703e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      73      2      0.999210   -3.4008e-03 -5.9621e-06
-              3      1.000000   -4.1276e-03  3.3161e-05 -4.6563e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      74      2      0.999969   -2.4907e-03 -1.6545e-05
-              3      1.000000   -2.6231e-03 -9.4210e-06 -8.4781e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      75      2      0.994840   -2.9222e-03 -6.3795e-06
-              3      1.000000   -4.5461e-03  8.1042e-05 -1.0405e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      76      2      0.996880   -2.5263e-03 -4.5972e-06
-              3      1.000000   -3.5992e-03  5.3161e-05 -6.8742e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      77      2      0.913635   -1.0989e-03  1.5532e-05
-              3      1.000000   -1.7635e-03  5.1311e-05 -4.2582e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      78      2      0.985806   -1.2361e-03  8.1461e-06
-              3      1.000000   -5.7395e-04 -2.7499e-05  4.2423e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      79      2      0.964102   -7.4440e-04  2.7869e-06
-              3      1.000000   -1.5000e-03  4.3466e-05 -4.8414e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      80      2      0.986634   -1.4623e-03  8.2351e-06
-              3      1.000000   -6.4061e-04 -3.5998e-05  5.2644e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      81      2      0.998144   -1.6737e-03  1.0984e-05
-              3      1.000000   -1.3555e-03 -6.1455e-06  2.0387e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      82      2      0.997175   -2.0512e-03  1.4349e-05
-              3      1.000000   -1.5866e-03 -1.0663e-05  2.9768e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      83      2      0.983707   -1.5537e-03  7.2888e-06
-              3      1.000000   -5.1292e-04 -4.8739e-05  6.6682e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      84      2      0.994599   -1.8591e-03  9.1905e-06
-              3      1.000000   -1.1666e-03 -2.8089e-05  4.4368e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      85      2      0.995232   -1.5057e-03 -1.2112e-05
-              3      1.000000   -4.3125e-04 -6.9951e-05  6.8837e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      86      2      0.404420    5.7964e-04 -2.4955e-05
-              3      1.000000   -6.5609e-03  3.5944e-04 -4.5749e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      87      2      0.614714    4.6588e-03 -8.8558e-05
-              3      0.999986    1.2736e-02 -5.2302e-04  5.1678e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      88      2      0.996563   -5.0400e-03 -2.6523e-04
-              3      1.000000    3.4984e-03 -7.2449e-04  5.4630e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      89      2      0.997194   -3.0561e-02  6.3085e-05
-              3      1.000000   -4.0374e-02  5.9131e-04 -6.2867e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      90      2      0.973737   -2.0669e-02  2.3141e-04
-              3      1.000000   -2.9787e-02  7.2227e-04 -5.8420e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      91      2      0.999111   -2.3175e-02 -3.9776e-05
-              3      1.000000   -1.7881e-02 -3.2476e-04  3.3917e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      92      2      0.999948   -1.8584e-02  1.0616e-04
-              3      1.000000   -1.7955e-02  7.2282e-05  4.0316e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      93      2      0.999728   -3.1145e-02  3.4570e-05
-              3      1.000000   -3.4468e-02  2.1348e-04 -2.1293e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      94      2      0.999934   -2.0376e-02  1.2345e-04
-              3      1.000000   -1.9620e-02  8.2784e-05  4.8401e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      95      2      0.999224   -1.2845e-02  5.9080e-05
-              3      1.000000   -1.1003e-02 -4.0091e-05  1.1803e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      96      2      0.999975   -2.3499e-02  1.4021e-04
-              3      1.000000   -2.2961e-02  1.1123e-04  3.4494e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      97      2      0.987813   -1.7751e-03  9.3128e-06
-              3      1.000000   -2.7155e-03  5.9936e-05 -6.0249e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      98      2      0.999554   -2.0640e-03  7.1377e-06
-              3      1.000000   -1.8205e-03 -5.9735e-06  1.5604e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-      99      2      0.989016   -1.2526e-03  5.6948e-06
-              3      1.000000   -5.6096e-04 -3.1540e-05  4.4314e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     100      2      0.997515   -2.1885e-03  1.0734e-05
-              3      1.000000   -1.6371e-03 -1.8948e-05  3.5326e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     101      2      0.999540    1.5414e-03 -2.0837e-05
-              3      0.999977    1.4506e-03 -1.6021e-05 -5.6815e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     102      2      0.814690    3.2578e-03 -6.0212e-05
-              3      0.999960    6.5496e-03 -2.3704e-04  2.1016e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     103      2      0.848975    3.3326e-03 -5.3837e-05
-              3      0.999945    5.8778e-03 -1.9047e-04  1.6232e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     104      2      0.736665    2.1813e-03 -3.6443e-05
-              3      0.999886    4.5200e-03 -1.6196e-04  1.4909e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     105      2      0.982894    1.5223e-04 -8.5085e-06
-              3      0.999645    4.7112e-04 -2.5287e-05  1.9676e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     106      2      0.882913    1.8491e-03 -2.9144e-05
-              3      0.999815    3.0632e-03 -9.4115e-05  7.7033e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     107      2      0.908084   -2.4530e-03  1.7194e-05
-              3      1.000000   -5.5366e-03  1.8319e-04 -1.9756e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     108      2      0.864630   -3.1127e-03  2.6479e-05
-              3      1.000000   -7.2757e-03  2.5059e-04 -2.6673e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     109      2      0.987619   -1.7407e-03  7.5229e-06
-              3      1.000000   -2.7383e-03  6.1229e-05 -6.3919e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     110      2      0.947513   -1.8836e-03  1.3745e-05
-              3      1.000000   -3.6190e-03  1.0717e-04 -1.1118e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     111      2      0.989459   -1.7053e-03  5.9231e-06
-              3      1.000000   -2.6650e-03  5.7587e-05 -6.1488e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     112      2      0.960187   -2.4511e-03  1.9101e-05
-              3      1.000000   -4.3297e-03  1.2023e-04 -1.2036e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     113      2      0.899387    8.8362e-04 -2.0005e-05
-              3      1.000000   -1.2778e-04  3.4442e-05 -6.4800e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     114      2      0.987407    2.5144e-03 -4.3752e-05
-              3      0.999908    3.0673e-03 -7.3130e-05  3.4673e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     115      2      0.840424    1.0350e-03 -2.2692e-05
-              3      1.000000   -4.0630e-04  5.4899e-05 -9.2344e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     116      2      0.993707    3.1053e-03 -4.9214e-05
-              3      0.999934    3.5607e-03 -7.3339e-05  2.8421e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     117      2      0.999684    1.5973e-03 -1.9811e-05
-              3      0.999982    1.5099e-03 -1.5176e-05 -5.4651e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     118      2      0.992971    2.2956e-03 -3.2238e-05
-              3      0.999894    2.6735e-03 -5.2192e-05  2.3457e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     119      2      0.984108   -1.2640e-03 -3.0483e-06
-              3      1.000000   -2.5067e-03  6.3849e-05 -7.9617e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     120      2      0.946124   -9.3220e-04 -6.1548e-06
-              3      1.000000   -2.9885e-03  1.0454e-04 -1.3175e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     121      2      0.997410   -2.4086e-03  1.1791e-05
-              3      1.000000   -3.0171e-03  4.4547e-05 -3.8985e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     122      2      0.998615   -1.3275e-03 -8.1346e-06
-              3      1.000000   -8.5930e-04 -3.3339e-05  2.9998e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     123      2      0.998416   -2.6192e-03  9.1997e-06
-              3      1.000000   -3.1931e-03  4.0094e-05 -3.6768e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     124      2      0.999947   -2.3588e-03  5.7620e-06
-              3      1.000000   -2.4613e-03  1.1281e-05 -6.5681e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     125      2      0.807730   -5.1943e-05 -1.3545e-05
-              3      0.999952    3.0371e-03 -1.7945e-04  1.9716e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     126      2      0.948848   -8.7146e-04 -4.3284e-06
-              3      0.999965    9.8270e-04 -1.0376e-04  1.1804e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     127      2      0.830124   -5.8565e-05 -6.2192e-06
-              3      0.999799    1.3512e-03 -8.1726e-05  8.9571e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     128      2      0.965030   -4.1901e-04 -1.0015e-05
-              3      0.999955    9.3057e-04 -8.2280e-05  8.5713e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     129      2      0.887570   -1.7508e-03 -8.1446e-07
-              3      0.999988    2.9332e-03 -2.5258e-04  2.9935e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     130      2      0.930697   -1.0842e-03 -1.9142e-05
-              3      0.999991    3.2528e-03 -2.5223e-04  2.7711e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     131      2      0.925181   -1.9621e-03 -3.2504e-06
-              3      0.999991    2.4580e-03 -2.4081e-04  2.8244e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     132      2      0.966503   -2.6480e-03 -1.5272e-06
-              3      0.999994    9.7231e-04 -1.9603e-04  2.3119e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     133      2      0.998890   -1.2708e-03  5.7952e-06
-              3      1.000000   -1.0519e-03 -5.9871e-06  1.4023e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     134      2      0.999741   -1.6989e-03  7.9579e-06
-              3      1.000000   -1.8375e-03  1.5419e-05 -8.8803e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     135      2      0.998993   -1.3883e-03  2.8805e-06
-              3      1.000000   -1.1177e-03 -1.1687e-05  1.7338e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     136      2      0.982053   -2.3192e-03  1.3721e-05
-              3      1.000000   -8.3473e-04 -6.6195e-05  9.5112e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     137      2      0.279992   -1.5681e-03  1.8946e-05
-              3      1.000000   -6.0266e-03  2.5896e-04 -2.8566e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     138      2      0.313264   -1.4791e-03  1.7858e-05
-              3      1.000000   -5.4724e-03  2.3283e-04 -2.5585e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     139      2      0.466303   -1.4707e-03  1.2034e-05
-              3      1.000000   -6.2420e-03  2.6889e-04 -3.0569e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     140      2      0.745757   -1.2834e-03  7.3113e-06
-              3      1.000000   -4.4287e-03  1.7663e-04 -2.0152e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     141      2      0.999995    1.3749e-03 -2.3001e-05
-              3      0.999964    1.3638e-03 -2.2473e-05 -5.7781e-09
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     142      2      0.938716    8.4360e-04 -2.1806e-05
-              3      1.000000   -1.3567e-04  3.0911e-05 -6.2742e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     143      2      0.998248    3.9966e-04 -2.0054e-05
-              3      0.999992    1.4129e-04 -6.2159e-06 -1.6419e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     144      2      0.985859   -8.5267e-06 -1.2262e-05
-              3      1.000000   -6.1925e-04  2.0615e-05 -3.9129e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     145      2      0.950936   -1.5452e-03  7.5730e-07
-              3      0.999980    8.8900e-04 -1.2990e-04  1.5520e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     146      2      0.997326   -1.7602e-03  9.9606e-06
-              3      1.000000   -1.3264e-03 -1.3392e-05  2.7794e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     147      2      0.998829   -2.5637e-03  1.5322e-05
-              3      1.000000   -2.9642e-03  3.6882e-05 -2.5659e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     148      2      0.984379   -1.8718e-03  3.1939e-06
-              3      1.000000   -3.6494e-04 -7.7924e-05  9.6543e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     149      2      0.999033   -3.6851e-03  7.7561e-06
-              3      1.000000   -2.9827e-03 -3.0060e-05  4.5006e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     150      2      0.998017   -4.1763e-03  1.6702e-05
-              3      1.000000   -5.1644e-03  6.9894e-05 -6.3306e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     151      2      0.999722   -3.9035e-03  2.4391e-05
-              3      1.000000   -4.1950e-03  4.0084e-05 -1.8677e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     152      2      0.999949   -4.2021e-03  9.5258e-06
-              3      1.000000   -4.0213e-03 -2.0759e-07  1.1584e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     153      2      0.986240   -1.4075e-03 -2.4250e-05
-              3      0.999994    9.3490e-04 -1.4996e-04  1.4932e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     154      2      0.995485   -2.3517e-03  1.6510e-06
-              3      1.000000   -1.2860e-03 -5.5718e-05  6.8278e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     155      2      0.987987   -3.9252e-04 -2.3087e-05
-              3      0.999985    9.5823e-04 -9.5414e-05  8.5788e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     156      2      0.967783   -9.5759e-04 -2.2803e-05
-              3      0.999991    2.0163e-03 -1.8251e-04  1.8978e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     157      2      0.999859   -1.0709e-03  1.1595e-05
-              3      1.000000   -1.1076e-03  1.3574e-05 -2.3545e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     158      2      0.995730   -2.3839e-03  1.5630e-05
-              3      1.000000   -3.0584e-03  5.1937e-05 -4.3211e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     159      2      0.972149   -1.3797e-03  4.7215e-06
-              3      1.000000   -3.7464e-05 -6.7534e-05  8.5995e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     160      2      0.978742   -2.1778e-03  1.5579e-05
-              3      1.000000   -3.4730e-03  8.5301e-05 -8.2979e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     161      2      0.999907   -5.2075e-03  1.2770e-05
-              3      1.000000   -4.9081e-03 -3.3479e-06  1.9182e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     162      2      0.994861   -6.2521e-03  2.6251e-05
-              3      1.000000   -8.5907e-03  1.5215e-04 -1.4983e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     163      2      0.999883   -5.8157e-03  1.7212e-05
-              3      1.000000   -6.1768e-03  3.6649e-05 -2.3133e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     164      2      0.999416   -5.9529e-03  2.0915e-05
-              3      1.000000   -6.7466e-03  6.3643e-05 -5.0854e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     165      2      0.978988   -1.8741e-03 -5.1434e-06
-              3      0.999990    3.6320e-04 -1.2520e-04  1.4259e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     166      2      0.989085   -2.3225e-03 -3.0323e-06
-              3      1.000000   -4.7098e-04 -1.0271e-04  1.1863e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     167      2      0.985745   -1.3905e-03 -6.8578e-06
-              3      0.999985    1.0794e-04 -8.7138e-05  9.5253e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     168      2      0.974577   -1.5845e-03 -1.1399e-05
-              3      0.999991    9.7794e-04 -1.4896e-04  1.6342e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     169      2      0.909609   -1.0012e-03 -1.4870e-06
-              3      0.999965    1.4787e-03 -1.3460e-04  1.5813e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     170      2      0.972452   -1.9986e-03  4.9202e-06
-              3      1.000000    6.4205e-05 -1.0613e-04  1.3217e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     171      2      0.985149   -2.3377e-03  4.1847e-06
-              3      1.000000   -5.1417e-04 -9.3984e-05  1.1684e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     172      2      0.993350   -2.2155e-03  3.1814e-06
-              3      1.000000   -1.0462e-03 -5.9762e-05  7.4912e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     173      2      0.969749   -9.4654e-04 -9.8574e-06
-              3      0.999980    9.4913e-04 -1.1152e-04  1.2070e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     174      2      0.985701   -1.3001e-03 -7.3834e-06
-              3      0.999984    1.5012e-04 -8.5066e-05  9.2161e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     175      2      0.996072   -1.9331e-03 -3.3137e-06
-              3      1.000000   -9.9821e-04 -5.3642e-05  5.9899e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     176      2      0.619991   -1.8327e-04 -8.2941e-07
-              3      0.999542    1.2124e-03 -7.5575e-05  8.8666e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     177      2      0.992525   -1.5584e-03 -1.3942e-05
-              3      1.000000   -1.0962e-04 -9.1933e-05  9.2821e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     178      2      0.977985   -6.8971e-04 -2.7621e-06
-              3      0.999935    1.9341e-04 -4.9915e-05  5.5826e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     179      2      0.989236   -1.2134e-03 -2.2532e-06
-              3      1.000000   -2.2445e-04 -5.5494e-05  6.3364e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     180      2      0.852660   -4.9467e-04 -6.4305e-06
-              3      0.999950    2.1589e-03 -1.4890e-04  1.6926e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     181      2      0.996485   -1.9083e-03 -5.6528e-06
-              3      1.000000   -9.7828e-04 -5.5721e-05  5.9589e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     182      2      0.998524   -1.8262e-03 -4.6104e-06
-              3      1.000000   -1.2646e-03 -3.4842e-05  3.5980e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     183      2      0.992919   -1.5074e-03 -1.1743e-05
-              3      1.000000   -2.0526e-04 -8.1840e-05  8.3426e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     184      2      0.993586   -2.0786e-03 -5.3315e-06
-              3      1.000000   -7.3063e-04 -7.7897e-05  8.6364e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     185      2      0.998240   -1.4628e-03  9.8473e-06
-              3      1.000000   -1.1959e-03 -4.5210e-06  1.7100e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     186      2      0.979034   -1.2105e-03  6.9208e-06
-              3      1.000000   -2.0187e-03  5.0426e-05 -5.1777e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     187      2      0.988032   -1.2661e-03  2.4343e-06
-              3      1.000000   -3.9016e-04 -4.4719e-05  5.6120e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     188      2      0.986608   -1.8220e-03  6.0916e-06
-              3      1.000000   -2.9872e-03  6.8819e-05 -7.4655e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     189      2      0.999977   -6.2589e-03  5.0741e-06
-              3      1.000000   -6.0600e-03 -5.6314e-06  1.2741e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     190      2      0.999769   -5.9150e-03 -1.6534e-06
-              3      1.000000   -5.2798e-03 -3.5851e-05  4.0700e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     191      2      1.000000   -6.3145e-03  9.2091e-06
-              3      1.000000   -6.3138e-03  9.1697e-06  4.6918e-10
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     192      2      0.999760   -6.1504e-03  3.8981e-06
-              3      1.000000   -5.5117e-03 -3.0484e-05  4.0920e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     193      2      0.998534   -3.7648e-03  7.1596e-06
-              3      1.000000   -2.8681e-03 -4.1109e-05  5.7447e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     194      2      0.998264   -4.1824e-03  8.3603e-06
-              3      1.000000   -3.1045e-03 -4.9666e-05  6.9060e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     195      2      0.996247   -4.6530e-03  7.8229e-06
-              3      1.000000   -2.8455e-03 -8.9481e-05  1.1581e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     196      2      0.999462   -4.8020e-03  1.3671e-05
-              3      1.000000   -4.1531e-03 -2.1257e-05  4.1571e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     197      2      0.989920   -9.8949e-04 -1.7681e-06
-              3      1.000000   -2.1265e-04 -4.3588e-05  4.9772e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     198      2      0.996147   -1.3296e-03 -2.2510e-06
-              3      1.000000   -6.9352e-04 -3.6491e-05  4.0751e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     199      2      0.999980   -1.8506e-03  2.8670e-06
-              3      1.000000   -1.9026e-03  5.6624e-06 -3.3270e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     200      2      0.999993   -2.0682e-03  1.5282e-06
-              3      1.000000   -2.0317e-03 -4.3696e-07  2.3389e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     201      2      0.999941    2.4204e-03  5.5659e-06
-              3      0.999995    2.2562e-03  1.4751e-05 -1.1095e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     202      2      0.999423    2.7617e-03  2.7211e-06
-              3      0.999994    3.2228e-03 -2.1715e-05  2.8791e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     203      2      0.998376    1.9361e-03  1.0912e-05
-              3      0.999995    1.1936e-03  5.1226e-05 -4.8143e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     204      2      0.998590    1.7992e-03  6.6613e-06
-              3      0.999993    1.2076e-03  3.8846e-05 -3.8469e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     205      2      0.999999   -5.4598e-03  1.8163e-05
-              3      1.000000   -5.4829e-03  1.9404e-05 -1.4779e-08
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     206      2      0.999941   -6.2270e-03  2.9632e-05
-              3      1.000000   -5.9852e-03  1.6619e-05  1.5487e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     207      2      0.997046   -6.9164e-03  4.3085e-05
-              3      1.000000   -8.5920e-03  1.3328e-04 -1.0735e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     208      2      0.999859   -7.2620e-03  4.5553e-05
-              3      1.000000   -7.6470e-03  6.6281e-05 -2.4669e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     209      2      0.987989   -3.1986e-03  1.4229e-05
-              3      1.000000   -4.9876e-03  1.1053e-04 -1.1461e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     210      2      0.989758   -3.4285e-03  1.9497e-05
-              3      1.000000   -5.0372e-03  1.0610e-04 -1.0307e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     211      2      0.987170   -3.8969e-03  2.7041e-05
-              3      1.000000   -5.7360e-03  1.2605e-04 -1.1783e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     212      2      0.981478   -3.5323e-03  2.0795e-05
-              3      1.000000   -5.7193e-03  1.3852e-04 -1.4012e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     213      2      0.997544   -7.6809e-03  2.1822e-05
-              3      1.000000   -5.4492e-03 -9.8318e-05  1.4298e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     214      2      0.996224   -7.5502e-03  1.8973e-05
-              3      1.000000   -4.7621e-03 -1.3112e-04  1.7863e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     215      2      0.996525   -7.7797e-03  2.0932e-05
-              3      1.000000   -5.0579e-03 -1.2559e-04  1.7438e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     216      2      0.995342   -7.6420e-03  1.8431e-05
-              3      1.000000   -4.4817e-03 -1.5170e-04  2.0248e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     217      2      0.999159   -5.6468e-03  1.8910e-05
-              3      1.000000   -4.7236e-03 -3.0790e-05  5.9150e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     218      2      0.999903   -5.8690e-03  2.1578e-05
-              3      1.000000   -6.1846e-03  3.8568e-05 -2.0221e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     219      2      0.999866   -5.7538e-03  2.1772e-05
-              3      1.000000   -5.3908e-03  2.2308e-06  2.3257e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     220      2      0.998773   -5.4562e-03  1.5702e-05
-              3      1.000000   -4.3420e-03 -4.4279e-05  7.1386e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     221      2      0.968354   -3.0064e-03 -3.5701e-06
-              3      0.999996    1.1204e-03 -2.2534e-04  2.6365e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     222      2      0.992812   -3.8055e-03  1.0025e-05
-              3      1.000000   -1.8709e-03 -9.4122e-05  1.2395e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     223      2      0.980530   -3.3433e-03  1.8196e-06
-              3      1.000000   -1.0281e-04 -1.7263e-04  2.0762e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     224      2      0.950501   -2.5907e-03 -1.1441e-05
-              3      0.999996    2.7318e-03 -2.9758e-04  3.4026e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     225      2      0.989804   -4.1583e-03 -1.4349e-06
-              3      1.000000   -1.1226e-03 -1.6486e-04  1.9450e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     226      2      0.994423   -4.4174e-03  2.7702e-06
-              3      1.000000   -2.1785e-03 -1.1776e-04  1.4345e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     227      2      0.999131   -4.7154e-03  1.3589e-05
-              3      1.000000   -3.9062e-03 -2.9970e-05  5.1842e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     228      2      0.999136   -4.7039e-03  1.2476e-05
-              3      1.000000   -3.8864e-03 -3.1531e-05  5.2374e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     229      2      0.979070   -3.5256e-03 -4.5447e-06
-              3      0.999997    3.8630e-04 -2.1475e-04  2.4988e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     230      2      0.981074   -3.6218e-03 -3.4743e-06
-              3      1.000000    1.4579e-04 -2.0629e-04  2.4138e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     231      2      0.985427   -4.4119e-03 -2.6912e-06
-              3      1.000000   -4.8171e-04 -2.1427e-04  2.5181e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     232      2      0.999959   -5.3686e-03  1.8344e-05
-              3      1.000000   -5.1776e-03  8.0611e-06  1.2238e-07
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     233      2      0.999888    3.4713e-02 -2.5193e-05
-              3      1.000000    3.2248e-02  1.0784e-04 -1.5849e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     234      2      0.999907    3.4717e-02 -2.5312e-05
-              3      1.000000    3.2468e-02  9.6069e-05 -1.4462e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     235      2      0.999863    3.4941e-02 -2.8487e-05
-              3      1.000000    3.2214e-02  1.1865e-04 -1.7527e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     236      2      0.999893    3.4684e-02 -2.8669e-05
-              3      1.000000    3.2297e-02  1.0016e-04 -1.5349e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     237      2      0.999382    2.5866e-02 -6.9447e-05
-              3      1.000000    2.9600e-02 -2.7007e-04  2.3849e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     238      2      0.999392    2.5736e-02 -6.7110e-05
-              3      1.000000    2.9437e-02 -2.6600e-04  2.3643e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     239      2      0.999219    2.5436e-02 -6.9467e-05
-              3      1.000000    2.9549e-02 -2.9054e-04  2.6283e-06
-
-  Mode #  Order           R^2  Coeff low to high (Constant term = 0)
-     240      2      0.999423    2.4589e-02 -6.2063e-05
-              3      1.000000    2.8054e-02 -2.4821e-04  2.2126e-06
+       2       2  1.000000  
+               3  1.000000  
+
+       3       2  1.000000  
+               3  1.000000  
+
+       4       2  0.442541   -2.3051e-03  5.9549e-06
+               3  0.999996    1.6068e-02 -9.8273e-04  1.1764e-05
+
+       5       2  0.994490   -6.5321e-03  4.9338e-05
+               3  1.000000   -8.4521e-03  1.5270e-04 -1.2301e-06
+
+       6       2  0.672185   -1.4138e-02  1.4341e-04
+               3  0.999999    2.1216e-02 -1.7594e-03  2.2644e-05
+
+       7       2  0.129688    2.4521e-03 -4.4648e-05
+               3  0.999980    1.2613e-02 -5.9127e-04  6.5028e-06
+
+       8       2  0.998095   -8.6312e-03  4.6307e-05
+               3  1.000000   -6.7968e-03 -5.2443e-05  1.1753e-06
+
+       9       2  0.997660    5.0784e-04 -1.1636e-04
+               3  1.000000   -1.6699e-03  8.7505e-07 -1.3953e-06
+
+      10       2  0.974966   -1.6056e-03 -4.9563e-05
+               3  0.999998    3.5398e-03 -3.2617e-04  3.2891e-06
+
+      11       2  0.999898   -7.6190e-03 -2.1907e-06
+               3  1.000000   -8.1590e-03  2.6880e-05 -3.4599e-07
+
+      12       2  0.997396   -6.3820e-03  2.0626e-05
+               3  1.000000   -4.5225e-03 -7.9472e-05  1.1913e-06
+
+      13       2  0.991100   -7.4342e-03 -1.4031e-05
+               3  1.000000   -1.2766e-02  2.7302e-04 -3.4163e-06
+
+      14       2  0.916304   -9.1996e-03  2.0008e-05
+               3  0.999999    8.5550e-03 -9.3539e-04  1.1368e-05
+
+      15       2  0.997371   -9.5314e-03  1.2004e-05
+               3  1.000000   -6.3571e-03 -1.5888e-04  2.0337e-06
+
+      16       2  0.998426   -5.4191e-03 -3.9013e-05
+               3  1.000000   -3.2858e-03 -1.5386e-04  1.3668e-06
+
+      17       2  0.995791   -8.3901e-03 -3.1707e-06
+               3  1.000000   -1.2211e-02  2.0253e-04 -2.4481e-06
+
+      18       2  0.948228   -8.4381e-03 -8.6862e-06
+               3  0.999999    6.5972e-03 -8.1770e-04  9.6256e-06
+
+      19       2  0.953772   -7.7479e-03  1.9191e-05
+               3  0.999999    2.7732e-03 -5.4680e-04  6.7333e-06
+
+      20       2  0.705149   -8.5305e-03  5.1333e-05
+               3  0.999999    1.9880e-02 -1.4777e-03  1.8195e-05
+
+      21       2  0.996911   -5.9229e-03 -4.2830e-05
+               3  1.000000   -2.6413e-03 -2.1949e-04  2.1025e-06
+
+      22       2  0.999828   -9.8429e-03  2.6788e-05
+               3  1.000000   -1.0596e-02  6.7343e-05 -4.8267e-07
+
+      23       2  0.976335   -8.5806e-03  5.5721e-05
+               3  1.000000   -2.5273e-03 -2.7015e-04  3.8784e-06
+
+      24       2  0.999608   -9.4862e-03 -1.2671e-05
+               3  1.000000   -8.0788e-03 -8.8438e-05  9.0174e-07
+
+      25       2  0.895757   -3.6752e-03 -2.3318e-05
+               3  0.999998    8.8711e-03 -6.9834e-04  8.0309e-06
+
+      26       2  0.993509   -1.1559e-02  5.0829e-05
+               3  1.000000   -6.6314e-03 -2.1444e-04  3.1571e-06
+
+      27       2  0.995074   -6.4663e-03  1.9557e-05
+               3  1.000000   -3.8255e-03 -1.2260e-04  1.6919e-06
+
+      28       2  0.999775   -1.0707e-02  6.2584e-06
+               3  1.000000   -9.6292e-03 -5.1781e-05  6.9076e-07
+
+      29       2  0.999557   -7.8210e-03  2.9004e-05
+               3  1.000000   -6.9178e-03 -1.9618e-05  5.7868e-07
+
+      30       2  0.990106   -1.1969e-02  5.8922e-05
+               3  1.000000   -5.8819e-03 -2.6875e-04  3.8998e-06
+
+      31       2  0.908654   -1.4258e-02  1.2332e-04
+               3  0.999999    3.1324e-03 -8.1249e-04  1.1135e-05
+
+      32       2  0.999954   -9.3741e-03  3.0458e-06
+               3  1.000000   -9.8056e-03  2.6270e-05 -2.7640e-07
+
+      33       2  0.934515   -1.6142e-02  1.2987e-04
+               3  0.999999    1.0760e-03 -7.9666e-04  1.1024e-05
+
+      34       2  0.999058   -1.0169e-02  2.2548e-05
+               3  1.000000   -8.2691e-03 -7.9707e-05  1.2170e-06
+
+      35       2  0.938412   -1.8946e-02  1.6111e-04
+               3  1.000000   -2.1597e-04 -8.4716e-04  1.2000e-05
+
+      36       2  0.951729   -1.8083e-02  1.3920e-04
+               3  1.000000   -1.2498e-03 -7.6698e-04  1.0785e-05
+
+      37       2  0.999124   -6.8562e-03  1.0935e-05
+               3  1.000000   -8.1276e-03  7.9378e-05 -8.1459e-07
+
+      38       2  0.999708   -9.9453e-03  5.0064e-05
+               3  1.000000   -1.0783e-02  9.5188e-05 -5.3704e-07
+
+      39       2  0.998258   -1.1465e-02  3.5939e-05
+               3  1.000000   -1.4169e-02  1.8149e-04 -1.7323e-06
+
+      40       2  0.999569   -1.1381e-02  2.3362e-05
+               3  1.000000   -1.2820e-02  1.0082e-04 -9.2190e-07
+
+      41       2  0.995300   -5.1747e-03  2.5855e-05
+               3  1.000000   -3.3861e-03 -7.0431e-05  1.1459e-06
+
+      42       2  0.999097   -6.8475e-03  2.7470e-05
+               3  1.000000   -5.7411e-03 -3.2092e-05  7.0887e-07
+
+      43       2  0.991258   -4.8699e-03  1.8696e-05
+               3  1.000000   -2.3517e-03 -1.1687e-04  1.6134e-06
+
+      44       2  0.999962   -6.3129e-03  1.8009e-05
+               3  1.000000   -6.0881e-03  5.9078e-06  1.4402e-07
+
+      45       2  0.994098   -3.0015e-03  1.3145e-05
+               3  1.000000   -4.1878e-03  7.7012e-05 -7.6011e-07
+
+      46       2  0.996538   -3.2558e-03  4.5971e-06
+               3  1.000000   -2.0211e-03 -6.1869e-05  7.9104e-07
+
+      47       2  0.999765   -3.5964e-03  1.0446e-05
+               3  1.000000   -3.9142e-03  2.7550e-05 -2.0356e-07
+
+      48       2  0.999591   -3.9438e-03  9.7989e-06
+               3  1.000000   -3.4681e-03 -1.5810e-05  3.0479e-07
+
+      49       2  0.999951   -7.4515e-04 -2.6845e-06
+               3  1.000000   -7.0155e-04 -5.0317e-06  2.7935e-08
+
+      50       2  0.999537   -1.9502e-03  5.7633e-06
+               3  1.000000   -2.1910e-03  1.8722e-05 -1.5423e-07
+
+      51       2  0.998138   -4.0387e-03  4.8982e-06
+               3  1.000000   -2.9054e-03 -5.6111e-05  7.2611e-07
+
+      52       2  0.999458   -4.5266e-03  9.0585e-06
+               3  1.000000   -3.8771e-03 -2.5904e-05  4.1611e-07
+
+      53       2  0.970516   -8.0792e-04 -1.6379e-05
+               3  0.999985    1.3705e-03 -1.3326e-04  1.3882e-06
+
+      54       2  0.999105   -3.9094e-03  5.4279e-06
+               3  1.000000   -3.1594e-03 -3.4946e-05  4.8051e-07
+
+      55       2  0.950168   -3.0591e-04 -1.6413e-05
+               3  0.999973    1.7753e-03 -1.2807e-04  1.3259e-06
+
+      56       2  0.998371   -2.1235e-03 -9.9377e-06
+               3  1.000000   -1.3617e-03 -5.0946e-05  4.8806e-07
+
+      57       2  0.993610    3.2188e-04 -1.4762e-05
+               3  0.999857    6.2784e-04 -3.0844e-05  1.8848e-07
+
+      58       2  0.900083   -2.9009e-04 -1.9521e-06
+               3  1.000000   -1.1745e-03  4.5661e-05 -5.6667e-07
+
+      59       2  0.998414   -6.0924e-04 -1.1932e-05
+               3  1.000000   -2.4387e-04 -3.1601e-05  2.3409e-07
+
+      60       2  0.996967   -8.7713e-04 -8.0291e-06
+               3  1.000000   -1.3880e-03  1.9475e-05 -3.2734e-07
+
+      61       2  0.999808   -2.4667e-03  3.9028e-07
+               3  1.000000   -2.2315e-03 -1.2273e-05  1.5072e-07
+
+      62       2  0.999861   -2.6240e-03  3.2922e-06
+               3  1.000000   -2.8229e-03  1.3996e-05 -1.2739e-07
+
+      63       2  0.999686   -3.4674e-03  4.7485e-06
+               3  1.000000   -3.0736e-03 -1.6451e-05  2.5231e-07
+
+      64       2  0.996263   -3.9774e-03  1.5959e-05
+               3  1.000000   -5.2651e-03  8.5277e-05 -8.2499e-07
+
+      65       2  0.826085   -9.9480e-04  7.8932e-06
+               3  0.999887    9.1303e-04 -9.4424e-05  1.2148e-06
+
+      66       2  0.943287    8.7895e-05 -3.6831e-06
+               3  0.997666    3.0757e-04 -1.5121e-05  1.3320e-07
+
+      67       2  0.953952   -1.1748e-04  9.7692e-07
+               3  1.000000   -1.6811e-05 -4.4426e-06  6.4501e-08
+
+      68       2  0.999907   -1.0470e-03  7.0296e-06
+               3  1.000000   -1.0905e-03  9.3712e-06 -2.7869e-08
+
+      69       2  0.984733    8.1030e-04 -2.1920e-05
+               3  0.999899    2.8562e-04  6.6666e-06 -3.4186e-07
+
+      70       2  1.000000    1.0261e-03 -2.8961e-05
+               3  0.999991    1.0118e-03 -2.8262e-05 -7.8013e-09
+
+      71       2  0.982507    1.5094e-03 -3.3249e-05
+               3  0.999930    8.4162e-04  3.0386e-06 -4.3352e-07
+
+      72       2  0.932074    3.8317e-04 -1.1846e-05
+               3  1.000000   -2.8335e-04  2.4034e-05 -4.2703e-07
+
+      73       2  0.999210   -3.4008e-03 -5.9621e-06
+               3  1.000000   -4.1276e-03  3.3161e-05 -4.6563e-07
+
+      74       2  0.999969   -2.4907e-03 -1.6545e-05
+               3  1.000000   -2.6231e-03 -9.4210e-06 -8.4781e-08
+
+      75       2  0.994840   -2.9222e-03 -6.3795e-06
+               3  1.000000   -4.5461e-03  8.1042e-05 -1.0405e-06
+
+      76       2  0.996880   -2.5263e-03 -4.5972e-06
+               3  1.000000   -3.5992e-03  5.3161e-05 -6.8742e-07
+
+      77       2  0.913635   -1.0989e-03  1.5532e-05
+               3  1.000000   -1.7635e-03  5.1311e-05 -4.2582e-07
+
+      78       2  0.985806   -1.2361e-03  8.1461e-06
+               3  1.000000   -5.7395e-04 -2.7499e-05  4.2423e-07
+
+      79       2  0.964102   -7.4440e-04  2.7869e-06
+               3  1.000000   -1.5000e-03  4.3466e-05 -4.8414e-07
+
+      80       2  0.986634   -1.4623e-03  8.2351e-06
+               3  1.000000   -6.4061e-04 -3.5998e-05  5.2644e-07
+
+      81       2  0.998144   -1.6737e-03  1.0984e-05
+               3  1.000000   -1.3555e-03 -6.1455e-06  2.0387e-07
+
+      82       2  0.997175   -2.0512e-03  1.4349e-05
+               3  1.000000   -1.5866e-03 -1.0663e-05  2.9768e-07
+
+      83       2  0.983707   -1.5537e-03  7.2888e-06
+               3  1.000000   -5.1292e-04 -4.8739e-05  6.6682e-07
+
+      84       2  0.994599   -1.8591e-03  9.1905e-06
+               3  1.000000   -1.1666e-03 -2.8089e-05  4.4368e-07
+
+      85       2  0.995232   -1.5057e-03 -1.2112e-05
+               3  1.000000   -4.3125e-04 -6.9951e-05  6.8837e-07
+
+      86       2  0.404420    5.7964e-04 -2.4955e-05
+               3  1.000000   -6.5609e-03  3.5944e-04 -4.5749e-06
+
+      87       2  0.614714    4.6588e-03 -8.8558e-05
+               3  0.999986    1.2736e-02 -5.2302e-04  5.1678e-06
+
+      88       2  0.996563   -5.0400e-03 -2.6523e-04
+               3  1.000000    3.4984e-03 -7.2449e-04  5.4630e-06
+
+      89       2  0.997194   -3.0561e-02  6.3085e-05
+               3  1.000000   -4.0374e-02  5.9131e-04 -6.2867e-06
+
+      90       2  0.973737   -2.0669e-02  2.3141e-04
+               3  1.000000   -2.9787e-02  7.2227e-04 -5.8420e-06
+
+      91       2  0.999111   -2.3175e-02 -3.9776e-05
+               3  1.000000   -1.7881e-02 -3.2476e-04  3.3917e-06
+
+      92       2  0.999948   -1.8584e-02  1.0616e-04
+               3  1.000000   -1.7955e-02  7.2282e-05  4.0316e-07
+
+      93       2  0.999728   -3.1145e-02  3.4570e-05
+               3  1.000000   -3.4468e-02  2.1348e-04 -2.1293e-06
+
+      94       2  0.999934   -2.0376e-02  1.2345e-04
+               3  1.000000   -1.9620e-02  8.2784e-05  4.8401e-07
+
+      95       2  0.999224   -1.2845e-02  5.9080e-05
+               3  1.000000   -1.1003e-02 -4.0091e-05  1.1803e-06
+
+      96       2  0.999975   -2.3499e-02  1.4021e-04
+               3  1.000000   -2.2961e-02  1.1123e-04  3.4494e-07
+
+      97       2  0.987813   -1.7751e-03  9.3128e-06
+               3  1.000000   -2.7155e-03  5.9936e-05 -6.0249e-07
+
+      98       2  0.999554   -2.0640e-03  7.1377e-06
+               3  1.000000   -1.8205e-03 -5.9735e-06  1.5604e-07
+
+      99       2  0.989016   -1.2526e-03  5.6948e-06
+               3  1.000000   -5.6096e-04 -3.1540e-05  4.4314e-07
+
+     100       2  0.997515   -2.1885e-03  1.0734e-05
+               3  1.000000   -1.6371e-03 -1.8948e-05  3.5326e-07
+
+     101       2  0.999540    1.5414e-03 -2.0837e-05
+               3  0.999977    1.4506e-03 -1.6021e-05 -5.6815e-08
+
+     102       2  0.814690    3.2578e-03 -6.0212e-05
+               3  0.999960    6.5496e-03 -2.3704e-04  2.1016e-06
+
+     103       2  0.848975    3.3326e-03 -5.3837e-05
+               3  0.999945    5.8778e-03 -1.9047e-04  1.6232e-06
+
+     104       2  0.736665    2.1813e-03 -3.6443e-05
+               3  0.999886    4.5200e-03 -1.6196e-04  1.4909e-06
+
+     105       2  0.982894    1.5223e-04 -8.5085e-06
+               3  0.999645    4.7112e-04 -2.5287e-05  1.9676e-07
+
+     106       2  0.882913    1.8491e-03 -2.9144e-05
+               3  0.999815    3.0632e-03 -9.4115e-05  7.7033e-07
+
+     107       2  0.908084   -2.4530e-03  1.7194e-05
+               3  1.000000   -5.5366e-03  1.8319e-04 -1.9756e-06
+
+     108       2  0.864630   -3.1127e-03  2.6479e-05
+               3  1.000000   -7.2757e-03  2.5059e-04 -2.6673e-06
+
+     109       2  0.987619   -1.7407e-03  7.5229e-06
+               3  1.000000   -2.7383e-03  6.1229e-05 -6.3919e-07
+
+     110       2  0.947513   -1.8836e-03  1.3745e-05
+               3  1.000000   -3.6190e-03  1.0717e-04 -1.1118e-06
+
+     111       2  0.989459   -1.7053e-03  5.9231e-06
+               3  1.000000   -2.6650e-03  5.7587e-05 -6.1488e-07
+
+     112       2  0.960187   -2.4511e-03  1.9101e-05
+               3  1.000000   -4.3297e-03  1.2023e-04 -1.2036e-06
+
+     113       2  0.899387    8.8362e-04 -2.0005e-05
+               3  1.000000   -1.2778e-04  3.4442e-05 -6.4800e-07
+
+     114       2  0.987407    2.5144e-03 -4.3752e-05
+               3  0.999908    3.0673e-03 -7.3130e-05  3.4673e-07
+
+     115       2  0.840424    1.0350e-03 -2.2692e-05
+               3  1.000000   -4.0630e-04  5.4899e-05 -9.2344e-07
+
+     116       2  0.993707    3.1053e-03 -4.9214e-05
+               3  0.999934    3.5607e-03 -7.3339e-05  2.8421e-07
+
+     117       2  0.999684    1.5973e-03 -1.9811e-05
+               3  0.999982    1.5099e-03 -1.5176e-05 -5.4651e-08
+
+     118       2  0.992971    2.2956e-03 -3.2238e-05
+               3  0.999894    2.6735e-03 -5.2192e-05  2.3457e-07
+
+     119       2  0.984108   -1.2640e-03 -3.0483e-06
+               3  1.000000   -2.5067e-03  6.3849e-05 -7.9617e-07
+
+     120       2  0.946124   -9.3220e-04 -6.1548e-06
+               3  1.000000   -2.9885e-03  1.0454e-04 -1.3175e-06
+
+     121       2  0.997410   -2.4086e-03  1.1791e-05
+               3  1.000000   -3.0171e-03  4.4547e-05 -3.8985e-07
+
+     122       2  0.998615   -1.3275e-03 -8.1346e-06
+               3  1.000000   -8.5930e-04 -3.3339e-05  2.9998e-07
+
+     123       2  0.998416   -2.6192e-03  9.1997e-06
+               3  1.000000   -3.1931e-03  4.0094e-05 -3.6768e-07
+
+     124       2  0.999947   -2.3588e-03  5.7620e-06
+               3  1.000000   -2.4613e-03  1.1281e-05 -6.5681e-08
+
+     125       2  0.807730   -5.1943e-05 -1.3545e-05
+               3  0.999952    3.0371e-03 -1.7945e-04  1.9716e-06
+
+     126       2  0.948848   -8.7146e-04 -4.3284e-06
+               3  0.999965    9.8270e-04 -1.0376e-04  1.1804e-06
+
+     127       2  0.830124   -5.8565e-05 -6.2192e-06
+               3  0.999799    1.3512e-03 -8.1726e-05  8.9571e-07
+
+     128       2  0.965030   -4.1901e-04 -1.0015e-05
+               3  0.999955    9.3057e-04 -8.2280e-05  8.5713e-07
+
+     129       2  0.887570   -1.7508e-03 -8.1446e-07
+               3  0.999988    2.9332e-03 -2.5258e-04  2.9935e-06
+
+     130       2  0.930697   -1.0842e-03 -1.9142e-05
+               3  0.999991    3.2528e-03 -2.5223e-04  2.7711e-06
+
+     131       2  0.925181   -1.9621e-03 -3.2504e-06
+               3  0.999991    2.4580e-03 -2.4081e-04  2.8244e-06
+
+     132       2  0.966503   -2.6480e-03 -1.5272e-06
+               3  0.999994    9.7231e-04 -1.9603e-04  2.3119e-06
+
+     133       2  0.998890   -1.2708e-03  5.7952e-06
+               3  1.000000   -1.0519e-03 -5.9871e-06  1.4023e-07
+
+     134       2  0.999741   -1.6989e-03  7.9579e-06
+               3  1.000000   -1.8375e-03  1.5419e-05 -8.8803e-08
+
+     135       2  0.998993   -1.3883e-03  2.8805e-06
+               3  1.000000   -1.1177e-03 -1.1687e-05  1.7338e-07
+
+     136       2  0.982053   -2.3192e-03  1.3721e-05
+               3  1.000000   -8.3473e-04 -6.6195e-05  9.5112e-07
+
+     137       2  0.279992   -1.5681e-03  1.8946e-05
+               3  1.000000   -6.0266e-03  2.5896e-04 -2.8566e-06
+
+     138       2  0.313264   -1.4791e-03  1.7858e-05
+               3  1.000000   -5.4724e-03  2.3283e-04 -2.5585e-06
+
+     139       2  0.466303   -1.4707e-03  1.2034e-05
+               3  1.000000   -6.2420e-03  2.6889e-04 -3.0569e-06
+
+     140       2  0.745757   -1.2834e-03  7.3113e-06
+               3  1.000000   -4.4287e-03  1.7663e-04 -2.0152e-06
+
+     141       2  0.999995    1.3749e-03 -2.3001e-05
+               3  0.999964    1.3638e-03 -2.2473e-05 -5.7781e-09
+
+     142       2  0.938716    8.4360e-04 -2.1806e-05
+               3  1.000000   -1.3567e-04  3.0911e-05 -6.2742e-07
+
+     143       2  0.998248    3.9966e-04 -2.0054e-05
+               3  0.999992    1.4129e-04 -6.2159e-06 -1.6419e-07
+
+     144       2  0.985859   -8.5267e-06 -1.2262e-05
+               3  1.000000   -6.1925e-04  2.0615e-05 -3.9129e-07
+
+     145       2  0.950936   -1.5452e-03  7.5730e-07
+               3  0.999980    8.8900e-04 -1.2990e-04  1.5520e-06
+
+     146       2  0.997326   -1.7602e-03  9.9606e-06
+               3  1.000000   -1.3264e-03 -1.3392e-05  2.7794e-07
+
+     147       2  0.998829   -2.5637e-03  1.5322e-05
+               3  1.000000   -2.9642e-03  3.6882e-05 -2.5659e-07
+
+     148       2  0.984379   -1.8718e-03  3.1939e-06
+               3  1.000000   -3.6494e-04 -7.7924e-05  9.6543e-07
+
+     149       2  0.999033   -3.6851e-03  7.7561e-06
+               3  1.000000   -2.9827e-03 -3.0060e-05  4.5006e-07
+
+     150       2  0.998017   -4.1763e-03  1.6702e-05
+               3  1.000000   -5.1644e-03  6.9894e-05 -6.3306e-07
+
+     151       2  0.999722   -3.9035e-03  2.4391e-05
+               3  1.000000   -4.1950e-03  4.0084e-05 -1.8677e-07
+
+     152       2  0.999949   -4.2021e-03  9.5258e-06
+               3  1.000000   -4.0213e-03 -2.0759e-07  1.1584e-07
+
+     153       2  0.986240   -1.4075e-03 -2.4250e-05
+               3  0.999994    9.3490e-04 -1.4996e-04  1.4932e-06
+
+     154       2  0.995485   -2.3517e-03  1.6510e-06
+               3  1.000000   -1.2860e-03 -5.5718e-05  6.8278e-07
+
+     155       2  0.987987   -3.9252e-04 -2.3087e-05
+               3  0.999985    9.5823e-04 -9.5414e-05  8.5788e-07
+
+     156       2  0.967783   -9.5759e-04 -2.2803e-05
+               3  0.999991    2.0163e-03 -1.8251e-04  1.8978e-06
+
+     157       2  0.999859   -1.0709e-03  1.1595e-05
+               3  1.000000   -1.1076e-03  1.3574e-05 -2.3545e-08
+
+     158       2  0.995730   -2.3839e-03  1.5630e-05
+               3  1.000000   -3.0584e-03  5.1937e-05 -4.3211e-07
+
+     159       2  0.972149   -1.3797e-03  4.7215e-06
+               3  1.000000   -3.7464e-05 -6.7534e-05  8.5995e-07
+
+     160       2  0.978742   -2.1778e-03  1.5579e-05
+               3  1.000000   -3.4730e-03  8.5301e-05 -8.2979e-07
+
+     161       2  0.999907   -5.2075e-03  1.2770e-05
+               3  1.000000   -4.9081e-03 -3.3479e-06  1.9182e-07
+
+     162       2  0.994861   -6.2521e-03  2.6251e-05
+               3  1.000000   -8.5907e-03  1.5215e-04 -1.4983e-06
+
+     163       2  0.999883   -5.8157e-03  1.7212e-05
+               3  1.000000   -6.1768e-03  3.6649e-05 -2.3133e-07
+
+     164       2  0.999416   -5.9529e-03  2.0915e-05
+               3  1.000000   -6.7466e-03  6.3643e-05 -5.0854e-07
+
+     165       2  0.978988   -1.8741e-03 -5.1434e-06
+               3  0.999990    3.6320e-04 -1.2520e-04  1.4259e-06
+
+     166       2  0.989085   -2.3225e-03 -3.0323e-06
+               3  1.000000   -4.7098e-04 -1.0271e-04  1.1863e-06
+
+     167       2  0.985745   -1.3905e-03 -6.8578e-06
+               3  0.999985    1.0794e-04 -8.7138e-05  9.5253e-07
+
+     168       2  0.974577   -1.5845e-03 -1.1399e-05
+               3  0.999991    9.7794e-04 -1.4896e-04  1.6342e-06
+
+     169       2  0.909609   -1.0012e-03 -1.4870e-06
+               3  0.999965    1.4787e-03 -1.3460e-04  1.5813e-06
+
+     170       2  0.972452   -1.9986e-03  4.9202e-06
+               3  1.000000    6.4205e-05 -1.0613e-04  1.3217e-06
+
+     171       2  0.985149   -2.3377e-03  4.1847e-06
+               3  1.000000   -5.1417e-04 -9.3984e-05  1.1684e-06
+
+     172       2  0.993350   -2.2155e-03  3.1814e-06
+               3  1.000000   -1.0462e-03 -5.9762e-05  7.4912e-07
+
+     173       2  0.969749   -9.4654e-04 -9.8574e-06
+               3  0.999980    9.4913e-04 -1.1152e-04  1.2070e-06
+
+     174       2  0.985701   -1.3001e-03 -7.3834e-06
+               3  0.999984    1.5012e-04 -8.5066e-05  9.2161e-07
+
+     175       2  0.996072   -1.9331e-03 -3.3137e-06
+               3  1.000000   -9.9821e-04 -5.3642e-05  5.9899e-07
+
+     176       2  0.619991   -1.8327e-04 -8.2941e-07
+               3  0.999542    1.2124e-03 -7.5575e-05  8.8666e-07
+
+     177       2  0.992525   -1.5584e-03 -1.3942e-05
+               3  1.000000   -1.0962e-04 -9.1933e-05  9.2821e-07
+
+     178       2  0.977985   -6.8971e-04 -2.7621e-06
+               3  0.999935    1.9341e-04 -4.9915e-05  5.5826e-07
+
+     179       2  0.989236   -1.2134e-03 -2.2532e-06
+               3  1.000000   -2.2445e-04 -5.5494e-05  6.3364e-07
+
+     180       2  0.852660   -4.9467e-04 -6.4305e-06
+               3  0.999950    2.1589e-03 -1.4890e-04  1.6926e-06
+
+     181       2  0.996485   -1.9083e-03 -5.6528e-06
+               3  1.000000   -9.7828e-04 -5.5721e-05  5.9589e-07
+
+     182       2  0.998524   -1.8262e-03 -4.6104e-06
+               3  1.000000   -1.2646e-03 -3.4842e-05  3.5980e-07
+
+     183       2  0.992919   -1.5074e-03 -1.1743e-05
+               3  1.000000   -2.0526e-04 -8.1840e-05  8.3426e-07
+
+     184       2  0.993586   -2.0786e-03 -5.3315e-06
+               3  1.000000   -7.3063e-04 -7.7897e-05  8.6364e-07
+
+     185       2  0.998240   -1.4628e-03  9.8473e-06
+               3  1.000000   -1.1959e-03 -4.5210e-06  1.7100e-07
+
+     186       2  0.979034   -1.2105e-03  6.9208e-06
+               3  1.000000   -2.0187e-03  5.0426e-05 -5.1777e-07
+
+     187       2  0.988032   -1.2661e-03  2.4343e-06
+               3  1.000000   -3.9016e-04 -4.4719e-05  5.6120e-07
+
+     188       2  0.986608   -1.8220e-03  6.0916e-06
+               3  1.000000   -2.9872e-03  6.8819e-05 -7.4655e-07
+
+     189       2  0.999977   -6.2589e-03  5.0741e-06
+               3  1.000000   -6.0600e-03 -5.6314e-06  1.2741e-07
+
+     190       2  0.999769   -5.9150e-03 -1.6534e-06
+               3  1.000000   -5.2798e-03 -3.5851e-05  4.0700e-07
+
+     191       2  1.000000   -6.3145e-03  9.2091e-06
+               3  1.000000   -6.3138e-03  9.1697e-06  4.6918e-10
+
+     192       2  0.999760   -6.1504e-03  3.8981e-06
+               3  1.000000   -5.5117e-03 -3.0484e-05  4.0920e-07
+
+     193       2  0.998534   -3.7648e-03  7.1596e-06
+               3  1.000000   -2.8681e-03 -4.1109e-05  5.7447e-07
+
+     194       2  0.998264   -4.1824e-03  8.3603e-06
+               3  1.000000   -3.1045e-03 -4.9666e-05  6.9060e-07
+
+     195       2  0.996247   -4.6530e-03  7.8229e-06
+               3  1.000000   -2.8455e-03 -8.9481e-05  1.1581e-06
+
+     196       2  0.999462   -4.8020e-03  1.3671e-05
+               3  1.000000   -4.1531e-03 -2.1257e-05  4.1571e-07
+
+     197       2  0.989920   -9.8949e-04 -1.7681e-06
+               3  1.000000   -2.1265e-04 -4.3588e-05  4.9772e-07
+
+     198       2  0.996147   -1.3296e-03 -2.2510e-06
+               3  1.000000   -6.9352e-04 -3.6491e-05  4.0751e-07
+
+     199       2  0.999980   -1.8506e-03  2.8670e-06
+               3  1.000000   -1.9026e-03  5.6624e-06 -3.3270e-08
+
+     200       2  0.999993   -2.0682e-03  1.5282e-06
+               3  1.000000   -2.0317e-03 -4.3696e-07  2.3389e-08
+
+     201       2  0.999941    2.4204e-03  5.5659e-06
+               3  0.999995    2.2562e-03  1.4751e-05 -1.1095e-07
+
+     202       2  0.999423    2.7617e-03  2.7211e-06
+               3  0.999994    3.2228e-03 -2.1715e-05  2.8791e-07
+
+     203       2  0.998376    1.9361e-03  1.0912e-05
+               3  0.999995    1.1936e-03  5.1226e-05 -4.8143e-07
+
+     204       2  0.998590    1.7992e-03  6.6613e-06
+               3  0.999993    1.2076e-03  3.8846e-05 -3.8469e-07
+
+     205       2  0.999999   -5.4598e-03  1.8163e-05
+               3  1.000000   -5.4829e-03  1.9404e-05 -1.4779e-08
+
+     206       2  0.999941   -6.2270e-03  2.9632e-05
+               3  1.000000   -5.9852e-03  1.6619e-05  1.5487e-07
+
+     207       2  0.997046   -6.9164e-03  4.3085e-05
+               3  1.000000   -8.5920e-03  1.3328e-04 -1.0735e-06
+
+     208       2  0.999859   -7.2620e-03  4.5553e-05
+               3  1.000000   -7.6470e-03  6.6281e-05 -2.4669e-07
+
+     209       2  0.987989   -3.1986e-03  1.4229e-05
+               3  1.000000   -4.9876e-03  1.1053e-04 -1.1461e-06
+
+     210       2  0.989758   -3.4285e-03  1.9497e-05
+               3  1.000000   -5.0372e-03  1.0610e-04 -1.0307e-06
+
+     211       2  0.987170   -3.8969e-03  2.7041e-05
+               3  1.000000   -5.7360e-03  1.2605e-04 -1.1783e-06
+
+     212       2  0.981478   -3.5323e-03  2.0795e-05
+               3  1.000000   -5.7193e-03  1.3852e-04 -1.4012e-06
+
+     213       2  0.997544   -7.6809e-03  2.1822e-05
+               3  1.000000   -5.4492e-03 -9.8318e-05  1.4298e-06
+
+     214       2  0.996224   -7.5502e-03  1.8973e-05
+               3  1.000000   -4.7621e-03 -1.3112e-04  1.7863e-06
+
+     215       2  0.996525   -7.7797e-03  2.0932e-05
+               3  1.000000   -5.0579e-03 -1.2559e-04  1.7438e-06
+
+     216       2  0.995342   -7.6420e-03  1.8431e-05
+               3  1.000000   -4.4817e-03 -1.5170e-04  2.0248e-06
+
+     217       2  0.999159   -5.6468e-03  1.8910e-05
+               3  1.000000   -4.7236e-03 -3.0790e-05  5.9150e-07
+
+     218       2  0.999903   -5.8690e-03  2.1578e-05
+               3  1.000000   -6.1846e-03  3.8568e-05 -2.0221e-07
+
+     219       2  0.999866   -5.7538e-03  2.1772e-05
+               3  1.000000   -5.3908e-03  2.2308e-06  2.3257e-07
+
+     220       2  0.998773   -5.4562e-03  1.5702e-05
+               3  1.000000   -4.3420e-03 -4.4279e-05  7.1386e-07
+
+     221       2  0.968354   -3.0064e-03 -3.5701e-06
+               3  0.999996    1.1204e-03 -2.2534e-04  2.6365e-06
+
+     222       2  0.992812   -3.8055e-03  1.0025e-05
+               3  1.000000   -1.8709e-03 -9.4122e-05  1.2395e-06
+
+     223       2  0.980530   -3.3433e-03  1.8196e-06
+               3  1.000000   -1.0281e-04 -1.7263e-04  2.0762e-06
+
+     224       2  0.950501   -2.5907e-03 -1.1441e-05
+               3  0.999996    2.7318e-03 -2.9758e-04  3.4026e-06
+
+     225       2  0.989804   -4.1583e-03 -1.4349e-06
+               3  1.000000   -1.1226e-03 -1.6486e-04  1.9450e-06
+
+     226       2  0.994423   -4.4174e-03  2.7702e-06
+               3  1.000000   -2.1785e-03 -1.1776e-04  1.4345e-06
+
+     227       2  0.999131   -4.7154e-03  1.3589e-05
+               3  1.000000   -3.9062e-03 -2.9970e-05  5.1842e-07
+
+     228       2  0.999136   -4.7039e-03  1.2476e-05
+               3  1.000000   -3.8864e-03 -3.1531e-05  5.2374e-07
+
+     229       2  0.979070   -3.5256e-03 -4.5447e-06
+               3  0.999997    3.8630e-04 -2.1475e-04  2.4988e-06
+
+     230       2  0.981074   -3.6218e-03 -3.4743e-06
+               3  1.000000    1.4579e-04 -2.0629e-04  2.4138e-06
+
+     231       2  0.985427   -4.4119e-03 -2.6912e-06
+               3  1.000000   -4.8171e-04 -2.1427e-04  2.5181e-06
+
+     232       2  0.999959   -5.3686e-03  1.8344e-05
+               3  1.000000   -5.1776e-03  8.0611e-06  1.2238e-07
+
+     233       2  0.999888    3.4713e-02 -2.5193e-05
+               3  1.000000    3.2248e-02  1.0784e-04 -1.5849e-06
+
+     234       2  0.999907    3.4717e-02 -2.5312e-05
+               3  1.000000    3.2468e-02  9.6069e-05 -1.4462e-06
+
+     235       2  0.999863    3.4941e-02 -2.8487e-05
+               3  1.000000    3.2214e-02  1.1865e-04 -1.7527e-06
+
+     236       2  0.999893    3.4684e-02 -2.8669e-05
+               3  1.000000    3.2297e-02  1.0016e-04 -1.5349e-06
+
+     237       2  0.999382    2.5866e-02 -6.9447e-05
+               3  1.000000    2.9600e-02 -2.7007e-04  2.3849e-06
+
+     238       2  0.999392    2.5736e-02 -6.7110e-05
+               3  1.000000    2.9437e-02 -2.6600e-04  2.3643e-06
+
+     239       2  0.999219    2.5436e-02 -6.9467e-05
+               3  1.000000    2.9549e-02 -2.9054e-04  2.6283e-06
+
+     240       2  0.999423    2.4589e-02 -6.2063e-05
+               3  1.000000    2.8054e-02 -2.4821e-04  2.2126e-06
 
 ## POLYNOMIAL FIT GOODNESS AT QPOINT #       0
-  Order           R^2
-      2      0.956735
-      3      0.999979
+   Order         R^2
+       2    0.956735
+       3    0.999979
 
+## THE OPTIMAL ORDER OF POLYNOMIAL =       3
 
 # QHA THERMODYNAMIC PROPERTIES - FREQUENCY
   QHA thermodynamic properties by explicitly fitting frequencies.

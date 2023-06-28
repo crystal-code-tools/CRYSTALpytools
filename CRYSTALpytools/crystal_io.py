@@ -48,7 +48,7 @@ class Crystal_input(Crystal_inputBASE):
         struc = IStructure.from_file(file)
         self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
 
-        return
+        return self
 
     def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
                       pbc=[True, True, True], gui_name='fort.34',
@@ -71,7 +71,7 @@ class Crystal_input(Crystal_inputBASE):
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
-        return
+        return self
 
     def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
         """
@@ -91,74 +91,77 @@ class Crystal_input(Crystal_inputBASE):
         from pymatgen.core.structure import IStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        analyzer = SpacegroupAnalyzer(
-            struc, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer = SpacegroupAnalyzer(struc, symprec=symprec, angle_tolerance=angle_tolerance)
         # Analyze the refined geometry
         struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(
-            struc2, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_symm = analyzer2.get_symmetrized_structure()
+        analyzer2 = SpacegroupAnalyzer(struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_pri = analyzer2.get_primitive_standard_structure()
+        analyzer3 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_pri = analyzer3.get_symmetrized_structure()
 
-        sg = analyzer.get_space_group_number()
+        sg = analyzer2.get_space_group_number()
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
             for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 3 and sg < 16:  # monoclinic
             for i in ['a', 'b', 'c', 'beta']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 16 and sg < 75:  # orthorhombic
             for i in ['a', 'b', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
         elif sg >= 75 and sg < 143:  # tetragonal
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
                 ))
-        elif sg >= 143 and sg < 168:  # trigonal
-            for i in ['a', 'alpha']:
-                latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
-                ))
-        elif sg >= 168 and sg < 195:  # hexagonal
+        elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
+            struc_pri = analyzer3.get_conventional_standard_structure()
+            analyzer4 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+            struc_pri = analyzer4.get_symmetrized_structure()
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_symm.lattice, i), 6
+                    getattr(struc_pri.lattice, i), 6
+                ))
+        elif sg >= 168 and sg < 195:  # hexagonal and trigonal
+            for i in ['a', 'c']:
+                latt.append(round(
+                    getattr(struc_pri.lattice, i), 6
                 ))
         else:  # cubic
-            latt.append(round(struc_sym.lattice.a, 6))
+            latt.append(round(struc_pri.lattice.a, 6))
 
-        natom = len(struc_symm.equivalent_sites)
-        eq_atom = int(len(struc_symm.species) / natom)
+        natom = len(struc_pri.equivalent_sites)
+        eq_atom = int(len(struc_pri.species) / natom)
         atominfo = []
         if zconv != None:
             z_atom_index = [i[0] for i in zconv]
         for i in range(natom):
             idx_eq = int(i * eq_atom)
             if zconv == None:
-                z_input = struc_symm.species[idx_eq].Z
+                z_input = struc_pri.species[idx_eq].Z
             else:
                 try:
                     atom_to_sub = z_atom_index.index(i)
                     z_input = zconv[atom_to_sub][1]
                 except ValueError:
-                    z_input = struc_symm.species[idx_eq].Z
+                    z_input = struc_pri.species[idx_eq].Z
             atominfo.append([
                 '{:<3}'.format(z_input),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[0], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[1], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
+                    round(struc_pri.equivalent_sites[i][0].frac_coords[2], 8)
                 )
             ])
 
@@ -788,302 +791,179 @@ class Crystal_output:
 
         return [self.atom_type1, self.atom_type2]
 
-    def _check_freq_file(self):
+    def get_phonon(self, read_eigvt=False, rm_imaginary=True, rm_overlap=True,
+                   imaginary_tol=-1e-4, q_overlap_tol=1e-4):
         """
-        Check if the output is specified and if it is a frequency output. 
+        Read phonon-related properties from output file.
+
+        Args:
+            read_eigvt (bool): Whether to read phonon eigenvectors and
+                normalize it to 1.
+            rm_imaginary (bool): Remove the modes with negative frequencies and
+                set all the related properties to NaN.
+            rm_overlap (bool): *For dispersion calculations* Remove repeated q
+                points and recalculate their weights.
+            imaginary_tol (float): *``rm_imaginary`` = True only* The threshold
+                of negative frequencies.
+            q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
+                overlapping points, defined as the 2nd norm of the difference
+                of fractional q vectors
 
         .. note::
 
-            The identifier:
-
-            +++ SYMMETRY ADAPTION OF VIBRATIONAL MODES +++
-
-        Returns:
-            is_freq (bool): True if the file is a frequency output file.
-
-        :raise Exception: If the output file is not specified
-        """
-        import re
-
-        if not hasattr(self, 'data'):
-            raise Exception('Output file not specified.')
-
-        is_freq = False
-
-        for line in self.data:
-            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
-                is_freq = True
-                break
-            else:
-                continue
-
-        return is_freq
-
-    def get_q_info(self):
-        """
-        Get DFT total energy and coordinates and weights of q points (where 
-        phonon frequencies are calculated).
+            In QHA calculations, the 'q point' dimension refer to harmonic
+            phonons computed. In other cases it refers to points in reciprocal
+            space.
 
         Returns:
-            self.edft (array[float]): Energy (in kJ/mol) reported in 'CENTERAL 
-                POINT' line (DFT + corrected energy)
+            self.edft (array[float]): :math:`E_{0}` Energy with empirical
+                correction. Unit: kJ/mol.
             self.nqpoint (int): Number of q points
-            self.qpoint (list[list[array[float], float]]): A nqpoint list of
-                2\*1 list whose first element is a 3\*1 array of q point
-                fractional coordinates and the second is its weight.
-
-        .. note::
-
-            ``self.edft`` is an array commensurate with the number of qpoints
-            to ensure the compatibility with QHA output. DFT+HA calculations
-            with various volumes generated by the QHA module make ``self.edft``
-            an array of different numbers. Otherwise, it is the array of same
-            numbers.
-
-        :raise Exception: If the output does not include the 'FREQCALC' section.
+            self.qpoint (list[list[array[float], float]]): A nqpoint\*1 list of
+                2\*1 list whose first element is a 3\*1 array of fractional
+                coordinates and the second is its weight.
+            self.nmode (array[int]): Number of modes at q point. nqpoint\*1
+                array.
+            self.frequency (array[float]): nqpoint\*nmode array ofvibrational
+                frequency. Unit: THz
+            self.intens (array[float]): nqpoint\*nmode array of harmonic
+                intensiy. Unit: km/mol
+            self.IR (array[bool]): nqpoint\*nmode array of boolean values
+                specifying whether the mode is IR active
+            self.Raman (array[bool]): nqpoint\*nmode array of boolean values
+                specifying whether the mode is Raman active
+            self.eigenvector (array[float]): *``read_eigvt = True only``* 
+                nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
         import numpy as np
+        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.units import H_to_kjmol
 
-        is_freq = self._check_freq_file()
-        if not is_freq:
-            raise Exception('Not a frequency calculation.')
-
-        edft = np.array([], dtype=float)
+        is_freq = False
+        self.edft = []
         self.nqpoint = 0
         self.qpoint = []
+        self.nmode = []
+        self.frequency = []
+        self.intens = []
+        self.IR = []
+        self.Raman = []
+        self.eigenvector = []
 
-        for i, line in enumerate(self.data):
-            # Keywords in gradient calculation
-            if re.match(r'\s*CENTRAL POINT', line):
-                edft = np.append(edft, units.H_to_kjmol(
-                    float(line.strip().split()[2])))
-
-            if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
+        countline = 0
+        while countline < len(self.data):
+            line = self.data[countline]
+            # Whether is a frequency file
+            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
+                is_freq = True
+                countline += 1
+                continue
+            # E_0 with empirical corrections
+            elif re.match(r'^\s+CENTRAL POINT', line):
+                self.edft.append(float(line.strip().split()[2]))
+                countline += 1
+                continue
+            # Q point info + frequency
+            ## Dispersion
+            elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
-
-# Keywords in dipersion calculation
-            if re.match(r'\s*DISPERSION K POINT NUMBER', line):
+                countline += 1
+                continue
+            elif re.match(r'\s+DISPERSION K POINT NUMBER', line):
                 coord = np.array(line.strip().split()[7:10], dtype=float)
                 weight = float(line.strip().split()[-1])
                 self.qpoint.append([coord / shrink, weight])
                 self.nqpoint += 1
+                countline += 2
+                ## Read phonons
+                phonon = PhononBASE.readmode_basic(self.data, countline)
+                countline = phonon[0]
+                self.frequency.append(phonon[1])
+                self.intens.append(phonon[2])
+                self.IR.append(phonon[3])
+                self.Raman.append(phonon[4])
+            ## Gamma point
+            elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
+                countline += 2
+                ## Read phonons
+                phonon = PhononBASE.readmode_basic(self.data, countline)
+                countline = phonon[0]
+                self.frequency.append(phonon[1])
+                self.intens.append(phonon[2])
+                self.IR.append(phonon[3])
+                self.Raman.append(phonon[4])
+            ## Phonon eigenvector
+            elif re.match(r'^\s+MODES IN PHASE', line) or re.match(r'^\s+NORMAL MODES NORMALIZED', line):
+                if read_eigvt == False:
+                    countline += 1
+                    continue
+                countline += 2
+                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
+                countline = eigvt[0]
+                self.eigenvector.append(eigvt[1])
+            # Other data
+            else:
+                countline += 1
+                continue
 
-# HA Gamma point calculation
-        if self.nqpoint == 0 and len(edft) == 1:
-            self.nqpoint = 1
-            self.qpoint = [[np.array([0, 0, 0], dtype=float), 1.]]
-            self.edft = edft
-# QHA Gamma point calculation
-        elif self.nqpoint == 0 and len(edft) > 1:
-            self.nqpoint = len(edft)
-            for i in range(self.nqpoint):
-                self.qpoint.append(
-                    [np.array([0, 0, 0], dtype=float), 1.]
-                )
-            self.edft = edft
-# HA dispersion calculation
-        elif self.nqpoint > 0 and len(edft) == 1:
-            for i in range(self.nqpoint):
-                self.qpoint[i][1] /= self.nqpoint
-            self.edft = np.array([edft[0] for i in range(self.nqpoint)], dtype=float)
+        if is_freq == False:
+            raise Exception('Not a frequency calculation.')
+
+        # HA/QHA Gamma point calculation
+        if self.nqpoint == 0:
+            self.nqpoint = len(self.edft)
+            self.qpoint = [[np.zeros([3,]), 1.] for i in range(self.nqpoint)]
+            if len(self.edft) == 1:
+                self.edft = [self.edft[0] for i in range(self.nqpoint)]
+        # Dispersion
         else:
-            raise Exception('Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
+            self.qpoint = [[i[0], i[1] / self.nqpoint] for i in self.qpoint]
+            self.edft = [self.edft[0] for i in range(self.nqpoint)]
 
-        return self.edft, self.nqpoint, self.qpoint
+        self.edft = H_to_kjmol(np.array(self.edft))
+
+        self.frequency = np.array(self.frequency)
+        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
+        if self.intens[0] == []:
+            self.intens = []
+            self.IR = []
+            self.Raman = []
+        else:
+            self.intens = np.array(self.intens)
+
+        if self.eigenvector != []:
+            self.eigenvector = np.array(self.eigenvector)
+
+
+        if rm_imaginary == True:
+            self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
+
+        if rm_overlap == True and self.nqpoint > 1:
+            self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
+
+        return self
+
+    def get_q_info(self):
+        """
+        Deprecated.
+        """
+        import warnings
+
+        warnings.warn('This method is deprecated. Use `get_phonon`.', stacklevel=2)
+        return self
 
     def get_mode(self):
         """
-        Get the number of modes at all q points and corresponding vibrational
-        frequencies and intensities.
-
-        Returns:
-            self.nmode (array[int]): Number of modes at q point.
-            self.frequency (array[float]): nqpoint \* nmode array of vibrational
-                frequency. Unit: THz
-            self.intens (array[float]): nqpoint \* nmode array of harmonic
-                intensiy. Unit: km/mol
-            self.IR (array[bool]): nqpoint \* nmode array of boolean values
-                specifying whether the mode is IR active
-            self.Raman (array[bool]): nqpoint \* nmode array of boolean values
-                specifying whether the mode is Raman active
+        Deprecated.
         """
-        import numpy as np
-        import re
-
-        if not hasattr(self, 'nqpoint'):
-            self.get_q_info()
-
-        self.frequency = np.array([], dtype=float)
-        self.intens = np.array([], dtype=float)
-        self.IR = np.array([], dtype=bool)
-        self.Raman = np.array([], dtype=bool)
-
-        countline = 0
-        while countline < len(self.data):
-            is_freq = False
-            if re.match(r'\s*DISPERSION K POINT NUMBER\s*\d',
-                        self.data[countline]):
-                countline += 2
-                is_freq = True
-
-            if re.match(r'\s*MODES\s*EIGV\s*FREQUENCIES\s*IRREP',
-                        self.data[countline]):
-                countline += 2
-                is_freq = True
-
-            while self.data[countline].strip() and is_freq:
-                line_data = self.data[countline].split()
-                nm_a = int(line_data[0].strip('-'))
-                nm_b = int(line_data[1])
-                freq = float(line_data[4])
-                has_spec = False
-                # IR/Raman analysis, closed by default in dispersion calcs
-                if 'A' in line_data or 'I' in line_data:
-                    has_spec = True
-                    intens = float(line_data[-2].strip(')'))
-                    IR = line_data[-4] == 'A'
-                    Raman = line_data[-1] == 'A'
-                    if (nm_b-nm_a == 1):
-                        intens = intens/2
-                    elif(nm_b-nm_a == 2):
-                        intens = intens/3
-
-                for mode in range(nm_a, nm_b + 1):
-                    self.frequency = np.append(self.frequency, freq)
-                    if has_spec:
-                        self.intens = np.append(self.intens, intens)
-                        self.IR = np.append(self.IR, IR)
-                        self.Raman = np.append(self.Raman, Raman)
-
-                countline += 1
-
-            countline += 1
-
-        self.frequency = np.reshape(self.frequency, (self.nqpoint, -1))
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
-
-        if has_spec:
-            self.intens = np.reshape(self.intens, (self.nqpoint, -1))
-            self.IR = np.reshape(self.IR, (self.nqpoint, -1))
-            self.Raman = np.reshape(self.Raman, (self.nqpoint, -1))
-
-        return self.nmode, self.frequency, self.intens, self.IR, self.Raman
+        return self.get_q_info()
 
     def get_phonon_eigenvector(self):
         """
-        Get corresponding mode eigenvectors.
-
-        Returns:
-            self.eigenvector (array[float]): nqpoint\*nmode\*natom\*3 array of 
-                eigenvectors. Normalized to 1.
+        Deprecated.
         """
-        import numpy as np
-        import re
-
-        if not hasattr(self, 'nmode'):
-            self.get_mode()
-
-        total_mode = np.sum(self.nmode)
-        countline = 0
-        # Multiple blocks for 1 mode. Maximum 6 columns for 1 block.
-        if np.max(self.nmode) >= 6:
-            countmode = 6
-        else:
-            countmode = total_mode
-
-        # Read the eigenvector region as its original shape
-        block_label = False
-        total_data = []
-        while countline < len(self.data) and countmode <= total_mode:
-            # Gamma point / phonon dispersion calculation
-            if re.match(r'\s*MODES IN PHASE', self.data[countline]) or\
-               re.match(r'\s*NORMAL MODES NORMALIZED', self.data[countline]):
-                block_label = True
-            elif re.match(r'\s*MODES IN ANTI-PHASE', self.data[countline]):
-                block_label = False
-
-            # Enter a block
-            if re.match(r'\s*FREQ\(CM\*\*\-1\)', self.data[countline]) and\
-               block_label:
-                countline += 2
-                block_data = []
-                while self.data[countline].strip():
-                    # Trim annotation part (12 characters)
-                    line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
-                                           self.data[countline][13:])
-                    if line_data:
-                        block_data.append(line_data)
-
-                    countline += 1
-
-                countmode += len(line_data)
-                total_data.append(block_data)
-
-            countline += 1
-
-        total_data = np.array(total_data, dtype=float)
-
-        # Rearrage eigenvectors
-        block_per_q = len(total_data) / self.nqpoint
-        self.eigenvector = []
-        # 1st dimension, nqpoint
-        for q in range(self.nqpoint):
-            index_bg = int(q * block_per_q)
-            index_ed = int((q + 1) * block_per_q)
-            q_data = np.hstack([i for i in total_data[index_bg: index_ed]])
-        # 2nd dimension, nmode
-            q_data = np.transpose(q_data)
-        # 3rd dimension, natom
-            natom = int(self.nmode[q] / 3)
-            q_rearrange = [np.split(m, natom, axis=0) for m in q_data]
-
-            self.eigenvector.append(q_rearrange)
-
-        self.eigenvector = np.array(self.eigenvector)
-
-        # Normalize eigenvectors of each mode to 1
-        for idx_q, q in enumerate(self.eigenvector):
-            for idx_m, m in enumerate(q):
-                self.eigenvector[idx_q, idx_m] = \
-                    self.eigenvector[idx_q, idx_m] / np.linalg.norm(m)
-
-        return self.eigenvector
-
-    def clean_imaginary(self):
-        """
-        Substitute imaginary modes and corresponding eigenvectors with numpy
-        NaN format and print warning message.
-
-        Returns:
-            self.frequency (array[float])
-            self.eigenvector (array[float])
-        """
-        import numpy as np
-        import warnings
-
-        for q, freq in enumerate(self.frequency):
-            if freq[0] > -1e-4 or np.isnan(freq[0]):
-                continue
-
-            warnings.warn(
-                'Negative frequencies detected - Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by NaN.',
-                stacklevel=2
-            )
-
-            neg_rank = np.where(freq <= -1e-4)[0]
-            self.frequency[q, neg_rank] = np.nan
-
-            if hasattr(self, 'eigenvector'):
-                if len(self.eigenvector) != 0:
-                    natom = int(self.nmode[q] / 3)
-                    nan_eigvt = np.full([natom, 3], np.nan)
-                    self.eigenvector[q, neg_rank] = nan_eigvt
-
-        if hasattr(self, 'eigenvector'):
-            return self.frequency, self.eigenvector
-        else:
-            return self.frequency
+        return self.get_q_info()
 
     def get_elatensor(self):
 
@@ -1397,11 +1277,11 @@ class Properties_output:
         pass
 
     def read_file(self, properties_output):
-        # Function to parse the properties output file.
-        # It is not meant to be calles directly, but to be used by the
-        # functions below to read the properties file.
-
-        import sys
+        """
+        Function to parse the properties output file. It is not meant to
+        be called directly, but to be used by the functions below to read
+        the properties file.
+        """
         import os
 
         self.file_name = properties_output
@@ -1419,8 +1299,7 @@ class Properties_output:
             self.title = os.path.split(properties_output)[1]
 
         except:
-            print('EXITING: a CRYSTAL properties file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_vecfield(self, properties_output, which_prop):
         # Reads the .f25 file to return a data array containing
@@ -1562,124 +1441,64 @@ class Properties_output:
         return self
 
     def read_cry_bands(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL band files
-        # Returns an array where the band energy is expressed in eV
+        """
+        Deprecated.
+        """
+        import warnings
 
-        import re
-        import numpy as np
+        warnings.warn('Deprecated. Use read_electron_band instead.')
+        return self.read_electron_band(properties_output)
+
+    def read_electron_band(self, properties_output):
+        """
+        Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
+        Energy unit: eV.
+
+        Args:
+            properties_output (str): File name
+
+        Returns:
+            self.bands (BandsBASE): A Bands base object
+        """
+        from CRYSTALpytools.base.propout import BandsBASE
 
         self.read_file(properties_output)
+        if '-%-' in self.data[0]: #fort.25 file format
+            self.bands = BandsBASE.f25_parser(self.data)
+        else: #BAND.DAT file format
+            self.bands = BandsBASE.BAND_parser(self.data)
 
-        data = self.data
-
-        # Read the information about the file
-        # number of k points in the calculation
-        self.n_kpoints = int(data[0].split()[2])
-        # number of bands in the calculation
-        self.n_bands = int(data[0].split()[4])
-        self.spin = int(data[0].split()[6])  # number of spin
-        # number of tick in the band plot
-        self.n_tick = int(data[1].split()[2])+1
-        self.k_point_inp_coordinates = []
-        self.n_points = []
-        # finds all the coordinates of the ticks and the k points
-        """for i in range(self.n_tick):
-            self.n_points.append(int(data[2+i].split()[1]))
-            coord = []
-            for j in range(3):
-                l = re.findall('\d+', data[2+i].split()[2])
-                coord.append(float(l[j])/float(l[3]))
-            self.k_point_inp_coordinates.append(coord)
-        self.k_point_inp_coordinates = np.array(self.k_point_inp_coordinates)
-        self.k_point_coordinates = [self.k_point_inp_coordinates[0]]
-        for i in range(1, self.n_tick):
-            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(
-                self.n_points[i]-self.n_points[i-1])
-            for j in range(self.n_points[i]-self.n_points[i-1]):
-                # coordinates of the k_points in the calculation
-                self.k_point_coordinates.append(
-                    (self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())"""
-        self.tick_position = []  # positions of the ticks
-        self.tick_label = []  # tick labels
-        for i in range(self.n_tick):
-            self.tick_position.append(
-                float(data[16+self.n_tick+i*2].split()[4]))
-            self.tick_label.append(
-                str(data[17+self.n_tick+i*2].split()[3][2:]))
-        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
-
-        # Allocate the bands as np arrays
-        self.bands = np.zeros(
-            (self.n_bands, self.n_kpoints, self.spin), dtype=float)
-
-        # Allocate the k_points a one dimensional array
-        self.k_point_plot = np.zeros(self.n_kpoints)
-
-        # line where the first band is. Written this way to help identify
-        # where the error might be if there are different file lenghts
-        first_k = 2 + self.n_tick + 14 + 2*self.n_tick + 2
-
-        # Read the bands and store them into a numpy array
-        for i, line in enumerate(data[first_k:first_k+self.n_kpoints]):
-            self.bands[:self.n_bands+1, i,
-                       0] = np.array([float(n) for n in line.split()[1:]])
-            self.k_point_plot[i] = float(line.split()[0])
-
-        if self.spin == 2:
-            # line where the first beta band is. Written this way to help identify
-            first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
-            for i, line in enumerate(data[first_k_beta:-1]):
-                self.bands[:self.n_bands+1, i,
-                           1] = np.array([float(n) for n in line.split()[1:]])
-
-        # Convert all the energy to eV
-        self.bands[:, :, :] = units.H_to_eV(self.bands[:, :, :])
-
-        # Calculate the direct/indirect band gaps
-
-        return self
+        return self.bands
 
     def read_cry_doss(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL doss files
-        # Returns an array where the band energy is expressed in eV
+        """
+        Deprecated.
+        """
+        import warnings
 
-        import re
-        import numpy as np
+        warnings.warn('Deprecated. Use read_electron_dos instead.')
+        return self.read_electron_dos(properties_output)
+
+    def read_electron_dos(self, properties_output):
+        """
+        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
+        Energy unit: eV.
+
+        Args:
+            properties_output (str): File name
+
+        Returns:
+            self.doss (DOSBASE): A DOS base object
+        """
+        from CRYSTALpytools.base.propout import DOSBASE
 
         self.read_file(properties_output)
+        if '-%-' in self.data[0]: #fort.25 file format
+            self.doss = DOSBASE.f25_parser(self.data)
+        else: #DOSS.DAT file format
+            self.doss = DOSBASE.DOSS_parser(self.data)
 
-        data = self.data
-
-        # Read the information about the file
-        self.n_energy = int(data[0].split()[2])
-        self.n_proj = int(data[0].split()[4])
-        self.spin = int(data[0].split()[6])
-        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
-
-        first_energy = 4
-
-        # Allocate the doss as np arrays
-        self.doss = np.zeros(
-            (self.n_energy, self.n_proj+1, self.spin), dtype=float)
-
-        # Read the doss and store them into a numpy array
-        for i, line in enumerate(data[first_energy:first_energy+self.n_energy]):
-            self.doss[i, :self.n_proj+1,
-                      0] = np.array([float(n) for n in line.split()])
-
-        if self.spin == 2:
-            # line where the first beta energy is. Written this way to help identify
-            first_energy_beta = first_energy + self.n_energy + 3
-            for i, line in enumerate(data[first_energy_beta:-1]):
-                self.doss[i, :self.n_proj+1,
-                          1] = np.array([float(n) for n in line.split()])
-
-        # Convert all the energy to eV
-        self.doss[:, 0, :] = units.H_to_eV(self.doss[:, 0, :])
-
-        return self
+        return self.doss
 
     def read_cry_contour(self, properties_output):
 

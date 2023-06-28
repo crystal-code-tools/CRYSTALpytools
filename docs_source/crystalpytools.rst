@@ -27,6 +27,8 @@ CRYSTALpytools instructions for developers.
 .. toctree::
 	:maxdepth: 1
 
-	crystalpytools.base.inputbase
 	crystalpytools.base.crysd12
+	crystalpytools.base.crysout
+	crystalpytools.base.propout
+	crystalpytools.base.inputbase
 	crystalpytools.base.basisset
