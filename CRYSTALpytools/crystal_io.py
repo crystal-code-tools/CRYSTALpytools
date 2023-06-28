@@ -167,17 +167,22 @@ class Crystal_input(Crystal_inputBASE):
         return
 
 
-class Crystal_output:
-    # This class reads a CRYSTAL output and generates an object
+class CrystalOutput:
+    """This class reads a CRYSTAL output and generates an object."""
 
     def __init__(self):
-        # Initialise the Crystal_output
-
+        """Initialize the CrystalOutput."""
         pass
 
     def read_cry_output(self, output_name):
-        # output_name: name of the output file
+        """Reads a CRYSTAL output file.
 
+        Args:
+            output_name (str): Name of the output file.
+
+        Returns:
+            CrystalOutput: Object representing the CRYSTAL output.
+        """
         import sys
         import re
 
@@ -186,7 +191,7 @@ class Crystal_output:
         # Check if the file exists
         try:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
-                output_name = output_name+'.out'
+                output_name = output_name + '.out'
             file = open(output_name, 'r', errors='ignore')
             self.data = file.readlines()
             file.close()
@@ -201,7 +206,7 @@ class Crystal_output:
             if re.match(r'^ EEEEEEEEEE TERMINATION', line):
                 self.terminated = True
                 # This is the end of output
-                self.eoo = len(self.data)-1-i
+                self.eoo = len(self.data) - 1 - i
                 break
 
         if self.terminated == False:
@@ -214,30 +219,34 @@ class Crystal_output:
                 self.converged = True
                 break
 
-        # Check if the geometry optimisation converged
+        # Check if the geometry optimization converged
         self.opt_converged = False
 
         for line in self.data[::-1]:
-            if bool(re.search('OPT END - CONVERGED', line) ) == True:
+            if bool(re.search('OPT END - CONVERGED', line)) == True:
                 self.opt_converged = True
                 break
-        
+
         return self
 
     def get_dielectric_tensor(self):
+        """Extracts the dielectric tensor from the output.
 
+        Returns:
+            list: Dielectric tensor values.
+        """
         import re
 
         for i, line in enumerate(self.data):
             if re.match(r'^ TENSOR IN PRINCIPAL AXES SYSTEM', line):
                 # This is the end of output
                 self.dielectric_tensor = [
-                    float(x) for x in self.data[i+1].split()[1::2]]
+                    float(x) for x in self.data[i + 1].split()[1::2]]
                 return self.dielectric_tensor
         return None
 
     def get_eigenvectors(self):
-
+        """Extracts eigenvectors from the output."""
         import re
 
         for i, line in enumerate(self.data):
@@ -251,8 +260,11 @@ class Crystal_output:
                 self.num_k = int(line.split()[13])
 
     def get_dimensionality(self):
-        # Get the dimsensionality of the system
+        """Gets the dimensionality of the system.
 
+        Returns:
+            int: Dimensionality of the system.
+        """
         import re
 
         for line in self.data:
@@ -261,8 +273,11 @@ class Crystal_output:
                 return self.dimensionality
 
     def get_final_energy(self):
-        # Get the final energy of the system
+        """Get the final energy of the system.
 
+        Returns:
+            float: The final energy of the system.
+        """
         import re
 
         self.final_energy = None
@@ -280,10 +295,14 @@ class Crystal_output:
         return self.final_energy
 
     def get_scf_convergence(self, all_cycles=False):
-        # Returns the scf convergence energy and energy difference
+        """Returns the scf convergence energy and energy difference.
 
-        # all_cycles == True returns all the steps for a geometry opt
+        Args:
+            all_cycles (bool, optional): Return all steps for a geometry opt. Defaults to False.
 
+        Returns:
+            tuple or list: The scf convergence energy and energy difference.
+        """
         import re
         import numpy as np
 
@@ -316,8 +335,11 @@ class Crystal_output:
         return self.scf_convergence
 
     def get_opt_convergence_energy(self):
-        # Returns the energy for each opt step
+        """Returns the energy for each opt step.
 
+        Returns:
+            list: Energy for each optimization step.
+        """
         self.opt_energy = []
         for line in self.data:
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
@@ -326,8 +348,11 @@ class Crystal_output:
         return self.opt_energy
 
     def get_num_cycles(self):
-        # Returns the number of scf cycles
+        """Returns the number of SCF cycles.
 
+        Returns:
+            int: Number of SCF cycles.
+        """
         import re
 
         for line in self.data[::-1]:
@@ -337,7 +362,11 @@ class Crystal_output:
         return None
 
     def get_fermi_energy(self):
-        # Returns the system Fermi energy
+        """Returns the system Fermi energy.
+
+        Returns:
+            float: Fermi energy of the system.
+        """
 
         import re
 
@@ -390,10 +419,15 @@ class Crystal_output:
         return self.fermi_energy
 
     def get_primitive_lattice(self, initial=True):
-        # Returns the pritive lattice of the system
+        """Returns the primitive lattice of the system.
 
-        # Initial == False: read the last lattice vectors. Useful in case of optgeom
+        Args:
+            initial (bool): Determines whether to read the initial or last lattice vectors.
+                Useful in case of optgeom. Defaults to True.
 
+        Returns:
+            np.ndarray: Primitive lattice of the system.
+        """
         import re
         import numpy as np
 
@@ -422,10 +456,15 @@ class Crystal_output:
         return self.primitive_lattice
 
     def get_reciprocal_lattice(self, initial=True):
-        # Returns the reciprocal pritive lattice of the system
+        """Returns the reciprocal primitive lattice of the system.
 
-        # Initial == False: read the last reciprocal lattice vectors. Useful in case of optgeom
+        Args:
+            initial (bool): Determines whether to read the initial or last reciprocal lattice vectors.
+                Useful in case of optgeom. Defaults to True.
 
+        Returns:
+            np.ndarray: Reciprocal primitive lattice of the system.
+        """
         import re
         import numpy as np
 
@@ -452,8 +491,11 @@ class Crystal_output:
         return None
 
     def get_band_gap(self):
-        # Returns the system band gap
+        """Returns the system band gap.
 
+        Returns:
+            float or np.ndarray: Band gap of the system.
+        """
         import re
         import numpy as np
 
@@ -630,8 +672,11 @@ class Crystal_output:
                 return self.last_geom
 
     def get_symm_ops(self):
-        # Return the symmetry operators
+        """Return the symmetry operators
 
+        Returns:
+            numpy.ndarray: Symmetry operators
+        """
         import re
         import numpy as np
 
@@ -648,10 +693,16 @@ class Crystal_output:
                 return self.symm_ops
 
     def get_forces(self, initial=False, grad=False):
-        # Return the forces from an optgeom calculation
+        """
+        Return the forces from an optgeom calculation
 
-        # initial == False returns the last calculated forces
-        # grad == False does not return the gradient on atoms
+        Args:
+            initial (bool, optional): Return forces from the initial calculation. Defaults to False.
+            grad (bool, optional): Return gradient information. Defaults to False.
+
+        Returns:
+            list or None: Forces if available, None otherwise
+        """
 
         if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
             print('WARNING: this is not a geometry optimisation.')
@@ -718,8 +769,12 @@ class Crystal_output:
                         return self.forces
 
     def get_mulliken_charges(self):
-        # Return the Mulliken charges (PPAN keyword in input)
+        """
+        Return the Mulliken charges (PPAN keyword in input)
 
+        Returns:
+            list: Mulliken charges
+        """
         import re
 
         self.mulliken_charges = []
@@ -733,9 +788,16 @@ class Crystal_output:
                         self.mulliken_charges.append(float(line1[3]))
         return self.mulliken_charges
 
-    def get_config_analysis(self):
-        # Return the configuration analysis for solid solutions (CONFCON keyword in input)
+    def get_config_analysis(self,return_multiplicity=False):
+        """
+        Return the configuration analysis for solid solutions (CONFCON keyword in input)
 
+        Args:
+            return_multiplicity (bool, optional): Return multiplicity information. Defaults to False.
+
+        Returns:
+            list or str: Configuration analysis if available, or a warning message
+        """
         import re
         import numpy as np
 
@@ -773,11 +835,20 @@ class Crystal_output:
             config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
         end = np.where(
             config_list == '===============================================================================')[0][-1]
+        # multiplicity
+        multiplicity = []
+        #for pos in atom1_begin:
+            #print((config_list[pos-1]))
+            #multiplicity.append((config_list[pos+3].split()))
         atom2_end = np.append(atom2_end, end)
         atom_type1 = []
         atom_type2 = []
+        multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+2]
+        multiplicity = [int(x) for x in multiplicity_tmp]
         config_list = config_list.tolist()
+        
         for i in range(len(atom1_end)):
+            #print(config_list[atom1_begin[i+1]:])
             atom_type1.append(
                 [int(x) for x in config_list[atom1_begin[i+1]+1:atom1_end[i]]])
             atom_type2.append(
@@ -785,8 +856,11 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
-
-        return [self.atom_type1, self.atom_type2]
+        self.multiplicity = multiplicity
+        if return_multiplicity == True:
+            return [self.atom_type1, self.atom_type2, multiplicity]
+        else:
+            return [self.atom_type1, self.atom_type2]
 
     def _check_freq_file(self):
         """
@@ -1127,15 +1201,24 @@ class Crystal_output:
 
 
 class Properties_input:
-    # This creates a properties_input object
+    """This creates a properties_input object"""
 
     def __init__(self, input_name=None):
-        # Initialise the object
+        """Initialise the object"""
 
         self.is_newk = False
 
     def from_file(self, input_name):
-        # input_name is the path to an existing properties input
+        """
+        Read the properties input from a file.
+
+        Args:
+            input_name (str): The name of the input file.
+
+        Returns:
+            self (Properties_input): The Properties_input object.
+        """
+
         import sys
 
         self.name = input_name
@@ -1162,12 +1245,15 @@ class Properties_input:
         return self
 
     def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
-        # Returns the newk block
+        """
+        Returns the newk block.
 
-        # shrink1 and shrink 2 are the newk shrinking factors
-        # Fermi: 1 if recalculated, 0 if not
-        # print_options: Properties printing options
-
+        Args:
+            shrink1 (int): The first newk shrinking factor.
+            shrink2 (int): The second newk shrinking factor.
+            Fermi (int): Fermi recalculation option (default is 1).
+            print_option (int): Properties printing option (default is 0).
+        """
         self.is_newk = True
 
         self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
@@ -1175,15 +1261,18 @@ class Properties_input:
 
     def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
                          title='BAND STRUCTURE CALCULATION'):
-        # Return the bands block to be used in a bands calculation
+        """
+        Returns the bands block for a bands calculation.
 
-        # k_path can be:
-        # list of list
-        # pymatgen HighSymmKpath object
-        # first_band: first band for bands calculation
-        # last_band: last band for bands calculation
-        # print_eig: printing options for eigenvalues
-        # print_option: properties printing options
+        Args:
+            k_path (list or HighSymmKpath): The k-path for the bands calculation.
+            n_kpoints (int): The number of k-points along the path.
+            first_band (int): The index of the first band.
+            last_band (int): The index of the last band.
+            print_eig (int): Printing options for eigenvalues (default is 0).
+            print_option (int): Properties printing options (default is 1).
+            title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
+        """
 
         import numpy as np
         import sys
@@ -1240,15 +1329,17 @@ class Properties_input:
 
     def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
                         poly=12, print_option=1):
-        # Return the doss block to be used in a doss calculation
+        """
+        Returns the doss block for a doss calculation.
 
-        # n_points : number of points in the energy range
-        # band range: which bands to include in the doss calculation
-        # e_range: in eV
-        # plotting_options: properties printing options
-        # poly: maximum exponent for the polynomial fit
-        # print_option: properties printing options
-
+        Args:
+            n_points (int): The number of points in the DOS plot (default is 200).
+            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
+            e_range (list or tuple): The energy range for the DOS calculation (default is None).
+            plotting_option (int): DOS plotting options (default is 2).
+            poly (int): Degree of the polynomial for smearing (default is 12).
+            print_option (int): Properties printing options (default is 1).
+        """
         import sys
 
         # either band_range or e_range needs to be specified
@@ -1286,15 +1377,20 @@ class Properties_input:
 
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
                          e_range=None, plotting_option=2, poly=12, print_option=1):
-        # Return the pdoss block to be used in a pdoss calculation
+        """
+        Returns the pdoss block for a pdoss calculation.
 
-        # projections is a list of lists of atoms or atomic orbitals
-        # n_points : number of points in the energy range
-        # proj_type == 'atom' is an atom projected DOSS, proj_type == 'ao' is an atomic orbital projected DOSS
-        # e_range: in eV
-        # plotting_options: properties printing options
-        # poly: maximum exponent for the polynomial fit
-        # print_option: properties printing options
+        Args:
+            projections (dict): Dictionary specifying the projections for the pdoss calculation.
+            proj_type (str): Type of projection ('atom' or 'site') (default is 'atom').
+            output_file (str): Output file name (default is None).
+            n_points (int): The number of points in the DOS plot (default is 200).
+            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
+            e_range (list or tuple): The energy range for the DOS calculation (default is None).
+            plotting_option (int): DOS plotting options (default is 2).
+            poly (int): Degree of the polynomial for smearing (default is 12).
+            print_option (int): Properties printing options (default is 1).
+        """
 
         import sys
 
@@ -1368,11 +1464,12 @@ class Properties_input:
         return self
 
     def write_properties_input(self, input_name):
-        # Write a properties input file (to file)
+        """
+        Writes the properties input to a file.
 
-        # input_name is the name of the imput that is going to be written (.d12)
-        # property_input is a Properties_input object
-        # newk == True: perform a newk calculation
+        Args:
+            input_name (str): The name of the output file.
+        """
 
         import sys
         import itertools
@@ -1389,17 +1486,22 @@ class Properties_input:
 
 
 class Properties_output:
-    # This creates a properties_output object
+    """Creates a Properties_output object."""
 
     def __init__(self):
-        # properties_output is the properties output file
+        """Initialize the Properties_output object."""
 
         pass
 
     def read_file(self, properties_output):
-        # Function to parse the properties output file.
-        # It is not meant to be calles directly, but to be used by the
-        # functions below to read the properties file.
+        """Parse the properties output file.
+
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
 
         import sys
         import os
@@ -1423,11 +1525,15 @@ class Properties_output:
             sys.exit(1)
 
     def read_vecfield(self, properties_output, which_prop):
-        # Reads the .f25 file to return a data array containing
-        # one or more density property between: Particle Number Density,
-        # Orbital Current Density, Spin Density and Spin-Current Density.
-        # which_prop allows to know a-priori which density property
-        # has been selected by the user to be printed in the .f25 file
+        """Read the .f25 file to return a data array containing one or more density properties.
+
+        Args:
+            properties_output (str): The properties output file.
+            which_prop (str): The density property selected by the user.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
 
         import numpy as np
 
@@ -1562,9 +1668,14 @@ class Properties_output:
         return self
 
     def read_cry_bands(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL band files
-        # Returns an array where the band energy is expressed in eV
+        """Read the CRYSTAL band files to create the bands objects.
+
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
 
         import re
         import numpy as np
@@ -1641,10 +1752,14 @@ class Properties_output:
         return self
 
     def read_cry_doss(self, properties_output):
-        # This class contains the bands objects created from reading the
-        # CRYSTAL doss files
-        # Returns an array where the band energy is expressed in eV
+        """Read the CRYSTAL doss files to create the doss objects.
 
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
         import re
         import numpy as np
 
@@ -1682,7 +1797,14 @@ class Properties_output:
         return self
 
     def read_cry_contour(self, properties_output):
+        """Read the CRYSTAL contour files to create the contour objects.
 
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
         import sys
         import re
         import pandas as pd
@@ -1797,7 +1919,16 @@ class Properties_output:
         return self
 
     def read_cry_xrd_spec(self, properties_output):
+        """
+    Read XRD spectrum data from a file.
 
+    Args:
+        properties_output (str): Path to the properties output file.
+
+    Returns:
+        self: The modified object with extracted XRD spectrum data.
+    """
+        
         import sys
         import re
         import pandas as pd
@@ -1865,7 +1996,15 @@ class Properties_output:
         return self
 
     def read_cry_rholine(self, properties_output):
+        """
+        Read density line data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted density line data.
+        """
         import sys
         import re
         import pandas as pd
@@ -1903,7 +2042,15 @@ class Properties_output:
         return self
 
     def read_cry_seebeck(self, properties_output):
+        """
+        Read Seebeck coefficient data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted Seebeck coefficient data.
+        """
         import sys
         import re
         import pandas as pd
@@ -1975,7 +2122,15 @@ class Properties_output:
         return self
 
     def read_cry_sigma(self, properties_output):
+        """
+        Read electrical conductivity data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted electrical conductivity data.
+        """
         import sys
         import re
         import pandas as pd
@@ -2047,7 +2202,15 @@ class Properties_output:
         return self
 
     def read_cry_lapl_profile(self, properties_output):
+        """
+        Read Laplacian profile data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted Laplacian profile data.
+        """
         import pandas as pd
         import re
         import numpy as np
@@ -2105,7 +2268,15 @@ class Properties_output:
         return self
 
     def read_cry_density_profile(self, properties_output):
+        """
+        Read density profile data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted density profile data.
+        """
         import pandas as pd
         import re
         import numpy as np
@@ -2265,16 +2436,30 @@ class Crystal_gui:
 
 
 class Crystal_density():
-    # WORK IN PROGRESS
-    # Returns a crystal_density object
+    """
+    Read density profile data from a file.
+    """
+    
 
     def __init__(self):
 
         pass
 
     def read_cry_irr_density(self, fort98_unit):
-        # fort98_unit is the file containing the formatted density matrix
+        """
+        Read density profile data from a CRYSTAL .f98 file.
 
+        Args:
+            fort98_unit (str): The file containing the formatted density matrix.
+
+        Returns:
+            None
+
+        Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+
+        """
         self.file_name = fort98_unit
         self.is_irr = True
 
@@ -2535,15 +2720,24 @@ class Crystal_density():
 
 
 def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
-    # WORK IN PROGRESS:
-    # it only works with ghost atoms at the moment
+    """
+    Combine density matrix files.
 
-    # Returns the combined density matrix
-    # density1 is the first density matrix file
-    # density2 is the second density matrix file
-    # density3 is the density matrix file for the whole system
-    # new_density is the name of the new density matrix
-    # spin_pol == False means the system is not spin polarised
+    Args:
+        density1 (str): The first density matrix file.
+        density2 (str): The second density matrix file.
+        density3 (str): The density matrix file for the whole system.
+        new_density (str, optional): The name of the new density matrix. Defaults to 'new_density.f98'.
+        spin_pol (bool, optional): Specifies if the system is spin polarized. Defaults to False.
+
+    Returns:
+        None
+
+    Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+    """
+
 
     import sys
     import numpy as np
@@ -2636,13 +2830,21 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 
 
 def write_cry_density(fort98_name, new_p, new_fort98):
-    # WORK IN PROGRESS
+    """
+    Write the formatted density matrix.
 
-    # Writes the formatted density matrix
-    # fort98_name is the name of the previous density matrix file
-    # new_p is the new density matrix
-    # new_fort_90 is the name of the new density matrix file
-    #
+    Args:
+        fort98_name (str): The name of the previous density matrix file.
+        new_p (list): The new density matrix.
+        new_fort98 (str): The name of the new density matrix file.
+
+    Returns:
+        None
+
+    Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+    """
     import numpy as np
 
     file = open(fort98_name, 'r')
