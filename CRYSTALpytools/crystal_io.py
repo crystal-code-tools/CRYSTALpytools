@@ -48,7 +48,7 @@ class Crystal_input(Crystal_inputBASE):
         struc = IStructure.from_file(file)
         self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
 
-        return self
+        return
 
     def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
                       pbc=[True, True, True], gui_name='fort.34',
@@ -71,7 +71,7 @@ class Crystal_input(Crystal_inputBASE):
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
-        return self
+        return
 
     def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
         """
@@ -91,77 +91,74 @@ class Crystal_input(Crystal_inputBASE):
         from pymatgen.core.structure import IStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        analyzer = SpacegroupAnalyzer(struc, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer = SpacegroupAnalyzer(
+            struc, symprec=symprec, angle_tolerance=angle_tolerance)
         # Analyze the refined geometry
         struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(struc2, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_pri = analyzer2.get_primitive_standard_structure()
-        analyzer3 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_pri = analyzer3.get_symmetrized_structure()
+        analyzer2 = SpacegroupAnalyzer(
+            struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        struc_symm = analyzer2.get_symmetrized_structure()
 
-        sg = analyzer2.get_space_group_number()
+        sg = analyzer.get_space_group_number()
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
             for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
                 latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
+                    getattr(struc_symm.lattice, i), 6
                 ))
         elif sg >= 3 and sg < 16:  # monoclinic
             for i in ['a', 'b', 'c', 'beta']:
                 latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
+                    getattr(struc_symm.lattice, i), 6
                 ))
         elif sg >= 16 and sg < 75:  # orthorhombic
             for i in ['a', 'b', 'c']:
                 latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
+                    getattr(struc_symm.lattice, i), 6
                 ))
         elif sg >= 75 and sg < 143:  # tetragonal
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
+                    getattr(struc_symm.lattice, i), 6
                 ))
-        elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
-            struc_pri = analyzer3.get_conventional_standard_structure()
-            analyzer4 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
-            struc_pri = analyzer4.get_symmetrized_structure()
+        elif sg >= 143 and sg < 168:  # trigonal
+            for i in ['a', 'alpha']:
+                latt.append(round(
+                    getattr(struc_symm.lattice, i), 6
+                ))
+        elif sg >= 168 and sg < 195:  # hexagonal
             for i in ['a', 'c']:
                 latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 168 and sg < 195:  # hexagonal and trigonal
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
+                    getattr(struc_symm.lattice, i), 6
                 ))
         else:  # cubic
-            latt.append(round(struc_pri.lattice.a, 6))
+            latt.append(round(struc_sym.lattice.a, 6))
 
-        natom = len(struc_pri.equivalent_sites)
-        eq_atom = int(len(struc_pri.species) / natom)
+        natom = len(struc_symm.equivalent_sites)
+        eq_atom = int(len(struc_symm.species) / natom)
         atominfo = []
         if zconv != None:
             z_atom_index = [i[0] for i in zconv]
         for i in range(natom):
             idx_eq = int(i * eq_atom)
             if zconv == None:
-                z_input = struc_pri.species[idx_eq].Z
+                z_input = struc_symm.species[idx_eq].Z
             else:
                 try:
                     atom_to_sub = z_atom_index.index(i)
                     z_input = zconv[atom_to_sub][1]
                 except ValueError:
-                    z_input = struc_pri.species[idx_eq].Z
+                    z_input = struc_symm.species[idx_eq].Z
             atominfo.append([
                 '{:<3}'.format(z_input),
                 '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[0], 8)
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[0], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[1], 8)
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[1], 8)
                 ),
                 '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[2], 8)
+                    round(struc_symm.equivalent_sites[i][0].frac_coords[2], 8)
                 )
             ])
 
@@ -170,17 +167,22 @@ class Crystal_input(Crystal_inputBASE):
         return
 
 
-class Crystal_output:
-    # This class reads a CRYSTAL output and generates an object
+class CrystalOutput:
+    """This class reads a CRYSTAL output and generates an object."""
 
     def __init__(self):
-        # Initialise the Crystal_output
-
+        """Initialize the CrystalOutput."""
         pass
 
     def read_cry_output(self, output_name):
-        # output_name: name of the output file
+        """Reads a CRYSTAL output file.
 
+        Args:
+            output_name (str): Name of the output file.
+
+        Returns:
+            CrystalOutput: Object representing the CRYSTAL output.
+        """
         import sys
         import re
 
@@ -189,7 +191,7 @@ class Crystal_output:
         # Check if the file exists
         try:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
-                output_name = output_name+'.out'
+                output_name = output_name + '.out'
             file = open(output_name, 'r', errors='ignore')
             self.data = file.readlines()
             file.close()
@@ -204,7 +206,7 @@ class Crystal_output:
             if re.match(r'^ EEEEEEEEEE TERMINATION', line):
                 self.terminated = True
                 # This is the end of output
-                self.eoo = len(self.data)-1-i
+                self.eoo = len(self.data) - 1 - i
                 break
 
         if self.terminated == False:
@@ -217,30 +219,34 @@ class Crystal_output:
                 self.converged = True
                 break
 
-        # Check if the geometry optimisation converged
+        # Check if the geometry optimization converged
         self.opt_converged = False
 
         for line in self.data[::-1]:
-            if bool(re.search('OPT END - CONVERGED', line) ) == True:
+            if bool(re.search('OPT END - CONVERGED', line)) == True:
                 self.opt_converged = True
                 break
-        
+
         return self
 
     def get_dielectric_tensor(self):
+        """Extracts the dielectric tensor from the output.
 
+        Returns:
+            list: Dielectric tensor values.
+        """
         import re
 
         for i, line in enumerate(self.data):
             if re.match(r'^ TENSOR IN PRINCIPAL AXES SYSTEM', line):
                 # This is the end of output
                 self.dielectric_tensor = [
-                    float(x) for x in self.data[i+1].split()[1::2]]
+                    float(x) for x in self.data[i + 1].split()[1::2]]
                 return self.dielectric_tensor
         return None
 
     def get_eigenvectors(self):
-
+        """Extracts eigenvectors from the output."""
         import re
 
         for i, line in enumerate(self.data):
@@ -254,8 +260,11 @@ class Crystal_output:
                 self.num_k = int(line.split()[13])
 
     def get_dimensionality(self):
-        # Get the dimsensionality of the system
+        """Gets the dimensionality of the system.
 
+        Returns:
+            int: Dimensionality of the system.
+        """
         import re
 
         for line in self.data:
@@ -264,8 +273,11 @@ class Crystal_output:
                 return self.dimensionality
 
     def get_final_energy(self):
-        # Get the final energy of the system
+        """Get the final energy of the system.
 
+        Returns:
+            float: The final energy of the system.
+        """
         import re
 
         self.final_energy = None
@@ -283,10 +295,14 @@ class Crystal_output:
         return self.final_energy
 
     def get_scf_convergence(self, all_cycles=False):
-        # Returns the scf convergence energy and energy difference
+        """Returns the scf convergence energy and energy difference.
 
-        # all_cycles == True returns all the steps for a geometry opt
+        Args:
+            all_cycles (bool, optional): Return all steps for a geometry opt. Defaults to False.
 
+        Returns:
+            tuple or list: The scf convergence energy and energy difference.
+        """
         import re
         import numpy as np
 
@@ -319,8 +335,11 @@ class Crystal_output:
         return self.scf_convergence
 
     def get_opt_convergence_energy(self):
-        # Returns the energy for each opt step
+        """Returns the energy for each opt step.
 
+        Returns:
+            list: Energy for each optimization step.
+        """
         self.opt_energy = []
         for line in self.data:
             if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
@@ -329,8 +348,11 @@ class Crystal_output:
         return self.opt_energy
 
     def get_num_cycles(self):
-        # Returns the number of scf cycles
+        """Returns the number of SCF cycles.
 
+        Returns:
+            int: Number of SCF cycles.
+        """
         import re
 
         for line in self.data[::-1]:
@@ -340,7 +362,11 @@ class Crystal_output:
         return None
 
     def get_fermi_energy(self):
-        # Returns the system Fermi energy
+        """Returns the system Fermi energy.
+
+        Returns:
+            float: Fermi energy of the system.
+        """
 
         import re
 
@@ -393,10 +419,15 @@ class Crystal_output:
         return self.fermi_energy
 
     def get_primitive_lattice(self, initial=True):
-        # Returns the pritive lattice of the system
+        """Returns the primitive lattice of the system.
 
-        # Initial == False: read the last lattice vectors. Useful in case of optgeom
+        Args:
+            initial (bool): Determines whether to read the initial or last lattice vectors.
+                Useful in case of optgeom. Defaults to True.
 
+        Returns:
+            np.ndarray: Primitive lattice of the system.
+        """
         import re
         import numpy as np
 
@@ -425,10 +456,15 @@ class Crystal_output:
         return self.primitive_lattice
 
     def get_reciprocal_lattice(self, initial=True):
-        # Returns the reciprocal pritive lattice of the system
+        """Returns the reciprocal primitive lattice of the system.
 
-        # Initial == False: read the last reciprocal lattice vectors. Useful in case of optgeom
+        Args:
+            initial (bool): Determines whether to read the initial or last reciprocal lattice vectors.
+                Useful in case of optgeom. Defaults to True.
 
+        Returns:
+            np.ndarray: Reciprocal primitive lattice of the system.
+        """
         import re
         import numpy as np
 
@@ -455,8 +491,11 @@ class Crystal_output:
         return None
 
     def get_band_gap(self):
-        # Returns the system band gap
+        """Returns the system band gap.
 
+        Returns:
+            float or np.ndarray: Band gap of the system.
+        """
         import re
         import numpy as np
 
@@ -633,8 +672,11 @@ class Crystal_output:
                 return self.last_geom
 
     def get_symm_ops(self):
-        # Return the symmetry operators
+        """Return the symmetry operators
 
+        Returns:
+            numpy.ndarray: Symmetry operators
+        """
         import re
         import numpy as np
 
@@ -651,10 +693,16 @@ class Crystal_output:
                 return self.symm_ops
 
     def get_forces(self, initial=False, grad=False):
-        # Return the forces from an optgeom calculation
+        """
+        Return the forces from an optgeom calculation
 
-        # initial == False returns the last calculated forces
-        # grad == False does not return the gradient on atoms
+        Args:
+            initial (bool, optional): Return forces from the initial calculation. Defaults to False.
+            grad (bool, optional): Return gradient information. Defaults to False.
+
+        Returns:
+            list or None: Forces if available, None otherwise
+        """
 
         if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
             print('WARNING: this is not a geometry optimisation.')
@@ -721,8 +769,12 @@ class Crystal_output:
                         return self.forces
 
     def get_mulliken_charges(self):
-        # Return the Mulliken charges (PPAN keyword in input)
+        """
+        Return the Mulliken charges (PPAN keyword in input)
 
+        Returns:
+            list: Mulliken charges
+        """
         import re
 
         self.mulliken_charges = []
@@ -736,9 +788,16 @@ class Crystal_output:
                         self.mulliken_charges.append(float(line1[3]))
         return self.mulliken_charges
 
-    def get_config_analysis(self):
-        # Return the configuration analysis for solid solutions (CONFCON keyword in input)
+    def get_config_analysis(self,return_multiplicity=False):
+        """
+        Return the configuration analysis for solid solutions (CONFCON keyword in input)
 
+        Args:
+            return_multiplicity (bool, optional): Return multiplicity information. Defaults to False.
+
+        Returns:
+            list or str: Configuration analysis if available, or a warning message
+        """
         import re
         import numpy as np
 
@@ -776,11 +835,20 @@ class Crystal_output:
             config_list == '<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')[0]
         end = np.where(
             config_list == '===============================================================================')[0][-1]
+        # multiplicity
+        multiplicity = []
+        #for pos in atom1_begin:
+            #print((config_list[pos-1]))
+            #multiplicity.append((config_list[pos+3].split()))
         atom2_end = np.append(atom2_end, end)
         atom_type1 = []
         atom_type2 = []
+        multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+2]
+        multiplicity = [int(x) for x in multiplicity_tmp]
         config_list = config_list.tolist()
+        
         for i in range(len(atom1_end)):
+            #print(config_list[atom1_begin[i+1]:])
             atom_type1.append(
                 [int(x) for x in config_list[atom1_begin[i+1]+1:atom1_end[i]]])
             atom_type2.append(
@@ -788,182 +856,308 @@ class Crystal_output:
 
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
+        self.multiplicity = multiplicity
+        if return_multiplicity == True:
+            return [self.atom_type1, self.atom_type2, multiplicity]
+        else:
+            return [self.atom_type1, self.atom_type2]
 
-        return [self.atom_type1, self.atom_type2]
-
-    def get_phonon(self, read_eigvt=False, rm_imaginary=True, rm_overlap=True,
-                   imaginary_tol=-1e-4, q_overlap_tol=1e-4):
+    def _check_freq_file(self):
         """
-        Read phonon-related properties from output file.
-
-        Args:
-            read_eigvt (bool): Whether to read phonon eigenvectors and
-                normalize it to 1.
-            rm_imaginary (bool): Remove the modes with negative frequencies and
-                set all the related properties to NaN.
-            rm_overlap (bool): *For dispersion calculations* Remove repeated q
-                points and recalculate their weights.
-            imaginary_tol (float): *``rm_imaginary`` = True only* The threshold
-                of negative frequencies.
-            q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
-                overlapping points, defined as the 2nd norm of the difference
-                of fractional q vectors
+        Check if the output is specified and if it is a frequency output. 
 
         .. note::
 
-            In QHA calculations, the 'q point' dimension refer to harmonic
-            phonons computed. In other cases it refers to points in reciprocal
-            space.
+            The identifier:
+
+            +++ SYMMETRY ADAPTION OF VIBRATIONAL MODES +++
 
         Returns:
-            self.edft (array[float]): :math:`E_{0}` Energy with empirical
-                correction. Unit: kJ/mol.
+            is_freq (bool): True if the file is a frequency output file.
+
+        :raise Exception: If the output file is not specified
+        """
+        import re
+
+        if not hasattr(self, 'data'):
+            raise Exception('Output file not specified.')
+
+        is_freq = False
+
+        for line in self.data:
+            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
+                is_freq = True
+                break
+            else:
+                continue
+
+        return is_freq
+
+    def get_q_info(self):
+        """
+        Get DFT total energy and coordinates and weights of q points (where 
+        phonon frequencies are calculated).
+
+        Returns:
+            self.edft (array[float]): Energy (in kJ/mol) reported in 'CENTERAL 
+                POINT' line (DFT + corrected energy)
             self.nqpoint (int): Number of q points
-            self.qpoint (list[list[array[float], float]]): A nqpoint\*1 list of
-                2\*1 list whose first element is a 3\*1 array of fractional
-                coordinates and the second is its weight.
-            self.nmode (array[int]): Number of modes at q point. nqpoint\*1
-                array.
-            self.frequency (array[float]): nqpoint\*nmode array ofvibrational
-                frequency. Unit: THz
-            self.intens (array[float]): nqpoint\*nmode array of harmonic
-                intensiy. Unit: km/mol
-            self.IR (array[bool]): nqpoint\*nmode array of boolean values
-                specifying whether the mode is IR active
-            self.Raman (array[bool]): nqpoint\*nmode array of boolean values
-                specifying whether the mode is Raman active
-            self.eigenvector (array[float]): *``read_eigvt = True only``* 
-                nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
+            self.qpoint (list[list[array[float], float]]): A nqpoint list of
+                2\*1 list whose first element is a 3\*1 array of q point
+                fractional coordinates and the second is its weight.
+
+        .. note::
+
+            ``self.edft`` is an array commensurate with the number of qpoints
+            to ensure the compatibility with QHA output. DFT+HA calculations
+            with various volumes generated by the QHA module make ``self.edft``
+            an array of different numbers. Otherwise, it is the array of same
+            numbers.
+
+        :raise Exception: If the output does not include the 'FREQCALC' section.
         """
         import re
         import numpy as np
-        from CRYSTALpytools.base.crysout import PhononBASE
-        from CRYSTALpytools.units import H_to_kjmol
 
-        is_freq = False
-        self.edft = []
+        is_freq = self._check_freq_file()
+        if not is_freq:
+            raise Exception('Not a frequency calculation.')
+
+        edft = np.array([], dtype=float)
         self.nqpoint = 0
         self.qpoint = []
-        self.nmode = []
-        self.frequency = []
-        self.intens = []
-        self.IR = []
-        self.Raman = []
-        self.eigenvector = []
 
-        countline = 0
-        while countline < len(self.data):
-            line = self.data[countline]
-            # Whether is a frequency file
-            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
-                is_freq = True
-                countline += 1
-                continue
-            # E_0 with empirical corrections
-            elif re.match(r'^\s+CENTRAL POINT', line):
-                self.edft.append(float(line.strip().split()[2]))
-                countline += 1
-                continue
-            # Q point info + frequency
-            ## Dispersion
-            elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
+        for i, line in enumerate(self.data):
+            # Keywords in gradient calculation
+            if re.match(r'\s*CENTRAL POINT', line):
+                edft = np.append(edft, units.H_to_kjmol(
+                    float(line.strip().split()[2])))
+
+            if re.search(r'EXPRESSED IN UNITS\s*OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
-                countline += 1
-                continue
-            elif re.match(r'\s+DISPERSION K POINT NUMBER', line):
+
+# Keywords in dipersion calculation
+            if re.match(r'\s*DISPERSION K POINT NUMBER', line):
                 coord = np.array(line.strip().split()[7:10], dtype=float)
                 weight = float(line.strip().split()[-1])
                 self.qpoint.append([coord / shrink, weight])
                 self.nqpoint += 1
-                countline += 2
-                ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Gamma point
-            elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
-                countline += 2
-                ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Phonon eigenvector
-            elif re.match(r'^\s+MODES IN PHASE', line) or re.match(r'^\s+NORMAL MODES NORMALIZED', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
-                countline = eigvt[0]
-                self.eigenvector.append(eigvt[1])
-            # Other data
-            else:
-                countline += 1
-                continue
 
-        if is_freq == False:
-            raise Exception('Not a frequency calculation.')
-
-        # HA/QHA Gamma point calculation
-        if self.nqpoint == 0:
-            self.nqpoint = len(self.edft)
-            self.qpoint = [[np.zeros([3,]), 1.] for i in range(self.nqpoint)]
-            if len(self.edft) == 1:
-                self.edft = [self.edft[0] for i in range(self.nqpoint)]
-        # Dispersion
+# HA Gamma point calculation
+        if self.nqpoint == 0 and len(edft) == 1:
+            self.nqpoint = 1
+            self.qpoint = [[np.array([0, 0, 0], dtype=float), 1.]]
+            self.edft = edft
+# QHA Gamma point calculation
+        elif self.nqpoint == 0 and len(edft) > 1:
+            self.nqpoint = len(edft)
+            for i in range(self.nqpoint):
+                self.qpoint.append(
+                    [np.array([0, 0, 0], dtype=float), 1.]
+                )
+            self.edft = edft
+# HA dispersion calculation
+        elif self.nqpoint > 0 and len(edft) == 1:
+            for i in range(self.nqpoint):
+                self.qpoint[i][1] /= self.nqpoint
+            self.edft = np.array([edft[0] for i in range(self.nqpoint)], dtype=float)
         else:
-            self.qpoint = [[i[0], i[1] / self.nqpoint] for i in self.qpoint]
-            self.edft = [self.edft[0] for i in range(self.nqpoint)]
+            raise Exception('Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
 
-        self.edft = H_to_kjmol(np.array(self.edft))
-
-        self.frequency = np.array(self.frequency)
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
-        if self.intens[0] == []:
-            self.intens = []
-            self.IR = []
-            self.Raman = []
-        else:
-            self.intens = np.array(self.intens)
-
-        if self.eigenvector != []:
-            self.eigenvector = np.array(self.eigenvector)
-
-
-        if rm_imaginary == True:
-            self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
-
-        if rm_overlap == True and self.nqpoint > 1:
-            self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
-
-        return self
-
-    def get_q_info(self):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('This method is deprecated. Use `get_phonon`.', stacklevel=2)
-        return self
+        return self.edft, self.nqpoint, self.qpoint
 
     def get_mode(self):
         """
-        Deprecated.
+        Get the number of modes at all q points and corresponding vibrational
+        frequencies and intensities.
+
+        Returns:
+            self.nmode (array[int]): Number of modes at q point.
+            self.frequency (array[float]): nqpoint \* nmode array of vibrational
+                frequency. Unit: THz
+            self.intens (array[float]): nqpoint \* nmode array of harmonic
+                intensiy. Unit: km/mol
+            self.IR (array[bool]): nqpoint \* nmode array of boolean values
+                specifying whether the mode is IR active
+            self.Raman (array[bool]): nqpoint \* nmode array of boolean values
+                specifying whether the mode is Raman active
         """
-        return self.get_q_info()
+        import numpy as np
+        import re
+
+        if not hasattr(self, 'nqpoint'):
+            self.get_q_info()
+
+        self.frequency = np.array([], dtype=float)
+        self.intens = np.array([], dtype=float)
+        self.IR = np.array([], dtype=bool)
+        self.Raman = np.array([], dtype=bool)
+
+        countline = 0
+        while countline < len(self.data):
+            is_freq = False
+            if re.match(r'\s*DISPERSION K POINT NUMBER\s*\d',
+                        self.data[countline]):
+                countline += 2
+                is_freq = True
+
+            if re.match(r'\s*MODES\s*EIGV\s*FREQUENCIES\s*IRREP',
+                        self.data[countline]):
+                countline += 2
+                is_freq = True
+
+            while self.data[countline].strip() and is_freq:
+                line_data = self.data[countline].split()
+                nm_a = int(line_data[0].strip('-'))
+                nm_b = int(line_data[1])
+                freq = float(line_data[4])
+                has_spec = False
+                # IR/Raman analysis, closed by default in dispersion calcs
+                if 'A' in line_data or 'I' in line_data:
+                    has_spec = True
+                    intens = float(line_data[-2].strip(')'))
+                    IR = line_data[-4] == 'A'
+                    Raman = line_data[-1] == 'A'
+                    if (nm_b-nm_a == 1):
+                        intens = intens/2
+                    elif(nm_b-nm_a == 2):
+                        intens = intens/3
+
+                for mode in range(nm_a, nm_b + 1):
+                    self.frequency = np.append(self.frequency, freq)
+                    if has_spec:
+                        self.intens = np.append(self.intens, intens)
+                        self.IR = np.append(self.IR, IR)
+                        self.Raman = np.append(self.Raman, Raman)
+
+                countline += 1
+
+            countline += 1
+
+        self.frequency = np.reshape(self.frequency, (self.nqpoint, -1))
+        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
+
+        if has_spec:
+            self.intens = np.reshape(self.intens, (self.nqpoint, -1))
+            self.IR = np.reshape(self.IR, (self.nqpoint, -1))
+            self.Raman = np.reshape(self.Raman, (self.nqpoint, -1))
+
+        return self.nmode, self.frequency, self.intens, self.IR, self.Raman
 
     def get_phonon_eigenvector(self):
         """
-        Deprecated.
+        Get corresponding mode eigenvectors.
+
+        Returns:
+            self.eigenvector (array[float]): nqpoint\*nmode\*natom\*3 array of 
+                eigenvectors. Normalized to 1.
         """
-        return self.get_q_info()
+        import numpy as np
+        import re
+
+        if not hasattr(self, 'nmode'):
+            self.get_mode()
+
+        total_mode = np.sum(self.nmode)
+        countline = 0
+        # Multiple blocks for 1 mode. Maximum 6 columns for 1 block.
+        if np.max(self.nmode) >= 6:
+            countmode = 6
+        else:
+            countmode = total_mode
+
+        # Read the eigenvector region as its original shape
+        block_label = False
+        total_data = []
+        while countline < len(self.data) and countmode <= total_mode:
+            # Gamma point / phonon dispersion calculation
+            if re.match(r'\s*MODES IN PHASE', self.data[countline]) or\
+               re.match(r'\s*NORMAL MODES NORMALIZED', self.data[countline]):
+                block_label = True
+            elif re.match(r'\s*MODES IN ANTI-PHASE', self.data[countline]):
+                block_label = False
+
+            # Enter a block
+            if re.match(r'\s*FREQ\(CM\*\*\-1\)', self.data[countline]) and\
+               block_label:
+                countline += 2
+                block_data = []
+                while self.data[countline].strip():
+                    # Trim annotation part (12 characters)
+                    line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
+                                           self.data[countline][13:])
+                    if line_data:
+                        block_data.append(line_data)
+
+                    countline += 1
+
+                countmode += len(line_data)
+                total_data.append(block_data)
+
+            countline += 1
+
+        total_data = np.array(total_data, dtype=float)
+
+        # Rearrage eigenvectors
+        block_per_q = len(total_data) / self.nqpoint
+        self.eigenvector = []
+        # 1st dimension, nqpoint
+        for q in range(self.nqpoint):
+            index_bg = int(q * block_per_q)
+            index_ed = int((q + 1) * block_per_q)
+            q_data = np.hstack([i for i in total_data[index_bg: index_ed]])
+        # 2nd dimension, nmode
+            q_data = np.transpose(q_data)
+        # 3rd dimension, natom
+            natom = int(self.nmode[q] / 3)
+            q_rearrange = [np.split(m, natom, axis=0) for m in q_data]
+
+            self.eigenvector.append(q_rearrange)
+
+        self.eigenvector = np.array(self.eigenvector)
+
+        # Normalize eigenvectors of each mode to 1
+        for idx_q, q in enumerate(self.eigenvector):
+            for idx_m, m in enumerate(q):
+                self.eigenvector[idx_q, idx_m] = \
+                    self.eigenvector[idx_q, idx_m] / np.linalg.norm(m)
+
+        return self.eigenvector
+
+    def clean_imaginary(self):
+        """
+        Substitute imaginary modes and corresponding eigenvectors with numpy
+        NaN format and print warning message.
+
+        Returns:
+            self.frequency (array[float])
+            self.eigenvector (array[float])
+        """
+        import numpy as np
+        import warnings
+
+        for q, freq in enumerate(self.frequency):
+            if freq[0] > -1e-4 or np.isnan(freq[0]):
+                continue
+
+            warnings.warn(
+                'Negative frequencies detected - Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by NaN.',
+                stacklevel=2
+            )
+
+            neg_rank = np.where(freq <= -1e-4)[0]
+            self.frequency[q, neg_rank] = np.nan
+
+            if hasattr(self, 'eigenvector'):
+                if len(self.eigenvector) != 0:
+                    natom = int(self.nmode[q] / 3)
+                    nan_eigvt = np.full([natom, 3], np.nan)
+                    self.eigenvector[q, neg_rank] = nan_eigvt
+
+        if hasattr(self, 'eigenvector'):
+            return self.frequency, self.eigenvector
+        else:
+            return self.frequency
 
     def get_elatensor(self):
 
@@ -1007,15 +1201,24 @@ class Crystal_output:
 
 
 class Properties_input:
-    # This creates a properties_input object
+    """This creates a properties_input object"""
 
     def __init__(self, input_name=None):
-        # Initialise the object
+        """Initialise the object"""
 
         self.is_newk = False
 
     def from_file(self, input_name):
-        # input_name is the path to an existing properties input
+        """
+        Read the properties input from a file.
+
+        Args:
+            input_name (str): The name of the input file.
+
+        Returns:
+            self (Properties_input): The Properties_input object.
+        """
+
         import sys
 
         self.name = input_name
@@ -1042,12 +1245,15 @@ class Properties_input:
         return self
 
     def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
-        # Returns the newk block
+        """
+        Returns the newk block.
 
-        # shrink1 and shrink 2 are the newk shrinking factors
-        # Fermi: 1 if recalculated, 0 if not
-        # print_options: Properties printing options
-
+        Args:
+            shrink1 (int): The first newk shrinking factor.
+            shrink2 (int): The second newk shrinking factor.
+            Fermi (int): Fermi recalculation option (default is 1).
+            print_option (int): Properties printing option (default is 0).
+        """
         self.is_newk = True
 
         self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
@@ -1055,15 +1261,18 @@ class Properties_input:
 
     def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
                          title='BAND STRUCTURE CALCULATION'):
-        # Return the bands block to be used in a bands calculation
+        """
+        Returns the bands block for a bands calculation.
 
-        # k_path can be:
-        # list of list
-        # pymatgen HighSymmKpath object
-        # first_band: first band for bands calculation
-        # last_band: last band for bands calculation
-        # print_eig: printing options for eigenvalues
-        # print_option: properties printing options
+        Args:
+            k_path (list or HighSymmKpath): The k-path for the bands calculation.
+            n_kpoints (int): The number of k-points along the path.
+            first_band (int): The index of the first band.
+            last_band (int): The index of the last band.
+            print_eig (int): Printing options for eigenvalues (default is 0).
+            print_option (int): Properties printing options (default is 1).
+            title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
+        """
 
         import numpy as np
         import sys
@@ -1120,15 +1329,17 @@ class Properties_input:
 
     def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
                         poly=12, print_option=1):
-        # Return the doss block to be used in a doss calculation
+        """
+        Returns the doss block for a doss calculation.
 
-        # n_points : number of points in the energy range
-        # band range: which bands to include in the doss calculation
-        # e_range: in eV
-        # plotting_options: properties printing options
-        # poly: maximum exponent for the polynomial fit
-        # print_option: properties printing options
-
+        Args:
+            n_points (int): The number of points in the DOS plot (default is 200).
+            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
+            e_range (list or tuple): The energy range for the DOS calculation (default is None).
+            plotting_option (int): DOS plotting options (default is 2).
+            poly (int): Degree of the polynomial for smearing (default is 12).
+            print_option (int): Properties printing options (default is 1).
+        """
         import sys
 
         # either band_range or e_range needs to be specified
@@ -1166,15 +1377,20 @@ class Properties_input:
 
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
                          e_range=None, plotting_option=2, poly=12, print_option=1):
-        # Return the pdoss block to be used in a pdoss calculation
+        """
+        Returns the pdoss block for a pdoss calculation.
 
-        # projections is a list of lists of atoms or atomic orbitals
-        # n_points : number of points in the energy range
-        # proj_type == 'atom' is an atom projected DOSS, proj_type == 'ao' is an atomic orbital projected DOSS
-        # e_range: in eV
-        # plotting_options: properties printing options
-        # poly: maximum exponent for the polynomial fit
-        # print_option: properties printing options
+        Args:
+            projections (dict): Dictionary specifying the projections for the pdoss calculation.
+            proj_type (str): Type of projection ('atom' or 'site') (default is 'atom').
+            output_file (str): Output file name (default is None).
+            n_points (int): The number of points in the DOS plot (default is 200).
+            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
+            e_range (list or tuple): The energy range for the DOS calculation (default is None).
+            plotting_option (int): DOS plotting options (default is 2).
+            poly (int): Degree of the polynomial for smearing (default is 12).
+            print_option (int): Properties printing options (default is 1).
+        """
 
         import sys
 
@@ -1248,11 +1464,12 @@ class Properties_input:
         return self
 
     def write_properties_input(self, input_name):
-        # Write a properties input file (to file)
+        """
+        Writes the properties input to a file.
 
-        # input_name is the name of the imput that is going to be written (.d12)
-        # property_input is a Properties_input object
-        # newk == True: perform a newk calculation
+        Args:
+            input_name (str): The name of the output file.
+        """
 
         import sys
         import itertools
@@ -1269,19 +1486,24 @@ class Properties_input:
 
 
 class Properties_output:
-    # This creates a properties_output object
+    """Creates a Properties_output object."""
 
     def __init__(self):
-        # properties_output is the properties output file
+        """Initialize the Properties_output object."""
 
         pass
 
     def read_file(self, properties_output):
+        """Parse the properties output file.
+
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
         """
-        Function to parse the properties output file. It is not meant to
-        be called directly, but to be used by the functions below to read
-        the properties file.
-        """
+
+        import sys
         import os
 
         self.file_name = properties_output
@@ -1299,14 +1521,19 @@ class Properties_output:
             self.title = os.path.split(properties_output)[1]
 
         except:
-            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+            print('EXITING: a CRYSTAL properties file needs to be specified')
+            sys.exit(1)
 
     def read_vecfield(self, properties_output, which_prop):
-        # Reads the .f25 file to return a data array containing
-        # one or more density property between: Particle Number Density,
-        # Orbital Current Density, Spin Density and Spin-Current Density.
-        # which_prop allows to know a-priori which density property
-        # has been selected by the user to be printed in the .f25 file
+        """Read the .f25 file to return a data array containing one or more density properties.
+
+        Args:
+            properties_output (str): The properties output file.
+            which_prop (str): The density property selected by the user.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
 
         import numpy as np
 
@@ -1441,67 +1668,143 @@ class Properties_output:
         return self
 
     def read_cry_bands(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_band instead.')
-        return self.read_electron_band(properties_output)
-
-    def read_electron_band(self, properties_output):
-        """
-        Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
-        Energy unit: eV.
+        """Read the CRYSTAL band files to create the bands objects.
 
         Args:
-            properties_output (str): File name
+            properties_output (str): The properties output file.
 
         Returns:
-            self.bands (BandsBASE): A Bands base object
+            Properties_output: The updated Properties_output object.
         """
-        from CRYSTALpytools.base.propout import BandsBASE
+
+        import re
+        import numpy as np
 
         self.read_file(properties_output)
-        if '-%-' in self.data[0]: #fort.25 file format
-            self.bands = BandsBASE.f25_parser(self.data)
-        else: #BAND.DAT file format
-            self.bands = BandsBASE.BAND_parser(self.data)
 
-        return self.bands
+        data = self.data
+
+        # Read the information about the file
+        # number of k points in the calculation
+        self.n_kpoints = int(data[0].split()[2])
+        # number of bands in the calculation
+        self.n_bands = int(data[0].split()[4])
+        self.spin = int(data[0].split()[6])  # number of spin
+        # number of tick in the band plot
+        self.n_tick = int(data[1].split()[2])+1
+        self.k_point_inp_coordinates = []
+        self.n_points = []
+        # finds all the coordinates of the ticks and the k points
+        """for i in range(self.n_tick):
+            self.n_points.append(int(data[2+i].split()[1]))
+            coord = []
+            for j in range(3):
+                l = re.findall('\d+', data[2+i].split()[2])
+                coord.append(float(l[j])/float(l[3]))
+            self.k_point_inp_coordinates.append(coord)
+        self.k_point_inp_coordinates = np.array(self.k_point_inp_coordinates)
+        self.k_point_coordinates = [self.k_point_inp_coordinates[0]]
+        for i in range(1, self.n_tick):
+            step = (self.k_point_inp_coordinates[i]-self.k_point_inp_coordinates[i-1])/float(
+                self.n_points[i]-self.n_points[i-1])
+            for j in range(self.n_points[i]-self.n_points[i-1]):
+                # coordinates of the k_points in the calculation
+                self.k_point_coordinates.append(
+                    (self.k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())"""
+        self.tick_position = []  # positions of the ticks
+        self.tick_label = []  # tick labels
+        for i in range(self.n_tick):
+            self.tick_position.append(
+                float(data[16+self.n_tick+i*2].split()[4]))
+            self.tick_label.append(
+                str(data[17+self.n_tick+i*2].split()[3][2:]))
+        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
+
+        # Allocate the bands as np arrays
+        self.bands = np.zeros(
+            (self.n_bands, self.n_kpoints, self.spin), dtype=float)
+
+        # Allocate the k_points a one dimensional array
+        self.k_point_plot = np.zeros(self.n_kpoints)
+
+        # line where the first band is. Written this way to help identify
+        # where the error might be if there are different file lenghts
+        first_k = 2 + self.n_tick + 14 + 2*self.n_tick + 2
+
+        # Read the bands and store them into a numpy array
+        for i, line in enumerate(data[first_k:first_k+self.n_kpoints]):
+            self.bands[:self.n_bands+1, i,
+                       0] = np.array([float(n) for n in line.split()[1:]])
+            self.k_point_plot[i] = float(line.split()[0])
+
+        if self.spin == 2:
+            # line where the first beta band is. Written this way to help identify
+            first_k_beta = first_k + self.n_kpoints + 15 + 2*self.n_tick + 2
+            for i, line in enumerate(data[first_k_beta:-1]):
+                self.bands[:self.n_bands+1, i,
+                           1] = np.array([float(n) for n in line.split()[1:]])
+
+        # Convert all the energy to eV
+        self.bands[:, :, :] = units.H_to_eV(self.bands[:, :, :])
+
+        # Calculate the direct/indirect band gaps
+
+        return self
 
     def read_cry_doss(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_dos instead.')
-        return self.read_electron_dos(properties_output)
-
-    def read_electron_dos(self, properties_output):
-        """
-        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
-        Energy unit: eV.
+        """Read the CRYSTAL doss files to create the doss objects.
 
         Args:
-            properties_output (str): File name
+            properties_output (str): The properties output file.
 
         Returns:
-            self.doss (DOSBASE): A DOS base object
+            Properties_output: The updated Properties_output object.
         """
-        from CRYSTALpytools.base.propout import DOSBASE
+        import re
+        import numpy as np
 
         self.read_file(properties_output)
-        if '-%-' in self.data[0]: #fort.25 file format
-            self.doss = DOSBASE.f25_parser(self.data)
-        else: #DOSS.DAT file format
-            self.doss = DOSBASE.DOSS_parser(self.data)
 
-        return self.doss
+        data = self.data
+
+        # Read the information about the file
+        self.n_energy = int(data[0].split()[2])
+        self.n_proj = int(data[0].split()[4])
+        self.spin = int(data[0].split()[6])
+        self.efermi = units.H_to_eV(float(data[-1].split()[3]))
+
+        first_energy = 4
+
+        # Allocate the doss as np arrays
+        self.doss = np.zeros(
+            (self.n_energy, self.n_proj+1, self.spin), dtype=float)
+
+        # Read the doss and store them into a numpy array
+        for i, line in enumerate(data[first_energy:first_energy+self.n_energy]):
+            self.doss[i, :self.n_proj+1,
+                      0] = np.array([float(n) for n in line.split()])
+
+        if self.spin == 2:
+            # line where the first beta energy is. Written this way to help identify
+            first_energy_beta = first_energy + self.n_energy + 3
+            for i, line in enumerate(data[first_energy_beta:-1]):
+                self.doss[i, :self.n_proj+1,
+                          1] = np.array([float(n) for n in line.split()])
+
+        # Convert all the energy to eV
+        self.doss[:, 0, :] = units.H_to_eV(self.doss[:, 0, :])
+
+        return self
 
     def read_cry_contour(self, properties_output):
+        """Read the CRYSTAL contour files to create the contour objects.
 
+        Args:
+            properties_output (str): The properties output file.
+
+        Returns:
+            Properties_output: The updated Properties_output object.
+        """
         import sys
         import re
         import pandas as pd
@@ -1616,7 +1919,16 @@ class Properties_output:
         return self
 
     def read_cry_xrd_spec(self, properties_output):
+        """
+    Read XRD spectrum data from a file.
 
+    Args:
+        properties_output (str): Path to the properties output file.
+
+    Returns:
+        self: The modified object with extracted XRD spectrum data.
+    """
+        
         import sys
         import re
         import pandas as pd
@@ -1684,7 +1996,15 @@ class Properties_output:
         return self
 
     def read_cry_rholine(self, properties_output):
+        """
+        Read density line data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted density line data.
+        """
         import sys
         import re
         import pandas as pd
@@ -1722,7 +2042,15 @@ class Properties_output:
         return self
 
     def read_cry_seebeck(self, properties_output):
+        """
+        Read Seebeck coefficient data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted Seebeck coefficient data.
+        """
         import sys
         import re
         import pandas as pd
@@ -1794,7 +2122,15 @@ class Properties_output:
         return self
 
     def read_cry_sigma(self, properties_output):
+        """
+        Read electrical conductivity data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted electrical conductivity data.
+        """
         import sys
         import re
         import pandas as pd
@@ -1866,7 +2202,15 @@ class Properties_output:
         return self
 
     def read_cry_lapl_profile(self, properties_output):
+        """
+        Read Laplacian profile data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted Laplacian profile data.
+        """
         import pandas as pd
         import re
         import numpy as np
@@ -1924,7 +2268,15 @@ class Properties_output:
         return self
 
     def read_cry_density_profile(self, properties_output):
+        """
+        Read density profile data from a file.
 
+        Args:
+            properties_output (str): Path to the properties output file.
+
+        Returns:
+            self: The modified object with extracted density profile data.
+        """
         import pandas as pd
         import re
         import numpy as np
@@ -2084,16 +2436,30 @@ class Crystal_gui:
 
 
 class Crystal_density():
-    # WORK IN PROGRESS
-    # Returns a crystal_density object
+    """
+    Read density profile data from a file.
+    """
+    
 
     def __init__(self):
 
         pass
 
     def read_cry_irr_density(self, fort98_unit):
-        # fort98_unit is the file containing the formatted density matrix
+        """
+        Read density profile data from a CRYSTAL .f98 file.
 
+        Args:
+            fort98_unit (str): The file containing the formatted density matrix.
+
+        Returns:
+            None
+
+        Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+
+        """
         self.file_name = fort98_unit
         self.is_irr = True
 
@@ -2354,15 +2720,24 @@ class Crystal_density():
 
 
 def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
-    # WORK IN PROGRESS:
-    # it only works with ghost atoms at the moment
+    """
+    Combine density matrix files.
 
-    # Returns the combined density matrix
-    # density1 is the first density matrix file
-    # density2 is the second density matrix file
-    # density3 is the density matrix file for the whole system
-    # new_density is the name of the new density matrix
-    # spin_pol == False means the system is not spin polarised
+    Args:
+        density1 (str): The first density matrix file.
+        density2 (str): The second density matrix file.
+        density3 (str): The density matrix file for the whole system.
+        new_density (str, optional): The name of the new density matrix. Defaults to 'new_density.f98'.
+        spin_pol (bool, optional): Specifies if the system is spin polarized. Defaults to False.
+
+    Returns:
+        None
+
+    Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+    """
+
 
     import sys
     import numpy as np
@@ -2455,13 +2830,21 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 
 
 def write_cry_density(fort98_name, new_p, new_fort98):
-    # WORK IN PROGRESS
+    """
+    Write the formatted density matrix.
 
-    # Writes the formatted density matrix
-    # fort98_name is the name of the previous density matrix file
-    # new_p is the new density matrix
-    # new_fort_90 is the name of the new density matrix file
-    #
+    Args:
+        fort98_name (str): The name of the previous density matrix file.
+        new_p (list): The new density matrix.
+        new_fort98 (str): The name of the new density matrix file.
+
+    Returns:
+        None
+
+    Note:
+        This is a work in progress. If you are interested in this functionality,
+        please open an Issue on GitHub.
+    """
     import numpy as np
 
     file = open(fort98_name, 'r')
