@@ -284,10 +284,10 @@ class Crystal_output:
         self.opt_converged = False
 
         for line in self.data[::-1]:
-            if bool(re.search('OPT END - CONVERGED', line) ) == True:
+            if bool(re.search('OPT END - CONVERGED', line)) == True:
                 self.opt_converged = True
                 break
-        
+
         return self
 
     def get_dielectric_tensor(self):
@@ -570,8 +570,6 @@ class Crystal_output:
         from CRYSTALpytools.convert import cry_pmg2gui
 
         dimensionality = self.get_dimensionality()
-
-        
 
         # Find the last geometry
         for i, line in enumerate(self.data):
@@ -857,7 +855,7 @@ class Crystal_output:
             The identifier:
 
             +++ SYMMETRY ADAPTION OF VIBRATIONAL MODES +++
-        
+
         Returns:
             is_freq (bool): True if the file is a frequency output file.
 
@@ -945,9 +943,11 @@ class Crystal_output:
         elif self.nqpoint > 0 and len(edft) == 1:
             for i in range(self.nqpoint):
                 self.qpoint[i][1] /= self.nqpoint
-            self.edft = np.array([edft[0] for i in range(self.nqpoint)], dtype=float)
+            self.edft = np.array([edft[0]
+                                 for i in range(self.nqpoint)], dtype=float)
         else:
-            raise Exception('Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
+            raise Exception(
+                'Only support: 1. HA, Gamma point 2. QHA, gamma point 3. HA dispersion.')
 
         return self.edft, self.nqpoint, self.qpoint
 
@@ -1002,7 +1002,7 @@ class Crystal_output:
                     Raman = line_data[-1] == 'A'
                     if (nm_b-nm_a == 1):
                         intens = intens/2
-                    elif(nm_b-nm_a == 2):
+                    elif (nm_b-nm_a == 2):
                         intens = intens/3
 
                 for mode in range(nm_a, nm_b + 1):
@@ -1107,7 +1107,7 @@ class Crystal_output:
         """
         Substitute imaginary modes and corresponding eigenvectors with numpy
         NaN format and print warning message.
-        
+
         Returns:
             self.frequency (array[float])
             self.eigenvector (array[float])
@@ -1614,6 +1614,14 @@ class Properties_output:
         return self
 
     def read_cry_bands(self, properties_output):
+        """_summary_
+
+        Args:
+            properties_output (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         # This class contains the bands objects created from reading the
         # CRYSTAL band files
         # Returns an array where the band energy is expressed in eV
@@ -1693,6 +1701,14 @@ class Properties_output:
         return self
 
     def read_cry_doss(self, properties_output):
+        """_summary_
+
+        Args:
+            properties_output (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         # This class contains the bands objects created from reading the
         # CRYSTAL doss files
         # Returns an array where the band energy is expressed in eV
@@ -2715,3 +2731,71 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     with open(new_fort98, 'w') as file:
         for line in final_fort98:
             file.writelines(line)
+
+
+class External_unit:
+    # WORK IN PROGRESS
+    # This class qill generate an object from the CRYSTAL external units like: IRSPEC.DAT
+    # RAMSPEC.DAT tha can be plotted through the corresponding function in plot.py
+
+    def __init__(self):
+
+        pass
+
+    def read_external_unit(self, external_unit):
+        import sys
+
+        try:
+            if external_unit[-3:] != 'DAT':
+                external_unit = external_unit + '.DAT'
+            file = open(external_unit, 'r', errors='ignore')
+            self.data = file.readlines()
+            file.close()
+        except:
+            print('EXITING: a .out file needs to be specified')
+            sys.exit(1)
+
+    def read_cry_irspec(self, irspec_file):
+        import numpy as np
+
+        self.read_external_unit(irspec_file)
+
+        data = self.data
+        columns = len(data[0])
+        no_points = len(data)
+
+        if columns > 3:
+            self.calculation = 'solid'
+        else:
+            self.calculation = 'molecule'
+
+        irspec = np.zeros((no_points, columns))
+
+        for i, lines in enumerate(data):
+            line = lines.split()
+            for j, element in enumerate(line):
+                irspec[i, j] = float(element)
+
+        self.irspec = irspec
+
+        return self
+
+    def read_cry_ramspec(self, ramspec_file):
+        import numpy as np
+
+        self.read_external_unit(ramspec_file)
+
+        data = self.data
+        columns = len(data[0])
+        no_points = len(data)
+
+        ramspec = np.zeros((no_points, columns))
+
+        for i, lines in enumerate(data):
+            line = lines.split()
+            for j, element in enumerate(line):
+                ramspec[i, j] = float(element)
+
+        self.ramspec = ramspec
+
+        return self
