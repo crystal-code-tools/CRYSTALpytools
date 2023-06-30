@@ -3,11 +3,18 @@
 """
 Created on Fri Nov 19 18:28:54 2021
 
-@author: brunocamino
 """
 
 def set_runcry_path(path):
+    """
+    Set the path for the Runcry executable.
 
+    Args:
+        path (str): The path to the Runcry executable.
+
+    Returns:
+        None
+    """
     import re
     import os
 
@@ -29,7 +36,15 @@ def set_runcry_path(path):
     file.close()
 
 def set_runprop_path(path):
+    """
+    Set the path for the Runprop executable.
 
+    Args:
+        path (str): The path to the Runprop executable.
+
+    Returns:
+        None
+    """
     import re
     import os
 
@@ -52,7 +67,16 @@ def set_runprop_path(path):
 
 
 def runcry(file_name, guessp=None):
+    """
+    Run Runcry calculation.
 
+    Args:
+        file_name (str): The name of the file to run the calculation.
+        guessp (str, optional): The guessp parameter. Default is None.
+
+    Returns:
+        str: The result of the calculation or an error message.
+    """
     runcry_path = '/Users/brunocamino/crystal/runcry17'
     if runcry_path is None:
         return 'Please set the runcry path before calling this function'
@@ -92,7 +116,16 @@ def runcry(file_name, guessp=None):
 
 
 def runprop(prop_name,wf_file):
+    """
+    Run Runprop calculation.
 
+    Args:
+        prop_name (str): The name of the property to calculate.
+        wf_file (str): The name of the wavefunction file.
+
+    Returns:
+        str: The result of the calculation or an error message.
+    """
     runprop_path = '/Users/brunocamino/crystal/runprop17'
     if runprop_path is None:
         return('Please set the runprop path before calling it')

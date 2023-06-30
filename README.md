@@ -4,6 +4,9 @@ a layer between CRYSTAL and pymatgen.
 
 In January 2022 the first stable version (v2022.1.10) was released.
 
+## Documentation
+The [documentation site](https://crystal-code-tools.github.io/CRYSTALpytools/) of CRYSTALpytoosl explains the usage of submodules and classes. The latest released version of CRYSTALpytools is available via [PyPI](https://pypi.org/project/CRYSTALpytools/#history).
+
 ## Installation
 
 ### Create a conda/anaconda environment

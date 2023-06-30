@@ -1,30 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Nov 19 18:29:16 2021
-
+Functions that do conversion between data / file formats
 """
 
-def cry_ase2gui(structure, dimensionality = 3, symmetry = True):
+def cry_ase2gui(structure, pbc=[True, True, True], symmetry=True):
+    """
+    Transform an ASE Structure object into a Pymatgen structure object and then
+    a CRYSTAL structure (gui) object.
+
+    Args:
+        structure (ASE Structure): ASE Structure object.
+        symmetry (bool): Perform symmetry analysis.
+        
+    Returns:
+        Crystal_gui: CRYSTAL structure (gui) object.
+    """
     # First transform into pmg and then write the gui
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
     pmg_structure = AseAtomsAdaptor().get_structure(structure)
 
-    return cry_pmg2gui(pmg_structure, dimensionality=dimensionality, symmetry=symmetry)
-    
+    return cry_pmg2gui(pmg_structure, pbc=pbc, symmetry=symmetry)
+
 
 def cry_bands2pmg(output, bands, labels=None):
-    # WORK IN TRANSFORMATION
-    #Transform a CRYSTAL bands object into a pymatgen bands object
-
-    # output_file is a crystal output object
-    # bands is a crystal bands object
-        # classBandStructure(kpoints, eigenvals, lattice, efermi, labels_dict=None, coords_are_cartesian=False,
-        # structure=None, projections=None)
-    # labels are the k point labels to display in the band structure
+    """
+    Transform a CRYSTAL bands object into a Pymatgen bands object.
     
+    Args:
+        output: Crystal output object.
+        bands: Crystal bands object.
+        labels (list): K point labels to display in the band structure.
+        
+    Returns:
+        BandStructureSymmLine: Pymatgen band structure object.
+    """
     import numpy as np
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     
@@ -70,33 +82,54 @@ def cry_bands2pmg(output, bands, labels=None):
     
 
 def cry_gui2ase(gui_file):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
+    """
+    Transform a CRYSTAL structure (gui) file into an ASE atoms object.
+    
+    Args:
+        gui_file (str): Path to the CRYSTAL structure (gui) file.
+        
+    Returns:
+        Atoms: ASE atoms object.
+    """
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
     return AseAtomsAdaptor().get_atoms(cry_gui2pmg(gui_file))
 
 
-def cry_gui2cif(cif_file_name, gui):
-    #Read a CRYSTAL structure (gui) file and save a cif file
-    # cif_file_name: name (including path) of the cif file to be saved
-    # gui_file: CRYSTAL gui object
+def cry_gui2cif(cif_file_name, gui, symprec=0.01, angle_tolerance=5.0):
+    """
+    Read a CRYSTAL structure (gui) file and save a cif file. The CifWriter
+    object of PyMatGen is called.
 
+    Args:
+        cif_file_name (str): Name (including path) of the cif file to be saved
+        gui (Crystal_gui): CRYSTALpytools gui object
+        symprec (float): Refer to `CifWriter's manual <https://pymatgen.org/pymatgen.io.cif.html#pymatgen.io.cif.CifWriter>`_.
+            If none, CIF output without symmetry.
+        angle_tolerance (float): Refer to `CifWriter's manual <https://pymatgen.org/pymatgen.io.cif.html#pymatgen.io.cif.CifWriter>`_
+    """
     from pymatgen.io.cif import CifWriter
 
     structure = cry_gui2pmg(gui)
-    
-    CifWriter(structure).write_file(cif_file_name)
+
+    CifWriter(structure,
+              symprec=symprec,
+              angle_tolerance=angle_tolerance).write_file(cif_file_name)
 
 
 def cry_gui2pmg(gui, vacuum=10, molecule = True):
-    #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
-    #Vacuum needs to be included because pymatgen only includes 3D symmetry
-    # molecule = True generates a Molecule pymatgen object for 0D structures
-    # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
+    """
+    Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
+    
+    Args:
+        gui: CRYSTAL structure (gui) object.
+        vacuum (float): Vacuum distance.
+        molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+        
+    Returns:
+        Structure or Molecule: Pymatgen Structure or Molecule object.
+    """
     
     from pymatgen.core.structure import Structure, Molecule
     import numpy as np
@@ -136,10 +169,13 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
 
 
 def cry_gui2xyz(xyz_file_name, gui):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
+    """
+    Transform a CRYSTAL structure (gui) file into an XYZ file.
+    
+    Args:
+        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
+        gui: CRYSTAL structure (gui) object.
+    """
 
     from pymatgen.io.xyz import XYZ
     import sys
@@ -154,13 +190,17 @@ def cry_gui2xyz(xyz_file_name, gui):
 
 
 def cry_out2ase(output, initial=False, vacuum=10):
-    #Transform a CRYSTAL output object into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
+    """
+    Transform a CRYSTAL output object into an ASE atoms object.
 
-    # output_file is a crystal output object
-    # initial == False reads the last geometry of the output file
-    # dimensionality is the dimensionality of the system  
-    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
+    Args:
+        output: Crystal output object.
+        initial (bool): Read the last geometry of the output file.
+        vacuum (float): Vacuum distance.
+        
+    Returns:
+        Atoms: ASE atoms object.
+    """
 
     from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -168,12 +208,15 @@ def cry_out2ase(output, initial=False, vacuum=10):
 
 
 def cry_out2cif(cif_file_name, output):
-    #Save a CRYSTAL structure (gui) object as a cif file
-    #The gui file is first transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
-
+    """
+    Save a CRYSTAL output object as a CIF file.
     from pymatgen.io.cif import CifWriter
+
+    Args:
+        cif_file_name (str): Name (including path) of the CIF file to be saved.
+        output: Crystal output object.
+    """
+
 
     structure = cry_gui2pmg(output)
     
@@ -181,11 +224,18 @@ def cry_out2cif(cif_file_name, output):
 
 
 def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
-    #Transform a CRYSTAL output object into a pymatgen structure object
+    """
+    Transform a CRYSTAL output object into a pymatgen structure object.
 
-    # output_file is a crystal output object
-    # initial == False reads the last geometry of the output file
-    # vacuum needs to be specified because pymatgen does not have 2D symmetry tools
+    Args:
+        output (CRYSTAL output object): CRYSTAL output object.
+        vacuum (float): Vacuum distance.
+        initial (bool): Read the last geometry of the output file.
+        molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+        
+    Returns:
+        Structure: Pymatgen Structure object.
+    """
     
     from pymatgen.core.structure import Structure, Molecule
     import numpy as np
@@ -236,102 +286,158 @@ def cry_out2pmg(output, vacuum=10, initial = False, molecule = True):
     return structure
 
 
-def cry_pmg2gui(structure, dimensionality = 3, symmetry = True):
-    #Transform a CRYSTAL structure (gui) object into a pymatgen Structure object
-    #Vacuum needs to be included because pymatgen only includes 3D symmetry
-    # molecule = True generates a Molecule pymatgen object for 0D structures
-    # molecule = False generates a Molecule pymatgen with vacuum object for 0D structures
-    
-    #from . import crystal_io
+def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
+    """
+    Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
+    Vacuum needs to be included because pymatgen only includes 3D symmetry.
+
+    Args:
+        structure (Structure | Molecule): Pymatgen Structure / Molecule object.
+        pbc (list[bool]): Periodic boundary conditions along the x, y, z directions.
+        symmetry (bool): Do symmetry analysis.
+        zconv (list[list[int, int]]): 1st element: The **index** of atom;
+                2nd element: The new conventional atomic number.
+    """
     from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
-    
+    from pymatgen.core.structure import Molecule
+
     import numpy as np
-    import sys
+    import warnings
     import copy
 
     gui = Crystal_gui()
+    dimensionality = pbc.count(True)
 
-    if dimensionality == 0 and 'Molecule' not in str(type(structure)):
-        print('WARNING: dimensionality is set to 0, but the structure is not a molecule')
-        sys.exit(1)
-    elif dimensionality == 0 and 'Molecule' in str(type(structure)):
-        lattice_vectors = np.identity(3)*500.
+    if dimensionality == 0 and 'Molecule' in str(type(structure)):
+        molecule = structure
+        is_molecule = True # 0D object called as molecule
     elif dimensionality > 0:
-        lattice_vectors = copy.deepcopy(structure.lattice.matrix)
-    
+        is_molecule = False # >0D object called as structure
+    elif dimensionality == 0 and 'Molecule' not in str(type(structure)):
+        warnings.warn('Dimensionality is set to 0, but the structure is not a molecule. Periodicity will be removed.')
+        molecule = Molecule(structure.species,
+                            [i.coords for i in structure.sites],
+                            structure.charge,
+                            [i.properties for i in struc.sites]) 
+        is_molecule = True # 0D object called as molecule
+    elif dimensionality > 0 and 'Molecule' in str(type(structure)):
+        warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
+        structure = structure.get_boxed_structure(500., 500., 500.)
+        is_molecule = False # >0D object called as structure
+
     gui.dimensionality = dimensionality
 
-    if dimensionality == 2:
-        lattice_vectors[2][2] = 500.
-    
-    if dimensionality == 1:
-        lattice_vectors[1][1] = 500.
-        lattice_vectors[2][2] = 500.
-
-    gui.lattice = lattice_vectors
-    gui.n_atoms = structure.num_sites
-    gui.space_group = SpacegroupAnalyzer(structure).get_space_group_number()
-    gui.symmops = []
-    
-    if symmetry == True:
-        n_symmops = 0
-        if dimensionality == 3:
-            symmops = SpacegroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
-
-            for symmop in symmops:
-                if np.all(symmop.translation_vector == 0.):
-                    n_symmops += 1
-                    gui.symmops.extend(symmop.rotation_matrix.tolist())
-                    gui.symmops.append(symmop.translation_vector.tolist())
-            
-            gui.n_symmops = n_symmops
-
-        elif dimensionality == 2:
-
-            #center the slab first
-            structure = center_slab(structure)
-
-            # Then center at z=0.0
-            translation = np.array([0.0, 0.0, -0.5])
-            structure.translate_sites(list(range(structure.num_sites)),
-                                          translation, to_unit_cell=False)
-            
-            sg = SpacegroupAnalyzer(structure)
-            ops = sg.get_symmetry_operations(cartesian=True)
-            for op in ops:
-                if np.all(op.translation_vector == 0.):
-                    n_symmops += 1
-                    gui.symmops.extend(op.rotation_matrix.tolist())
-                    gui.symmops.append(op.translation_vector.tolist())
-         
-            gui.n_symmops = n_symmops
-
-        elif dimensionality == 1:
-            print('WARNING: check the polymer is correctly centered in the cell and that the correct symmops are used.')      
-
-        elif dimensionality == 0:
-            print('WARNING: 0D in development')
-            sys.exit(1)
-     
-    else:
+    if is_molecule == True: # 0D
+        lattice_vectors = np.identity(3)*500.
+        gui.lattice = lattice_vectors
+        gui.n_atoms = molecule.num_sites
+        gui.space_group = 1
+        gui.symmops = []
         gui.n_symmops = 1
         gui.symmops.extend(np.identity(3).tolist())
         gui.symmops.append([0.0,0.0,0.0])
+        gui.atom_number = list(molecule.atomic_numbers)
+        gui.atom_positions = molecule.cart_coords.tolist()
+    else: # 1-3D
+        if dimensionality == 2:
+            if pbc[0] == False: # X no periodicity
+                warnings.warn('The non-periodic direction will be rotated to z axis.')
+                mx = structure.lattice.matrix
+                lattice_vectors = np.array([[mx[1, 1], mx[1, 2], 0.],
+                                            [mx[2, 1], mx[2, 2], 0.],
+                                            [0., 0., 500.]])
+            elif pbc[1] == False: # Y no periodicity
+                warnings.warn('The non-periodic direction will be rotated to z axis.')
+                mx = structure.lattice.matrix
+                lattice_vectors = np.array([[mx[0, 2], mx[0, 0], 0.],
+                                            [mx[2, 2], mx[2, 0], 0.],
+                                            [0., 0., 500.]])
+            else: # Z no periodicity
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
 
-    gui.atom_number = list(structure.atomic_numbers)
-    gui.atom_positions = structure.cart_coords.tolist()
+        elif dimensionality == 1:
+            if pbc[0] == True: # X periodic
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+            elif pbc[1] == True: # Y periodic
+                warnings.warn('The periodic direction will be rotated to x axis.')
+                mx = structure.lattice.matrix
+                lattice_vectors = np.array([[mx[1, 1], 0., 0.],
+                                            [0., 500., 0.],
+                                            [0., 0., 500.]])
+            else: # Z periodic
+                warnings.warn('The periodic direction will be rotated to x axis.')
+                mx = structure.lattice.matrix
+                lattice_vectors = np.array([[mx[2, 2], 0., 0.],
+                                            [0., 500., 0.],
+                                            [0., 0., 500.]])
+        else:
+            lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+
+        gui.lattice = lattice_vectors
+        gui.n_atoms = structure.num_sites
+        gui.space_group = SpacegroupAnalyzer(structure).get_space_group_number()
+        gui.symmops = []
+
+        if symmetry == True:
+            n_symmops = 0
+            if dimensionality == 3:
+                symmops = SpacegroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
+
+                for symmop in symmops:
+                    if np.all(symmop.translation_vector == 0.):
+                        n_symmops += 1
+                        gui.symmops.extend(symmop.rotation_matrix.tolist())
+                        gui.symmops.append(symmop.translation_vector.tolist())
+
+                gui.n_symmops = n_symmops
+
+            elif dimensionality == 2:
+
+                #center the slab first
+                structure = center_slab(structure)
+
+                # Then center at z=0.0
+                translation = np.array([0.0, 0.0, -0.5])
+                structure.translate_sites(list(range(structure.num_sites)),
+                                          translation, to_unit_cell=False)
+
+                sg = SpacegroupAnalyzer(structure)
+                ops = sg.get_symmetry_operations(cartesian=True)
+                for op in ops:
+                    if np.all(op.translation_vector == 0.):
+                        n_symmops += 1
+                        gui.symmops.extend(op.rotation_matrix.tolist())
+                        gui.symmops.append(op.translation_vector.tolist())
+
+                gui.n_symmops = n_symmops
+
+            else:
+                warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
+        else:
+            gui.n_symmops = 1
+            gui.symmops.extend(np.identity(3).tolist())
+            gui.symmops.append([0.0,0.0,0.0])
+
+        gui.atom_number = list(structure.atomic_numbers)
+        gui.atom_positions = structure.cart_coords.tolist()
+
+    if zconv != None:
+        for atom in zconv:
+            gui.atom_number[atom[0]] = atom[1]
 
     return gui
 
 
 def cry_out2xyz(xyz_file_name, output):
-    #Transform a CRYSTAL structure (gui) file into an ASE bands object
-    #The gui file is firt transfomed into a pymatgen object
-
-    #gui_file is the CRYSTAL structure (gui) file
-
+    """
+    Transform a CRYSTAL output object into an XYZ file.
+    
+    Args:
+        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
+        output: CRYSTAL output object.
+    """
     from pymatgen.io.xyz import XYZ
     import sys
 

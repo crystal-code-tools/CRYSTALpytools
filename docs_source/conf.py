@@ -23,9 +23,11 @@ sys.path.insert(0, os.path.abspath('../../CRYSTALpytools'))
 # -- Project information -----------------------------------------------------
 
 from CRYSTALpytools import __author__, __version__
+import datetime
 
+year = datetime.datetime.now().date().strftime("%Y")
 project = 'CRYSTALpytools'
-copyright = '2023' + __author__
+copyright = year + ', ' + __author__
 author = __author__
 
 # The full version, including alpha/beta/rc tags
@@ -37,7 +39,7 @@ release = __version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary',  
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary',
 			  'sphinx.ext.napoleon', 'sphinx.ext.githubpages']
 # Set `Returns` section to behave like the `Args` section
 # For Google Doc format
@@ -82,7 +84,7 @@ html_context = {
     'display_github'  : True,
     'github_user'     : 'crystal-code-tools',
     'github_repo'     : 'CRYSTALpytools',
-    'github_version'  : 'master',
+    'github_version'  : 'main',
     'conf_py_path'    : '/docs_source/',
 }
 

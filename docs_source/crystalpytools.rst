@@ -6,6 +6,8 @@ CRYSTALpytools Package
 Submodules
 ----------
 
+CRYSTALpytools instructions for users.
+
 .. toctree::
 	:maxdepth: 1
 
@@ -16,3 +18,17 @@ Submodules
 	crystalpytools.execute
 	crystalpytools.plot
 	crystalpytools.thermodynamics
+
+Developers
+----------
+
+CRYSTALpytools instructions for developers.
+
+.. toctree::
+	:maxdepth: 1
+
+	crystalpytools.base.crysd12
+	crystalpytools.base.crysout
+	crystalpytools.base.propout
+	crystalpytools.base.inputbase
+	crystalpytools.base.basisset

@@ -3,9 +3,20 @@
 """
 Created on Fri Nov 19 18:29:54 2021
 
-@author: brunocamino
 """
 def sub_ads_indices(structure):
+    """
+    Identify the indices of substrate and adsorbate atoms in the given structure.
+
+    Args:
+        structure (pymatgen.core.structure.Structure): The input structure.
+
+    Returns:
+        dict: A dictionary containing the indices of adsorbate and substrate atoms.
+              The dictionary has two keys:
+              - 'adsorbate': A list of indices corresponding to the adsorbate atoms.
+              - 'substrate': A list of indices corresponding to the substrate atoms.
+    """
     
     substrate_atom_index = []
     adsorbate_atom_index = []

@@ -29,3 +29,10 @@ def au_to_angstrom(length):
 def angstrom_to_au(length):
     return length/(constants.physical_constants['atomic unit of length'][0] * 1e10)
 
+def cm_to_thz(freq):
+    # Conversion from cm^-1 to THz
+    return freq*(constants.physical_constants['speed of light in vacuum'][0] * 1e-10)
+
+def thz_to_cm(freq):
+    # Conversion from cm^-1 to THz
+    return freq/(constants.physical_constants['speed of light in vacuum'][0] * 1e-10)
