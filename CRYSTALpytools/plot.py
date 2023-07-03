@@ -3698,7 +3698,8 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
 def plot_cry_young(theta, phi, S):
     """
-    Plot crystal Young's modulus property.
+    Compute Young's modulus for each direction of the space (i.e., each pair 
+    of theta and phi angles). 
 
     Args:
         theta (float): Theta value.
@@ -3706,12 +3707,10 @@ def plot_cry_young(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Young's modulus property.
+        float: Young's modulus values.
 
     Notes:
-        - Computes the Young's modulus property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The Young's modulus property represents the crystal's stiffness.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3763,7 +3762,8 @@ def plot_cry_young(theta, phi, S):
 
 def plot_cry_comp(theta, phi, S):
     """
-    Plot crystal compression property.
+    Compute linear compressibility for each direction of the space (i.e., each 
+    pair of theta and phi angles). 
 
     Args:
         theta (float): Theta value.
@@ -3771,12 +3771,10 @@ def plot_cry_comp(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Compression property.
+        float: Linear compressibility values.
 
     Notes:
-        - Computes the compression property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The compression property represents the crystal's compression behavior.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3817,7 +3815,9 @@ def plot_cry_comp(theta, phi, S):
 
 def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     """
-    Plot crystal shear properties.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the shear modulus is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -3830,9 +3830,7 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
         numpy.ndarray: Shear property array.
 
     Notes:
-        - Computes shear properties for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting shear property can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3903,7 +3901,9 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
 
 def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     """
-    Plot crystal Poisson's ratio.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the Poisson ratio is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -3916,9 +3916,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         numpy.ndarray: Poisson's ratio array.
 
     Notes:
-        - Computes Poisson's ratio for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting Poisson's ratio can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3992,7 +3990,9 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
     """
-    Plot crystal elastic properties.
+    Plot crystal elastic properties on the basis of the elastic tensor. A
+    variable number of elastic tensors can be provided in order to get
+    multiple plots in one shot, establishing a fixed color scale among them.
 
     Args:
         choose (str): Property to plot. Options: "young", "comp", "shear avg",
