@@ -2288,7 +2288,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of chemical potential for each temperature.
         - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
 
     """
     import sys
@@ -2430,7 +2430,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
         - Plots the electrical conductivity as a function of chemical potential for each temperature.
         - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'sigma_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
 
     """
     import sys
@@ -2563,7 +2563,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -2699,7 +2699,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
         - Plots the electrical conductivity as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -2827,9 +2827,9 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the chemical potential, distinguishing between n-type and p-type conduction.
+        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -3036,8 +3036,8 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the charge carrier concentration, distinguishing between n-type and p-type conduction.
         - If save_to_file is True, saves the plot to a file named 'powerfactor_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -3255,7 +3255,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         - Prompts the user to input the value of ktot in W-1K-1m-1.
         - Prompts the user to choose the direction to plot among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz.
         - Calculates the ZT value using the Seebeck coefficient and electrical conductivity data.
-        - Plots the ZT value for each temperature.
+        - Plots the ZT value for each temperature as a function of the chemical potential.
         - If save_to_file is True, saves the plot to a file named 'zt_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'zt_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -3371,7 +3371,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 
 def plot_cry_multiseebeck(*seebeck):
     """
-    Plot the multiseebeck coefficient for different temperatures.
+    Plot the seebeck coefficients from different files as a function of chemical potential.
 
     Args:
         *seebeck: Variable number of seebeck objects containing the data for the Seebeck coefficient.
@@ -3383,7 +3383,7 @@ def plot_cry_multiseebeck(*seebeck):
         - Prompts the user to input the index of the temperature to plot.
         - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
-        - Plots the multiseebeck coefficient for each seebeck object.
+        - Plots the seebeck coefficient for each seebeck object.
         - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
         - Saves the plot to a file named 'multiseebeckYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
@@ -3502,7 +3502,7 @@ def plot_cry_multiseebeck(*seebeck):
 
 def plot_cry_multisigma(*sigma):
     """
-    Plot the multisigma conductivity for different temperatures.
+    Plot the electrical conductivities from different files as a function of the chemical potential.
 
     Args:
         *sigma: Variable number of sigma objects containing the data for the conductivity.
@@ -3514,7 +3514,7 @@ def plot_cry_multisigma(*sigma):
         - Prompts the user to input the index of the temperature to plot.
         - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
-        - Plots the multisigma conductivity for each sigma object.
+        - Plots the electrical conductivity for each sigma object.
         - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
         - Saves the plot to a file named 'multisigmaYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
