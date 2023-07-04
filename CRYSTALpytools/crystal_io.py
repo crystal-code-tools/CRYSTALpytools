@@ -180,7 +180,7 @@ class Crystal_output:
 
     def read_cry_output(self, output_name):
         """Reads a CRYSTAL output file.
-        
+
         Args:
             output_name (str): Name of the output file.
         Returns:
@@ -229,12 +229,12 @@ class Crystal_output:
             if bool(re.search('OPT END - CONVERGED', line) ) == True:
                 self.opt_converged = True
                 break
-        
+
         return self
 
     def get_dielectric_tensor(self):
         """Extracts the dielectric tensor from the output.
-        
+
         Returns:
             list: Dielectric tensor values.
         """
@@ -264,7 +264,7 @@ class Crystal_output:
 
     def get_dimensionality(self):
         """Gets the dimensionality of the system.
-        
+
         Returns:
             int: Dimensionality of the system.
         """
@@ -278,7 +278,7 @@ class Crystal_output:
 
     def get_final_energy(self):
         """Get the final energy of the system.
-        
+
         Returns:
             float: The final energy of the system.
         """
@@ -339,7 +339,7 @@ class Crystal_output:
 
     def get_opt_convergence_energy(self):
         """Returns the energy for each opt step.
-        
+
         Returns:
             list: Energy for each optimization step.
         """
@@ -352,7 +352,7 @@ class Crystal_output:
 
     def get_num_cycles(self):
         """Returns the number of SCF cycles.
-        
+
         Returns:
             int: Number of SCF cycles.
         """
@@ -366,7 +366,7 @@ class Crystal_output:
 
     def get_fermi_energy(self):
         """Returns the system Fermi energy.
-        
+
         Returns:
             float: Fermi energy of the system.
         """
@@ -492,7 +492,7 @@ class Crystal_output:
 
     def get_band_gap(self):
         """Returns the system band gap.
-        
+
         Returns:
             float or np.ndarray: Band gap of the system.
         """
@@ -673,7 +673,7 @@ class Crystal_output:
 
     def get_symm_ops(self):
         """Return the symmetry operators
-        
+
         Returns:
             numpy.ndarray: Symmetry operators
         """
@@ -695,7 +695,7 @@ class Crystal_output:
     def get_forces(self, initial=False, grad=False):
         """
         Return the forces from an optgeom calculation
-        
+
         Args:
             initial (bool, optional): Return forces from the initial calculation. Defaults to False.
             grad (bool, optional): Return gradient information. Defaults to False.
@@ -769,7 +769,7 @@ class Crystal_output:
     def get_mulliken_charges(self):
         """
         Return the Mulliken charges (PPAN keyword in input)
-        
+
         Returns:
             list: Mulliken charges
         """
@@ -789,7 +789,7 @@ class Crystal_output:
     def get_config_analysis(self,return_multiplicity=False):
         """
         Return the configuration analysis for solid solutions (CONFCON keyword in input)
-        
+
         Args:
             return_multiplicity (bool, optional): Return multiplicity information. Defaults to False.
         Returns:
@@ -894,7 +894,7 @@ class Crystal_output:
                 specifying whether the mode is IR active
             self.Raman (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is Raman active
-            self.eigenvector (array[float]): *``read_eigvt = True only``* 
+            self.eigenvector (array[float]): *``read_eigvt = True only``*
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
@@ -1085,7 +1085,7 @@ class Properties_input:
     def from_file(self, input_name):
         """
         Read the properties input from a file.
-        
+
         Args:
             input_name (str): The name of the input file.
         Returns:
@@ -1119,7 +1119,7 @@ class Properties_input:
     def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
         """
         Returns the newk block.
-        
+
         Args:
             shrink1 (int): The first newk shrinking factor.
             shrink2 (int): The second newk shrinking factor.
@@ -1136,7 +1136,7 @@ class Properties_input:
                          title='BAND STRUCTURE CALCULATION'):
         """
         Returns the bands block for a bands calculation.
-        
+
         Args:
             k_path (list or HighSymmKpath): The k-path for the bands calculation.
             n_kpoints (int): The number of k-points along the path.
@@ -1204,7 +1204,7 @@ class Properties_input:
                         poly=12, print_option=1):
         """
         Returns the doss block for a doss calculation.
-        
+
         Args:
             n_points (int): The number of points in the DOS plot (default is 200).
             band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
@@ -1369,7 +1369,7 @@ class Properties_output:
 
     def read_file(self, properties_output):
         """Parse the properties output file.
-        
+
         Args:
             properties_output (str): The properties output file.
         Returns:
@@ -1395,13 +1395,14 @@ class Properties_output:
             raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_vecfield(self, properties_output, which_prop):
-        """Read the .f25 file to return a data array containing one or more density properties.
-        
+        """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
+
         Args:
             properties_output (str): The properties output file.
             which_prop (str): The density property selected by the user.
+            'm' (magnetization), 'j' (spin current), 'J' (spin current density)
         Returns:
-            Properties_output: The updated Properties_output object.
+            Properties_output (str): The fort.25 output file.
         """
 
         import numpy as np
@@ -1446,7 +1447,7 @@ class Properties_output:
         else:
             blines = int(blines) + 1
 
-        # Reads the types of density property requested by the user and initializes the data arrays
+        # Reads the types of density properties requested by the user and initializes the data arrays
         check = np.zeros(3, dtype=int)
         if 'm' in which_prop:
             check[0] = 1
@@ -1460,7 +1461,7 @@ class Properties_output:
             self.dens_JY = np.zeros((nrow, ncol, 3), dtype=float)
             self.dens_JZ = np.zeros((nrow, ncol, 3), dtype=float)
         if (not check[0]) and (not check[1]) and (not check[2]):
-            print('Error: Invalid Entry. Only the m, j, and J charachters are supported')
+            print('Error: Invalid Entry. Only the m, j, and J characters are supported')
             sys.exit(1)
 
         # Gathers the data
@@ -1598,7 +1599,7 @@ class Properties_output:
 
     def read_cry_contour(self, properties_output):
         """Read the CRYSTAL contour files to create the contour objects.
-        
+
         Args:
             properties_output (str): The properties output file.
         Returns:
@@ -1720,7 +1721,7 @@ class Properties_output:
     def read_cry_xrd_spec(self, properties_output):
         """
         Read XRD spectrum data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -1795,7 +1796,7 @@ class Properties_output:
     def read_cry_rholine(self, properties_output):
         """
         Read density line data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -1840,7 +1841,7 @@ class Properties_output:
     def read_cry_seebeck(self, properties_output):
         """
         Read Seebeck coefficient data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -1919,7 +1920,7 @@ class Properties_output:
     def read_cry_sigma(self, properties_output):
         """
         Read electrical conductivity data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -1998,7 +1999,7 @@ class Properties_output:
     def read_cry_lapl_profile(self, properties_output):
         """
         Read Laplacian profile data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -2063,7 +2064,7 @@ class Properties_output:
     def read_cry_density_profile(self, properties_output):
         """
         Read density profile data from a file.
-        
+
         Args:
             properties_output (str): Path to the properties output file.
         Returns:
@@ -2509,7 +2510,7 @@ class Crystal_density():
 def cry_combine_density(density1, density2, density3, new_density='new_density.f98', spin_pol=False):
     """
     Combine density matrix files.
-    
+
     Args:
         density1 (str): The first density matrix file.
         density2 (str): The second density matrix file.
@@ -2616,12 +2617,12 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
 def write_cry_density(fort98_name, new_p, new_fort98):
     """
     Write the formatted density matrix.
-    
+
     Args:
         fort98_name (str): The name of the previous density matrix file.
         new_p (list): The new density matrix.
         new_fort98 (str): The name of the new density matrix file.
-        
+
         Returns:
         None
     Note:
