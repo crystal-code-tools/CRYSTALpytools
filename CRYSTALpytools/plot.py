@@ -3,17 +3,17 @@
 """
 Functions to visualize CRYSTAL outputs.
 """
-def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """
-    Plot a 2D vector field.
+    Plots the 2D magnetization vector field.
 
     Args:
-        header (list): List containing header information.
+        header (list): List containing information about the fort.25 header.
         dens (numpy.ndarray): Array containing the vector field data.
-        colormapdens (str or list): Colormap for the density values.
         quivscale (float): Scale factor for the quiver plot.
-        name (str): Name of the output plot file.
-        dpi (int, optional): DPI (dots per inch) for the output plot. Default is 400.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
 
     Returns:
         None
@@ -101,7 +101,7 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     # Plotting
 
     m = plt.figure()
-    m = plt.contourf(mesh_x, mesh_y, mod_m, colormapdens, cmap='cool')
+    m = plt.contourf(mesh_x, mesh_y, mod_m, levels, cmap='cool')
     m = plt.colorbar(mappable=m)
     m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale=quivscale)
     m = plt.xlabel('$\AA$')
@@ -111,16 +111,16 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_j(header, dens, quivscale, name='SC', levels=150, dpi=400):
     """
-    Plots a 2D vector field.
+    Plots the 2D vector field of the spin current.
 
     Args:
-        header (list): Header information.
-        dens (ndarray): Array representing the vector field density.
-        colormapdens (str): Colormap for density.
-        quivscale (float): Scale factor for the vector field.
-        name (str): Name of the output file.
+        header (list): List containing information about the fort.25 header.
+        dens (numpy.ndarray): Array representing the vector field.
+        quivscale (float): Scale factor for the quiver plot.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
         dpi (int, optional): DPI (dots per inch) for the output image. Defaults to 400.
 
     Returns:
@@ -207,7 +207,7 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
                                                                                    dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     j = plt.figure()
-    j = plt.contourf(mesh_x, mesh_y, mod_j, colormapdens, cmap='winter')
+    j = plt.contourf(mesh_x, mesh_y, mod_j, levels, cmap='winter')
     j = plt.colorbar(mappable=j)
     j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale=quivscale)
     j = plt.xlabel('$\AA$')
@@ -217,19 +217,19 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', levels=150, dpi=400):
     """
-    Plots a 2D vector field of current density components.
+    Plots the 2D spin current density vector fields.
 
     Args:
-        header (list): List containing information about the vector field.
-        dens_JX (ndarray): Array representing the X-component of the current density.
-        dens_JY (ndarray): Array representing the Y-component of the current density.
-        dens_JZ (ndarray): Array representing the Z-component of the current density.
-        colormapdens: Colormap for the density plot.
+        header (list): List containing information about the fort.25 header.
+        dens_JX (numpy.ndarray): Array representing the X-component of the spin current density.
+        dens_JY (numpy.ndarray): Array representing the Y-component of the spin current density.
+        dens_JZ (numpy.ndarray): Array representing the Z-component of the spin current density.
         quivscale: Scale factor for the quiver plot.
-        name (str): Name used for saving the plots.
-        dpi (int): Dots per inch for saving the plots. Defaults to 400.
+        name (str, optional): Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (Dots per inch) for saving the plots. Defaults to 400.
 
     Returns:
         None
@@ -339,7 +339,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     # Plotting
 
     JX = plt.figure()
-    JX = plt.contourf(mesh_x, mesh_y, mod_JX, colormapdens, cmap='summer')
+    JX = plt.contourf(mesh_x, mesh_y, mod_JX, levels, cmap='summer')
     JX = plt.colorbar(mappable=JX)
     JX = plt.quiver(mesh_projx, mesh_projy, projx_JX,
                     projy_JX, scale=quivscale)
@@ -348,7 +348,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JX = plt.savefig(name+'_JX', dpi=dpi)
 
     JY = plt.figure()
-    JY = plt.contourf(mesh_x, mesh_y, mod_JY, colormapdens, cmap='summer')
+    JY = plt.contourf(mesh_x, mesh_y, mod_JY, levels, cmap='summer')
     JY = plt.colorbar(mappable=JY)
     JY = plt.quiver(mesh_projx, mesh_projy, projx_JY,
                     projy_JY, scale=quivscale)
@@ -357,7 +357,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JY = plt.savefig(name+'_JY', dpi=dpi)
 
     JZ = plt.figure()
-    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, colormapdens, cmap='summer')
+    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, levels, cmap='summer')
     JZ = plt.colorbar(mappable=JZ)
     JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ,
                     projy_JZ, scale=quivscale)
@@ -3698,8 +3698,8 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
 def plot_cry_young(theta, phi, S):
     """
-    Compute Young's modulus for each direction of the space (i.e., each pair 
-    of theta and phi angles). 
+    Compute Young's modulus for each direction of the space (i.e., each pair
+    of theta and phi angles).
 
     Args:
         theta (float): Theta value.
@@ -3762,8 +3762,8 @@ def plot_cry_young(theta, phi, S):
 
 def plot_cry_comp(theta, phi, S):
     """
-    Compute linear compressibility for each direction of the space (i.e., each 
-    pair of theta and phi angles). 
+    Compute linear compressibility for each direction of the space (i.e., each
+    pair of theta and phi angles).
 
     Args:
         theta (float): Theta value.
