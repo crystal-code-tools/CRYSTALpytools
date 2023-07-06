@@ -211,7 +211,11 @@ class Geom(BlockBASE):
             'SUPERCON'  : '_sp_matrix',
             'SCELCONF'  : '_sp_matrix',
             'SCELPHONO' : '_sp_matrix',
+            'ATOMBSSE'  : '_atombsse',
+            'ATOMDISP'  : '_atomdisp',
+            'ATOMINSE'  : '_atominse',
             'ATOMORDE'  : '_atomorde',
+            'ATOMREMO'  : '_atomremo',
             'MOLEISO'   : '_moleiso', # The original 'MOLECULE' option to isolate molecules
             'EXTPRT'    : '_extprt',
             'CIFPRT'    : '_cifprt',
@@ -263,8 +267,7 @@ class Geom(BlockBASE):
             self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', [])
             return
         elif IGR == '':  # Clean data
-            self._basegeom = super(
-                Geom, self).assign_keyword('CRYSTAL', [], '')
+            self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', [], '')
             return
 
         if IFSO <= 1:
@@ -282,8 +285,7 @@ class Geom(BlockBASE):
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword(
-            'CRYSTAL', shape, value)
+        self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', shape, value)
 
     def slab(self, IGR=None, latt=[], atom=[]):
         """
@@ -316,8 +318,7 @@ class Geom(BlockBASE):
             self._basegeom = super(Geom, self).assign_keyword('POLYMER', [])
             return
         elif IGR == '':  # Clean data
-            self._basegeom = super(
-                Geom, self).assign_keyword('POLYMER', [], '')
+            self._basegeom = super(Geom, self).assign_keyword('POLYMER', [], '')
             return
 
         shape = [1, ]
@@ -330,8 +331,7 @@ class Geom(BlockBASE):
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword(
-            'POLYMER', shape, value)
+        self._basegeom = super(Geom, self).assign_keyword('POLYMER', shape, value)
 
     def helix(self, N1=None, N2=0, latt=[], atom=[]):
         """
@@ -358,8 +358,7 @@ class Geom(BlockBASE):
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword(
-            'HELIX', shape, value)
+        self._basegeom = super(Geom, self).assign_keyword('HELIX', shape, value)
 
     def molecule(self, IGR=None, atom=[]):
         """
@@ -375,8 +374,7 @@ class Geom(BlockBASE):
             self._basegeom = super(Geom, self).assign_keyword('MOLECULE', [])
             return
         elif IGR == '':  # Clean data
-            self._basegeom = super(
-                Geom, self).assign_keyword('MOLECULE', [], '')
+            self._basegeom = super(Geom, self).assign_keyword('MOLECULE', [], '')
             return
 
         shape = [1, ]
@@ -386,8 +384,7 @@ class Geom(BlockBASE):
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword(
-            'MOLECULE', shape, value)
+        self._basegeom = super(Geom, self).assign_keyword('MOLECULE', shape, value)
 
     def external(self, key='EXTERNAL'):
         """
@@ -409,35 +406,67 @@ class Geom(BlockBASE):
             mx (array | list | str): ndimen \* ndimen matrix, [] or ''
         """
         shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword(
-            'SUPERCEL', shape, value)
+        self._sp_matrix = super(Geom, self).assign_keyword('SUPERCEL', shape, value)
 
     def supercon(self, mx=None):
         """
         Supercell by 'SUPERCON' keyword
         """
         shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword(
-            'SUPERCON', shape, value)
+        self._sp_matrix = super(Geom, self).assign_keyword('SUPERCON', shape, value)
 
     def scelconf(self, mx=None):
         """
         Supercell by 'SCELCONF' keyword
         """
         shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword(
-            'SCELCONF', shape, value)
+        self._sp_matrix = super(Geom, self).assign_keyword('SCELCONF', shape, value)
 
     def scelphono(self, mx=None):
         """
         Supercell by 'SCELPHONO' keyword
         """
         shape, args = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword(
-            'SCELPHONO', shape, value)
+        self._sp_matrix = super(Geom, self).assign_keyword('SCELPHONO', shape, value)
+
+    def atombsse(self, IAT=None, NSTAR=None, RMAX=None):
+        self._atombsse = super(Geom, self).assign_keyword('ATOMBSSE', [3, ], [IAT, NSTAR, RMAX])
+
+    def atomdisp(self, NDISP=None, atom=[]):
+        """
+        ATOMDISP keyword
+
+        Args:
+            NDISP (int): See manual
+            atom (list): NDISP\*4 list. Including LB, DX, DY, DZ
+        """
+        shape, value = super(Geom, self).set_list(NDISP, atom)
+        self._atomdisp = super(Geom, self).assign_keyword('ATOMDISP', shape, value)
+
+    def atominse(self, NINS=None, atom=[]):
+        """
+        ATOMINSE keyword
+
+        Args:
+            NINS (int): See manual
+            atom (list): NINS\*4 list. Including NA, X, Y, Z
+        """
+        shape, value = super(Geom, self).set_list(NINS, atom)
+        self._atominse = super(Geom, self).assign_keyword('ATOMINSE', shape, value)
 
     def atomorde(self, key='ATOMORDE'):
         self._atomorde = super(Geom, self).assign_keyword(key, [])
+
+    def atomremo(self, NL=None, atom=[]):
+        """
+        ATOMREMO keyword
+
+        Args:
+            NL (int): See manual
+            atom (list): NL\*1 list. Including LB
+        """
+        shape, value = super(Geom, self).set_list(NL, atom)
+        self._atomremo = super(Geom, self).assign_keyword('ATOMREMO', shape, value)
 
     def moleiso(self, NMOL=None, atom=[]):
         """
@@ -617,8 +646,7 @@ class Optgeom(BlockBASE):
         self._toldee = super(Optgeom, self).assign_keyword('TOLDEE', [1, ], IG)
 
     def maxcycle(self, MAX=None):
-        self._maxcycle = super(Optgeom, self).assign_keyword(
-            'MAXCYCLE', [1, ], MAX)
+        self._maxcycle = super(Optgeom, self).assign_keyword('MAXCYCLE', [1, ], MAX)
 
     def fragment(self, NL=None, LB=[]):
         """
@@ -627,19 +655,16 @@ class Optgeom(BlockBASE):
             LB (list[int]): Label of atoms. See manual
         """
         shape, value = super(Optgeom, self).set_list(NL, LB)
-        self._fragment = super(Optgeom, self).assign_keyword(
-            'FRAGMENT', shape, value)
+        self._fragment = super(Optgeom, self).assign_keyword('FRAGMENT', shape, value)
 
     def restart(self, key='RESTART'):
         self._restart = super(Optgeom, self).assign_keyword(key, [])
 
     def finalrun(self, ICODE=None):
-        self._finalrun = super(Optgeom, self).assign_keyword(
-            'FINALRUN', [1, ], ICODE)
+        self._finalrun = super(Optgeom, self).assign_keyword('FINALRUN', [1, ], ICODE)
 
     def extpress(self, pres=None):
-        self._extpress = super(Optgeom, self).assign_keyword(
-            'EXTPRESS', [1, ], pres)
+        self._extpress = super(Optgeom, self).assign_keyword('EXTPRESS', [1, ], pres)
 
     def allowtrustr(self, key='ALLOWTRUSTR'):
         self._usetrustr = super(Optgeom, self).assign_keyword(key, [])
@@ -652,22 +677,18 @@ class Optgeom(BlockBASE):
 
         if hasattr(self, '_usetrustr'):
             if self._usetrustr == 'NOTRUSTR\n':
-                warnings.warn(
-                    "The pre-set 'NOTRUSTR' keyword will be removed.")
+                warnings.warn("The pre-set 'NOTRUSTR' keyword will be removed.", stacklevel=2)
                 self.notrustr('')
-        self._maxtradius = super(Optgeom, self).assign_keyword(
-            'MAXTRADIUS', [1, ], TRMAX)
+        self._maxtradius = super(Optgeom, self).assign_keyword('MAXTRADIUS', [1, ], TRMAX)
 
     def trustradius(self, TRADIUS=None):
         import warnings
 
         if hasattr(self, '_usetrustr'):
             if self._usetrustr == 'NOTRUSTR\n':
-                warnings.warn(
-                    "The pre-set 'NOTRUSTR' keyword will be removed.")
+                warnings.warn("The pre-set 'NOTRUSTR' keyword will be removed.", stacklevel=2)
                 self.notrustr('')
-        self._trustradius = super(Optgeom, self).assign_keyword(
-            'TRUSTRADIUS', [1, ], TRADIUS)
+        self._trustradius = super(Optgeom, self).assign_keyword('TRUSTRADIUS', [1, ], TRADIUS)
 
     def onelog(self, key='ONELOG'):
         self._printonelog = super(Optgeom, self).assign_keyword(key, [])
@@ -763,11 +784,10 @@ class Freqcalc(BlockBASE):
         if ISS == None:
             self._bands = super(Freqcalc, self).assign_keyword('BANDS', [])
         elif ISS == '':
-            self._bands = super(Freqcalc, self).assign_keyword('BANDS', [])
+            self._bands = super(Freqcalc, self).assign_keyword('', [])
         else:
             shape, value = super(Freqcalc, self).set_list(NLINE, points)
-            self._bands = super(Freqcalc, self).assign_keyword(
-                'BANDS', [2, ] + shape, [ISS, NSUB] + value)
+            self._bands = super(Freqcalc, self).assign_keyword('BANDS', [2, ] + shape, [ISS, NSUB] + value)
 
     def modes(self, key='MODES'):
         self._modes = super(Freqcalc, self).assign_keyword(key, [])
@@ -787,12 +807,10 @@ class Freqcalc(BlockBASE):
         self._restart = super(Freqcalc, self).assign_keyword('RESTART', [])
 
     def stepsize(self, STEP=None):
-        self._stepsize = super(Freqcalc, self).assign_keyword(
-            'NUMDERIV', [1, ], STEP)
+        self._stepsize = super(Freqcalc, self).assign_keyword('NUMDERIV', [1, ], STEP)
 
     def temperat(self, NT=None, T1=None, T2=None):
-        self._temperat = super(Freqcalc, self).assign_keyword(
-            'TEMPERAT', [3, ], [NT, T1, T2])
+        self._temperat = super(Freqcalc, self).assign_keyword('TEMPERAT', [3, ], [NT, T1, T2])
 
 
 class BasisSet(BlockBASE):
@@ -1154,16 +1172,13 @@ class SCF(BlockBASE):
         #         self._block_fixbase._block_ed = 'END\n'
 
         else:
-            raise ValueError(
-                'Keyword error. Allowed keywords: GEOM, BASE, GEBA.')
+            raise ValueError('Keyword error. Allowed keywords: GEOM, BASE, GEBA.')
 
     def biposize(self, ISIZE=None):
-        self._biposize = super(SCF, self).assign_keyword(
-            'BIPOSIZE', [1, ], ISIZE)
+        self._biposize = super(SCF, self).assign_keyword('BIPOSIZE', [1, ], ISIZE)
 
     def exchsize(self, ISIZE=None):
-        self._exchsize = super(SCF, self).assign_keyword(
-            'EXCHSIZE', [1, ], ISIZE)
+        self._exchsize = super(SCF, self).assign_keyword('EXCHSIZE', [1, ], ISIZE)
 
     def toldee(self, ITOL=None):
         self._toldee = super(SCF, self).assign_keyword('TOLDEE', [1, ], ITOL)
@@ -1173,31 +1188,28 @@ class SCF(BlockBASE):
 
     def atomspin(self, NA=None, LA=[]):
         shape, value = super(SCF, self).set_list(NA, LA)
-        self._atomspin = super(SCF, self).assign_keyword(
-            'ATOMSPIN', shape, value)
+        self._atomspin = super(SCF, self).assign_keyword('ATOMSPIN', shape, value)
 
     def tolinteg(self, ITOL1=None, ITOL2=None, ITOL3=None, ITOL4=None, ITOL5=None):
         self._tolinteg = super(SCF, self).assign_keyword(
-            'TOLINTEG', [5, ], [ITOL1, ITOL2, ITOL3, ITOL4, ITOL5])
+            'TOLINTEG', [5, ], [ITOL1, ITOL2, ITOL3, ITOL4, ITOL5]
+        )
 
     def ldremo(self, value):
         self._ldremo = super(SCF, self).assign_keyword('LDREMO', [1, ], value)
 
     def maxcycle(self, MAX=None):
-        self._maxcycle = super(SCF, self).assign_keyword(
-            'MAXCYCLE', [1, ], MAX)
+        self._maxcycle = super(SCF, self).assign_keyword('MAXCYCLE', [1, ], MAX)
 
     def fmixing(self, IPMIX=None):
-        self._maxcycle = super(SCF, self).assign_keyword(
-            'FMIXING', [1, ], IPMIX)
+        self._maxcycle = super(SCF, self).assign_keyword('FMIXING', [1, ], IPMIX)
 
     def shrink(self, IS=None, ISP=None, IS1=None, IS2=None, IS3=None):
         if IS1 == None:
-            self._shrink = super(SCF, self).assign_keyword(
-                'SHRINK', [2, ], [IS, ISP])
+            self._shrink = super(SCF, self).assign_keyword('SHRINK', [2, ], [IS, ISP])
         else:
-            self._shrink = super(SCF, self).assign_keyword(
-                'SHRINK', [2, 3], [IS, ISP, IS1, IS2, IS3])
+            self._shrink = super(SCF, self).assign_keyword('SHRINK', [2, 3],
+                                                           [IS, ISP, IS1, IS2, IS3])
 
     def gcpauto(self, key='GCPAUTO'):
         self._gcpauto = super(SCF, self).assign_keyword(key, [])
@@ -1219,7 +1231,8 @@ class SCF(BlockBASE):
 
         if hasattr(self, '_diis'):
             if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.")
+                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
+                              stacklevel=2)
                 self._diis = ''
         self._diisallk = super(SCF, self).assign_keyword(key, [])
 
@@ -1228,7 +1241,8 @@ class SCF(BlockBASE):
 
         if hasattr(self, '_diis'):
             if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.")
+                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
+                              stacklevel=2)
                 self._diis = ''
         self._histdiis = super(SCF, self).assign_keyword('HISTDIIS', [1,], NCYC)
 
@@ -1237,7 +1251,8 @@ class SCF(BlockBASE):
 
         if hasattr(self, '_diis'):
             if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.")
+                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
+                              stacklevel=2)
                 self._diis = ''
         self._prtdiis = super(SCF, self).assign_keyword(key, [])
 
@@ -1280,15 +1295,12 @@ class DFT(BlockBASE):
 
     def correlat(self, cor=None):
         if hasattr(self, '_xcfunc'):
-            raise AttributeError(
-                'Exchange-correlation functional is already set.')
-        self._correlat = super(DFT, self).assign_keyword(
-            'CORRELAT', [1, ], cor)
+            raise AttributeError('Exchange-correlation functional is already set.')
+        self._correlat = super(DFT, self).assign_keyword('CORRELAT', [1, ], cor)
 
     def xcfunc(self, xc=None):
         if hasattr(self, '_exchange') or hasattr(self, '_correlat'):
-            raise AttributeError(
-                'Separate keywords are set for exchange / correlation functionals.')
+            raise AttributeError('Separate keywords are set for exchange / correlation functionals.')
         self._xcfunc = super(DFT, self).assign_keyword(None, [1, ], xc)
 
     def lgrid(self, key='LGRID'):
@@ -1308,23 +1320,19 @@ class DFT(BlockBASE):
 
     def radial(self, NR=None, RL=[], IL=[]):
         if hasattr(self, '_gridsz'):
-            raise AttributeError(
-                "Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
+            raise AttributeError("Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
         if NR != None and NR != '':
             if len(RL) != len(IL) and NR != len(RL):
                 raise ValueError('Inconsistent definition of parameters.')
-        self._gridr = super(DFT, self).assign_keyword(
-            'RADIAL', [1, len(RL), len(IL)], [NR, ] + RL + IL)
+        self._gridr = super(DFT, self).assign_keyword('RADIAL', [1, len(RL), len(IL)], [NR, ] + RL + IL)
 
     def angular(self, NI=None, AL=[], LEV=[]):
         if hasattr(self, '_gridsz'):
-            raise AttributeError(
-                "Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
+            raise AttributeError("Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
         if NI != None and NI != '':
             if len(AL) != len(LEV) and NI != len(AL):
                 raise ValueError('Inconsistent definition of parameters.')
-        self._grida = super(DFT, self).assign_keyword(
-            'ANGULAR', [1, len(AL), len(LEV)], [NI, ] + AL + LEV)
+        self._grida = super(DFT, self).assign_keyword('ANGULAR', [1, len(AL), len(LEV)], [NI, ] + AL + LEV)
 
 
 class DFTD3(BlockBASE):
@@ -1357,8 +1365,7 @@ class DFTD3(BlockBASE):
         self._block_attr = sorted(set(attr), key=attr.index)
 
     def version(self, NAT=None):
-        self._version = super(DFTD3, self).assign_keyword(
-            'VERSION', [1, ], NAT)
+        self._version = super(DFTD3, self).assign_keyword('VERSION', [1, ], NAT)
 
     def func(self, CHAR=None):
         self._func = super(DFTD3, self).assign_keyword('FUNC', [1, ], CHAR)
@@ -1385,16 +1392,13 @@ class DFTD3(BlockBASE):
         self._rs8 = super(DFTD3, self).assign_keyword('RS8', [1, ], rs8)
 
     def radius(self, radius=None):
-        self._radius = super(DFTD3, self).assign_keyword(
-            'RADIUS', [1, ], radius)
+        self._radius = super(DFTD3, self).assign_keyword('RADIUS', [1, ], radius)
 
     def cnradius(self, cnradius=None):
-        self._cnradius = super(DFTD3, self).assign_keyword(
-            'CNRADIUS', [1, ], cnradius)
+        self._cnradius = super(DFTD3, self).assign_keyword('CNRADIUS', [1, ], cnradius)
 
     def abcradius(self, abcradius=None):
-        self._abcradius = super(DFTD3, self).assign_keyword(
-            'ABCRADIUS', [1, ], abcradius)
+        self._abcradius = super(DFTD3, self).assign_keyword('ABCRADIUS', [1, ], abcradius)
 
     def printc6(self, key='PRINTC6'):
         self._printc6 = super(DFTD3, self).assign_keyword(key, [])
