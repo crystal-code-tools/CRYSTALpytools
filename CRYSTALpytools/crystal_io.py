@@ -1537,15 +1537,6 @@ class Properties_output:
                         s += 1
         return self
 
-    def read_cry_bands(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_band instead.')
-        return self.read_electron_band(properties_output)
-
     def read_electron_band(self, properties_output):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
@@ -1566,15 +1557,6 @@ class Properties_output:
             self.bands = BandsBASE.BAND_parser(self.data)
 
         return self.bands
-
-    def read_cry_doss(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_dos instead.')
-        return self.read_electron_dos(properties_output)
 
     def read_electron_dos(self, properties_output):
         """
