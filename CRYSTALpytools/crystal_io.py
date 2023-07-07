@@ -1579,6 +1579,24 @@ class Properties_output:
 
         return self.doss
 
+    def read_cry_bands(self, properties_output):
+        """
+        Deprecated.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use read_electron_band instead.')
+        return self.read_electron_band(properties_output)
+
+    def read_cry_doss(self, properties_output):
+        """
+        Deprecated.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use read_electron_dos instead.')
+        return self.read_electron_dos(properties_output)
+
     def read_cry_contour(self, properties_output):
         """Read the CRYSTAL contour files to create the contour objects.
 

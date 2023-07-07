@@ -528,24 +528,6 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     plt.show()
 
 
-def plot_cry_bands(bands, k_labels=None, energy_range=None, title=None,
-                   not_scaled=False, mode='single', linestl='-', linewidth=1,
-                   color='blue', fermi='forestgreen', k_range=None, labels=None,
-                   figsize=None, scheme=None, sharex=True, sharey=True, save_to_file=None):
-    """
-    Deprecated.
-    """
-    import warnings
-
-    warnings.warn("Deprecated. This function calls 'plot_electron_band' with unit = eV",
-                   stacklevel=2)
-
-    plot_electron_band(bands, k_labels=k_labels, mode=mode, not_scaled=not_scaled,
-                       energy_range=energy_range, k_range=k_range, color=color,
-                       labels=labels, linestl=linestl, linewidth=linewidth,
-                       fermi=fermi, title=title, figsize=figsize, scheme=scheme,
-                       sharex=sharex, sharey=sharey, save_to_file=save_to_file)
-
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       energy_range=None, dos_range=None, color='blue',
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
@@ -622,6 +604,7 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
         save_plot(save_to_file)
 
     plt.show()
+
 
 def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
                     freq_range=None, dos_range=None, color='blue',
@@ -702,22 +685,6 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
         save_plot(save_to_file)
 
     plt.show()
-
-
-def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False, labels=None,
-                  figsize=None, linestl=None, linewidth=1, title=None, beta='up',
-                  energy_range=None, dos_range=None, prj=None, save_to_file=None):
-    """
-    Deprecated
-    """
-    import warnings
-
-    warnings.warn("Deprecated. This function calls 'plot_electron_dos' with unit = eV",
-                  stacklevel=2)
-    plot_electron_dos(doss, beta=beta, overlap=overlap, prj=prj, energy_range=energy_range,
-                      dos_range=dos_range, color=color, labels=labels, linestl=linestl,
-                      linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,
-                      save_to_file=save_to_file)
 
 
 def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down',
@@ -891,6 +858,41 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     plt.show()
 
 
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=None,
+                   not_scaled=False, mode='single', linestl='-', linewidth=1,
+                   color='blue', fermi='forestgreen', k_range=None, labels=None,
+                   figsize=None, scheme=None, sharex=True, sharey=True, save_to_file=None):
+    """
+    Deprecated
+    """
+    import warnings
+
+    warnings.warn("Deprecated. This function calls 'plot_electron_band' with unit = eV",
+                   stacklevel=2)
+
+    plot_electron_band(bands, k_labels=k_labels, mode=mode, not_scaled=not_scaled,
+                       energy_range=energy_range, k_range=k_range, color=color,
+                       labels=labels, linestl=linestl, linewidth=linewidth,
+                       fermi=fermi, title=title, figsize=figsize, scheme=scheme,
+                       sharex=sharex, sharey=sharey, save_to_file=save_to_file)
+
+
+def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False, labels=None,
+                  figsize=None, linestl=None, linewidth=1, title=None, beta='up',
+                  energy_range=None, dos_range=None, prj=None, save_to_file=None):
+    """
+    Deprecated
+    """
+    import warnings
+
+    warnings.warn("Deprecated. This function calls 'plot_electron_dos' with unit = eV",
+                  stacklevel=2)
+    plot_electron_dos(doss, beta=beta, overlap=overlap, prj=prj, energy_range=energy_range,
+                      dos_range=dos_range, color=color, labels=labels, linestl=linestl,
+                      linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,
+                      save_to_file=save_to_file)
+
+
 def plot_cry_es(bands, doss, k_labels=None, color_bd='blue', color_doss='blue',
                 fermi='forestgreen', energy_range=None, linestl_bd='-',
                 linestl_doss=None, linewidth=1, prj=None, figsize=None, labels=None,
@@ -902,11 +904,12 @@ def plot_cry_es(bands, doss, k_labels=None, color_bd='blue', color_doss='blue',
 
     warnings.warn("Deprecated. This function calls 'plot_electron_banddos' with unit = eV.",
                   stacklevel=2)
-    plot_electron_banddos(bands, doss, unit=, k_labels=None, dos_beta='down',
-                          dos_prj=None, energy_range=None, dos_max_range=None,
-                          color_band='blue', color_dos='blue', labels=None, linestl_band='-',
-                          linestl_dos=None, linewidth=1, fermi='forestgreen',
-                          title=None, figsize=None, save_to_file=None)
+    plot_electron_banddos(bands, doss, k_labels=None, dos_beta=dos_beta, dos_prj=prj,
+                          energy_range=energy_range, dos_max_range=dos_max_range,
+                          color_band=color_bd, color_dos=color_doss, labels=labels,
+                          linestl_band=linestl_bd, linestl_dos=linestl_doss,
+                          linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,
+                          save_to_file=save_to_file)
 
 
 def plot_cry_contour(contour_obj, save_to_file=False):
