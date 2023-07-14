@@ -2395,12 +2395,18 @@ def _restore_pcel(crysout, scelphono):
     pbc = {3 : (True, True, True),
            2 : (True, True, False),
            1 : (True, False, False)}
+
     # Get structure. Address the issue with QHA file
     idx_line = 0
     structures = []
+    # Molecule 0D
+    if ndimen == 0:
+        if scelphono != []:
+            warnings.warn('0D system is used. There is nothing to reduce.', stacklevel=2)
+        
+    # Other cases
     while idx_line < len(crysout.data):
-        if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS',
-                    crysout.data[idx_line]):
+        if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS', crysout.data[idx_line]):
             idx_line += 2
             vec1 = np.array(crysout.data[idx_line].strip().split()[0:3], dtype=float)
             vec2 = np.array(crysout.data[idx_line + 1].strip().split()[0:3], dtype=float)
@@ -2417,14 +2423,6 @@ def _restore_pcel(crysout, scelphono):
             all_coord = np.array(all_coord, dtype=float)
             scel_latt = np.vstack([vec1, vec2, vec3])
 
-            # Molecule 0D
-            if ndimen == 0:
-                warnings.warn('0D system is used. There is nothing to reduce.')
-                structures.append(Molecule(species=all_species, coords=all_coord))
-                idx_line += 1
-                continue
-
-            # Periodic systems
             if scelphono != []:
                 scell_mx = np.eye(3, dtype=float)
                 scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]

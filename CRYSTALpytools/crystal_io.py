@@ -566,16 +566,12 @@ class Crystal_output:
                 self.atom_numbers = []
 
                 for j in range(self.n_atoms):
-                    atom_line = self.data[len(
-                        self.data)-i-2-int(self.n_atoms)+j].split()[3:]
+                    atom_line = self.data[len(self.data)-i-2-int(self.n_atoms)+j].split()[3:]
                     self.atom_symbols.append(str(atom_line[0]))
-
-                    self.atom_positions.append(
-                        [float(x) for x in atom_line[1:]])  # These are fractional
+                    self.atom_positions.append([float(x) for x in atom_line[1:]])  # These are fractional
 
                 for atom in self.atom_symbols:
-                    self.atom_numbers.append(
-                        element(atom.capitalize()).atomic_number)
+                    self.atom_numbers.append(element(atom.capitalize()).atomic_number)
 
                 self.atom_positions_cart = np.array(self.atom_positions)
 
@@ -594,27 +590,18 @@ class Crystal_output:
 
                 if dimensionality > 0:
                     self.atom_positions_cart[:, :dimensionality] = np.matmul(
-                        np.array(self.atom_positions)[:, :dimensionality], lattice[:dimensionality, :dimensionality])
+                        np.array(self.atom_positions)[:, :dimensionality],
+                        lattice[:dimensionality, :dimensionality]
+                    )
 
                 self.cart_coords = []
-
                 for i in range(len(self.atom_numbers)):
-                    self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i]
-                                             [0], self.atom_positions_cart[i][1], self.atom_positions_cart[i][2]])
+                    self.cart_coords.append([self.atom_numbers[i],
+                                             self.atom_positions_cart[i, 0],
+                                             self.atom_positions_cart[i, 1],
+                                             self.atom_positions_cart[i, 2]])
                 self.cart_coords = np.array(self.cart_coords)
-
-                if dimensionality > 0:
-                    lattice = self.get_primitive_lattice(initial=False)
-                else:
-                    min_max = max([
-                        (max(self.cart_coords[:, 0]) -
-                         min(self.cart_coords[:, 0])),
-                        (max(self.cart_coords[:, 1]) -
-                         min(self.cart_coords[:, 1])),
-                        (max(self.cart_coords[:, 2]) -
-                         min(self.cart_coords[:, 2]))
-                    ])
-                    lattice = np.identity(3)*(min_max+10)
+                self.last_geom = [lattice.tolist(), self.atom_numbers, self.atom_positions_cart.tolist()]
 
                 # Write the gui file
                 if write_gui_file == True:
@@ -630,18 +617,17 @@ class Crystal_output:
                         else:
                             gui_file = self.name+'.gui'
 
-                        structure = Structure(lattice, self.atom_numbers,
-                                              self.atom_positions_cart, coords_are_cartesian=True)
+                        pbc = {
+                            0 : [False, False, False],
+                            1 : [True, False, False],
+                            2 : [True, True, False],
+                            3 : [True, True, True]
+                        }
                         if dimensionality == 0:
-                            pbc = [False, False, False]
-                        elif dimensionality == 1:
-                            pbc = [True, False, False]
-                        elif dimensionality == 2:
-                            pbc = [True, True, False]
+                            structure = Molecule(self.atom_numbers, self.atom_positions_cart)
                         else:
-                            pbc = [True, True, True]
-                        gui_object = cry_pmg2gui(structure, pbc=pbc)
-
+                            structure = Structure(lattice, self.atom_numbers, self.atom_positions_cart, coords_are_cartesian=True)
+                        gui_object = cry_pmg2gui(structure, pbc=pbc[dimensionality])
                         gui_object.write_gui(gui_file)
                     else:
                         gui_file = symm_info
@@ -650,24 +636,18 @@ class Crystal_output:
                             gui_data = file.readlines()
                             file.close()
                         except:
-                            raise FileNotFoundError(
-                                'A .gui file with the same name as the input need to be present in the directory.')
+                            raise FileNotFoundError('A .gui file with the same name as the input need to be present in the directory.')
                         # Replace the lattice vectors with the optimised ones
                         for i, vector in enumerate(lattice.tolist()):
-                            gui_data[i+1] = ' '.join([str(x)
-                                                      for x in vector])+'\n'
+                            gui_data[i+1] = ' '.join([str(x) for x in vector])+'\n'
 
                         n_symmops = int(gui_data[4])
                         for i in range(len(self.atom_numbers)):
-                            gui_data[i+n_symmops*4+6] = '{} {}\n'.format(
-                                self.atom_numbers[i], ' '.join(str(x) for x in self.atom_positions_cart[i][:]))
+                            gui_data[i+n_symmops*4+6] = '{} {}\n'.format(self.atom_numbers[i], ' '.join(str(x) for x in self.atom_positions_cart[i][:]))
 
                         with open(gui_file[:-4]+'_last.gui', 'w') as file:
                             for line in gui_data:
                                 file.writelines(line)
-
-                self.last_geom = [lattice.tolist(
-                ), self.atom_numbers, self.atom_positions_cart.tolist()]
 
                 return self.last_geom
 
