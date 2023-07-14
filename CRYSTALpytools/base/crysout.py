@@ -68,7 +68,7 @@ class PhononBASE():
 
         Returns:
             countline (int): Line number of output file.
-            eigvt (array[float]): nmode\*natom\*3 array. Normalized to 1.
+            eigvt (array[float]): nmode\*natom\*3 array.
         """
         import numpy as np
         import re
@@ -110,11 +110,26 @@ class PhononBASE():
         natom = int(nmode / 3)
         eigvt = np.reshape(eigvt, [nmode, natom, 3], order='C')
 
-        # Normalize eigenvectors of each mode to 1
-        for idx_m, m in enumerate(eigvt):
-            eigvt[idx_m] /= np.linalg.norm(m)
-
         return countline, eigvt
+
+    @classmethod
+    def normalize_eigenvector(cls, eigvt, amplitude=1.):
+        """
+        Normalize the mode of eigenvectors.
+
+        Args:
+            eigvt (array[complex]): nmode\*natom\*3 array.
+            amplitude (float): Amplitude of normalization
+
+        Returns:
+            eigvt (array[complex]): Normalized eigenvector.
+        """
+        import numpy as np
+
+        for idx_m, m in enumerate(eigvt):
+            eigvt[idx_m] = eigvt[idx_m] / np.linalg.norm(m) * amplitude
+
+        return eigvt
 
     @classmethod
     def clean_q_overlap(cls, crysout, threshold):

@@ -38,7 +38,7 @@ class Mode:
         self.ncalc = len(frequency)
         self.frequency = np.array(frequency, dtype=float)
         self.volume = np.array(volume, dtype=float)
-        self.eigenvector = np.array(eigenvector, dtype=float)
+        self.eigenvector = np.array(eigenvector, dtype=complex)
 
     def get_zp_energy(self):
         """
@@ -1114,7 +1114,7 @@ class Quasi_harmonic:
         # Frequency, ncalc * nqpoint * nmode array
         combined_freq = np.zeros([self.ncalc, nqpoint, nmode])
         # Eigenvector, ncalc * nqpoint * nmode * natom * 3 array
-        combined_eigvt = np.zeros([self.ncalc, nqpoint, nmode, natom, 3])
+        combined_eigvt = np.zeros([self.ncalc, nqpoint, nmode, natom, 3], dtype=complex)
         for idx_new, idx_vol in enumerate(sorted_vol):
             ha_phonon = ha_list[int(idx_vol[0])]
             combined_phonon.append(ha_phonon)

@@ -872,7 +872,7 @@ class Crystal_output:
                 specifying whether the mode is IR active
             self.Raman (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is Raman active
-            self.eigenvector (array[float]): *``read_eigvt = True only``*
+            self.eigenvector (array[complex]): *``read_eigvt = True only``*
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
@@ -881,6 +881,7 @@ class Crystal_output:
         from CRYSTALpytools.units import H_to_kjmol
 
         is_freq = False
+        found_anti = True
         self.edft = []
         self.nqpoint = 0
         self.qpoint = []
@@ -934,14 +935,36 @@ class Crystal_output:
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
             ## Phonon eigenvector
-            elif re.match(r'^\s+MODES IN PHASE', line) or re.match(r'^\s+NORMAL MODES NORMALIZED', line):
+            ### Gamma point: real numbers. Imaginary = 0
+            elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
                 if read_eigvt == False:
                     countline += 1
                     continue
                 countline += 2
                 eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
                 countline = eigvt[0]
-                self.eigenvector.append(eigvt[1])
+                self.eigenvector.append(eigvt[1] + 0.j)
+            ### Dispersion: complex numbers
+            elif re.match(r'^\s+MODES IN PHASE', line):
+                if read_eigvt == False:
+                    countline += 1
+                    continue
+                if found_anti == False: # Real k point
+                    self.eigenvector.append(tmp_eigvt)
+                countline += 2
+                found_anti = False
+                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
+                countline = eigvt[0]
+                tmp_eigvt = eigvt[1] + 0.j
+            elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
+                if read_eigvt == False:
+                    countline += 1
+                    continue
+                countline += 2
+                found_anti = True
+                eigvt_anti = PhononBASE.readmode_eigenvector(self.data, countline)
+                countline = eigvt_anti[0]
+                self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
             # Other data
             else:
                 countline += 1
@@ -949,7 +972,10 @@ class Crystal_output:
 
         if is_freq == False:
             raise Exception('Not a frequency calculation.')
+        if found_anti == False and read_eigvt == True: # The last real k point
+            self.eigenvector.append(tmp_eigvt)
 
+        # Format data
         # HA/QHA Gamma point calculation
         if self.nqpoint == 0:
             self.nqpoint = len(self.edft)
@@ -974,7 +1000,8 @@ class Crystal_output:
 
         if self.eigenvector != []:
             self.eigenvector = np.array(self.eigenvector)
-
+            for idx_q in range(self.nqpoint):
+                self.eigenvector[idx_q] = PhononBASE.normalize_eigenvector(self.eigenvector[idx_q], amplitude=1.)
 
         if rm_imaginary == True:
             self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
