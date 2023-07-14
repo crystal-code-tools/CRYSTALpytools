@@ -1086,7 +1086,6 @@ class Quasi_harmonic:
         import numpy as np
         import warnings
         from CRYSTALpytools.thermodynamics import Mode
-        from CRYSTALpytools.thermodynamics import Output
 
         # Sorting data according to volumes
         sorted_vol = np.zeros([self.ncalc, 2])
@@ -1132,24 +1131,25 @@ class Quasi_harmonic:
             combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
 
         # Sort phonon modes if requested
-        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
+        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode], dtype=int)
         if mode_sort_tol != None and do_eigvt == True:
             for idx_q in range(nqpoint):
                 combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
                     = self._phonon_continuity(combined_freq[idx_q],
                                               combined_eigvt[idx_q],
                                               mode_sort_tol=mode_sort_tol)
-            # nqpoint * ncalc * nmode_ref * nmode_sort array to
-            # nqpoint * nmode_ref * ncalc * nmode_sort array
+            # nqpoint * ncalc * nmode_ref * nmode_sort array to nqpoint * nmode_ref * ncalc * nmode_sort array
             close_overlap = np.transpose(close_overlap, axes=[0, 2, 1, 3])
             for q, overlap_q in enumerate(close_overlap):
-                overlap_numbers = np.sum(overlap_q)
-                if overlap_numbers > 0:
-                    warnings.warn('Close overlap of phonon modes detected at qpoint: %3i, %6i overlaps out of %6i modes.'
-                                  % (q, int(overlap_numbers), int(nqpoint * nmode)),
-                                  stacklevel=2)
+                n_overlap = int(np.sum(overlap_q))
+                if n_overlap > 0:
+                    warnings.warn(
+                        'Close overlap of phonon modes detected at qpoint {}: {} overlaps out of {}*{} mode combinations at this point.'.format(q, n_overlap, nmode, nmode),
+                        stacklevel=2
+                    )
+
         elif mode_sort_tol != None and do_eigvt == False:
-            warnings.warn('Eigenvectors not read. Mode sorting not available.')
+            warnings.warn('Eigenvectors not read. Mode sorting not available.', stacklevel=2)
 
         # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
         combined_freq = np.transpose(combined_freq, axes=[0, 2, 1])
@@ -1207,73 +1207,57 @@ class Quasi_harmonic:
                 dimension) and the current one (3rd).
         """
         import numpy as np
+        import copy
 
         # Exclude negative and 0 frequencies
         ncalc = len(freq)
         nmode = len(freq[0])
-        ng_mode = 0
-        for idx_c, calc in enumerate(freq):
-            for idx_f, frequency in enumerate(calc):
-                if np.isnan(frequency) or (frequency < 1e-4):
-                    ng_mode_c = idx_f
-                else:
-                    break
-
-            if ng_mode_c > ng_mode:
-                ng_mode = ng_mode_c
 
         # Sort phonon
-        products = np.zeros([ncalc, nmode])
-        for sort_c in range(1, ncalc):
-            ref_c = sort_c - 1
-            for ref_m in range(ng_mode + 1, nmode):
-                ref_pdt = 0.
-                sort_m_save = 0
-                for sort_m in range(ng_mode + 1, nmode):
-                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
-                        continue
-
-                    sort_pdt = abs(np.sum(
-                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
-                    ))
-                    if sort_pdt > ref_pdt:
-                        if sort_m < ref_m:
-                            check_pdt = abs(np.sum(
-                                eigvt[ref_c, sort_m] * eigvt[sort_c, sort_m]
-                            ))
-
-                            if check_pdt > sort_pdt:
-                                continue
-
-                        ref_pdt = sort_pdt
-                        sort_m_save = sort_m
-
-                products[sort_c, ref_m] = ref_pdt
-                freq[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                    = freq[[sort_c, sort_c], [ref_m, sort_m_save]]
-                eigvt[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                    = eigvt[[sort_c, sort_c], [ref_m, sort_m_save]]
-                if symm:
-                    symm[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                        = symm[[sort_c, sort_c], [ref_m, sort_m_save]]
-
-        # Look for close overlaps
         close_overlap = np.zeros([ncalc, nmode, nmode])
         for sort_c in range(1, ncalc):
             ref_c = sort_c - 1
-            for ref_m in range(ng_mode + 1, nmode):
-                ref_pdt = products[sort_c, ref_m]
-                for sort_m in range(ng_mode + 1, nmode):
-                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
+            ref_eigvt = copy.deepcopy(eigvt[ref_c])
+            sort_eigvt = copy.deepcopy(eigvt[sort_c])
+            ref_eigvt = np.reshape(ref_eigvt, [nmode, nmode], order='C')
+            sort_eigvt = np.reshape(sort_eigvt, [nmode, nmode], order='C')
+            mode_product = np.abs(np.dot(ref_eigvt, sort_eigvt.conjugate().T)) # row: ref_m, col: sort_m
+            for ref_m in range(nmode):
+                sorted_pdt = 0.
+                sorted_m = 0
+                if freq[ref_c, ref_m] < 1e-4 or np.isnan(freq[ref_c, ref_m]):
+                    continue
+                for sort_m, sort_pdt in enumerate(mode_product[ref_m, :]):
+                    if freq[sort_c, sort_m] < 1e-4 or np.isnan(freq[sort_c, sort_m]):
                         continue
-                    if sort_m == ref_m:
+                    if symm != None and symm[ref_c, ref_m] != symm[sort_c, sort_m]:
                         continue
 
-                    sort_pdt = abs(np.sum(
-                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
-                    ))
-                    if ref_pdt - sort_pdt < mode_sort_tol:
-                        close_overlap[ref_c, ref_m, sort_m] = 1
+                    if sort_pdt > sorted_pdt:
+                        if sort_m < ref_m:
+                            if mode_product[sort_m, sort_m] > sort_pdt:
+                                continue
+
+                        sorted_pdt = sort_pdt
+                        sorted_m = sort_m
+
+                # Very poor overlaps
+                if sorted_pdt < mode_sort_tol:
+                    raise ValueError('Poor continuity detected! The maximum overlap is {} between Mode {}, Calc {} and Mode {}, Calc {}'.format(sorted_pdt, ref_m, ref_c, sorted_m, sort_c))
+                # Look for close overlaps
+                for sort_m, i in enumerate(sorted_pdt - mode_product[ref_m, :]):
+                    if i > 0 and i < mode_sort_tol:
+                        close_overlap[sort_c, ref_m, sort_m] = 1
+                    else:
+                        continue
+
+                # products[sort_c, ref_m] = ref_pdt
+                freq[[sort_c, sort_c], [sorted_m, ref_m]] = freq[[sort_c, sort_c], [ref_m, sorted_m]]
+                eigvt[[sort_c, sort_c], [sorted_m, ref_m]] = eigvt[[sort_c, sort_c], [ref_m, sorted_m]]
+                if symm != None:
+                    symm[[sort_c, sort_c], [sorted_m, ref_m]] = symm[[sort_c, sort_c], [ref_m, sorted_m]]
+                # Also update mode_product for all ref_m
+                mode_product[:, [sorted_m, ref_m]] = mode_product[:, [ref_m, sorted_m]]
 
         return freq, eigvt, close_overlap
 
@@ -2580,30 +2564,28 @@ class Output():
         Args:
             qha (Quasi_harmonic): :code:`CRYSTALpytools.thermodynamic.Quasi_harmonic`
                 object.
-            close_overlap (array[bool]): ncalc\*nmode\*nmode. Whether close
-                overlap is identified between the previous calculation (2nd
-                dimension) and the current one (3rd).
+            close_overlap (array[int]): nqpoint\*nmode_ref\*ncalc\*nmode_sort.
+                Number of close overlaps.
         """
         import numpy as np
 
-        nmode = len(qha.combined_mode)
+        nmode = len(qha.combined_mode[0])
         file = open(qha.filename, 'a+')
         file.write('%s\n\n' % '## CLOSE OVERLAPS OF PHONON FREQUENCIES')
         for idx_q, mode_q in enumerate(qha.combined_mode):
             file.write('%30s%8i\n\n' % ('### CLOSE OVERLAPS AT QPOINT #', idx_q))
-            file.write('%10s%10s%10s%10s\n' %
-                       ('Calc_Ref', 'Mode_Ref', 'Calc_Sort', 'Mode_Sort'))
+            file.write('%s%8i\n\n' % ('    Total number of overlaps =', np.sum(close_overlap[idx_q])))
+            file.write('%6s%s\n' % ('', 'Mode and calc order starts from 1. Calc number in ascending order of volume'))
+            file.write('%16s%16s%16s%16s\n' %
+                       ('Ref_mode #', 'Sort_mode #', 'Ref_Calc #', 'Sort_Calc #'))
             for idx_mref, mode in enumerate(mode_q):
-                if np.sum(close_overlap[idx_q, idx_mref]) < 1.:
+                if np.sum(close_overlap[idx_q, idx_mref]) < 1:
                     continue
                 for idx_csort in range(1, qha.ncalc):
                     for idx_msort in range(nmode):
-                        if close_overlap[idx_q, idx_mref, idx_csort, idx_msort]:
-                            file.write('%10i%10i%10i%10i\n' %
-                                       (idx_mref + 1, idx_csort - 1, idx_csort, idx_msort + 1))
-                        else:
-                            continue
-
+                        if close_overlap[idx_q, idx_mref, idx_csort, idx_msort] != 0:
+                            file.write('%16i%16i%16i%16i\n' %
+                                       (idx_mref + 1, idx_msort + 1, idx_csort, idx_csort + 1))
             file.write('\n')
 
         file.close()
