@@ -186,7 +186,6 @@ class Crystal_output:
         Returns:
             CrystalOutput: Object representing the CRYSTAL output.
         """
-        import sys
         import re
 
         self.name = output_name
@@ -199,8 +198,7 @@ class Crystal_output:
             self.data = file.readlines()
             file.close()
         except:
-            print('EXITING: a .out file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError('EXITING: a .out file needs to be specified')
 
         # Check the calculation terminated correctly
         self.terminated = False

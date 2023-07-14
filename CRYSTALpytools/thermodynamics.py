@@ -2403,7 +2403,29 @@ def _restore_pcel(crysout, scelphono):
     if ndimen == 0:
         if scelphono != []:
             warnings.warn('0D system is used. There is nothing to reduce.', stacklevel=2)
-        
+        while idx_line < len(crysout.data):
+            if re.match(r'^\s+GEOMETRY FOR WAVE FUNCTION', crysout.data[idx_line]):
+                idx_line += 6
+                all_species = []
+                all_coord = []
+                while re.match(r'^\s+[0-9]+\s+[A-Z]+', crysout.data[idx_line]):
+                    data = crysout.data[idx_line].strip().split()
+                    all_coord.append(data[4:])
+                    all_species.append(data[3].capitalize())
+                    idx_line += 1
+
+                all_coord = np.array(all_coord, dtype=float)
+                min_max = max([max(all_coord[:, 0]) - min(all_coord[:, 0]),
+                               max(all_coord[:, 1]) - min(all_coord[:, 1]),
+                               max(all_coord[:, 2]) - min(all_coord[:, 2])])
+                lattice = np.identity(3)*(min_max+10)
+                structures.append(Structure(lattice, all_species, all_coord))
+                idx_line += 1
+            else:
+                idx_line += 1
+
+        return structures
+
     # Other cases
     while idx_line < len(crysout.data):
         if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS', crysout.data[idx_line]):
