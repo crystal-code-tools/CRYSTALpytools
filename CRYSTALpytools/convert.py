@@ -320,7 +320,7 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
         molecule = Molecule(structure.species,
                             [i.coords for i in structure.sites],
                             structure.charge,
-                            [i.properties for i in struc.sites]) 
+                            [i.properties for i in structure.sites]) 
         is_molecule = True # 0D object called as molecule
     elif dimensionality > 0 and 'Molecule' in str(type(structure)):
         warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
