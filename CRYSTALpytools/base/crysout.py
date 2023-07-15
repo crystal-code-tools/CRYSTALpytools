@@ -4,9 +4,281 @@
 Classes and methods to phrase 'crystal' output file.
 """
 
+class SCFBASE():
+    """
+    A container of basic methods for SCF loop.
+    """
+    @classmethod
+    def read_convergence(cls, data, countline):
+        """
+        Read SCF convergence.
+
+        Returns:
+            countline (int): Line number of output file.
+            ncyc (int): Number of cycles
+            endflag (str): 'terminated', 'converged', 'too many cycles' and 'unknown'
+            e (array): nCYC\*1 array of SCF energy. Unit: eV
+            de (array): nCYC\*1 array of SCF energy difference. Unit: eV
+        """
+        import re
+        import warnings
+        import numpy as np
+        from CRYSTALpytools.units import H_to_eV
+
+        e = []
+        de = []
+        endflag = 'terminated'
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s*CYC', line):
+                line_data = line.strip().split()
+                e.append(line_data[3])
+                de.append(line_data[5])
+                countline += 1
+            elif re.match(r'^\s*== SCF ENDED', line):
+                if re.search('CONVERGENCE', line):
+                    endflag = 'converged'
+                elif re.search('TOO MANY CYCLES', line):
+                    endflag = 'too many cycles'
+                else:
+                    warnings.warn('Unknown termination. Check line {}.'.format(countline + 1),
+                                  stacklevel=3)
+                    endflag = 'unknown'
+                break
+            else:
+                countline += 1
+
+        if endflag != 'converged':
+            warnings.warn('SCF convergence not achieved.', stacklevel=3)
+
+        ncyc = len(e)
+        e = np.array(e, dtype=float)
+        de = np.array(de, dtype=float)
+
+        return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de)
+
+#     @classmethod
+#     def read_fermi_energy(cls, data, countline, history=False):
+#         """
+#         Read Fermi energy.
+
+#         Args:
+#             history (bool): Whether to read e fermi of all steps
+
+#         Returns:
+#             countline (int)
+#             efermi (float | array): Fermi energy. Unit: eV
+#         """
+#         import re
+#         import warnings
+#         import numpy as np
+#         from CRYSTALpytools.units import H_to_eV
+
+#         if history == True:
+#             efermi = []
+#         else:
+#             efermi = None
+
+#         spin = False
+#         while countline >= 0:
+#             line = data[countline]
+#             # Metal spin or no spin
+#             if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line):
+#                 line_data = line.strip().split()
+#                 if history == False:
+#                     efermi = float(line_data[5])
+#                     break
+#                 else:
+#                     efermi.append(line_data[5])
+#                     countline -= 1 # Note the reversed sequence here
+#             # spin flag
+#             elif re.match(r'^\s*SUMMED SPIN DENSITY', line):
+#                 spin = True
+#                 tmp_efermi = []
+#                 countline -= 1
+#             # insulator： !!!!!!!!!!Using the top of valence band is wrong!!!!!!!!!!!!!
+#             elif re.match(r'^\s*TOP OF VALENCE BANDS', line):
+#                 line_data = line.strip().split()
+#                 tmp_efermi.append(float(data[10]))
+#                 if len(tmp_efermi) == 2: # Note the reversed sequence here
+#                     if history == False:
+#             else:
+#                 countline -= 1
+
+    @classmethod
+    def read_band_gap(cls, data, countline, history=False):
+        """
+        Read band gap.
+
+        Args:
+            history (bool): Whether to read band gap of all steps
+
+        Returns:
+            countline (int)
+            spin (bool): Whether the system is spin-polarised.
+            gap (float | array): Band gap. Unit: eV
+        """
+        import re
+        import warnings
+        import numpy as np
+
+        if history == True:
+            gap = []
+        else:
+            gap = None
+
+        spin = False
+        while countline >= 0:
+            line = data[countline]
+            # Metal spin or no spin
+            if re.match(r'^ POSSIBLY CONDUCTING STATE', line):
+                warnings.warn('Conducting state is identified.', stacklevel=3)
+                if history == False:
+                    gap = 0.
+                    break
+                else:
+                    gap.append(0.)
+                    countline -= 1
+            # spin flag
+            elif re.match(r'^\s*SUMMED SPIN DENSITY', line):
+                spin = True
+                tmp_gap = []
+                countline -= 1
+            # insulator
+            elif re.match(r'^\s*.*DIRECT ENERGY BAND GAP', line):
+                line_data = line.strip().split()
+                tmp_gap.append(float(data[4]))
+                if spin == True and len(tmp_gap) == 2: # Note the reversed sequence here
+                    if history == False:
+                        gap = [tmp_gap[1], tmp_gap[0]]
+                        break
+                    else:
+                        gap.append([tmp_gap[1], tmp_gap[0]])
+                        tmp_gap = []
+                elif spin == False:
+                    if history == False:
+                        gap = tmp_gap[0]
+                        break
+                    else:
+                        gap.append(tmp_gap[0])
+                        tmp_gap = []
+
+                countline -= 1
+            # Before the SCF block
+            elif re.match(r'^\s*A+$', line):
+                break
+            else:
+                countline -= 1
+
+        if spin == True or history == True:
+            gap = np.array(gap, dtype=float)
+
+        return countline, spin, gap
+
+
+class OptBASE():
+    """
+    A container of basic methods for Opt loop.
+    """
+    @classmethod
+    def read_convergence(cls, data, countline):
+        """
+        Read optimisation convergence.
+
+        Returns:
+            countline (int): Line number of output file.
+            ncyc (int): Number of cycles
+            endflag (str): 'terminated', 'converged', 'failed' and 'unknown'
+            e (array): nCYC\*1 array of total energy. Unit: eV
+            de (array): nCYC\*1 array of total energy difference. Unit: eV
+            maxg (array): nCYC\*1 array of max energy gradient convergence.
+                Unit: Hartree / Bohr
+            rmsg (array): nCYC\*1 array of RMS energy gradient convergence.
+                Unit: Hartree / Bohr
+            maxd (array): nCYC\*1 array of max displacement convergence.
+                Unit: Bohr
+            rmsd (array): nCYC\*1 array of RMS displacement convergence.
+                Unit: Bohr
+        """
+        import re
+        import warnings
+        import numpy as np
+        from CRYSTALpytools.units import H_to_eV
+
+        e = []
+        de = []
+        maxg = []
+        rmsg = []
+        # Displacement: the initial step is 0
+        maxd = [0.,]
+        rmsd = [0.,]
+
+        endflag = 'terminated'
+        ncyc = 0
+        while countline < len(data):
+            line = data[countline]
+            if ncyc == 0 and re.match(r'^\s*== SCF ENDED', line):
+                line_data = line.strip().split()
+                e0 = line_data[8]
+                countline += 1
+            elif ncyc == 0 and re.match(r'^\s*TOTAL ENERGY \+', line): # Empirical corrections
+                line_data = line.strip().split()
+                e0 = line_data[-1]
+                countline += 1
+            elif re.match(r'^\s+TOTAL ENERGY\(DFT\)\(AU\)\(.+DE \(AU\)', line):
+                if ncyc == 0:
+                    e.append(e0)
+                    de.append(e0)
+                    ncyc += 1
+                line_data = line.strip().split()
+                e.append(line_data[3])
+                de.append(line_data[5])
+                ncyc += 1
+                countline += 1
+            elif re.match(r'^\s+MAX GRADIENT', line):
+                line_data = line.strip().split()
+                maxg.append(line_data[2])
+                countline += 1
+            elif re.match(r'^\s+RMS GRADIENT', line):
+                line_data = line.strip().split()
+                rmsg.append(line_data[2])
+                countline += 1
+            elif re.match(r'^\s+MAX DISPLAC\.', line):
+                line_data = line.strip().split()
+                maxd.append(line_data[2])
+                countline += 1
+            elif re.match(r'^\s+RMS DISPLAC\.', line):
+                line_data = line.strip().split()
+                rmsd.append(line_data[2])
+                countline += 1
+            elif re.match(r'\s*\*\s*OPT END', line):
+                if re.search('CONVERGED', line):
+                    endflag = 'converged'
+                elif re.search('FAILED', line):
+                    endflag = 'failed'
+                else:
+                    warnings.warn('Unknown termination. Check line {}.'.format(countline + 1),
+                                  stacklevel=3)
+                    endflag = 'unknown'
+                break
+            else:
+                countline += 1
+
+        if endflag != 'converged':
+            warnings.warn('Optimisation convergence not achieved.', stacklevel=3)
+
+        e = np.array(e, dtype=float)
+        de = np.array(de, dtype=float)
+        maxg = np.array(maxg, dtype=float)
+        rmsg = np.array(rmsg, dtype=float)
+        maxd = np.array(maxd, dtype=float)
+        rmsd = np.array(rmsd, dtype=float)
+
+        return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de), maxg, rmsg, maxd, rmsd
+
 class PhononBASE():
     """
-    A container of basic methods.
+    A container of basic methods for phonon information.
     """
     @classmethod
     def readmode_basic(cls, data, countline):

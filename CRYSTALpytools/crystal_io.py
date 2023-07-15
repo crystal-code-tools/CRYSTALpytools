@@ -169,6 +169,41 @@ class Crystal_input(Crystal_inputBASE):
 
         return
 
+    def bs_from_bse(self, name, element, zconv=None):
+        """
+        Download basis set definitions from BSE. A wrapper of BasisSetBASE.from_bse.
+
+        Args:
+            name (str): Basis set's name.
+            element (list[str] | list[int]): List of elements.
+            zconv (list[int]): If not none, use the conventional atomic number.
+                Its length must be the same as element. Its sequence must be
+                consistent with basis set's
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        return BasisSetBASE.from_bse(name=name, element=element, zconv=zconv)
+
+    def bs_from_string(bs_str, fmt='crystal'):
+        """
+        Define basis set from a string. A wrapper of BasisSetBASE.from_string.
+
+        Args:
+            bs_str (str)
+            fmt (str): Format string. Consistent with BSE python API.
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        return BasisSetBASE.from_string(bs_str=bs_str, fmt=fmt)
+
+    def bs_from_file(file, fmt='crystal'):
+        """
+        Define a basis set from a file. A wrapper of BasisSetBASE.from_file.
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        return BasisSetBASE.from_file(file=file, fmt=fmt)
+
 
 class Crystal_output:
     """This class reads a CRYSTAL output and generates an object."""
@@ -212,21 +247,6 @@ class Crystal_output:
 
         if self.terminated == False:
             self.eoo = len(self.data)
-
-        # Check if the scf converged
-        self.converged = False
-        for line in self.data:
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.converged = True
-                break
-
-        # Check if the geometry optimisation converged
-        self.opt_converged = False
-
-        for line in self.data[::-1]:
-            if bool(re.search('OPT END - CONVERGED', line) ) == True:
-                self.opt_converged = True
-                break
 
         return self
 
@@ -274,93 +294,196 @@ class Crystal_output:
                 self.dimensionality = int(line.split()[9])
                 return self.dimensionality
 
-    def get_final_energy(self):
-        """Get the final energy of the system.
+    def get_convergence(self, history=False):
+        """
+        The upper level of get_scf_convergence and get_opt_convergence.
+
+        .. note::
+
+            It might not work well with SCF / OPT cycles of multiple systems
+            such as PREOPTGEOM + EOS calculations
+
+        Args:
+            history (bool): If true, the convergence history of optimisation
+                (energy,gradient, displacement) / SCF is returned.
 
         Returns:
-            float: The final energy of the system.
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.scf_cycles / self.opt_cycles: Number of SCF / Opt cycles  
+        * self.scf_status / self.opt_status: Termination status of SCF / Opt cycles  
+        * self.final_energy: The converged energy of SCF / Opt. Unit: eV
+
+        For other attributes, see :code:`get_scf_convergence` and :code:`get_opt_convergence`.
         """
         import re
+        import warnings
 
         self.final_energy = None
         for line in self.data[self.eoo::-1]:
             if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                self.final_energy = units.H_to_eV(float(line.split()[7]))
-                return self.final_energy
+                data = line.strip().split()
+                self.final_energy = units.H_to_eV(float(data[7]))
+                self.opt_cycles = int(data[-2])
+                if re.search('CONVERGED', line):
+                    self.opt_status = 'converged'
+                elif re.search('FAILED', line):
+                    self.opt_status = 'failed'
+                else:
+                    warnings.warn('Unknown termination.', stacklevel=2)
+                    self.opt_status = 'unknown'
+                is_scf = False
+                break
+
             elif re.match(r'^ == SCF ENDED', line) != None:
-                self.final_energy = units.H_to_eV(float(line.split()[8]))
-                return self.final_energy
+                data = line.strip().split()
+                self.final_energy = units.H_to_eV(float(data[8]))
+                self.scf_cycles = int(data[-1])
+                if re.search('CONVERGENCE', line):
+                    self.scf_status = 'converged'
+                elif re.search('TOO MANY CYCLES', line):
+                    self.scf_status = 'too many cycles'
+                else:
+                    warnings.warn('Unknown termination.', stacklevel=2)
+                    self.scf_status = 'unknown'
+                is_scf = True
+                break
 
         if self.final_energy == None:
-            print('WARNING: no final energy found in the output file. energy = None')
+            warnings.warn('No final energy found in the output file. self.final_energy = None',
+                          stacklevel=2)
+
+        if history == True:
+            if is_scf == True:
+                self.get_scf_convergence(all_cycles=False)
+            else:
+                self.get_opt_convergence()
+
+        return self
+
+    def get_scf_convergence(self, all_cycles=False):
+        """
+        Returns the scf convergence energy and energy difference. A wrapper of
+        :code:`CRYSTALpytools.base.SCFBASE.read_convergence`.
+
+        Args:
+            all_cycles (bool, optional): Return all SCF steps for a geometry opt.
+                The 'ONELOG' keyword is needed.
+
+        Returns:
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.scf_cycles (int | array): Number of cycles.  
+        * self.scf_status (str | list): 'terminated', 'converged',
+            'too many cycles' and 'unknown'  
+        * self.scf_energy (array): SCF energy convergence. Unit: eV  
+        * self.scf_deltae (array): Energy difference. Unit: eV  
+        """
+        import numpy as np
+        from CRYSTALpytools.base.crysout import SCFBASE
+
+        if all_cycles == True:
+            self.scf_cycles = []
+            self.scf_status = []
+            self.scf_energy = []
+            self.scf_deltae = []
+
+        countline = 0
+        while countline < self.eoo:
+            output = SCFBASE.read_convergence(self.data[:self.eoo], countline)
+            if all_cycles == False:
+                self.scf_cycles = output[1]
+                self.scf_status = output[2]
+                self.scf_energy = output[3]
+                self.scf_deltae = output[4]
+                break
+            else:
+                countline = output[0]
+                self.scf_cycles.append(output[1])
+                self.scf_status.append(output[2])
+                self.scf_energy.append(output[3])
+                self.scf_deltae.append(output[4])
+                countline += 1
+
+        if all_cycles == False:
+            self.scf_cycles = np.array(self.num_cycles, dtype=int)
+            self.scf_energy = np.array(self.scf_energy)
+            self.scf_deltae = np.array(self.scf_deltae)
+
+        return self
+
+    def get_opt_convergence(self):
+        """
+        Returns optimisation convergence. A wrapper of
+        :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
+
+        Returns:
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.opt_cycles (int): Number of cycles.  
+        * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
+        * self.opt_energy (array): Total energy convergence. Unit: eV  
+        * self.opt_deltae (array): Total energy difference. Unit: eV  
+        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
+        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
+        """
+        from CRYSTALpytools.base.crysout import OptBASE
+
+        countline = 0
+        while countline < self.eoo:
+            output = OptBASE.read_convergence(self.data[:self.eoo], countline)
+            self.opt_cycles = output[1]
+            self.opt_status = output[2]
+            self.opt_energy = output[3]
+            self.opt_deltae = output[4]
+            self.opt_maxgrad = output[5]
+            self.opt_rmsgrad = output[6]
+            self.opt_maxdisp = output[7]
+            self.opt_rmsdisp = output[8]
+            break
+
+        return self
+
+    def get_final_energy(self):
+        """Get the final energy of the system. A wrapper of :code:`self.get_convergence`.
+
+        Returns:
+            self.final_energy (float): The final energy of the system.
+        """
+        self.get_convergence(history=False)
 
         return self.final_energy
 
-    def get_scf_convergence(self, all_cycles=False):
-        """Returns the scf convergence energy and energy difference.
+    def get_num_cycles(self):
+        """Deprecated
 
-        Args:
-            all_cycles (bool, optional): Return all steps for a geometry opt. Defaults to False.
         Returns:
-            tuple or list: The scf convergence energy and energy difference.
+            self.scf_cycles (int): Number of SCF cycles.
         """
-        import re
-        import numpy as np
+        import warnings
 
-        self.scf_energy = []
-        self.scf_deltae = []
+        warnings.warn('Deprecated. Use get_scf_convergence.', stacklevel=2)
+        self.get_scf_convergence(all_cycles=False)
 
-        scf_energy = []
-        scf_deltae = []
-
-        for line in self.data:
-
-            if re.match(r'^ CYC ', line):
-                scf_energy.append(float(line.split()[3]))
-                scf_deltae.append(float(line.split()[5]))
-
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                if all_cycles == False:
-                    self.scf_energy = units.H_to_eV(np.array(scf_energy))
-                    self.scf_deltae = units.H_to_eV(np.array(scf_deltae))
-
-                    return self.scf_energy, self.scf_deltae
-
-                elif all_cycles == True:
-                    self.scf_energy.append(scf_energy)
-                    self.scf_deltae.append(scf_deltae)
-                    scf_energy = []
-                    scf_deltae = []
-
-            self.scf_convergence = [self.scf_energy, self.scf_deltae]
-        return self.scf_convergence
+        return self.scf_cycles
 
     def get_opt_convergence_energy(self):
-        """Returns the energy for each opt step.
+        """Deprecated. Returns the energy for each opt step.
 
         Returns:
-            list: Energy for each optimization step.
+            self.opt_energy (array): Energy for each optimization step.
         """
-        self.opt_energy = []
-        for line in self.data:
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.opt_energy.append(units.H_to_eV(float(line.split()[8])))
+        import warnings
+
+        warnings.warn('Deprecated. Use get_opt_convergence.', stacklevel=2)
+        self.get_opt_convergence()
 
         return self.opt_energy
-
-    def get_num_cycles(self):
-        """Returns the number of SCF cycles.
-
-        Returns:
-            int: Number of SCF cycles.
-        """
-        import re
-
-        for line in self.data[::-1]:
-            if re.match(r'^ CYC ', line):
-                self.num_cycles = int(line.split()[1])
-                return self.num_cycles
-        return None
 
     def get_fermi_energy(self):
         """Returns the system Fermi energy.
@@ -488,46 +611,24 @@ class Crystal_output:
 
         return None
 
-    def get_band_gap(self):
+    def get_band_gap(self, history=False):
         """Returns the system band gap.
 
+        Args:
+            history (bool): Whether to read the convergence history of band gap.
+
         Returns:
-            float or np.ndarray: Band gap of the system.
+            self.band_gap (float | array): Band gap of the system. For spin-polarized
+                systems, :code:`self.band_gap` would be either a 2\*1 array
+                (:code:`history=False`) or a nCYC\*2 array (:code:`history=True`).
         """
-        import re
-        import numpy as np
+        from CRYSTALpytools.base.crysout import SCFBASE
 
-        # Check if the system is spin polarised
-        self.spin_pol = False
-        for line in self.data:
-            if re.match(r'^ SPIN POLARIZED', line):
-                self.spin_pol = True
-                break
+        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo, history=history)
+        self.spin_pol = output[1]
+        self.band_gap = output[2]
 
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            if self.spin_pol == False:
-                if re.match(r'^\s\w+\s\w+ BAND GAP', line):
-                    self.band_gap = float(line.split()[4])
-                    return self.band_gap
-                elif re.match(r'^\s\w+ ENERGY BAND GAP', line):
-                    self.band_gap = float(line.split()[4])
-                    return self.band_gap
-                elif re.match(r'^ POSSIBLY CONDUCTING STATE', line):
-                    self.band_gap = False
-                    return self.band_gap
-            else:
-                # This might need some more work
-                band_gap_spin = []
-                if re.match(r'\s+ BETA \s+ ELECTRONS', line):
-                    band_gap_spin.append(
-                        float(self.data[len(self.data)-i-3].split()[4]))
-                    band_gap_spin.append(
-                        float(self.data[len(self.data)-i+3].split()[4]))
-                    self.band_gap = np.array(band_gap_spin)
-                    return self.band_gap
-        if self.spin_pol == True and band_gap_spin == []:
-            print(
-                'DEV WARNING: check this output and the band gap function in crystal_io')
+        return self.band_gap
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
         """
@@ -893,7 +994,7 @@ class Crystal_output:
         self.eigenvector = []
 
         countline = 0
-        while countline < len(self.data):
+        while countline < self.eoo:
             line = self.data[countline]
             # Whether is a frequency file
             if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
@@ -918,7 +1019,7 @@ class Crystal_output:
                 self.nqpoint += 1
                 countline += 2
                 ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
@@ -928,7 +1029,7 @@ class Crystal_output:
             elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
                 countline += 2
                 ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
@@ -941,7 +1042,7 @@ class Crystal_output:
                     countline += 1
                     continue
                 countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 self.eigenvector.append(eigvt[1] + 0.j)
             ### Dispersion: complex numbers
@@ -953,7 +1054,7 @@ class Crystal_output:
                     self.eigenvector.append(tmp_eigvt)
                 countline += 2
                 found_anti = False
-                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 tmp_eigvt = eigvt[1] + 0.j
             elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
@@ -962,7 +1063,7 @@ class Crystal_output:
                     continue
                 countline += 2
                 found_anti = True
-                eigvt_anti = PhononBASE.readmode_eigenvector(self.data, countline)
+                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt_anti[0]
                 self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
             # Other data
