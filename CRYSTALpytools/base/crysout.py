@@ -179,29 +179,6 @@ class SCFBASE():
 
         return countline, spin, gap
 
-    @classmethod
-    def read_mulliken(cls, data, countline):
-        """
-        Read atomic mulliken charge
-
-        Returns:
-            mulliken (array): natom\*1 array.
-        """
-        import re
-        import numpy as np
-
-        mulliken = []
-        while countline < len(data):
-            line = data[countline]
-            if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line):
-                data = line.strip().split()
-                mulliken.append(data)
-            elif len(line.strip()) == 0:
-                break
-            countline += 1
-
-        return np.array(mulliken, dtype=float)
-
 
 class OptBASE():
     """

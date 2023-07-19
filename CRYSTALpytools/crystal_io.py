@@ -549,10 +549,11 @@ class Crystal_output:
             initial (bool): Determines whether to read the initial or last lattice vectors.
                 Useful in case of optgeom. Defaults to True.
         Returns:
-            np.ndarray: Primitive lattice of the system.
+            self.primitive_lattice (np.ndarray): Primitive lattice of the system.
         """
         import re
         import numpy as np
+        import warnings
 
         lattice = []
         self.primitive_lattice = None
@@ -562,7 +563,7 @@ class Crystal_output:
                     for j in range(i+2, i+5):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_lattice = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice, dtype=float)
                     break
         elif initial == False:
             for i, line in enumerate(self.data[::-1]):
@@ -570,11 +571,12 @@ class Crystal_output:
                     for j in range(len(self.data)-i+1, len(self.data)-i+4):
                         lattice_line = [float(n) for n in self.data[j].split()]
                         lattice.append(lattice_line)
-                    self.primitive_lattice = np.array(lattice)
+                    self.primitive_lattice = np.array(lattice, dtype=float)
                     break
 
         if lattice == []:
-            print('WARNING: no lattice vectors found in the output file. lattice = []')
+            warnings.warn('No lattice vectors found in the output file. self.primitive_lattice = None.',
+                          stacklevel=2)
 
         return self.primitive_lattice
 
@@ -585,12 +587,13 @@ class Crystal_output:
             initial (bool): Determines whether to read the initial or last reciprocal lattice vectors.
                 Useful in case of optgeom. Defaults to True.
         Returns:
-            np.ndarray: Reciprocal primitive lattice of the system.
+            self.reciprocal_lattice (np.ndarray): Reciprocal primitive lattice of the system.
         """
         import re
         import numpy as np
 
         lattice = []
+        self.reciprocal_lattice = None
         if initial == True:
             for i, line in enumerate(self.data):
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
@@ -598,8 +601,8 @@ class Crystal_output:
                         lattice_line = [
                             units.angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_lattice = np.array(lattice)
-                    return self.reciprocal_lattice
+                    self.reciprocal_lattice = np.array(lattice, dtype=float)
+                    break
         elif initial == False:
             for i, line in enumerate(self.data[::-1]):
                 if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
@@ -607,10 +610,14 @@ class Crystal_output:
                         lattice_line = [
                             angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
                         lattice.append(lattice_line)
-                    self.reciprocal_lattice = np.array(lattice)
-                    return self.reciprocal_lattice
+                    self.reciprocal_lattice = np.array(lattice, dtype=float)
+                    break
 
-        return None
+        if lattice == []:
+            warnings.warn('No lattice vectors found in the output file. self.reciprocal_lattice = None.',
+                          stacklevel=2)
+
+        return self.reciprocal_lattice
 
     def get_band_gap(self, history=False):
         """Returns the system band gap.
@@ -856,17 +863,27 @@ class Crystal_output:
         """
         import re
         import warnings
-        from CRYSTALpytools.base.crysout import SCFBASE
+        import numpy as np
 
-        mulliken = []
-        countline = self.eoo
-        while countline >= 0:
+        mulliken = [] # empty, 1*1 or 2*1 list
+        countline = 0
+        countm = 0
+        while countline < self.eoo:
             line = self.data[countline]
             if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
-                mulliken.append(SCFBASE.read_mulliken(self.data[:eoo], countline))
-            if len(mulliken) >= 2:
-                break
-            countline -= 1
+                mulliken_charge = [] # natom*1
+                countline += 4
+                while len(line2.strip()) == 0:
+                    line2 = self.data[countline]
+                    if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line2):
+                        data = line2.strip().split()
+                        mulliken_charge.append(data[3])
+                    countline += 1
+
+                mulliken.append(mulliken_charge)
+                continue
+            else:
+                countline += 1
 
         if len(mulliken) == 0:
             warnings.warn('Mulliken analysis not found.', stacklevel=2)
@@ -879,6 +896,7 @@ class Crystal_output:
                 mulliken[1], (mulliken[1] + mulliken[0]) / 2, (mulliken[1] - mulliken[0]) / 2
             ]
             self.mulliken_charges = np.array(self.mulliken_charges, dtype=float)
+            self.spin_pol = True
 
         return self.mulliken_charges
 
