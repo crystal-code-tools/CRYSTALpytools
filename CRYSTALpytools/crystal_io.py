@@ -296,7 +296,8 @@ class Crystal_output:
 
     def get_convergence(self, history=False):
         """
-        The upper level of get_scf_convergence and get_opt_convergence.
+        The upper level of get_scf_convergence and get_opt_convergence. For
+        analysing the geometry and energy convergence.
 
         .. note::
 
@@ -847,22 +848,38 @@ class Crystal_output:
 
     def get_mulliken_charges(self):
         """
-        Return the Mulliken charges (PPAN keyword in input)
+        Return the atomic Mulliken charges (PPAN keyword in input).
 
         Returns:
-            list: Mulliken charges
+            self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
+                natom\*3 for spin-polarised systems. [total, :math:`alpha`, :math:`beta`].
         """
         import re
+        import warnings
+        from CRYSTALpytools.base.crysout import SCFBASE
 
-        self.mulliken_charges = []
-        for i, line in enumerate(self.data):
-            if re.match(r'^ MULLIKEN POPULATION ANALYSIS', line):
-                for j in range(len(self.data[i:])):
-                    line1 = self.data[i+4+j].split()
-                    if line1 == []:
-                        return self.mulliken_charges
-                    elif line1[0].isdigit() == True:
-                        self.mulliken_charges.append(float(line1[3]))
+        mulliken = []
+        countline = self.eoo
+        while countline >= 0:
+            line = self.data[countline]
+            if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
+                mulliken.append(SCFBASE.read_mulliken(self.data[:eoo], countline))
+            if len(mulliken) >= 2:
+                break
+            countline -= 1
+
+        if len(mulliken) == 0:
+            warnings.warn('Mulliken analysis not found.', stacklevel=2)
+            self.mulliken_charges = np.array([], dtype=float)
+        elif len(mulliken) == 1:
+            self.mulliken_charges = np.array(mulliken[0], dtype=float)
+            self.spin_pol = False
+        else:
+            self.mulliken_charges = [
+                mulliken[1], (mulliken[1] + mulliken[0]) / 2, (mulliken[1] - mulliken[0]) / 2
+            ]
+            self.mulliken_charges = np.array(self.mulliken_charges, dtype=float)
+
         return self.mulliken_charges
 
     def get_config_analysis(self,return_multiplicity=False):

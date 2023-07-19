@@ -148,8 +148,9 @@ class SCFBASE():
             elif re.match(r'^\s*.*DIRECT ENERGY BAND GAP', line):
                 line_data = line.strip().split()
                 tmp_gap.append(float(data[4]))
-                if spin == True and len(tmp_gap) == 2: # Note the reversed sequence here
+                if spin == True and len(tmp_gap) == 2:
                     if history == False:
+                        # Note the reversed sequence here
                         gap = [tmp_gap[1], tmp_gap[0]]
                         break
                     else:
@@ -172,8 +173,34 @@ class SCFBASE():
 
         if spin == True or history == True:
             gap = np.array(gap, dtype=float)
+        if history == True:
+            # Note the reversed sequence here
+            gap = gap[::-1]
 
         return countline, spin, gap
+
+    @classmethod
+    def read_mulliken(cls, data, countline):
+        """
+        Read atomic mulliken charge
+
+        Returns:
+            mulliken (array): natom\*1 array.
+        """
+        import re
+        import numpy as np
+
+        mulliken = []
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line):
+                data = line.strip().split()
+                mulliken.append(data)
+            elif len(line.strip()) == 0:
+                break
+            countline += 1
+
+        return np.array(mulliken, dtype=float)
 
 
 class OptBASE():
@@ -275,6 +302,7 @@ class OptBASE():
         rmsd = np.array(rmsd, dtype=float)
 
         return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de), maxg, rmsg, maxd, rmsd
+
 
 class PhononBASE():
     """
