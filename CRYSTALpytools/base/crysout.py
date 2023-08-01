@@ -57,53 +57,81 @@ class SCFBASE():
 
         return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de)
 
-#     @classmethod
-#     def read_fermi_energy(cls, data, countline, history=False):
-#         """
-#         Read Fermi energy.
+    @classmethod
+    def read_fermi_energy(cls, data, countline, history=False):
+        """
+        Read Fermi energy.
 
-#         Args:
-#             history (bool): Whether to read e fermi of all steps
+        Args:
+            history (bool): Whether to read e fermi of all steps
 
-#         Returns:
-#             countline (int)
-#             efermi (float | array): Fermi energy. Unit: eV
-#         """
-#         import re
-#         import warnings
-#         import numpy as np
-#         from CRYSTALpytools.units import H_to_eV
+        Returns:
+            countline (int)
+            spin (bool): Whether the system is spin-polarised.
+            efermi (float | array): Fermi energy. Unit: eV
+        """
+        import re
+        import warnings
+        import numpy as np
+        from CRYSTALpytools.units import H_to_eV
 
-#         if history == True:
-#             efermi = []
-#         else:
-#             efermi = None
+        if history == True:
+            efermi = []
+        else:
+            efermi = None
 
-#         spin = False
-#         while countline >= 0:
-#             line = data[countline]
-#             # Metal spin or no spin
-#             if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line):
-#                 line_data = line.strip().split()
-#                 if history == False:
-#                     efermi = float(line_data[5])
-#                     break
-#                 else:
-#                     efermi.append(line_data[5])
-#                     countline -= 1 # Note the reversed sequence here
-#             # spin flag
-#             elif re.match(r'^\s*SUMMED SPIN DENSITY', line):
-#                 spin = True
-#                 tmp_efermi = []
-#                 countline -= 1
-#             # insulator： !!!!!!!!!!Using the top of valence band is wrong!!!!!!!!!!!!!
-#             elif re.match(r'^\s*TOP OF VALENCE BANDS', line):
-#                 line_data = line.strip().split()
-#                 tmp_efermi.append(float(data[10]))
-#                 if len(tmp_efermi) == 2: # Note the reversed sequence here
-#                     if history == False:
-#             else:
-#                 countline -= 1
+        spin = False
+        tmp_efermi = []
+        while countline >= 0:
+            line = data[countline]
+            # Metal spin or no spin
+            if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line):
+                line_data = line.strip().split()
+                if history == False:
+                    efermi = float(line_data[5])
+                    break
+                else:
+                    efermi.append(line_data[5])
+                    countline -= 1 # Note the reversed sequence here
+            # spin flag
+            elif re.match(r'^\s*SUMMED SPIN DENSITY', line):
+                spin = True
+                tmp_efermi = []
+                countline -= 1
+            # insulator, use top of valence bands
+            elif re.match(r'^\s*TOP OF VALENCE BANDS', line):
+                line_data = line.strip().split()
+                tmp_efermi.append(float(line_data[10]))
+                if spin == True and len(tmp_efermi) == 2:
+                    if history == False:
+                        # Note the reversed sequence here
+                        efermi = [tmp_efermi[1], tmp_efermi[0]]
+                        break
+                    else:
+                        efermi.append([tmp_efermi[1], tmp_efermi[0]])
+                        tmp_efermi = []
+                elif spin == False:
+                    if history == False:
+                        efermi = tmp_efermi[0]
+                        break
+                    else:
+                        efermi.append(tmp_efermi[0])
+                        tmp_efermi = []
+
+                countline -= 1
+            # Before the SCF block
+            elif re.match(r'^\s*A+$', line):
+                break
+            else:
+                countline -= 1
+
+        if spin == True or history == True:
+            efermi = np.array(efermi, dtype=float)
+        if history == True:
+            # Note the reversed sequence here
+            efermi = efermi[::-1]
+
+        return countline, spin, H_to_eV(efermi)
 
     @classmethod
     def read_band_gap(cls, data, countline, history=False):
@@ -128,6 +156,7 @@ class SCFBASE():
             gap = None
 
         spin = False
+        tmp_gap = []
         while countline >= 0:
             line = data[countline]
             # Metal spin or no spin
@@ -147,7 +176,7 @@ class SCFBASE():
             # insulator
             elif re.match(r'^\s*.*DIRECT ENERGY BAND GAP', line):
                 line_data = line.strip().split()
-                tmp_gap.append(float(data[4]))
+                tmp_gap.append(float(line_data[4]))
                 if spin == True and len(tmp_gap) == 2:
                     if history == False:
                         # Note the reversed sequence here
@@ -236,7 +265,7 @@ class OptBASE():
                     ncyc += 1
                 line_data = line.strip().split()
                 e.append(line_data[3])
-                de.append(line_data[5])
+                de.append(line_data[6])
                 ncyc += 1
                 countline += 1
             elif re.match(r'^\s+MAX GRADIENT', line):

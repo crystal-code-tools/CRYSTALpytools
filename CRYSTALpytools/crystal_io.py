@@ -409,46 +409,100 @@ class Crystal_output:
                 countline += 1
 
         if all_cycles == False:
-            self.scf_cycles = np.array(self.num_cycles, dtype=int)
+            self.scf_cycles = np.array(self.scf_cycles, dtype=int)
             self.scf_energy = np.array(self.scf_energy)
             self.scf_deltae = np.array(self.scf_deltae)
 
         return self
 
-    def get_opt_convergence(self):
-        """
-        Returns optimisation convergence. A wrapper of
-        :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
+    def get_fermi_energy(self, history=False):
+        """Returns the system Fermi energy.
+
+        Args:
+            history (bool): Whether to read the convergence history of Fermi energy.
 
         Returns:
-            self (Crystal_output)
+            self.fermi_energy (float | array): Fermi energy of the system. For
+                spin-polarized insulating systems, :code:`self.fermi_energy`
+                would be either a 2\*1 array (:code:`history=False`) or a
+                nCYC\*2 array (:code:`history=True`).
 
-        **New Attributes**  
-        * self.opt_cycles (int): Number of cycles.  
-        * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
-        * self.opt_energy (array): Total energy convergence. Unit: eV  
-        * self.opt_deltae (array): Total energy difference. Unit: eV  
-        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
-        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
+        Returns:
+            float: Fermi energy of the system.
         """
-        from CRYSTALpytools.base.crysout import OptBASE
+        from CRYSTALpytools.base.crysout import SCFBASE
 
+        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
+        self.spin_pol = output[1]
+        self.fermi_energy = output[2]
+
+        return self.fermi_energy
+
+    def get_band_gap(self, history=False):
+        """Returns the system band gap.
+
+        Args:
+            history (bool): Whether to read the convergence history of band gap.
+
+        Returns:
+            self.band_gap (float | array): Band gap of the system. For spin-polarized
+                systems, :code:`self.band_gap` would be either a 2\*1 array
+                (:code:`history=False`) or a nCYC\*2 array (:code:`history=True`).
+        """
+        from CRYSTALpytools.base.crysout import SCFBASE
+
+        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
+        self.spin_pol = output[1]
+        self.band_gap = output[2]
+
+        return self.band_gap
+
+    def get_mulliken_charges(self):
+        """
+        Return the atomic Mulliken charges (PPAN keyword in input).
+
+        Returns:
+            self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
+                natom\*3 for spin-polarised systems. [total, :math:`alpha`, :math:`beta`].
+        """
+        import re
+        import warnings
+        import numpy as np
+
+        mulliken = [] # empty, 1*1 or 2*1 list
         countline = 0
+        countm = 0
         while countline < self.eoo:
-            output = OptBASE.read_convergence(self.data[:self.eoo], countline)
-            self.opt_cycles = output[1]
-            self.opt_status = output[2]
-            self.opt_energy = output[3]
-            self.opt_deltae = output[4]
-            self.opt_maxgrad = output[5]
-            self.opt_rmsgrad = output[6]
-            self.opt_maxdisp = output[7]
-            self.opt_rmsdisp = output[8]
-            break
+            line = self.data[countline]
+            if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
+                mulliken_charge = [] # natom*1
+                countline += 4
+                while len(line2.strip()) == 0:
+                    line2 = self.data[countline]
+                    if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line2):
+                        data = line2.strip().split()
+                        mulliken_charge.append(data[3])
+                    countline += 1
 
-        return self
+                mulliken.append(mulliken_charge)
+                continue
+            else:
+                countline += 1
+
+        if len(mulliken) == 0:
+            warnings.warn('Mulliken analysis not found.', stacklevel=2)
+            self.mulliken_charges = np.array([], dtype=float)
+        elif len(mulliken) == 1:
+            self.mulliken_charges = np.array(mulliken[0], dtype=float)
+            self.spin_pol = False
+        else:
+            self.mulliken_charges = [
+                mulliken[1], (mulliken[1] + mulliken[0]) / 2, (mulliken[1] - mulliken[0]) / 2
+            ]
+            self.mulliken_charges = np.array(self.mulliken_charges, dtype=float)
+            self.spin_pol = True
+
+        return self.mulliken_charges
 
     def get_final_energy(self):
         """Get the final energy of the system. A wrapper of :code:`self.get_convergence`.
@@ -486,61 +540,40 @@ class Crystal_output:
 
         return self.opt_energy
 
-    def get_fermi_energy(self):
-        """Returns the system Fermi energy.
+    def get_opt_convergence(self):
+        """
+        Returns optimisation convergence. A wrapper of
+        :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
 
         Returns:
-            float: Fermi energy of the system.
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.opt_cycles (int): Number of cycles.  
+        * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
+        * self.opt_energy (array): Total energy convergence. Unit: eV  
+        * self.opt_deltae (array): Total energy difference. Unit: eV  
+        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
+        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
-        import re
+        from CRYSTALpytools.base.crysout import OptBASE
 
-        self.fermi_energy = None
+        countline = 0
+        while countline < self.eoo:
+            output = OptBASE.read_convergence(self.data[:self.eoo], countline)
+            self.opt_cycles = output[1]
+            self.opt_status = output[2]
+            self.opt_energy = output[3]
+            self.opt_deltae = output[4]
+            self.opt_maxgrad = output[5]
+            self.opt_rmsgrad = output[6]
+            self.opt_maxdisp = output[7]
+            self.opt_rmsdisp = output[8]
+            break
 
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            # This is in case the .out is from a BAND calculation
-            if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
-                for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
-                    if re.match(r'^ ENERGY RANGE ', line1):
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[7]))
-                        # Define from what type of calcualtion the Fermi energy was exctracted
-                        self.efermi_from = 'band'
-                        break
-            # This is in case the .out is from a DOSS calculation
-            if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS', self.data[len(self.data)-(i+4)]) != None:
-                for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
-                    if re.match(r'^ N. OF SCF CYCLES ', line1):
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[7]))
-                        # Define from what type of calcualtion the Fermi energy was exctracted
-                        self.efermi_from = 'doss'
-                        break
-            # This is in case the .out is from a sp/optgeom calculation
-            # For non metals think about top valence band
-            else:
-                for j, line1 in enumerate(self.data[:i:-1]):
-                    if re.match(r'^   FERMI ENERGY:', line1) != None:
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[2]))
-                        self.efermi_from = 'scf'
-                        break
-                    if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line1) != None:
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[5]))
-                        self.efermi_from = 'scf'
-                        break
-                if self.fermi_energy == None:
-                    for j, line1 in enumerate(self.data[:i:-1]):
-                        if re.match(r'^ TOP OF VALENCE BANDS', line1) != None:
-                            self.fermi_energy = units.H_to_eV(
-                                float(line1.split()[10]))
-                            self.efermi_from = 'scf_top_valence'
-                            break
-
-        if self.fermi_energy == None:
-            print('WARNING: no Fermi energy found in the output file. efermi = None')
-
-        return self.fermi_energy
+        return self
 
     def get_primitive_lattice(self, initial=True):
         """Returns the primitive lattice of the system.
@@ -618,25 +651,6 @@ class Crystal_output:
                           stacklevel=2)
 
         return self.reciprocal_lattice
-
-    def get_band_gap(self, history=False):
-        """Returns the system band gap.
-
-        Args:
-            history (bool): Whether to read the convergence history of band gap.
-
-        Returns:
-            self.band_gap (float | array): Band gap of the system. For spin-polarized
-                systems, :code:`self.band_gap` would be either a 2\*1 array
-                (:code:`history=False`) or a nCYC\*2 array (:code:`history=True`).
-        """
-        from CRYSTALpytools.base.crysout import SCFBASE
-
-        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo, history=history)
-        self.spin_pol = output[1]
-        self.band_gap = output[2]
-
-        return self.band_gap
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
         """
@@ -789,8 +803,9 @@ class Crystal_output:
         Returns:
             list or None: Forces if available, None otherwise
         """
+        import warnings
         if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
-            print('WARNING: this is not a geometry optimisation.')
+            warnings.warn('This is not a geometry optimisation.', stacklevel=2)
             return None
         else:
 
@@ -803,8 +818,7 @@ class Crystal_output:
             # Number of atoms
             for i, line in enumerate(self.data[len(self.data)::-1]):
                 if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
-                    self.n_atoms = int(
-                        self.data[len(self.data)-i-3].split()[0])
+                    self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
                     break
 
             if grad == True:
@@ -826,13 +840,11 @@ class Crystal_output:
                 for i, line in enumerate(self.data):
                     if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                         for j in range(i+2, i+2+self.n_atoms):
-                            self.forces_atoms.append(
-                                [float(x) for x in self.data[j].split()[2:]])
+                            self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
                         self.forces_atoms = np.array(self.forces_atoms)
                     if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
                         for j in range(i+4, i+7):
-                            self.forces_cell.append(
-                                [float(x) for x in self.data[j].split()])
+                            self.forces_cell.append([float(x) for x in self.data[j].split()])
                         self.forces_cell = np.array(self.forces_cell)
                         self.forces = [self.forces_cell, self.forces_atoms]
                         return self.forces
@@ -841,64 +853,15 @@ class Crystal_output:
                 for i, line in enumerate(self.data[::-1]):
                     if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
                         for j in range(len(self.data)-i+3, len(self.data)-i+6):
-                            self.forces_cell.append(
-                                [float(x) for x in self.data[j].split()])
+                            self.forces_cell.append([float(x) for x in self.data[j].split()])
                         self.forces_cell = np.array(self.forces_cell)
 
                     if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                         for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
-                            self.forces_atoms.append(
-                                [float(x) for x in self.data[j].split()[2:]])
+                            self.forces_atoms.append([float(x) for x in self.data[j].split()[2:]])
                         self.forces_atoms = np.array(self.forces_atoms)
                         self.forces = [self.forces_cell, self.forces_atoms]
                         return self.forces
-
-    def get_mulliken_charges(self):
-        """
-        Return the atomic Mulliken charges (PPAN keyword in input).
-
-        Returns:
-            self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
-                natom\*3 for spin-polarised systems. [total, :math:`alpha`, :math:`beta`].
-        """
-        import re
-        import warnings
-        import numpy as np
-
-        mulliken = [] # empty, 1*1 or 2*1 list
-        countline = 0
-        countm = 0
-        while countline < self.eoo:
-            line = self.data[countline]
-            if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
-                mulliken_charge = [] # natom*1
-                countline += 4
-                while len(line2.strip()) == 0:
-                    line2 = self.data[countline]
-                    if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line2):
-                        data = line2.strip().split()
-                        mulliken_charge.append(data[3])
-                    countline += 1
-
-                mulliken.append(mulliken_charge)
-                continue
-            else:
-                countline += 1
-
-        if len(mulliken) == 0:
-            warnings.warn('Mulliken analysis not found.', stacklevel=2)
-            self.mulliken_charges = np.array([], dtype=float)
-        elif len(mulliken) == 1:
-            self.mulliken_charges = np.array(mulliken[0], dtype=float)
-            self.spin_pol = False
-        else:
-            self.mulliken_charges = [
-                mulliken[1], (mulliken[1] + mulliken[0]) / 2, (mulliken[1] - mulliken[0]) / 2
-            ]
-            self.mulliken_charges = np.array(self.mulliken_charges, dtype=float)
-            self.spin_pol = True
-
-        return self.mulliken_charges
 
     def get_config_analysis(self,return_multiplicity=False):
         """
