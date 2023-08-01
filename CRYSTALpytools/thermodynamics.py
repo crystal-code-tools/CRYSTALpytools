@@ -422,10 +422,7 @@ class Harmonic():
         :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
         :raise Exception: If q point is not found.
         """
-        import yaml
-        import numpy as np
-        from CRYSTALpytools.units import au_to_angstrom
-        from pymatgen.core.structure import Structure
+        from CRYSTALpytools.thermodynamics import Phonopy
         import warnings
 
         if hasattr(self, "volume"):
@@ -435,83 +432,13 @@ class Harmonic():
             edft = 0.
             warnings.warn('DFT energy is set to 0.')
 
-        file = open(phono_yaml, 'r', errors='ignore')
-        data = yaml.safe_load(file)
-        file.close()
+        # Get geometry
         if struc_yaml != None:
-            struc_file = open(struc_yaml, 'r')
-            struc_data = yaml.safe_load(struc_file)
-            struc_file.close()
+            structure = Phonopy.read_structure(struc_yaml)
         else:
-            struc_data = data
+            structure = Phonopy.read_structure(phono_yaml)
 
-        # Get unit
-        try: # band.yaml
-            len_unit = struc_data['length_unit']
-        except KeyError: # phonopy.yaml
-            len_unit = struc_data['physical_unit']['length']
-
-        if len_unit == 'angstrom':
-            unit_len = 1.0
-        elif len_unit == 'au':
-            unit_len = au_to_angstrom(1.0)
-        else:
-            raise Exception("Unknown length unit. Available options: au, angstrom.")
-
-        # Get structure
-        spec = []
-        coord = []
-        try: # band.yaml
-            latt = np.array(struc_data['lattice'], dtype=float) * unit_len
-            for idx_a, atom in enumerate(struc_data['points']):
-                spec.append(atom['symbol'])
-                coord.append(atom['coordinates'])
-        except KeyError: # phonopy.yaml
-            latt = np.array(struc_data['primitive_cell']['lattice'], dtype=float) * unit_len
-            for idx_a, atom in enumerate(struc_data['primitive_cell']['points']):
-                spec.append(atom['symbol'])
-                coord.append(atom['coordinates'])
-
-        structure = Structure(lattice=latt, species=spec, coords=coord)
-        natom = len(spec)
-
-        if q_id == None and q_coord == None:
-            nqpoint = data['nqpoint']
-            qinfo = np.array(range(nqpoint), dtype=int)
-        elif q_id != None:
-            qinfo = np.array(q_id, dtype=int)
-            nqpoint = len(qinfo)
-        elif q_id == None and q_coord != None:
-            qinfo = np.array(q_coord, dtype=float)
-            nqpoint = len(qinfo)
-
-        qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
-        nmode = np.array([3 * natom for i in range(nqpoint)]) # No fragment phonon is assumed.
-        frequency = np.zeros([nqpoint, 3 * natom])
-        # Read phonon
-        real_q = 0
-        for idx_p, phonon in enumerate(data['phonon']):
-            if real_q == nqpoint:
-                break
-
-            if len(qinfo.shape) == 1: # q_id and all q points
-                if idx_p == qinfo[real_q]:
-                    qpoint[real_q][0] = np.array(phonon['q-position'])
-                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
-                    real_q += 1
-                else:
-                    continue
-            else: # q_coord
-                coord = np.array(phonon['q-position'])
-                if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
-                    qpoint[real_q][0] = coord
-                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
-                    real_q += 1
-                else:
-                    continue
-
-        if real_q < nqpoint:
-            raise Exception('Some q points are missing from the yaml file.')
+        qpoint, frequency = Phonopy.read_frequency(phono_yaml, q_id=q_id, q_coord=q_coord)
 
         # set object
         self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency*scale,
@@ -2480,6 +2407,177 @@ def _restore_pcel(crysout, scelphono):
         structures = structures[1:]
 
     return structures
+
+
+class Phonopy():
+    """
+    The convertor between Phonopy and CRYSTALpytools file formats
+    """
+    @classmethod
+    def read_structure(cls, file):
+        """
+        Read geometry from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        band.yaml or phonopy.yaml or phonopy_disp.yaml files.
+
+        Args:
+            file (str): Phonopy yaml file
+
+        Returns:
+            struc (Pymatgen Structure)
+
+        :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
+        """
+        import yaml
+        import numpy as np
+        from CRYSTALpytools.units import au_to_angstrom
+        from pymatgen.core.structure import Structure
+
+        struc_file = open(file, 'r')
+        data = yaml.safe_load(struc_file)
+        struc_file.close()
+
+        # Get unit
+        try: # band.yaml
+            len_unit = data['length_unit']
+        except KeyError: # phonopy.yaml
+            len_unit = data['physical_unit']['length']
+
+        if len_unit == 'angstrom':
+            unit_len = 1.0
+        elif len_unit == 'au':
+            unit_len = au_to_angstrom(1.0)
+        else:
+            raise Exception("Unknown length unit. Available options: au, angstrom.")
+
+        # Get structure
+        spec = []
+        coord = []
+        try: # band.yaml
+            latt = np.array(data['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(data['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+        except KeyError: # phonopy.yaml
+            latt = np.array(data['primitive_cell']['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(data['primitive_cell']['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+
+        struc = Structure(lattice=latt, species=spec, coords=coord)
+
+        return struc
+
+    @classmethod
+    def read_frequency(cls, file, q_id=None, q_coord=None):
+        """
+        Read phonon frequency from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        band.yaml or qpoints.yaml files. Frequency units must be THz (default
+        of Phonopy).
+
+        Args:
+            file (str): Phonopy yaml file
+            q_id (list[int]): Specify the id (from 0) of q points to be read.
+                nqpoint\*1 list.
+            q_coord (list[list]): Specify the coordinates of q points to be
+                read. nqpoint\*3 list.
+
+        ``q_id`` and ``q_coord`` should not be set simultaneously. If set,
+        ``q_id`` takes priority and ``q_coord`` is ignored. If both are none,
+        all the points will be read.
+
+        Returns:
+            qpoint (list): natom\*2 list. 1st element: 3\*1 array. Fractional
+                coordinates of q points; 2nd element: float. Weight
+            frequency (array): nqpint\*nmode array. Phonon frequency in THz.
+
+        :raise Exception: If (some of) q point is not found.
+        """
+        import yaml
+        import numpy as np
+        import warnings
+
+        phono_file = open(file, 'r', errors='ignore')
+        data = yaml.safe_load(phono_file)
+        phono_file.close()
+
+        if q_id == None and q_coord == None:
+            nqpoint = data['nqpoint']
+            qinfo = np.array(range(nqpoint), dtype=int)
+        elif q_id != None:
+            qinfo = np.array(q_id, dtype=int)
+            nqpoint = len(qinfo)
+        elif q_id == None and q_coord != None:
+            qinfo = np.array(q_coord, dtype=float)
+            nqpoint = len(qinfo)
+
+        natom = int(len(data['phonon'][0]['band']) / 3)
+
+        qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
+        frequency = np.zeros([nqpoint, 3 * natom])
+        # Read phonon
+        real_q = 0
+        for idx_p, phonon in enumerate(data['phonon']):
+            if real_q == nqpoint:
+                break
+
+            if len(qinfo.shape) == 1: # q_id and all q points
+                if idx_p == qinfo[real_q]:
+                    qpoint[real_q][0] = np.array(phonon['q-position'])
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+            else: # q_coord
+                coord = np.array(phonon['q-position'])
+                if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
+                    qpoint[real_q][0] = coord
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+
+        if real_q < nqpoint:
+            raise Exception('Some q points are missing from the yaml file.')
+
+        return qpoint, frequency
+
+    @classmethod
+    def write_force_constants(cls, hessfile='HESSFREQ.DAT', phonopyfile='FORCE_CONSTANTS'):
+        """
+        Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file
+
+        Args:
+            hessfile (str): The HESSFREQ.DAT file
+            phonopyfile (str): The output name
+
+        """
+        import re
+        import numpy as np
+        from CRYSTALpytools.units import H_to_eV, angstrom_to_au
+
+        # Note: Numpy requires mass unweighted Hessian
+        # Read hessfreq.dat
+        file = open(hessfile, 'r')
+        data = file.read()
+        file.close()
+
+        hess = np.array(data.strip().split(), dtype=float)
+        natom = int((len(hess) / 9)**0.5)
+
+        hess = np.reshape(hess, [3*natom, 3*natom])
+        hess = angstrom_to_au(angstrom_to_au(H_to_eV(hess))) # Hartree.Bohr^-2 to eV.Angstrom^-2
+
+        # Write force_constants
+        file = open(phonopyfile, 'w')
+        file.write('%4i%4i\n' % (natom, natom))
+        for i in range(natom):
+            for j in range(natom):
+                file.write('%4i%4i\n' % (i + 1, j + 1))
+                dynamic = hess[int(3 * i):int(3 * i + 3), int(3 * j):int(3 * j + 3)]
+                for d in dynamic:
+                    file.write('%22.15f%22.15f%22.15f\n' % (d[0], d[1], d[2]))
+
+        file.close()
 
 class Output():
     """
