@@ -821,6 +821,7 @@ class Crystal_output:
         for line in self.data[begin:]:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
+
         '''multiplicity = []
 
         for i in range(len(config_list)):
@@ -844,8 +845,11 @@ class Crystal_output:
         atom_type1 = []
         atom_type2 = []
         if return_multiplicity == True:
-            multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+2]
-            multiplicity = [int(re.sub(r'\D', '', x)) for x in multiplicity_tmp]
+            input_string = ' '.join(config_list.tolist())
+            matches = re.findall(r'MULTIPLICITY\s*:\s*(\d+)', input_string)
+            
+            #multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+1]
+            multiplicity = [int(x) for x in matches]
             self.multiplicity = multiplicity
         config_list = config_list.tolist()
         for i in range(len(atom1_end)):
