@@ -821,6 +821,14 @@ class Crystal_output:
         for line in self.data[begin:]:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
+        '''multiplicity = []
+
+        for i in range(len(config_list)):
+            if config_list[i] == 'MULTIPLICITY' and i < len(config_list) - 1:
+                number = re.findall(r'\d+', config_list[i+1])
+                if number:
+                    config_list.append(int(number[0]))'''
+
         config_list = np.array(config_list)
         warning = np.where(config_list == 'WARNING')
         config_list = np.delete(config_list, warning)
@@ -835,8 +843,10 @@ class Crystal_output:
         atom2_end = np.append(atom2_end, end)
         atom_type1 = []
         atom_type2 = []
-        multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+2]
-        multiplicity = [int(x) for x in multiplicity_tmp]
+        if return_multiplicity == True:
+            multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+2]
+            multiplicity = [int(re.sub(r'\D', '', x)) for x in multiplicity_tmp]
+            self.multiplicity = multiplicity
         config_list = config_list.tolist()
         for i in range(len(atom1_end)):
             atom_type1.append(
@@ -847,7 +857,7 @@ class Crystal_output:
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
 
-        self.multiplicity = multiplicity
+        
         if return_multiplicity == True:
             return [self.atom_type1, self.atom_type2, multiplicity]
         else:
