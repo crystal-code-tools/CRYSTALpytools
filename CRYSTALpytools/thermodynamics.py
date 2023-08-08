@@ -2544,7 +2544,17 @@ class Phonopy():
     @classmethod
     def write_force_constants(cls, hessfile='HESSFREQ.DAT', phonopyfile='FORCE_CONSTANTS'):
         """
-        Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file
+        Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file.
+
+        For example, to convert the calculation 'example' with a 4\*4\*4
+        supercelland get phonon frequencies at Gamma point, use the following
+        code:
+
+        .. code-block::
+
+            >>> from CRYSTALpytools.thermodynamics import Phonopy
+            >>> Phonopy.write_force_constants(hessfile='example.HESSFREQ')
+            >>> phonopy --crystal --qpoints='0 0 0' -c example.out --dim='4 4 4' --readfc
 
         Args:
             hessfile (str): The HESSFREQ.DAT file
