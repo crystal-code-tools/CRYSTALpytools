@@ -229,11 +229,11 @@ class BlockBASE():
                 attr = self._block_dict[t]
                 value = '\n'.join([i for i in value.strip().split('\n')[::-1]]) + '\n' # Reverse the string
                 if attr[0] == '_': # Keyword-like attributes
-                    setattr(self, attr, value)
                     attr_real = attr
                     if hasattr(self, attr_real):
                         warnings.warn("Keyword same as or equivalent to '{}' exists. The new entry will cover the old one".format(t),
                                       stacklevel=2)
+                    setattr(self, attr, value)
                 else:  # Block-like attributes
                     attr_real = '_block_' + attr
                     # If sub-block does not exist, call @property name will create a new one. Call _block_name instead
