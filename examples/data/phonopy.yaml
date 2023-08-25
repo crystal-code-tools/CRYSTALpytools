@@ -1,5 +1,5 @@
 phonopy:
-  version: "2.19.1"
+  version: "2.20.0"
   calculator: crystal
   frequency_unit_conversion_factor: 15.633302
   symmetry_tolerance: 1.00000e-05

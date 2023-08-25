@@ -2565,7 +2565,7 @@ class Phonopy():
         import numpy as np
         from CRYSTALpytools.units import H_to_eV, angstrom_to_au
 
-        # Note: Numpy requires mass unweighted Hessian
+        # Note: Phonopy requires mass unweighted Hessian
         # Read hessfreq.dat
         file = open(hessfile, 'r')
         data = file.read()
@@ -2574,8 +2574,12 @@ class Phonopy():
         hess = np.array(data.strip().split(), dtype=float)
         natom = int((len(hess) / 9)**0.5)
 
-        hess = np.reshape(hess, [3*natom, 3*natom])
+        hess = np.reshape(hess, [3*natom, 3*natom], order='F')
         hess = angstrom_to_au(angstrom_to_au(H_to_eV(hess))) # Hartree.Bohr^-2 to eV.Angstrom^-2
+        # Symmstrize Hessian with its lower half - Important. To address the print issue of HESSFREQ.DAT
+        for i in range(3*natom):
+            for j in range(i+1, 3*natom):
+                hess[i, j] = hess[j, i]
 
         # Write force_constants
         file = open(phonopyfile, 'w')
