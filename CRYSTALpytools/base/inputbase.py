@@ -223,41 +223,39 @@ class BlockBASE():
         attr = ''
         attr_real = ''
         value = ''
-        for idx, t in enumerate(textline):
-            if t in self._block_key:  # Keyword line
-                # Assign the previous keyword
-                if attr != '' and value != '':
-                    if attr[0] == '_':  # Keyword-like attributes
-                        setattr(self, attr, value)
-                    else:  # Block-like attributes
-                        # This step will create an obj if the real attribute does not exist
-                        obj = getattr(self, attr)
-                        obj.analyze_text(text[idx:])
-                        # @property does not have setter
-                        setattr(self, attr_real, obj)
-                # Update attribute
-                attr = self._block_dict[t]
-                value = t + '\n'
-                if attr[0] == '_':
-                    attr_real = attr
-                else:  # If sub-block does not exist, call @property name will create a new one. Call _block_name instead
-                    attr_real = '_block_' + attr
-
-                if hasattr(self, attr_real):
-                    warnings.warn("Keyword '{}' exists. The new entry will cover the old one".format(t),
-                                  stacklevel=2)
-            elif t in end_block_label:  # End line
-                break
-            else:  # Value lines
+        for idx, t in enumerate(textline[::-1]):
+            if t.upper() in self._block_key:  # Keyword line: ending point
                 value += t + '\n'
+                attr = self._block_dict[t]
+                value = '\n'.join([i for i in value.strip().split('\n')[::-1]]) + '\n' # Reverse the string
+                if attr[0] == '_': # Keyword-like attributes
+                    setattr(self, attr, value)
+                    attr_real = attr
+                    if hasattr(self, attr_real):
+                        warnings.warn("Keyword same as or equivalent to '{}' exists. The new entry will cover the old one".format(t),
+                                      stacklevel=2)
+                else:  # Block-like attributes
+                    attr_real = '_block_' + attr
+                    # If sub-block does not exist, call @property name will create a new one. Call _block_name instead
+                    if hasattr(self, attr_real):
+                        warnings.warn("Keyword same as or equivalent to '{}' exists. The new entry will cover the old one".format(t),
+                                      stacklevel=2)
+                    # This step will create an obj if the real attribute does not exist
+                    obj = getattr(self, attr)
+                    obj.analyze_text(value)
+                    # @property does not have setter
+                    setattr(self, attr_real, obj)
 
-        # Assign the last keyword
-        if attr != '' and value != '':
-            if attr[0] == '_':  # Keyword-like attributes
-                setattr(self, attr, value)
-            else:  # Block-like attributes
-                # This step will create an obj if the real attribute does not exist
-                obj = getattr(self, attr)
-                obj.analyze_text(text[idx:])
-                setattr(self, attr_real, obj)  # @property does not have setter
+                # Clean values
+                value = ''
+            elif t in self._block_ed: # End line: starting point
+                continue
+            else:
+                value += t + '\n'
+        # Last lines if unallocated string exists
+        if value != '':
+            value = '\n'.join([i for i in value.strip().split('\n')[::-1]]) + '\n' # Reverse the string
+            value = value[1:]
+            self._block_data = value + self._block_data
+
         return

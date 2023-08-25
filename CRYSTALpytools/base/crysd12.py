@@ -272,15 +272,20 @@ class Geom(BlockBASE):
 
         if IFSO <= 1:
             shape = [3, 1]
-            value = [int(IFLAG), int(IFHR), IFSO, int(IGR)]
+            value = ['{:<3d}'.format(int(IFLAG)), '{:<3d}'.format(int(IFHR)), '{:<3d}'.format(int(IFSO)),
+                     '{:<3d}'.format(int(IGR))]
         else:
             shape = [3, 3, 1]
-            value = [int(IFLAG), int(IFHR), IFSO, origin[0],
-                     origin[1], origin[2], int(IGR)]
+            value = ['{:<3d}'.format(int(IFLAG)), '{:<3d}'.format(int(IFHR)), '{:<3d}'.format(int(IFSO)),
+                     '{:<12.6f}'.format(origin[0]), '{:<12.6f}'.format(origin[1]), '{:<12.6f}'.format(origin[2]),
+                     '{:<3d}'.format(int(IGR))]
 
         shape += [len(latt), ]
-        value += [i for i in latt]
+        value += ['{:<12.6f}'.format(i) for i in latt]
 
+        # Format atoms - frac 12 digits, cart 16 digits
+        atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
+                 '{0: 12.8f}'.format(a[2]), '{0: 12.8f}'.format(a[3])] for a in atom]
         atominput = super(Geom, self).set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
@@ -299,11 +304,14 @@ class Geom(BlockBASE):
             return
 
         shape = [1, ]
-        value = [int(IGR), ]
+        value = ['{:<3d}'.format(int(IGR)), ]
 
         shape += [len(latt), ]
-        value += [i for i in latt]
+        value += ['{:<12.6f}'.format(i) for i in latt]
 
+        # Format atoms - frac 12 digits, cart 16 digits
+        atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
+                 '{0: 12.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
         atominput = super(Geom, self).set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
@@ -322,11 +330,14 @@ class Geom(BlockBASE):
             return
 
         shape = [1, ]
-        value = [int(IGR), ]
+        value = ['{:<3d}'.format(int(IGR)), ]
 
         shape += [len(latt), ]
-        value += [i for i in latt]
+        value += ['{:<12.6f}'.format(i) for i in latt]
 
+        # Format atoms - frac 12 digits, cart 16 digits
+        atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
+                 '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
         atominput = super(Geom, self).set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
@@ -349,11 +360,14 @@ class Geom(BlockBASE):
             return
 
         shape = [2, ]
-        value = [int(N1), int(N2), ]
+        value = ['{:<3d}'.format(int(N1)), '{:<3d}'.format(int(N2)), ]
 
         shape += [len(latt), ]
-        value += [i for i in latt]
+        value += ['{:<12.6f}'.format(i) for i in latt]
 
+        # Format atoms - frac 12 digits, cart 16 digits
+        atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
+                 '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
         atominput = super(Geom, self).set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
@@ -378,8 +392,11 @@ class Geom(BlockBASE):
             return
 
         shape = [1, ]
-        value = [int(IGR), ]
+        value = ['{:<3d}'.format(int(IGR)), ]
 
+        # Format atoms - frac 12 digits, cart 16 digits
+        atom = [['{:<4d}'.format(int(a[0])), '{0: 16.8f}'.format(a[1]),
+                 '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
         atominput = super(Geom, self).set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
@@ -1103,7 +1120,7 @@ class SCF(BlockBASE):
             raise AttributeError(
                 "Attribute does not exist. 'fixindex' is not defined.")
 
-    def fixindex(self, key1=None, obj1=None, obj2=None, key2='FIXINDEX'):
+    def fixindex(self, key1=None, obj1=None, obj2=None):
         """
         Args:
             key1 (str): 'GEOM', 'BASE' or 'GEBA'. Fixindex block keywords
@@ -1113,42 +1130,51 @@ class SCF(BlockBASE):
         import warnings
 
         if key1 == None:
-            self._fixbg = super(SCF, self).assign_keyword(key2, [])
+            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
 
         elif key1 == '':
-            self._fixbg = super(SCF, self).assign_keyword(key2, [], '')
+            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [], '')
+            self._block_ed = 'ENDSCF\n'
             if hasattr(self, '_block_fixgeom'):
                 self._block_fixgeom.clean_block()
             elif hasattr(self, '_block_fixbase'):
                 self._block_fixbase.clean_block()
 
         elif key1 == 'GEOM':
-            warnings.warn(
-                "'GEOM' keyword of 'FIXINDEX' is identified. Use 'fixgeom' for attributes of the geometry subblock.")
+            warnings.warn( "'GEOM' keyword of 'FIXINDEX' is identified. Use 'fixgeom' for attributes of the geometry subblock.",
+                          stacklevel=2)
+            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
             self._block_fixgeom = Geom()
             if obj1 == None:
-                self._block_fixgeom._block_bg = 'GEOM\n'
+                self._block_fixgeom._block_bg = 'ENDSCF\nGEOM\n'
                 self._block_fixgeom._block_ed = 'END\n'
+                self._block_ed = None # Not '', or the block would be recoginized as an empty one
             elif obj1 == '':
                 self._block_fixgeom.clean_block()
+                self._block_ed = 'ENDSCF\n'
             else:
                 self._block_fixgeom = obj1
-                self._block_fixgeom._block_bg = 'GEOM\n'
+                self._block_fixgeom._block_bg = 'ENDSCF\nGEOM\n'
                 self._block_fixgeom._block_ed = 'END\n'
+                self._block_ed = None # Not '', or the block would be recoginized as an empty one
 
         elif key1 == 'BASE':
-            warnings.warn(
-                "'BASE' keyword of 'FIXINDEX' is identified. Use 'fixbase' for attributes of the basis set subblock.")
+            warnings.warn("'BASE' keyword of 'FIXINDEX' is identified. Use 'fixbase' for attributes of the basis set subblock.",
+                          stacklevel=2)
+            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
             self._block_fixbase = BasisSet()
             if obj1 == None:
-                self._block_fixbase._block_bg = 'BASE\n'
+                self._block_fixbase._block_bg = 'ENDSCF\nBASE\n'
                 self._block_fixbase._block_ed = 'END\n'
+                self._block_ed = None # Not '', or the block would be recoginized as an empty one
             elif obj1 == '':
                 self._block_fixbase.clean_block()
+                self._block_ed = 'ENDSCF\n'
             else:
                 self._block_fixbase = obj1
-                self._block_fixbase._block_bg = 'BASE\n'
+                self._block_fixbase._block_bg = 'ENDSCF\nBASE\n'
                 self._block_fixbase._block_ed = 'END\n'
+                self._block_ed = None # Not '', or the block would be recoginized as an empty one
 
         # GEBA subblock not supported
         # elif key1 == 'GEBA':
@@ -1172,7 +1198,7 @@ class SCF(BlockBASE):
         #         self._block_fixbase._block_ed = 'END\n'
 
         else:
-            raise ValueError('Keyword error. Allowed keywords: GEOM, BASE, GEBA.')
+            raise ValueError('Keyword error. Allowed keywords: GEOM, BASE. GEBA not supported.')
 
     def biposize(self, ISIZE=None):
         self._biposize = super(SCF, self).assign_keyword('BIPOSIZE', [1, ], ISIZE)
@@ -1270,7 +1296,6 @@ class DFT(BlockBASE):
             'SPIN'     : '_spin',
             'EXCHANGE' : '_exchange',
             'CORRELAT' : '_correlat',
-            'DFT'      : '_xcfunc',
             'OLDGRID'  : '_gridsz',
             'LGRID'    : '_gridsz',
             'XLGRID'   : '_gridsz',
@@ -1278,6 +1303,74 @@ class DFT(BlockBASE):
             'XXXLGRID' : '_gridsz',
             'RADIAL'   : '_gridr',
             'ANGULAR'  : '_grida',
+            'SVWN'     : '_xcfunc', # Standalone keywords for text analysis - I know it's a stupid idea - to ensure interactive i/o
+            'BLYP'     : '_xcfunc',
+            'PBEXC'    : '_xcfunc',
+            'PBESOLXC' : '_xcfunc',
+            'SOGGAXC'  : '_xcfunc',
+            'SOGGA11'  : '_xcfunc',
+            'B3PW'     : '_xcfunc',
+            'B3LYP'    : '_xcfunc',
+            'PBE0'     : '_xcfunc',
+            'PBESOL0'  : '_xcfunc',
+            'B1WC'     : '_xcfunc',
+            'WC1LYP'   : '_xcfunc',
+            'B97H'     : '_xcfunc',
+            'PBE0-13'  : '_xcfunc',
+            'SOGGA11X' : '_xcfunc',
+            'mPW1PW91' : '_xcfunc',
+            'mPW1K'    : '_xcfunc',
+            'HSE06'    : '_xcfunc',
+            'HSESOL'   : '_xcfunc',
+            'SC-BLYP'  : '_xcfunc',
+            'HISS'     : '_xcfunc',
+            'RSHXLDA'  : '_xcfunc',
+            'wB97'     : '_xcfunc',
+            'wB97X'    : '_xcfunc',
+            'LC-wPBE'  : '_xcfunc',
+            'LC-wPBESOL': '_xcfunc',
+            'LC-wBLYP' : '_xcfunc',
+            'LC-BLYP'  : '_xcfunc',
+            'CAM-B3LYP': '_xcfunc',
+            'LC-PBE'   : '_xcfunc',
+            'M06L'     : '_xcfunc',
+            'revM06L'  : '_xcfunc',
+            'MN15L'    : '_xcfunc',
+            'SCAN'     : '_xcfunc',
+            'r2SCAN'   : '_xcfunc',
+            'B1B95'    : '_xcfunc',
+            'mPW1B95'  : '_xcfunc',
+            'mPW1B1K'  : '_xcfunc',
+            'PW6B95'   : '_xcfunc',
+            'PWB6K'    : '_xcfunc',
+            'M05'      : '_xcfunc',
+            'M052X'    : '_xcfunc',
+            'M06'      : '_xcfunc',
+            'M062X'    : '_xcfunc',
+            'M06HF'    : '_xcfunc',
+            'MN15'     : '_xcfunc',
+            'revM06'   : '_xcfunc',
+            'SCAN0'    : '_xcfunc',
+            'r2SCANh'  : '_xcfunc',
+            'r2SCAN0'  : '_xcfunc',
+            'r2SCAN50' : '_xcfunc',
+            'MN15'     : '_xcfunc',
+            'BLYP-D3'  : '_xcfunc',
+            'PBE-D3'   : '_xcfunc',
+            'B97-D3'   : '_xcfunc',
+            'B3LYP-D3' : '_xcfunc',
+            'PBE0-D3'  : '_xcfunc',
+            'PW1PW-D3' : '_xcfunc',
+            'M06-D3'   : '_xcfunc',
+            'HSE06-D3' : '_xcfunc',
+            'HSESOL-D3': '_xcfunc',
+            'LC-WPBE-D3': '_xcfunc',
+            'B3LYP-D3' : '_xcfunc',
+            'PBEH3C'   : '_xcfunc',
+            'HSE3C'    : '_xcfunc',
+            'B973C'    : '_xcfunc',
+            'PBESOL03C': '_xcfunc',
+            'HSESOL3C' : '_xcfunc',
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
