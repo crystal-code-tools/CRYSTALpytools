@@ -126,6 +126,7 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
         gui: CRYSTAL structure (gui) object.
         vacuum (float): Vacuum distance.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
         
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
@@ -165,7 +166,10 @@ def cry_gui2pmg(gui, vacuum=10, molecule = True):
                 
         gui.lattice[2][2] = thickness_z + vacuum
 
-    return Structure(gui.lattice, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
+    #Convert the pseudopotential atoms to their original atomic number
+    atomic_numbers = np.array(gui.atom_number)%200          
+
+    return Structure(gui.lattice, atomic_numbers, gui.atom_positions, coords_are_cartesian=True)
 
 
 def cry_gui2xyz(xyz_file_name, gui):
