@@ -2179,7 +2179,7 @@ class Crystal_gui:
         self.atom_positions = []
         for i in range(6+self.n_symmops*4, 6+self.n_symmops*4+self.n_atoms):
             atom_line = data[i].split()
-            self.atom_number.append(str(atom_line[0]))
+            self.atom_number.append(int(atom_line[0]))
             self.atom_positions.append([float(x) for x in atom_line[1:]])
         self.space_group = int(data[-1].split()[0])
 
