@@ -3,6 +3,87 @@
 """
 Classes and methods to phrase 'crystal' output file.
 """
+class GeomBASE():
+    """
+    A container of basic methods for SCF geometry.
+    """
+    @classmethod
+    def read_geom(cls, data, countline):
+        """
+        Read geometry from 'ATOMS IN THE ASYMMETRIC UNIT' block. It
+        terminates at the first empty line.
+
+        .. note::
+            ``data`` must not start with 'ATOMS IN THE ASYMMETRIC UNIT' -
+            The code refers to 2 lines before it.
+
+        Args:
+            data (list[str]): output file read by readlines()
+            countline (int): The starting line number
+
+        Returns:
+            countline (int): Line number of output file.
+            struc (Pymatgen Structure)
+        """
+        import re
+        import numpy as np
+        from pymatgen.core.lattice import Lattice
+        from pymatgen.core.structure import Structure, Molecule
+
+        pbc = {0 : (False, False, False),
+               1 : (True, False, False),
+               2 : (True, True, False),
+               3 : (True, True, True)}
+
+        species = []
+        coords = []
+        latt_mx = []
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                countline += 1
+                ndimen = 3 - len(re.findall('\(ANGSTROM\)', data[countline]))
+
+                if ndimen != 0:
+                    countline -= 3
+                    line_data = data[countline].strip().split()
+                    latt = Lattice.from_parameters(
+                        a=float(line_data[0]), b=float(line_data[1]),
+                        c=float(line_data[2]), alpha=float(line_data[3]),
+                        beta=float(line_data[4]), gamma=float(line_data[5]),
+                        pbc=pbc[ndimen]
+                    )
+                    latt_mx = latt.matrix
+                else:
+                    latt_mx = np.eye(3)
+
+                countline += 5
+                line = data[countline].strip()
+                coords = []
+                species = []
+                while line != '':
+                    line_data = line.split()
+                    coords.append(line_data[-3:])
+                    species.append(line_data[3].capitalize())
+                    countline += 1
+                    line = data[countline].strip()
+                countline += 1
+                coords = np.array(coords, dtype=float)
+                coords[:, 0:ndimen] = coords[:, 0:ndimen] @ latt_mx[0:ndimen, 0:ndimen] # to cartesian coords
+                if ndimen != 0:
+                    struc = Structure(lattice=latt, species=species, coords=coords,
+                                      coords_are_cartesian=True, )
+                else:
+                    struc = Molecule(species=species, coords=coords)
+                break
+            else:
+                countline += 1
+
+        if len(latt_mx) == 0 or len(species) == 0 or len(coords) == 0:
+            raise Exception('Geometry information not found.')
+
+        return countline, struc
+
 
 class SCFBASE():
     """
@@ -14,7 +95,7 @@ class SCFBASE():
         Read SCF convergence.
 
         Returns:
-            countline (int): Line number of output file.
+            countline (int)
             ncyc (int): Number of cycles
             endflag (str): 'terminated', 'converged', 'too many cycles' and 'unknown'
             e (array): nCYC\*1 array of SCF energy. Unit: eV
@@ -214,9 +295,9 @@ class OptBASE():
     A container of basic methods for Opt loop.
     """
     @classmethod
-    def read_convergence(cls, data, countline):
+    def read_optblock(cls, data, countline):
         """
-        Read optimisation convergence.
+        Read optimisation blocks.
 
         Returns:
             countline (int): Line number of output file.
@@ -224,6 +305,7 @@ class OptBASE():
             endflag (str): 'terminated', 'converged', 'failed' and 'unknown'
             e (array): nCYC\*1 array of total energy. Unit: eV
             de (array): nCYC\*1 array of total energy difference. Unit: eV
+            struc (list[Structure]): nCYC\*1 list of pymatgen structures
             maxg (array): nCYC\*1 array of max energy gradient convergence.
                 Unit: Hartree / Bohr
             rmsg (array): nCYC\*1 array of RMS energy gradient convergence.
@@ -237,37 +319,27 @@ class OptBASE():
         import warnings
         import numpy as np
         from CRYSTALpytools.units import H_to_eV
+        from CRYSTALpytools.base.crysout import GeomBASE
 
         e = []
         de = []
+        struc = []
         maxg = []
         rmsg = []
         # Displacement: the initial step is 0
-        maxd = [0.,]
-        rmsd = [0.,]
+        maxd = []
+        rmsd = []
 
         endflag = 'terminated'
-        ncyc = 0
         while countline < len(data):
             line = data[countline]
-            if ncyc == 0 and re.match(r'^\s*== SCF ENDED', line):
-                line_data = line.strip().split()
-                e0 = line_data[8]
-                countline += 1
-            elif ncyc == 0 and re.match(r'^\s*TOTAL ENERGY \+', line): # Empirical corrections
-                line_data = line.strip().split()
-                e0 = line_data[-1]
-                countline += 1
-            elif re.match(r'^\s+TOTAL ENERGY\(DFT\)\(AU\)\(.+DE \(AU\)', line):
-                if ncyc == 0:
-                    e.append(e0)
-                    de.append(e0)
-                    ncyc += 1
+            if re.match(r'^\s+TOTAL ENERGY\(DFT\)\(AU\)\(.+DE \(AU\)', line):
                 line_data = line.strip().split()
                 e.append(line_data[3])
                 de.append(line_data[6])
-                ncyc += 1
                 countline += 1
+            elif re.match(r'^\s*PRIMITIVE CELL \- CENTRING CODE', line):
+                struc.append(GeomBASE.read_geom(data, countline))
             elif re.match(r'^\s+MAX GRADIENT', line):
                 line_data = line.strip().split()
                 maxg.append(line_data[2])
@@ -307,7 +379,7 @@ class OptBASE():
         maxd = np.array(maxd, dtype=float)
         rmsd = np.array(rmsd, dtype=float)
 
-        return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de), maxg, rmsg, maxd, rmsd
+        return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de), struc, maxg, rmsg, maxd, rmsd
 
 
 class PhononBASE():

@@ -17,8 +17,7 @@ class Crystal_input(Crystal_inputBASE):
         super(Crystal_input, self).__init__()
 
     def geom_from_cif(self, file, zconv=None, keyword='EXTERNAL',
-                      pbc=[True, True, True], gui_name='fort.34',
-                      symprec=0.01, angle_tolerance=5.0):
+                      pbc=[True, True, True], gui_name='fort.34', **kwargs):
         """
         Read geometry from cif file and put infomation to geom block, either as
         'EXTERNAL' or 'CRYSTAL'. CIF files with a single geometry only.
@@ -35,24 +34,31 @@ class Crystal_input(Crystal_inputBASE):
             zconv (list[list[int, int]]): 1st element: The **index** of atom;
                 2nd element: The new conventional atomic number. Atoms of the
                 irreducible unit is required.
-            pbc (list[bool]): *Limited to keyword = EXTERNAL*. Periodic boundary
-                conditions along x, y, z axis
-            gui_name (str): *Limited to keyword = EXTERNAL*. Gui file's name.
-            symprec (float): *Limited to keyword = CRYSTAL*. If not none,
-                finds the symmetry of the structure. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
-            angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            pbc (list[bool]): Valid only if ``keyword = EXTERNAL``. Force to remove
+                periodic boundary conditions along x, y, z axis.
+            gui_name (str): Valid only if ``keyword = EXTERNAL``. Gui file's name.
+            **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
         """
         import re
-        from pymatgen.core.structure import IStructure
+        from pymatgen.core.structure import IStructure, Structure
+        from pymatgen.core.lattice import Lattice
 
-        struc = IStructure.from_file(file)
-        self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
+        struc_3d = IStructure.from_file(file)
+        if keyword == 'CRYSTAL':
+            struc = struc_3d
+        else:
+            latt_mx = struc_3d.lattice.matrix
+            latt = Lattice(latt_mx, pbc=pbc)
+            struc = Structure(latt,
+                              species=list(struc_3d.atomic_numbers),
+                              coords=struc_3d.cart_coords.tolist(),
+                              coords_are_cartesian=True)
+        self.geom_from_pmg(struc, zconv, keyword, gui_name, **kwargs)
 
         return self
 
     def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
-                      pbc=[True, True, True], gui_name='fort.34',
-                      symprec=0.01, angle_tolerance=5.0):
+                      gui_name='fort.34', **kwargs):
         """
         Read geometry defined by PyMatGen structure object and put infomation
         into geom block, either as 'EXTERNAL' or 'CRYSTAL'.
@@ -64,16 +70,16 @@ class Crystal_input(Crystal_inputBASE):
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
             super(Crystal_input, self).geom.external()
-            gui = cry_pmg2gui(struc, pbc=pbc, symmetry=True, zconv=zconv)
+            gui = cry_pmg2gui(struc, symmetry=True, zconv=zconv, **kwargs)
             gui.write_gui(gui_name, symm=True)
         elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
-            self._pmg2input(struc, zconv, symprec=symprec, angle_tolerance=angle_tolerance)
+            self._pmg2input(struc, zconv, **kwargs)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
         return self
 
-    def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
+    def _pmg2input(self, struc, zconv=None, **kwargs):
         """
         Pymatgen IStructure object to 'CRYSTAL' input block
 
@@ -82,21 +88,17 @@ class Crystal_input(Crystal_inputBASE):
             Coordinates of corresponding atoms may not consistent with the
             original CIF file, in which case coordinates of another symmetry
             equivalent atom is used.
-
-            When multiple choices of periodic cell exist, this method might
-            lead to errors due to the inconsistent choice of periodic cell
-            between CRYSTAL and pymatgen.
         """
         import numpy as np
         from pymatgen.core.structure import IStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        analyzer = SpacegroupAnalyzer(struc, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer = SpacegroupAnalyzer(struc, **kwargs)
         # Analyze the refined geometry
         struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(struc2, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer2 = SpacegroupAnalyzer(struc2, **kwargs)
         struc_pri = analyzer2.get_primitive_standard_structure()
-        analyzer3 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+        analyzer3 = SpacegroupAnalyzer(struc_pri, **kwargs)
         struc_pri = analyzer3.get_symmetrized_structure()
 
         sg = analyzer2.get_space_group_number()
@@ -123,7 +125,7 @@ class Crystal_input(Crystal_inputBASE):
                 ))
         elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
             struc_pri = analyzer3.get_conventional_standard_structure()
-            analyzer4 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
+            analyzer4 = SpacegroupAnalyzer(struc_pri, **kwargs)
             struc_pri = analyzer4.get_symmetrized_structure()
             for i in ['a', 'c']:
                 latt.append(round(
@@ -214,7 +216,8 @@ class Crystal_output:
         pass
 
     def read_cry_output(self, output_name):
-        """Reads a CRYSTAL output file.
+        """
+        Reads a CRYSTAL output file.
 
         Args:
             output_name (str): Name of the output file.
@@ -280,19 +283,107 @@ class Crystal_output:
             if re.match(r'\s SHRINK. FACT.(MONKH.)', line) != None:
                 self.num_k = int(line.split()[13])
 
+    #### Geometry ####
+
     def get_dimensionality(self):
-        """Gets the dimensionality of the system.
+        """
+        Gets the dimensionality of the system.
 
         Returns:
-            int: Dimensionality of the system.
+            self.dimensionality (int): Dimensionality of the system.
         """
-
         import re
 
+        self.dimensionality = None
         for line in self.data:
-            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line) != None:
+            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line):
                 self.dimensionality = int(line.split()[9])
-                return self.dimensionality
+                break
+
+        if dimen == None:
+            raise Exception('Invalid file. Dimension information not found.')
+
+        return self.dimensionality
+
+    def get_geometry(self, history=False, write_gui=False,
+                     gui_name=None, symmetry='pymatgen', **kwargs):
+        """
+        Get the geometry.
+
+        Args:
+            history (bool): If False, return the geometry (or the last
+                geometry for optimization) used for calculation. Otherwise
+                return all the geometries of optimization
+            write_gui (bool): If True, write .gui file
+            gui_name (str): Valid only if ``write_gui = True``. Gui file
+                is named as 'gui_name.gui'. When ``history=True`` file
+                names are 'gui_name-optxxx.gui'. If None, the basename is
+                the same as output file.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
+                to use symmetry info from a pymatgen SpacegroupAnalyzer,
+                otherwise it is taken from the existing gui file. If None,
+                no symmstry
+            **kwargs: Valid only if ``write_gui = True`` and
+                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
+                SpacegroupAnalyzer object.
+        """
+        import re
+        import os
+        import warnings
+        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.convert import cry_pmg2gui
+
+        if gui_name == None:
+            gui_name = os.path.splitext(self.name)[0]
+
+        # Get geometry
+        struc = []
+        bg_line = []
+        for nline, line in enumerate(self.data[self.eoo::-1]):
+            if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                bg_line.append(len(self.data[:self.eoo]) - nline)
+                if history == False:
+                    break
+
+        if len(bg_line) == 0:
+            raise Exception('Geometry information not found.')
+        for nline in bg_line[::-1]: # Correct sequence
+            output = GeomBASE.read_geom(self.data, nline)
+            struc.append(output[1])
+
+        if history == False:
+            self.geometry = struc[0]
+            gui_list = ['{}.gui'.format(gui_name)]
+        else:
+            self.geometry = struc
+            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(len(struc))]
+
+        # Write gui files
+        if write_gui == True:
+            if symmetry == 'pymatgen':
+                for idx_s, s in enumerate(struc):
+                    gui = cry_pmg2gui(s, symmetry=True, **kwargs)
+                    gui.write_gui(gui_list[idx_s], symm=True)
+            elif symmetry == None:
+                for idx_s, s in enumerate(struc):
+                    gui = cry_pmg2gui(s, symmetry=False)
+                    gui.write_gui(gui_list[idx_s], symm=False)
+            else:
+                warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
+                              stacklevel=2)
+                gui_ref = Crystal_gui().read_gui(symmetry)
+                for idx_s, s in enumerate(struc):
+                    gui = cry_pmg2gui(s, symmetry=False)
+                    # Replace the symmops with the reference file
+                    gui.symmops = gui_ref.symmops
+                    gui.n_symmops = gui_ref.n_symmops
+                    gui.space_group = gui_ref.space_group
+                    gui.write_gui(gui_list[idx_s], symm=True)
+
+        return self.geometry
+
+    #### SCF / OPT Convergence ####
 
     def get_convergence(self, history=False):
         """
@@ -363,6 +454,8 @@ class Crystal_output:
 
         return self
 
+    #### SCF ####
+
     def get_scf_convergence(self, all_cycles=False):
         """
         Returns the scf convergence energy and energy difference. A wrapper of
@@ -408,7 +501,7 @@ class Crystal_output:
                 self.scf_deltae.append(output[4])
                 countline += 1
 
-        if all_cycles == False:
+        if all_cycles == True:
             self.scf_cycles = np.array(self.scf_cycles, dtype=int)
             self.scf_energy = np.array(self.scf_energy)
             self.scf_deltae = np.array(self.scf_deltae)
@@ -540,10 +633,16 @@ class Crystal_output:
 
         return self.opt_energy
 
-    def get_opt_convergence(self):
+    def get_opt_convergence(self, gui_basename=None, scf_history=False):
         """
         Returns optimisation convergence. A wrapper of
         :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
+
+        Args:
+            gui_basename (str | None): Base file name of gui files. If none,
+                no gui file output
+            scf_history (bool): Read SCF history of each optimisation step.
+                Keyword 'ONELOG' is needed
 
         Returns:
             self (Crystal_output)
@@ -553,27 +652,44 @@ class Crystal_output:
         * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
         * self.opt_energy (array): Total energy convergence. Unit: eV  
         * self.opt_deltae (array): Total energy difference. Unit: eV  
+        * self.opt_geometry (list): Pymatgen structure at each step.  
         * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
         * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
         * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
         * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
-        from CRYSTALpytools.base.crysout import OptBASE
+        # from CRYSTALpytools.base.crysout import OptBASE, GeomBASE
+        # import re
 
-        countline = 0
-        while countline < self.eoo:
-            output = OptBASE.read_convergence(self.data[:self.eoo], countline)
-            self.opt_cycles = output[1]
-            self.opt_status = output[2]
-            self.opt_energy = output[3]
-            self.opt_deltae = output[4]
-            self.opt_maxgrad = output[5]
-            self.opt_rmsgrad = output[6]
-            self.opt_maxdisp = output[7]
-            self.opt_rmsdisp = output[8]
-            break
+        # ndimen = self.get_dimensionality()
+        # countline = 0
+        # e0 = 0. # Initial SCF energy. Might be 0 when optimisation is restarted
+        # while countline < self.eoo:
+        #     line = data[countline]
+        #     if re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
+        #         output = OptBASE.read_optblock(self.data[:self.eoo], countline, ndimen)
+        #     elif re.match(r'^\s*== SCF ENDED', line): # Initial step
+        #         line_data = line.strip().split()
+        #         e0 = line_data[8]
+        #         countline += 1
+        #     elif re.match(r'^\s*TOTAL ENERGY \+', line): # Empirical corrections
+        #         line_data = line.strip().split()
+        #         e0 = line_data[-1]
+        #         countline += 1
+        #     elif 
 
-        return self
+            
+        #     self.opt_cycles = output[1]
+        #     self.opt_status = output[2]
+        #     self.opt_energy = output[3]
+        #     self.opt_deltae = output[4]
+        #     self.opt_maxgrad = output[5]
+        #     self.opt_rmsgrad = output[6]
+        #     self.opt_maxdisp = output[7]
+        #     self.opt_rmsdisp = output[8]
+        #     break
+
+        # return self
 
     def get_primitive_lattice(self, initial=True):
         """Returns the primitive lattice of the system.
@@ -2271,13 +2387,11 @@ class Crystal_gui:
             gui_file (str): The CRYSTAL structure (gui) file
         """
         try:
-            if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and 'optc' not in gui_file:
-                gui_file = gui_file + '.gui'
             file = open(gui_file, 'r')
             data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError('A .gui file needs to be specified')
+            raise FileNotFoundError('A CRYSTAL geometry file needs to be specified: .gui, fort.34 or opt* files.')
 
         self.dimensionality = int(data[0].split()[0])
         self.lattice = []
@@ -2292,7 +2406,7 @@ class Crystal_gui:
         self.atom_positions = []
         for i in range(6+self.n_symmops*4, 6+self.n_symmops*4+self.n_atoms):
             atom_line = data[i].split()
-            self.atom_number.append(str(atom_line[0]))
+            self.atom_number.append(int(atom_line[0]))
             self.atom_positions.append([float(x) for x in atom_line[1:]])
         self.space_group = int(data[-1].split()[0])
 
