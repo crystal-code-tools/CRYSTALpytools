@@ -419,21 +419,52 @@ class PhononBASE():
         return countline, eigvt
 
     @classmethod
-    def normalize_eigenvector(cls, eigvt, amplitude=1.):
+    def normalize_eigenvector(cls, eigvt, amplitude=1., freq=None, struc=None):
         """
         Normalize the mode of eigenvectors.
 
         Args:
             eigvt (array[complex]): nmode\*natom\*3 array.
-            amplitude (float): Amplitude of normalization
-
+            amplitude (float | str): Amplitude of normalization, Or
+                'classical', 'classical-rev', classical amplitude and remove
+                classical amplitude.
+            freq (array[float]): nmode\*1 array of frequency. 'classical' and 'classical-rev' only.
+            struc (Pymatgen Structure): Geometry. 'classical' and 'classical-rev' only.
         Returns:
             eigvt (array[complex]): Normalized eigenvector.
         """
         import numpy as np
+        import re
+        from scipy import constants
+        from CRYSTALpytools.units import amu_to_me, thz_to_hartree
 
-        for idx_m, m in enumerate(eigvt):
-            eigvt[idx_m] = eigvt[idx_m] / np.linalg.norm(m) * amplitude
+        if re.match('^classical$', amplitude, re.IGNORECASE) or re.match('^classical\-rev$', amplitude, re.IGNORECASE):
+            if freq == None or struc == None:
+                raise ValueError('Frequency / mass unknown. Cannot generate classical amplitude.')
+
+            nmode = len(freq)
+            mass_rev = np.zeros([nmode,]) # In AU
+            for i in range(0, nmode, 3):
+                atid = i // 3
+                atmass = amu_to_me(float(struc.species[atomid].atomic_mass))
+                mass_rev[i] = 1 / np.sqrt(atmass)
+                mass_rev[i+1] = 1 / np.sqrt(atmass)
+                mass_rev[i+2] = 1 / np.sqrt(atmass)
+
+            freq_rev = 1 / np.sqrt(thz_to_hartree(freq))
+
+            if re.match('^classical$', amplitude, re.IGNORECASE):
+                for idx_m, m in enumerate(eigvt):
+                    eigvt[idx_m] = eigvt[idx_m] * freq_rev[idx_m] * mass_rev[m]
+            else:
+                for idx_m, m in enumerate(eigvt):
+                    eigvt[idx_m] = eigvt[idx_m] / freq_rev[idx_m] / mass_rev[m]
+
+        elif type(amplitude) == float:
+            for idx_m, m in enumerate(eigvt):
+                eigvt[idx_m] = eigvt[idx_m] / np.linalg.norm(m) * amplitude
+        else:
+            raise ValueError('Unknown amplitude value: {}'.format(amplitude))
 
         return eigvt
 

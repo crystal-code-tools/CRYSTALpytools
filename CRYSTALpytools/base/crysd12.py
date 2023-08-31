@@ -1000,6 +1000,9 @@ class SCF(BlockBASE):
             'MAXCYCLE' : '_maxcycle',
             'GUESSP'   : '_guessp',
             'FMIXING'  : '_fmixing',
+            'NOBIPOLA' : '_nobipola',
+            'NOBIPCOU' : '_nobipcou',
+            'NOBIPEXC' : '_nobipexc',
             'TOLINTEG' : '_tolinteg',
             'LDREMO'   : '_ldremo',
             'BIPOSIZE' : '_biposize',
@@ -1217,9 +1220,26 @@ class SCF(BlockBASE):
         self._atomspin = super(SCF, self).assign_keyword('ATOMSPIN', shape, value)
 
     def tolinteg(self, ITOL1=None, ITOL2=None, ITOL3=None, ITOL4=None, ITOL5=None):
+        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
+        super(SCF, self).clean_conflict('_tolinteg', conflict)
         self._tolinteg = super(SCF, self).assign_keyword(
             'TOLINTEG', [5, ], [ITOL1, ITOL2, ITOL3, ITOL4, ITOL5]
         )
+
+    def nobipola(self, key='NOBIPOLA'):
+        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
+        super(SCF, self).clean_conflict('_nobipola', conflict)
+        self._nobipola = super(SCF, self).assign_keyword(key, [])
+
+    def nobipcou(self, key='NOBIPCOU'):
+        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
+        super(SCF, self).clean_conflict('_nobipcou', conflict)
+        self._nobipcou = super(SCF, self).assign_keyword(key, [])
+
+    def nobipexc(self, key='NOBIPEXC'):
+        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
+        super(SCF, self).clean_conflict('_nobipexc', conflict)
+        self._nobipexc = super(SCF, self).assign_keyword(key, [])
 
     def ldremo(self, value):
         self._ldremo = super(SCF, self).assign_keyword('LDREMO', [1, ], value)

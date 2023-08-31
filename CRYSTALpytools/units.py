@@ -36,3 +36,19 @@ def cm_to_thz(freq):
 def thz_to_cm(freq):
     # Conversion from cm^-1 to THz
     return freq/(constants.physical_constants['speed of light in vacuum'][0] * 1e-10)
+
+def hartree_to_thz(freq):
+    # Conversion from frequency in AU(angular) to THz(linear)
+    return freq / (1e12 * constants.physical_constants['atomic mass unit-hartree relationship'][0] / constants.physical_constants['atomic mass unit-hertz relationship'][0])
+
+def thz_to_hartree(freq):
+    # Conversion from frequency in THz(linear) to AU(angular)
+    return freq * (1e12 * constants.physical_constants['atomic mass unit-hartree relationship'][0] / constants.physical_constants['atomic mass unit-hertz relationship'][0])
+
+def amu_to_me(mass):
+    # Conversion from unified atomic mass unit to electron mass (mass unit in AU)
+    return mass * (constants.physical_constants['unified atomic mass unit'][0] / constants.m_e)
+
+def me_to_amu(mass):
+    # Conversion from unified atomic mass unit to electron mass (mass unit in AU)
+    return mass / (constants.physical_constants['unified atomic mass unit'][0] / constants.m_e)

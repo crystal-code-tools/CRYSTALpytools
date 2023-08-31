@@ -945,7 +945,7 @@ class Crystal_output:
             return [self.atom_type1, self.atom_type2]
 
     def get_phonon(self, read_eigvt=False, rm_imaginary=True, rm_overlap=True,
-                   imaginary_tol=-1e-4, q_overlap_tol=1e-4):
+                   imaginary_tol=-1e-4, q_overlap_tol=1e-4, eigvt_amplitude=1.):
         """
         Read phonon-related properties from output file.
 
@@ -961,6 +961,9 @@ class Crystal_output:
             q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
                 overlapping points, defined as the 2nd norm of the difference
                 of fractional q vectors
+            eigvt_amplitude (float | str): *``read_eigvt = True only``*
+                Amplitude of normalization, Or 'classical', 'classical-rev',
+                classical amplitude and revmove classical amplitude.
 
         .. note::
 
@@ -1112,9 +1115,15 @@ class Crystal_output:
             self.intens = np.array(self.intens)
 
         if self.eigenvector != []:
+            struc = self.get_last_geom(write_gui_file=False, symm_info='pymatgen')
             self.eigenvector = np.array(self.eigenvector)
-            for idx_q in range(self.nqpoint):
-                self.eigenvector[idx_q] = PhononBASE.normalize_eigenvector(self.eigenvector[idx_q], amplitude=1.)
+            # already normalised to classical amplitude
+            if not re.match('^classical$', eigvt_amplitude, re.IGNORECASE):
+                for idx_q in range(self.nqpoint):
+                    self.eigenvector[idx_q] = PhononBASE.normalize_eigenvector(
+                        self.eigenvector[idx_q], amplitude=eigvt_amplitude,
+                        freq=self.frequency, struc=struc
+                    )
 
         if rm_imaginary == True:
             self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
