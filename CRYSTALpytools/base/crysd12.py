@@ -443,7 +443,7 @@ class Geom(BlockBASE):
         """
         Supercell by 'SCELPHONO' keyword
         """
-        shape, args = super(Geom, self).set_matrix(mx)
+        shape, value = super(Geom, self).set_matrix(mx)
         self._sp_matrix = super(Geom, self).assign_keyword('SCELPHONO', shape, value)
 
     def atombsse(self, IAT=None, NSTAR=None, RMAX=None):

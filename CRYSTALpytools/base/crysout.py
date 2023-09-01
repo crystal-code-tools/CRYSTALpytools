@@ -172,17 +172,17 @@ class GeomBASE():
 
         shrink_mx = np.linalg.inv(smx)
         all_species = list(struc.atomic_numbers)
-        all_coords = np.array(struc.cart_coords.tolist(), dtype=float)
+        all_coords = struc.cart_coords
         scel_mx = struc.lattice.matrix
 
         pcel_mx = shrink_mx @ scel_mx
         pcel_latt = Lattice(pcel_mx, pbc=struc.pbc)
         # Fractional coords to pcel: Both periodic and no periodic sites
-        all_coords = all_coords[0:ndimen] @ np.linalg.inv(pcel_mx)
+        all_coords = all_coords @ np.linalg.inv(pcel_mx)
         pcel_coords = []
         pcel_species = []
         for i, coord in enumerate(all_coords):
-            if any(x > 0.5 or x <= -0.5 for x in coord[0:ndimen]):
+            if np.any(coord[0:ndimen] > 0.5) or np.any(coord[0:ndimen] <= -0.5):
                 continue
             else:
                 pcel_coords.append(coord)
@@ -191,6 +191,42 @@ class GeomBASE():
         # For low dimen systems, this should restore the non-periodic vecter length
         pcel = Structure(lattice=pcel_latt, species=pcel_species, coords=pcel_coords, coords_are_cartesian=False)
         return pcel
+
+    @classmethod
+    def refine_geometry(cls, struc, **kwargs):
+        """
+        Get refined geometry. Useful when reducing the cell to the
+        irrducible one. 3D only.
+
+        Args:
+            struc (Structure): Pymatgen structure
+            **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
+        Returns:
+            sg (int): Space group number
+            pstruc (Structure): Irrducible structure
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+        ndimen = struc.pbc.count(True)
+        if ndimen < 3:
+            raise Exception('This method is for 3D systems only.')
+
+        analyzer = SpacegroupAnalyzer(struc, **kwargs)
+        # Analyze the refined geometry
+        struc2 = analyzer.get_refined_structure()
+        analyzer2 = SpacegroupAnalyzer(struc2, **kwargs)
+        struc_pri = analyzer2.get_primitive_standard_structure()
+        analyzer3 = SpacegroupAnalyzer(struc_pri, **kwargs)
+
+        pstruc = analyzer3.get_symmetrized_structure()
+        sg = analyzer2.get_space_group_number()
+
+        if sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
+            pstruc = analyzer3.get_conventional_standard_structure()
+            analyzer4 = SpacegroupAnalyzer(pstruc, **kwargs)
+            pstruc = analyzer4.get_symmetrized_structure()
+
+        return sg, pstruc
 
 
 class SCFBASE():
@@ -238,7 +274,7 @@ class SCFBASE():
                 countline += 1
 
         if endflag != 'converged':
-            warnings.warn('SCF convergence not achieved.', stacklevel=3)
+            warnings.warn('SCF convergence not achieved or missing.', stacklevel=3)
 
         ncyc = len(e)
         e = np.array(e, dtype=float)
@@ -446,8 +482,10 @@ class OptBASE():
                 e.append(line_data[3])
                 de.append(line_data[6])
                 countline += 1
-            elif re.match(r'^\s*PRIMITIVE CELL \- CENTRING CODE', line):
-                struc.append(GeomBASE.read_geom(data, countline))
+            elif re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                output = GeomBASE.read_geom(data, countline)
+                countline = output[0]
+                struc.append(output[1])
             elif re.match(r'^\s+MAX GRADIENT', line):
                 line_data = line.strip().split()
                 maxg.append(line_data[2])
@@ -486,6 +524,9 @@ class OptBASE():
         rmsg = np.array(rmsg, dtype=float)
         maxd = np.array(maxd, dtype=float)
         rmsd = np.array(rmsd, dtype=float)
+
+        # In case that a calculation is restarted and stopped at the initial step
+        ncyc = len(rmsg)
 
         return countline, ncyc, endflag, H_to_eV(e), H_to_eV(de), struc, maxg, rmsg, maxd, rmsd
 
@@ -599,52 +640,62 @@ class PhononBASE():
         return countline, eigvt
 
     @classmethod
-    def normalize_eigenvector(cls, eigvt, amplitude=1., freq=None, struc=None):
+    def classical_amplitude(cls, struc, freq):
+        """
+        Get classical amplitude of phonon modes
+
+        .. math::
+            x = \sqrt{\frac{\hbar}{\mu\omega}}
+
+        Args:
+            struc (Structure): Pymatgen structure
+            freq (float | array): Frequency. Unit: THz
+        Returns:
+            classic_a (array): nfreq\*3natom\*3natom array, or 3natom\*3natom
+                if ``freq`` is float. The diagonal matrix of classical amplitude.
+        """
+        from CRYSTALpytools.units import amu_to_me, thz_to_hartree
+        import numpy as np
+
+        if type(freq) == float:
+            freq = np.array([freq])
+
+        natom = struc.num_sites
+        nmode = int(3*natom)
+        mass_rev = np.zeros([nmode, nmode]) # In AU
+        for i in range(0, nmode, 3):
+            atid = i // 3
+            atmass = amu_to_me(float(struc.species[atomid].atomic_mass))
+            mass_rev[i, i] = 1 / np.sqrt(atmass)
+            mass_rev[i+1, i+1] = 1 / np.sqrt(atmass)
+            mass_rev[i+2, i+2] = 1 / np.sqrt(atmass)
+
+        freq_rev = 1 / np.sqrt(thz_to_hartree(freq))
+
+        classic_a = []
+        for f in freq_rev:
+            classic_a.append(f * mass_rev)
+        classic_a = np.array(classic_a)
+        if len(freq) == 1:
+            classic_a = classic_a[0]
+
+        return classic_a
+
+    @classmethod
+    def normalize_eigenvector(cls, eigvt, amplitude=1.):
         """
         Normalize the mode of eigenvectors.
 
         Args:
             eigvt (array[complex]): nmode\*natom\*3 array.
-            amplitude (float | str): Amplitude of normalization, Or
-                'classical', 'classical-rev', classical amplitude and remove
-                classical amplitude.
-            freq (array[float]): nmode\*1 array of frequency. 'classical' and 'classical-rev' only.
-            struc (Pymatgen Structure): Geometry. 'classical' and 'classical-rev' only.
+            amplitude (float): Amplitude of normalization
         Returns:
             eigvt (array[complex]): Normalized eigenvector.
         """
         import numpy as np
-        import re
-        from scipy import constants
-        from CRYSTALpytools.units import amu_to_me, thz_to_hartree
 
-        if re.match('^classical$', amplitude, re.IGNORECASE) or re.match('^classical\-rev$', amplitude, re.IGNORECASE):
-            if freq == None or struc == None:
-                raise ValueError('Frequency / mass unknown. Cannot generate classical amplitude.')
-
-            nmode = len(freq)
-            mass_rev = np.zeros([nmode,]) # In AU
-            for i in range(0, nmode, 3):
-                atid = i // 3
-                atmass = amu_to_me(float(struc.species[atomid].atomic_mass))
-                mass_rev[i] = 1 / np.sqrt(atmass)
-                mass_rev[i+1] = 1 / np.sqrt(atmass)
-                mass_rev[i+2] = 1 / np.sqrt(atmass)
-
-            freq_rev = 1 / np.sqrt(thz_to_hartree(freq))
-
-            if re.match('^classical$', amplitude, re.IGNORECASE):
-                for idx_m, m in enumerate(eigvt):
-                    eigvt[idx_m] = eigvt[idx_m] * freq_rev[idx_m] * mass_rev[m]
-            else:
-                for idx_m, m in enumerate(eigvt):
-                    eigvt[idx_m] = eigvt[idx_m] / freq_rev[idx_m] / mass_rev[m]
-
-        elif type(amplitude) == float:
-            for idx_m, m in enumerate(eigvt):
-                eigvt[idx_m] = eigvt[idx_m] / np.linalg.norm(m) * amplitude
-        else:
-            raise ValueError('Unknown amplitude value: {}'.format(amplitude))
+        for idx_m, m in enumerate(eigvt):
+            eigvt[idx_m] = eigvt[idx_m] / np.linalg.norm(m) * amplitude
 
         return eigvt
 

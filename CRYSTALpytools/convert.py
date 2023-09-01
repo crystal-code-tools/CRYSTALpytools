@@ -409,7 +409,9 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
         if symmetry == True:
             n_symmops = 0
             if gui.dimensionality == 3:
-                symmops = SpacegroupAnalyzer(structure, **kwargs).get_symmetry_operations(cartesian=True)
+                # Analyze the refined geometry
+                ref_struc = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
+                symmops = SpacegroupAnalyzer(ref_struc, **kwargs).get_symmetry_operations(cartesian=True)
                 for symmop in symmops:
                     if np.all(symmop.translation_vector == 0.):
                         n_symmops += 1
@@ -430,8 +432,9 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
                 structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
 
-                sg = SpacegroupAnalyzer(structure, **kwargs)
-                ops = sg.get_symmetry_operations(cartesian=True)
+                # Analyze the refined geometry
+                ref_struc = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
+                ops = SpacegroupAnalyzer(ref_struc, **kwargs).get_symmetry_operations(cartesian=True)
                 for op in ops:
                     if np.all(op.translation_vector == 0.):
                         n_symmops += 1

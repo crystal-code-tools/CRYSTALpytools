@@ -81,7 +81,7 @@ class Crystal_input(Crystal_inputBASE):
 
     def _pmg2input(self, struc, zconv=None, **kwargs):
         """
-        Pymatgen IStructure object to 'CRYSTAL' input block
+        Pymatgen Structure object to 'CRYSTAL' input block
 
         .. note::
 
@@ -90,18 +90,10 @@ class Crystal_input(Crystal_inputBASE):
             equivalent atom is used.
         """
         import numpy as np
-        from pymatgen.core.structure import IStructure
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from CRYSTALpytools.base.crysout import GeomBASE
 
-        analyzer = SpacegroupAnalyzer(struc, **kwargs)
-        # Analyze the refined geometry
-        struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(struc2, **kwargs)
-        struc_pri = analyzer2.get_primitive_standard_structure()
-        analyzer3 = SpacegroupAnalyzer(struc_pri, **kwargs)
-        struc_pri = analyzer3.get_symmetrized_structure()
+        sg, struc_pri = GeomBASE.refine_geometry(struc, **kwargs)
 
-        sg = analyzer2.get_space_group_number()
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
             for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
@@ -123,15 +115,7 @@ class Crystal_input(Crystal_inputBASE):
                 latt.append(round(
                     getattr(struc_pri.lattice, i), 6
                 ))
-        elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
-            struc_pri = analyzer3.get_conventional_standard_structure()
-            analyzer4 = SpacegroupAnalyzer(struc_pri, **kwargs)
-            struc_pri = analyzer4.get_symmetrized_structure()
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 168 and sg < 195:  # hexagonal and trigonal
+        elif sg >= 143 and sg < 195:  # hexagonal and trigonal (converted)
             for i in ['a', 'c']:
                 latt.append(round(
                     getattr(struc_pri.lattice, i), 6
@@ -154,18 +138,10 @@ class Crystal_input(Crystal_inputBASE):
                     z_input = zconv[atom_to_sub][1]
                 except ValueError:
                     z_input = struc_pri.species[idx_eq].Z
-            atominfo.append([
-                '{:<3}'.format(z_input),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[0], 8)
-                ),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[1], 8)
-                ),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[2], 8)
-                )
-            ])
+            atominfo.append([z_input,
+                             struc_pri.equivalent_sites[i][0].frac_coords[0],
+                             struc_pri.equivalent_sites[i][0].frac_coords[1],
+                             struc_pri.equivalent_sites[i][0].frac_coords[2]])
 
         super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atominfo)
 
@@ -331,23 +307,18 @@ class Crystal_output:
 
         return self.symmops
 
-    def get_geometry(self, history=False, write_gui=False,
+    def get_geometry(self, initial=True, write_gui=False,
                      gui_name=None, symmetry='pymatgen', **kwargs):
         """
-        Get the geometry. To get geometry optimization history,
-        ``get_convergence`` or ``get_opt_convergence`` methods are
-        preferred as this method might include geometries of initial or
-        last SCF runs.
+        Get the geometry.
 
         Args:
-            history (bool): If False, return the geometry (or the last
-                geometry for optimization) used for calculation. Otherwise
-                return all the geometries of optimization
+            initial (bool): Read the initial or last gemetry. Useful in
+                case of geometry optimization.
             write_gui (bool): If True, write .gui file
             gui_name (str): Valid only if ``write_gui = True``. Gui file
-                is named as 'gui_name.gui'. When ``history=True`` file
-                names are 'gui_name-optxxx.gui'. If None, the basename is
-                the same as output file.
+                is named as 'gui_name'. If None, use 'basename.gui'. The
+                basename is the same as output file.
             symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
                 to use symmetry info from a pymatgen SpacegroupAnalyzer;
                 'initial' to use symmstry information on output file. If
@@ -358,9 +329,8 @@ class Crystal_output:
                 SpacegroupAnalyzer object.
 
         Returns:
-            self.geometry (Structure | Molecule | list): A pymatgen
-                Structure or molecule object, or a list of them if
-                ``history=True``.
+            self.geometry (Structure | Molecule): A pymatgen Structure or
+                molecule object.
         """
         import re
         import os
@@ -370,32 +340,39 @@ class Crystal_output:
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
 
-        if gui_name == None:
-            gui_name = os.path.splitext(self.name)[0]
-
         # Get geometry
-        struc = []
-        bg_line = []
-        for nline, line in enumerate(self.data[self.eoo::-1]):
-            if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                bg_line.append(len(self.data[:self.eoo]) - nline)
-                if history == False:
+        bg_line = -1
+        if initial == True:
+            for nline, line in enumerate(self.data[:self.eoo]):
+                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                    bg_line = nline
+                    break
+        else:
+            for nline, line in enumerate(self.data[self.eoo::-1]):
+                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                    bg_line = len(self.data[:self.eoo]) - nline
                     break
 
-        if len(bg_line) == 0:
+        if bg_line < 0:
             raise Exception('Geometry information not found.')
-        for nline in bg_line[::-1]: # Correct sequence
-            output = GeomBASE.read_geom(self.data, nline)
-            struc.append(output[1])
 
-        # Get the last lattice matrix.
+        output = GeomBASE.read_geom(self.data, bg_line)
+        struc = output[1]
+
+        # Get the last lattice matrix: structure obtained by GeomBASE might be rotated.
         ndimen = self.get_dimensionality()
         lattice_line = -1
         if ndimen != 0:
-            for nline, line in enumerate(self.data[self.eoo::-1]):
-                if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                    lattice_line = len(self.data[:self.eoo]) - nline
-                    break
+            if initial == True:
+                for nline, line in enumerate(self.data[:self.eoo]):
+                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                        lattice_line = nline
+                        break
+            else:
+                for nline, line in enumerate(self.data[self.eoo::-1]):
+                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                        lattice_line = len(self.data[:self.eoo]) - nline
+                        break
 
         if lattice_line != -1:
             latt_crys = [
@@ -404,47 +381,42 @@ class Crystal_output:
                 self.data[lattice_line + 4].strip().split()
             ]
             latt_crys = np.array(latt_crys, dtype=float)
-            latt_pmg = struc[-1].lattice.matrix
+            latt_pmg = struc.lattice.matrix
             # latt_crys = latt_pmg @ rot, rotation matrix obtained from the last config
             rot = np.linalg.inv(latt_pmg) @ latt_crys
-            for idx_s, s in enumerate(struc):
-                struc[idx_s] = GeomBASE.rot_lattice(s, rot)
+            struc = GeomBASE.rot_lattice(struc, rot)
 
-        if history == False:
-            self.geometry = struc[0]
-            gui_list = ['{}.gui'.format(gui_name)]
-        else:
-            self.geometry = struc
-            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(len(struc))]
+        self.geometry = struc
 
         # Write gui files
         if write_gui == True:
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+                gui_name = '{}.gui'.format(gui_name)
+
             if symmetry == 'pymatgen':
-                for idx_s, s in enumerate(struc):
-                    gui = cry_pmg2gui(s, symmetry=True, **kwargs)
-                    gui.write_gui(gui_list[idx_s], symm=True)
+                gui = cry_pmg2gui(struc, symmetry=True, **kwargs)
+                gui.write_gui(gui_name, symm=True)
             elif symmetry == None:
-                for idx_s, s in enumerate(struc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    gui.write_gui(gui_list[idx_s], symm=False)
+                gui = cry_pmg2gui(struc, symmetry=False)
+                gui.write_gui(gui_name, symm=False)
             elif symmetry == 'initial':
                 self.get_symmops()
-                for idx_s, s in enumerate(struc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    gui.symmops = self.symmops
-                    gui.n_symmops = self.n_symmops
-                    gui.space_group = self.sg_number
+                gui = cry_pmg2gui(struc, symmetry=False)
+                gui.symmops = self.symmops
+                gui.n_symmops = self.n_symmops
+                gui.space_group = self.sg_number
+                gui.write_gui(gui_name, symm=True)
             else:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                for idx_s, s in enumerate(struc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    # Replace the symmops with the reference file
-                    gui.symmops = gui_ref.symmops
-                    gui.n_symmops = gui_ref.n_symmops
-                    gui.space_group = gui_ref.space_group
-                    gui.write_gui(gui_list[idx_s], symm=True)
+                gui = cry_pmg2gui(struc, symmetry=False)
+                # Replace the symmops with the reference file
+                gui.symmops = gui_ref.symmops
+                gui.n_symmops = gui_ref.n_symmops
+                gui.space_group = gui_ref.space_group
+                gui.write_gui(gui_list[idx_s], symm=True)
 
         return self.geometry
 
@@ -455,22 +427,21 @@ class Crystal_output:
         import warnings
 
         warnings.warn('Deprecated. Use get_geometry() method instead.')
-        struc = self.get_geometry(history=False, write_gui=write_gui_file, symm_info=symm_info)
+        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
         self.last_geom = [struc.lattice.matrix.tolist(),
                           self.atom_numbers,
                           self.atom_positions_cart.tolist()]
         return self.last_geom
 
-    def get_lattice(self, history=False):
+    def get_lattice(self, initial=True):
         """
         Returns the lattice of the system. Unit: Angstrom.
 
         Args:
-            history (bool): If False, return the lattice (or the last
-                lattice for optimization) used for calculation. Otherwise
-                return all the lattice of optimization
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            self.lattice (np.ndarray | list): Lattice of the system.
+            self.lattice (np.ndarray): Lattice of the system.
         """
         import re
         import warnings
@@ -482,26 +453,21 @@ class Crystal_output:
             warnings.warn('0D system. No lattice.')
             return self.lattice
 
-        self.get_geometry(history=history, write_gui=False)
-        if history == False:
-            self.lattice = self.geometry.lattice.matrix
-        else:
-            self.lattice = []
-            for s in self.geometry:
-                self.lattice.append(s.lattice.matrix)
+        self.get_geometry(initial=initial, write_gui=False)
+        self.lattice = self.geometry.lattice.matrix
 
         return self.lattice
 
-    def get_reciprocal_lattice(self, history=False):
+    def get_reciprocal_lattice(self, initial=True):
         """
         Returns the reciprocal lattice of the system. Unit: Angstrom^-1.
+        Reciprocal lattice is consistent with CRYSTAL: 2pi is added.
 
         Args:
-            history (bool): If False, return the lattice (or the last
-                lattice for optimization) used for calculation. Otherwise
-                return all the lattice of optimization
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            self.reciprocal_lattice (np.ndarray | list): Lattice of the system.
+            self.reciprocal_lattice (np.ndarray): Lattice of the system.
         """
         import warnings
 
@@ -511,20 +477,15 @@ class Crystal_output:
             warnings.warn('0D system. No lattice.')
             return self.reciprocal_lattice
 
-        self.get_lattice(history=history)
-        if history == False:
-            self.reciprocal_lattice = self.geometry.lattice.reciprocal_lattice.matrix
-        else:
-            self.reciprocal_lattice = []
-            for s in self.geometry:
-                self.reciprocal_lattice.append(s.lattice.reciprocal_lattice.matrix)
+        self.get_lattice(initial=initial)
+        self.reciprocal_lattice = self.geometry.lattice.reciprocal_lattice.matrix
 
         return self.reciprocal_lattice
 
     @property
     def sg_number(self):
         """
-        0~3D space group number. Consistent with CRYSTAL.
+        CRYSTAL 0~3D space group number. Before geometry editing.
         """
         import re
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -549,14 +510,14 @@ class Crystal_output:
                         sg = int(line.strip().split()[3])
                     break
         else:
-            struc = self.get_geometry(history=False, write_gui=False)
+            struc = self.get_geometry(initial=True, write_gui=False)
             sg = SpacegroupAnalyzer(struc).get_space_group_number()
         return sg
 
     @property
     def sg_symbol(self):
         """
-        0~3D space group symbol. Consistent with CRYSTAL.
+        CRYSTAL 0~3D 0~3D space group symbol. Before geometry editing.
         """
         import re
         import warnings
@@ -588,22 +549,22 @@ class Crystal_output:
         if sg == 'unknown':
             warnings.warn('Symmstry information lost. Trying to get from pymatgen...',
                           stacklevel=2)
-            struc = self.get_geometry(history=False, write_gui=False)
+            struc = self.get_geometry(initial=True, write_gui=False)
             sg = SpacegroupAnalyzer(struc).get_space_group_symbol()
         return sg
 
     @property
     def n_atoms(self):
         """
-        Number of atoms
+        Number of atoms. After geometry editing.
         """
-        struc = self.get_geometry(history=False, write_gui=False)
+        struc = self.get_geometry(initial=True, write_gui=False)
         return struc.num_sites
 
     @property
     def atom_symbols(self):
         """
-        Atom symbols
+        Atom symbols. After geometry editing.
         """
         from mendeleev import element
 
@@ -616,7 +577,7 @@ class Crystal_output:
     @property
     def atom_numbers(self):
         """
-        Conventional atom numbers
+        Conventional atom numbers. After geometry editing.
         """
         from CRYSTALpytools.base.crysout import GeomBASE
 
@@ -626,14 +587,15 @@ class Crystal_output:
     @property
     def atom_positions(self):
         """
-        Fractional / Cartesian atomic coordinates. Consistent with CRYSTAL
-        definitions. 3D: Fractional; 2D: Frac, Frac, Cart; 1D Frac, Cart, Cart;
-        0D: Cart, Cart, Cart. Last geometry.
+        Composite fractional / Cartesian atomic coordinates. Consistent
+        with CRYSTAL definitions. 3D: Fractional; 2D: Frac, Frac, Cart; 1D
+        Frac, Cart, Cart; 0D: Cart, Cart, Cart. After geometry editing
+        (before optimization).
         """
         import numpy as np
 
         ndimen = self.get_dimensionality()
-        struc = self.get_geometry(history=False, write_gui=False)
+        struc = self.get_geometry(initial=True, write_gui=False)
         cart_coord = struc.cart_coords.tolist()
         frac_coord = struc.frac_coords.tolist()
 
@@ -646,26 +608,25 @@ class Crystal_output:
     @property
     def atom_positions_cart(self):
         """
-        Cartesian atomic coordinates. Last geometry.
+        Cartesian atomic coordinates. After geometry editing (before optimization).
         """
-        struc = self.get_geometry(history=False, write_gui=False)
+        struc = self.get_geometry(initial=True, write_gui=False)
         return struc.cart_coords
 
     @property
     def atom_positions_frac(self):
         """
-        Fractional atomic coordinates. Last geometry.
+        Fractional atomic coordinates. After geometry editing (before optimization).
         """
         import warnings
 
         ndimen = self.get_dimensionality()
-
         if ndimen != 3:
-            warnings.warn('Low dimension systems. Call atom_positions() instead.',
+            warnings.warn("Low dimension systems. Property 'atom_positions' is called instead.",
                           stacklevel=2)
             return self.atom_positions
         else:
-            struc = self.get_geometry(history=False, write_gui=False)
+            struc = self.get_geometry(initial=True, write_gui=False)
             return struc.frac_coords
 
     def get_trans_matrix(self):
@@ -688,19 +649,16 @@ class Crystal_output:
                     self.data[i + 2].strip().split()[1:],
                     self.data[i + 3].strip().split()[1:],
                 ], dtype=float)
+                self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
                 break
-
-        self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
 
         return self.trans_matrix
 
-    def get_primitive_geometry(self, history=False, write_gui=False, gui_name=None,
+    def get_primitive_geometry(self, initial=True, write_gui=False, gui_name=None,
                                symmetry='pymatgen', **kwargs):
         """
-        Get the primitive geometry, reduced by cell transformation matrix inverse.
-        To get geometry optimization history, ``get_convergence`` or
-        ``get_opt_convergence`` methods are preferred as this method might
-        include geometries of initial or last SCF runs.
+        Get the primitive geometry, reduced by cell transformation matrix
+        inversed.
 
         .. note::
             This is not the standard 'primitive cell'. This method returns
@@ -708,26 +666,24 @@ class Crystal_output:
             or 'SCELPHONO'.
 
         Args:
-            history (bool): If False, return the geometry (or the last
-                geometry for optimization) used for calculation. Otherwise
-                return all the geometries of optimization
+            initial (bool): Read the initial or last geometry. Useful in
+                case of geometry optimization.
             write_gui (bool): If True, write .gui file
             gui_name (str): Valid only if ``write_gui = True``. Gui file
-                is named as 'gui_name.gui'. When ``history=True`` file
-                names are 'gui_name-optxxx.gui'. If None, the basename is
-                the same as output file.
+                is named as 'gui_name'. If None, use 'basename.gui'. The
+                basename is the same as output file.
             symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
-                to use symmetry info from a pymatgen SpacegroupAnalyzer,
-                otherwise it is taken from the existing gui file. If None,
-                no symmstry
+                to use symmetry info from a pymatgen SpacegroupAnalyzer;
+                'initial' to use symmstry information on output file. If
+                None, no symmstry. Otherwise it is taken from the existing
+                gui file.
             **kwargs: Valid only if ``write_gui = True`` and
                 ``symmetry = 'pymatgen'``.  Passed to Pymatgen
                 SpacegroupAnalyzer object.
 
         Returns:
-            self.primitive_geometry (Structure | Molecule | list): A
-                pymatgen Structure or molecule object, or a list of them
-                if ``history=True``.
+            self.primitive_geometry (Structure | Molecule): A pymatgen
+                Structure or molecule object.
         """
         import re
         import os
@@ -738,7 +694,7 @@ class Crystal_output:
         from CRYSTALpytools.convert import cry_pmg2gui
 
         ndimen = self.get_dimensionality()
-        self.get_geometry(history=history, write_gui=False)
+        self.get_geometry(initial=initial, write_gui=False)
         self.get_trans_matrix()
 
         if ndimen == 0:
@@ -746,69 +702,52 @@ class Crystal_output:
             self.primitive_geometry = self.geometry
             return self.primitive_geometry
 
-        if gui_name == None:
-            gui_name = os.path.splitext(self.name)[0]
-
-        if history == False:
-            struc = [self.geometry]
-            gui_list = ['{}.gui'.format(gui_name)]
-        else:
-            struc = self.geometry
-            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(len(struc))]
-
-        pstruc = []
         shrink_mx = np.linalg.inv(self.trans_matrix)
-        for idx_s, s in enumerate(struc):
-            new_struc = GeomBASE.restore_pcel(s, self.trans_matrix)
-            pstruc.append(new_struc)
+        pstruc = GeomBASE.restore_pcel(self.geometry, self.trans_matrix)
 
-        if history == False:
-            self.primitive_geometry = pstruc[0]
-        else:
-            self.primitive_geometry = pstruc
-
+        self.primitive_geometry = pstruc
         # Write gui files
         if write_gui == True:
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+                gui_name = '{}.gui'.format(gui_name)
+
             if symmetry == 'pymatgen':
-                for idx_s, s in enumerate(pstruc):
-                    gui = cry_pmg2gui(s, symmetry=True, **kwargs)
-                    gui.write_gui(gui_list[idx_s], symm=True)
+                gui = cry_pmg2gui(pstruc, symmetry=True, **kwargs)
+                gui.write_gui(gui_name, symm=True)
             elif symmetry == None:
-                for idx_s, s in enumerate(pstruc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    gui.write_gui(gui_list[idx_s], symm=False)
+                gui = cry_pmg2gui(pstruc, symmetry=False)
+                gui.write_gui(gui_name, symm=False)
             elif symmetry == 'initial':
                 self.get_symmops()
-                for idx_s, s in enumerate(struc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    gui.symmops = self.symmops
-                    gui.n_symmops = self.n_symmops
-                    gui.space_group = self.sg_number
+                gui = cry_pmg2gui(pstruc, symmetry=False)
+                gui.symmops = self.symmops
+                gui.n_symmops = self.n_symmops
+                gui.space_group = self.sg_number
+                gui.write_gui(gui_name, symm=True)
             else:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                for idx_s, s in enumerate(pstruc):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    # Replace the symmops with the reference file
-                    gui.symmops = gui_ref.symmops
-                    gui.n_symmops = gui_ref.n_symmops
-                    gui.space_group = gui_ref.space_group
-                    gui.write_gui(gui_list[idx_s], symm=True)
+                gui = cry_pmg2gui(pstruc, symmetry=False)
+                # Replace the symmops with the reference file
+                gui.symmops = gui_ref.symmops
+                gui.n_symmops = gui_ref.n_symmops
+                gui.space_group = gui_ref.space_group
+                gui.write_gui(gui_name, symm=True)
 
         return self.primitive_geometry
 
-    def get_primitive_lattice(self, history=False):
+    def get_primitive_lattice(self, initial=True):
         """
         Returns the primitive lattice of the system reduced by cell
         transformation matrix inverse. Unit: Angstrom.
 
         Args:
-            history (bool): If False, return the lattice (or the last
-                lattice for optimization) used for calculation. Otherwise
-                return all the lattice of optimization
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            self.primitive_lattice (np.ndarray | list): Lattice of the system.
+            self.primitive_lattice (np.ndarray): Lattice of the system.
         """
         import warnings
 
@@ -818,27 +757,21 @@ class Crystal_output:
             warnings.warn('0D system. No lattice.')
             return self.primitive_lattice
 
-        self.get_primitive_geometry(history=history, write_gui=False)
-        if history == False:
-            self.primitive_lattice = self.primitive_geometry.lattice.matrix
-        else:
-            self.primitive_lattice = []
-            for s in self.primitive_geometry:
-                self.primitive_lattice.append(s.lattice.matrix)
+        self.get_primitive_geometry(initial=initial, write_gui=False)
+        self.primitive_lattice = self.primitive_geometry.lattice.matrix
 
         return self.primitive_lattice
 
-    def get_primitive_reciprocal_lattice(self, history=False):
+    def get_primitive_reciprocal_lattice(self, initial=False):
         """
         Returns the primitive reciprocal lattice of the system before
         expansion by cell transformation matrix inverse. Unit: Angstrom^-1.
 
         Args:
-            history (bool): If False, return the lattice (or the last
-                lattice for optimization) used for calculation. Otherwise
-                return all the lattice of optimization
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            self.primitive_reciprocal_lattice (np.ndarray | list): Lattice of the system.
+            self.primitive_reciprocal_lattice (np.ndarray): Lattice of the system.
         """
         import warnings
 
@@ -848,13 +781,8 @@ class Crystal_output:
             warnings.warn('0D system. No lattice.')
             return self.primitive_reciprocal_lattice
 
-        self.get_primitive_lattice(history=history)
-        if history == False:
-            self.primitive_reciprocal_lattice = self.primitive_geometry.lattice.reciprocal_lattice.matrix
-        else:
-            self.primitive_reciprocal_lattice = []
-            for s in self.primitive_geometry:
-                self.primitive_reciprocal_lattice.append(s.lattice.reciprocal_lattice.matrix)
+        self.get_primitive_lattice(initial=initial)
+        self.primitive_reciprocal_lattice = self.primitive_geometry.lattice.reciprocal_lattice.matrix
 
         return self.primitive_reciprocal_lattice
 
@@ -1191,16 +1119,31 @@ class Crystal_output:
 
         return self.opt_energy
 
-    def get_opt_convergence(self, gui_basename=None, scf_history=False):
+    def get_opt_convergence(self, primitive=False, scf_history=False,
+                            write_gui=False, gui_name=None,
+                            symmetry='pymatgen', **kwargs):
         """
         Returns optimisation convergence. A wrapper of
         :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
 
         Args:
-            gui_basename (str | None): Base file name of gui files. If none,
-                no gui file output
+            primitive (bool): Restore the primitive cell (multiply by the
+                cell transform matrix inversed)
             scf_history (bool): Read SCF history of each optimisation step.
-                Keyword 'ONELOG' is needed
+                Keyword 'ONELOG' is needed. Please refer to
+                ``self.get_scf_convergence(all_cycles=True)`` method.
+            write_gui (bool): If True, write .gui file of each step
+            gui_name (str): Valid only if ``write_gui = True``. Gui file
+                is named as 'gui_name-optxxx.gui'. If None, use
+                'basename-optxxx.gui'. The basename is the same as output.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
+                to use symmetry info from a pymatgen SpacegroupAnalyzer;
+                'initial' to use symmstry information on output file. If
+                None, no symmstry. Otherwise it is taken from the existing
+                gui file.
+            **kwargs: Valid only if ``write_gui = True`` and
+                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
+                SpacegroupAnalyzer object.
 
         Returns:
             self (Crystal_output)
@@ -1213,41 +1156,167 @@ class Crystal_output:
         * self.opt_geometry (list): Pymatgen structure at each step.  
         * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
         * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
-        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
+        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr  
+        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr  
         """
-        # from CRYSTALpytools.base.crysout import OptBASE, GeomBASE
-        # import re
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.base.crysout import GeomBASE, OptBASE
+        from pymatgen.core.lattice import Lattice
+        import numpy as np
+        import re
+        import os
 
-        # ndimen = self.get_dimensionality()
-        # countline = 0
-        # e0 = 0. # Initial SCF energy. Might be 0 when optimisation is restarted
-        # while countline < self.eoo:
-        #     line = data[countline]
-        #     if re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
-        #         output = OptBASE.read_optblock(self.data[:self.eoo], countline, ndimen)
-        #     elif re.match(r'^\s*== SCF ENDED', line): # Initial step
-        #         line_data = line.strip().split()
-        #         e0 = line_data[8]
-        #         countline += 1
-        #     elif re.match(r'^\s*TOTAL ENERGY \+', line): # Empirical corrections
-        #         line_data = line.strip().split()
-        #         e0 = line_data[-1]
-        #         countline += 1
-        #     elif 
+        ndimen = self.get_dimensionality()
+        countline = 0
 
-            
-        #     self.opt_cycles = output[1]
-        #     self.opt_status = output[2]
-        #     self.opt_energy = output[3]
-        #     self.opt_deltae = output[4]
-        #     self.opt_maxgrad = output[5]
-        #     self.opt_rmsgrad = output[6]
-        #     self.opt_maxdisp = output[7]
-        #     self.opt_rmsdisp = output[8]
-        #     break
+        # Initial geometry
+        struc0 = self.get_geometry(initial=True, write_gui=False)
 
-        # return self
+        # Initial SCF energy. No SCF when optimisation is restarted
+        e0 = None
+        self.opt_cycles = 0
+        lattice_line = -1
+        while countline < self.eoo:
+            line = self.data[countline]
+            # Initial step SCF
+            if re.match(r'^\s*== SCF ENDED', line):
+                line_data = line.strip().split()
+                e0 = float(line_data[8])
+                countline += 1
+            # Initial step SCF empirical corrections
+            elif re.match(r'^\s*TOTAL ENERGY \+', line):
+                line_data = line.strip().split()
+                e0 = float(line_data[-1])
+                countline += 1
+            # Initial Gradient
+            elif re.match(r'^\s+MAX GRADIENT', line):
+                line_data = line.strip().split()
+                maxg0 = float(line_data[2])
+                countline += 1
+            elif re.match(r'^\s+RMS GRADIENT', line):
+                line_data = line.strip().split()
+                rmsg0 = float(line_data[2])
+                countline += 1
+            # Enter the Opt block
+            elif re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
+                output = OptBASE.read_optblock(self.data[:self.eoo], countline)
+                self.opt_cycles = output[1]
+                self.opt_status = output[2]
+                self.opt_energy = output[3]
+                self.opt_deltae = output[4]
+                self.opt_geometry = output[5]
+                self.opt_maxgrad = output[6]
+                self.opt_rmsgrad = output[7]
+                self.opt_maxdisp = output[8]
+                self.opt_rmsdisp = output[9]
+                break
+            # Lattice matrix rotation issue
+            elif re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                lattice_line = countline
+                countline += 1
+            else:
+                countline += 1
+
+        # Converged at initial step, or wrong file
+        if self.opt_cycles == 0:
+            if e0 == None:
+                raise Exception('Valid data not found.')
+            else:
+                self.opt_cycles += 1
+                self.opt_status = 'converged at initial step'
+                self.opt_energy = np.array([e0,])
+                self.opt_deltae = np.array([e0,])
+                self.opt_geometry = [struc0,]
+                self.opt_maxgrad = np.array([maxg0,])
+                self.opt_rmsgrad = np.array([rmsg0,])
+                self.opt_maxdisp = np.array([])
+                self.opt_rmsdisp = np.array([])
+        else:
+            # restarted from previous opt
+            if e0 == None:
+                pass
+            else:
+                self.opt_cycles += 1
+                self.opt_energy = np.concatenate([[e0,], self.opt_energy])
+                self.opt_deltae = np.concatenate([[e0,], self.opt_deltae])
+                self.opt_geometry = [struc0,] + self.opt_geometry
+                self.opt_maxgrad = np.concatenate([[maxg0,], self.opt_maxgrad])
+                self.opt_rmsgrad = np.concatenate([[rmsg0,], self.opt_rmsgrad])
+                self.opt_maxdisp = np.concatenate([[0.,], self.opt_maxdisp])
+                self.opt_rmsdisp = np.concatenate([[0.,], self.opt_rmsdisp])
+
+        # Lattice matrix rotation issue
+        if ndimen != 0 and lattice_line != -1:
+            mx_crys = [
+                self.data[lattice_line + 2].strip().split(),
+                self.data[lattice_line + 3].strip().split(),
+                self.data[lattice_line + 4].strip().split()
+            ]
+            mx_crys = np.array(mx_crys, dtype=float)
+            # Reference lattice
+            latt_ref = Lattice(mx_crys)
+            # Pmg lattice
+            latt_pmg = Lattice.from_parameters(
+                a=latt_ref.a, b=latt_ref.b, c=latt_ref.c,
+                alpha=latt_ref.alpha, beta=latt_ref.beta, gamma=latt_ref.gamma
+            )
+            mx_pmg = latt_pmg.matrix
+            # mx_crys = mx_pmg @ rot
+            rot = np.linalg.inv(mx_pmg) @ mx_crys
+            for idx_s, s in enumerate(self.opt_geometry):
+                self.opt_geometry[idx_s] = GeomBASE.rot_lattice(s, rot)
+
+        # Get primitive cell
+        if primitive == True:
+            ndimen = self.get_dimensionality()
+            if ndimen == 0:
+                warnings.warn('0D system. Nothing to reduce.')
+            else:
+                self.get_trans_matrix()
+                shrink_mx = np.linalg.inv(self.trans_matrix)
+                for idx_s, s in enumerate(self.opt_geometry):
+                    self.opt_geometry[idx_s] = GeomBASE.restore_pcel(s, self.trans_matrix)
+
+        # SCF history
+        if scf_history == True:
+            self.get_scf_convergence(all_cycles=True)
+
+        # Write gui files
+        if write_gui == True:
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
+
+            if symmetry == 'pymatgen':
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, symmetry=True, **kwargs)
+                    gui.write_gui(gui_list[idx_s], symm=True)
+            elif symmetry == None:
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, symmetry=False)
+                    gui.write_gui(gui_list[idx_s], symm=False)
+            elif symmetry == 'initial':
+                self.get_symmops()
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, symmetry=False)
+                    gui.symmops = self.symmops
+                    gui.n_symmops = self.n_symmops
+                    gui.space_group = self.sg_number
+                    gui.write_gui(gui_list[idx_s], symm=True)
+            else:
+                warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
+                              stacklevel=2)
+                gui_ref = Crystal_gui().read_gui(symmetry)
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, symmetry=False)
+                    # Replace the symmops with the reference file
+                    gui.symmops = gui_ref.symmops
+                    gui.n_symmops = gui_ref.n_symmops
+                    gui.space_group = gui_ref.space_group
+                    gui.write_gui(gui_list[idx_s], symm=True)
+
+        return self
 
     def get_forces(self, initial=False, grad=False):
         """
@@ -1492,14 +1561,21 @@ class Crystal_output:
             self.intens = np.array(self.intens)
 
         if self.eigenvector != []:
-            struc = self.get_last_geom(write_gui_file=False, symm_info='pymatgen')
             self.eigenvector = np.array(self.eigenvector)
             # already normalised to classical amplitude
-            if not re.match('^classical$', eigvt_amplitude, re.IGNORECASE):
+            if str(eigvt_amplitude).lower() == 'classical':
+                pass
+            # remove classical amplitude
+            elif str(eigvt_amplitude).lower() == 'classical-rev':
+                struc = self.get_geometry(initial=False, write_gui=False)
+                
+
+            # To a specific value
+            else:
                 for idx_q in range(self.nqpoint):
                     self.eigenvector[idx_q] = PhononBASE.normalize_eigenvector(
-                        self.eigenvector[idx_q], amplitude=eigvt_amplitude,
-                        freq=self.frequency, struc=struc
+                        self.eigenvector[idx_q],
+                        amplitude=float(eigvt_amplitude),
                     )
 
         if rm_imaginary == True:
@@ -2688,8 +2764,11 @@ class Crystal_gui:
         """
         import numpy as np
 
-        with open(gui_file, 'w') as file:
+        if symm == False:
+            self.n_symmops = 1
+            self.symmops = np.vstack([np.eye(3), [0.0, 0.0, 0.0]])
 
+        with open(gui_file, 'w') as file:
             # First line
             file.writelines('%4s   1   1\n' % self.dimensionality)
             # Cell vectors
