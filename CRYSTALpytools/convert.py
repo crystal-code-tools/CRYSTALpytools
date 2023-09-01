@@ -338,7 +338,7 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
     from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
-    from pymatgen.core.structure import Molecule
+    from pymatgen.core.structure import Structure, Molecule
 
     import numpy as np
     import warnings
@@ -347,7 +347,10 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
     # dimensionality
     if 'Molecule' in str(type(structure)):
         pbc = (False, False, False)
-        structure = structure.get_boxed_structure(500., 500., 500.)
+        structure = Structure(lattice=np.eye(3)*500,
+                              species=list(structure.atomic_numbers),
+                              coords=structure.cart_coords.tolist(),
+                              coords_are_cartesian=True)
     else:
         pbc = structure.pbc
 
@@ -360,8 +363,7 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
         gui.space_group = 1
         gui.symmops = []
         gui.n_symmops = 1
-        gui.symmops.extend(np.identity(3).tolist())
-        gui.symmops.append([0.0,0.0,0.0])
+        gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
         gui.atom_number = list(structure.atomic_numbers)
         gui.atom_positions = structure.cart_coords.tolist()
     else: # 1-3D
@@ -408,12 +410,13 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
             n_symmops = 0
             if gui.dimensionality == 3:
                 symmops = SpacegroupAnalyzer(structure, **kwargs).get_symmetry_operations(cartesian=True)
-
                 for symmop in symmops:
                     if np.all(symmop.translation_vector == 0.):
                         n_symmops += 1
-                        gui.symmops.extend(symmop.rotation_matrix.tolist())
-                        gui.symmops.append(symmop.translation_vector.tolist())
+                        gui.symmops.append(np.vstack([
+                            symmop.rotation_matrix,
+                            symmop.translation_vector
+                        ]))
 
                 gui.n_symmops = n_symmops
 
@@ -432,8 +435,10 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
                 for op in ops:
                     if np.all(op.translation_vector == 0.):
                         n_symmops += 1
-                        gui.symmops.extend(op.rotation_matrix.tolist())
-                        gui.symmops.append(op.translation_vector.tolist())
+                        gui.symmops.append(np.vstack([
+                            op.rotation_matrix,
+                            op.translation_vector
+                        ]))
 
                 gui.n_symmops = n_symmops
 
@@ -441,11 +446,12 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
         else:
             gui.n_symmops = 1
-            gui.symmops.extend(np.identity(3).tolist())
-            gui.symmops.append([0.0,0.0,0.0])
+            gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
 
+        gui.symmops = np.reshape(np.array(gui.symmops, dtype=float),
+                                 [gui.n_symmops, 4, 3])
         gui.atom_number = list(structure.atomic_numbers)
-        gui.atom_positions = structure.cart_coords.tolist()
+        gui.atom_positions = structure.cart_coords
 
     if zconv != None:
         for atom in zconv:
