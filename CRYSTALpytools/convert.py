@@ -336,6 +336,7 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
             if ``symmetry=True``.
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
+    from CRYSTALpytools.geometry import get_sg_symmops
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
     from pymatgen.core.structure import Structure, Molecule
@@ -403,56 +404,29 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
 
         gui.lattice = lattice_vectors
         gui.n_atoms = structure.num_sites
-        gui.space_group = SpacegroupAnalyzer(structure, **kwargs).get_space_group_number()
-        gui.symmops = []
 
         if symmetry == True:
-            n_symmops = 0
             if gui.dimensionality == 3:
-                # Analyze the refined geometry
-                ref_struc = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
-                symmops = SpacegroupAnalyzer(ref_struc, **kwargs).get_symmetry_operations(cartesian=True)
-                for symmop in symmops:
-                    if np.all(symmop.translation_vector == 0.):
-                        n_symmops += 1
-                        gui.symmops.append(np.vstack([
-                            symmop.rotation_matrix,
-                            symmop.translation_vector
-                        ]))
-
-                gui.n_symmops = n_symmops
-
+                gui.space_group, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
             elif gui.dimensionality == 2:
-
+                # Get group number before editing- inheriated from previous version
+                gui.space_group = SpacegroupAnalyzer(structure, **kwargs).get_space_group_number()
                 #center the slab first
                 structure = center_slab(structure)
-
                 # Then center at z=0.0
                 translation = np.array([0.0, 0.0, -0.5])
                 structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
-
                 # Analyze the refined geometry
-                ref_struc = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
-                ops = SpacegroupAnalyzer(ref_struc, **kwargs).get_symmetry_operations(cartesian=True)
-                for op in ops:
-                    if np.all(op.translation_vector == 0.):
-                        n_symmops += 1
-                        gui.symmops.append(np.vstack([
-                            op.rotation_matrix,
-                            op.translation_vector
-                        ]))
-
-                gui.n_symmops = n_symmops
-
+                _, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
             else:
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
         else:
             gui.n_symmops = 1
             gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
+            gui.symmops = np.reshape(np.array(gui.symmops, dtype=float),
+                                     [gui.n_symmops, 4, 3])
 
-        gui.symmops = np.reshape(np.array(gui.symmops, dtype=float),
-                                 [gui.n_symmops, 4, 3])
         gui.atom_number = list(structure.atomic_numbers)
         gui.atom_positions = structure.cart_coords
 

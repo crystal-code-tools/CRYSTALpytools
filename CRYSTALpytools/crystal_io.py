@@ -90,9 +90,9 @@ class Crystal_input(Crystal_inputBASE):
             equivalent atom is used.
         """
         import numpy as np
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.geometry import refine_geometry
 
-        sg, struc_pri = GeomBASE.refine_geometry(struc, **kwargs)
+        sg, struc_pri = refine_geometry(struc, **kwargs)
 
         latt = []
         if sg >= 1 and sg < 3:  # trilinic
@@ -337,6 +337,7 @@ class Crystal_output:
         import warnings
         import numpy as np
         from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.geometry import rotate_lattice
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
 
@@ -344,13 +345,15 @@ class Crystal_output:
         bg_line = -1
         if initial == True:
             for nline, line in enumerate(self.data[:self.eoo]):
+                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
                 if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = nline
+                    bg_line = nline - 4
                     break
         else:
             for nline, line in enumerate(self.data[self.eoo::-1]):
+                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
                 if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = len(self.data[:self.eoo]) - nline
+                    bg_line = len(self.data[:self.eoo]) - nline - 4
                     break
 
         if bg_line < 0:
@@ -384,7 +387,7 @@ class Crystal_output:
             latt_pmg = struc.lattice.matrix
             # latt_crys = latt_pmg @ rot, rotation matrix obtained from the last config
             rot = np.linalg.inv(latt_pmg) @ latt_crys
-            struc = GeomBASE.rot_lattice(struc, rot)
+            struc = rotate_lattice(struc, rot)
 
         self.geometry = struc
 
@@ -689,7 +692,7 @@ class Crystal_output:
         import os
         import warnings
         import numpy as np
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.geometry import get_pcel
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
 
@@ -698,12 +701,12 @@ class Crystal_output:
         self.get_trans_matrix()
 
         if ndimen == 0:
-            warnings.warn('0D system. Nothing to reduce.')
+            warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
             self.primitive_geometry = self.geometry
             return self.primitive_geometry
 
         shrink_mx = np.linalg.inv(self.trans_matrix)
-        pstruc = GeomBASE.restore_pcel(self.geometry, self.trans_matrix)
+        pstruc = get_pcel(self.geometry, self.trans_matrix)
 
         self.primitive_geometry = pstruc
         # Write gui files
@@ -1161,7 +1164,8 @@ class Crystal_output:
         """
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.base.crysout import GeomBASE, OptBASE
+        from CRYSTALpytools.base.crysout import OptBASE
+        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
         from pymatgen.core.lattice import Lattice
         import numpy as np
         import re
@@ -1265,18 +1269,18 @@ class Crystal_output:
             # mx_crys = mx_pmg @ rot
             rot = np.linalg.inv(mx_pmg) @ mx_crys
             for idx_s, s in enumerate(self.opt_geometry):
-                self.opt_geometry[idx_s] = GeomBASE.rot_lattice(s, rot)
+                self.opt_geometry[idx_s] = rotate_lattice(s, rot)
 
         # Get primitive cell
         if primitive == True:
             ndimen = self.get_dimensionality()
             if ndimen == 0:
-                warnings.warn('0D system. Nothing to reduce.')
+                warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
             else:
                 self.get_trans_matrix()
                 shrink_mx = np.linalg.inv(self.trans_matrix)
                 for idx_s, s in enumerate(self.opt_geometry):
-                    self.opt_geometry[idx_s] = GeomBASE.restore_pcel(s, self.trans_matrix)
+                    self.opt_geometry[idx_s] = get_pcel(s, self.trans_matrix)
 
         # SCF history
         if scf_history == True:
