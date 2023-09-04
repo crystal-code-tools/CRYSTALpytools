@@ -51,7 +51,7 @@ class Crystal_input(Crystal_inputBASE):
             latt = Lattice(latt_mx, pbc=pbc)
             struc = Structure(latt,
                               species=list(struc_3d.atomic_numbers),
-                              coords=struc_3d.cart_coords.tolist(),
+                              coords=struc_3d.cart_coords,
                               coords_are_cartesian=True)
         self.geom_from_pmg(struc, zconv, keyword, gui_name, **kwargs)
 
@@ -64,88 +64,37 @@ class Crystal_input(Crystal_inputBASE):
         into geom block, either as 'EXTERNAL' or 'CRYSTAL'.
 
         See ``geom_from_cif`` for definition of arguments.
+
+        .. note::
+
+            Coordinates of corresponding atoms may not consistent with the
+            original CIF file if 'CRYSTAL' is used, in which case
+            coordinates of another symmetry equivalent atom is used.
         """
         import re
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.geometry import refine_geometry
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
             super(Crystal_input, self).geom.external()
             gui = cry_pmg2gui(struc, symmetry=True, zconv=zconv, **kwargs)
             gui.write_gui(gui_name, symm=True)
         elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
-            self._pmg2input(struc, zconv, **kwargs)
+            sg, _, latt, natom, atom = refine_geometry(struc, **kwargs)
+            if zconv != None:
+                z_atom_index = [i[0] for i in zconv]
+                for i in range(natom):
+                    try:
+                        atom_to_sub = z_atom_index.index(i)
+                        z_input = zconv[atom_to_sub][1]
+                    except ValueError:
+                        z_input = atom[i][0]
+                    atom[i][0] = z_input
+            super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atom)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
         return self
-
-    def _pmg2input(self, struc, zconv=None, **kwargs):
-        """
-        Pymatgen Structure object to 'CRYSTAL' input block
-
-        .. note::
-
-            Coordinates of corresponding atoms may not consistent with the
-            original CIF file, in which case coordinates of another symmetry
-            equivalent atom is used.
-        """
-        import numpy as np
-        from CRYSTALpytools.geometry import refine_geometry
-
-        sg, struc_pri = refine_geometry(struc, **kwargs)
-
-        latt = []
-        if sg >= 1 and sg < 3:  # trilinic
-            for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 3 and sg < 16:  # monoclinic
-            for i in ['a', 'b', 'c', 'beta']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 16 and sg < 75:  # orthorhombic
-            for i in ['a', 'b', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 75 and sg < 143:  # tetragonal
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 143 and sg < 195:  # hexagonal and trigonal (converted)
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        else:  # cubic
-            latt.append(round(struc_pri.lattice.a, 6))
-
-        natom = len(struc_pri.equivalent_sites)
-        eq_atom = int(len(struc_pri.species) / natom)
-        atominfo = []
-        if zconv != None:
-            z_atom_index = [i[0] for i in zconv]
-        for i in range(natom):
-            idx_eq = int(i * eq_atom)
-            if zconv == None:
-                z_input = struc_pri.species[idx_eq].Z
-            else:
-                try:
-                    atom_to_sub = z_atom_index.index(i)
-                    z_input = zconv[atom_to_sub][1]
-                except ValueError:
-                    z_input = struc_pri.species[idx_eq].Z
-            atominfo.append([z_input,
-                             struc_pri.equivalent_sites[i][0].frac_coords[0],
-                             struc_pri.equivalent_sites[i][0].frac_coords[1],
-                             struc_pri.equivalent_sites[i][0].frac_coords[2]])
-
-        super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atominfo)
-
-        return
 
     def bs_from_bse(self, name, element, zconv=None):
         """

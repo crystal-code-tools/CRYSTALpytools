@@ -4,7 +4,7 @@
 Functions that do conversion between data / file formats
 """
 
-def cry_ase2gui(structure, symmetry=True):
+def cry_ase2gui(structure, vacuum=None, symmetry=True):
     """
     Transform an ASE Structure object into a Pymatgen structure object and then
     a CRYSTAL structure (gui) object. Vacuum layer is set to 500 Angstrom
@@ -12,6 +12,8 @@ def cry_ase2gui(structure, symmetry=True):
 
     Args:
         structure (ASE Structure): ASE Structure object.
+        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+            length of non-periodic direction to 500 Angstrom.
         symmetry (bool): Perform symmetry analysis.
 
     Returns:
@@ -20,6 +22,7 @@ def cry_ase2gui(structure, symmetry=True):
     # First transform into pmg and then write the gui
 
     from pymatgen.io.ase import AseAtomsAdaptor
+    from CRYSTALpytools.convert import cry_pmg2gui
 
     pmg_structure = AseAtomsAdaptor().get_structure(structure)
 
@@ -97,13 +100,15 @@ def cry_gui2ase(gui_file, vacuum=None, **kwargs):
     from CRYSTALpytools.convert import cry_gui2pmg
     from pymatgen.io.ase import AseAtomsAdaptor
 
-    return AseAtomsAdaptor().get_atoms(cry_gui2pmg(gui_file, vacuum=vacuum), **kwargs)
+    struc = cry_gui2pmg(gui_file, vacuum=vacuum)
+
+    return AseAtomsAdaptor().get_atoms(struc, **kwargs)
 
 
 def cry_gui2cif(cif_file_name, gui, vacuum=None, **kwargs):
     """
     Read a CRYSTAL structure (gui) file and save a cif file. The `CifWriter <https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter>`_
-    object of Pymatgen is called. By default it has no symmetry.
+    object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
         cif_file_name (str): Name (including path) of the cif file to be saved
@@ -115,8 +120,11 @@ def cry_gui2cif(cif_file_name, gui, vacuum=None, **kwargs):
     from CRYSTALpytools.convert import cry_gui2pmg
     from pymatgen.io.cif import CifWriter
 
-    structure = cry_gui2pmg(gui, vacuum=vacuum)
-    CifWriter(structure, **kwargs).write_file(cif_file_name)
+    structure = cry_gui2pmg(gui, vacuum=vacuum, molecule=False)
+    if len(kwargs) == 0:
+        CifWriter(structure, symprec=0.01, **kwargs).write_file(cif_file_name)
+    else:
+        CifWriter(structure, **kwargs).write_file(cif_file_name)
 
 
 def cry_gui2pmg(gui, vacuum=None, molecule=True):
@@ -144,6 +152,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         elif molecule == False:
             if vacuum != None:
                 pbc = (True, True, True)
+                gui.lattice.setflags(write=1)
                 thickness_x = np.amax(np.array(gui.atom_positions)[:, 0]) - \
                         np.amin(np.array(gui.atom_positions)[:, 0])
                 thickness_y = np.amax(np.array(gui.atom_positions)[:, 1]) - \
@@ -160,6 +169,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     if gui.dimensionality == 1:
         if vacuum != None:
             pbc = (True, True, True)
+            gui.lattice.setflags(write=1)
             thickness_y = np.amax(np.array(gui.atom_positions)[:, 1]) - \
                         np.amin(np.array(gui.atom_positions)[:, 1])
             thickness_z = np.amax(np.array(gui.atom_positions)[:, 2]) - \
@@ -173,6 +183,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     if gui.dimensionality == 2:
         if vacuum != None:
             pbc = (True, True, True)
+            gui.lattice.setflags(write=1)
             thickness_z = np.amax(np.array(gui.atom_positions)[:, 2]) - \
                         np.amin(np.array(gui.atom_positions)[:, 2])
 
@@ -201,127 +212,137 @@ def cry_gui2xyz(xyz_file_name, gui, **kwargs):
     structure = cry_gui2pmg(gui, molecule=True) #this returns a pmg Molecule object
     XYZ(structure, **kwargs).write_file(xyz_file_name)
 
-    return
 
-
-def cry_out2ase(output, initial=False, vacuum=10):
+def cry_out2ase(output, vacuum=None, initial=False, **kwargs):
     """
     Transform a CRYSTAL output object into an ASE atoms object.
 
     Args:
         output: Crystal output object.
+        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+            ``pbc`` attribute of ASE atoms object.
         initial (bool): Read the last geometry of the output file.
-        vacuum (float): Vacuum distance.
-        
+        **kwargs: Passed to ASE Atoms constructor
+
     Returns:
         Atoms: ASE atoms object.
     """
-
     from pymatgen.io.ase import AseAtomsAdaptor
+    from CRYSTALpytools.convert import cry_out2pmg
 
-    return AseAtomsAdaptor().get_atoms(cry_out2pmg(output,initial=initial,vacuum=vacuum))
+    struc = cry_out2pmg(output, vacuum=vacuum, initial=initial)
+
+    return AseAtomsAdaptor().get_atoms(struc, **kwargs)
 
 
-def cry_out2cif(cif_file_name, output):
+def cry_out2cif(cif_file_name, output, vacuum=None, initial=False, **kwargs):
     """
-    Save a CRYSTAL output object as a CIF file.
-    from pymatgen.io.cif import CifWriter
+    Save a CRYSTAL output object as a CIF file. The `CifWriter <https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter>`_
+    object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
         cif_file_name (str): Name (including path) of the CIF file to be saved.
         output: Crystal output object.
+        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+            ``pbc`` attribute of Pymatgen atoms object.
+        initial (bool): Read the last geometry of the output file.
+        **kwargs: Passed to Pymatgen CifWriter.
     """
+    from CRYSTALpytools.convert import cry_out2pmg
+    from pymatgen.io.cif import CifWriter
+
+    structure = cry_gui2pmg(output, vacuum=vacuum, initial=initial, molecule=False)
+    if len(kwargs) == 0:
+        CifWriter(structure, symprec=0.01, **kwargs).write_file(cif_file_name)
+    else:
+        CifWriter(structure, **kwargs).write_file(cif_file_name)
 
 
-    structure = cry_gui2pmg(output)
-    
-    CifWriter(structure).write_file(cif_file_name)
-
-
-def cry_out2pmg(output, vacuum=None, initial = False, molecule = True):
+def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     """
     Transform a CRYSTAL output object into a pymatgen structure object.
 
     Args:
         output (CRYSTAL output object): CRYSTAL output object.
-        vacuum (float): Vacuum distance.
+        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+            ``pbc`` attribute of Pymatgen object.
         initial (bool): Read the last geometry of the output file.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
-        
+
     Returns:
         Structure: Pymatgen Structure object.
     """
-    
-    from pymatgen.core.structure import Structure, Molecule
+    from CRYSTALpytools.crystal_io import Crystal_output
+    from pymatgen.core.lattice import Lattice
+    from pymatgen.core.structure import Structure
     import numpy as np
 
     #Extract information from the output file
-    dimensionality = output.get_dimensionality()
-    output.get_last_geom(write_gui_file=False)
-    atom_positions = output.atom_positions_cart
-    vectors = output.get_primitive_lattice(initial=initial)
-    
+    out = Crystal_output().read_cry_output(output)
+    ndimen = out.get_dimensionality()
+    struc = out.get_geometry(initial=initial, write_gui=False)
+    latt_mx = struc.lattice.matrix
 
-    # Add vacuum for lower dimensionality structures    
-    if dimensionality == 0:
+    if ndimen == 0:
         if molecule == True:
-            if molecule == True:
-                return Molecule(output.atom_numbers, atom_positions)
+            return struc
+
         elif molecule == False:
-            thickness_x = np.amax(np.array(atom_positions)[:, 0]) - \
-                        np.amin(np.array(atom_positions)[:, 0])
-            thickness_y = np.amax(np.array(atom_positions)[:, 1]) - \
-                    np.amin(np.array(atom_positions)[:, 1])
-            thickness_z = np.amax(np.array(atom_positions)[:, 2]) - \
-                    np.amin(np.array(atom_positions)[:, 2])
-        
-        vectors[0, 0] = thickness_x + vacuum
-        vectors[1, 1] = thickness_y + vacuum
-        vectors[2, 2] = thickness_z + vacuum
-        
-        
-    elif dimensionality == 1:
-        thickness_y = np.amax(np.array(atom_positions)[:, 1]) - \
-                    np.amin(np.array(atom_positions)[:, 1])
-        thickness_z = np.amax(np.array(atom_positions)[:, 2]) - \
-                    np.amin(np.array(atom_positions)[:, 2])
-        
-        vectors[1][1] = thickness_y + vacuum
-        vectors[2][2] = thickness_z + vacuum
+            if vacuum != None:
+                pbc = (True, True, True)
+                thickness_x = np.amax(struc.cart_coords[:, 0]) - np.amin(struc.cart_coords[:, 0])
+                thickness_y = np.amax(struc.cart_coords[:, 1]) - np.amin(struc.cart_coords[:, 1])
+                thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
 
-    elif dimensionality == 2:       
-        thickness_z = np.amax(np.array(atom_positions)[:, 2]) - \
-                    np.amin(np.array(atom_positions)[:, 2])
-                
-        vectors[2][2] = thickness_z + vacuum
+                latt_mx[0, 0] = thickness_x + vacuum
+                latt_mx[1, 1] = thickness_y + vacuum
+                latt_mx[2, 2] = thickness_z + vacuum
+            else:
+                pbc = (False, False, False)
 
-    structure = Structure(vectors, output.atom_numbers, 
-                              atom_positions, coords_are_cartesian=True)
+    if gui.dimensionality == 1:
+        if vacuum != None:
+            pbc = (True, True, True)
+            thickness_y = np.amax(struc.cart_coords[:, 1]) - np.amin(struc.cart_coords[:, 1])
+            thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
 
-    return structure
+            latt_mx[1, 1] = thickness_y + vacuum
+            latt_mx[2, 2] = thickness_z + vacuum
+        else:
+            pbc = (True, False, False)
+
+    if gui.dimensionality == 2:
+        if vacuum != None:
+            pbc = (True, True, True)
+            thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
+
+            latt_mx[2, 2] = thickness_z + vacuum
+        else:
+            pbc = (True, True, False)
+
+    latt = Lattice(latt_mx, pbc=pbc)
+
+    return Structure(latt, struc.atomic_numbers, struc.cart_coords, coords_are_cartesian=True)
 
 
-def cry_out2xyz(xyz_file_name, output):
+def cry_out2xyz(xyz_file_name, output, initial=False, **kwargs):
     """
     Transform a CRYSTAL output object into an XYZ file.
-    
+
     Args:
         xyz_file_name (str): Name (including path) of the XYZ file to be saved.
         output: CRYSTAL output object.
+        initial (bool): Read the last geometry of the output file.
+        **kwargs: Passed to Pymatgen XYZ object.
     """
     from pymatgen.io.xyz import XYZ
-    import sys
+    from CRYSTALpytools.convert import cry_out2pmg
 
-    if output.dimensionality != 0:
-        print('WARNING: the structure is periodic, please use cry_out2cif()')
-        sys.exit(1)
-    else:
-        structure = cry_gui2pmg(output, molecule=True) #this returns a pmg Molecule object
-    
-    XYZ(structure).write_file(cif_file_name)
+    structure = cry_out2pmg(output, initial=initial, molecule=True) #this returns a pmg Molecule object
+    XYZ(structure, **kwargs).write_file(cif_file_name)
 
 
-def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
+def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
     """
     Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
     Vacuum layer is set to 500 Angstrom as the default of CRYSTAL for low
@@ -330,6 +351,8 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
     Args:
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
         symmetry (bool): Do symmetry analysis.
+        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+            length of non-periodic direction to 500 Angstrom.
         zconv (list[list[int, int]]): 1st element: The **index** of atom;
                 2nd element: The new conventional atomic number.
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object. Valid only
@@ -343,7 +366,6 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
 
     import numpy as np
     import warnings
-    import copy
 
     # dimensionality
     if 'Molecule' in str(type(structure)):
@@ -358,8 +380,18 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
     gui = Crystal_gui()
     gui.dimensionality = pbc.count(True)
 
+    # Vacuum distance
+    latt_mx = np.eye(3)*500
+    if vacuum != None:
+        thickness_x = np.amax(structure.cart_coords[:, 0]) - np.amin(structure.cart_coords[:, 0])
+        thickness_y = np.amax(structure.cart_coords[:, 1]) - np.amin(structure.cart_coords[:, 1])
+        thickness_z = np.amax(structure.cart_coords[:, 2]) - np.amin(structure.cart_coords[:, 2])
+        latt_mx[0, 0] = thickness_x + vacuum
+        latt_mx[1, 1] = thickness_y + vacuum
+        latt_mx[2, 2] = thickness_z + vacuum
+
     if gui.dimensionality == 0: # 0D
-        gui.lattice = structure.lattice.matrix
+        gui.lattice = latt_mx
         gui.n_atoms = structure.num_sites
         gui.space_group = 1
         gui.symmops = []
@@ -367,42 +399,58 @@ def cry_pmg2gui(structure, symmetry=True, zconv=None, **kwargs):
         gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
         gui.atom_number = list(structure.atomic_numbers)
         gui.atom_positions = structure.cart_coords.tolist()
-    else: # 1-3D
+    else: # 1-3D, rotation and add vacuum layer
         if gui.dimensionality == 2:
             if pbc[0] == False: # X no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
-                mx = structure.lattice.matrix
-                lattice_vectors = np.array([[mx[1, 1], mx[1, 2], 0.],
-                                            [mx[2, 1], mx[2, 2], 0.],
-                                            [0., 0., 500.]])
+                rot = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
+                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors[2, 1] = latt_mx[0, 0] # Perpendicular elements are not on diagonal after rotation
+                atom_coords = structure.cart_coords @ rot
+
             elif pbc[1] == False: # Y no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
-                mx = structure.lattice.matrix
-                lattice_vectors = np.array([[mx[0, 2], mx[0, 0], 0.],
-                                            [mx[2, 2], mx[2, 0], 0.],
-                                            [0., 0., 500.]])
+                rot = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=float)
+                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors[2, 0] = latt_mx[1, 1] # Perpendicular elements are not on diagonal after rotation
+                atom_coords = structure.cart_coords @ rot
+
             else: # Z no periodicity
-                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+                lattice_vectors = structure.lattice.matrix
+                lattice_vectors[2, 2] = latt_mx[2, 2]
+                atom_coords = structure.cart_coords
 
         elif gui.dimensionality == 1:
             if pbc[0] == True: # X periodic
-                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+                lattice_vectors = structure.lattice.matrix
+                lattice_vectors[1, 1] = latt_mx[1, 1]
+                lattice_vectors[2, 2] = latt_mx[2, 2]
+                atom_coords = structure.cart_coords
+
             elif pbc[1] == True: # Y periodic
                 warnings.warn('The periodic direction will be rotated to x axis.')
-                mx = structure.lattice.matrix
-                lattice_vectors = np.array([[mx[1, 1], 0., 0.],
-                                            [0., 500., 0.],
-                                            [0., 0., 500.]])
+                rot = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
+                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors[1, 0] = latt_mx[2, 2] # Perpendicular elements are not on diagonal after rotation
+                lattice_vectors[2, 1] = latt_mx[0, 0]
+                atom_coords = structure.cart_coords @ rot
+
             else: # Z periodic
                 warnings.warn('The periodic direction will be rotated to x axis.')
-                mx = structure.lattice.matrix
-                lattice_vectors = np.array([[mx[2, 2], 0., 0.],
-                                            [0., 500., 0.],
-                                            [0., 0., 500.]])
-        else:
-            lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+                rot = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=float)
+                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors[1, 2] = latt_mx[0, 0] # Perpendicular elements are not on diagonal after rotation
+                lattice_vectors[2, 0] = latt_mx[1, 1]
+                atom_coords = structure.cart_coords @ rot
 
-        gui.lattice = lattice_vectors
+        else:
+            lattice_vectors = structure.lattice.matrix
+            atom_coords = structure.cart_coords
+
+        structure = Structure(lattice_vectors, structure.atomic_numbers,
+                              atom_coords,  coords_are_cartesian=True)
+
+        gui.lattice = structure.lattice.matrix
         gui.n_atoms = structure.num_sites
 
         if symmetry == True:

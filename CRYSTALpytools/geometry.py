@@ -30,6 +30,7 @@ def rotate_lattice(struc, rot):
 
     return struc_new
 
+
 def refine_geometry(struc, **kwargs):
     """
     Get refined geometry. Useful when reducing the cell to the irrducible
@@ -41,8 +42,13 @@ def refine_geometry(struc, **kwargs):
     Returns:
         sg (int): Space group number
         pstruc (Structure): Symmetrized, irrducible structure
+        latt (list): minimal set of crystallographic cell parameters
+        natom (int): number of atoms
+        atom (list): natom\*4 array. 1st element: atomic number; 2-4:
+            fractional coordinates
     """
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    import numpy as np
 
     ndimen = struc.pbc.count(True)
     if ndimen < 3:
@@ -58,12 +64,44 @@ def refine_geometry(struc, **kwargs):
     pstruc = analyzer3.get_symmetrized_structure()
     sg = analyzer2.get_space_group_number()
 
-    if sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
+    latt = []
+    if sg >= 1 and sg < 3:  # trilinic
+        for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
+            latt.append(getattr(pstruc.lattice, i))
+    elif sg >= 3 and sg < 16:  # monoclinic
+        for i in ['a', 'b', 'c', 'beta']:
+            latt.append(getattr(pstruc.lattice, i))
+    elif sg >= 16 and sg < 75:  # orthorhombic
+        for i in ['a', 'b', 'c']:
+            latt.append(getattr(pstruc.lattice, i))
+    elif sg >= 75 and sg < 143:  # tetragonal
+        for i in ['a', 'c']:
+            latt.append(getattr(pstruc.lattice, i))
+    elif sg >= 143 and sg < 168:  # trigonal, converted to hexagonal
         pstruc = analyzer3.get_conventional_standard_structure()
         analyzer4 = SpacegroupAnalyzer(pstruc, **kwargs)
         pstruc = analyzer4.get_symmetrized_structure()
+        for i in ['a', 'c']:
+            latt.append(getattr(pstruc.lattice, i))
+    elif sg >= 168 and sg < 195:  # hexagonal
+        for i in ['a', 'c']:
+            latt.append(getattr(pstruc.lattice, i))
+    else:  # cubic
+        latt.append(pstruc.lattice.a)
 
-    return sg, pstruc
+    atom = []
+    natom = len(pstruc.equivalent_sites)
+    eq_atom = int(len(pstruc.species) / natom)
+    for i in range(natom):
+        idx_eq = int(i * eq_atom)
+        z = pstruc.species[idx_eq].Z
+        atom.append([z,
+                     pstruc.equivalent_sites[i][0].frac_coords[0],
+                     pstruc.equivalent_sites[i][0].frac_coords[1],
+                     pstruc.equivalent_sites[i][0].frac_coords[2]])
+
+    return sg, pstruc, latt, natom, atom
+
 
 def get_pcel(struc, smx):
     """
@@ -114,6 +152,7 @@ def get_pcel(struc, smx):
                      coords=pcel_coords, coords_are_cartesian=False)
     return pcel
 
+
 def get_scel(struc, smx):
     """
     Get the supercell from primitive cell, with the origin shifted to the
@@ -146,6 +185,7 @@ def get_scel(struc, smx):
     scel = Structure(lattice=scel_latt, species=all_species,
                      coords=all_coords, coords_are_cartesian=True)
     return scel
+
 
 def get_sg_symmops(struc, **kwargs):
     """
