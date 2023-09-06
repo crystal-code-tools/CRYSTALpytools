@@ -36,19 +36,15 @@ def refine_geometry(struc, **kwargs):
     Get refined geometry. Useful when reducing the cell to the irrducible
     one. 3D only.
 
-    .. note::
-        In some rare cases (the known case is space group 61), the reduced
-        geometry might be wrong due to the different but equivalent symmetry
-        operations defined in CRYSTAL and pymatgen.
-
     Args:
         struc (Structure): Pymatgen structure
         **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
     Returns:
         sg (int): Space group number
-        pstruc (Structure): Symmetrized, irrducible structure
+        struc5 (Structure): Irrducible structure that is consistent with
+            International Crystallographic Table
         latt (list): minimal set of crystallographic cell parameters
-        natom (int): number of atoms
+        natom_irr (int): number of irrducible atoms
         atom (list): natom\*4 array. 1st element: atomic number; 2-4:
             fractional coordinates
     """
@@ -63,49 +59,49 @@ def refine_geometry(struc, **kwargs):
     # Analyze the refined geometry
     struc2 = analyzer.get_refined_structure()
     analyzer2 = SpacegroupAnalyzer(struc2, **kwargs)
-    struc_pri = analyzer2.get_primitive_standard_structure()
-    analyzer3 = SpacegroupAnalyzer(struc_pri, **kwargs)
+    struc3 = analyzer2.get_primitive_standard_structure()
+    analyzer3 = SpacegroupAnalyzer(struc3, **kwargs)
 
-    pstruc = analyzer3.get_symmetrized_structure()
-    sg = analyzer2.get_space_group_number()
+    struc4 = analyzer3.get_symmetrized_structure()
+    struc5 = analyzer3.get_refined_structure()
+    sg = analyzer3.get_space_group_number()
 
     latt = []
     if sg >= 1 and sg < 3:  # trilinic
         for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     elif sg >= 3 and sg < 16:  # monoclinic
         for i in ['a', 'b', 'c', 'beta']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     elif sg >= 16 and sg < 75:  # orthorhombic
         for i in ['a', 'b', 'c']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     elif sg >= 75 and sg < 143:  # tetragonal
         for i in ['a', 'c']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     elif sg >= 143 and sg < 168:  # trigonal, converted to hexagonal
-        pstruc = analyzer3.get_conventional_standard_structure()
-        analyzer4 = SpacegroupAnalyzer(pstruc, **kwargs)
-        pstruc = analyzer4.get_symmetrized_structure()
+        struc6 = analyzer3.get_conventional_standard_structure()
+        analyzer4 = SpacegroupAnalyzer(struc6, **kwargs)
+        struc4 = analyzer4.get_symmetrized_structure()
+        struc5 = analyzer4.get_refined_structure()
         for i in ['a', 'c']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     elif sg >= 168 and sg < 195:  # hexagonal
         for i in ['a', 'c']:
-            latt.append(getattr(pstruc.lattice, i))
+            latt.append(getattr(struc5.lattice, i))
     else:  # cubic
-        latt.append(pstruc.lattice.a)
+        latt.append(struc5.lattice.a)
 
     atom = []
-    natom = len(pstruc.equivalent_sites)
-    eq_atom = int(len(pstruc.species) / natom)
-    for i in range(natom):
-        idx_eq = int(i * eq_atom)
-        z = pstruc.species[idx_eq].Z
-        atom.append([z,
-                     pstruc.equivalent_sites[i][0].frac_coords[0],
-                     pstruc.equivalent_sites[i][0].frac_coords[1],
-                     pstruc.equivalent_sites[i][0].frac_coords[2]])
+    natom_irr = len(struc4.equivalent_sites)
+    natom_eq = int(struc4.num_sites / natom_irr)
+    for i in range(natom_irr):
+        idx_eq = int(i * natom_eq)
+        z = struc5.species[idx_eq].Z
+        atom.append([z, struc5.sites[idx_eq].a, struc5.sites[idx_eq].b,
+                     struc5.sites[idx_eq].c])
 
-    return sg, pstruc, latt, natom, atom
+    return sg, struc5, latt, natom_irr, atom
 
 
 def get_pcel(struc, smx):
@@ -194,12 +190,9 @@ def get_scel(struc, smx):
 
 def get_sg_symmops(struc, **kwargs):
     """
-    Get space group number and corresponding symmetry operations.
-
-    .. note::
-        In some rare cases (the known case is space group 61), the symmetry
-        operations of pymatgen might be different from defaults of CRYSTAL.
-        That can lead to errors while reading gui files.
+    Get space group number and corresponding symmetry operations. To keep
+    consistency with International Crystallographic Table, refined geometry
+    is suggested.
 
     Args:
         struc (Structure): Pymatgen Structure object.
@@ -212,11 +205,8 @@ def get_sg_symmops(struc, **kwargs):
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     import numpy as np
 
-    # Analyze the refined geometry
-    ref_struc = SpacegroupAnalyzer(struc, **kwargs).get_refined_structure()
-    sg = SpacegroupAnalyzer(ref_struc, **kwargs).get_space_group_number()
-
-    all_symmops = SpacegroupAnalyzer(ref_struc, **kwargs).get_symmetry_operations(cartesian=True)
+    sg = SpacegroupAnalyzer(struc, **kwargs).get_space_group_number()
+    all_symmops = SpacegroupAnalyzer(struc, **kwargs).get_symmetry_operations(cartesian=True)
     symmops = []
     n_symmops = 0
     for symmop in all_symmops:

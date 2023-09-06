@@ -279,12 +279,13 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Structure
     import numpy as np
+    import copy
 
     #Extract information from the output file
     out = Crystal_output().read_cry_output(output)
     ndimen = out.get_dimensionality()
     struc = out.get_geometry(initial=initial, write_gui=False)
-    latt_mx = struc.lattice.matrix
+    latt_mx = copy.deepcopy(struc.lattice.matrix)
 
     if ndimen == 0:
         if molecule == True:
@@ -372,6 +373,7 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
 
     import numpy as np
     import warnings
+    import copy
 
     # dimensionality
     if 'Molecule' in str(type(structure)):
@@ -410,57 +412,58 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
             if pbc[0] == False: # X no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
                 rot = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
-                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix) @ rot
                 lattice_vectors[2, 1] = latt_mx[0, 0] # Perpendicular elements are not on diagonal after rotation
-                atom_coords = structure.cart_coords @ rot
+                atom_coords = copy.deepcopy(structure.cart_coords) @ rot
 
             elif pbc[1] == False: # Y no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
                 rot = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=float)
-                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix) @ rot
                 lattice_vectors[2, 0] = latt_mx[1, 1] # Perpendicular elements are not on diagonal after rotation
-                atom_coords = structure.cart_coords @ rot
+                atom_coords = copy.deepcopy(structure.cart_coords) @ rot
 
             else: # Z no periodicity
-                lattice_vectors = structure.lattice.matrix
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
                 lattice_vectors[2, 2] = latt_mx[2, 2]
-                atom_coords = structure.cart_coords
+                atom_coords = copy.deepcopy(structure.cart_coords)
 
         elif gui.dimensionality == 1:
             if pbc[0] == True: # X periodic
-                lattice_vectors = structure.lattice.matrix
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix)
                 lattice_vectors[1, 1] = latt_mx[1, 1]
                 lattice_vectors[2, 2] = latt_mx[2, 2]
-                atom_coords = structure.cart_coords
+                atom_coords = copy.deepcopy(structure.cart_coords)
 
             elif pbc[1] == True: # Y periodic
                 warnings.warn('The periodic direction will be rotated to x axis.')
                 rot = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
-                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix) @ rot
                 lattice_vectors[1, 0] = latt_mx[2, 2] # Perpendicular elements are not on diagonal after rotation
                 lattice_vectors[2, 1] = latt_mx[0, 0]
-                atom_coords = structure.cart_coords @ rot
+                atom_coords = copy.deepcopy(structure.cart_coords) @ rot
 
             else: # Z periodic
                 warnings.warn('The periodic direction will be rotated to x axis.')
                 rot = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=float)
-                lattice_vectors = structure.lattice.matrix @ rot
+                lattice_vectors = copy.deepcopy(structure.lattice.matrix) @ rot
                 lattice_vectors[1, 2] = latt_mx[0, 0] # Perpendicular elements are not on diagonal after rotation
                 lattice_vectors[2, 0] = latt_mx[1, 1]
-                atom_coords = structure.cart_coords @ rot
+                atom_coords = copy.deepcopy(structure.cart_coords) @ rot
 
         else:
-            lattice_vectors = structure.lattice.matrix
-            atom_coords = structure.cart_coords
+            lattice_vectors = copy.deepcopy(structure.lattice.matrix)
+            atom_coords = copy.deepcopy(structure.cart_coords)
 
         structure = Structure(lattice_vectors, structure.atomic_numbers,
-                              atom_coords,  coords_are_cartesian=True)
+                              atom_coords, coords_are_cartesian=True)
 
         gui.lattice = structure.lattice.matrix
         gui.n_atoms = structure.num_sites
 
         if symmetry == True:
             if gui.dimensionality == 3:
+                structure = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
                 gui.space_group, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
             elif gui.dimensionality == 2:
                 # Get group number before editing- inheriated from previous version
@@ -471,7 +474,7 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
                 translation = np.array([0.0, 0.0, -0.5])
                 structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
-                # Analyze the refined geometry
+                # Geometry not refined
                 _, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
             else:
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')

@@ -220,6 +220,7 @@ class Geom(BlockBASE):
             'EXTPRT'    : '_extprt',
             'CIFPRT'    : '_cifprt',
             'CIFPRTSYM' : '_cifprtsym',
+            'COORPRT'   : '_coorprt',
             'TESTGEOM'  : '_testgeom',
             'OPTGEOM'   : 'optgeom',  # Sub-block properties must be named without the initial underscore
             'FREQCALC'  : 'freqcalc',
@@ -508,6 +509,9 @@ class Geom(BlockBASE):
 
     def cifprtsym(self, key='CIFPRTSYM'):
         self._cifprtsym = super(Geom, self).assign_keyword(key, [])
+
+    def coorprt(self, key='COORPRT'):
+        self._coorprt = super(Geom, self).assign_keyword(key, [])
 
     def testgeom(self, key='TESTGEOM'):
         conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
