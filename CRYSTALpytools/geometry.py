@@ -36,6 +36,11 @@ def refine_geometry(struc, **kwargs):
     Get refined geometry. Useful when reducing the cell to the irrducible
     one. 3D only.
 
+    .. note::
+        In some rare cases (the known case is space group 61), the reduced
+        geometry might be wrong due to the different but equivalent symmetry
+        operations defined in CRYSTAL and pymatgen.
+
     Args:
         struc (Structure): Pymatgen structure
         **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
@@ -191,6 +196,11 @@ def get_sg_symmops(struc, **kwargs):
     """
     Get space group number and corresponding symmetry operations.
 
+    .. note::
+        In some rare cases (the known case is space group 61), the symmetry
+        operations of pymatgen might be different from defaults of CRYSTAL.
+        That can lead to errors while reading gui files.
+
     Args:
         struc (Structure): Pymatgen Structure object.
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object.
@@ -210,11 +220,11 @@ def get_sg_symmops(struc, **kwargs):
     symmops = []
     n_symmops = 0
     for symmop in all_symmops:
-        if np.all(symmop.translation_vector == 0.):
-            n_symmops += 1
-            symmops.append(
-                np.vstack([symmop.rotation_matrix, symmop.translation_vector])
-            )
+        # if np.all(symmop.translation_vector == 0.):
+        n_symmops += 1
+        symmops.append(
+            np.vstack([symmop.rotation_matrix, symmop.translation_vector])
+        )
 
     symmops = np.reshape(np.array(symmops, dtype=float), [n_symmops, 4, 3])
 
