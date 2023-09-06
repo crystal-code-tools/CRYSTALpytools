@@ -191,6 +191,11 @@ class Mode:
 
         return self.c_v
 
+    def get_classical_amplitude(self, struc):
+        """
+        
+        """
+
     def polynomial_fit(self, order=[2, 3]):
         """
         Fit phonon frequency as the polynomial function of volume. *ncalc > 1 only*.

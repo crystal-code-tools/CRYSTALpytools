@@ -50,5 +50,5 @@ def amu_to_me(mass):
     return mass * (constants.physical_constants['unified atomic mass unit'][0] / constants.m_e)
 
 def me_to_amu(mass):
-    # Conversion from unified atomic mass unit to electron mass (mass unit in AU)
+    # Conversion from electron mass (mass unit in AU) to unified atomic mass unit
     return mass / (constants.physical_constants['unified atomic mass unit'][0] / constants.m_e)

@@ -1009,8 +1009,11 @@ class SCF(BlockBASE):
             'EXCHSIZE' : '_exchsize',
             'SHRINK'   : '_shrink',
             'PPAN'     : '_ppan',
-            'GEOM'     : 'fixgeom',  # FIXINDEX - GEOM subblock
-            'BASE'     : 'fixbase',  # FIXINDEX - BASE subblock. GEBA subblock not supported
+            'CMPLXFAC' : '_cmplxfac',
+            'REPLDATA' : '_repldata',
+            'STDIAG'   : '_stdiag',
+            'GEOM'     : 'fixgeom',  # FIXINDEX - GEOM subblock. Must be put at the end
+            'BASE'     : 'fixbase',  # FIXINDEX - BASE subblock. Must be put at the end. GEBA subblock not supported
         }
         key = list(self._block_dict.keys())
         attr = list(self._block_dict.values())
@@ -1301,6 +1304,15 @@ class SCF(BlockBASE):
                               stacklevel=2)
                 self._diis = ''
         self._prtdiis = super(SCF, self).assign_keyword(key, [])
+
+    def cmplxfac(self, WEIGHT=None):
+        self._cmplxfac = super(SCF, self).assign_keyword('CMPLXFAC', [1, ], WEIGHT)
+
+    def repldata(self, key='REPLDATA'):
+        self._repldata = super(SCF, self).assign_keyword(key, [])
+
+    def stdiag(self, key='STDIAG'):
+        self._stdiag = super(SCF, self).assign_keyword(key, [])
 
 
 class DFT(BlockBASE):

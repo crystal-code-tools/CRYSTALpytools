@@ -2676,6 +2676,8 @@ class Crystal_gui:
         Args:
             gui_file (str): The CRYSTAL structure (gui) file
         """
+        import numpy as np
+
         try:
             file = open(gui_file, 'r')
             data = file.readlines()

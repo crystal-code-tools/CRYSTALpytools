@@ -13,7 +13,7 @@ def cry_ase2gui(structure, vacuum=None, symmetry=True):
     Args:
         structure (ASE Structure): ASE Structure object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            length of non-periodic direction to 500 Angstrom.
+            length of non-periodic direction to 500 Angstrom. Low dimensional systems only.
         symmetry (bool): Perform symmetry analysis.
 
     Returns:
@@ -92,7 +92,7 @@ def cry_gui2ase(gui_file, vacuum=None, **kwargs):
     Args:
         gui_file (str): Path to the CRYSTAL structure (gui) file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of ASE atoms object.
+            ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         **kwargs: Passed to ASE Atoms constructor
     Returns:
         Atoms: ASE atoms object.
@@ -114,7 +114,7 @@ def cry_gui2cif(cif_file_name, gui, vacuum=None, **kwargs):
         cif_file_name (str): Name (including path) of the cif file to be saved
         gui (Crystal_gui): CRYSTALpytools gui object
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of Pymatgen atoms object.
+            ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
         **kwargs: Passed to Pymatgen CifWriter.
     """
     from CRYSTALpytools.convert import cry_gui2pmg
@@ -134,7 +134,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     Args:
         gui: CRYSTAL structure (gui) object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of Pymatgen object.
+            ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
 
     Returns:
@@ -191,6 +191,9 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         else:
             pbc = (True, True, False)
 
+    if gui.dimensionality == 3:
+        pbc = (True, True, True)
+
     latt = Lattice(gui.lattice, pbc=pbc)
 
     return Structure(latt, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
@@ -220,7 +223,7 @@ def cry_out2ase(output, vacuum=None, initial=False, **kwargs):
     Args:
         output: Crystal output object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of ASE atoms object.
+            ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
         **kwargs: Passed to ASE Atoms constructor
 
@@ -244,7 +247,7 @@ def cry_out2cif(cif_file_name, output, vacuum=None, initial=False, **kwargs):
         cif_file_name (str): Name (including path) of the CIF file to be saved.
         output: Crystal output object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of Pymatgen atoms object.
+            ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
         **kwargs: Passed to Pymatgen CifWriter.
     """
@@ -265,7 +268,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     Args:
         output (CRYSTAL output object): CRYSTAL output object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            ``pbc`` attribute of Pymatgen object.
+            ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
 
@@ -300,7 +303,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
             else:
                 pbc = (False, False, False)
 
-    if gui.dimensionality == 1:
+    if ndimen == 1:
         if vacuum != None:
             pbc = (True, True, True)
             thickness_y = np.amax(struc.cart_coords[:, 1]) - np.amin(struc.cart_coords[:, 1])
@@ -311,7 +314,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
         else:
             pbc = (True, False, False)
 
-    if gui.dimensionality == 2:
+    if ndimen == 2:
         if vacuum != None:
             pbc = (True, True, True)
             thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
@@ -319,6 +322,9 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
             latt_mx[2, 2] = thickness_z + vacuum
         else:
             pbc = (True, True, False)
+
+    if ndimen == 3:
+        pbc = (True, True, True)
 
     latt = Lattice(latt_mx, pbc=pbc)
 
@@ -352,7 +358,7 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
         symmetry (bool): Do symmetry analysis.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            length of non-periodic direction to 500 Angstrom.
+            length of non-periodic direction to 500 Angstrom. Low dimensional systems only.
         zconv (list[list[int, int]]): 1st element: The **index** of atom;
                 2nd element: The new conventional atomic number.
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object. Valid only
@@ -470,6 +476,7 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
             else:
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
         else:
+            gui.space_group = 1
             gui.n_symmops = 1
             gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
             gui.symmops = np.reshape(np.array(gui.symmops, dtype=float),
