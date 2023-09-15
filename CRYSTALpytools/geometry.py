@@ -142,7 +142,7 @@ def get_pcel(struc, smx):
     pcel_coords = []
     pcel_species = []
     for i, coord in enumerate(all_coords.round(12)): # Slightly reduce the accuracy
-        if np.any(coord[0:ndimen] > 0.5) or np.any(coord[0:ndimen] <= -0.5):
+        if np.any(coord[0:ndimen] >= 0.5) or np.any(coord[0:ndimen] < -0.5):
             continue
         else:
             pcel_coords.append(coord)
@@ -208,13 +208,38 @@ def get_sg_symmops(struc, **kwargs):
     sg = SpacegroupAnalyzer(struc, **kwargs).get_space_group_number()
     all_symmops = SpacegroupAnalyzer(struc, **kwargs).get_symmetry_operations(cartesian=True)
     symmops = []
+    ops_tmp = []
     n_symmops = 0
+    # For symmetry operations with same rotation matrix, save the one with 0
+    # tranlation vector.
     for symmop in all_symmops:
-        # if np.all(symmop.translation_vector == 0.):
-        n_symmops += 1
-        symmops.append(
-            np.vstack([symmop.rotation_matrix, symmop.translation_vector])
-        )
+        if n_symmops == 0:
+            n_symmops += 1
+            symmops.append(np.vstack([symmop.rotation_matrix, symmop.translation_vector]))
+            ops_tmp = [symmop]
+        else:
+            save = None
+            for nop, op in enumerate(ops_tmp):
+                if np.array_equal(op.rotation_matrix, symmop.rotation_matrix):
+                    if np.all(op.translation_vector == 0.):
+                        save = False
+                        break
+                    else:
+                        save = True
+                        save_id = nop
+                        break
+                else:
+                    continue
+
+            if save == True:
+                symmops[save_id] = np.vstack([symmop.rotation_matrix, symmop.translation_vector])
+                ops_tmp[save_id] = symmop
+            elif save == None:
+                symmops.append(np.vstack([symmop.rotation_matrix, symmop.translation_vector]))
+                ops_tmp.append(symmop)
+                n_symmops += 1
+            else:
+                continue
 
     symmops = np.reshape(np.array(symmops, dtype=float), [n_symmops, 4, 3])
 

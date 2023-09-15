@@ -349,7 +349,7 @@ def cry_out2xyz(xyz_file_name, output, initial=False, **kwargs):
     XYZ(structure, **kwargs).write_file(cif_file_name)
 
 
-def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
+def cry_pmg2gui(structure, pbc=None, vacuum=None, symmetry=True, zconv=None, **kwargs):
     """
     Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
     Vacuum layer is set to 500 Angstrom as the default of CRYSTAL for low
@@ -357,9 +357,12 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
 
     Args:
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
-        symmetry (bool): Do symmetry analysis.
+        pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
+            directions. If none, the code will read it from input structure.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
-            length of non-periodic direction to 500 Angstrom. Low dimensional systems only.
+            length of non-periodic direction to 500 Angstrom. Low dimensional
+            systems only.
+        symmetry (bool): Do symmetry analysis.
         zconv (list[list[int, int]]): 1st element: The **index** of atom;
                 2nd element: The new conventional atomic number.
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object. Valid only
@@ -376,14 +379,15 @@ def cry_pmg2gui(structure, vacuum=None, symmetry=True, zconv=None, **kwargs):
     import copy
 
     # dimensionality
-    if 'Molecule' in str(type(structure)):
-        pbc = (False, False, False)
-        structure = Structure(lattice=np.eye(3)*500,
-                              species=list(structure.atomic_numbers),
-                              coords=structure.cart_coords.tolist(),
-                              coords_are_cartesian=True)
-    else:
-        pbc = structure.pbc
+    if pbc == None:
+        if 'Molecule' in str(type(structure)):
+            pbc = (False, False, False)
+            structure = Structure(lattice=np.eye(3)*500,
+                                  species=list(structure.atomic_numbers),
+                                  coords=structure.cart_coords.tolist(),
+                                  coords_are_cartesian=True)
+        else:
+            pbc = structure.pbc
 
     gui = Crystal_gui()
     gui.dimensionality = pbc.count(True)
