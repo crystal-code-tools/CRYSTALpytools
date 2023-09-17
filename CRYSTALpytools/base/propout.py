@@ -39,7 +39,7 @@ class OutBASE():
         lattice = []
         cart_coord = []
         species = []
-        while countline <= len(data):
+        while countline < len(data):
             line = data[countline]
             if re.match(r'^\s+DIRECT LATTICE VECTOR COMPONENTS', line):
                 lattice = [data[countline+1].strip().split(),

@@ -135,8 +135,8 @@ class BlockBASE():
                 shape += [len(i), ]
                 value += i
         else:  # 1D list (single row)
-            shape += [len(args[0]), ]
-            value += args[0]
+            shape += [len(args[1]), ]
+            value += args[1]
 
         return shape, value
 

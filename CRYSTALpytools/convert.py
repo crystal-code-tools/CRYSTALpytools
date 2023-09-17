@@ -137,7 +137,7 @@ def cry_gui2cif(gui_file, cif_file_name, vacuum=None, **kwargs):
     from CRYSTALpytools.convert import cry_gui2pmg
     from pymatgen.io.cif import CifWriter
 
-    structure = cry_gui2pmg(gui, vacuum=vacuum, molecule=False)
+    structure = cry_gui2pmg(gui_file, vacuum=vacuum, molecule=False)
     if len(kwargs) == 0:
         CifWriter(structure, symprec=0.01, **kwargs).write_file(cif_file_name)
     else:
@@ -232,7 +232,7 @@ def cry_gui2xyz(gui_file, xyz_file_name, **kwargs):
     from pymatgen.io.xyz import XYZ
     from CRYSTALpytools.convert import cry_gui2pmg
 
-    structure = cry_gui2pmg(gui, molecule=True) #this returns a pmg Molecule object
+    structure = cry_gui2pmg(gui_file, molecule=True) #this returns a pmg Molecule object
     XYZ(structure, **kwargs).write_file(xyz_file_name)
 
 
@@ -275,7 +275,7 @@ def cry_out2cif(output, cif_file_name, vacuum=None, initial=False, **kwargs):
     from CRYSTALpytools.convert import cry_out2pmg
     from pymatgen.io.cif import CifWriter
 
-    structure = cry_gui2pmg(output, vacuum=vacuum, initial=initial, molecule=False)
+    structure = cry_out2pmg(output, vacuum=vacuum, initial=initial, molecule=False)
     if len(kwargs) == 0:
         CifWriter(structure, symprec=0.01, **kwargs).write_file(cif_file_name)
     else:
@@ -307,7 +307,10 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     out = Crystal_output().read_cry_output(output)
     ndimen = out.get_dimensionality()
     struc = out.get_geometry(initial=initial, write_gui=False)
-    latt_mx = copy.deepcopy(struc.lattice.matrix)
+    if ndimen != 0:
+        latt_mx = copy.deepcopy(struc.lattice.matrix)
+    else:
+        latt_mx = np.eye(3) * 500.
 
     if ndimen == 0:
         if molecule == True:
@@ -368,7 +371,7 @@ def cry_out2xyz(output, xyz_file_name, initial=False, **kwargs):
     from CRYSTALpytools.convert import cry_out2pmg
 
     structure = cry_out2pmg(output, initial=initial, molecule=True) #this returns a pmg Molecule object
-    XYZ(structure, **kwargs).write_file(cif_file_name)
+    XYZ(structure, **kwargs).write_file(xyz_file_name)
 
 
 def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
