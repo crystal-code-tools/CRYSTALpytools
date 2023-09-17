@@ -4,7 +4,7 @@
 Functions that do conversion between data / file formats
 """
 
-def cry_ase2gui(structure, vacuum=None, symmetry=True):
+def cry_ase2gui(structure, gui_file=None, vacuum=None, symmetry=True):
     """
     Transform an ASE Structure object into a Pymatgen structure object and then
     a CRYSTAL structure (gui) object. Vacuum layer is set to 500 Angstrom
@@ -12,12 +12,10 @@ def cry_ase2gui(structure, vacuum=None, symmetry=True):
 
     Args:
         structure (ASE Structure): ASE Structure object.
+        gui_file (str): CRYSTAL gui / fort.34 file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             length of non-periodic direction to 500 Angstrom. Low dimensional systems only.
         symmetry (bool): Perform symmetry analysis.
-
-    Returns:
-        Crystal_gui: CRYSTAL structure (gui) object.
     """
     # First transform into pmg and then write the gui
 
@@ -25,51 +23,43 @@ def cry_ase2gui(structure, vacuum=None, symmetry=True):
     from CRYSTALpytools.convert import cry_pmg2gui
 
     pmg_structure = AseAtomsAdaptor().get_structure(structure)
+    gui = cry_pmg2gui(pmg_structure, gui_file, vacuum=vacuum, symmetry=symmetry)
 
-    return cry_pmg2gui(pmg_structure, vacuum=vacuum, symmetry=symmetry)
+    return gui
 
 
 def cry_bands2pmg(output, bands, labels=None):
     """
     Transform a CRYSTAL bands object into a Pymatgen bands object.
-    
+
     Args:
         output: Crystal output object.
         bands: Crystal bands object.
         labels (list): K point labels to display in the band structure.
-        
+
     Returns:
         BandStructureSymmLine: Pymatgen band structure object.
     """
     import numpy as np
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-    
     from pymatgen.core.lattice import Lattice
     from pymatgen.electronic_structure.core import Spin
-    
+
     # Read the reciprocal lattice from the output file
     output.get_reciprocal_lattice()
     labels_dict = {}
-    
-    if labels is not None:
-        for i, j in enumerate(bands.n_points):
-            labels_dict[labels[i]] = bands.k_point_coordinates[j-1]
-    
-    
-    # List of k points coordinates as symmetry lines
-    band_energy = bands.bands 
-    
+    if labels == None:
+        labels = bands.tick_label
+    for i in range(bands.ntick):
+        labels_dict[labels[i]] = bands.tick_position[i]
+
     # pymatgen will plot the bands wrt to the Fermi Energy
-    band_energy[1:, :, :] = band_energy[1:, :, :] + output.get_fermi_energy()
-    k_points_coordinates = []
+    band_energy = bands.bands + output.get_fermi_energy()
+
+    # List of k points coordinates as symmetry lines
+    k_points_coordinates = bands.tick_position
     
-    for i, coord in enumerate(bands.k_point_coordinates):
-        k_points_coordinates.append(bands.k_point_coordinates)
-        if len(bands.n_points) > 1:
-            if i+1 in bands.n_points[1:-1]:
-                k_points_coordinates.append(bands.k_point_coordinates)
-                
-    k_points_coordinates = bands.k_point_coordinates
+    
     if len(bands.n_points) > 1:
         for i, point in enumerate(bands.n_points[1:-1]):
             k_points_coordinates.insert(point-1+i, k_points_coordinates[point-1+i])
@@ -83,14 +73,14 @@ def cry_bands2pmg(output, bands, labels=None):
                                  Lattice(output.reciprocal_lattice), 
                                  bands.efermi, labels_dict,
                                  coords_are_cartesian=False)
-    
+
 
 def cry_gui2ase(gui_file, vacuum=None, **kwargs):
     """
     Transform a CRYSTAL structure (gui) file into an ASE atoms object.
 
     Args:
-        gui_file (str): Path to the CRYSTAL structure (gui) file.
+        gui_file (str): CRYSTAL gui / fort.34 file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         **kwargs: Passed to ASE Atoms constructor
@@ -105,14 +95,14 @@ def cry_gui2ase(gui_file, vacuum=None, **kwargs):
     return AseAtomsAdaptor().get_atoms(struc, **kwargs)
 
 
-def cry_gui2cif(cif_file_name, gui, vacuum=None, **kwargs):
+def cry_gui2cif(gui_file, cif_file_name, vacuum=None, **kwargs):
     """
     Read a CRYSTAL structure (gui) file and save a cif file. The `CifWriter <https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter>`_
     object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
+        gui_file (str): CRYSTAL gui / fort.34 file.
         cif_file_name (str): Name (including path) of the cif file to be saved
-        gui (Crystal_gui): CRYSTALpytools gui object
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
         **kwargs: Passed to Pymatgen CifWriter.
@@ -126,13 +116,15 @@ def cry_gui2cif(cif_file_name, gui, vacuum=None, **kwargs):
     else:
         CifWriter(structure, **kwargs).write_file(cif_file_name)
 
+    return
 
-def cry_gui2pmg(gui, vacuum=None, molecule=True):
+
+def cry_gui2pmg(gui_file, vacuum=None, molecule=True):
     """
     Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
 
     Args:
-        gui: CRYSTAL structure (gui) object.
+        gui_file: CRYSTAL gui / fort.34 file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
@@ -140,11 +132,12 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
-
+    from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.core.structure import Structure, Molecule
     from pymatgen.core.lattice import Lattice
     import numpy as np
 
+    gui = Crystal_gui().read_gui(gui_file)
     if gui.dimensionality == 0:
         if molecule == True:
             return Molecule(gui.atom_number, gui.atom_positions)
@@ -199,13 +192,13 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     return Structure(latt, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
 
 
-def cry_gui2xyz(xyz_file_name, gui, **kwargs):
+def cry_gui2xyz(gui_file, xyz_file_name, **kwargs):
     """
     Transform a CRYSTAL structure (gui) file into an XYZ file.
 
     Args:
         xyz_file_name (str): Name of the XYZ file to be saved.
-        gui (Crystal_gui): CRYSTAL structure (gui) object.
+        gui (str): CRYSTAL gui / fort.34 file.
         **kwargs: Passed to Pymatgen XYZ object.
     """
 
@@ -221,7 +214,7 @@ def cry_out2ase(output, vacuum=None, initial=False, **kwargs):
     Transform a CRYSTAL output object into an ASE atoms object.
 
     Args:
-        output: Crystal output object.
+        output: Crystal output file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
@@ -238,14 +231,15 @@ def cry_out2ase(output, vacuum=None, initial=False, **kwargs):
     return AseAtomsAdaptor().get_atoms(struc, **kwargs)
 
 
-def cry_out2cif(cif_file_name, output, vacuum=None, initial=False, **kwargs):
+def cry_out2cif(output, cif_file_name, vacuum=None, initial=False, **kwargs):
     """
-    Save a CRYSTAL output object as a CIF file. The `CifWriter <https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter>`_
+    Read geometry from a CRYSTAL output file and save it as a CIF file. The
+    `CifWriter <https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter>`_
     object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
+        output: Crystal output file.
         cif_file_name (str): Name (including path) of the CIF file to be saved.
-        output: Crystal output object.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
@@ -263,10 +257,11 @@ def cry_out2cif(cif_file_name, output, vacuum=None, initial=False, **kwargs):
 
 def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     """
-    Transform a CRYSTAL output object into a pymatgen structure object.
+    Read geometry from a CRYSTAL output file and save it as a pymatgen structure
+    object.
 
     Args:
-        output (CRYSTAL output object): CRYSTAL output object.
+        output (CRYSTAL output object): CRYSTAL output file.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
@@ -332,13 +327,13 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     return Structure(latt, struc.atomic_numbers, struc.cart_coords, coords_are_cartesian=True)
 
 
-def cry_out2xyz(xyz_file_name, output, initial=False, **kwargs):
+def cry_out2xyz(output, xyz_file_name, initial=False, **kwargs):
     """
-    Transform a CRYSTAL output object into an XYZ file.
+    Read geometry from a CRYSTAL output file and save it as an XYZ file.
 
     Args:
-        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
         output: CRYSTAL output object.
+        xyz_file_name (str): Name (including path) of the XYZ file to be saved.
         initial (bool): Read the last geometry of the output file.
         **kwargs: Passed to Pymatgen XYZ object.
     """
@@ -349,14 +344,15 @@ def cry_out2xyz(xyz_file_name, output, initial=False, **kwargs):
     XYZ(structure, **kwargs).write_file(cif_file_name)
 
 
-def cry_pmg2gui(structure, pbc=None, vacuum=None, symmetry=True, zconv=None, **kwargs):
+def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
+                zconv=None, **kwargs):
     """
-    Transform a pymatgen Structure object into a CRYSTAL structure (gui) object.
-    Vacuum layer is set to 500 Angstrom as the default of CRYSTAL for low
-    symmstry systems
+    Save a pymatgen Structure object into a CRYSTAL gui file. Vacuum layer is
+    set to 500 Angstrom as the default of CRYSTAL for low symmstry systems.
 
     Args:
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
+        gui_file (str): CRYSTAL gui / fort.34 file.
         pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
             directions. If none, the code will read it from input structure.
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
@@ -495,6 +491,9 @@ def cry_pmg2gui(structure, pbc=None, vacuum=None, symmetry=True, zconv=None, **k
     if zconv != None:
         for atom in zconv:
             gui.atom_number[atom[0]] = atom[1]
+
+    if gui_file != None:
+        gui.write_gui(gui_file, symm=symmetry)
 
     return gui
 

@@ -77,8 +77,8 @@ class Crystal_input(Crystal_inputBASE):
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
             super(Crystal_input, self).geom.external()
-            gui = cry_pmg2gui(struc, symmetry=True, zconv=zconv, **kwargs)
-            gui.write_gui(gui_name, symm=True)
+            gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True,
+                              zconv=zconv, **kwargs)
         elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
             sg, _, latt, natom, atom = refine_geometry(struc, **kwargs)
             if zconv != None:
@@ -342,19 +342,19 @@ class Crystal_output:
 
         # Write gui files
         if write_gui == True:
+            # Conventional atomic numbers
+            zconv = [[i, self.atom_numbers[i]] for i in range(self.n_atoms)]
             if gui_name == None:
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(struc, symmetry=True, **kwargs)
-                gui.write_gui(gui_name, symm=True)
+                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
             elif symmetry == None:
-                gui = cry_pmg2gui(struc, symmetry=False)
-                gui.write_gui(gui_name, symm=False)
+                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
                 self.get_symmops()
-                gui = cry_pmg2gui(struc, symmetry=False)
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
                 gui.space_group = self.sg_number
@@ -363,7 +363,7 @@ class Crystal_output:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                gui = cry_pmg2gui(struc, symmetry=False)
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 # Replace the symmops with the reference file
                 gui.symmops = gui_ref.symmops
                 gui.n_symmops = gui_ref.n_symmops
@@ -624,6 +624,8 @@ class Crystal_output:
             geometry before supercell expansion keywords such as 'SUPERCEL'
             or 'SCELPHONO'.
 
+            Conventional atomic numbers are not available.
+
         Args:
             initial (bool): Read the initial or last geometry. Useful in
                 case of geometry optimization.
@@ -672,14 +674,12 @@ class Crystal_output:
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(pstruc, symmetry=True, **kwargs)
-                gui.write_gui(gui_name, symm=True)
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
             elif symmetry == None:
-                gui = cry_pmg2gui(pstruc, symmetry=False)
-                gui.write_gui(gui_name, symm=False)
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
-                gui = cry_pmg2gui(pstruc, symmetry=False)
+                gui = cry_pmg2gui(pstruc, gui_file=None, symmetry=False)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
                 gui.space_group = self.sg_number
@@ -688,7 +688,7 @@ class Crystal_output:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                gui = cry_pmg2gui(pstruc, symmetry=False)
+                gui = cry_pmg2gui(pstruc, gui_file=None, symmetry=False)
                 # Replace the symmops with the reference file
                 gui.symmops = gui_ref.symmops
                 gui.n_symmops = gui_ref.n_symmops
@@ -1250,16 +1250,15 @@ class Crystal_output:
 
             if symmetry == 'pymatgen':
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(s, symmetry=True, **kwargs)
-                    gui.write_gui(gui_list[idx_s], symm=True)
+                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s],
+                                      symmetry=True, **kwargs)
             elif symmetry == None:
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(s, symmetry=False)
-                    gui.write_gui(gui_list[idx_s], symm=False)
+                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(s, symmetry=False)
+                    gui = cry_pmg2gui(s, gui_file=None, symmetry=False)
                     gui.symmops = self.symmops
                     gui.n_symmops = self.n_symmops
                     gui.space_group = self.sg_number
@@ -1269,7 +1268,7 @@ class Crystal_output:
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(s, symmetry=False)
+                    gui = cry_pmg2gui(s, gui_file=None, symmetry=False)
                     # Replace the symmops with the reference file
                     gui.symmops = gui_ref.symmops
                     gui.n_symmops = gui_ref.n_symmops

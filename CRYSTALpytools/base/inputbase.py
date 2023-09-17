@@ -248,7 +248,7 @@ class BlockBASE():
 
                 # Clean values
                 value = ''
-            elif t in self._block_ed: # End line: starting point
+            elif t in end_block_label: # End line: starting point
                 continue
             else:
                 value += t + '\n'
