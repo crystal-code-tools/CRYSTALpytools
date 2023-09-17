@@ -3,6 +3,157 @@
 """
 Classes and methods to phrase output files by 'properties' calculations.
 """
+class OutBASE():
+    """
+    Base object for Properties output file. Auxiliary information is
+    substracted. Other data is read from formatted files respectively.
+
+    Args:
+        filename (str): Properties output file name.
+    """
+    def __init__(self, filename):
+        try:
+            file = open(filename, 'r', errors='ignore')
+            self.data = file.readlines()
+            file.close()
+        except:
+            raise FileNotFoundError('EXITING: an output file needs to be specified')
+
+    @classmethod
+    def get_geometry(cls, filename):
+        """
+        Get geometry from properties output calculation. A 3D geometry is
+        generated since no dimensionality information is provided.
+
+        Args:
+            filename (str): Properties output file name.
+        Returns:
+            struc (Structure): Pymatgen structure
+        """
+        import re
+        import numpy as np
+        from pymatgen.core.structure import Structure
+
+        data = cls(filename=filename).data
+        countline = 0
+        lattice = []
+        cart_coord = []
+        species = []
+        while countline <= len(data):
+            line = data[countline]
+            if re.match(r'^\s+DIRECT LATTICE VECTOR COMPONENTS', line):
+                lattice = [data[countline+1].strip().split(),
+                           data[countline+2].strip().split(),
+                           data[countline+3].strip().split()]
+                countline += 4
+                continue
+            elif re.match(r'^\s+ATOM N\.AT\.\s+SHELL\s+X\(A\)', line):
+                countline += 2
+                line = data[countline]
+                while not re.match(r'^\s*\*+\s*$', line):
+                    line_data = line.strip().split()
+                    species.append(line_data[2].capitalize())
+                    cart_coord.append(line_data[4:7])
+                    countline += 1
+                    line = data[countline]
+
+                break
+            else:
+                countline += 1
+                continue
+
+        lattice = np.array(lattice, dtype=float)
+        cart_coord = np.array(cart_coord, dtype=float)
+        if len(lattice) == 0 or len(cart_coord) == 0:
+            raise Exception('Valid geometry not found.')
+
+        return Structure(lattice=lattice, species=species, coords=cart_coord,
+                        coords_are_cartesian=True)
+    @classmethod
+    def get_lattice(cls, filename):
+        """
+        Get lattice matrix from properties output calculation. A 3D lattice is
+        generated since no dimensionality information is provided.
+
+        Args:
+            filename (str): Properties output file name.
+        Returns:
+            matrix (array): 3\*3 lattice matrix
+        """
+        from CRYSTALpytools.base.propout import OutBASE
+
+        struc = OutBASE.get_geometry(filename)
+        return struc.lattice.matrix
+
+    @classmethod
+    def get_reciprocal_lattice(cls, filename):
+        """
+        Get reciprocal lattice matrix from properties output calculation. A 3D
+        lattice is generated since no dimensionality information is provided.
+
+        Args:
+            filename (str): Properties output file name.
+        Returns:
+            matrix (array): 3\*3 reciprocal lattice matrix
+        """
+        from CRYSTALpytools.base.propout import OutBASE
+
+        struc = OutBASE.get_geometry(filename)
+        return struc.lattice.reciprocal_lattice.matrix
+
+    @classmethod
+    def get_3dkcoord(cls, filename):
+        """
+        BANDS calculation only. Get 3D coordinates of k points and shrinking
+        factors from output file.
+
+        Args:
+            filename (str): Properties output file name.
+        Returns:
+            tick_pos3d (array): ntick\*3 array of fractional coordinates of
+                high symmetry k points
+            k_pos3d(array): nkpoint\*3 fractional coordinates of k points
+        """
+        import re
+        import numpy as np
+
+        data = cls(filename=filename).data
+        is_band = False
+        tick_pos3d = []
+        k_pos3d = np.array([np.nan, np.nan, np.nan], dtype=float)
+        for nline, line in enumerate(data):
+            if re.match(r'^\s*\*\s+BAND STRUCTURE\s+\*$', line):
+                is_band = True
+            elif re.match(r'^\s*LINE\s+[0-9]+\s+\(', line):
+                bg = np.array(line[10:25].strip().split(), dtype=float)
+                ed = np.array(line[26:41].strip().split(), dtype=float)
+                if len(tick_pos3d) > 0:
+                    if np.array_equal(tick_pos3d[-1], bg): # do not repeat the same point in the middle
+                        tick_pos3d.append(ed)
+                    else:
+                        tick_pos3d.append(bg)
+                        tick_pos3d.append(ed)
+                else:
+                    tick_pos3d.append(bg)
+                    tick_pos3d.append(ed)
+            elif re.match(r'^\s*[0-9]+ POINTS \- SHRINKING', line):
+                nkp = int(line.strip().split()[0])
+                kpos = np.concatenate([np.linspace(bg[0], ed[0], nkp),
+                                       np.linspace(bg[1], ed[1], nkp),
+                                       np.linspace(bg[2], ed[2], nkp)])
+                kpos = np.reshape(kpos, [3, nkp], order='C')
+                k_pos3d = np.vstack([k_pos3d, kpos.transpose()])
+            elif re.match(r'^\s*[0-9]+ DATA WRITTEN ON UNIT 25', line):
+                break
+
+        if is_band == False:
+            raise Exception('Not a valid band calculation.')
+
+        tick_pos3d = np.array(tick_pos3d)
+        k_pos3d = k_pos3d[1:, :]
+
+        return tick_pos3d, k_pos3d
+
 
 class DOSBASE():
     """
@@ -29,9 +180,10 @@ class DOSBASE():
     def DOSS_parser(cls, data):
         """
         Parse DOSS.DAT / PHONDOS file for electron / phonon DOS. Unit: eV / THz.
+        E Fermi is aligned to 0.
 
         Args:
-            data (list[str]): A list of string. Divided by lines.
+            data (list[str]): A list of string (DOSS.DAT).
         """
         import re
         import numpy as np
@@ -79,10 +231,11 @@ class DOSBASE():
     @classmethod
     def f25_parser(cls, data):
         """
-        Parse fort.25 file for electron / phonon DOS. Unit: eV / THz.
+        Parse fort.25 file for electron / phonon DOS. Unit: eV / THz. E Fermi
+        is aligned to 0.
 
         Args:
-            data (list[str]): A list of string. Divided by lines.
+            data (list[str]): A list of string (fort.25).
         """
         import numpy as np
         from CRYSTALpytools.units import H_to_eV, eV_to_H, cm_to_thz, thz_to_cm
@@ -170,6 +323,12 @@ class BandsBASE():
         bands (array): n_bands\*n_kpoints\*spin array of band data. Unit: eV / THz
         n_kpoints (int): Number of k points along the path
         k_point_plot (float): 1D k coordinates along the path
+
+    **Uninitialized attributes**
+    * ``self.geometry``: Pymatgen structure  
+    * ``self.reciprocal_latt``: array, matrix of reciprocal lattice  
+    * ``self.tick_pos3d``: array, 3D fractional coordinates of tick labels in reciprocal space  
+    * ``self.k_point_pos3d``: array, 3D fractional coordinates of k points in reciprocal space  
     """
     def __init__(self, spin, n_tick, tick_position, tick_label, efermi,
                  n_bands, bands, n_kpoints, k_point_plot, unit):
@@ -183,19 +342,21 @@ class BandsBASE():
         self.n_kpoints = n_kpoints
         self.k_point_plot = k_point_plot
         self.unit = unit
-        # Empty and never called by the old Properties_output.read_cry_bands method.
-        # But kept anyway
-        self.k_point_inp_coordinates = []
-        self.n_points = []
+        # To set the following attributes use 'CRYSTALpytools.base.propout.OutBASE.get_geometry'
+        self.geometry = None
+        self.reciprocal_latt = None
+        # To set the following attributes use 'CRYSTALpytools.base.propout.OutBASE.get_3dkcoord'
+        self.k_point_pos3d = None
+        self.tick_pos3d = None
 
     @classmethod
     def BAND_parser(cls, data):
         """
         Parse BAND.DAT / PHONBANDS.DAT file for electron / phonon band structure.
-        Unit: eV / THz.
+        Unit: eV / THz. E Fermi is aligned to 0.
 
         Args:
-            data (list[str]): A list of string. Divided by lines.
+            data (list[str]): A list of string (BAND.DAT).
         """
         import numpy as np
         from CRYSTALpytools.units import H_to_eV, cm_to_thz
@@ -208,27 +369,6 @@ class BandsBASE():
         spin = int(data[0].split()[6])  # number of spin
         # number of tick in the band plot
         n_tick = int(data[1].split()[2])+1
-        """
-        # finds all the coordinates of the ticks and the k points
-        k_point_inp_coordinates = []
-        n_points = []
-        for i in range(n_tick):
-            n_points.append(int(data[2+i].split()[1]))
-            coord = []
-            for j in range(3):
-                l = re.findall('\d+', data[2+i].split()[2])
-                coord.append(float(l[j])/float(l[3]))
-            k_point_inp_coordinates.append(coord)
-        k_point_inp_coordinates = np.array(k_point_inp_coordinates)
-        k_point_coordinates = [k_point_inp_coordinates[0]]
-        for i in range(1, n_tick):
-            step = (k_point_inp_coordinates[i]- k_point_inp_coordinates[i-1])/float(
-                n_points[i]-n_points[i-1])
-            for j in range(n_points[i]-n_points[i-1]):
-                # coordinates of the k_points in the calculation
-                k_point_coordinates.append(
-                    (k_point_inp_coordinates[i-1]+step*float(j+1)).tolist())
-        """
         tick_position = []  # positions of the ticks
         tick_label = []  # tick labels
         for i in range(n_tick):
@@ -277,13 +417,14 @@ class BandsBASE():
     def f25_parser(cls, data):
         """
         Parse fort.25 file for electron / phonon band structure. Unit: eV / THz.
+        E Fermi is aligned to 0.
 
         .. note::
 
             If Fermi energy is 0, the file is read as phonon band file.
 
         Args:
-            data (list[str]): A list of string. Divided by lines.
+            data (list[str]): A list of string (fort.25).
         """
         import numpy as np
         from CRYSTALpytools.units import H_to_eV, cm_to_thz
