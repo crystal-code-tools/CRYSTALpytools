@@ -303,7 +303,7 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
                 2nd element: The new conventional atomic number.
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
-    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
     from pymatgen.core.surface import center_slab
     from pymatgen.core.structure import Molecule
 
@@ -414,6 +414,17 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
                         n_symmops += 1
                         gui.symmops.extend(op.rotation_matrix.tolist())
                         gui.symmops.append(op.translation_vector.tolist())
+
+                gui.n_symmops = n_symmops
+
+            if dimensionality == 0:
+                symmops = PointGroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
+
+                for symmop in symmops:
+                    if np.all(symmop.translation_vector == 0.):
+                        n_symmops += 1
+                        gui.symmops.extend(symmop.rotation_matrix.tolist())
+                        gui.symmops.append(symmop.translation_vector.tolist())
 
                 gui.n_symmops = n_symmops
 
