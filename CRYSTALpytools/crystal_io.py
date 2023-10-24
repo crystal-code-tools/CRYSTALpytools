@@ -913,8 +913,7 @@ class Crystal_output:
 
         **New Attributes**  
         * self.scf_cycles (int | array): Number of cycles.  
-        * self.scf_status (str | list): 'terminated', 'converged',
-            'too many cycles' and 'unknown'  
+        * self.scf_status (str | list): 'terminated', 'converged', 'too many cycles' and 'unknown'  
         * self.scf_energy (array): SCF energy convergence. Unit: eV  
         * self.scf_deltae (array): Energy difference. Unit: eV  
         """
