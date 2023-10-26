@@ -913,8 +913,7 @@ class Crystal_output:
 
         **New Attributes**  
         * self.scf_cycles (int | array): Number of cycles.  
-        * self.scf_status (str | list): 'terminated', 'converged',
-            'too many cycles' and 'unknown'  
+        * self.scf_status (str | list): 'terminated', 'converged', 'too many cycles' and 'unknown'  
         * self.scf_energy (array): SCF energy convergence. Unit: eV  
         * self.scf_deltae (array): Energy difference. Unit: eV  
         """
@@ -2067,31 +2066,38 @@ class Properties_output:
                         s += 1
         return self
 
-    def read_electron_band(self, properties_output):
+    def read_electron_band(self, band_file, output=None):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
-        Energy unit: eV.
+        Energy unit: eV. E Fermi is aligned to 0.
 
         Args:
-            properties_output (str): File name
+            band_file (str): Name of BAND.DAT or fort.25 file
+            output (str): Properties output file (.outp or .out). For 3D k
+                coordinates and geometry information.
 
         Returns:
             self.bands (BandsBASE): A Bands base object
         """
-        from CRYSTALpytools.base.propout import BandsBASE
+        from CRYSTALpytools.base.propout import BandsBASE, OutBASE
 
-        self.read_file(properties_output)
+        self.read_file(band_file)
         if '-%-' in self.data[0]: #fort.25 file format
             self.bands = BandsBASE.f25_parser(self.data)
         else: #BAND.DAT file format
             self.bands = BandsBASE.BAND_parser(self.data)
+
+        if output != None:
+            self.bands.geometry = OutBASE.get_geometry(output)
+            self.bands.tick_pos3d, self.bands.k_point_pos3d = OutBASE.get_3dkcoord(output)
+            self.bands.reciprocal_latt = self.bands.geometry.lattice.reciprocal_lattice.matrix
 
         return self.bands
 
     def read_electron_dos(self, properties_output):
         """
         Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
-        Energy unit: eV.
+        Energy unit: eV. E Fermi is aligned to 0.
 
         Args:
             properties_output (str): File name

@@ -1,5 +1,5 @@
 CRYSTALpytools.base.plotbase module
-==================================
+===================================
 
 .. _ref-base-plotbase:
 
