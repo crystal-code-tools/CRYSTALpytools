@@ -304,7 +304,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     import copy
 
     #Extract information from the output file
-    out = Crystal_output().read_cry_output(output)
+    out = Crystal_output(output)
     ndimen = out.get_dimensionality()
     struc = out.get_geometry(initial=initial, write_gui=False)
     if ndimen != 0:

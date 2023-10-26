@@ -135,19 +135,24 @@ class Crystal_input(Crystal_inputBASE):
 class Crystal_output:
     """This class reads a CRYSTAL output and generates an object."""
 
-    def __init__(self):
-        """Initialize the Crystal_output."""
+    def __init__(self, output=None):
+        """
+        Initialize the Crystal_output.
 
-        pass
+        Args:
+            output (str): Filename
+        """
+        if output != None:
+            self._read_output(output)
 
-    def read_cry_output(self, output_name):
+    def _read_output(self, output_name):
         """
         Reads a CRYSTAL output file.
 
         Args:
             output_name (str): Name of the output file.
         Returns:
-            CrystalOutput: Object representing the CRYSTAL output.
+            self (Crystal_output)
         """
         import re
 
@@ -177,6 +182,15 @@ class Crystal_output:
             self.eoo = len(self.data)
 
         return self
+
+    def read_cry_output(self, output_name):
+        """
+        Deprecated
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Define output during initialization.')
+        return self._read_output(output_name)
 
     def get_dielectric_tensor(self):
         """Extracts the dielectric tensor from the output.
@@ -830,8 +844,8 @@ class Crystal_output:
 
     def get_convergence(self, history=False):
         """
-        The upper level of get_scf_convergence and get_opt_convergence. For
-        analysing the geometry and energy convergence.
+        The upper level of ``get_scf_convergence`` and ``get_opt_convergence``.
+        For analysing the geometry and energy convergence.
 
         .. note::
 
@@ -843,14 +857,11 @@ class Crystal_output:
                 (energy,gradient, displacement) / SCF is returned.
 
         Returns:
-            self (Crystal_output)
+            self (Crystal_output): New attributes listed below
+            self.final_energy (float) The converged energy of SCF / Opt. Unit: eV
 
-        **New Attributes**  
-        * self.scf_cycles / self.opt_cycles: Number of SCF / Opt cycles  
-        * self.scf_status / self.opt_status: Termination status of SCF / Opt cycles  
-        * self.final_energy: The converged energy of SCF / Opt. Unit: eV
-
-        For other attributes, see :code:`get_scf_convergence` and :code:`get_opt_convergence`.
+        For other attributes, see ``get_scf_convergence`` and
+        ``get_opt_convergence`` methods on the same page.
         """
         import re
         import warnings
@@ -902,20 +913,20 @@ class Crystal_output:
     def get_scf_convergence(self, all_cycles=False):
         """
         Returns the scf convergence energy and energy difference. A wrapper of
-        :code:`CRYSTALpytools.base.SCFBASE.read_convergence`.
+        ``CRYSTALpytools.base.SCFBASE.read_convergence``.
 
         Args:
-            all_cycles (bool, optional): Return all SCF steps for a geometry opt.
-                The 'ONELOG' keyword is needed.
+            all_cycles (bool, optional): Return all SCF steps for a geometry
+                opt. The 'ONELOG' CRYSTAL keyword is needed.
 
         Returns:
-            self (Crystal_output)
-
-        **New Attributes**  
-        * self.scf_cycles (int | array): Number of cycles.  
-        * self.scf_status (str | list): 'terminated', 'converged', 'too many cycles' and 'unknown'  
-        * self.scf_energy (array): SCF energy convergence. Unit: eV  
-        * self.scf_deltae (array): Energy difference. Unit: eV  
+            self (Crystal_output): New attributes listed below
+            self.scf_cycles (int | array): Number of cycles. Array if
+                ``all_cycles=True``.
+            self.scf_status (str | list): 'terminated', 'converged',
+                'too many cycles' and 'unknown'. List if ``all_cycles=True``.
+            self.scf_energy (array): SCF energy convergence. Unit: eV
+            self.scf_deltae (array): Energy difference. Unit: eV
         """
         import numpy as np
         from CRYSTALpytools.base.crysout import SCFBASE
@@ -951,19 +962,17 @@ class Crystal_output:
         return self
 
     def get_fermi_energy(self, history=False):
-        """Returns the system Fermi energy.
+        """
+        Returns the system Fermi energy.
 
         Args:
             history (bool): Whether to read the convergence history of Fermi energy.
 
         Returns:
             self.fermi_energy (float | array): Fermi energy of the system. For
-                spin-polarized insulating systems, :code:`self.fermi_energy`
-                would be either a 2\*1 array (:code:`history=False`) or a
-                nCYC\*2 array (:code:`history=True`).
-
-        Returns:
-            float: Fermi energy of the system.
+                spin-polarized insulating systems, ``self.fermi_energy`` would
+                be either a 2\*1 array (``history=False``) or a nCYC\*2 array
+                (``history=True``).
         """
         from CRYSTALpytools.base.crysout import SCFBASE
 
@@ -974,15 +983,17 @@ class Crystal_output:
         return self.fermi_energy
 
     def get_band_gap(self, history=False):
-        """Returns the system band gap.
+        """
+        Returns the system band gap.
 
         Args:
             history (bool): Whether to read the convergence history of band gap.
 
         Returns:
-            self.band_gap (float | array): Band gap of the system. For spin-polarized
-                systems, :code:`self.band_gap` would be either a 2\*1 array
-                (:code:`history=False`) or a nCYC\*2 array (:code:`history=True`).
+            self.band_gap (float | array): Band gap of the system. For
+                spin-polarized systems, ``self.band_gap`` would be either a
+                2\*1 array (``history=False``) or a nCYC\*2 array
+                (``history=True``).
         """
         from CRYSTALpytools.base.crysout import SCFBASE
 
@@ -998,7 +1009,7 @@ class Crystal_output:
 
         Returns:
             self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
-                natom\*3 for spin-polarised systems. [total, :math:`alpha`, :math:`beta`].
+                natom\*3 for spin-polarised systems. [total, :math:`\alpha`, :math:`\beta`].
         """
         import re
         import warnings
@@ -1040,7 +1051,8 @@ class Crystal_output:
         return self.mulliken_charges
 
     def get_final_energy(self):
-        """Get the final energy of the system. A wrapper of :code:`self.get_convergence`.
+        """
+        Get the final energy of the system. A wrapper of ``self.get_convergence``.
 
         Returns:
             self.final_energy (float): The final energy of the system.
@@ -1082,7 +1094,7 @@ class Crystal_output:
                             symmetry='pymatgen', **kwargs):
         """
         Returns optimisation convergence. A wrapper of
-        :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
+        ``CRYSTALpytools.base.OptBASE.read_convergence``.
 
         Args:
             primitive (bool): Restore the primitive cell (multiply by the
@@ -1104,18 +1116,16 @@ class Crystal_output:
                 SpacegroupAnalyzer object.
 
         Returns:
-            self (Crystal_output)
-
-        **New Attributes**  
-        * self.opt_cycles (int): Number of cycles.  
-        * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
-        * self.opt_energy (array): Total energy convergence. Unit: eV  
-        * self.opt_deltae (array): Total energy difference. Unit: eV  
-        * self.opt_geometry (list): Pymatgen structure at each step.  
-        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr  
-        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr  
+            self (Crystal_output): New attributes listed below
+            self.opt_cycles (int): Number of cycles.
+            self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'
+            self.opt_energy (array): Total energy convergence. Unit: eV
+            self.opt_deltae (array): Total energy difference. Unit: eV
+            self.opt_geometry (list): Pymatgen structure at each step.
+            self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
+            self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
+            self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
+            self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
@@ -1287,14 +1297,13 @@ class Crystal_output:
                 needed in d12 file.
             grad (bool): Return gradient convergence history. For optimizations
                 only.
-        Returns:
-            self
 
-        **New Attributes**  
-        * self.forces_atoms (array): natom\*3 array. Atomic forces. Unit: Hartree/Bohr
-        * self.forces_cell (array): 3\*3 array. Cell forces, 3D only. Unit: Hartree/Bohr
-        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
-        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
+        Returns:
+            self (Crystal_output): New attributes listed below
+            self.forces_atoms (array): natom\*3 array. Atomic forces. Unit: Hartree/Bohr
+            self.forces_cell (array): 3\*3 array. Cell forces, 3D only. Unit: Hartree/Bohr
+            self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
+            self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
         """
         import warnings, re
         import numpy as np
@@ -1367,6 +1376,7 @@ class Crystal_output:
             space.
 
         Returns:
+            self (Crystal_output): New attributes listed below
             self.edft (array[float]): :math:`E_{0}` Energy with empirical
                 correction. Unit: kJ/mol.
             self.nqpoint (int): Number of q points
