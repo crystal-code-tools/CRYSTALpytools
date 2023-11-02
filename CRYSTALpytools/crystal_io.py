@@ -17,8 +17,7 @@ class Crystal_input(Crystal_inputBASE):
         super(Crystal_input, self).__init__()
 
     def geom_from_cif(self, file, zconv=None, keyword='EXTERNAL',
-                      pbc=[True, True, True], gui_name='fort.34',
-                      symprec=0.01, angle_tolerance=5.0):
+                      pbc=[True, True, True], gui_name='fort.34', **kwargs):
         """
         Read geometry from cif file and put infomation to geom block, either as
         'EXTERNAL' or 'CRYSTAL'. CIF files with a single geometry only.
@@ -35,139 +34,102 @@ class Crystal_input(Crystal_inputBASE):
             zconv (list[list[int, int]]): 1st element: The **index** of atom;
                 2nd element: The new conventional atomic number. Atoms of the
                 irreducible unit is required.
-            pbc (list[bool]): *Limited to keyword = EXTERNAL*. Periodic boundary
-                conditions along x, y, z axis
-            gui_name (str): *Limited to keyword = EXTERNAL*. Gui file's name.
-            symprec (float): *Limited to keyword = CRYSTAL*. If not none,
-                finds the symmetry of the structure. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
-            angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
+            pbc (list[bool]): Valid only if ``keyword = EXTERNAL``. Force to remove
+                periodic boundary conditions along x, y, z axis.
+            gui_name (str): Valid only if ``keyword = EXTERNAL``. Gui file's name.
+            **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
         """
         import re
-        from pymatgen.core.structure import IStructure
+        from pymatgen.core.structure import IStructure, Structure
+        from pymatgen.core.lattice import Lattice
 
-        struc = IStructure.from_file(file)
-        self.geom_from_pmg(struc, zconv, keyword, pbc, gui_name, symprec, angle_tolerance)
+        struc_3d = IStructure.from_file(file)
+        if keyword == 'CRYSTAL':
+            struc = struc_3d
+        else:
+            latt_mx = struc_3d.lattice.matrix
+            latt = Lattice(latt_mx, pbc=pbc)
+            struc = Structure(latt,
+                              species=list(struc_3d.atomic_numbers),
+                              coords=struc_3d.cart_coords,
+                              coords_are_cartesian=True)
+        self.geom_from_pmg(struc, zconv, keyword, gui_name, **kwargs)
 
         return self
 
     def geom_from_pmg(self, struc, zconv=None, keyword='EXTERNAL',
-                      pbc=[True, True, True], gui_name='fort.34',
-                      symprec=0.01, angle_tolerance=5.0):
+                      gui_name='fort.34', **kwargs):
         """
         Read geometry defined by PyMatGen structure object and put infomation
         into geom block, either as 'EXTERNAL' or 'CRYSTAL'.
 
         See ``geom_from_cif`` for definition of arguments.
+
+        .. note::
+
+            Coordinates of corresponding atoms may not consistent with the
+            original CIF file if 'CRYSTAL' is used, in which case
+            coordinates of another symmetry equivalent atom is used.
         """
         import re
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.geometry import refine_geometry
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
             super(Crystal_input, self).geom.external()
-            gui = cry_pmg2gui(struc, pbc=pbc, symmetry=True, zconv=zconv)
-            gui.write_gui(gui_name, symm=True)
+            gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True,
+                              zconv=zconv, **kwargs)
         elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
-            self._pmg2input(struc, zconv, symprec=symprec, angle_tolerance=angle_tolerance)
+            sg, _, latt, natom, atom = refine_geometry(struc, **kwargs)
+            if zconv != None:
+                z_atom_index = [i[0] for i in zconv]
+                for i in range(natom):
+                    try:
+                        atom_to_sub = z_atom_index.index(i)
+                        z_input = zconv[atom_to_sub][1]
+                    except ValueError:
+                        z_input = atom[i][0]
+                    atom[i][0] = z_input
+            super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atom)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
         return self
 
-    def _pmg2input(self, struc, zconv=None, symprec=0.01, angle_tolerance=5.0):
+    def bs_from_bse(self, name, element, zconv=None):
         """
-        Pymatgen IStructure object to 'CRYSTAL' input block
+        Download basis set definitions from BSE. A wrapper of BasisSetBASE.from_bse.
 
-        .. note::
-
-            Coordinates of corresponding atoms may not consistent with the
-            original CIF file, in which case coordinates of another symmetry
-            equivalent atom is used.
-
-            When multiple choices of periodic cell exist, this method might
-            lead to errors due to the inconsistent choice of periodic cell
-            between CRYSTAL and pymatgen.
+        Args:
+            name (str): Basis set's name.
+            element (list[str] | list[int]): List of elements.
+            zconv (list[int]): If not none, use the conventional atomic number.
+                Its length must be the same as element. Its sequence must be
+                consistent with basis set's
         """
-        import numpy as np
-        from pymatgen.core.structure import IStructure
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        analyzer = SpacegroupAnalyzer(struc, symprec=symprec, angle_tolerance=angle_tolerance)
-        # Analyze the refined geometry
-        struc2 = analyzer.get_refined_structure()
-        analyzer2 = SpacegroupAnalyzer(struc2, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_pri = analyzer2.get_primitive_standard_structure()
-        analyzer3 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
-        struc_pri = analyzer3.get_symmetrized_structure()
+        return BasisSetBASE.from_bse(name=name, element=element, zconv=zconv)
 
-        sg = analyzer2.get_space_group_number()
-        latt = []
-        if sg >= 1 and sg < 3:  # trilinic
-            for i in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 3 and sg < 16:  # monoclinic
-            for i in ['a', 'b', 'c', 'beta']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 16 and sg < 75:  # orthorhombic
-            for i in ['a', 'b', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 75 and sg < 143:  # tetragonal
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 143 and sg < 168:  # trigonal, convert to hexagonal
-            struc_pri = analyzer3.get_conventional_standard_structure()
-            analyzer4 = SpacegroupAnalyzer(struc_pri, symprec=symprec, angle_tolerance=angle_tolerance)
-            struc_pri = analyzer4.get_symmetrized_structure()
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        elif sg >= 168 and sg < 195:  # hexagonal and trigonal
-            for i in ['a', 'c']:
-                latt.append(round(
-                    getattr(struc_pri.lattice, i), 6
-                ))
-        else:  # cubic
-            latt.append(round(struc_pri.lattice.a, 6))
+    def bs_from_string(bs_str, fmt='crystal'):
+        """
+        Define basis set from a string. A wrapper of BasisSetBASE.from_string.
 
-        natom = len(struc_pri.equivalent_sites)
-        eq_atom = int(len(struc_pri.species) / natom)
-        atominfo = []
-        if zconv != None:
-            z_atom_index = [i[0] for i in zconv]
-        for i in range(natom):
-            idx_eq = int(i * eq_atom)
-            if zconv == None:
-                z_input = struc_pri.species[idx_eq].Z
-            else:
-                try:
-                    atom_to_sub = z_atom_index.index(i)
-                    z_input = zconv[atom_to_sub][1]
-                except ValueError:
-                    z_input = struc_pri.species[idx_eq].Z
-            atominfo.append([
-                '{:<3}'.format(z_input),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[0], 8)
-                ),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[1], 8)
-                ),
-                '{0:11.8f}'.format(
-                    round(struc_pri.equivalent_sites[i][0].frac_coords[2], 8)
-                )
-            ])
+        Args:
+            bs_str (str)
+            fmt (str): Format string. Consistent with BSE python API.
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
 
-        super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atominfo)
+        return BasisSetBASE.from_string(bs_str=bs_str, fmt=fmt)
 
-        return
+    def bs_from_file(file, fmt='crystal'):
+        """
+        Define a basis set from a file. A wrapper of BasisSetBASE.from_file.
+        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        return BasisSetBASE.from_file(file=file, fmt=fmt)
 
 
 class Crystal_output:
@@ -179,14 +141,14 @@ class Crystal_output:
         pass
 
     def read_cry_output(self, output_name):
-        """Reads a CRYSTAL output file.
+        """
+        Reads a CRYSTAL output file.
 
         Args:
             output_name (str): Name of the output file.
         Returns:
             CrystalOutput: Object representing the CRYSTAL output.
         """
-        import sys
         import re
 
         self.name = output_name
@@ -199,8 +161,7 @@ class Crystal_output:
             self.data = file.readlines()
             file.close()
         except:
-            print('EXITING: a .out file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError('EXITING: a .out file needs to be specified')
 
         # Check the calculation terminated correctly
         self.terminated = False
@@ -214,21 +175,6 @@ class Crystal_output:
 
         if self.terminated == False:
             self.eoo = len(self.data)
-
-        # Check if the scf converged
-        self.converged = False
-        for line in self.data:
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.converged = True
-                break
-
-        # Check if the geometry optimisation converged
-        self.opt_converged = False
-
-        for line in self.data[::-1]:
-            if bool(re.search('OPT END - CONVERGED', line) ) == True:
-                self.opt_converged = True
-                break
 
         return self
 
@@ -262,529 +208,542 @@ class Crystal_output:
             if re.match(r'\s SHRINK. FACT.(MONKH.)', line) != None:
                 self.num_k = int(line.split()[13])
 
+    #### Geometry ####
+
     def get_dimensionality(self):
-        """Gets the dimensionality of the system.
+        """
+        Gets the dimensionality of the system.
 
         Returns:
-            int: Dimensionality of the system.
+            self.dimensionality (int): Dimensionality of the system.
         """
-
         import re
 
+        self.dimensionality = None
         for line in self.data:
-            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line) != None:
+            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line):
                 self.dimensionality = int(line.split()[9])
-                return self.dimensionality
-
-    def get_final_energy(self):
-        """Get the final energy of the system.
-
-        Returns:
-            float: The final energy of the system.
-        """
-        import re
-
-        self.final_energy = None
-        for line in self.data[self.eoo::-1]:
-            if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                self.final_energy = units.H_to_eV(float(line.split()[7]))
-                return self.final_energy
-            elif re.match(r'^ == SCF ENDED', line) != None:
-                self.final_energy = units.H_to_eV(float(line.split()[8]))
-                return self.final_energy
-
-        if self.final_energy == None:
-            print('WARNING: no final energy found in the output file. energy = None')
-
-        return self.final_energy
-
-    def get_scf_convergence(self, all_cycles=False):
-        """Returns the scf convergence energy and energy difference.
-
-        Args:
-            all_cycles (bool, optional): Return all steps for a geometry opt. Defaults to False.
-        Returns:
-            tuple or list: The scf convergence energy and energy difference.
-        """
-        import re
-        import numpy as np
-
-        self.scf_energy = []
-        self.scf_deltae = []
-
-        scf_energy = []
-        scf_deltae = []
-
-        for line in self.data:
-
-            if re.match(r'^ CYC ', line):
-                scf_energy.append(float(line.split()[3]))
-                scf_deltae.append(float(line.split()[5]))
-
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                if all_cycles == False:
-                    self.scf_energy = units.H_to_eV(np.array(scf_energy))
-                    self.scf_deltae = units.H_to_eV(np.array(scf_deltae))
-
-                    return self.scf_energy, self.scf_deltae
-
-                elif all_cycles == True:
-                    self.scf_energy.append(scf_energy)
-                    self.scf_deltae.append(scf_deltae)
-                    scf_energy = []
-                    scf_deltae = []
-
-            self.scf_convergence = [self.scf_energy, self.scf_deltae]
-        return self.scf_convergence
-
-    def get_opt_convergence_energy(self):
-        """Returns the energy for each opt step.
-
-        Returns:
-            list: Energy for each optimization step.
-        """
-        self.opt_energy = []
-        for line in self.data:
-            if re.match(r'^ == SCF ENDED - CONVERGENCE ON ENERGY', line):
-                self.opt_energy.append(units.H_to_eV(float(line.split()[8])))
-
-        return self.opt_energy
-
-    def get_num_cycles(self):
-        """Returns the number of SCF cycles.
-
-        Returns:
-            int: Number of SCF cycles.
-        """
-        import re
-
-        for line in self.data[::-1]:
-            if re.match(r'^ CYC ', line):
-                self.num_cycles = int(line.split()[1])
-                return self.num_cycles
-        return None
-
-    def get_fermi_energy(self):
-        """Returns the system Fermi energy.
-
-        Returns:
-            float: Fermi energy of the system.
-        """
-        import re
-
-        self.fermi_energy = None
-
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            # This is in case the .out is from a BAND calculation
-            if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT BAND', self.data[len(self.data)-(i+4)]) != None:
-                for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
-                    if re.match(r'^ ENERGY RANGE ', line1):
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[7]))
-                        # Define from what type of calcualtion the Fermi energy was exctracted
-                        self.efermi_from = 'band'
-                        break
-            # This is in case the .out is from a DOSS calculation
-            if re.match(r'^ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DOSS', self.data[len(self.data)-(i+4)]) != None:
-                for j, line1 in enumerate(self.data[len(self.data)-i::-1]):
-                    if re.match(r'^ N. OF SCF CYCLES ', line1):
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[7]))
-                        # Define from what type of calcualtion the Fermi energy was exctracted
-                        self.efermi_from = 'doss'
-                        break
-            # This is in case the .out is from a sp/optgeom calculation
-            # For non metals think about top valence band
-            else:
-                for j, line1 in enumerate(self.data[:i:-1]):
-                    if re.match(r'^   FERMI ENERGY:', line1) != None:
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[2]))
-                        self.efermi_from = 'scf'
-                        break
-                    if re.match(r'^ POSSIBLY CONDUCTING STATE - EFERMI', line1) != None:
-                        self.fermi_energy = units.H_to_eV(
-                            float(line1.split()[5]))
-                        self.efermi_from = 'scf'
-                        break
-                if self.fermi_energy == None:
-                    for j, line1 in enumerate(self.data[:i:-1]):
-                        if re.match(r'^ TOP OF VALENCE BANDS', line1) != None:
-                            self.fermi_energy = units.H_to_eV(
-                                float(line1.split()[10]))
-                            self.efermi_from = 'scf_top_valence'
-                            break
-
-        if self.fermi_energy == None:
-            print('WARNING: no Fermi energy found in the output file. efermi = None')
-
-        return self.fermi_energy
-
-    def get_primitive_lattice(self, initial=True):
-        """Returns the primitive lattice of the system.
-
-        Args:
-            initial (bool): Determines whether to read the initial or last lattice vectors.
-                Useful in case of optgeom. Defaults to True.
-        Returns:
-            np.ndarray: Primitive lattice of the system.
-        """
-        import re
-        import numpy as np
-
-        lattice = []
-        self.primitive_lattice = None
-        if initial == True:
-            for i, line in enumerate(self.data):
-                if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                    for j in range(i+2, i+5):
-                        lattice_line = [float(n) for n in self.data[j].split()]
-                        lattice.append(lattice_line)
-                    self.primitive_lattice = np.array(lattice)
-                    break
-        elif initial == False:
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+4):
-                        lattice_line = [float(n) for n in self.data[j].split()]
-                        lattice.append(lattice_line)
-                    self.primitive_lattice = np.array(lattice)
-                    break
-
-        if lattice == []:
-            print('WARNING: no lattice vectors found in the output file. lattice = []')
-
-        return self.primitive_lattice
-
-    def get_reciprocal_lattice(self, initial=True):
-        """Returns the reciprocal primitive lattice of the system.
-
-        Args:
-            initial (bool): Determines whether to read the initial or last reciprocal lattice vectors.
-                Useful in case of optgeom. Defaults to True.
-        Returns:
-            np.ndarray: Reciprocal primitive lattice of the system.
-        """
-        import re
-        import numpy as np
-
-        lattice = []
-        if initial == True:
-            for i, line in enumerate(self.data):
-                if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
-                    for j in range(i+2, i+5):
-                        lattice_line = [
-                            units.angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
-                        lattice.append(lattice_line)
-                    self.reciprocal_lattice = np.array(lattice)
-                    return self.reciprocal_lattice
-        elif initial == False:
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ DIRECT LATTICE VECTORS COMPON. \(A.U.\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+4):
-                        lattice_line = [
-                            angstrom_to_au(float(n)) for n in self.data[j].split()[3:]]
-                        lattice.append(lattice_line)
-                    self.reciprocal_lattice = np.array(lattice)
-                    return self.reciprocal_lattice
-
-        return None
-
-    def get_band_gap(self):
-        """Returns the system band gap.
-
-        Returns:
-            float or np.ndarray: Band gap of the system.
-        """
-        import re
-        import numpy as np
-
-        # Check if the system is spin polarised
-        self.spin_pol = False
-        for line in self.data:
-            if re.match(r'^ SPIN POLARIZED', line):
-                self.spin_pol = True
                 break
 
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            if self.spin_pol == False:
-                if re.match(r'^\s\w+\s\w+ BAND GAP', line):
-                    self.band_gap = float(line.split()[4])
-                    return self.band_gap
-                elif re.match(r'^\s\w+ ENERGY BAND GAP', line):
-                    self.band_gap = float(line.split()[4])
-                    return self.band_gap
-                elif re.match(r'^ POSSIBLY CONDUCTING STATE', line):
-                    self.band_gap = False
-                    return self.band_gap
+        if self.dimensionality == None:
+            raise Exception('Invalid file. Dimension information not found.')
+
+        return self.dimensionality
+
+    def get_symmops(self):
+        """
+        Return the symmetry operators
+
+        Returns:
+            self.symmops (numpy.ndarray): Symmetry operators
+        """
+        import re
+        import numpy as np
+
+        self.n_symmops = 0
+        self.symmops = np.array([])
+
+        symmops = []
+        for i, line in enumerate(self.data):
+            if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
+                self.n_symmops = int(line.split()[1])
+                for j in range(0, self.n_symmops):
+                    symmops.append(self.data[i+3+j].split()[2:])
+                break
+
+        if self.n_symmops > 0:
+            self.symmops = np.reshape(np.array(symmops, dtype=float), [self.n_symmops, 4, 3])
+
+        return self.symmops
+
+    def get_geometry(self, initial=True, write_gui=False,
+                     gui_name=None, symmetry='pymatgen', **kwargs):
+        """
+        Get the geometry.
+
+        Args:
+            initial (bool): Read the initial or last gemetry. Useful in
+                case of geometry optimization.
+            write_gui (bool): If True, write .gui file
+            gui_name (str): Valid only if ``write_gui = True``. Gui file
+                is named as 'gui_name'. If None, use 'basename.gui'. The
+                basename is the same as output file.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
+                to use symmetry info from a pymatgen SpacegroupAnalyzer;
+                'initial' to use symmstry information on output file. If
+                None, no symmstry. Otherwise it is taken from the existing
+                gui file.
+            **kwargs: Valid only if ``write_gui = True`` and
+                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
+                SpacegroupAnalyzer object.
+
+        Returns:
+            self.geometry (Structure | Molecule): A pymatgen Structure or
+                molecule object.
+        """
+        import re
+        import os
+        import warnings
+        import numpy as np
+        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.geometry import rotate_lattice
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.convert import cry_pmg2gui
+
+        # Get geometry
+        bg_line = -1
+        if initial == True:
+            for nline, line in enumerate(self.data[:self.eoo]):
+                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
+                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                    bg_line = nline - 4
+                    break
+        else:
+            for nline, line in enumerate(self.data[self.eoo::-1]):
+                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
+                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
+                    bg_line = len(self.data[:self.eoo]) - nline - 4
+                    break
+
+        if bg_line < 0:
+            raise Exception('Geometry information not found.')
+
+        output = GeomBASE.read_geom(self.data, bg_line)
+        struc = output[1]
+
+        # Get the last lattice matrix: structure obtained by GeomBASE might be rotated.
+        ndimen = self.get_dimensionality()
+        lattice_line = -1
+        if ndimen != 0:
+            if initial == True:
+                for nline, line in enumerate(self.data[:self.eoo]):
+                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                        lattice_line = nline
+                        break
             else:
-                # This might need some more work
-                band_gap_spin = []
-                if re.match(r'\s+ BETA \s+ ELECTRONS', line):
-                    band_gap_spin.append(
-                        float(self.data[len(self.data)-i-3].split()[4]))
-                    band_gap_spin.append(
-                        float(self.data[len(self.data)-i+3].split()[4]))
-                    self.band_gap = np.array(band_gap_spin)
-                    return self.band_gap
-        if self.spin_pol == True and band_gap_spin == []:
-            print(
-                'DEV WARNING: check this output and the band gap function in crystal_io')
+                for nline, line in enumerate(self.data[self.eoo::-1]):
+                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                        lattice_line = len(self.data[:self.eoo]) - nline
+                        break
+
+        if lattice_line != -1:
+            latt_crys = [
+                self.data[lattice_line + 2].strip().split(),
+                self.data[lattice_line + 3].strip().split(),
+                self.data[lattice_line + 4].strip().split()
+            ]
+            latt_crys = np.array(latt_crys, dtype=float)
+            latt_pmg = struc.lattice.matrix
+            # latt_crys = latt_pmg @ rot, rotation matrix obtained from the last config
+            rot = np.linalg.inv(latt_pmg) @ latt_crys
+            struc = rotate_lattice(struc, rot)
+
+        self.geometry = struc
+
+        # Write gui files
+        if write_gui == True:
+            # Conventional atomic numbers
+            zconv = [[i, self.atom_numbers[i]] for i in range(self.n_atoms)]
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+                gui_name = '{}.gui'.format(gui_name)
+
+            if symmetry == 'pymatgen':
+                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
+            elif symmetry == None:
+                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=False, zconv=zconv)
+            elif symmetry == 'initial':
+                self.get_symmops()
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
+                gui.symmops = self.symmops
+                gui.n_symmops = self.n_symmops
+                gui.space_group = self.sg_number
+                gui.write_gui(gui_name, symm=True)
+            else:
+                warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
+                              stacklevel=2)
+                gui_ref = Crystal_gui().read_gui(symmetry)
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
+                # Replace the symmops with the reference file
+                gui.symmops = gui_ref.symmops
+                gui.n_symmops = gui_ref.n_symmops
+                gui.space_group = gui_ref.space_group
+                gui.write_gui(gui_list[idx_s], symm=True)
+
+        return self.geometry
 
     def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
         """
-        Return the last optimised geometry
+        Return the last optimised geometry.
+        """
+        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
+        if 'Molecule' in str(type(struc)):
+            self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
+                              self.atom_numbers,
+                              self.atom_positions_cart.tolist()]
+        else:
+            self.last_geom = [struc.lattice.matrix.tolist(),
+                              self.atom_numbers,
+                              self.atom_positions_cart.tolist()]
+        return self.last_geom
+
+    def get_lattice(self, initial=True):
+        """
+        Returns the lattice of the system. Unit: Angstrom.
 
         Args:
-            write_gui_file (bool): Whether to write the last geometry to gui
-                file.
-            symm_info (str): 'pymatgen' to use symmetry info from a pymatgen
-                object, otherwise it is taken from the existing gui file
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
+        Returns:
+            self.lattice (np.ndarray): Lattice of the system.
         """
         import re
-        from mendeleev import element
+        import warnings
         import numpy as np
-        from pymatgen.core.structure import Structure, Molecule
+
+        ndimen = self.get_dimensionality()
+        self.lattice = None
+        if ndimen == 0:
+            warnings.warn('0D system. No lattice.')
+            return self.lattice
+
+        self.get_geometry(initial=initial, write_gui=False)
+        self.lattice = self.geometry.lattice.matrix
+
+        return self.lattice
+
+    def get_reciprocal_lattice(self, initial=True):
+        """
+        Returns the reciprocal lattice of the system. Unit: Angstrom^-1.
+        Reciprocal lattice is consistent with CRYSTAL: 2pi is added.
+
+        Args:
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
+        Returns:
+            self.reciprocal_lattice (np.ndarray): Lattice of the system.
+        """
+        import warnings
+
+        ndimen = self.get_dimensionality()
+        self.reciprocal_lattice = None
+        if ndimen == 0:
+            warnings.warn('0D system. No lattice.')
+            return self.reciprocal_lattice
+
+        self.get_lattice(initial=initial)
+        self.reciprocal_lattice = self.geometry.lattice.reciprocal_lattice.matrix
+
+        return self.reciprocal_lattice
+
+    @property
+    def sg_number(self):
+        """
+        CRYSTAL 0~3D space group number. Before geometry editing.
+        """
+        import re
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+        ndimen = self.get_dimensionality()
+        sg = 'unknown'
+        if ndimen == 0:
+            rexp = r'^\s*POINT  GROUP  N\.'
+        elif ndimen == 1:
+            rexp = r'^POLYMER GROUP N\.'
+        elif ndimen == 2:
+            rexp = r'^\s*TWO\-SIDED PLANE GROUP N\.'
+
+        if ndimen < 3:
+            for nline, line in enumerate(self.data):
+                if re.match(rexp, line):
+                    if ndimen == 0:
+                        sg = int(line.strip().split()[3])
+                    elif ndimen == 1:
+                        sg = int(line.strip()[16:19].strip())
+                    elif ndimen == 2:
+                        sg = int(line.strip().split()[3])
+                    break
+        else:
+            struc = self.get_geometry(initial=True, write_gui=False)
+            sg = SpacegroupAnalyzer(struc).get_space_group_number()
+        return sg
+
+    @property
+    def sg_symbol(self):
+        """
+        CRYSTAL 0~3D 0~3D space group symbol. Before geometry editing.
+        """
+        import re
+        import warnings
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+        ndimen = self.get_dimensionality()
+        sg = 'unknown'
+        if ndimen == 0:
+            rexp = r'^\s*POINT  GROUP  N\.'
+        elif ndimen == 1:
+            rexp = r'^POLYMER GROUP N\.'
+        elif ndimen == 2:
+            rexp = r'^\s*TWO\-SIDED PLANE GROUP N\.'
+        elif ndimen == 3:
+            rexp = r'^\s*SPACE GROUP \(CENTROSYMMETRIC\)'
+
+        for nline, line in enumerate(self.data):
+            if re.match(rexp, line):
+                if ndimen == 0:
+                    sg = line.strip().split(':')[1].split('OR')[1].strip()
+                elif ndimen == 1:
+                    sg = line.strip().split(':')[1].strip()
+                elif ndimen == 2:
+                    sg = line.strip().split(':')[1].strip()
+                else:
+                    sg = line.strip().split(':')[1].strip()
+                break
+
+        if sg == 'unknown':
+            warnings.warn('Symmstry information lost. Trying to get from pymatgen...',
+                          stacklevel=2)
+            struc = self.get_geometry(initial=True, write_gui=False)
+            sg = SpacegroupAnalyzer(struc).get_space_group_symbol()
+        return sg
+
+    @property
+    def n_atoms(self):
+        """
+        Number of atoms. After geometry editing.
+        """
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.num_sites
+
+    @property
+    def atom_symbols(self):
+        """
+        Atom symbols. After geometry editing.
+        """
+        from mendeleev import element
+
+        symbol = []
+        for i in self.atom_numbers:
+            symbol.append(element(int(i%100)).symbol)
+
+        return symbol
+
+    @property
+    def atom_numbers(self):
+        """
+        Conventional atom numbers. After geometry editing.
+        """
+        from CRYSTALpytools.base.crysout import GeomBASE
+
+        _, conv_z = GeomBASE.read_conv_z(self.data, 0)
+        return conv_z
+
+    @property
+    def atom_positions(self):
+        """
+        Composite fractional / Cartesian atomic coordinates. Consistent
+        with CRYSTAL definitions. 3D: Fractional; 2D: Frac, Frac, Cart; 1D
+        Frac, Cart, Cart; 0D: Cart, Cart, Cart. After geometry editing
+        (before optimization).
+        """
+        import numpy as np
+
+        ndimen = self.get_dimensionality()
+        struc = self.get_geometry(initial=True, write_gui=False)
+
+        if ndimen == 0:
+            composite_coord = struc.cart_coords.tolist()
+        elif ndimen == 3:
+            composite_coord = struc.frac_coords.tolist()
+        else:
+            cart_coord = struc.cart_coords.tolist()
+            frac_coord = struc.frac_coords.tolist()
+            composite_coord = []
+            for i in range(struc.num_sites):
+                composite_coord.append(frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
+
+        return np.array(composite_coord, dtype=float)
+
+    @property
+    def atom_positions_cart(self):
+        """
+        Cartesian atomic coordinates. After geometry editing (before optimization).
+        """
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.cart_coords
+
+    @property
+    def atom_positions_frac(self):
+        """
+        Fractional atomic coordinates. After geometry editing (before optimization).
+        """
+        import warnings
+
+        ndimen = self.get_dimensionality()
+        if ndimen != 3:
+            warnings.warn("Low dimension systems. Property 'atom_positions' is called instead.",
+                          stacklevel=2)
+            return self.atom_positions
+        else:
+            struc = self.get_geometry(initial=True, write_gui=False)
+            return struc.frac_coords
+
+    def get_trans_matrix(self):
+        """
+        Get cell transformation matrix
+
+        Returns:
+            self.trans_matrix (np.ndarray): 3\*3 array of supercell
+                expansion matrix
+        """
+        import re
+        import numpy as np
+
+        ndimen = self.get_dimensionality()
+        self.trans_matrix = np.eye(3, dtype=float)
+        for i, line in enumerate(self.data[:self.eoo]):
+            if re.match(r'^\s+EXPANSION MATRIX OF PRIMITIVE CELL', line):
+                mx = np.array([
+                    self.data[i + 1].strip().split()[1:],
+                    self.data[i + 2].strip().split()[1:],
+                    self.data[i + 3].strip().split()[1:],
+                ], dtype=float)
+                self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
+                break
+
+        return self.trans_matrix
+
+    def get_primitive_geometry(self, initial=True, write_gui=False, gui_name=None,
+                               symmetry='pymatgen', **kwargs):
+        """
+        Get the primitive geometry, reduced by cell transformation matrix
+        inversed.
+
+        .. note::
+            This is not the standard 'primitive cell'. This method returns
+            geometry before supercell expansion keywords such as 'SUPERCEL'
+            or 'SCELPHONO'.
+
+            Conventional atomic numbers are not available.
+
+        Args:
+            initial (bool): Read the initial or last geometry. Useful in
+                case of geometry optimization.
+            write_gui (bool): If True, write .gui file
+            gui_name (str): Valid only if ``write_gui = True``. Gui file
+                is named as 'gui_name'. If None, use 'basename.gui'. The
+                basename is the same as output file.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
+                to use symmetry info from a pymatgen SpacegroupAnalyzer;
+                'initial' to use symmstry information on output file. If
+                None, no symmstry. Otherwise it is taken from the existing
+                gui file.
+            **kwargs: Valid only if ``write_gui = True`` and
+                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
+                SpacegroupAnalyzer object.
+
+        Returns:
+            self.primitive_geometry (Structure | Molecule): A pymatgen
+                Structure or molecule object.
+        """
+        import re
+        import os
+        import warnings
+        import numpy as np
+        from CRYSTALpytools.geometry import get_pcel
+        from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
 
-        dimensionality = self.get_dimensionality()
+        ndimen = self.get_dimensionality()
+        self.get_geometry(initial=initial, write_gui=False)
+        self.get_trans_matrix()
 
-        # Find the last geometry
-        for i, line in enumerate(self.data):
-            if re.match(r' TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL', line):
-                trans_matrix_flat = [float(x) for x in self.data[i+1].split()]
-                self.trans_matrix = []
-                for i in range(0, len(trans_matrix_flat), 3):
-                    self.trans_matrix.append(trans_matrix_flat[i:i+3])
-                self.trans_matrix = np.array(self.trans_matrix)
+        if ndimen == 0:
+            warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
+            self.primitive_geometry = self.geometry
+            return self.primitive_geometry
 
-        for i, line in enumerate(self.data[len(self.data)::-1]):
-            if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
-                self.n_atoms = int(self.data[len(self.data)-i-3].split()[0])
-                self.atom_positions = []
-                self.atom_symbols = []
-                self.atom_numbers = []
+        shrink_mx = np.linalg.inv(self.trans_matrix)
+        pstruc = get_pcel(self.geometry, self.trans_matrix)
 
-                for j in range(self.n_atoms):
-                    atom_line = self.data[len(
-                        self.data)-i-2-int(self.n_atoms)+j].split()[3:]
-                    self.atom_symbols.append(str(atom_line[0]))
+        self.primitive_geometry = pstruc
+        # Write gui files
+        if write_gui == True:
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+                gui_name = '{}.gui'.format(gui_name)
 
-                    self.atom_positions.append(
-                        [float(x) for x in atom_line[1:]])  # These are fractional
+            if symmetry == 'pymatgen':
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
+            elif symmetry == None:
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
+            elif symmetry == 'initial':
+                self.get_symmops()
+                gui = cry_pmg2gui(pstruc, gui_file=None, symmetry=False)
+                gui.symmops = self.symmops
+                gui.n_symmops = self.n_symmops
+                gui.space_group = self.sg_number
+                gui.write_gui(gui_name, symm=True)
+            else:
+                warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
+                              stacklevel=2)
+                gui_ref = Crystal_gui().read_gui(symmetry)
+                gui = cry_pmg2gui(pstruc, gui_file=None, symmetry=False)
+                # Replace the symmops with the reference file
+                gui.symmops = gui_ref.symmops
+                gui.n_symmops = gui_ref.n_symmops
+                gui.space_group = gui_ref.space_group
+                gui.write_gui(gui_name, symm=True)
 
-                for atom in self.atom_symbols:
-                    self.atom_numbers.append(
-                        element(atom.capitalize()).atomic_number)
+        return self.primitive_geometry
 
-                self.atom_positions_cart = np.array(self.atom_positions)
-
-                if dimensionality > 0:
-                    lattice = self.get_primitive_lattice(initial=False)
-                else:
-                    min_max = max([
-                        (max(self.atom_positions_cart[:, 0]) -
-                         min(self.atom_positions_cart[:, 0])),
-                        (max(self.atom_positions_cart[:, 1]) -
-                         min(self.atom_positions_cart[:, 1])),
-                        (max(self.atom_positions_cart[:, 2]) -
-                         min(self.atom_positions_cart[:, 2]))
-                    ])
-                    lattice = np.identity(3)*(min_max+10)
-
-                if dimensionality > 0:
-                    self.atom_positions_cart[:, :dimensionality] = np.matmul(
-                        np.array(self.atom_positions)[:, :dimensionality], lattice[:dimensionality, :dimensionality])
-
-                self.cart_coords = []
-
-                for i in range(len(self.atom_numbers)):
-                    self.cart_coords.append([self.atom_numbers[i], self.atom_positions_cart[i]
-                                             [0], self.atom_positions_cart[i][1], self.atom_positions_cart[i][2]])
-                self.cart_coords = np.array(self.cart_coords)
-
-                if dimensionality > 0:
-                    lattice = self.get_primitive_lattice(initial=False)
-                else:
-                    min_max = max([
-                        (max(self.cart_coords[:, 0]) -
-                         min(self.cart_coords[:, 0])),
-                        (max(self.cart_coords[:, 1]) -
-                         min(self.cart_coords[:, 1])),
-                        (max(self.cart_coords[:, 2]) -
-                         min(self.cart_coords[:, 2]))
-                    ])
-                    lattice = np.identity(3)*(min_max+10)
-
-                # Write the gui file
-                if write_gui_file == True:
-                    # Write the gui file
-                    # This is a duplication from write_gui, but the input is different
-                    # It requires both the output and gui files with the same name and in the same directory
-                    if symm_info == 'pymatgen':
-                        if self.name[-3:] == 'out':
-                            gui_file = self.name[:-4]+'.gui'
-
-                        elif self.name[-4:] == 'outp':
-                            gui_file = self.name[:-5]+'.gui'
-                        else:
-                            gui_file = self.name+'.gui'
-
-                        structure = Structure(lattice, self.atom_numbers,
-                                              self.atom_positions_cart, coords_are_cartesian=True)
-                        if dimensionality == 0:
-                            pbc = [False, False, False]
-                        elif dimensionality == 1:
-                            pbc = [True, False, False]
-                        elif dimensionality == 2:
-                            pbc = [True, True, False]
-                        else:
-                            pbc = [True, True, True]
-                        gui_object = cry_pmg2gui(structure, pbc=pbc)
-
-                        gui_object.write_gui(gui_file)
-                    else:
-                        gui_file = symm_info
-                        try:
-                            file = open(gui_file, 'r')
-                            gui_data = file.readlines()
-                            file.close()
-                        except:
-                            raise FileNotFoundError(
-                                'A .gui file with the same name as the input need to be present in the directory.')
-                        # Replace the lattice vectors with the optimised ones
-                        for i, vector in enumerate(lattice.tolist()):
-                            gui_data[i+1] = ' '.join([str(x)
-                                                      for x in vector])+'\n'
-
-                        n_symmops = int(gui_data[4])
-                        for i in range(len(self.atom_numbers)):
-                            gui_data[i+n_symmops*4+6] = '{} {}\n'.format(
-                                self.atom_numbers[i], ' '.join(str(x) for x in self.atom_positions_cart[i][:]))
-
-                        with open(gui_file[:-4]+'_last.gui', 'w') as file:
-                            for line in gui_data:
-                                file.writelines(line)
-
-                self.last_geom = [lattice.tolist(
-                ), self.atom_numbers, self.atom_positions_cart.tolist()]
-
-                return self.last_geom
-
-    def get_symm_ops(self):
-        """Return the symmetry operators
-
-        Returns:
-            numpy.ndarray: Symmetry operators
+    def get_primitive_lattice(self, initial=True):
         """
-        import re
-        import numpy as np
-
-        symmops = []
-
-        for i, line in enumerate(self.data):
-            if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
-                self.n_symm_ops = int(line.split()[1])
-                for j in range(0, self.n_symm_ops):
-                    symmops.append([float(x)
-                                    for x in self.data[i+3+j].split()[2:]])
-                self.symm_ops = np.array(symmops)
-
-                return self.symm_ops
-
-    def get_forces(self, initial=False, grad=False):
-        """
-        Return the forces from an optgeom calculation
+        Returns the primitive lattice of the system reduced by cell
+        transformation matrix inverse. Unit: Angstrom.
 
         Args:
-            initial (bool, optional): Return forces from the initial calculation. Defaults to False.
-            grad (bool, optional): Return gradient information. Defaults to False.
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            list or None: Forces if available, None otherwise
+            self.primitive_lattice (np.ndarray): Lattice of the system.
         """
-        if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
-            print('WARNING: this is not a geometry optimisation.')
-            return None
-        else:
+        import warnings
 
-            import re
-            import numpy as np
+        ndimen = self.get_dimensionality()
+        self.primitive_lattice = None
+        if ndimen == 0:
+            warnings.warn('0D system. No lattice.')
+            return self.primitive_lattice
 
-            self.forces_atoms = []
-            self.forces_cell = []
+        self.get_primitive_geometry(initial=initial, write_gui=False)
+        self.primitive_lattice = self.primitive_geometry.lattice.matrix
 
-            # Number of atoms
-            for i, line in enumerate(self.data[len(self.data)::-1]):
-                if re.match(r'^ T = ATOM BELONGING TO THE ASYMMETRIC UNIT', line):
-                    self.n_atoms = int(
-                        self.data[len(self.data)-i-3].split()[0])
-                    break
+        return self.primitive_lattice
 
-            if grad == True:
-                self.grad = []
-                self.rms_grad = []
-                self.disp = []
-                self.rms_disp = []
-                for i, line in enumerate(self.data):
-                    if re.match(r'^ MAX GRADIENT', line):
-                        self.grad.append(line.split()[2])
-                    if re.match(r'^ RMS GRADIENT', line):
-                        self.rms_grad.append(line.split()[2])
-                    if re.match(r'^ MAX DISPLAC.', line):
-                        self.disp.append(line.split()[2])
-                    if re.match(r'^ RMS DISPLAC.', line):
-                        self.rms_disp.append(line.split()[2])
-
-            if initial == True:
-                for i, line in enumerate(self.data):
-                    if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                        for j in range(i+2, i+2+self.n_atoms):
-                            self.forces_atoms.append(
-                                [float(x) for x in self.data[j].split()[2:]])
-                        self.forces_atoms = np.array(self.forces_atoms)
-                    if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                        for j in range(i+4, i+7):
-                            self.forces_cell.append(
-                                [float(x) for x in self.data[j].split()])
-                        self.forces_cell = np.array(self.forces_cell)
-                        self.forces = [self.forces_cell, self.forces_atoms]
-                        return self.forces
-
-            elif initial == False:
-                for i, line in enumerate(self.data[::-1]):
-                    if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                        for j in range(len(self.data)-i+3, len(self.data)-i+6):
-                            self.forces_cell.append(
-                                [float(x) for x in self.data[j].split()])
-                        self.forces_cell = np.array(self.forces_cell)
-
-                    if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                        for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
-                            self.forces_atoms.append(
-                                [float(x) for x in self.data[j].split()[2:]])
-                        self.forces_atoms = np.array(self.forces_atoms)
-                        self.forces = [self.forces_cell, self.forces_atoms]
-                        return self.forces
-
-    def get_mulliken_charges(self):
+    def get_primitive_reciprocal_lattice(self, initial=False):
         """
-        Return the Mulliken charges (PPAN keyword in input)
+        Returns the primitive reciprocal lattice of the system before
+        expansion by cell transformation matrix inverse. Unit: Angstrom^-1.
 
+        Args:
+            initial (bool): Read the initial or last lattice. Useful in
+                case of geometry optimization.
         Returns:
-            list: Mulliken charges
+            self.primitive_reciprocal_lattice (np.ndarray): Lattice of the system.
         """
-        import re
+        import warnings
 
-        self.mulliken_charges = []
-        for i, line in enumerate(self.data):
-            if re.match(r'^ MULLIKEN POPULATION ANALYSIS', line):
-                for j in range(len(self.data[i:])):
-                    line1 = self.data[i+4+j].split()
-                    if line1 == []:
-                        return self.mulliken_charges
-                    elif line1[0].isdigit() == True:
-                        self.mulliken_charges.append(float(line1[3]))
-        return self.mulliken_charges
+        ndimen = self.get_dimensionality()
+        self.primitive_reciprocal_lattice = None
+        if ndimen == 0:
+            warnings.warn('0D system. No lattice.')
+            return self.primitive_reciprocal_lattice
+
+        self.get_primitive_lattice(initial=initial)
+        self.primitive_reciprocal_lattice = self.primitive_geometry.lattice.reciprocal_lattice.matrix
+
+        return self.primitive_reciprocal_lattice
 
     def get_config_analysis(self,return_multiplicity=False):
         """
@@ -867,8 +826,521 @@ class Crystal_output:
         else:
             return [self.atom_type1, self.atom_type2]
 
+    #### SCF / OPT Convergence ####
+
+    def get_convergence(self, history=False):
+        """
+        The upper level of get_scf_convergence and get_opt_convergence. For
+        analysing the geometry and energy convergence.
+
+        .. note::
+
+            It might not work well with SCF / OPT cycles of multiple systems
+            such as PREOPTGEOM + EOS calculations
+
+        Args:
+            history (bool): If true, the convergence history of optimisation
+                (energy,gradient, displacement) / SCF is returned.
+
+        Returns:
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.scf_cycles / self.opt_cycles: Number of SCF / Opt cycles  
+        * self.scf_status / self.opt_status: Termination status of SCF / Opt cycles  
+        * self.final_energy: The converged energy of SCF / Opt. Unit: eV
+
+        For other attributes, see :code:`get_scf_convergence` and :code:`get_opt_convergence`.
+        """
+        import re
+        import warnings
+
+        self.final_energy = None
+        for line in self.data[self.eoo::-1]:
+            if re.match(r'\s\W OPT END - CONVERGED', line) != None:
+                data = line.strip().split()
+                self.final_energy = units.H_to_eV(float(data[7]))
+                self.opt_cycles = int(data[-2])
+                if re.search('CONVERGED', line):
+                    self.opt_status = 'converged'
+                elif re.search('FAILED', line):
+                    self.opt_status = 'failed'
+                else:
+                    warnings.warn('Unknown termination.', stacklevel=2)
+                    self.opt_status = 'unknown'
+                is_scf = False
+                break
+
+            elif re.match(r'^ == SCF ENDED', line) != None:
+                data = line.strip().split()
+                self.final_energy = units.H_to_eV(float(data[8]))
+                self.scf_cycles = int(data[-1])
+                if re.search('CONVERGENCE', line):
+                    self.scf_status = 'converged'
+                elif re.search('TOO MANY CYCLES', line):
+                    self.scf_status = 'too many cycles'
+                else:
+                    warnings.warn('Unknown termination.', stacklevel=2)
+                    self.scf_status = 'unknown'
+                is_scf = True
+                break
+
+        if self.final_energy == None:
+            warnings.warn('No final energy found in the output file. self.final_energy = None',
+                          stacklevel=2)
+
+        if history == True:
+            if is_scf == True:
+                self.get_scf_convergence(all_cycles=False)
+            else:
+                self.get_opt_convergence()
+
+        return self
+
+    #### SCF ####
+
+    def get_scf_convergence(self, all_cycles=False):
+        """
+        Returns the scf convergence energy and energy difference. A wrapper of
+        :code:`CRYSTALpytools.base.SCFBASE.read_convergence`.
+
+        Args:
+            all_cycles (bool, optional): Return all SCF steps for a geometry opt.
+                The 'ONELOG' keyword is needed.
+
+        Returns:
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.scf_cycles (int | array): Number of cycles.  
+        * self.scf_status (str | list): 'terminated', 'converged', 'too many cycles' and 'unknown'  
+        * self.scf_energy (array): SCF energy convergence. Unit: eV  
+        * self.scf_deltae (array): Energy difference. Unit: eV  
+        """
+        import numpy as np
+        from CRYSTALpytools.base.crysout import SCFBASE
+
+        if all_cycles == True:
+            self.scf_cycles = []
+            self.scf_status = []
+            self.scf_energy = []
+            self.scf_deltae = []
+
+        countline = 0
+        while countline < self.eoo:
+            output = SCFBASE.read_convergence(self.data[:self.eoo], countline)
+            if all_cycles == False:
+                self.scf_cycles = output[1]
+                self.scf_status = output[2]
+                self.scf_energy = output[3]
+                self.scf_deltae = output[4]
+                break
+            else:
+                countline = output[0]
+                self.scf_cycles.append(output[1])
+                self.scf_status.append(output[2])
+                self.scf_energy.append(output[3])
+                self.scf_deltae.append(output[4])
+                countline += 1
+
+        if all_cycles == True:
+            self.scf_cycles = np.array(self.scf_cycles, dtype=int)
+            self.scf_energy = np.array(self.scf_energy)
+            self.scf_deltae = np.array(self.scf_deltae)
+
+        return self
+
+    def get_fermi_energy(self, history=False):
+        """Returns the system Fermi energy.
+
+        Args:
+            history (bool): Whether to read the convergence history of Fermi energy.
+
+        Returns:
+            self.fermi_energy (float | array): Fermi energy of the system. For
+                spin-polarized insulating systems, :code:`self.fermi_energy`
+                would be either a 2\*1 array (:code:`history=False`) or a
+                nCYC\*2 array (:code:`history=True`).
+
+        Returns:
+            float: Fermi energy of the system.
+        """
+        from CRYSTALpytools.base.crysout import SCFBASE
+
+        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
+        self.spin_pol = output[1]
+        self.fermi_energy = output[2]
+
+        return self.fermi_energy
+
+    def get_band_gap(self, history=False):
+        """Returns the system band gap.
+
+        Args:
+            history (bool): Whether to read the convergence history of band gap.
+
+        Returns:
+            self.band_gap (float | array): Band gap of the system. For spin-polarized
+                systems, :code:`self.band_gap` would be either a 2\*1 array
+                (:code:`history=False`) or a nCYC\*2 array (:code:`history=True`).
+        """
+        from CRYSTALpytools.base.crysout import SCFBASE
+
+        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
+        self.spin_pol = output[1]
+        self.band_gap = output[2]
+
+        return self.band_gap
+
+    def get_mulliken_charges(self):
+        """
+        Return the atomic Mulliken charges (PPAN keyword in input).
+
+        Returns:
+            self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
+                natom\*3 for spin-polarised systems. [total, :math:`alpha`, :math:`beta`].
+        """
+        import re
+        import warnings
+        import numpy as np
+
+        mulliken = [] # empty, 1*1 or 2*1 list
+        countline = 0
+        countm = 0
+        while countline < self.eoo:
+            line = self.data[countline]
+            if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
+                mulliken_charge = [] # natom*1
+                countline += 4
+                line2 = self.data[countline]
+                while len(line2.strip()) != 0:
+                    if re.match(r'^\s+[0-9]+\s+[A-Z, a-z]+\s+[0-9+]', line2):
+                        data = line2.strip().split()
+                        mulliken_charge.append(data[3])
+                    countline += 1
+                    line2 = self.data[countline]
+
+                mulliken.append(mulliken_charge)
+                continue
+            else:
+                countline += 1
+
+        if len(mulliken) == 0:
+            warnings.warn('Mulliken analysis not found.', stacklevel=2)
+            self.mulliken_charges = np.array([], dtype=float)
+        elif len(mulliken) == 1:
+            self.mulliken_charges = np.array(mulliken[0], dtype=float)
+            self.spin_pol = False
+        else:
+            apb = np.array(mulliken[0], dtype=float)
+            amb = np.array(mulliken[1], dtype=float)
+            self.mulliken_charges = np.array([apb, (apb + amb) / 2, (apb - amb) / 2])
+            self.spin_pol = True
+
+        return self.mulliken_charges
+
+    def get_final_energy(self):
+        """Get the final energy of the system. A wrapper of :code:`self.get_convergence`.
+
+        Returns:
+            self.final_energy (float): The final energy of the system.
+        """
+        self.get_convergence(history=False)
+
+        return self.final_energy
+
+    def get_num_cycles(self):
+        """Deprecated
+
+        Returns:
+            self.scf_cycles (int): Number of SCF cycles.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use get_scf_convergence.', stacklevel=2)
+        self.get_scf_convergence(all_cycles=False)
+
+        return self.scf_cycles
+
+    #### Optimization ####
+
+    def get_opt_convergence_energy(self):
+        """Deprecated. Returns the energy for each opt step.
+
+        Returns:
+            self.opt_energy (array): Energy for each optimization step.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use get_opt_convergence.', stacklevel=2)
+        self.get_opt_convergence()
+
+        return self.opt_energy
+
+    def get_opt_convergence(self, primitive=False, scf_history=False,
+                            write_gui=False, gui_name=None,
+                            symmetry='pymatgen', **kwargs):
+        """
+        Returns optimisation convergence. A wrapper of
+        :code:`CRYSTALpytools.base.OptBASE.read_convergence`.
+
+        Args:
+            primitive (bool): Restore the primitive cell (multiply by the
+                cell transform matrix inversed)
+            scf_history (bool): Read SCF history of each optimisation step.
+                Keyword 'ONELOG' is needed. Please refer to
+                ``self.get_scf_convergence(all_cycles=True)`` method.
+            write_gui (bool): If True, write .gui file of each step
+            gui_name (str): Valid only if ``write_gui = True``. Gui file
+                is named as 'gui_name-optxxx.gui'. If None, use
+                'basename-optxxx.gui'. The basename is the same as output.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
+                to use symmetry info from a pymatgen SpacegroupAnalyzer;
+                'initial' to use symmstry information on output file. If
+                None, no symmstry. Otherwise it is taken from the existing
+                gui file.
+            **kwargs: Valid only if ``write_gui = True`` and
+                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
+                SpacegroupAnalyzer object.
+
+        Returns:
+            self (Crystal_output)
+
+        **New Attributes**  
+        * self.opt_cycles (int): Number of cycles.  
+        * self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'  
+        * self.opt_energy (array): Total energy convergence. Unit: eV  
+        * self.opt_deltae (array): Total energy difference. Unit: eV  
+        * self.opt_geometry (list): Pymatgen structure at each step.  
+        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr  
+        * self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr  
+        """
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.base.crysout import OptBASE
+        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
+        from pymatgen.core.lattice import Lattice
+        import numpy as np
+        import re
+        import os
+
+        ndimen = self.get_dimensionality()
+        countline = 0
+
+        # Initial geometry
+        struc0 = self.get_geometry(initial=True, write_gui=False)
+
+        # Initial SCF energy. No SCF when optimisation is restarted
+        e0 = None
+        self.opt_cycles = 0
+        lattice_line = -1
+        while countline < self.eoo:
+            line = self.data[countline]
+            # Initial step SCF
+            if re.match(r'^\s*== SCF ENDED', line):
+                line_data = line.strip().split()
+                e0 = float(line_data[8])
+                countline += 1
+            # Initial step SCF empirical corrections
+            elif re.match(r'^\s*TOTAL ENERGY \+', line):
+                line_data = line.strip().split()
+                e0 = float(line_data[-1])
+                countline += 1
+            # Initial Gradient
+            elif re.match(r'^\s+MAX GRADIENT', line):
+                line_data = line.strip().split()
+                maxg0 = float(line_data[2])
+                countline += 1
+            elif re.match(r'^\s+RMS GRADIENT', line):
+                line_data = line.strip().split()
+                rmsg0 = float(line_data[2])
+                countline += 1
+            # Enter the Opt block
+            elif re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
+                output = OptBASE.read_optblock(self.data[:self.eoo], countline)
+                self.opt_cycles = output[1]
+                self.opt_status = output[2]
+                self.opt_energy = output[3]
+                self.opt_deltae = output[4]
+                self.opt_geometry = output[5]
+                self.opt_maxgrad = output[6]
+                self.opt_rmsgrad = output[7]
+                self.opt_maxdisp = output[8]
+                self.opt_rmsdisp = output[9]
+                break
+            # Lattice matrix rotation issue
+            elif re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
+                lattice_line = countline
+                countline += 1
+            else:
+                countline += 1
+
+        # Converged at initial step, or wrong file
+        if self.opt_cycles == 0:
+            if e0 == None:
+                raise Exception('Valid data not found.')
+            else:
+                self.opt_cycles += 1
+                self.opt_status = 'converged at initial step'
+                self.opt_energy = np.array([e0,])
+                self.opt_deltae = np.array([e0,])
+                self.opt_geometry = [struc0,]
+                self.opt_maxgrad = np.array([maxg0,])
+                self.opt_rmsgrad = np.array([rmsg0,])
+                self.opt_maxdisp = np.array([])
+                self.opt_rmsdisp = np.array([])
+        else:
+            # restarted from previous opt
+            if e0 == None:
+                pass
+            else:
+                self.opt_cycles += 1
+                self.opt_energy = np.concatenate([[e0,], self.opt_energy])
+                self.opt_deltae = np.concatenate([[e0,], self.opt_deltae])
+                self.opt_geometry = [struc0,] + self.opt_geometry
+                self.opt_maxgrad = np.concatenate([[maxg0,], self.opt_maxgrad])
+                self.opt_rmsgrad = np.concatenate([[rmsg0,], self.opt_rmsgrad])
+                self.opt_maxdisp = np.concatenate([[0.,], self.opt_maxdisp])
+                self.opt_rmsdisp = np.concatenate([[0.,], self.opt_rmsdisp])
+
+        # Lattice matrix rotation issue
+        if ndimen != 0 and lattice_line != -1:
+            mx_crys = [
+                self.data[lattice_line + 2].strip().split(),
+                self.data[lattice_line + 3].strip().split(),
+                self.data[lattice_line + 4].strip().split()
+            ]
+            mx_crys = np.array(mx_crys, dtype=float)
+            # Reference lattice
+            latt_ref = Lattice(mx_crys)
+            # Pmg lattice
+            latt_pmg = Lattice.from_parameters(
+                a=latt_ref.a, b=latt_ref.b, c=latt_ref.c,
+                alpha=latt_ref.alpha, beta=latt_ref.beta, gamma=latt_ref.gamma
+            )
+            mx_pmg = latt_pmg.matrix
+            # mx_crys = mx_pmg @ rot
+            rot = np.linalg.inv(mx_pmg) @ mx_crys
+            for idx_s, s in enumerate(self.opt_geometry):
+                self.opt_geometry[idx_s] = rotate_lattice(s, rot)
+
+        # Get primitive cell
+        if primitive == True:
+            ndimen = self.get_dimensionality()
+            if ndimen == 0:
+                warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
+            else:
+                self.get_trans_matrix()
+                shrink_mx = np.linalg.inv(self.trans_matrix)
+                for idx_s, s in enumerate(self.opt_geometry):
+                    self.opt_geometry[idx_s] = get_pcel(s, self.trans_matrix)
+
+        # SCF history
+        if scf_history == True:
+            self.get_scf_convergence(all_cycles=True)
+
+        # Write gui files
+        if write_gui == True:
+            if gui_name == None:
+                gui_name = os.path.splitext(self.name)[0]
+            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
+
+            if symmetry == 'pymatgen':
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s],
+                                      symmetry=True, **kwargs)
+            elif symmetry == None:
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
+            elif symmetry == 'initial':
+                self.get_symmops()
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, gui_file=None, symmetry=False)
+                    gui.symmops = self.symmops
+                    gui.n_symmops = self.n_symmops
+                    gui.space_group = self.sg_number
+                    gui.write_gui(gui_list[idx_s], symm=True)
+            else:
+                warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
+                              stacklevel=2)
+                gui_ref = Crystal_gui().read_gui(symmetry)
+                for idx_s, s in enumerate(self.opt_geometry):
+                    gui = cry_pmg2gui(s, gui_file=None, symmetry=False)
+                    # Replace the symmops with the reference file
+                    gui.symmops = gui_ref.symmops
+                    gui.n_symmops = gui_ref.n_symmops
+                    gui.space_group = gui_ref.space_group
+                    gui.write_gui(gui_list[idx_s], symm=True)
+
+        return self
+
+    def get_forces(self, initial=True, grad=False):
+        """
+        Read forces.
+
+        Args:
+            initial (bool): Return forces from the initial calculation. If
+                ``initial=False``, return to the last forces, which is valid
+                only for geometry optimizations and the keyword 'ONELOG' is
+                needed in d12 file.
+            grad (bool): Return gradient convergence history. For optimizations
+                only.
+        Returns:
+            self
+
+        **New Attributes**  
+        * self.forces_atoms (array): natom\*3 array. Atomic forces. Unit: Hartree/Bohr
+        * self.forces_cell (array): 3\*3 array. Cell forces, 3D only. Unit: Hartree/Bohr
+        * self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr  
+        * self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr  
+        """
+        import warnings, re
+        import numpy as np
+
+        if initial == False or grad == True:
+            if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
+                warnings.warn('Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
+                initial = True
+                grad = False
+
+        self.forces_atoms = []
+        self.forces_cell = []
+
+        if grad == True:
+            self.get_opt_convergence()
+
+        if initial == True:
+            for i, line in enumerate(self.data):
+                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
+                    for j in range(i+2, i+2+self.n_atoms):
+                        self.forces_atoms.append(self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+
+                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
+                    for j in range(i+4, i+7):
+                        self.forces_cell.append(self.data[j].strip().split())
+                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+
+        else:
+            for i, line in enumerate(self.data[::-1]):
+                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
+                    for j in range(len(self.data)-i+3, len(self.data)-i+6):
+                        self.forces_cell.append(self.data[j].strip().split())
+                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+
+                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
+                    for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
+                        self.forces_atoms.append(self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+
+        return self
+
+    #### Lattice Dynamics ####
+
     def get_phonon(self, read_eigvt=False, rm_imaginary=True, rm_overlap=True,
-                   imaginary_tol=-1e-4, q_overlap_tol=1e-4):
+                   imaginary_tol=-1e-4, q_overlap_tol=1e-4, eigvt_amplitude=1.):
         """
         Read phonon-related properties from output file.
 
@@ -884,6 +1356,9 @@ class Crystal_output:
             q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
                 overlapping points, defined as the 2nd norm of the difference
                 of fractional q vectors
+            eigvt_amplitude (float | str): *``read_eigvt = True only``*
+                Amplitude of normalization, Or 'classical', 'classical-rev',
+                classical amplitude and revmove classical amplitude.
 
         .. note::
 
@@ -908,7 +1383,7 @@ class Crystal_output:
                 specifying whether the mode is IR active
             self.Raman (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is Raman active
-            self.eigenvector (array[float]): *``read_eigvt = True only``*
+            self.eigenvector (array[complex]): *``read_eigvt = True only``*
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
@@ -917,6 +1392,7 @@ class Crystal_output:
         from CRYSTALpytools.units import H_to_kjmol
 
         is_freq = False
+        found_anti = True
         self.edft = []
         self.nqpoint = 0
         self.qpoint = []
@@ -928,7 +1404,7 @@ class Crystal_output:
         self.eigenvector = []
 
         countline = 0
-        while countline < len(self.data):
+        while countline < self.eoo:
             line = self.data[countline]
             # Whether is a frequency file
             if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
@@ -953,7 +1429,7 @@ class Crystal_output:
                 self.nqpoint += 1
                 countline += 2
                 ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
@@ -963,21 +1439,43 @@ class Crystal_output:
             elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
                 countline += 2
                 ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data, countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
             ## Phonon eigenvector
-            elif re.match(r'^\s+MODES IN PHASE', line) or re.match(r'^\s+NORMAL MODES NORMALIZED', line):
+            ### Gamma point: real numbers. Imaginary = 0
+            elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
                 if read_eigvt == False:
                     countline += 1
                     continue
                 countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data, countline)
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt[0]
-                self.eigenvector.append(eigvt[1])
+                self.eigenvector.append(eigvt[1] + 0.j)
+            ### Dispersion: complex numbers
+            elif re.match(r'^\s+MODES IN PHASE', line):
+                if read_eigvt == False:
+                    countline += 1
+                    continue
+                if found_anti == False: # Real k point
+                    self.eigenvector.append(tmp_eigvt)
+                countline += 2
+                found_anti = False
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
+                countline = eigvt[0]
+                tmp_eigvt = eigvt[1] + 0.j
+            elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
+                if read_eigvt == False:
+                    countline += 1
+                    continue
+                countline += 2
+                found_anti = True
+                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
+                countline = eigvt_anti[0]
+                self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
             # Other data
             else:
                 countline += 1
@@ -985,7 +1483,10 @@ class Crystal_output:
 
         if is_freq == False:
             raise Exception('Not a frequency calculation.')
+        if found_anti == False and read_eigvt == True: # The last real k point
+            self.eigenvector.append(tmp_eigvt)
 
+        # Format data
         # HA/QHA Gamma point calculation
         if self.nqpoint == 0:
             self.nqpoint = len(self.edft)
@@ -1010,7 +1511,21 @@ class Crystal_output:
 
         if self.eigenvector != []:
             self.eigenvector = np.array(self.eigenvector)
+            # already normalised to classical amplitude
+            if str(eigvt_amplitude).lower() == 'classical':
+                pass
+            # remove classical amplitude
+            elif str(eigvt_amplitude).lower() == 'classical-rev':
+                struc = self.get_geometry(initial=False, write_gui=False)
+                
 
+            # To a specific value
+            else:
+                for idx_q in range(self.nqpoint):
+                    self.eigenvector[idx_q] = PhononBASE.normalize_eigenvector(
+                        self.eigenvector[idx_q],
+                        amplitude=float(eigvt_amplitude),
+                    )
 
         if rm_imaginary == True:
             self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
@@ -1551,31 +2066,38 @@ class Properties_output:
                         s += 1
         return self
 
-    def read_electron_band(self, properties_output):
+    def read_electron_band(self, band_file, output=None):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
-        Energy unit: eV.
+        Energy unit: eV. E Fermi is aligned to 0.
 
         Args:
-            properties_output (str): File name
+            band_file (str): Name of BAND.DAT or fort.25 file
+            output (str): Properties output file (.outp or .out). For 3D k
+                coordinates and geometry information.
 
         Returns:
             self.bands (BandsBASE): A Bands base object
         """
-        from CRYSTALpytools.base.propout import BandsBASE
+        from CRYSTALpytools.base.propout import BandsBASE, OutBASE
 
-        self.read_file(properties_output)
+        self.read_file(band_file)
         if '-%-' in self.data[0]: #fort.25 file format
             self.bands = BandsBASE.f25_parser(self.data)
         else: #BAND.DAT file format
             self.bands = BandsBASE.BAND_parser(self.data)
+
+        if output != None:
+            self.bands.geometry = OutBASE.get_geometry(output)
+            self.bands.tick_pos3d, self.bands.k_point_pos3d = OutBASE.get_3dkcoord(output)
+            self.bands.reciprocal_latt = self.bands.geometry.lattice.reciprocal_lattice.matrix
 
         return self.bands
 
     def read_electron_dos(self, properties_output):
         """
         Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
-        Energy unit: eV.
+        Energy unit: eV. E Fermi is aligned to 0.
 
         Args:
             properties_output (str): File name
@@ -2157,14 +2679,14 @@ class Crystal_gui:
         Args:
             gui_file (str): The CRYSTAL structure (gui) file
         """
+        import numpy as np
+
         try:
-            if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and 'optc' not in gui_file:
-                gui_file = gui_file + '.gui'
             file = open(gui_file, 'r')
             data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError('A .gui file needs to be specified')
+            raise FileNotFoundError('A CRYSTAL geometry file needs to be specified: .gui, fort.34 or opt* files.')
 
         self.dimensionality = int(data[0].split()[0])
         self.lattice = []
@@ -2173,7 +2695,9 @@ class Crystal_gui:
             self.lattice.append([float(x) for x in data[i].split()])
         self.n_symmops = int(data[4].split()[0])
         for i in range(5, 5+self.n_symmops*4):
-            self.symmops.append([float(x) for x in data[i].split()])
+            self.symmops.append(data[i].split())
+        self.symmops = np.reshape(np.array(self.symmops, dtype=float),
+                                  [self.n_symmops, 4, 3])
         self.n_atoms = int(data[5+self.n_symmops*4].split()[0])
         self.atom_number = []
         self.atom_positions = []
@@ -2198,46 +2722,50 @@ class Crystal_gui:
         """
         import numpy as np
 
-        with open(gui_file, 'w') as file:
+        if symm == False:
+            self.n_symmops = 1
+            self.symmops = np.vstack([np.eye(3), [0.0, 0.0, 0.0]])
 
-            # First line
-            file.writelines('%4s   1   1\n' % self.dimensionality)
-            # Cell vectors
-            for vector in self.lattice:
-                file.writelines('{}\n'.format(
-                    ''.join(['{0: 20.12E}'.format(np.round(n, 12)) for n in vector])
-                ))
-            # N symm ops
-            file.writelines('{:5d}\n'.format(self.n_symmops))
+        file = open(gui_file, 'w')
+        # First line
+        file.writelines('%4s   1   1\n' % self.dimensionality)
+        # Cell vectors
+        for vector in self.lattice:
+            file.writelines('{}\n'.format(
+                ''.join(['{0: 20.12E}'.format(np.round(n, 12)) for n in vector])
+            ))
+        # N symm ops
+        file.writelines('{:5d}\n'.format(self.n_symmops))
 
-            # symm ops
-            for symmops in self.symmops:
-                file.writelines('{}\n'.format(
-                    ''.join(['{0: 20.12f}'.format(np.round(n, 12)) for n in symmops])
-                ))
-            # N atoms
-            file.writelines('{:5d}\n'.format(self.n_atoms))
+        # symm ops
+        sym_list = np.reshape(self.symmops, [self.n_symmops*4, 3])
+        for symmops in sym_list:
+            file.writelines('{}\n'.format(
+                ''.join(['{0: 20.12f}'.format(np.round(n, 12)) for n in symmops])
+            ))
+        # N atoms
+        file.writelines('{:5d}\n'.format(self.n_atoms))
 
-            # atom number (including pseudopotentials) + coordinates cart
-            for i in range(self.n_atoms):
-                if self.atom_number[i] in pseudo_atoms:
-                    file.writelines('{:5d}{}\n'.format(
-                        int(self.atom_number[i])+200,
-                        ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
-                    ))
-                else:
-                    file.writelines('{:5d}{}\n'.format(
-                        int(self.atom_number[i]),
-                        ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
-                    ))
-
-            # space group + n symm ops
-            if symm == True:
-                file.writelines('{:5d}{:5d}\n'.format(
-                    self.space_group, self.n_symmops
+        # atom number (including pseudopotentials) + coordinates cart
+        for i in range(self.n_atoms):
+            if self.atom_number[i] in pseudo_atoms:
+                file.writelines('{:5d}{}\n'.format(
+                    int(self.atom_number[i])+200,
+                    ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
                 ))
             else:
-                file.writelines('{:5d}{:5d}\n'.format(1, 1))
+                file.writelines('{:5d}{}\n'.format(
+                    int(self.atom_number[i]),
+                    ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
+                ))
+
+        # space group + n symm ops
+        if symm == True:
+            file.writelines('{:5d}{:5d}\n'.format(
+                self.space_group, self.n_symmops
+            ))
+        else:
+            file.writelines('{:5d}{:5d}\n'.format(1, 1))
 
         file.close()
 
