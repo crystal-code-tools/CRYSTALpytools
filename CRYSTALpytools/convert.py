@@ -337,11 +337,26 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
         lattice_vectors = np.identity(3)*500.
         gui.lattice = lattice_vectors
         gui.n_atoms = molecule.num_sites
-        gui.space_group = 1
-        gui.symmops = []
-        gui.n_symmops = 1
-        gui.symmops.extend(np.identity(3).tolist())
-        gui.symmops.append([0.0,0.0,0.0])
+        if symmetry == True:
+            symmops = PointGroupAnalyzer(structure).get_symmetry_operations()
+            n_symmops = 0
+            gui.symmops = []
+            for symmop in symmops:
+
+                if np.all(symmop.translation_vector == 0.):
+    
+                    n_symmops += 1
+                    gui.symmops.extend(symmop.rotation_matrix.tolist())
+                    gui.symmops.append(symmop.translation_vector.tolist())
+
+            gui.n_symmops = n_symmops
+            gui.space_group = 1
+        else:
+            gui.space_group = 1
+            gui.symmops = []
+            gui.n_symmops = 1
+            gui.symmops.extend(np.identity(3).tolist())
+            gui.symmops.append([0.0,0.0,0.0])
         gui.atom_number = list(molecule.atomic_numbers)
         gui.atom_positions = molecule.cart_coords.tolist()
     else: # 1-3D
@@ -417,16 +432,6 @@ def cry_pmg2gui(structure, pbc=[True, True, True], symmetry=True, zconv=None):
 
                 gui.n_symmops = n_symmops
 
-            if dimensionality == 0:
-                symmops = PointGroupAnalyzer(structure).get_symmetry_operations(cartesian=True)
-
-                for symmop in symmops:
-                    if np.all(symmop.translation_vector == 0.):
-                        n_symmops += 1
-                        gui.symmops.extend(symmop.rotation_matrix.tolist())
-                        gui.symmops.append(symmop.translation_vector.tolist())
-
-                gui.n_symmops = n_symmops
 
             else:
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
