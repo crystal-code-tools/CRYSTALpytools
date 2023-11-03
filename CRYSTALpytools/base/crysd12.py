@@ -1012,7 +1012,10 @@ class SCF(BlockBASE):
             'BIPOSIZE' : '_biposize',
             'EXCHSIZE' : '_exchsize',
             'SHRINK'   : '_shrink',
+            'EXCHANGE' : '_exchange',
+            'POSTSCF'  : '_postscf',
             'PPAN'     : '_ppan',
+            'GRADCAL'  : '_gradcal',
             'CMPLXFAC' : '_cmplxfac',
             'REPLDATA' : '_repldata',
             'STDIAG'   : '_stdiag',
@@ -1272,6 +1275,15 @@ class SCF(BlockBASE):
 
     def ppan(self, key='PPAN'):
         self._ppan = super(SCF, self).assign_keyword(key, [])
+
+    def gradcal(self, key='GRADCAL'):
+        self._gradcal = super(SCF, self).assign_keyword(key, [])
+
+    def exchange(self, key='EXCHANGE'):
+        self._exchange = super(SCF, self).assign_keyword(key, [])
+
+    def postscf(self, key='POSTSCF'):
+        self._postscf = super(SCF, self).assign_keyword(key, [])
 
     def diis(self, key='DIIS'):
         self._diis = super(SCF, self).assign_keyword(key, [])

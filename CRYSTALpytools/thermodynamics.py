@@ -193,7 +193,7 @@ class Mode:
 
     def get_classical_amplitude(self, struc):
         """
-        
+        Empty method - development ongoing
         """
 
     def polynomial_fit(self, order=[2, 3]):
@@ -383,7 +383,7 @@ class Harmonic():
             warnings.warn("Data exists. Cannot overwrite the existing data.")
             return self
 
-        output = Crystal_output().read_cry_output(output_name)
+        output = Crystal_output(output_name)
         output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
         strucs = _restore_pcel(output, scelphono)
 
@@ -792,15 +792,12 @@ class Quasi_harmonic:
                 overlaps. If none, do not sort modes.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New Attributes**
-
-        * self.ncalc (int): Number of HA phonon calculations.  
-        * self.combined_phonon (list[Harmonic]): List of Harmonic objects.  
-        * self.combined_volume (list[float]): Volumes. Unit: Angstrom^3  
-        * self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol  
-        * self.combined_mode (list[Mode]): List of mode objects.  
+            self (Quasi_harmonic): New Attributes listed below
+            self.ncalc (int): Number of HA phonon calculations.
+            self.combined_phonon (list[Harmonic]): List of Harmonic objects.
+            self.combined_volume (list[float]): Volumes. Unit: Angstrom^3
+            self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol
+            self.combined_mode (list[Mode]): List of mode objects.
         """
         from CRYSTALpytools.thermodynamics import Harmonic
         import warnings
@@ -885,7 +882,7 @@ class Quasi_harmonic:
         else:
             read_eigvt = False
 
-        output = Crystal_output().read_cry_output(input_file)
+        output = Crystal_output(input_file)
         output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
         strucs = _restore_pcel(output, scelphono)
 
@@ -1395,16 +1392,16 @@ class Quasi_harmonic:
                 * L-BFGS-B(with boundary)
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New Attributes**
-
-        * ``self.temperature`` in K and ``self.pressure`` in GPa.  
-        * ``self.volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3  
-        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol  
-        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K  
-        * ``self.c_v``, nPressure\*nTemperature, Constant volume specific heat. Unit: J/mol\*K  
-        * ``self.e0_eos`` and ``self.e0_eos_method`` Pymatgen EOS objects and string. EOS used to fit DFT energy.  
+            self (Quasi_harmonic): New Attributes listed below
+            self.temperature (array): Unit: K
+            self.pressure (array): Unit: GPa
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
+            self.gibbs (array): Gibbs free energy. Unit: kJ/mol
+            self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_v (array): Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.e0_eos (Pymatgen EOS): Pymatgen EOS object. EOS used to fit DFT energy.
+            self.e0_eos_method (str): Name of the EOS.
 
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
@@ -1523,8 +1520,12 @@ class Quasi_harmonic:
         For arguments, see ``self.thermo_freq``.
 
         Returns:
-            self.gamma(array): npressure\*ntemperature array of macroscopic
-                Grüneisen parameter. Temperature should > 0.
+            self (Quasi_harmonic): New attributes listed below. Other attributes are the same as ``self.thermo_freq``.
+            self.gruneisen(array): npressure\*ntemperature, same below. Macroscopic Grüneisen parameter. Temperature should > 0.
+            self.alpha_vgru (array): Thermal expansion coefficient by Grüneisen method.
+            self.c_pgru (array): Constant pressure specific heat by Grüneisen method. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.k_t (array): Isothermal bulk modulus. Unit: GPa.
+            self.k_sgru (array): Adiabatic bulk modulus by Grüneisen method. Unit: GPa.
         """
         import numpy as np
         import scipy.constants as scst
@@ -1623,15 +1624,19 @@ class Quasi_harmonic:
 
             ``poly_order`` should >= 2.
 
+        For arguments, see ``self.thermo_freq``.
+
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.c_p``, nPressure\*nTemperature, Constant pressure specific heat. Unit: J/mol\*K  
-        * ``self.fe_eos`` and ``self.fe_eos_method`` nTemperature\*1 list of Pymatgen EOS objects and string. EOSs used to fit HA free energy at constant temperature.
-
-        For arguments and other attributes, see ``Quasi_harmonic.thermo_freq``.
+            self (Quasi_harmonic): New attributes listed below
+            self.temperature (array): Unit: K
+            self.pressure (array): Unit: GPa
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
+            self.gibbs (array): Gibbs free energy. Unit: kJ/mol
+            self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_p (array): Constant pressure specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.fe_eos (list[Pymatgen EOS]): nTemperature\*1 list of Pymatgen EOS objects. EOSs used to fit HA free energy at constant temperature.
+            self.fe_eos_method (str): The name of EOS used.
 
         :raise Exception: If the number of HA calculations is less than 4.
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
@@ -1773,14 +1778,9 @@ class Quasi_harmonic:
                 to help the user choose the optimal fitting.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.vol_fit`` nPressure\*1 list of Numpy polynomial object,
-        the fitted volume V(T)  
-        * ``self.alpha_v`` nPressure\*nTemperature array, expansion
-        coefficients at equilibrium volumes
+            self (Quasi_harmonic): New attributes listed below
+            self.vol_fit (list): nPressure\*1. List of Numpy polynomial object, the fitted volume V(T)
+            self.alpha_v (array): nPressure\*nTemperature. Expansion coefficients at equilibrium volumes
         """
         import numpy as np
         from scipy.optimize import least_squares
@@ -1898,12 +1898,9 @@ class Quasi_harmonic:
                 (int, optional): To restore EOS.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.k_t`` nPressure\*nTemperature array, isothermal bulk modulus.  
-        * ``self.k_s`` nPressure\*nTemperature array, adiabatic bulk modulus.  
+            self (Quasi_harmonic): New attributes listed below
+            self.k_t (array): nPressure\*nTemperature, same below. Isothermal bulk modulus. Unit: GPa.
+            self.k_s (array): Adiabatic bulk modulus. Unit: GPa.
         """
         import scipy.constants as scst
         from sympy import diff, lambdify, symbols
@@ -1965,11 +1962,9 @@ class Quasi_harmonic:
             C_{p} - C_{V} = \\alpha_{V}^{2}K_{T}VT
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.c_v`` or ``self.c_p``  Dependents on the fitting method.
+            self (Quasi_harmonic): New attributes listed below
+            self.c_v (array): nPressure\*nTemperature, same below. Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_p (array): Constant pressure specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
 
         .. note::
 
@@ -2048,16 +2043,10 @@ class Quasi_harmonic:
                 geometries are used besides the interpolated ones.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.lattice`` nPressure\*nTemperature\*nLattice array. The
-        equilibrium values of minimal set of lattice parameters.  
-        * ``self.latt_fit`` nPressure\*nLattice list of Numpy polynomial
-        object, the fitted a(v). Linear part only.  
-        * ``self.alpha_latt`` nPressure\*nTemperature\*nLattice array.
-        Linear expansion coefficients. Linear part only.
+            self (Quasi_harmonic): New attributes listed below
+            self.lattice (array): nPressure\*nTemperature\*nLattice. The equilibrium values of minimal set of lattice parameters.
+            self.latt_fit (list): nPressure\*nLattice. Numpy polynomial object, the fitted a(v). Linear part only.
+            self.alpha_latt (array): nPressure\*nTemperature\*nLattice. Linear expansion coefficients. Linear part only.
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.core.lattice import Lattice

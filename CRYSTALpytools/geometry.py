@@ -245,3 +245,48 @@ def get_sg_symmops(struc, **kwargs):
 
     return sg, n_symmops, symmops
 
+def Miller_norm(struc, miller, d=1.0):
+    """
+    Find the norm vector of a specified Miller plane
+
+    Args:
+        struc (Structure): Pymatgen Structure object.
+        miller (array | list): 3\*1 list of Miller index
+        d (fload): Length of norm vector
+
+    Returns:
+        vec (array): 3\*1 norm vector, normalized to 1.
+    """
+    import numpy as np
+
+    zeros = np.argwhere(abs(miller) < 1)
+    if len(zeros) == 0:
+        vec1 = np.array([1/miller[0], 0, 0]) - np.array([0, 0, 1/miller[2]])
+        vec2 = np.array([0, 1/miller[1], 0]) - np.array([0, 0, 1/miller[2]])
+        vec1 = np.dot(vec1, struc.lattice.matrix)
+        vec2 = np.dot(vec2, struc.lattice.matrix)
+        vec = np.cross(vec1, vec2)
+    elif len(zeros) == 1:
+        if zeros[0][0] == 0:
+            vec1 = [1, 0, 0]
+            vec2 = np.array([0, 1/miller[1], 0]) - np.array([0, 0, 1/miller[2]])
+        elif zeros[0][0] == 1:
+            vec1 = np.array([1/miller[0], 0, 0]) - np.array([0, 0, 1/miller[2]])
+            vec2 = [0, 1, 0]
+        else:
+            vec1 = [0, 0, 1]
+            vec2 = np.array([1/miller[0], 0, 0]) - np.array([0, 1/miller[1], 0])
+        vec1 = np.dot(vec1, struc.lattice.matrix)
+        vec2 = np.dot(vec2, struc.lattice.matrix)
+        vec = np.cross(vec1, vec2)
+    else:
+        if zeros[0][0] == 0 and zeros[1][0] == 1:
+            vec = np.array([0., 0., 1.])
+        elif zeros[0][0] == 0 and zeros[1][0] == 2:
+            vec = np.array([0., 1., 0.])
+        else:
+            vec = np.array([1., 0., 0.])
+        vec = np.dot(vec, struc.lattice.matrix)
+
+    vec = vec / np.linalg.norm(vec) * d
+    return vec
