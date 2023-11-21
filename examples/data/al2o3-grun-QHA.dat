@@ -551,7 +551,44 @@
 
 ### CLOSE OVERLAPS AT QPOINT #       0
 
-  Calc_Ref  Mode_Ref Calc_Sort Mode_Sort
+    Total number of overlaps =      34
+
+      Mode and calc order starts from 1. Calc number in ascending order of volume
+      Ref_mode #     Sort_mode #      Ref_Calc #     Sort_Calc #
+              24              25               1               2
+              24              27               3               4
+              25              24               1               2
+              25              24               3               4
+              29              31               2               3
+              30              29               2               3
+              31              33               2               3
+              32              31               2               3
+              35              35               1               2
+              36              35               1               2
+              41              41               1               2
+              41              47               1               2
+              41              48               2               3
+              42              41               1               2
+              42              42               1               2
+              42              41               2               3
+              43              43               1               2
+              43              44               1               2
+              43              45               1               2
+              43              45               2               3
+              44              43               1               2
+              44              44               1               2
+              44              46               1               2
+              44              43               2               3
+              47              48               3               4
+              48              47               3               4
+              54              58               2               3
+              55              54               2               3
+              58              54               1               2
+              58              58               1               2
+              58              58               2               3
+              59              55               1               2
+              59              58               1               2
+              59              58               2               3
 
 # EQUATION OF STATES FITTED FOR ELECTRON TOTAL ENERGY: birch_murnaghan
   Electron total energy is fitted as the function of volume, of which the
