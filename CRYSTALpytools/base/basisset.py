@@ -167,7 +167,15 @@ class BS_Atom():
         """
         import warnings
         import copy
-        import basis_set_exchange as bse
+        try:
+            import basis_set_exchange as bse
+            print("module bse imported")
+        except ImportError:
+            import sys
+            print (sys.exc_info())
+            print("module basis_set_exchange unavailable: please install to activate")
+#        import basis_set_exchange as bse
+
         from CRYSTALpytools.base.basisset import Basisset
 
         warnings.warn('''The built-in standard STO-3G / 3(6)-21G basis set is used.
@@ -297,7 +305,14 @@ class BasisSetBASE():
         Define a basis set from a file.
         """
         import re
-        import basis_set_exchange as bse
+        try:
+            import basis_set_exchange as bse
+            print("module bse imported")
+        except ImportError:
+            import sys
+            print (sys.exc_info())
+            print("module basis_set_exchange unavailable: please install to activate")
+#        import basis_set_exchange as bse
 
         bs_file = open(file, 'r')
         bs_str = bs_file.read()
@@ -367,7 +382,14 @@ class BasisSetBASE():
         import os
         import re
         import warnings
-        import basis_set_exchange as bse
+        try:
+            import basis_set_exchange as bse
+            print("module bse imported")
+        except ImportError:
+            import sys
+            print (sys.exc_info())
+            print("module basis_set_exchange unavailable: please install to activate")
+    #    import basis_set_exchange as bse
 
         f = open(file, 'w+')
         if os.path.isfile(file):

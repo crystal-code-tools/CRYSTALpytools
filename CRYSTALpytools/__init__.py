@@ -10,8 +10,13 @@ from CRYSTALpytools import thermodynamics
 from CRYSTALpytools import units
 from CRYSTALpytools import utils
 
-from importlib.metadata import version
+import sys
+
+if sys.version_info >= (3, 8):
+    from importlib import metadata
+else:
+    from importlib_metadata import metadata
 
 __author__ = "CRYSTALpytools Development Team"
 __email__ = "crystalcodetools@gmail.com"
-__version__ = version('CRYSTALpytools')
+__version__ = metadata.version('CRYSTALpytools')
