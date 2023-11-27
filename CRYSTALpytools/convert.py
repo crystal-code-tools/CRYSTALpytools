@@ -177,7 +177,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         elif molecule == False:
             if vacuum != None:
                 pbc = (True, True, True)
-                gui.lattice.setflags(write=1)
+#                gui.lattice.setflags(write=1)
                 thickness_x = np.amax(np.array(gui.atom_positions)[:, 0]) - \
                         np.amin(np.array(gui.atom_positions)[:, 0])
                 thickness_y = np.amax(np.array(gui.atom_positions)[:, 1]) - \
@@ -194,7 +194,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     if gui.dimensionality == 1:
         if vacuum != None:
             pbc = (True, True, True)
-            gui.lattice.setflags(write=1)
+#            gui.lattice.setflags(write=1)
             thickness_y = np.amax(np.array(gui.atom_positions)[:, 1]) - \
                         np.amin(np.array(gui.atom_positions)[:, 1])
             thickness_z = np.amax(np.array(gui.atom_positions)[:, 2]) - \
@@ -208,7 +208,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     if gui.dimensionality == 2:
         if vacuum != None:
             pbc = (True, True, True)
-            gui.lattice.setflags(write=1)
+#            gui.lattice.setflags(write=1)
             thickness_z = np.amax(np.array(gui.atom_positions)[:, 2]) - \
                         np.amin(np.array(gui.atom_positions)[:, 2])
 
