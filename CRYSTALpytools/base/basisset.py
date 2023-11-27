@@ -1,6 +1,6 @@
 class BS_GTF():
     """
-    A Gaussian type function object.
+    A Gaussian type function object. Random Text
 
     Args:
         info (str): GTF radial coefficients in CRYSTAL format
