@@ -3071,8 +3071,6 @@ def plot_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5,
 
     if(show): 
         plt.figure(figsize=figsize)
-    if(nopadding): 
-        plt.xlim(fmin, fmax)
     if(ylim is not None):
         plt.ylim(0, ylim)
 
