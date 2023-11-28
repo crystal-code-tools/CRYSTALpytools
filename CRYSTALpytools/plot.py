@@ -1148,7 +1148,6 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
         - Sets the x-axis label as 'd  [$\AA$]' and the y-axis label as r'$\rho$  [$\frac{e}{\AA^3}$]'.
         - Saves the plot to a file named 'figure_rholine_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
     """
     import matplotlib.pyplot as plt
     import os
