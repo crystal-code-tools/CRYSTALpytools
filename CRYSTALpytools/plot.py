@@ -2884,7 +2884,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         return poisson_max
 
 
-def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
+def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype="png",
                  transparency=False):
     """
     Plot crystal elastic properties on the basis of the elastic tensor. A
@@ -2892,14 +2892,14 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
     multiple plots in one shot, establishing a fixed color scale among them.
 
     Args:
-        choose (str): Property to plot. Options: "young", "comp", "shear avg",
-            "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
+        choose (str): Property to plot. Options: "young", "comp", "shear avg", 
+        "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
         ndeg (int): Number of degrees for discretization.
         *args: Variable number of elastic tensors.
         dpi (int, optional): Dots per inch for saving the plot. Default is 200.
-        filetype (str, optional): File format of the output plot. Default is ".png".
-        transparency (bool, optional): Flag indicating whether to make the plot
-            background transparent. Default is False.
+        filetype (str, optional): File format of the output plot. Default is "png".
+        transparency (bool, optional): Flag indicating whether to make the plot 
+        background transparent. Default is False.
 
     Returns:
         None
@@ -3003,7 +3003,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         ax.set_box_aspect(aspect=(1, 1, 1))  # Fix aspect ratio
 
         plt.show()
-        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") +
+        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S.") +
                     filetype, dpi=dpi, transparent=transparency)
 
         # <--
