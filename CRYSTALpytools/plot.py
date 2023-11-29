@@ -3007,7 +3007,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype="png",
 
         # <--
 
-def plot_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5, 
+def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5, 
               fmin=None, fmax=None, ylim=None, savefig=False, dpi=300, 
               filetype='png', exp_spec=None, sep=";", show=True, 
               export_csv=False, label=None, xlabel='Wavenumber [cm$^{-1}$]',
@@ -3208,11 +3208,13 @@ def plot_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5,
         np.savetxt(typeS + time.strftime("%Y-%m-%d_%H%M%S.") + 'csv', 
                    spec_data, delimiter=';')
 
-def plot_spec_multi(files, typeS, components=False, bwidth=5, stdev=3, eta=0.5, 
-                    fmin=None, fmax=None, ylim=None, savefig=False, dpi=300, 
-                    filetype='png', label=None, xlabel='Wavenumber [cm$^{-1}$]',
-                    ylabel='Instensity [arb. u.]', linewidth=2.0, padd=100,
-                    fontsize=12, style=None, nopadding=False, figsize=(16, 6)):
+def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3, 
+                        eta=0.5, fmin=None, fmax=None, ylim=None, 
+                        savefig=False, dpi=300, filetype='png', label=None, 
+                        xlabel='Wavenumber [cm$^{-1}$]', 
+                        ylabel='Instensity [arb. u.]', linewidth=2.0, padd=100, 
+                        fontsize=12, style=None, nopadding=False, 
+                        figsize=(16, 6)):
 
     """
     This function is a wrapper for `plot_spec` function, enablng the simulation 
