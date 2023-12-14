@@ -3,6 +3,76 @@
 """
 Functions to visualize CRYSTAL outputs.
 """
+
+def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None,
+                   dpi=400, savefig=False, name='echg_map'):
+    """
+    Plots the 2D ECHG density map from a fort.25 file.
+
+    Args:
+        obj_echg (crystal_io.Properties_output): Properties output object.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions. Default is 150.
+        xticks (int, optional): Number of ticks in the x direction. Default is 5.
+        yticks (int, optional): Number of ticks in the y direction. Default is 5.
+        cmap_max(float, optional): Maximum value used for the colormap. Default is None.
+        cmap_min(float, optional): Minimun value used for the colormap. Default is None.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
+        savefig (bool): Chose to save the figure or not. Default is False.
+        name (str): Name for the colormap.
+
+   Returns:
+        None
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import numpy as np
+
+    vector_ab = obj_echg.a - obj_echg.b
+    lenght_ab = np.sqrt(vector_ab[0]**2 + vector_ab[1]**2 + vector_ab[2]**2)
+    vector_cb = obj_echg.c - obj_echg.b
+    lenght_cb = np.sqrt(vector_cb[0]**2 + vector_cb[1]**2 + vector_cb[2]**2)
+    points_ab = len(obj_echg.density_map[:, 0])
+    points_cb = len(obj_echg.density_map[0, :])
+
+    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
+    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
+    for i in range(0, points_ab):
+        for j in range(0, points_cb):
+            mesh_y[i, j] = (((lenght_ab / points_ab) * i) * np.sqrt(1 - (obj_echg.cosxy**2)))
+            mesh_x[i, j] = ((lenght_cb / points_cb) * j) + (((lenght_ab / points_ab) * i) * obj_echg.cosxy)
+
+    dens = obj_echg.density_map * (1.88973**2)  # Bohr to Angstrom conversion
+
+    if cmap_max is None:
+        max_data = np.amax(dens)
+    else:
+        max_data = cmap_max
+
+    if cmap_min is None:
+        min_data = np.amin(dens)
+    else:
+        min_data = cmap_min
+
+    fig, ax = plt.subplots()
+    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
+    divider = make_axes_locatable(ax)
+    im.set_clim(vmin=min_data, vmax=max_data)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    fig.colorbar(im, cax=cax, orientation='vertical')
+    ax.set_xlabel('$\AA$')
+    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
+    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
+    ax.set_ylabel('$\AA$')
+    ax.set_aspect(1.0)
+    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
+    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - (obj_echg.cosxy**2)))
+    if savefig:
+        plt.savefig(name, dpi=dpi)
+
+    plt.show()
+
+
 def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """
     Plots the 2D magnetization vector field.
