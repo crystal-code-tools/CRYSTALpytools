@@ -1147,7 +1147,7 @@ class Properties_input:
                            '%s %s\n' % (Fermi, print_option)]
 
     def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
-                         title='BAND STRUCTURE CALCULATION'):
+                         precision = 5, title='BAND STRUCTURE CALCULATION'):
         """
         Returns the bands block for a bands calculation.
 
@@ -1158,6 +1158,7 @@ class Properties_input:
             last_band (int): The index of the last band.
             print_eig (int): Printing options for eigenvalues (default is 0).
             print_option (int): Properties printing options (default is 1).
+            precision (int): Number of zeros in the calculation of the gcd            
             title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
         """
 
@@ -1188,13 +1189,13 @@ class Properties_input:
         k_unique = np.unique(k_path)
 
         # Find the shrinking factor
-        k_unique = np.array(np.around(k_unique, 4)*10000, dtype=int)
+        k_unique = np.array(np.around(k_unique, precision)*10**precision, dtype=int)
         if len(k_unique) > 2:
             gcd = np.gcd.reduce(k_unique)
         else:
             gcd = np.gcd(k_unique[0], k_unique[1])
-        k_path = np.array((k_path/gcd)*10000, dtype=int)
-        shrink = int(10000/gcd)
+        k_path = np.array((k_path/gcd)*10**precision, dtype=int)
+        shrink = int(10**precision/gcd)
 
         bands_block.append('BAND\n')
         bands_block.append(title+'\n')
