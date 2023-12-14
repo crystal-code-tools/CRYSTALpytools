@@ -157,7 +157,17 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
+<<<<<<< HEAD
+<<<<<<< HEAD
+        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
+        
+=======
 
+>>>>>>> upstream/main
+=======
+        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
+
+>>>>>>> origin/main
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
@@ -215,6 +225,11 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
             gui.lattice[2][2] = thickness_z + vacuum
         else:
             pbc = (True, True, False)
+
+    #Convert the pseudopotential atoms to their original atomic number
+    atomic_numbers = np.array(gui.atom_number)%200
+
+    return Structure(gui.lattice, atomic_numbers, gui.atom_positions, coords_are_cartesian=True)
 
     if gui.dimensionality == 3:
         pbc = (True, True, True)
@@ -404,6 +419,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
             if ``symmetry=True``.
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
     from CRYSTALpytools.geometry import get_sg_symmops
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
@@ -425,29 +441,55 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
             pbc = structure.pbc
 
     gui = Crystal_gui()
-    gui.dimensionality = pbc.count(True)
+    dimensionality = pbc.count(True)
 
-    # Vacuum distance
-    latt_mx = np.eye(3)*500
-    if vacuum != None:
-        thickness_x = np.amax(structure.cart_coords[:, 0]) - np.amin(structure.cart_coords[:, 0])
-        thickness_y = np.amax(structure.cart_coords[:, 1]) - np.amin(structure.cart_coords[:, 1])
-        thickness_z = np.amax(structure.cart_coords[:, 2]) - np.amin(structure.cart_coords[:, 2])
-        latt_mx[0, 0] = thickness_x + vacuum
-        latt_mx[1, 1] = thickness_y + vacuum
-        latt_mx[2, 2] = thickness_z + vacuum
+    if dimensionality == 0 and 'Molecule' in str(type(structure)):
+        molecule = structure
+        is_molecule = True # 0D object called as molecule
+    elif dimensionality > 0:
+        is_molecule = False # >0D object called as structure
+    elif dimensionality == 0 and 'Molecule' not in str(type(structure)):
+        warnings.warn('Dimensionality is set to 0, but the structure is not a molecule. Periodicity will be removed.')
+        molecule = Molecule(structure.species,
+                            [i.coords for i in structure.sites],
+                            structure.charge,
+                            [i.properties for i in struc.sites])
+        is_molecule = True # 0D object called as molecule
+    elif dimensionality > 0 and 'Molecule' in str(type(structure)):
+        warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
+        structure = structure.get_boxed_structure(500., 500., 500.)
+        is_molecule = False # >0D object called as structure
 
-    if gui.dimensionality == 0: # 0D
-        gui.lattice = latt_mx
-        gui.n_atoms = structure.num_sites
-        gui.space_group = 1
-        gui.symmops = []
-        gui.n_symmops = 1
-        gui.symmops = np.vstack([np.eye(3), [0.0,0.0,0.0]])
-        gui.atom_number = list(structure.atomic_numbers)
-        gui.atom_positions = structure.cart_coords.tolist()
-    else: # 1-3D, rotation and add vacuum layer
-        if gui.dimensionality == 2:
+    gui.dimensionality = dimensionality
+
+    if is_molecule == True: # 0D
+        lattice_vectors = np.identity(3)*500.
+        gui.lattice = lattice_vectors
+        gui.n_atoms = molecule.num_sites
+        if symmetry == True:
+            symmops = PointGroupAnalyzer(structure).get_symmetry_operations()
+            n_symmops = 0
+            gui.symmops = []
+            for symmop in symmops:
+
+                if np.all(symmop.translation_vector == 0.):
+
+                    n_symmops += 1
+                    gui.symmops.extend(symmop.rotation_matrix.tolist())
+                    gui.symmops.append(symmop.translation_vector.tolist())
+
+            gui.n_symmops = n_symmops
+            gui.space_group = 1
+        else:
+            gui.space_group = 1
+            gui.symmops = []
+            gui.n_symmops = 1
+            gui.symmops.extend(np.identity(3).tolist())
+            gui.symmops.append([0.0,0.0,0.0])
+        gui.atom_number = list(molecule.atomic_numbers)
+        gui.atom_positions = molecule.cart_coords.tolist()
+    else: # 1-3D
+        if dimensionality == 2:
             if pbc[0] == False: # X no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
                 rot = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
@@ -513,8 +555,18 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
                 translation = np.array([0.0, 0.0, -0.5])
                 structure.translate_sites(list(range(structure.num_sites)),
                                           translation, to_unit_cell=False)
-                # Geometry not refined
-                _, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
+
+                sg = SpacegroupAnalyzer(structure)
+                ops = sg.get_symmetry_operations(cartesian=True)
+                for op in ops:
+                    if np.all(op.translation_vector == 0.):
+                        n_symmops += 1
+                        gui.symmops.extend(op.rotation_matrix.tolist())
+                        gui.symmops.append(op.translation_vector.tolist())
+
+                gui.n_symmops = n_symmops
+
+
             else:
                 warnings.warn('Check the polymer is correctly centered in the cell and that the correct symmops are used.')
         else:
@@ -535,4 +587,3 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.write_gui(gui_file, symm=symmetry)
 
     return gui
-
