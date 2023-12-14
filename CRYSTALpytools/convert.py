@@ -158,11 +158,16 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
 <<<<<<< HEAD
+<<<<<<< HEAD
         pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
         
 =======
 
 >>>>>>> upstream/main
+=======
+        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
+
+>>>>>>> origin/main
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
@@ -222,9 +227,12 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
             pbc = (True, True, False)
 
     #Convert the pseudopotential atoms to their original atomic number
-    atomic_numbers = np.array(gui.atom_number)%200          
+    atomic_numbers = np.array(gui.atom_number)%200
 
     return Structure(gui.lattice, atomic_numbers, gui.atom_positions, coords_are_cartesian=True)
+
+    if gui.dimensionality == 3:
+        pbc = (True, True, True)
 
     latt = Lattice(gui.lattice, pbc=pbc)
 
@@ -411,6 +419,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
             if ``symmetry=True``.
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
     from CRYSTALpytools.geometry import get_sg_symmops
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
@@ -444,7 +453,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         molecule = Molecule(structure.species,
                             [i.coords for i in structure.sites],
                             structure.charge,
-                            [i.properties for i in struc.sites]) 
+                            [i.properties for i in struc.sites])
         is_molecule = True # 0D object called as molecule
     elif dimensionality > 0 and 'Molecule' in str(type(structure)):
         warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
@@ -464,7 +473,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
             for symmop in symmops:
 
                 if np.all(symmop.translation_vector == 0.):
-    
+
                     n_symmops += 1
                     gui.symmops.extend(symmop.rotation_matrix.tolist())
                     gui.symmops.append(symmop.translation_vector.tolist())
@@ -578,4 +587,3 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.write_gui(gui_file, symm=symmetry)
 
     return gui
-
