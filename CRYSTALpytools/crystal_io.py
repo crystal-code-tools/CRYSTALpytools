@@ -3127,6 +3127,79 @@ class Properties_output:
 
         return self
 
+    def read_cry_ECHG(self, properties_output):
+        """
+        Read density profile data from a file.
+
+        Args:
+            properties_output (str): Path to the fort.25 file.
+        Returns:
+            self: The modified object with extracted ECHG data.
+        """
+        import numpy as np
+
+        self.read_file(properties_output)
+        data = self.data
+
+        points_ab = int(data[0].split()[1])
+        points_bc = int(data[0].split()[2])
+        self.cosxy = float(data[0][42:54])
+        self.a = np.array([data[1][0:12],
+                           data[1][12:24],
+                           data[1][24:36]], dtype=float)
+        self.b = np.array([data[1][36:48],
+                           data[1][48:60],
+                           data[1][60:72]], dtype=float)
+        self.c = np.array([data[2][0:12],
+                           data[2][12:24],
+                           data[2][24:36]], dtype=float)
+
+        self.density_map = np.zeros((points_ab, points_bc), dtype=float)
+
+        number_points = points_ab * points_bc
+        lines = int(number_points / 6)
+        if number_points % 6 != 0:
+            lines = lines + 1
+
+        density_temp = np.zeros(number_points, dtype=float)
+        j = 0
+        for i in range(0, lines):
+            for k in range(0, len(data[3 + i].split())):
+                density_temp[j] = data[3 + i].split()[k]
+                j += 1
+
+        k = 0
+        for j in range(0, points_bc):
+            for i in range(points_ab - 1, -1, -1):
+                self.density_map[i, j] = density_temp[k]
+                k += 1
+
+        return self
+
+    def read_cry_ECHG_delta(self, properties_output1, properties_output2):
+        """
+        Read density profile data from two files and plots the difference.
+        It is important that the header stays the same for the two output files.
+
+        Args:
+            properties_output1 (str): Path to first fort.25 file.
+            properties_output2 (str): Path to second fort.25 file.
+        Returns:
+            self: The modified object with extracted ECHG data.
+        """
+
+        out1 = Properties_output().read_cry_ECHG(properties_output1)
+        out2 = Properties_output().read_cry_ECHG(properties_output2)
+
+        self.a = out1.a
+        self.b = out1.b
+        self.c = out1.c
+        self.cosxy = out1.cosxy
+
+        self.density_map = out1.density_map - out2.density_map
+
+        return self
+
 
 class Crystal_gui:
     """
