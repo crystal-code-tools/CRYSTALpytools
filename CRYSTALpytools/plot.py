@@ -374,7 +374,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
                      not_scaled=False, energy_range=None, k_range=None,
                      color='blue', labels=None, linestl='-', linewidth=1,
                      line_freq0=None, title=None, figsize=None,
-                     scheme=None, sharex=True, sharey=True, save_to_file=None):
+                     scheme=None, sharex=True, sharey=True, save_to_file=None, dpi=300, format='png', fontsize=12):
     """
     A wrapper of plot_cry_bands for phonon band structure.
 
@@ -383,7 +383,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
             a list of BandsBASE objects.
         unit (str): The unit of frequency. Can be 'cm-1' or 'THz'.
         k_labels (list): A list of high-symmetric k point labels. Greek alphabets should be, for example, 'Gamma'.
-        mode (str): The plotting mode. Possible values are 'single', 'multi', 'compare', and 'surface'.
+        mode (str): The plotting mode. Possible values are 'single', 'multi', and 'compare'.
         not_scaled (bool): Whether to scale the x-axis for different volumes.
         energy_range (array): A 2x1 array specifying the energy range.
         k_range (array): A 2x1 array specifying the k-range.
@@ -398,6 +398,9 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         save_to_file (str): The file name to save the plot.
+        dpi (int): Dots per inch resolution of the saved file.
+        format (str): Format of the savedfile.
+        fontsize (int): Fontsize of the axis labels            
 
     Returns:
         None
@@ -406,9 +409,11 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import thz_to_cm, cm_to_thz
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
         unit = 'cm-1'
@@ -440,12 +445,12 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
                          color=color, fermi=line_freq0, k_range=k_range, labels=labels,
                          figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey)
     if is_thz == True:
-        fig.supylabel('Frequency (THz)')
+        fig.supylabel('Frequency (THz)', fontsize=fontsize)
     else:
-        fig.supylabel('Frequency (cm$^{-1}$)')
+        fig.supylabel('Frequency (cm$^{-1}$)', fontsize=fontsize)
 
     if save_to_file != None:
-        save_plot(save_to_file)
+        save_plot(save_to_file, format=format, dpi=dpi)
 
     plt.show()
 
@@ -453,8 +458,8 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
 def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
                        not_scaled=False, energy_range=None, k_range=None,
                        color='blue', labels=None, linestl='-', linewidth=1,
-                       fermi='forestgreen', title=None, figsize=None,
-                       scheme=None, sharex=True, sharey=True, save_to_file=None):
+                       fermi='forestgreen', fermiwidth=1.5, fermialpha=1, title=None, figsize=None,
+                       scheme=None, sharex=True, sharey=True, save_to_file=None, dpi=300, format='png', fontsize=12):
     """
     A wrapper of plot_cry_bands for electron band structure.
 
@@ -463,7 +468,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
             a list of BandsBASE objects.
         unit (str): The unit of energy. Can be 'eV' or 'Hartree'.
         k_labels (list): A list of high-symmetric k point labels. Greek alphabets should be, for example, 'Gamma'.
-        mode (str): The plotting mode. Possible values are 'single', 'multi', 'compare', and 'surface'.
+        mode (str): The plotting mode. Possible values are 'single', 'multi', and 'compare'.
         not_scaled (bool): Whether to scale the x-axis for different volumes.
         energy_range (array): A 2x1 array specifying the energy range.
         k_range (array): A 2x1 array specifying the k-range.
@@ -472,12 +477,16 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         linestl (str|list): Linestyle string. Should be consistent with bands.
         linewidth (float): The width of the plot lines.
         fermi (str): The color of the Fermi level line.
+        fermiwidth (float): The width of the fermi line.
         title (str): The title of the plot.
         figsize (list): The figure size specified as [width, height].
         scheme (list|tuple): The layout of subplots.
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         save_to_file (str): The file name to save the plot.
+        dpi (int): Dots per inch resolution of the saved file.
+        format (str): Format of the savedfile.
+        fontsize (int): Fontsize of the axis labels 
 
     Returns:
         None
@@ -486,9 +495,11 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import eV_to_H, H_to_eV
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^eV$', unit, re.IGNORECASE):
         unit = 'eV'
@@ -514,24 +525,24 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
 
     fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
-                         color=color, fermi=fermi, k_range=k_range, labels=labels,
+                         color=color, fermi=fermi, fermiwidth=fermiwidth,fermialpha=fermialpha, k_range=k_range, labels=labels,
                          figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey)
     if is_ev == True:
-        fig.supylabel('$E-E_{F}$ (eV)')
+        fig.supylabel('$E-E_{F}$ (eV)', fontsize=fontsize)
     else:
-        fig.supylabel('$E-E_{F}$ (Hartree)')
+        fig.supylabel('$E-E_{F}$ (Hartree)', fontsize=fontsize)
 
     if save_to_file != None:
-        save_plot(save_to_file)
+        save_plot(save_to_file, format=format, dpi=dpi)
 
     plt.show()
 
 
 def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, linestl,
                    linewidth, color, fermi, k_range, labels, figsize, scheme,
-                   sharex, sharey):
+                   sharex, sharey, fermiwidth, fermialpha):
     """
-    The base function to plot electron / phonon density of states.
+    The base function to plot electron  phonon density of states.
 
     Args:
         bands (Union[List, object]): List of band objects or a single band object.
@@ -539,11 +550,13 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         energy_range (Union[List[Union[int, float]], None]): List of two integers or floats specifying the energy range (min, max).
         title (Union[str, None]): Title of the plot.
         not_scaled (bool): Flag indicating whether to scale the band structure for comparison.
-        mode (str): Mode of the plot ('single', 'multi', 'compare', 'surface').
+        mode (str): Mode of the plot ('single', 'multi', 'compare').
         linestl (Union[str, List[str]]): Line style or list of line styles for the bands.
         linewidth (Union[int, List[int]]): Line width or list of line widths for the bands.
         color (Union[str, List[str]]): Color or list of colors for the bands.
         fermi (str): Color of the Fermi level.
+        fermiwidth (float): Thickness of the Fermi level
+        fermialpha (float): Opacity of the Fermi level
         k_range (Union[List[str], None]): List of two strings specifying the range of k points to plot.
         labels (Union[List[str], None]): List of labels for the bands in multi-mode.
         figsize (Union[Tuple[int, int], None]): Figure size.
@@ -557,10 +570,11 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    import numpy as np
     import sys
     import warnings
+
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
              'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
@@ -572,6 +586,9 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
     if mode not in modes:
         raise ValueError('The selected mode '+mode+' is not among the possible ones: ' +
                          modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
+    else:
+        if (isinstance(bands.list)) and (mode is modes[0]):
+            mode == modes[1]
 
     # Error chenk on k_label
     if k_labels is not None:
@@ -647,44 +664,13 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         # plotting of a single band object
         if mode == modes[0]:
-
-            dx = bands.k_point_plot
-
-            pltband = bands.bands
-            no_bands = np.shape(pltband)[0]
-            ymin = np.amin(pltband)
-            ymax = np.amax(pltband)
-            xmin = min(dx)
-            xmax = max(dx)
-            count1 = 0
-            count2 = 0
-
-            # band plot
-            if figsize != None:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-            else:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-            for i in range(no_bands):
-
-                if bands.spin == 1:
-                    ax.plot(dx, pltband[i, :], color=color,
-                            linestyle=linestl, linewidth=linewidth)
-
-                elif bands.spin == 2:
-                    if count1 == count2:
-                        ax.plot(dx, pltband[i, :, 0], color='red',
-                                linestyle=linestl, linewidth=linewidth, label='Alpha')
-                        ax.plot(dx, pltband[i, :, 1], color='black',
-                                linestyle=linestl, linewidth=linewidth, label='Beta')
-                    else:
-                        ax.plot(dx, pltband[i, :, 0], color='red',
-                                linestyle=linestl, linewidth=linewidth)
-                        ax.plot(dx, pltband[i, :, 1], color='black',
-                                linestyle=linestl, linewidth=linewidth)
-                    count1 += 1
+            fig = plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey)
+            ymin = fig[0]
+            ymax = fig[1]
+            xmin = fig[2]
+            xmax = fig[3]
+            ax = fig[5]
+            fig = fig[4]
 
         # plot of multiple band objects on a single plot
         elif mode == modes[1]:
@@ -708,99 +694,14 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
                     warnings.warn(
                         "The 'multi' plot is not fully implemented at the moment for file with NSPIN = 2")
 
-            # scaling that enables the comparison of band structure calculated at different pressures
-            if not_scaled is False:
-                reference = xmax = np.amax(bands[0].k_point_plot)
-                xmin = np.amin(bands[0].k_point_plot)
-
-            else:
-                xmax = []
-                xmin = []
-
-            ymin = []
-            ymax = []
-
-            if figsize != None:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-            else:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-            # plot of all the bands obj present in the list
-            for index, data in enumerate(bands):
-                # scaling that enables the comparison of band structure calculated at different pressures
-                if not_scaled == False:
-                    k_max = np.amax(data.k_point_plot)
-                    dx = (data.k_point_plot/k_max)*reference
-                else:
-                    dx = data.k_point_plot
-                    xmin.append(np.amin(dx))
-                    xmax.append(np.amax(dx))
-
-                pltband = data.bands
-                no_bands = np.shape(pltband)[0]
-                ymin.append(np.amin(pltband))
-                ymax.append(np.amax(pltband))
-
-                count1 = 0
-                count2 = 0
-
-                # Effective plot
-                for j in range(no_bands):
-
-                    if (count1 == count2) and (labels is not None):
-                        if data.spin == 1:
-                            if isinstance(linestl, list):
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth, label=labels[index])
-                            else:
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth[index], label=labels[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth, label=labels[index])
-                        elif data.spin == 2:
-                            ax.plot(dx, pltband[j, :, 0], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
-                            ax.plot(dx, pltband[j, :, 1], color=color[index],
-                                    linestyle='--', linewidth=linewidth, label=labels[index]+' Beta')
-
-                    else:
-                        if data.spin == 1:
-                            if isinstance(linestl, list):
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth)
-                            else:
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth)
-                        elif data.spin == 2:
-                            ax.plot(dx, pltband[j, :, 0], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth)
-                            ax.plot(dx, pltband[j, :, 1], color=color[index],
-                                    linestyle='--', linewidth=linewidth)
-
-                    count1 += 1
-
-            if (isinstance(xmin, list)) or (isinstance(xmax, list)):
-                xmin = min(xmin)
-                xmax = max(xmax)
-
-            ymin = min(ymin)
-            ymax = max(ymax)
+            fig = plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth,
+                                       color, labels, figsize, sharex, sharey)
+            ymin = fig[0]
+            ymax = fig[1]
+            xmin = fig[2]
+            xmax = fig[3]
+            ax = fig[5]
+            fig = fig[4]
 
         if mode == modes[3]:
             warnings.warn('The surface bands is not ready yet')
@@ -832,7 +733,7 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         # plot of the fermi level
         x = np.linspace(xmin, xmax, 2)
         y = np.zeros(2)
-        ax.plot(x, y, color=fermi, linewidth=2.5)
+        ax.plot(x, y, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
 
         # definition of the plot title
         if title is not None:
@@ -840,10 +741,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         if not isinstance(bands, list):
             if bands.spin == 2:
-                fig.legend()
+                ax.legend()
         else:
             if labels is not None:
-                fig.legend()
+                ax.legend()
 
     # compare mode plot
     elif mode == modes[2]:
@@ -864,144 +765,16 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
             else:
                 raise ValueError('sharex and sharey have to be boolean')
 
-        # Error check and definition of scheme
-        if scheme is None:
-            n_rows = 1
-            n_col = len(bands)
-        else:
-            if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
-                raise ValueError('scheme needs to be a tuple or a list')
-                sys.exit(1)
-            elif len(scheme) > 2:
-                raise ValueError(
-                    'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
-            else:
-                n_rows = scheme[0]
-                n_col = scheme[1]
-        # Creation of the subplots
-        if figsize is None:
-            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey, figsize=figsize)
-        else:
-            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey, figsize=figsize)
-        if n_rows == 1 and n_col == 1:  # When axs is not a list
-            axs = [axs]
-        # Scaling with different size of the same brillouin zone
-        if not_scaled is False:
-            reference = xmax = np.amax(bands[0].k_point_plot)
-            xmin = np.amin(bands[0].k_point_plot)
+        fig = plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
+                                     color, fermi, figsize, scheme, sharex, sharey,
+                                     fermiwidth, fermialpha)
+        ymin = fig[0]
+        ymax = fig[1]
+        xmin = fig[2]
+        xmax = fig[3]
+        ax = fig[5]
+        fig = fig[4]
 
-        else:
-            xmax = []
-            xmin = []
-
-        ymin = []
-        ymax = []
-        count3 = 0
-
-        # Plot of the different band structure into the subplots
-        for col in range(n_col):
-            for row in range(n_rows):
-                data = bands[count3]
-                if count3 == 0:
-                    hsp = data.tick_position
-                pltband = data.bands
-                no_bands = np.shape(pltband)[0]
-                if not_scaled is False:
-                    k_max = np.amax(data.k_point_plot)
-                    dx = (data.k_point_plot/k_max)*reference
-                else:
-                    dx = data.k_point_plot
-                    xmin.append(np.amin(dx))
-                    xmax.append(np.amax(dx))
-                ymin.append(np.amin(pltband))
-                ymax.append(np.amax(pltband))
-                # Effective plotting action
-                for j in range(no_bands):
-                    if data.spin == 1:
-                        if n_rows == 1:
-                            axs[col].plot(
-                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                        else:
-                            axs[row, col].plot(
-                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                    elif data.spin == 2:
-                        if n_rows == 1:
-                            axs[col].plot(dx, pltband[j, :, 0], color=color,
-                                          linestyle='-', linewidth=linewidth, label='Alpha')
-                            axs[col].plot(dx, pltband[j, :, 0], color=color,
-                                          linestyle='--', linewidth=linewidth, label='Beta')
-                        else:
-                            axs[row, col].plot(
-                                dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
-                            axs[row, col].plot(
-                                dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
-
-                # Plot of the HSPs lines
-                yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
-                for j in hsp:
-                    xhsp = np.ones(2)*j
-                    if n_rows == 1:
-                        axs[col].plot(
-                            xhsp, yhsp, color='black', linewidth=0.5)
-                    else:
-                        axs[row, col].plot(
-                            xhsp, yhsp, color='black', linewidth=0.5)
-
-                # Fermi level line plot
-                xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
-                yfermi = np.zeros(2)
-                if n_rows == 1:
-                    axs[col].plot(
-                        xfermi, yfermi, color=fermi, linewidth=2.5)
-                else:
-                    axs[row, col].plot(
-                        xfermi, yfermi, color=fermi, linewidth=2.5)
-
-                # Definition of x and y limits
-                if n_rows == 1:
-                    if sharex is not True:
-                        """hsp_label = []
-                        for element in k_labels:
-                            if element in k_labels:
-                                g = greek.get(element)
-                                hsp_label.append(g)
-                        axs[col].set_xticks(hsp)
-                        if k_labels is not None:
-                            axs[col].set_xlabels(hsp_label)"""
-                        warnings.warn(
-                            'The sharex = False option has not been developed yet')
-                    axs[col].set_xlim([np.amin(dx), np.amax(dx)])
-                    if (sharey is not True) and (energy_range is not None):
-                        axs[col].set_ylim([energy_range[0], energy_range[1]])
-                    else:
-                        axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
-                else:
-                    if sharex is not True:
-                        """hsp_label = []
-                        for element in k_labels:
-                            if element in k_labels:
-                                g = greek.get(element)
-                                hsp_label.append(g)
-                        axs[row, col].set_xticks(hsp)
-                        if k_labels is not None:
-                            axs[row, col].set_xlabels(hsp_label)"""
-                        warnings.warn(
-                            'The sharex = False option has not been developed yet')
-                    axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
-                    if (sharey is not True) and (energy_range is not False):
-                        axs[row, col].set_ylim(
-                            [energy_range[0], energy_range[1]])
-                    else:
-                        axs[row, col].set_ylim(
-                            [np.amin(pltband), np.amax(pltband)])
-
-                count3 += 1
-
-        if (isinstance(ymin, list)) or (isinstance(ymax, list)):
-            ymin = min(ymin)
-            ymax = max(ymax)
 
     hsp_label = []
     high_sym_point = []
@@ -1036,16 +809,16 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
     path_dict = dict(zip(high_sym_point2, hsp))
 
     # definition of the ylim
-    if (energy_range != None) and (sharey == True):
+    if (energy_range is not None) and (sharey == True):
         ymin = energy_range[0]
         ymax = energy_range[1]
 
     # definition of the xlim
-    if k_range != None:
+    if k_range is not None:
         xmin = path_dict[k_range[0]]
         xmax = path_dict[k_range[1]]
 
-    if k_labels != None:
+    if k_labels is not None:
         plt.xticks(hsp, hsp_label)
     else:
         plt.xticks(hsp)
@@ -1057,6 +830,308 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         warnings.warn('The k_range is not available yet for the compare mode')
 
     return fig
+
+
+def plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey):
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    dx = bands.k_point_plot
+
+    pltband = bands.bands
+    no_bands = np.shape(pltband)[0]
+    ymin = np.amin(pltband)
+    ymax = np.amax(pltband)
+    xmin = min(dx)
+    xmax = max(dx)
+    count1 = 0
+    count2 = 0
+
+    # band plot
+    if figsize is not None:
+        fig, ax = plt.subplots(
+            nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
+    else:
+        fig, ax = plt.subplots(
+            nrows=1, ncols=1, sharex=sharex, sharey=sharey)
+
+    for i in range(no_bands):
+
+        if bands.spin == 1:
+            ax.plot(dx, pltband[i, :], color=color,
+                    linestyle=linestl, linewidth=linewidth)
+
+        elif bands.spin == 2:
+            if count1 == count2:
+                ax.plot(dx, pltband[i, :, 0], color='red',
+                        linestyle=linestl, linewidth=linewidth, label='Alpha')
+                ax.plot(dx, pltband[i, :, 1], color='black',
+                        linestyle=linestl, linewidth=linewidth, label='Beta')
+            else:
+                ax.plot(dx, pltband[i, :, 0], color='red',
+                        linestyle=linestl, linewidth=linewidth)
+                ax.plot(dx, pltband[i, :, 1], color='black',
+                        linestyle=linestl, linewidth=linewidth)
+            count1 += 1
+
+    return ymin, ymax, xmin, xmax, fig, ax
+
+
+def plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
+                         labels, figsize, sharex, sharey):
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # scaling that enables the comparison of band structure calculated at different pressures
+    if not_scaled is False:
+        reference = xmax = np.amax(bands[0].k_point_plot)
+        xmin = np.amin(bands[0].k_point_plot)
+
+    else:
+        xmax = []
+        xmin = []
+
+    ymin = []
+    ymax = []
+
+    if figsize is not None:
+        fig, ax = plt.subplots(
+            nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
+    else:
+        fig, ax = plt.subplots(
+            nrows=1, ncols=1, sharex=sharex, sharey=sharey)
+
+    # plot of all the bands obj present in the list
+    for index, data in enumerate(bands):
+        # scaling that enables the comparison of band structure calculated at different pressures
+        if not_scaled is False:
+            k_max = np.amax(data.k_point_plot)
+            dx = (data.k_point_plot/k_max)*reference
+        else:
+            dx = data.k_point_plot
+            xmin.append(np.amin(dx))
+            xmax.append(np.amax(dx))
+
+        pltband = data.bands
+        no_bands = np.shape(pltband)[0]
+        ymin.append(np.amin(pltband))
+        ymax.append(np.amax(pltband))
+
+        count1 = 0
+        count2 = 0
+
+        # Effective plot
+        for j in range(no_bands):
+
+            if (count1 == count2) and (labels is not None):
+                if data.spin == 1:
+                    if isinstance(linestl, list):
+                        if isinstance(linewidth, list):
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
+                        else:
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+                    else:
+                        if isinstance(linewidth, list):
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl, linewidth=linewidth[index], label=labels[index])
+                        else:
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl, linewidth=linewidth, label=labels[index])
+                elif data.spin == 2:
+                    ax.plot(dx, pltband[j, :, 0], color=color[index],
+                            linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
+                    ax.plot(dx, pltband[j, :, 1], color=color[index],
+                            linestyle='--', linewidth=linewidth, label=labels[index]+' Beta')
+
+            else:
+                if data.spin == 1:
+                    if isinstance(linestl, list):
+                        if isinstance(linewidth, list):
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl[index], linewidth=linewidth[index])
+                        else:
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl[index], linewidth=linewidth)
+                    else:
+                        if isinstance(linewidth, list):
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl, linewidth=linewidth[index])
+                        else:
+                            ax.plot(dx, pltband[j, :], color=color[index],
+                                    linestyle=linestl, linewidth=linewidth)
+                elif data.spin == 2:
+                    ax.plot(dx, pltband[j, :, 0], color=color[index],
+                            linestyle=linestl, linewidth=linewidth)
+                    ax.plot(dx, pltband[j, :, 1], color=color[index],
+                            linestyle='--', linewidth=linewidth)
+
+            count1 += 1
+
+    if (isinstance(xmin, list)) or (isinstance(xmax, list)):
+        xmin = min(xmin)
+        xmax = max(xmax)
+
+    ymin = min(ymin)
+    ymax = max(ymax)
+
+    return ymin, ymax, xmin, xmax, fig, ax
+
+
+def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
+                           color, fermi, figsize, scheme, sharex, sharey,
+                           fermiwidth, fermialpha):
+
+    import sys
+    import warnings
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Error check and definition of scheme
+    if scheme is None:
+        n_rows = 1
+        n_col = len(bands)
+    else:
+        if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
+            raise ValueError('scheme needs to be a tuple or a list')
+            sys.exit(1)
+        elif len(scheme) > 2:
+            raise ValueError(
+                'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
+        else:
+            n_rows = scheme[0]
+            n_col = scheme[1]
+
+    # Creation of the subplots
+    if figsize is None:
+        fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
+                                sharex=sharex, sharey=sharey, figsize=figsize)
+    else:
+        fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
+                                sharex=sharex, sharey=sharey, figsize=figsize)
+    if n_rows == 1 and n_col == 1:  # When axs is not a list
+        axs = [axs]
+    # Scaling with different size of the same brillouin zone
+    if not_scaled is False:
+        reference = xmax = np.amax(bands[0].k_point_plot)
+        xmin = np.amin(bands[0].k_point_plot)
+
+    else:
+        xmax = []
+        xmin = []
+
+    ymin = []
+    ymax = []
+    count3 = 0
+
+    # Plot of the different band structure into the subplots
+    for col in range(n_col):
+        for row in range(n_rows):
+            data = bands[count3]
+            if count3 == 0:
+                hsp = data.tick_position
+            pltband = data.bands
+            no_bands = np.shape(pltband)[0]
+            if not_scaled is False:
+                k_max = np.amax(data.k_point_plot)
+                dx = (data.k_point_plot/k_max)*reference
+            else:
+                dx = data.k_point_plot
+                xmin.append(np.amin(dx))
+                xmax.append(np.amax(dx))
+            ymin.append(np.amin(pltband))
+            ymax.append(np.amax(pltband))
+            # Effective plotting action
+            for j in range(no_bands):
+                if data.spin == 1:
+                    if n_rows == 1:
+                        axs[col].plot(
+                            dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
+                    else:
+                        axs[row, col].plot(
+                            dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
+                elif data.spin == 2:
+                    if n_rows == 1:
+                        axs[col].plot(dx, pltband[j, :, 0], color=color,
+                                      linestyle='-', linewidth=linewidth, label='Alpha')
+                        axs[col].plot(dx, pltband[j, :, 0], color=color,
+                                      linestyle='--', linewidth=linewidth, label='Beta')
+                    else:
+                        axs[row, col].plot(
+                            dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
+                        axs[row, col].plot(
+                            dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
+
+            # Plot of the HSPs lines
+            yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
+            for j in hsp:
+                xhsp = np.ones(2)*j
+                if n_rows == 1:
+                    axs[col].plot(
+                        xhsp, yhsp, color='black', linewidth=0.5)
+                else:
+                    axs[row, col].plot(
+                        xhsp, yhsp, color='black', linewidth=0.5)
+
+            # Fermi level line plot
+            xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
+            yfermi = np.zeros(2)
+            if n_rows == 1:
+                axs[col].plot(
+                    xfermi, yfermi, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+            else:
+                axs[row, col].plot(
+                    xfermi, yfermi, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+
+            # Definition of x and y limits
+            if n_rows == 1:
+                if sharex is not True:
+                    """hsp_label = []
+                    for element in k_labels:
+                        if element in k_labels:
+                            g = greek.get(element)
+                            hsp_label.append(g)
+                    axs[col].set_xticks(hsp)
+                    if k_labels is not None:
+                        axs[col].set_xlabels(hsp_label)"""
+                    warnings.warn(
+                        'The sharex = False option has not been developed yet')
+                axs[col].set_xlim([np.amin(dx), np.amax(dx)])
+                if (sharey is not True) and (energy_range is not None):
+                    axs[col].set_ylim([energy_range[0], energy_range[1]])
+                else:
+                    axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
+            else:
+                if sharex is not True:
+                    """hsp_label = []
+                    for element in k_labels:
+                        if element in k_labels:
+                            g = greek.get(element)
+                            hsp_label.append(g)
+                    axs[row, col].set_xticks(hsp)
+                    if k_labels is not None:
+                        axs[row, col].set_xlabels(hsp_label)"""
+                    warnings.warn(
+                        'The sharex = False option has not been developed yet')
+                axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
+                if (sharey is not True) and (energy_range is not False):
+                    axs[row, col].set_ylim(
+                        [energy_range[0], energy_range[1]])
+                else:
+                    axs[row, col].set_ylim(
+                        [np.amin(pltband), np.amax(pltband)])
+
+            count3 += 1
+
+    if (isinstance(ymin, list)) or (isinstance(ymax, list)):
+        ymin = min(ymin)
+        ymax = max(ymax)
+
+    return ymin, ymax, xmin, xmax, fig, axs
 
 
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
@@ -1091,9 +1166,11 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import H_to_eV, eV_to_H
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
         unit = 'eV'
@@ -1167,9 +1244,11 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
         unit = 'cm-1'
@@ -1239,11 +1318,12 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    import numpy as np
     import sys
     import warnings
     from os import path
+
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     # Error check on beta
     accepted_beta = ['up', 'down']
@@ -1644,9 +1724,11 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         ValueError: If the unit parameter is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import H_to_eV, eV_to_H
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
         unit = 'eV'
@@ -1726,9 +1808,11 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
         ValueError: If the unit parameter is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
     import re
+
+    import matplotlib.pyplot as plt
+
+    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
         unit = 'cm-1'
@@ -1799,10 +1883,11 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     Returns:
         fig (object): Figure object containing the plotted data
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
     import warnings
     from os import path
+
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     # Dictionary of greek letters for the band plot in the electronic structure
     greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
@@ -2094,10 +2179,11 @@ def plot_cry_contour(contour_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
 
     """
-    import matplotlib.pyplot as plt
     import os
-    import numpy as np
     import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     df = contour_obj.df
     n_punti_x = contour_obj.npx
@@ -2175,11 +2261,12 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
 
     """
-    import matplotlib.pyplot as plt
     import os
-    import numpy as np
-    import time
     import sys
+    import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB'):
         pass
@@ -2270,9 +2357,10 @@ def plot_cry_xrd(xrd_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
 
     """
-    import matplotlib.pyplot as plt
     import os
     import time
+
+    import matplotlib.pyplot as plt
 
     plt.rcParams["figure.figsize"] = [16, 9]
 
@@ -2309,9 +2397,10 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
 
     """
-    import matplotlib.pyplot as plt
     import os
     import time
+
+    import matplotlib.pyplot as plt
 
     plt.plot(rholine_obj.x, rholine_obj.y)
 
@@ -2348,9 +2437,10 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
 
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
@@ -2490,9 +2580,10 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
 
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
@@ -2622,9 +2713,10 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
@@ -2758,9 +2850,10 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file named 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
@@ -2888,9 +2981,10 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
@@ -3097,9 +3191,10 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file named 'powerfactor_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     case = input(
         'Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
@@ -3315,9 +3410,10 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         - If save_to_file is True, saves the plot to a file named 'zt_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'zt_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     ktot = float(input(
         'Please insert the value of ktot in W-1K-1m-1'))
@@ -3444,9 +3540,10 @@ def plot_cry_multiseebeck(*seebeck):
         - Saves the plot to a file named 'multiseebeckYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     k = int(input(
         'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
@@ -3575,9 +3672,10 @@ def plot_cry_multisigma(*sigma):
         - Saves the plot to a file named 'multisigmaYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
     import sys
+    import time
+
     import matplotlib.pyplot as plt
     import numpy as np
-    import time
 
     k = int(input(
         'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
@@ -3699,8 +3797,9 @@ def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
         - The area under the curve where the Laplacian is positive is filled with a light coral color.
         - If save_to_file is set to a file path, the plot is saved to that file.
     """
-    import matplotlib.pyplot as plt
     import time
+
+    import matplotlib.pyplot as plt
 
     plt.plot(lapl_obj.datax, lapl_obj.datay)
 
@@ -3738,8 +3837,9 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
         - The y-axis represents the density in electrons per cubic angstrom (e/A^3).
         - If save_to_file is set to a file path, the plot is saved to that file.
     """
-    import matplotlib.pyplot as plt
     import time
+
+    import matplotlib.pyplot as plt
 
     plt.plot(lapl_obj.datax, lapl_obj.datay)
 
@@ -4063,13 +4163,14 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
     Returns:
         None
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
     import math
-    import time
     import sys
-    from mpl_toolkits.mplot3d import axes3d, Axes3D
-    from matplotlib import cm, colors, animation
+    import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib import animation, cm, colors
+    from mpl_toolkits.mplot3d import Axes3D, axes3d
 
     i = 0
     R = [None] * len(args)
@@ -4168,7 +4269,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         # <--
 
 
-def save_plot(path_to_file, format='png'):
+def save_plot(path_to_file, format, dpi):
     """
     Save the plot as a file.
 
@@ -4182,8 +4283,9 @@ def save_plot(path_to_file, format='png'):
     Returns:
         None
     """
-    from os import path
     import warnings
+    from os import path
+
     import matplotlib.pyplot as plt
 
     folder = path.split(path_to_file)[0]
@@ -4201,6 +4303,6 @@ def save_plot(path_to_file, format='png'):
                           stacklevel=2)
 
     if path.exists(folder) == True:
-        plt.savefig('%s/%s.%s' % (folder, file, format))
+        plt.savefig('%s/%s' % (folder, file), format=format, dpi=dpi)
     else:
         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
