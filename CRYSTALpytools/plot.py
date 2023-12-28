@@ -586,9 +586,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
     if mode not in modes:
         raise ValueError('The selected mode '+mode+' is not among the possible ones: ' +
                          modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
-    else:
-        if (isinstance(bands.list)) and (mode is modes[0]):
-            mode == modes[1]
+
+    # Automatically activates the multi mode if bands is a list
+    if (isinstance(bands, list)) and (mode is modes[0]):
+        mode = modes[1]
 
     # Error chenk on k_label
     if k_labels is not None:
