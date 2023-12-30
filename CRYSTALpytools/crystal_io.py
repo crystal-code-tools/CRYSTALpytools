@@ -44,6 +44,7 @@ class Crystal_input(Crystal_inputBASE):
             angle_tolerance (float): *Limited to keyword = CRYSTAL*. See `pymatgen.symmetry.analyzer.SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_
         """
         import re
+
         from pymatgen.core.structure import IStructure
 
         struc = IStructure.from_file(file)
@@ -62,6 +63,7 @@ class Crystal_input(Crystal_inputBASE):
         See ``geom_from_cif`` for definition of arguments.
         """
         import re
+
         from CRYSTALpytools.convert import cry_pmg2gui
 
         if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
@@ -194,8 +196,8 @@ class Crystal_output:
         Returns:
             CrystalOutput: Object representing the CRYSTAL output.
         """
-        import sys
         import re
+        import sys
 
         self.name = output_name
 
@@ -315,6 +317,7 @@ class Crystal_output:
             tuple or list: The scf convergence energy and energy difference.
         """
         import re
+
         import numpy as np
 
         self.scf_energy = []
@@ -438,6 +441,7 @@ class Crystal_output:
             np.ndarray: Primitive lattice of the system.
         """
         import re
+
         import numpy as np
 
         lattice = []
@@ -474,6 +478,7 @@ class Crystal_output:
             np.ndarray: Reciprocal primitive lattice of the system.
         """
         import re
+
         import numpy as np
 
         lattice = []
@@ -505,6 +510,7 @@ class Crystal_output:
             float or np.ndarray: Band gap of the system.
         """
         import re
+
         import numpy as np
 
         # Check if the system is spin polarised
@@ -550,9 +556,11 @@ class Crystal_output:
                 object, otherwise it is taken from the existing gui file
         """
         import re
-        from mendeleev import element
+
         import numpy as np
-        from pymatgen.core.structure import Structure, Molecule
+        from mendeleev import element
+        from pymatgen.core.structure import Molecule, Structure
+
         from CRYSTALpytools.convert import cry_pmg2gui
 
         dimensionality = self.get_dimensionality()
@@ -686,6 +694,7 @@ class Crystal_output:
             numpy.ndarray: Symmetry operators
         """
         import re
+
         import numpy as np
 
         symmops = []
@@ -716,6 +725,7 @@ class Crystal_output:
         else:
 
             import re
+
             import numpy as np
 
             self.forces_atoms = []
@@ -804,6 +814,7 @@ class Crystal_output:
             list or str: Configuration analysis if available, or a warning message
         """
         import re
+
         import numpy as np
 
         # Check this is a configuration analysis calculation
@@ -907,7 +918,9 @@ class Crystal_output:
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
+
         import numpy as np
+
         from CRYSTALpytools.base.crysout import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
@@ -1155,8 +1168,9 @@ class Properties_input:
             title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
         """
 
-        import numpy as np
         import sys
+
+        import numpy as np
 
         bands_block = []
 
@@ -1353,8 +1367,8 @@ class Properties_input:
             input_name (str): The name of the output file.
         """
 
-        import sys
         import itertools
+        import sys
 
         if self.is_newk == False:
             property_input_list = self.property_block
@@ -1613,10 +1627,11 @@ class Properties_output:
         Returns:
             Properties_output: The updated Properties_output object.
         """
-        import sys
         import re
-        import pandas as pd
+        import sys
+
         import numpy as np
+        import pandas as pd
 
         self.read_file(properties_output)
 
@@ -1735,8 +1750,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted XRD spectrum data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -1810,8 +1826,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted density line data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -1855,8 +1872,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted Seebeck coefficient data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -1934,8 +1952,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted electrical conductivity data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -2013,9 +2032,10 @@ class Properties_output:
         Returns:
             self: The modified object with extracted Laplacian profile data.
         """
-        import pandas as pd
         import re
+
         import numpy as np
+        import pandas as pd
 
         data = self.data
         filename = self.abspath
@@ -2078,9 +2098,10 @@ class Properties_output:
         Returns:
             self: The modified object with extracted density profile data.
         """
-        import pandas as pd
         import re
+
         import numpy as np
+        import pandas as pd
 
         self.read_file(properties_output)
 
@@ -2264,9 +2285,10 @@ class Crystal_density():
         self.file_name = fort98_unit
         self.is_irr = True
 
-        import sys
-        import numpy as np
         import re
+        import sys
+
+        import numpy as np
 
         try:
             file = open(self.file_name, 'r')
@@ -2538,6 +2560,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     """
 
     import sys
+
     import numpy as np
 
     try:
@@ -2676,7 +2699,7 @@ def write_cry_density(fort98_name, new_p, new_fort98):
 
 class External_unit:
     # WORK IN PROGRESS
-    # This class qill generate an object from the CRYSTAL external units like: IRSPEC.DAT
+    # This class will generate an object from the CRYSTAL external units like: IRSPEC.DAT
     # RAMSPEC.DAT tha can be plotted through the corresponding function in plot.py
 
     def __init__(self):
@@ -2684,17 +2707,27 @@ class External_unit:
         pass
 
     def read_external_unit(self, external_unit):
+        import os
         import sys
 
         try:
             if external_unit[-3:] != 'DAT':
                 external_unit = external_unit + '.DAT'
-            file = open(external_unit, 'r', errors='ignore')
+
+            file = open(external_unit, 'r')
             self.data = file.readlines()
             file.close()
+
+            #directory
+            dir_name = os.path.split(external_unit)[0]
+            self.abspath = os.path.join(dir_name)
+            
+            # title (named "title" only to distinguish from "file_name" which means another thing)
+            self.title = os.path.split(external_unit)[1]
+
         except:
-            print('EXITING: a .out file needs to be specified')
-            sys.exit(1)
+            raise FileNotFoundError(
+                'EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_cry_irspec(self, irspec_file):
         import numpy as np
