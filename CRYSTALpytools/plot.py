@@ -4259,14 +4259,274 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
 
 #-----------------------------------HARMONIC---------------------------------# 
 
-def plot_cry_irspec(irspec, save_plot=False):
+def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-', 
+                    linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                    label, save_plot=False):
+    import sys
+    import warnings
+
     import matplotlib.pyplot as plt
     import numpy as np
+    
+    modes = ['single', 'multi']
+    accepted_y = ['LG', 'V', 'RS', 'RE', 'REFL']
+
+    if (irspec.calculation == 'molecule') and (y_mode != accepted_y[0]):
+        raise ValueError('This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
 
 
-def plot_cry_ramspec(irspec, save_plot=False):
+    
+    if isinstance(irspec, list):
+        mode = modes[1]
+    else:
+        mode = modes[0]
+
+
+    if figsize is not None:
+        plt.figure(figsize)
+
+    if mode == modes[0]:
+
+        #selection of the x axis unit
+        if x_unit == 'cm-1':
+            x = irspec.irspec[0]
+
+        elif x_unit == 'nm':
+            x = irspec.irspec[1]
+        
+        #selection of the intensities mode
+        if y_mode == accepted_y[0]:
+            y = irspec.irspec[2]
+        
+        elif y_mode == accepted_y[1]:
+            y = irspec.irspec[5]
+
+        elif y_mode == accepted_y[2]:
+            y = irspec.irspec[6]
+
+        elif y_mode == accepted_y[3]:
+            y = irspec.irspec[7]
+
+        elif y_mode == accepted_y[4]:
+            y = irspec.irspec[8]
+
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)-1
+        ymax = max(y)+10
+        
+            
+        plt.plot(x, y, linestyle=linestyle, linewidth=linewidth, color=color)
+        
+
+    if mode == modes[1]:
+        xmin = []
+        xmax = []
+        ymin = []
+        ymax = []
+
+        for index, file in enumerate(irspec):
+            #selection of the x axis unit
+            if x_unit == 'cm-1':
+                x = file.irspec[0]
+
+            elif x_unit == 'nm':
+                x = file.irspec[1]
+            
+            #selection of the intensities mode
+            if y_mode == accepted_y[0]:
+                y = file.irspec[2]
+            
+            elif y_mode == accepted_y[1]:
+                y = file.irspec[5]
+
+            elif y_mode == accepted_y[2]:
+                y = file.irspec[6]
+
+            elif y_mode == accepted_y[3]:
+                y = file.irspec[7]
+
+            elif y_mode == accepted_y[4]:
+                y = file.irspec[8]
+
+            xmin.append(min(x))
+            xmax.append(max(x))
+            ymin.append(min(y)-1)
+            ymax.append(max(y)+10)
+            
+                
+            if label is not None:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index], 
+                         color=color[index], label=label[index])
+                plt.legend()
+            else:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
+
+        xmin = min(xmin)
+        xmax = max(xmax)
+        ymin = min(ymin)
+        ymax = max(ymax)
+
+    if freq_range is not None:
+        xmin = freq_range[0]
+        xmax = freq_range[1]
+
+    if int_range is not None:
+        ymin = int_range[0]
+        ymax = int_range[1]
+
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+
+    if x_unit == 'cm-1':
+        plt.xlabel('Wavenumber (cm$^{-1}$)')
+    elif x_unit == 'nm':
+        plt.xlabel('Wavelength (nm)')
+
+    if y_mode != accepted_y[4]:
+        plt.ylabel('Absorbance (A.U.)')
+    else:
+        plt.ylabel('Reflectance (A.U.)')
+
+    plt.show()
+
+
+
+def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-', 
+                    linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                    label=None, save_plot=False):
+    import sys
+    import warnings
+
     import matplotlib.pyplot as plt
     import numpy as np
+    
+    modes = ['single', 'multi']
+    accepted_y = ['total', 'parallel', 'perpendicular', 'xx', 'xy', 'xz','yy', 'yz', 'zz']
+
+    if isinstance(ramspec, list):
+        mode = modes[1]
+    else:
+        mode = modes[0]
+
+    if figsize is not None:
+        fig = plt.figure(figsize)
+
+    if mode == modes[0]:
+
+        x = ramspec.ramspec[0]
+        
+        #selection of the intensities mode
+        if y_mode == accepted_y[0]:
+            y = ramspec.ramspec[1]
+        
+        elif y_mode == accepted_y[1]:
+            y = ramspec.ramspec[2]
+
+        elif y_mode == accepted_y[2]:
+            y = ramspec.ramspec[3]
+
+        elif y_mode == accepted_y[3]:
+            y = ramspec.ramspec[4]
+
+        elif y_mode == accepted_y[4]:
+            y = ramspec.ramspec[5]
+
+        elif y_mode == accepted_y[5]:
+            y = ramspec.ramspec[6]
+
+        elif y_mode == accepted_y[6]:
+            y = ramspec.ramspec[7]
+
+        elif y_mode == accepted_y[7]:
+            y = ramspec.ramspec[8]
+
+        elif y_mode == accepted_y[8]:
+            y = ramspec.ramspec[9]
+
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)-1
+        ymax = max(y)+10
+        
+            
+        fig = plt.plot(x, y, linestyle=linestyle, linewidth=linewidth, color=color)
+        
+
+    if mode == modes[1]:
+        xmin = []
+        xmax = []
+        ymin = []
+        ymax = []
+
+        for index, file in enumerate(ramspec):
+            x = ramspec.ramspec[0]
+        
+            #selection of the intensities mode
+            if y_mode == accepted_y[0]:
+                y = ramspec.ramspec[1]
+            
+            elif y_mode == accepted_y[1]:
+                y = ramspec.ramspec[2]
+
+            elif y_mode == accepted_y[2]:
+                y = ramspec.ramspec[3]
+
+            elif y_mode == accepted_y[3]:
+                y = ramspec.ramspec[4]
+
+            elif y_mode == accepted_y[4]:
+                y = ramspec.ramspec[5]
+
+            elif y_mode == accepted_y[5]:
+                y = ramspec.ramspec[6]
+
+            elif y_mode == accepted_y[6]:
+                y = ramspec.ramspec[7]
+
+            elif y_mode == accepted_y[7]:
+                y = ramspec.ramspec[8]
+
+            elif y_mode == accepted_y[8]:
+                y = ramspec.ramspec[9]
+
+            xmin.append(min(x))
+            xmax.append(max(x))
+            ymin.append(min(y)-1)
+            ymax.append(max(y)+10)
+            
+                
+            if label is not None:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index], 
+                         color=color[index], label=label[index])
+                plt.legend()
+            else:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
+
+        xmin = min(xmin)
+        xmax = max(xmax)
+        ymin = min(ymin)
+        ymax = max(ymax)
+
+    if freq_range is not None:
+        xmin = freq_range[0]
+        xmax = freq_range[1]
+
+    if int_range is not None:
+        ymin = int_range[0]
+        ymax = int_range[1]
+
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+
+    plt.xlabel('Wavenumber (cm$^{-1}$)')
+
+    if y_mode != accepted_y[4]:
+        plt.ylabel('Absorbance (A.U.)')
+    else:
+        plt.ylabel('Reflectance (A.U.)')
+
+    plt.show()
 
 
 #----------------------------------ANHARMONIC--------------------------------# 
@@ -4312,6 +4572,6 @@ def save_plot(path_to_file, format, dpi):
                           stacklevel=2)
 
     if path.exists(folder) == True:
-        plt.savefig('%s/%s.%s' % (folder, file, format))
+        plt.savefig('%s/%s.%s' % (folder, file, format), dpi=dpi)
     else:
         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
