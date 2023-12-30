@@ -206,7 +206,7 @@ class Crystal_output:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
                 output_name = output_name+'.out'
             file = open(output_name, 'r', errors='ignore')
-            self.data = file.readlines()
+            self.data = file.readline()
             file.close()
         except:
             print('EXITING: a .out file needs to be specified')
@@ -663,7 +663,7 @@ class Crystal_output:
                         gui_file = symm_info
                         try:
                             file = open(gui_file, 'r')
-                            gui_data = file.readlines()
+                            gui_data = file.readline()
                             file.close()
                         except:
                             raise FileNotFoundError(
@@ -680,7 +680,7 @@ class Crystal_output:
 
                         with open(gui_file[:-4]+'_last.gui', 'w') as file:
                             for line in gui_data:
-                                file.writelines(line)
+                                file.writeline(line)
 
                 self.last_geom = [lattice.tolist(
                 ), self.atom_numbers, self.atom_positions_cart.tolist()]
@@ -1120,7 +1120,7 @@ class Properties_input:
                 if input_name[-3:] != 'd12':
                     input_name = input_name+'.d12'
                 file = open(input_name, 'r')
-                self.data = file.readlines()
+                self.data = file.readline()
                 file.close()
             except:
                 print('EXITING: a .d3 file needs to be specified')
@@ -1211,7 +1211,7 @@ class Properties_input:
                            ' '+str(first_band)+' '+str(last_band)+' ' +
                            str(print_option)+' '+str(print_eig)+'\n')
 
-        # Add the symmetry lines
+        # Add the symmetry line
         for i in range(len(k_path[:-1])):
             bands_block.append(' '.join([str(x) for x in k_path[i]])+'  ' +
                                ' '.join([str(x) for x in k_path[i+1]])+'\n')
@@ -1378,7 +1378,7 @@ class Properties_input:
 
         with open(input_name, 'w') as file:
             for line in property_input_list:
-                file.writelines(line)
+                file.writeline(line)
 
 
 class Properties_output:
@@ -1403,7 +1403,7 @@ class Properties_output:
 
         try:
             file = open(self.file_name, 'r')
-            self.data = file.readlines()
+            self.data = file.readline()
             file.close()
 
             # directory
@@ -1463,11 +1463,11 @@ class Properties_output:
             if (ncol % i) == 0:
                 ncol_split = int(ncol/i)
 
-        blines = (nrow*ncol)/6
-        if (blines % 6) == 0:
-            blines = int(blines)
+        bline = (nrow*ncol)/6
+        if (bline % 6) == 0:
+            bline = int(bline)
         else:
-            blines = int(blines) + 1
+            bline = int(bline) + 1
 
         # Reads the types of density property requested by the user and initializes the data arrays
         check = np.zeros(3, dtype=int)
@@ -1493,19 +1493,19 @@ class Properties_output:
             iamhere = 3
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_m[r, s, 1] = data[i +
-                                                iamhere+blines+skip].split()[j]
+                                                iamhere+bline+skip].split()[j]
                     self.dens_m[r, s, 2] = data[i+iamhere +
-                                                (2*blines)+(2*skip)].split()[j]
+                                                (2*bline)+(2*skip)].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
                         s += 1
-            iamhere = iamhere + 3*blines + 2*skip
+            iamhere = iamhere + 3*bline + 2*skip
         if check[1]:
             if iamhere == 0:
                 iamhere = 3
@@ -1513,19 +1513,19 @@ class Properties_output:
                 iamhere = iamhere + skip
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_j[r, s, 1] = data[i +
-                                                iamhere+blines+skip].split()[j]
+                                                iamhere+bline+skip].split()[j]
                     self.dens_j[r, s, 2] = data[i +
-                                                iamhere+2*blines+2*skip].split()[j]
+                                                iamhere+2*bline+2*skip].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
                         s += 1
-            iamhere = iamhere + 3*blines + 2*skip
+            iamhere = iamhere + 3*bline + 2*skip
         if check[2]:
             if iamhere == 0:
                 iamhere = 3
@@ -1533,25 +1533,25 @@ class Properties_output:
                 iamhere = iamhere + skip
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_JX[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_JX[r, s, 1] = data[i +
-                                                 iamhere+blines+skip].split()[j]
+                                                 iamhere+bline+skip].split()[j]
                     self.dens_JX[r, s, 2] = data[i+iamhere +
-                                                 (2*blines)+(2*skip)].split()[j]
+                                                 (2*bline)+(2*skip)].split()[j]
                     self.dens_JY[r, s, 0] = data[i+iamhere +
-                                                 (3*blines)+(3*skip)].split()[j]
+                                                 (3*bline)+(3*skip)].split()[j]
                     self.dens_JY[r, s, 1] = data[i+iamhere +
-                                                 (4*blines)+(4*skip)].split()[j]
+                                                 (4*bline)+(4*skip)].split()[j]
                     self.dens_JY[r, s, 2] = data[i+iamhere +
-                                                 (5*blines)+(5*skip)].split()[j]
+                                                 (5*bline)+(5*skip)].split()[j]
                     self.dens_JZ[r, s, 0] = data[i+iamhere +
-                                                 (6*blines)+(6*skip)].split()[j]
+                                                 (6*bline)+(6*skip)].split()[j]
                     self.dens_JZ[r, s, 1] = data[i+iamhere +
-                                                 (7*blines)+(7*skip)].split()[j]
+                                                 (7*bline)+(7*skip)].split()[j]
                     self.dens_JZ[r, s, 2] = data[i+iamhere +
-                                                 (8*blines)+(8*skip)].split()[j]
+                                                 (8*bline)+(8*skip)].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
@@ -1726,17 +1726,17 @@ class Properties_output:
         if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
             self.levels = ctr1
             self.colors = colors1
-            self.linestyles = ls1
+            self.linetyles = ls1
             self.fmt = '%1.3f'
         elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
             self.levels = ctr2
             self.colors = colors2
-            self.linestyles = ls2
+            self.linetyles = ls2
             self.fmt = '%1.3f'
         elif (self.tipo == 'SURFELFB'):
             self.levels = ctr3
             self.colors = colors3
-            self.linestyles = ls3
+            self.linetyles = ls3
             self.fmt = '%1.2f'
 
         return self
@@ -2177,7 +2177,7 @@ class Crystal_gui:
             if gui_file[-3:] != 'gui' and gui_file[-3:] != 'f34' and 'optc' not in gui_file:
                 gui_file = gui_file + '.gui'
             file = open(gui_file, 'r')
-            data = file.readlines()
+            data = file.readline()
             file.close()
         except:
             raise FileNotFoundError('A .gui file needs to be specified')
@@ -2217,35 +2217,35 @@ class Crystal_gui:
         with open(gui_file, 'w') as file:
 
             # First line
-            file.writelines('%4s   1   1\n' % self.dimensionality)
+            file.writeline('%4s   1   1\n' % self.dimensionality)
             # Cell vectors
             for vector in self.lattice:
-                file.writelines('{}\n'.format(
+                file.writeline('{}\n'.format(
                     ''.join(['{0: 20.12E}'.format(np.round(n, 12))
                             for n in vector])
                 ))
             # N symm ops
-            file.writelines('{:5d}\n'.format(self.n_symmops))
+            file.writeline('{:5d}\n'.format(self.n_symmops))
 
             # symm ops
             for symmops in self.symmops:
-                file.writelines('{}\n'.format(
+                file.writeline('{}\n'.format(
                     ''.join(['{0: 20.12f}'.format(np.round(n, 12))
                             for n in symmops])
                 ))
             # N atoms
-            file.writelines('{:5d}\n'.format(self.n_atoms))
+            file.writeline('{:5d}\n'.format(self.n_atoms))
 
             # atom number (including pseudopotentials) + coordinates cart
             for i in range(self.n_atoms):
                 if self.atom_number[i] in pseudo_atoms:
-                    file.writelines('{:5d}{}\n'.format(
+                    file.writeline('{:5d}{}\n'.format(
                         int(self.atom_number[i])+200,
                         ''.join(['{0: 20.12E}'.format(np.round(x, 12))
                                 for x in self.atom_positions[i]])
                     ))
                 else:
-                    file.writelines('{:5d}{}\n'.format(
+                    file.writeline('{:5d}{}\n'.format(
                         int(self.atom_number[i]),
                         ''.join(['{0: 20.12E}'.format(np.round(x, 12))
                                 for x in self.atom_positions[i]])
@@ -2253,11 +2253,11 @@ class Crystal_gui:
 
             # space group + n symm ops
             if symm == True:
-                file.writelines('{:5d}{:5d}\n'.format(
+                file.writeline('{:5d}{:5d}\n'.format(
                     self.space_group, self.n_symmops
                 ))
             else:
-                file.writelines('{:5d}{:5d}\n'.format(1, 1))
+                file.writeline('{:5d}{:5d}\n'.format(1, 1))
 
         file.close()
 
@@ -2292,7 +2292,7 @@ class Crystal_density():
 
         try:
             file = open(self.file_name, 'r')
-            data = file.readlines()
+            data = file.readline()
             file.close()
         except:
             print('EXITING: a CRYSTAL .f98 file needs to be specified')
@@ -2312,8 +2312,8 @@ class Crystal_density():
 
             elif re.match(r'^INF', line):
                 self.inf_vec = []
-                inf_n_lines = int(np.ceil(inf_vec_len/8))
-                for j in range(inf_n_lines):
+                inf_n_line = int(np.ceil(inf_vec_len/8))
+                for j in range(inf_n_line):
                     self.inf_vec.extend([int(x) for x in data[i+1+j].split()])
                 n_symmops = self.inf_vec[0]
                 n_atoms = self.inf_vec[23]
@@ -2331,14 +2331,14 @@ class Crystal_density():
 
             elif re.match(r'^TOL', line):
                 self.tol_vec = []
-                tol_n_lines = int(np.ceil(tol_vec_len/8))
-                for j in range(tol_n_lines):
+                tol_n_line = int(np.ceil(tol_vec_len/8))
+                for j in range(tol_n_line):
                     self.tol_vec.extend([int(x) for x in data[i+1+j].split()])
 
             elif re.match(r'^PAR', line):
                 self.par_vec = []
-                par_n_lines = int(np.ceil(par_vec_len/4))
-                for j in range(par_n_lines):
+                par_n_line = int(np.ceil(par_vec_len/4))
+                for j in range(par_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
@@ -2351,9 +2351,9 @@ class Crystal_density():
                 # lattice vectors and transformation matrix from primitive to
                 # crystallographic cell
                 # Read all of it first and separate later
-                xyvgve_n_lines = int(np.ceil((n_symmops*12+18)/4))
+                xyvgve_n_line = int(np.ceil((n_symmops*12+18)/4))
                 xyvgve_vec = []
-                for j in range(xyvgve_n_lines):
+                for j in range(xyvgve_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
@@ -2370,10 +2370,10 @@ class Crystal_density():
 
             elif re.match(r'^BASATO', line):
                 if basato1 == False:
-                    basato_n_lines = int(
+                    basato_n_line = int(
                         np.ceil((n_atoms*4+n_shells*5+n_prim_gto*7)/4))
                     basato_vec = []
-                    for j in range(basato_n_lines):
+                    for j in range(basato_n_line):
                         # The negative elements appear connected to the previous one
                         # eg:  0.0000000000000E+00-1.0000000000000E+00
                         # The line below fixes that issue
@@ -2424,28 +2424,28 @@ class Crystal_density():
                 self.spin = []
                 self.ghost = []
                 n_ghost = 0
-                n_spin_lines = int(np.ceil((n_atoms*2)/8))
+                n_spin_line = int(np.ceil((n_atoms*2)/8))
                 n_basold = 0
-                if 'BASOLD' in data[i+n_spin_lines+1]:
+                if 'BASOLD' in data[i+n_spin_line+1]:
                     n_basold = 9 + 3 * \
                         self.inf_vec[1] + n_shells + 3*n_atoms+3 * \
                         n_shells+self.inf_vec[4]+1+3*self.inf_vec[78]
-                n_basold_lines = int(np.ceil((n_basold)/4))
-                n_charge_lines = int(np.ceil(n_atoms/4))
-                skip = n_spin_lines + n_charge_lines + 1 + n_basold_lines
-                for j in range(n_spin_lines):
+                n_basold_line = int(np.ceil((n_basold)/4))
+                n_charge_line = int(np.ceil(n_atoms/4))
+                skip = n_spin_line + n_charge_line + 1 + n_basold_line
+                for j in range(n_spin_line):
                     self.spin.extend([int(x) for x in data[i + j + 1].split()])
-                if 'IGHOST' in data[i+n_spin_lines+1]:
+                if 'IGHOST' in data[i+n_spin_line+1]:
                     n_ghost = int(np.ceil((n_atoms)/8)) + 1
                     skip = skip + n_ghost
                     for j in range(n_ghost-1):
                         self.ghost.extend(
-                            [float(x) for x in data[i + j + n_spin_lines + 2].split()])
-                f_irr_n_lines = int(np.ceil(f_irr_len/4))
-                for j in range(n_charge_lines):
+                            [float(x) for x in data[i + j + n_spin_line + 2].split()])
+                f_irr_n_line = int(np.ceil(f_irr_len/4))
+                for j in range(n_charge_line):
                     self.charges.extend(
-                        [float(x) for x in data[i+j+n_spin_lines+n_basold+n_ghost+1].split()])
-                for j in range(f_irr_n_lines):
+                        [float(x) for x in data[i+j+n_spin_line+n_basold+n_ghost+1].split()])
+                for j in range(f_irr_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -2455,9 +2455,9 @@ class Crystal_density():
                         self.f_irr.append(
                             float(data[i+skip+j][(item)*21:(item+1)*21]))
                 self.p_irr = []
-                p_irr_n_lines = int(np.ceil(p_irr_len/4))
+                p_irr_n_line = int(np.ceil(p_irr_len/4))
                 skip += 1
-                for k in range(i+skip+j, i+skip+j+p_irr_n_lines):
+                for k in range(i+skip+j, i+skip+j+p_irr_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -2500,8 +2500,8 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.nnnc = []
-                nnnc_n_lines = int(np.ceil(nnnc_len/8))
-                for j in range(nnnc_n_lines):
+                nnnc_n_line = int(np.ceil(nnnc_len/8))
+                for j in range(nnnc_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -2515,7 +2515,7 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la3 = []
-                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_line = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'LA4' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
@@ -2530,7 +2530,7 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la4 = []
-                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_line = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'IROF' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
@@ -2647,7 +2647,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
         spinor+charges+fock+density+density3_data[end:]
     with open(new_density, 'w') as file:
         for line in final_fort98:
-            file.writelines(line)
+            file.writeline(line)
 
 
 def write_cry_density(fort98_name, new_p, new_fort98):
@@ -2669,14 +2669,14 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     import numpy as np
 
     file = open(fort98_name, 'r')
-    data = file.readlines()
+    data = file.readline()
     file.close()
 
     density = Crystal_density(fort98_name)
 
-    n_spin_lines = int(np.ceil((density.inf_vec[23] * 2) / 8))
-    n_charges_lines = int(np.ceil((density.inf_vec[23]) / 4))
-    beginning = data.index('SPINOR\n') + n_spin_lines + n_charges_lines + 1
+    n_spin_line = int(np.ceil((density.inf_vec[23] * 2) / 8))
+    n_charges_line = int(np.ceil((density.inf_vec[23]) / 4))
+    beginning = data.index('SPINOR\n') + n_spin_line + n_charges_line + 1
     end = data.index('   NCF\n')
 
     new_fock_vect = [0] * len(density.f_irr)
@@ -2694,7 +2694,7 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     final_fort98 = data[0:beginning]+new_fock+new_density+data[end:]
     with open(new_fort98, 'w') as file:
         for line in final_fort98:
-            file.writelines(line)
+            file.writeline(line)
 
 
 class External_unit:
@@ -2754,19 +2754,22 @@ class External_unit:
 
         return self
 
-    def read_cry_ramspec(self, ramspec_file):
+    def read_cry_ramspec(self, external_unit):
         import numpy as np
 
-        self.read_external_unit(ramspec_file)
+        self.read_external_unit(external_unit)
 
         data = self.data
+
+        for index, line in enumerate(data):
+            data[index] = line.split()
+
         columns = len(data[0])
         no_points = len(data)
 
         ramspec = np.zeros((no_points, columns))
 
-        for i, lines in enumerate(data):
-            line = lines.split()
+        for i, line in enumerate(data):
             for j, element in enumerate(line):
                 ramspec[i, j] = float(element)
 

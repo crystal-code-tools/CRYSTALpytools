@@ -4278,14 +4278,16 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
         mode = modes[1]
 
         if not isinstance(linestyle, list):
+            style = linestyle
             linestyle = []
             for i in enumerate(irspec):
-                linestyle.append('-')
+                linestyle.append(style)
 
         if not isinstance(linewidth,list):
+            width = linewidth
             linewidth = []
             for i in enumerate(irspec):
-                linewidth.append(1.5)
+                linewidth.append(width)
 
         if not isinstance(color, list):
                 color = ['dimgrey', 'blue', 'indigo', 'slateblue',
@@ -4420,7 +4422,7 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
 
 def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-', 
                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                    label=None, save_plot=False):
+                    label=None, save_to_file=False, dpi=300, transparency=False):
     import sys
     import warnings
 
@@ -4432,43 +4434,59 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
 
     if isinstance(ramspec, list):
         mode = modes[1]
+        if not isinstance(linestyle, list):
+            style = linestyle
+            linestyle = []
+            for i in enumerate(ramspec):
+                linestyle.append(style)
+
+        if not isinstance(linewidth,list):
+            width = linewidth
+            linewidth = []
+            for i in enumerate(ramspec):
+                linewidth.append(width)
+
+        if not isinstance(color, list):
+                color = ['dimgrey', 'blue', 'indigo', 'slateblue',
+                         'thistle', 'purple', 'orchid', 'crimson']
+                
     else:
         mode = modes[0]
 
     if figsize is not None:
-        fig = plt.figure(figsize)
+        fig = plt.figure(figsize=figsize)
 
     if mode == modes[0]:
 
-        x = ramspec.ramspec[0]
+        x = ramspec.ramspec[:,0]
         
         #selection of the intensities mode
         if y_mode == accepted_y[0]:
-            y = ramspec.ramspec[1]
+            y = ramspec.ramspec[:, 1]
         
         elif y_mode == accepted_y[1]:
-            y = ramspec.ramspec[2]
+            y = ramspec.ramspec[:, 2]
 
         elif y_mode == accepted_y[2]:
-            y = ramspec.ramspec[3]
+            y = ramspec.ramspec[:, 3]
 
         elif y_mode == accepted_y[3]:
-            y = ramspec.ramspec[4]
+            y = ramspec.ramspec[:, 4]
 
         elif y_mode == accepted_y[4]:
-            y = ramspec.ramspec[5]
+            y = ramspec.ramspec[:, 5]
 
         elif y_mode == accepted_y[5]:
-            y = ramspec.ramspec[6]
+            y = ramspec.ramspec[:, 6]
 
         elif y_mode == accepted_y[6]:
-            y = ramspec.ramspec[7]
+            y = ramspec.ramspec[:, 7]
 
         elif y_mode == accepted_y[7]:
-            y = ramspec.ramspec[8]
+            y = ramspec.ramspec[:, 8]
 
         elif y_mode == accepted_y[8]:
-            y = ramspec.ramspec[9]
+            y = ramspec.ramspec[:, 9]
 
         xmin = min(x)
         xmax = max(x)
@@ -4486,35 +4504,35 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
         ymax = []
 
         for index, file in enumerate(ramspec):
-            x = ramspec.ramspec[0]
-        
+            x = file.ramspec[:,0]
+            
             #selection of the intensities mode
             if y_mode == accepted_y[0]:
-                y = ramspec.ramspec[1]
+                y = file.ramspec[:, 1]
             
             elif y_mode == accepted_y[1]:
-                y = ramspec.ramspec[2]
-
+                y = file.ramspec[:, 2]
+    
             elif y_mode == accepted_y[2]:
-                y = ramspec.ramspec[3]
-
+                y = file.ramspec[:, 3]
+    
             elif y_mode == accepted_y[3]:
-                y = ramspec.ramspec[4]
-
+                y = file.ramspec[:, 4]
+    
             elif y_mode == accepted_y[4]:
-                y = ramspec.ramspec[5]
-
+                y = file.ramspec[:, 5]
+    
             elif y_mode == accepted_y[5]:
-                y = ramspec.ramspec[6]
-
+                y = file.ramspec[:, 6]
+    
             elif y_mode == accepted_y[6]:
-                y = ramspec.ramspec[7]
-
+                y = file.ramspec[:, 7]
+    
             elif y_mode == accepted_y[7]:
-                y = ramspec.ramspec[8]
-
+                y = file.ramspec[:, 8]
+    
             elif y_mode == accepted_y[8]:
-                y = ramspec.ramspec[9]
+                y = file.ramspec[:, 9]
 
             xmin.append(min(x))
             xmax.append(max(x))
@@ -4551,6 +4569,9 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
         plt.ylabel('Absorbance (A.U.)')
     else:
         plt.ylabel('Reflectance (A.U.)')
+
+    if save_to_file != None:
+        save_plot(save_to_file, dpi, transparency)
 
     plt.show()
 
