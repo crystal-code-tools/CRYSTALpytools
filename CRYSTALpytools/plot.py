@@ -842,7 +842,6 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
     return fig
 
-# ------------------------------DENSITY OF STATES-----------------------------#
 
 
 def plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey):
@@ -1146,6 +1145,7 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
 
     return ymin, ymax, xmin, xmax, fig, axs
 
+# ------------------------------DENSITY OF STATES-----------------------------#
 
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       energy_range=None, dos_range=None, color='blue',
