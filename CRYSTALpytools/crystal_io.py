@@ -2708,33 +2708,34 @@ class External_unit:
 
     def read_external_unit(self, external_unit):
         import os
-        import sys
 
+        self.file_name = external_unit
         try:
-            if external_unit[-3:] != 'DAT':
-                external_unit = external_unit + '.DAT'
-
             file = open(external_unit, 'r')
             self.data = file.readlines()
             file.close()
 
-            #directory
+            # directory
             dir_name = os.path.split(external_unit)[0]
             self.abspath = os.path.join(dir_name)
-            
+
             # title (named "title" only to distinguish from "file_name" which means another thing)
             self.title = os.path.split(external_unit)[1]
 
         except:
             raise FileNotFoundError(
-                'EXITING: a CRYSTAL properties file needs to be specified')
+                'EXITING: a CRYSTAL generated .DAT unit file needs to be specified')
 
-    def read_cry_irspec(self, irspec_file):
+    def read_cry_irspec(self, external_unit):
         import numpy as np
 
-        self.read_external_unit(irspec_file)
+        self.read_external_unit(external_unit)
 
         data = self.data
+
+        for index, line in enumerate(data):
+            data[index] = line.split()
+
         columns = len(data[0])
         no_points = len(data)
 
@@ -2745,8 +2746,7 @@ class External_unit:
 
         irspec = np.zeros((no_points, columns))
 
-        for i, lines in enumerate(data):
-            line = lines.split()
+        for i, line in enumerate(data):
             for j, element in enumerate(line):
                 irspec[i, j] = float(element)
 

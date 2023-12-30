@@ -4261,7 +4261,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
 
 def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-', 
                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                    label, save_plot=False):
+                    label=None, save_to_file=None, dpi=300, transparency=False):
     import sys
     import warnings
 
@@ -4271,44 +4271,65 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
     modes = ['single', 'multi']
     accepted_y = ['LG', 'V', 'RS', 'RE', 'REFL']
 
-    if (irspec.calculation == 'molecule') and (y_mode != accepted_y[0]):
-        raise ValueError('This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
 
 
     
     if isinstance(irspec, list):
         mode = modes[1]
+
+        if not isinstance(linestyle, list):
+            linestyle = []
+            for i in enumerate(irspec):
+                linestyle.append('-')
+
+        if not isinstance(linewidth,list):
+            linewidth = []
+            for i in enumerate(irspec):
+                linewidth.append(1.5)
+
+        if not isinstance(color, list):
+                color = ['dimgrey', 'blue', 'indigo', 'slateblue',
+                         'thistle', 'purple', 'orchid', 'crimson']
+                
+        for file in irspec:
+            if (file.calculation == 'molecule') and (y_mode != accepted_y[0]):
+                raise ValueError('This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
+
     else:
         mode = modes[0]
-
+        
+        if (irspec.calculation == 'molecule') and (y_mode != accepted_y[0]):
+            raise ValueError('This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
 
     if figsize is not None:
-        plt.figure(figsize)
+        plt.figure(figsize=figsize)
 
     if mode == modes[0]:
 
         #selection of the x axis unit
         if x_unit == 'cm-1':
-            x = irspec.irspec[0]
+            x = irspec.irspec[:,0]
 
         elif x_unit == 'nm':
-            x = irspec.irspec[1]
-        
+            x = irspec.irspec[:,1]
+
         #selection of the intensities mode
         if y_mode == accepted_y[0]:
-            y = irspec.irspec[2]
-        
+            y = irspec.irspec[:,2]
+
         elif y_mode == accepted_y[1]:
-            y = irspec.irspec[5]
+            y = irspec.irspec[:,5]
 
         elif y_mode == accepted_y[2]:
-            y = irspec.irspec[6]
+            y = irspec.irspec[:,6]
 
         elif y_mode == accepted_y[3]:
-            y = irspec.irspec[7]
+            y = irspec.irspec[:,7]
 
         elif y_mode == accepted_y[4]:
-            y = irspec.irspec[8]
+            y = irspec.irspec[:,8]
+
+        print(x,y)
 
         xmin = min(x)
         xmax = max(x)
@@ -4320,6 +4341,7 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
         
 
     if mode == modes[1]:
+
         xmin = []
         xmax = []
         ymin = []
@@ -4328,26 +4350,26 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
         for index, file in enumerate(irspec):
             #selection of the x axis unit
             if x_unit == 'cm-1':
-                x = file.irspec[0]
-
+                x = file.irspec[:,0]
+                                               
             elif x_unit == 'nm':
-                x = file.irspec[1]
-            
+                x = file.irspec[:,1]
+                                               
             #selection of the intensities mode
             if y_mode == accepted_y[0]:
-                y = file.irspec[2]
-            
+                y = file.irspec[:,2]
+                                               
             elif y_mode == accepted_y[1]:
-                y = file.irspec[5]
-
+                y = file.irspec[:,5]
+                                               
             elif y_mode == accepted_y[2]:
-                y = file.irspec[6]
-
+                y = file.irspec[:,6]
+                                               
             elif y_mode == accepted_y[3]:
-                y = file.irspec[7]
-
+                y = file.irspec[:,7]
+                                               
             elif y_mode == accepted_y[4]:
-                y = file.irspec[8]
+                y = file.irspec[:,8]
 
             xmin.append(min(x))
             xmax.append(max(x))
@@ -4388,7 +4410,11 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
     else:
         plt.ylabel('Reflectance (A.U.)')
 
+    if save_to_file != None:
+        save_plot(save_to_file, dpi, transparency)
+
     plt.show()
+
 
 
 
@@ -4538,7 +4564,7 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
 ##############################################################################
 
 
-def save_plot(path_to_file, format, dpi):
+def save_plot(path_to_file, dpi, transparency):
     """
     Save the plot as a file.
 
@@ -4572,6 +4598,6 @@ def save_plot(path_to_file, format, dpi):
                           stacklevel=2)
 
     if path.exists(folder) == True:
-        plt.savefig('%s/%s.%s' % (folder, file, format), dpi=dpi)
+        plt.savefig('%s/%s.%s' % (folder, file, format), dpi=dpi, transparent=transparency)
     else:
         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
