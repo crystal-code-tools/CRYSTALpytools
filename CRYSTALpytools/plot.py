@@ -4,6 +4,14 @@
 Functions to visualize CRYSTAL outputs.
 """
 
+##############################################################################
+#                                                                            #
+#                       ELECTRONIC STRUCTURE AND PHONONS                     #
+#                                                                            #
+##############################################################################
+
+# ---------------------------------SPIN CURRENTS------------------------------#
+
 
 def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     """
@@ -370,6 +378,8 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     plt.show()
 
 
+# -------------------------------BAND STRUCTURES------------------------------#
+
 def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
                      not_scaled=False, energy_range=None, k_range=None,
                      color='blue', labels=None, linestl='-', linewidth=1,
@@ -525,7 +535,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
 
     fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
-                         color=color, fermi=fermi, fermiwidth=fermiwidth,fermialpha=fermialpha, k_range=k_range, labels=labels,
+                         color=color, fermi=fermi, fermiwidth=fermiwidth, fermialpha=fermialpha, k_range=k_range, labels=labels,
                          figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey)
     if is_ev == True:
         fig.supylabel('$E-E_{F}$ (eV)', fontsize=fontsize)
@@ -665,7 +675,8 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         # plotting of a single band object
         if mode == modes[0]:
-            fig = plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey)
+            fig = plot_single_cry_bands(
+                bands, linestl, linewidth, color, figsize, sharex, sharey)
             ymin = fig[0]
             ymax = fig[1]
             xmin = fig[2]
@@ -776,7 +787,6 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         ax = fig[5]
         fig = fig[4]
 
-
     hsp_label = []
     high_sym_point = []
     if k_labels is not None:
@@ -831,6 +841,8 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         warnings.warn('The k_range is not available yet for the compare mode')
 
     return fig
+
+# ------------------------------DENSITY OF STATES-----------------------------#
 
 
 def plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey):
@@ -1684,6 +1696,8 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
 
     return fig
 
+# ----------------------------BAND + DENSITY OF STATES------------------------#
+
 
 def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down',
                           dos_prj=None, energy_range=None, dos_max_range=None,
@@ -2156,6 +2170,14 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
 
     return fig
 
+##############################################################################
+#                                                                            #
+#                                     QTAIM                                  #
+#                                                                            #
+##############################################################################
+
+# ---------------------------------CONTOUR PLOT-------------------------------#
+
 
 def plot_cry_contour(contour_obj, save_to_file=False):
     """
@@ -2338,6 +2360,8 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
 
     plt.show()
 
+# -------------------------------------XRD------------------------------------#
+
 
 def plot_cry_xrd(xrd_obj, save_to_file=False):
     """
@@ -2379,6 +2403,8 @@ def plot_cry_xrd(xrd_obj, save_to_file=False):
 
     plt.show()
 
+# ------------------------------------RHOLINE---------------------------------#
+
 
 def plot_cry_rholine(rholine_obj, save_to_file=False):
     """
@@ -2417,6 +2443,90 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
         save_plot(save_to_file)
 
     plt.show()
+
+# ----------------------------------LAPLACIAN---------------------------------#
+
+
+def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
+    """
+    Plot the Laplacian profile of a crystal.
+
+    Args:
+        lapl_obj (object): Laplacian object containing the data for the Laplacian profile.
+        save_to_file (bool, optional): Indicates whether to save the plot to a file. Defaults to False.
+
+    Returns:
+        None
+
+    Notes:
+        - Plots the Laplacian profile using the data from the Laplacian object.
+        - The x-axis represents the distance in angstroms.
+        - The y-axis represents the Laplacian in electrons per cubic angstrom to the fifth power (e/A^5).
+        - The area under the curve where the Laplacian is negative is filled with a light blue color.
+        - The area under the curve where the Laplacian is positive is filled with a light coral color.
+        - If save_to_file is set to a file path, the plot is saved to that file.
+    """
+    import time
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(lapl_obj.datax, lapl_obj.datay)
+
+    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
+        lapl_obj.datay < 0), color='lightblue', interpolate=True)
+    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
+        lapl_obj.datay > 0), color='lightcoral', interpolate=True)
+
+    # plt.xlim(-0.5,0.5)
+    # plt.ylim(-200,200)
+
+    plt.xlabel('Distance [A]')
+    plt.ylabel('Laplacian [e/A^5]')
+
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+    plt.show()
+
+
+def plot_cry_density_profile(lapl_obj, save_to_file=False):
+    """
+    Plot the density profile of a crystal.
+
+    Args:
+        lapl_obj (object): Laplacian object containing the data for the density profile.
+        save_to_file (bool, optional): Indicates whether to save the plot to a file. Defaults to False.
+
+    Returns:
+        None
+
+    Notes:
+        - Plots the density profile using the data from the Laplacian object.
+        - The x-axis represents the distance in angstroms.
+        - The y-axis represents the density in electrons per cubic angstrom (e/A^3).
+        - If save_to_file is set to a file path, the plot is saved to that file.
+    """
+    import time
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(lapl_obj.datax, lapl_obj.datay)
+
+    plt.xlabel('Distance [A]')
+    plt.ylabel('Density [e/A^3]')
+
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+    plt.show()
+
+##############################################################################
+#                                                                            #
+#                             TRANSPORT PROPERTIES                           #
+#                                                                            #
+##############################################################################
+
+# ------------------------------------SEEBACK---------------------------------#
 
 
 def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
@@ -2562,141 +2672,6 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         save_plot(save_to_file)
 
 
-def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
-    """
-    Plot the electrical conductivity as a function of chemical potential.
-
-    Args:
-        sigma_obj (object): Sigma object containing the data for electrical conductivity.
-        save_to_file (bool, optional): If True, saves the plot to a file. Default is False.
-
-    Returns:
-        None
-
-    Notes:
-        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
-        - Plots the electrical conductivity as a function of chemical potential for each temperature.
-        - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
-
-    """
-    import sys
-    import time
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
-
-    case = case.lower().replace('_', '')
-
-    if case.isalpha() == True:
-        pass
-    else:
-        sys.exit('Please, select a valid chioce')
-
-    if case == 'sxx':
-        col = 3
-    elif case == 'sxy':
-        col = 4
-    elif case == 'sxz':
-        col = 5
-    elif case == 'syy':
-        col = 6
-    elif case == 'syz':
-        col = 7
-    elif case == 'szz':
-        col = 8
-    else:
-        sys.exit('please, choose a valid chioce')
-
-    vol = sigma_obj.volume
-
-    x = []
-    for k in range(0, len(sigma_obj.all_data)):
-        x.append(np.array(sigma_obj.all_data[k].apply(
-            lambda x: float(x.split()[0]))))
-
-    carrier = []
-    for k in range(0, len(sigma_obj.all_data)):
-        carrier.append(np.array(sigma_obj.all_data[k].apply(
-            lambda x: (float(x.split()[2])/vol))))
-
-    y = []
-    for k in range(0, len(sigma_obj.all_data)):
-        y.append(np.array(sigma_obj.all_data[k].apply(
-            lambda x: float(x.split()[col]))))
-
-    yneg = []
-    ypos = []
-    xpos = []
-    xneg = []
-    yposfin = []
-    xposfin = []
-    ynegfin = []
-    xnegfin = []
-
-    for k in range(0, len(sigma_obj.all_data)):
-        for j in range(0, len(x[k])):
-            if carrier[k][j] >= 0:
-                xpos.append(x[k][j])
-                ypos.append(y[k][j])
-            else:
-                xneg.append(x[k][j])
-                yneg.append(y[k][j])
-        yposfin.append(ypos)
-        ynegfin.append(yneg)
-        xposfin.append(xpos)
-        xnegfin.append(xneg)
-        xpos = []
-        ypos = []
-        xneg = []
-        yneg = []
-
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-    colours = []
-    colours = ['royalblue', 'orange', 'green', 'red',
-               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
-    endx = []
-    endy = []
-
-    for k in range(0, len(sigma_obj.all_data)):
-        endx = [xposfin[k][-1], xnegfin[k][0]]
-        endy = [yposfin[k][-1], ynegfin[k][0]]
-        plt.figure()
-        plt.plot(endx, endy, color=colours[k])
-        plt.plot(xposfin[k], yposfin[k], color=colours[k],
-                 label=str(sigma_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
-        plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
-        plt.axhline(0, color='k')
-        plt.title('Sigma at '+str(sigma_obj.temp[k]) + 'K')
-        plt.legend(loc='upper left', fontsize=12)
-        plt.savefig('sigma_potential_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
-            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
-        plt.show()
-
-    for k in range(0, len(sigma_obj.all_data)):
-        endx = [xposfin[k][-1], xnegfin[k][0]]
-        endy = [yposfin[k][-1], ynegfin[k][0]]
-        plt.plot(endx, endy, color=colours[k])
-        plt.plot(xposfin[k], yposfin[k], color=colours[k],
-                 label=str(sigma_obj.temp[k])+' K')
-        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
-        plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
-        plt.title('Sigma at different T')
-        plt.axhline(0, color='k')
-        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-    plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
-                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
-
-    if save_to_file != False:
-        save_plot(save_to_file)
-
-
 def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     """
     Plot the Seebeck coefficient as a function of charge carrier concentration.
@@ -2834,6 +2809,275 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
         save_plot(save_to_file)
 
 
+def plot_cry_multiseebeck(*seebeck):
+    """
+    Plot the multiseebeck coefficient for different temperatures.
+
+    Args:
+        *seebeck: Variable number of seebeck objects containing the data for the Seebeck coefficient.
+
+    Returns:
+        None
+
+    Notes:
+        - Prompts the user to input the index of the temperature to plot.
+        - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
+        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
+        - Plots the multiseebeck coefficient for each seebeck object.
+        - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
+        - Saves the plot to a file named 'multiseebeckYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
+    """
+    import sys
+    import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    k = int(input(
+        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(
+        input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(
+        input('Inser the higher value of chemical potential you want to plot in eV'))
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syx':
+        col = 6
+    elif case == 'syy':
+        col = 7
+    elif case == 'syz':
+        col = 8
+    elif case == 'szx':
+        col = 9
+    elif case == 'szy':
+        col = 10
+    elif case == 'szz':
+        col = 11
+
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    i = 0
+    for n in seebeck:
+        vol = n.volume
+
+        x = []
+        for kq in range(0, len(n.all_data)):
+            x.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[0]))))
+
+        carrier = []
+        for kq in range(0, len(n.all_data)):
+            carrier.append(np.array(n.all_data[kq].apply(
+                lambda x: (float(x.split()[2])/vol))))
+
+        y = []
+        for kq in range(0, len(n.all_data)):
+            y.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[col])*1000000)))
+
+        yneg = []
+        ypos = []
+        xpos = []
+        xneg = []
+        yposfin = []
+        xposfin = []
+        ynegfin = []
+        xnegfin = []
+
+        for kq in range(0, len(n.all_data)):
+            for j in range(0, len(carrier[kq])):
+                if carrier[kq][j] >= 0:
+                    xpos.append(x[kq][j])
+                    ypos.append(y[kq][j])
+                else:
+                    xneg.append(x[kq][j])
+                    yneg.append(y[kq][j])
+            yposfin.append(ypos)
+            ynegfin.append(yneg)
+            xposfin.append(xpos)
+            xnegfin.append(xneg)
+            xpos = []
+            ypos = []
+            xneg = []
+            yneg = []
+
+        colours = ['royalblue', 'orange', 'green', 'red',
+                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+
+        endx = []
+        endy = []
+
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[i])
+        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
+        plt.xlim(minpot, maxpot)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+        i = 1+i
+    plt.title('MultiSeebeck ' + str(n.temp[k]) + ' K')
+    plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
+
+
+# ------------------------------------SIGMA-----------------------------------#
+
+def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
+    """
+    Plot the electrical conductivity as a function of chemical potential.
+
+    Args:
+        sigma_obj (object): Sigma object containing the data for electrical conductivity.
+        save_to_file (bool, optional): If True, saves the plot to a file. Default is False.
+
+    Returns:
+        None
+
+    Notes:
+        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
+        - Plots the electrical conductivity as a function of chemical potential for each temperature.
+        - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
+        - If save_to_file is True, saves the plot to a file named 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+
+    """
+    import sys
+    import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    vol = sigma_obj.volume
+
+    x = []
+    for k in range(0, len(sigma_obj.all_data)):
+        x.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[0]))))
+
+    carrier = []
+    for k in range(0, len(sigma_obj.all_data)):
+        carrier.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: (float(x.split()[2])/vol))))
+
+    y = []
+    for k in range(0, len(sigma_obj.all_data)):
+        y.append(np.array(sigma_obj.all_data[k].apply(
+            lambda x: float(x.split()[col]))))
+
+    yneg = []
+    ypos = []
+    xpos = []
+    xneg = []
+    yposfin = []
+    xposfin = []
+    ynegfin = []
+    xnegfin = []
+
+    for k in range(0, len(sigma_obj.all_data)):
+        for j in range(0, len(x[k])):
+            if carrier[k][j] >= 0:
+                xpos.append(x[k][j])
+                ypos.append(y[k][j])
+            else:
+                xneg.append(x[k][j])
+                yneg.append(y[k][j])
+        yposfin.append(ypos)
+        ynegfin.append(yneg)
+        xposfin.append(xpos)
+        xnegfin.append(xneg)
+        xpos = []
+        ypos = []
+        xneg = []
+        yneg = []
+
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+    colours = []
+    colours = ['royalblue', 'orange', 'green', 'red',
+               'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+    endx = []
+    endy = []
+
+    for k in range(0, len(sigma_obj.all_data)):
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.figure()
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.title('Sigma at '+str(sigma_obj.temp[k]) + 'K')
+        plt.legend(loc='upper left', fontsize=12)
+        plt.savefig('sigma_potential_at_' + str(sigma_obj.temp[k]) + 'K___' + time.strftime(
+            "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=600, bbox_inches='tight')
+        plt.show()
+
+    for k in range(0, len(sigma_obj.all_data)):
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[k])
+        plt.plot(xposfin[k], yposfin[k], color=colours[k],
+                 label=str(sigma_obj.temp[k])+' K')
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[k])
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.title('Sigma at different T')
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
+
+    if save_to_file != False:
+        save_plot(save_to_file)
+
+
 def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     """
     Plot the electrical conductivity as a function of charge carrier concentration.
@@ -2962,6 +3206,133 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
+
+def plot_cry_multisigma(*sigma):
+    """
+    Plot the multisigma conductivity for different temperatures.
+
+    Args:
+        *sigma: Variable number of sigma objects containing the data for the conductivity.
+
+    Returns:
+        None
+
+    Notes:
+        - Prompts the user to input the index of the temperature to plot.
+        - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
+        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
+        - Plots the multisigma conductivity for each sigma object.
+        - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
+        - Saves the plot to a file named 'multisigmaYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
+    """
+    import sys
+    import time
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    k = int(input(
+        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(
+        input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(
+        input('Inser the higher value of chemical potential you want to plot in eV'))
+
+    case = input(
+        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+
+    case = case.lower().replace('_', '')
+
+    if case.isalpha() == True:
+        pass
+    else:
+        sys.exit('Please, select a valid chioce')
+
+    if case == 'sxx':
+        col = 3
+    elif case == 'sxy':
+        col = 4
+    elif case == 'sxz':
+        col = 5
+    elif case == 'syy':
+        col = 6
+    elif case == 'syz':
+        col = 7
+    elif case == 'szz':
+        col = 8
+
+    else:
+        sys.exit('please, choose a valid chioce')
+
+    i = 0
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+    for n in sigma:
+        vol = n.volume
+
+        x = []
+        for kq in range(0, len(n.all_data)):
+            x.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[0]))))
+
+        carrier = []
+        for kq in range(0, len(n.all_data)):
+            carrier.append(np.array(n.all_data[kq].apply(
+                lambda x: (float(x.split()[2])/vol))))
+
+        y = []
+        for kq in range(0, len(n.all_data)):
+            y.append(np.array(n.all_data[kq].apply(
+                lambda x: float(x.split()[col]))))
+
+        yneg = []
+        ypos = []
+        xpos = []
+        xneg = []
+        yposfin = []
+        xposfin = []
+        ynegfin = []
+        xnegfin = []
+
+        for kq in range(0, len(n.all_data)):
+            for j in range(0, len(x[kq])):
+                if carrier[kq][j] >= 0:
+                    xpos.append(x[kq][j])
+                    ypos.append(y[kq][j])
+                else:
+                    xneg.append(x[kq][j])
+                    yneg.append(y[kq][j])
+            yposfin.append(ypos)
+            ynegfin.append(yneg)
+            xposfin.append(xpos)
+            xnegfin.append(xneg)
+            xpos = []
+            ypos = []
+            xneg = []
+            yneg = []
+
+        colours = []
+        colours = ['royalblue', 'orange', 'green', 'red',
+                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
+        endx = []
+        endy = []
+
+        endx = [xposfin[k][-1], xnegfin[k][0]]
+        endy = [yposfin[k][-1], ynegfin[k][0]]
+        plt.plot(endx, endy, color=colours[i])
+        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
+        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
+        plt.xlabel('Chemical Potential (eV)', fontsize=12)
+        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
+        plt.axhline(0, color='k')
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+        plt.xlim(minpot, maxpot)
+        i = 1+i
+    plt.title('MultiSigma ' + str(sigma[0].temp[k]) + ' K')
+    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") +
+                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
+
+
+# -------------------------------POWERFACTOR----------------------------------#
 
 def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
     """
@@ -3390,6 +3761,8 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
     if save_to_file != False:
         save_plot(save_to_file)
 
+# ------------------------------------ZT--------------------------------------#
+
 
 def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
     """
@@ -3522,336 +3895,13 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         save_plot(save_to_file)
 
 
-def plot_cry_multiseebeck(*seebeck):
-    """
-    Plot the multiseebeck coefficient for different temperatures.
+##############################################################################
+#                                                                            #
+#                             ELASTIC PROPERTIES                             #
+#                                                                            #
+##############################################################################
 
-    Args:
-        *seebeck: Variable number of seebeck objects containing the data for the Seebeck coefficient.
-
-    Returns:
-        None
-
-    Notes:
-        - Prompts the user to input the index of the temperature to plot.
-        - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
-        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
-        - Plots the multiseebeck coefficient for each seebeck object.
-        - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
-        - Saves the plot to a file named 'multiseebeckYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
-    """
-    import sys
-    import time
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    k = int(input(
-        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
-    minpot = float(
-        input('Insert the lower value of chemical potential you want to plot in eV'))
-    maxpot = float(
-        input('Inser the higher value of chemical potential you want to plot in eV'))
-
-    case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
-
-    case = case.lower().replace('_', '')
-
-    if case.isalpha() == True:
-        pass
-    else:
-        sys.exit('Please, select a valid chioce')
-
-    if case == 'sxx':
-        col = 3
-    elif case == 'sxy':
-        col = 4
-    elif case == 'sxz':
-        col = 5
-    elif case == 'syx':
-        col = 6
-    elif case == 'syy':
-        col = 7
-    elif case == 'syz':
-        col = 8
-    elif case == 'szx':
-        col = 9
-    elif case == 'szy':
-        col = 10
-    elif case == 'szz':
-        col = 11
-
-    else:
-        sys.exit('please, choose a valid chioce')
-
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-
-    i = 0
-    for n in seebeck:
-        vol = n.volume
-
-        x = []
-        for kq in range(0, len(n.all_data)):
-            x.append(np.array(n.all_data[kq].apply(
-                lambda x: float(x.split()[0]))))
-
-        carrier = []
-        for kq in range(0, len(n.all_data)):
-            carrier.append(np.array(n.all_data[kq].apply(
-                lambda x: (float(x.split()[2])/vol))))
-
-        y = []
-        for kq in range(0, len(n.all_data)):
-            y.append(np.array(n.all_data[kq].apply(
-                lambda x: float(x.split()[col])*1000000)))
-
-        yneg = []
-        ypos = []
-        xpos = []
-        xneg = []
-        yposfin = []
-        xposfin = []
-        ynegfin = []
-        xnegfin = []
-
-        for kq in range(0, len(n.all_data)):
-            for j in range(0, len(carrier[kq])):
-                if carrier[kq][j] >= 0:
-                    xpos.append(x[kq][j])
-                    ypos.append(y[kq][j])
-                else:
-                    xneg.append(x[kq][j])
-                    yneg.append(y[kq][j])
-            yposfin.append(ypos)
-            ynegfin.append(yneg)
-            xposfin.append(xpos)
-            xnegfin.append(xneg)
-            xpos = []
-            ypos = []
-            xneg = []
-            yneg = []
-
-        colours = ['royalblue', 'orange', 'green', 'red',
-                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
-
-        endx = []
-        endy = []
-
-        endx = [xposfin[k][-1], xnegfin[k][0]]
-        endy = [yposfin[k][-1], ynegfin[k][0]]
-        plt.plot(endx, endy, color=colours[i])
-        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
-        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
-        plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Seebeck Coefficient ($\mu$V/K)', fontsize=12)
-        plt.xlim(minpot, maxpot)
-        plt.axhline(0, color='k')
-        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-        i = 1+i
-    plt.title('MultiSeebeck ' + str(n.temp[k]) + ' K')
-    plt.savefig('multiseebeck' + time.strftime("%Y-%m-%d_%H%M%S") +
-                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
-
-
-def plot_cry_multisigma(*sigma):
-    """
-    Plot the multisigma conductivity for different temperatures.
-
-    Args:
-        *sigma: Variable number of sigma objects containing the data for the conductivity.
-
-    Returns:
-        None
-
-    Notes:
-        - Prompts the user to input the index of the temperature to plot.
-        - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
-        - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
-        - Plots the multisigma conductivity for each sigma object.
-        - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
-        - Saves the plot to a file named 'multisigmaYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
-    """
-    import sys
-    import time
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    k = int(input(
-        'Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
-    minpot = float(
-        input('Insert the lower value of chemical potential you want to plot in eV'))
-    maxpot = float(
-        input('Inser the higher value of chemical potential you want to plot in eV'))
-
-    case = input(
-        'Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
-
-    case = case.lower().replace('_', '')
-
-    if case.isalpha() == True:
-        pass
-    else:
-        sys.exit('Please, select a valid chioce')
-
-    if case == 'sxx':
-        col = 3
-    elif case == 'sxy':
-        col = 4
-    elif case == 'sxz':
-        col = 5
-    elif case == 'syy':
-        col = 6
-    elif case == 'syz':
-        col = 7
-    elif case == 'szz':
-        col = 8
-
-    else:
-        sys.exit('please, choose a valid chioce')
-
-    i = 0
-    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
-    for n in sigma:
-        vol = n.volume
-
-        x = []
-        for kq in range(0, len(n.all_data)):
-            x.append(np.array(n.all_data[kq].apply(
-                lambda x: float(x.split()[0]))))
-
-        carrier = []
-        for kq in range(0, len(n.all_data)):
-            carrier.append(np.array(n.all_data[kq].apply(
-                lambda x: (float(x.split()[2])/vol))))
-
-        y = []
-        for kq in range(0, len(n.all_data)):
-            y.append(np.array(n.all_data[kq].apply(
-                lambda x: float(x.split()[col]))))
-
-        yneg = []
-        ypos = []
-        xpos = []
-        xneg = []
-        yposfin = []
-        xposfin = []
-        ynegfin = []
-        xnegfin = []
-
-        for kq in range(0, len(n.all_data)):
-            for j in range(0, len(x[kq])):
-                if carrier[kq][j] >= 0:
-                    xpos.append(x[kq][j])
-                    ypos.append(y[kq][j])
-                else:
-                    xneg.append(x[kq][j])
-                    yneg.append(y[kq][j])
-            yposfin.append(ypos)
-            ynegfin.append(yneg)
-            xposfin.append(xpos)
-            xnegfin.append(xneg)
-            xpos = []
-            ypos = []
-            xneg = []
-            yneg = []
-
-        colours = []
-        colours = ['royalblue', 'orange', 'green', 'red',
-                   'purple', 'brown', 'pink', 'grey', 'olive', 'cyan']
-        endx = []
-        endy = []
-
-        endx = [xposfin[k][-1], xnegfin[k][0]]
-        endy = [yposfin[k][-1], ynegfin[k][0]]
-        plt.plot(endx, endy, color=colours[i])
-        plt.plot(xposfin[k], yposfin[k], color=colours[i], label=str(n.title))
-        plt.plot(xnegfin[k], ynegfin[k], '--', color=colours[i])
-        plt.xlabel('Chemical Potential (eV)', fontsize=12)
-        plt.ylabel('Electrical Conductivity (S/m)', fontsize=12)
-        plt.axhline(0, color='k')
-        plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
-        plt.xlim(minpot, maxpot)
-        i = 1+i
-    plt.title('MultiSigma ' + str(sigma[0].temp[k]) + ' K')
-    plt.savefig('multisigma' + time.strftime("%Y-%m-%d_%H%M%S") +
-                '.jpg', format='jpg', dpi=100, bbox_inches='tight')
-
-
-def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
-    """
-    Plot the Laplacian profile of a crystal.
-
-    Args:
-        lapl_obj (object): Laplacian object containing the data for the Laplacian profile.
-        save_to_file (bool, optional): Indicates whether to save the plot to a file. Defaults to False.
-
-    Returns:
-        None
-
-    Notes:
-        - Plots the Laplacian profile using the data from the Laplacian object.
-        - The x-axis represents the distance in angstroms.
-        - The y-axis represents the Laplacian in electrons per cubic angstrom to the fifth power (e/A^5).
-        - The area under the curve where the Laplacian is negative is filled with a light blue color.
-        - The area under the curve where the Laplacian is positive is filled with a light coral color.
-        - If save_to_file is set to a file path, the plot is saved to that file.
-    """
-    import time
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(lapl_obj.datax, lapl_obj.datay)
-
-    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
-        lapl_obj.datay < 0), color='lightblue', interpolate=True)
-    plt.fill_between(lapl_obj.datax, lapl_obj.datay, where=(
-        lapl_obj.datay > 0), color='lightcoral', interpolate=True)
-
-    # plt.xlim(-0.5,0.5)
-    # plt.ylim(-200,200)
-
-    plt.xlabel('Distance [A]')
-    plt.ylabel('Laplacian [e/A^5]')
-
-    if save_to_file != False:
-        save_plot(save_to_file)
-
-    plt.show()
-
-
-def plot_cry_density_profile(lapl_obj, save_to_file=False):
-    """
-    Plot the density profile of a crystal.
-
-    Args:
-        lapl_obj (object): Laplacian object containing the data for the density profile.
-        save_to_file (bool, optional): Indicates whether to save the plot to a file. Defaults to False.
-
-    Returns:
-        None
-
-    Notes:
-        - Plots the density profile using the data from the Laplacian object.
-        - The x-axis represents the distance in angstroms.
-        - The y-axis represents the density in electrons per cubic angstrom (e/A^3).
-        - If save_to_file is set to a file path, the plot is saved to that file.
-    """
-    import time
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(lapl_obj.datax, lapl_obj.datay)
-
-    plt.xlabel('Distance [A]')
-    plt.ylabel('Density [e/A^3]')
-
-    if save_to_file != False:
-        save_plot(save_to_file)
-
-    plt.show()
-
+# -------------------------------YOUNG MODULUS--------------------------------#
 
 def plot_cry_young(theta, phi, S):
     """
@@ -3917,6 +3967,8 @@ def plot_cry_young(theta, phi, S):
     E_tmp = 1 / e  # is the Young Modulus of each cycle
     return E_tmp
 
+# ---------------------------COMPRESSION PROPERTIES---------------------------#
+
 
 def plot_cry_comp(theta, phi, S):
     """
@@ -3971,6 +4023,8 @@ def plot_cry_comp(theta, phi, S):
                 B = B + rtmp
     return B
 
+
+# -------------------------------SHEAR MODULUS--------------------------------#
 
 def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     """
@@ -4057,6 +4111,8 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     if shear_choice == "max":
         return shear_max
 
+
+# -----------------------------------POISSON RATIO----------------------------#
 
 def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     """
@@ -4145,6 +4201,8 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     if poisson_choice == "max":
         return poisson_max
 
+
+# ---------------------------------ELASTIC------------------------------------#
 
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
@@ -4270,7 +4328,336 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         # <--
 
 
-def save_plot(path_to_file, format, dpi):
+##############################################################################
+#                                                                            #
+#                             VIBRATIONAL PROPERTIES                         #
+#                                                                            #
+##############################################################################
+
+# -----------------------------------HARMONIC---------------------------------#
+
+def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-',
+                    linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                    label=None, save_to_file=None, dpi=300, transparency=False):
+    import sys
+    import warnings
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    modes = ['single', 'multi']
+    accepted_y = ['LG', 'V', 'RS', 'RE', 'REFL']
+
+    if isinstance(irspec, list):
+        mode = modes[1]
+
+        if not isinstance(linestyle, list):
+            style = linestyle
+            linestyle = []
+            for i in enumerate(irspec):
+                linestyle.append(style)
+
+        if not isinstance(linewidth, list):
+            width = linewidth
+            linewidth = []
+            for i in enumerate(irspec):
+                linewidth.append(width)
+
+        if not isinstance(color, list):
+            color = ['dimgrey', 'blue', 'indigo', 'slateblue',
+                     'thistle', 'purple', 'orchid', 'crimson']
+
+        for file in irspec:
+            if (file.calculation == 'molecule') and (y_mode != accepted_y[0]):
+                raise ValueError(
+                    'This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
+
+    else:
+        mode = modes[0]
+
+        if (irspec.calculation == 'molecule') and (y_mode != accepted_y[0]):
+            raise ValueError(
+                'This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
+
+    if figsize is not None:
+        plt.figure(figsize=figsize)
+
+    if mode == modes[0]:
+
+        # selection of the x axis unit
+        if x_unit == 'cm-1':
+            x = irspec.irspec[:, 0]
+
+        elif x_unit == 'nm':
+            x = irspec.irspec[:, 1]
+
+        # selection of the intensities mode
+        if y_mode == accepted_y[0]:
+            y = irspec.irspec[:, 2]
+
+        elif y_mode == accepted_y[1]:
+            y = irspec.irspec[:, 5]
+
+        elif y_mode == accepted_y[2]:
+            y = irspec.irspec[:, 6]
+
+        elif y_mode == accepted_y[3]:
+            y = irspec.irspec[:, 7]
+
+        elif y_mode == accepted_y[4]:
+            y = irspec.irspec[:, 8]
+
+        print(x, y)
+
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)-1
+        ymax = max(y)+10
+
+        plt.plot(x, y, linestyle=linestyle, linewidth=linewidth, color=color)
+
+    if mode == modes[1]:
+
+        xmin = []
+        xmax = []
+        ymin = []
+        ymax = []
+
+        for index, file in enumerate(irspec):
+            # selection of the x axis unit
+            if x_unit == 'cm-1':
+                x = file.irspec[:, 0]
+
+            elif x_unit == 'nm':
+                x = file.irspec[:, 1]
+
+            # selection of the intensities mode
+            if y_mode == accepted_y[0]:
+                y = file.irspec[:, 2]
+
+            elif y_mode == accepted_y[1]:
+                y = file.irspec[:, 5]
+
+            elif y_mode == accepted_y[2]:
+                y = file.irspec[:, 6]
+
+            elif y_mode == accepted_y[3]:
+                y = file.irspec[:, 7]
+
+            elif y_mode == accepted_y[4]:
+                y = file.irspec[:, 8]
+
+            xmin.append(min(x))
+            xmax.append(max(x))
+            ymin.append(min(y)-1)
+            ymax.append(max(y)+10)
+
+            if label is not None:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
+                               color=color[index], label=label[index])
+                plt.legend()
+            else:
+                fig = plt.plot(
+                    x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
+
+        xmin = min(xmin)
+        xmax = max(xmax)
+        ymin = min(ymin)
+        ymax = max(ymax)
+
+    if freq_range is not None:
+        xmin = freq_range[0]
+        xmax = freq_range[1]
+
+    if int_range is not None:
+        ymin = int_range[0]
+        ymax = int_range[1]
+
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+
+    if x_unit == 'cm-1':
+        plt.xlabel('Wavenumber (cm$^{-1}$)')
+    elif x_unit == 'nm':
+        plt.xlabel('Wavelength (nm)')
+
+    if y_mode != accepted_y[4]:
+        plt.ylabel('Absorbance (A.U.)')
+    else:
+        plt.ylabel('Reflectance (A.U.)')
+
+    if save_to_file != None:
+        save_plot(save_to_file, dpi, transparency)
+
+    plt.show()
+
+
+def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
+                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                     label=None, save_to_file=False, dpi=300, transparency=False):
+    import sys
+    import warnings
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    modes = ['single', 'multi']
+    accepted_y = ['total', 'parallel', 'perpendicular',
+                  'xx', 'xy', 'xz', 'yy', 'yz', 'zz']
+
+    if isinstance(ramspec, list):
+        mode = modes[1]
+        if not isinstance(linestyle, list):
+            style = linestyle
+            linestyle = []
+            for i in enumerate(ramspec):
+                linestyle.append(style)
+
+        if not isinstance(linewidth, list):
+            width = linewidth
+            linewidth = []
+            for i in enumerate(ramspec):
+                linewidth.append(width)
+
+        if not isinstance(color, list):
+            color = ['dimgrey', 'blue', 'indigo', 'slateblue',
+                     'thistle', 'purple', 'orchid', 'crimson']
+
+    else:
+        mode = modes[0]
+
+    if figsize is not None:
+        fig = plt.figure(figsize=figsize)
+
+    if mode == modes[0]:
+
+        x = ramspec.ramspec[:, 0]
+
+        # selection of the intensities mode
+        if y_mode == accepted_y[0]:
+            y = ramspec.ramspec[:, 1]
+
+        elif y_mode == accepted_y[1]:
+            y = ramspec.ramspec[:, 2]
+
+        elif y_mode == accepted_y[2]:
+            y = ramspec.ramspec[:, 3]
+
+        elif y_mode == accepted_y[3]:
+            y = ramspec.ramspec[:, 4]
+
+        elif y_mode == accepted_y[4]:
+            y = ramspec.ramspec[:, 5]
+
+        elif y_mode == accepted_y[5]:
+            y = ramspec.ramspec[:, 6]
+
+        elif y_mode == accepted_y[6]:
+            y = ramspec.ramspec[:, 7]
+
+        elif y_mode == accepted_y[7]:
+            y = ramspec.ramspec[:, 8]
+
+        elif y_mode == accepted_y[8]:
+            y = ramspec.ramspec[:, 9]
+
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)-1
+        ymax = max(y)+10
+
+        fig = plt.plot(x, y, linestyle=linestyle,
+                       linewidth=linewidth, color=color)
+
+    if mode == modes[1]:
+        xmin = []
+        xmax = []
+        ymin = []
+        ymax = []
+
+        for index, file in enumerate(ramspec):
+            x = file.ramspec[:, 0]
+
+            # selection of the intensities mode
+            if y_mode == accepted_y[0]:
+                y = file.ramspec[:, 1]
+
+            elif y_mode == accepted_y[1]:
+                y = file.ramspec[:, 2]
+
+            elif y_mode == accepted_y[2]:
+                y = file.ramspec[:, 3]
+
+            elif y_mode == accepted_y[3]:
+                y = file.ramspec[:, 4]
+
+            elif y_mode == accepted_y[4]:
+                y = file.ramspec[:, 5]
+
+            elif y_mode == accepted_y[5]:
+                y = file.ramspec[:, 6]
+
+            elif y_mode == accepted_y[6]:
+                y = file.ramspec[:, 7]
+
+            elif y_mode == accepted_y[7]:
+                y = file.ramspec[:, 8]
+
+            elif y_mode == accepted_y[8]:
+                y = file.ramspec[:, 9]
+
+            xmin.append(min(x))
+            xmax.append(max(x))
+            ymin.append(min(y)-1)
+            ymax.append(max(y)+10)
+
+            if label is not None:
+                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
+                               color=color[index], label=label[index])
+                plt.legend()
+            else:
+                fig = plt.plot(
+                    x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
+
+        xmin = min(xmin)
+        xmax = max(xmax)
+        ymin = min(ymin)
+        ymax = max(ymax)
+
+    if freq_range is not None:
+        xmin = freq_range[0]
+        xmax = freq_range[1]
+
+    if int_range is not None:
+        ymin = int_range[0]
+        ymax = int_range[1]
+
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+
+    plt.xlabel('Wavenumber (cm$^{-1}$)')
+
+    if y_mode != accepted_y[4]:
+        plt.ylabel('Absorbance (A.U.)')
+    else:
+        plt.ylabel('Reflectance (A.U.)')
+
+    if save_to_file != None:
+        save_plot(save_to_file, dpi, transparency)
+
+    plt.show()
+
+
+# ----------------------------------ANHARMONIC--------------------------------#
+
+##############################################################################
+#                                                                            #
+#                             COMMON FUNCTIONS                               #
+#                                                                            #
+##############################################################################
+
+
+def save_plot(path_to_file, dpi, transparency):
     """
     Save the plot as a file.
 
@@ -4304,6 +4691,7 @@ def save_plot(path_to_file, format, dpi):
                           stacklevel=2)
 
     if path.exists(folder) == True:
-        plt.savefig('%s/%s' % (folder, file), format=format, dpi=dpi)
+        plt.savefig('%s/%s.%s' % (folder, file, format),
+                    dpi=dpi, transparent=transparency)
     else:
         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
