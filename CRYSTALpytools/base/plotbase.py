@@ -30,6 +30,8 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         scheme (Union[List[int], Tuple[int, int], None]): Subplot scheme in compare-mode (number of rows, number of columns).
         sharex (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of x-axis.
         sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
+        fermialpha(float): Opacity of the fermi level 0-1
+        fermiwidth(float): Width of the fermi level
 
     Raises:
         ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
@@ -1288,4 +1290,3 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     plt.legend()
 
     return fig
-
