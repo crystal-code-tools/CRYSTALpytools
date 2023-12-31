@@ -5,17 +5,88 @@ Functions to visualize CRYSTAL outputs.
 """
 
 
-def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None,
+                   dpi=400, savefig=False, name='echg_map'):
     """
-    Plot a 2D vector field.
+    Plots the 2D ECHG density map from a fort.25 file.
 
     Args:
-        header (list): List containing header information.
+        obj_echg (crystal_io.Properties_output): Properties output object.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions. Default is 150.
+        xticks (int, optional): Number of ticks in the x direction. Default is 5.
+        yticks (int, optional): Number of ticks in the y direction. Default is 5.
+        cmap_max(float, optional): Maximum value used for the colormap. Default is None.
+        cmap_min(float, optional): Minimun value used for the colormap. Default is None.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
+        savefig (bool): Chose to save the figure or not. Default is False.
+        name (str): Name for the colormap.
+
+   Returns:
+        None
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import numpy as np
+
+    vector_ab = obj_echg.a - obj_echg.b
+    lenght_ab = np.sqrt(vector_ab[0]**2 + vector_ab[1]**2 + vector_ab[2]**2)
+    vector_cb = obj_echg.c - obj_echg.b
+    lenght_cb = np.sqrt(vector_cb[0]**2 + vector_cb[1]**2 + vector_cb[2]**2)
+    points_ab = len(obj_echg.density_map[:, 0])
+    points_cb = len(obj_echg.density_map[0, :])
+
+    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
+    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
+    for i in range(0, points_ab):
+        for j in range(0, points_cb):
+            mesh_y[i, j] = (((lenght_ab / points_ab) * i) *
+                            np.sqrt(1 - (obj_echg.cosxy**2)))
+            mesh_x[i, j] = ((lenght_cb / points_cb) * j) + \
+                (((lenght_ab / points_ab) * i) * obj_echg.cosxy)
+
+    dens = obj_echg.density_map * (1.88973**2)  # Bohr to Angstrom conversion
+
+    if cmap_max is None:
+        max_data = np.amax(dens)
+    else:
+        max_data = cmap_max
+
+    if cmap_min is None:
+        min_data = np.amin(dens)
+    else:
+        min_data = cmap_min
+
+    fig, ax = plt.subplots()
+    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
+    divider = make_axes_locatable(ax)
+    im.set_clim(vmin=min_data, vmax=max_data)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    fig.colorbar(im, cax=cax, orientation='vertical')
+    ax.set_xlabel('$\AA$')
+    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
+    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
+    ax.set_ylabel('$\AA$')
+    ax.set_aspect(1.0)
+    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
+    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - (obj_echg.cosxy**2)))
+    if savefig:
+        plt.savefig(name, dpi=dpi)
+
+    plt.show()
+
+
+def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
+    """
+    Plots the 2D magnetization vector field.
+
+    Args:
+        header (list): List containing information about the fort.25 header.
         dens (numpy.ndarray): Array containing the vector field data.
-        colormapdens (str or list): Colormap for the density values.
         quivscale (float): Scale factor for the quiver plot.
-        name (str): Name of the output plot file.
-        dpi (int, optional): DPI (dots per inch) for the output plot. Default is 400.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
 
     Returns:
         None
@@ -103,7 +174,7 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     # Plotting
 
     m = plt.figure()
-    m = plt.contourf(mesh_x, mesh_y, mod_m, colormapdens, cmap='cool')
+    m = plt.contourf(mesh_x, mesh_y, mod_m, levels, cmap='cool')
     m = plt.colorbar(mappable=m)
     m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale=quivscale)
     m = plt.xlabel('$\AA$')
@@ -113,16 +184,16 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_j(header, dens, quivscale, name='SC', levels=150, dpi=400):
     """
-    Plots a 2D vector field.
+    Plots the 2D vector field of the spin current.
 
     Args:
-        header (list): Header information.
-        dens (ndarray): Array representing the vector field density.
-        colormapdens (str): Colormap for density.
-        quivscale (float): Scale factor for the vector field.
-        name (str): Name of the output file.
+        header (list): List containing information about the fort.25 header.
+        dens (numpy.ndarray): Array representing the vector field.
+        quivscale (float): Scale factor for the quiver plot.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
         dpi (int, optional): DPI (dots per inch) for the output image. Defaults to 400.
 
     Returns:
@@ -209,7 +280,7 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
                                                                                    dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     j = plt.figure()
-    j = plt.contourf(mesh_x, mesh_y, mod_j, colormapdens, cmap='winter')
+    j = plt.contourf(mesh_x, mesh_y, mod_j, levels, cmap='winter')
     j = plt.colorbar(mappable=j)
     j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale=quivscale)
     j = plt.xlabel('$\AA$')
@@ -219,19 +290,19 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', levels=150, dpi=400):
     """
-    Plots a 2D vector field of current density components.
+    Plots the 2D spin current density vector fields.
 
     Args:
-        header (list): List containing information about the vector field.
-        dens_JX (ndarray): Array representing the X-component of the current density.
-        dens_JY (ndarray): Array representing the Y-component of the current density.
-        dens_JZ (ndarray): Array representing the Z-component of the current density.
-        colormapdens: Colormap for the density plot.
+        header (list): List containing information about the fort.25 header.
+        dens_JX (numpy.ndarray): Array representing the X-component of the spin current density.
+        dens_JY (numpy.ndarray): Array representing the Y-component of the spin current density.
+        dens_JZ (numpy.ndarray): Array representing the Z-component of the spin current density.
         quivscale: Scale factor for the quiver plot.
-        name (str): Name used for saving the plots.
-        dpi (int): Dots per inch for saving the plots. Defaults to 400.
+        name (str, optional): Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (Dots per inch) for saving the plots. Defaults to 400.
 
     Returns:
         None
@@ -341,7 +412,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     # Plotting
 
     JX = plt.figure()
-    JX = plt.contourf(mesh_x, mesh_y, mod_JX, colormapdens, cmap='summer')
+    JX = plt.contourf(mesh_x, mesh_y, mod_JX, levels, cmap='summer')
     JX = plt.colorbar(mappable=JX)
     JX = plt.quiver(mesh_projx, mesh_projy, projx_JX,
                     projy_JX, scale=quivscale)
@@ -350,7 +421,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JX = plt.savefig(name+'_JX', dpi=dpi)
 
     JY = plt.figure()
-    JY = plt.contourf(mesh_x, mesh_y, mod_JY, colormapdens, cmap='summer')
+    JY = plt.contourf(mesh_x, mesh_y, mod_JY, levels, cmap='summer')
     JY = plt.colorbar(mappable=JY)
     JY = plt.quiver(mesh_projx, mesh_projy, projx_JY,
                     projy_JY, scale=quivscale)
@@ -359,7 +430,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JY = plt.savefig(name+'_JY', dpi=dpi)
 
     JZ = plt.figure()
-    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, colormapdens, cmap='summer')
+    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, levels, cmap='summer')
     JZ = plt.colorbar(mappable=JZ)
     JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ,
                     projy_JZ, scale=quivscale)
@@ -408,6 +479,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import thz_to_cm, cm_to_thz
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -488,6 +560,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import eV_to_H, H_to_eV
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     if re.match(r'^eV$', unit, re.IGNORECASE):
@@ -527,538 +600,6 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     plt.show()
 
 
-def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, linestl,
-                   linewidth, color, fermi, k_range, labels, figsize, scheme,
-                   sharex, sharey):
-    """
-    The base function to plot electron / phonon density of states.
-
-    Args:
-        bands (Union[List, object]): List of band objects or a single band object.
-        k_labels (Union[List[str], None]): List of strings specifying the labels for high symmetry points along the path.
-        energy_range (Union[List[Union[int, float]], None]): List of two integers or floats specifying the energy range (min, max).
-        title (Union[str, None]): Title of the plot.
-        not_scaled (bool): Flag indicating whether to scale the band structure for comparison.
-        mode (str): Mode of the plot ('single', 'multi', 'compare', 'surface').
-        linestl (Union[str, List[str]]): Line style or list of line styles for the bands.
-        linewidth (Union[int, List[int]]): Line width or list of line widths for the bands.
-        color (Union[str, List[str]]): Color or list of colors for the bands.
-        fermi (str): Color of the Fermi level.
-        k_range (Union[List[str], None]): List of two strings specifying the range of k points to plot.
-        labels (Union[List[str], None]): List of labels for the bands in multi-mode.
-        figsize (Union[Tuple[int, int], None]): Figure size.
-        scheme (Union[List[int], Tuple[int, int], None]): Subplot scheme in compare-mode (number of rows, number of columns).
-        sharex (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of x-axis.
-        sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
-
-    Raises:
-        ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
-
-    Returns:
-        None
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import sys
-    import warnings
-
-    greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
-             'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
-             'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
-             'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
-
-    # Error check on the mode flag
-    modes = ['single', 'multi', 'compare', 'surface']
-    if mode not in modes:
-        raise ValueError('The selected mode '+mode+' is not among the possible ones: ' +
-                         modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
-
-    # Error chenk on k_label
-    if k_labels is not None:
-
-        if isinstance(k_labels, list):
-            for element in k_labels:
-                if not isinstance(element, str):
-                    raise ValueError(
-                        'k_label must be a list of strings:' + str(element)+' is not a string')
-
-            if isinstance(bands, list):
-                ref = bands[0].n_tick
-
-                for i, file in enumerate(bands):
-                    if file.n_tick != ref:
-                        i = str(i)
-                        raise ValueError(
-                            'The ' + i + 'element your file list has a different number of High Symmetry Point!')
-            else:
-                ref = bands.n_tick
-
-            if len(k_labels) < ref:
-                diff = str(ref-len(k_labels))
-                raise ValueError('You are lacking ' + diff +
-                                 ' High Symmetry Points in k_labels!')
-
-            elif len(k_labels) > ref:
-                diff = str(len(k_labels)-ref)
-                raise ValueError('You have ' + diff +
-                                 'High Symmetry Points in excess in k_labels')
-
-        else:
-            raise ValueError('k_labels must be a list of strings')
-
-    # Error check on energy range
-    if energy_range != None:
-
-        if isinstance(energy_range, list):
-
-            if len(energy_range) > 2:
-                raise ValueError(
-                    'energy_range must be a list of two int or float (min,max)')
-
-            for element in energy_range:
-                if (not isinstance(element, int)) and (not isinstance(element, float)):
-                    raise ValueError('energy_range must be a list of two int or float (min,max): ' + str(
-                        element)+', is neither a float or an int')
-
-        else:
-            raise ValueError(
-                'energy_range must be a list of two int or float (min,max)')
-
-    # Error check on k_range
-    if k_range is not None:
-        if isinstance(k_range, list):
-            if len(k_range) > 2:
-                raise ValueError('k_range must be a list of two strings')
-
-            for element in k_range:
-                if not isinstance(element, str):
-                    raise ValueError(
-                        'k_label must be a list of two strings:' + str(element)+' is not a string')
-
-        else:
-            raise ValueError('k_range must be a list of two strings')
-
-    # Error check on title
-    if title != None:
-        if not isinstance(title, str):
-            raise ValueError('title needs to be a string')
-
-    if (mode == modes[0]) or (mode == modes[1]) or (mode == modes[3]):
-
-        # plotting of a single band object
-        if mode == modes[0]:
-
-            dx = bands.k_point_plot
-
-            pltband = bands.bands
-            no_bands = np.shape(pltband)[0]
-            ymin = np.amin(pltband)
-            ymax = np.amax(pltband)
-            xmin = min(dx)
-            xmax = max(dx)
-            count1 = 0
-            count2 = 0
-
-            # band plot
-            if figsize != None:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-            else:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-            for i in range(no_bands):
-
-                if bands.spin == 1:
-                    ax.plot(dx, pltband[i, :], color=color,
-                            linestyle=linestl, linewidth=linewidth)
-
-                elif bands.spin == 2:
-                    if count1 == count2:
-                        ax.plot(dx, pltband[i, :, 0], color='red',
-                                linestyle=linestl, linewidth=linewidth, label='Alpha')
-                        ax.plot(dx, pltband[i, :, 1], color='black',
-                                linestyle=linestl, linewidth=linewidth, label='Beta')
-                    else:
-                        ax.plot(dx, pltband[i, :, 0], color='red',
-                                linestyle=linestl, linewidth=linewidth)
-                        ax.plot(dx, pltband[i, :, 1], color='black',
-                                linestyle=linestl, linewidth=linewidth)
-                    count1 += 1
-
-        # plot of multiple band objects on a single plot
-        elif mode == modes[1]:
-
-            # Error check on the band on the 'multi' mode flag
-            if not isinstance(bands, list):
-                raise ValueError(
-                    'When you choose a ' + modes[1]+' plot bands needs to be a list of band objects')
-            # Error check on color for the 'multi' mode flag
-            if isinstance(color, list):
-                if len(color) != len(bands):
-                    raise ValueError(
-                        'The number of colors is inconsistent with the number of objects you want to plot')
-            else:
-                color = ['dimgrey', 'blue', 'indigo', 'slateblue',
-                         'thistle', 'purple', 'orchid', 'crimson']
-
-            # Warning comparison with band.spin==2
-            for m in bands:
-                if m.spin == 2:
-                    warnings.warn(
-                        "The 'multi' plot is not fully implemented at the moment for file with NSPIN = 2")
-
-            # scaling that enables the comparison of band structure calculated at different pressures
-            if not_scaled is False:
-                reference = xmax = np.amax(bands[0].k_point_plot)
-                xmin = np.amin(bands[0].k_point_plot)
-
-            else:
-                xmax = []
-                xmin = []
-
-            ymin = []
-            ymax = []
-
-            if figsize != None:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-            else:
-                fig, ax = plt.subplots(
-                    nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-            # plot of all the bands obj present in the list
-            for index, data in enumerate(bands):
-                # scaling that enables the comparison of band structure calculated at different pressures
-                if not_scaled == False:
-                    k_max = np.amax(data.k_point_plot)
-                    dx = (data.k_point_plot/k_max)*reference
-                else:
-                    dx = data.k_point_plot
-                    xmin.append(np.amin(dx))
-                    xmax.append(np.amax(dx))
-
-                pltband = data.bands
-                no_bands = np.shape(pltband)[0]
-                ymin.append(np.amin(pltband))
-                ymax.append(np.amax(pltband))
-
-                count1 = 0
-                count2 = 0
-
-                # Effective plot
-                for j in range(no_bands):
-
-                    if (count1 == count2) and (labels is not None):
-                        if data.spin == 1:
-                            if isinstance(linestl, list):
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth, label=labels[index])
-                            else:
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth[index], label=labels[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth, label=labels[index])
-                        elif data.spin == 2:
-                            ax.plot(dx, pltband[j, :, 0], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
-                            ax.plot(dx, pltband[j, :, 1], color=color[index],
-                                    linestyle='--', linewidth=linewidth, label=labels[index]+' Beta')
-
-                    else:
-                        if data.spin == 1:
-                            if isinstance(linestl, list):
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl[index], linewidth=linewidth)
-                            else:
-                                if isinstance(linewidth, list):
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth[index])
-                                else:
-                                    ax.plot(dx, pltband[j, :], color=color[index],
-                                            linestyle=linestl, linewidth=linewidth)
-                        elif data.spin == 2:
-                            ax.plot(dx, pltband[j, :, 0], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth)
-                            ax.plot(dx, pltband[j, :, 1], color=color[index],
-                                    linestyle='--', linewidth=linewidth)
-
-                    count1 += 1
-
-            if (isinstance(xmin, list)) or (isinstance(xmax, list)):
-                xmin = min(xmin)
-                xmax = max(xmax)
-
-            ymin = min(ymin)
-            ymax = max(ymax)
-
-        if mode == modes[3]:
-            warnings.warn('The surface bands is not ready yet')
-            sys.exit(0)
-
-        # HSP line plot
-        if isinstance(bands, list):
-            hsp = bands[0].tick_position
-        else:
-            hsp = bands.tick_position
-
-        if k_labels is not None:
-            if len(hsp) != len(k_labels):
-                if len(hsp) > len(k_labels):
-                    raise ValueError(
-                        'You have specified a number of label smalle than the number of High Simmetry Point along the path')
-                elif len(hsp) < len(k_labels):
-                    raise ValueError(
-                        'You have more labels than the High Simmetry point along the path')
-
-        hsp[len(hsp)-1] = xmax
-
-        y_band = np.linspace(ymin*1.05, ymax*1.05, 2)
-
-        for j in hsp:
-            x_band = np.ones(2)*j
-            ax.plot(x_band, y_band, color='black', linewidth=0.5)
-
-        # plot of the fermi level
-        x = np.linspace(xmin, xmax, 2)
-        y = np.zeros(2)
-        ax.plot(x, y, color=fermi, linewidth=2.5)
-
-        # definition of the plot title
-        if title is not None:
-            fig.suptitle(title)
-
-        if not isinstance(bands, list):
-            if bands.spin == 2:
-                fig.legend()
-        else:
-            if labels is not None:
-                fig.legend()
-
-    # compare mode plot
-    elif mode == modes[2]:
-
-        # Error check on type(bands)
-        if not isinstance(bands, list):
-            raise ValueError(
-                'When you choose a ' + modes[2]+' plot bands needs to be a list of band objects')
-        # Error check on sharex and sharey option
-        if (not isinstance(sharex, bool)) or (not isinstance(sharey, bool)):
-            accepted_str = ['row', 'col']
-
-            if (isinstance(sharex, str)) or (isinstance(sharey, str)):
-                if sharex not in accepted_str:
-                    raise ValueError('sharex can only be equal to row or col')
-                elif sharey not in accepted_str:
-                    raise ValueError('sharey can only be equal to row or col')
-            else:
-                raise ValueError('sharex and sharey have to be boolean')
-
-        # Error check and definition of scheme
-        if scheme is None:
-            n_rows = 1
-            n_col = len(bands)
-        else:
-            if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
-                raise ValueError('scheme needs to be a tuple or a list')
-                sys.exit(1)
-            elif len(scheme) > 2:
-                raise ValueError(
-                    'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
-            else:
-                n_rows = scheme[0]
-                n_col = scheme[1]
-        # Creation of the subplots
-        if figsize is None:
-            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey, figsize=figsize)
-        else:
-            fig, axs = plt.subplots(nrows=n_rows, ncols=n_col,
-                                    sharex=sharex, sharey=sharey, figsize=figsize)
-        if n_rows == 1 and n_col == 1:  # When axs is not a list
-            axs = [axs]
-        # Scaling with different size of the same brillouin zone
-        if not_scaled is False:
-            reference = xmax = np.amax(bands[0].k_point_plot)
-            xmin = np.amin(bands[0].k_point_plot)
-
-        else:
-            xmax = []
-            xmin = []
-
-        ymin = []
-        ymax = []
-        count3 = 0
-
-        # Plot of the different band structure into the subplots
-        for col in range(n_col):
-            for row in range(n_rows):
-                data = bands[count3]
-                if count3 == 0:
-                    hsp = data.tick_position
-                pltband = data.bands
-                no_bands = np.shape(pltband)[0]
-                if not_scaled is False:
-                    k_max = np.amax(data.k_point_plot)
-                    dx = (data.k_point_plot/k_max)*reference
-                else:
-                    dx = data.k_point_plot
-                    xmin.append(np.amin(dx))
-                    xmax.append(np.amax(dx))
-                ymin.append(np.amin(pltband))
-                ymax.append(np.amax(pltband))
-                # Effective plotting action
-                for j in range(no_bands):
-                    if data.spin == 1:
-                        if n_rows == 1:
-                            axs[col].plot(
-                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                        else:
-                            axs[row, col].plot(
-                                dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                    elif data.spin == 2:
-                        if n_rows == 1:
-                            axs[col].plot(dx, pltband[j, :, 0], color=color,
-                                          linestyle='-', linewidth=linewidth, label='Alpha')
-                            axs[col].plot(dx, pltband[j, :, 0], color=color,
-                                          linestyle='--', linewidth=linewidth, label='Beta')
-                        else:
-                            axs[row, col].plot(
-                                dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
-                            axs[row, col].plot(
-                                dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
-
-                # Plot of the HSPs lines
-                yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
-                for j in hsp:
-                    xhsp = np.ones(2)*j
-                    if n_rows == 1:
-                        axs[col].plot(
-                            xhsp, yhsp, color='black', linewidth=0.5)
-                    else:
-                        axs[row, col].plot(
-                            xhsp, yhsp, color='black', linewidth=0.5)
-
-                # Fermi level line plot
-                xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
-                yfermi = np.zeros(2)
-                if n_rows == 1:
-                    axs[col].plot(
-                        xfermi, yfermi, color=fermi, linewidth=2.5)
-                else:
-                    axs[row, col].plot(
-                        xfermi, yfermi, color=fermi, linewidth=2.5)
-
-                # Definition of x and y limits
-                if n_rows == 1:
-                    if sharex is not True:
-                        """hsp_label = []
-                        for element in k_labels:
-                            if element in k_labels:
-                                g = greek.get(element)
-                                hsp_label.append(g)
-                        axs[col].set_xticks(hsp)
-                        if k_labels is not None:
-                            axs[col].set_xlabels(hsp_label)"""
-                        warnings.warn(
-                            'The sharex = False option has not been developed yet')
-                    axs[col].set_xlim([np.amin(dx), np.amax(dx)])
-                    if (sharey is not True) and (energy_range is not None):
-                        axs[col].set_ylim([energy_range[0], energy_range[1]])
-                    else:
-                        axs[col].set_ylim([np.amin(pltband), np.amax(pltband)])
-                else:
-                    if sharex is not True:
-                        """hsp_label = []
-                        for element in k_labels:
-                            if element in k_labels:
-                                g = greek.get(element)
-                                hsp_label.append(g)
-                        axs[row, col].set_xticks(hsp)
-                        if k_labels is not None:
-                            axs[row, col].set_xlabels(hsp_label)"""
-                        warnings.warn(
-                            'The sharex = False option has not been developed yet')
-                    axs[row, col].set_xlim([np.amin(dx), np.amax(dx)])
-                    if (sharey is not True) and (energy_range is not False):
-                        axs[row, col].set_ylim(
-                            [energy_range[0], energy_range[1]])
-                    else:
-                        axs[row, col].set_ylim(
-                            [np.amin(pltband), np.amax(pltband)])
-
-                count3 += 1
-
-        if (isinstance(ymin, list)) or (isinstance(ymax, list)):
-            ymin = min(ymin)
-            ymax = max(ymax)
-
-    hsp_label = []
-    high_sym_point = []
-    if k_labels is not None:
-        for n in k_labels:
-            if n in greek:
-                g = greek.get(n)
-                hsp_label.append(g)
-                high_sym_point.append(n)
-            else:
-                hsp_label.append(n)
-                high_sym_point.append(n)
-
-    # give the possibility through the k_range to select a shorter path than the one calculated
-    high_sym_point2 = high_sym_point
-    count = 0
-    for i in high_sym_point2:
-        repeat = high_sym_point2.count(i)
-        if repeat != 1:
-            for p in range(0, len(high_sym_point2)):
-                if p != count:
-                    repeat_count = 1
-                    q = high_sym_point2[p]
-                    r = high_sym_point[p]
-                    if (q == i) & (q == r):
-                        high_sym_point2[p] = i+str(repeat_count)
-                        repeat_count += 1
-                        if repeat_count > repeat:
-                            repeat_count = 0
-        count += 1
-
-    path_dict = dict(zip(high_sym_point2, hsp))
-
-    # definition of the ylim
-    if (energy_range != None) and (sharey == True):
-        ymin = energy_range[0]
-        ymax = energy_range[1]
-
-    # definition of the xlim
-    if k_range != None:
-        xmin = path_dict[k_range[0]]
-        xmax = path_dict[k_range[1]]
-
-    if k_labels != None:
-        plt.xticks(hsp, hsp_label)
-    else:
-        plt.xticks(hsp)
-
-    plt.ylim(ymin, ymax)
-    if (mode == modes[0]) or (mode == modes[1]):
-        plt.xlim(xmin, xmax)
-    elif (mode == modes[2]) and (k_range is not None):
-        warnings.warn('The k_range is not available yet for the compare mode')
-
-    return fig
-
-
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       energy_range=None, dos_range=None, color='blue',
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
@@ -1093,6 +634,7 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import H_to_eV, eV_to_H
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
@@ -1169,6 +711,7 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -1216,394 +759,6 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     plt.show()
 
 
-def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
-                  linewidth, title, beta, energy_range, dos_range, prj):
-    """
-    The base function to plot electron / phonon density of states.
-
-    Args:
-        doss (object): The density of states object.
-        color (str or list): The color(s) of the plot(s).
-        fermi (str): The color of the Fermi level line.
-        overlap (bool): True if the projections should overlap, False otherwise.
-        labels (str or list): The label(s) for the plot(s).
-        figsize (tuple): The figure size (width, height) in inches.
-        linestl (str or list): The line style(s) for the plot(s).
-        linewidth (float): The width of the line(s) in points.
-        title (str): The title of the plot.
-        beta (str): The beta value ('up' or 'down').
-        energy_range (tuple): The energy range (xmin, xmax) for the x-axis.
-        dos_range (tuple): The density of states range (ymin, ymax) for the y-axis.
-        prj (None or list): The projection(s) to plot.
-
-    Returns:
-        None
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import sys
-    import warnings
-    from os import path
-
-    # Error check on beta
-    accepted_beta = ['up', 'down']
-    if beta not in accepted_beta:
-        raise ValueError("Beta can be defined only as: 'up' or 'down'.")
-
-    # Plot for overlap == True
-    if overlap == True:
-
-        # Error check on color for color in overlap == true and default list of color
-        if (not isinstance(color, list)) and (doss.n_proj > 1):
-            warnings.warn(
-                'When overlap is true color has to be a list!', stacklevel=2)
-            color = ['blue', 'indigo', 'midgrey', 'crimson']
-            if (len(color) < doss.n_proj) or (len(color) < len(prj)):
-                raise ValueError(
-                    'When overlap is true color has to be a list!')
-
-        # Error check on labels for overlap == true
-        if labels is not None:
-            if not isinstance(labels, list) and (doss.n_proj > 1):
-                raise ValueError(
-                    'When overlap is true labels has to be a list')
-
-        # Default for figsize
-        if figsize is None:
-            figsize = (12, 5)
-
-        # Error check on color, labels, and linestl
-        if (isinstance(color, list)) or (isinstance(labels, list)) or (isinstance(linestl, list)):
-            if color is not None:
-                if prj is None:
-                    if (len(color) > doss.n_proj) or (len(color) < doss.n_proj):
-                        if len(color) > doss.n_proj:
-                            raise ValueError(
-                                'The number of colors is greater than the number of projections!')
-                        elif len(color) < doss.n_proj:
-                            raise ValueError(
-                                'The number of colors is less than the number of projections!')
-                else:
-                    if (len(color) > len(prj)) or (len(color) < len(prj)):
-                        if len(color) > len(prj):
-                            raise ValueError(
-                                'The number of colors is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of colors is less than the number of projections required!')
-
-            if labels is not None:
-                if prj is None:
-                    if (len(labels) > doss.n_proj) or (len(labels) < doss.n_proj):
-                        if len(labels) > doss.n_proj:
-                            raise ValueError(
-                                'The number of labels is greater than the number of projections!')
-                        elif len(labels) < doss.n_proj:
-                            raise ValueError(
-                                'The number of labels is less than the number of projections!')
-                else:
-                    if (len(labels) > len(prj)) or (len(labels) < len(prj)):
-                        if len(labels) > len(prj):
-                            raise ValueError(
-                                'The number of labels is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of labels is less than the number of projections required!')
-
-            if linestl is not None:
-                if prj is None:
-                    if (len(linestl) > doss.n_proj) or (len(linestl) < doss.n_proj):
-                        if len(linestl) > doss.n_proj:
-                            raise ValueError(
-                                'The number of linestl is greater than the number of projections!')
-                        elif len(linestl) < doss.n_proj:
-                            raise ValueError(
-                                'The number of linestl is less than the number of projections!')
-                else:
-                    if (len(linestl) > len(prj)) or (len(linestl) < len(prj)):
-                        if len(linestl) > len(prj):
-                            raise ValueError(
-                                'The number of linestl is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of linestl is less than the number of projections required!')
-
-        # Creation of the figure
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-        # Creation of dx for the plot
-        if doss.spin == 1:
-            dx = doss.doss[:, 0]
-        elif doss.spin == 2:
-            dx = doss.doss[:, 0, :]
-            dx_alpha = doss.doss[:, 0, 0]
-            dx_beta = doss.doss[:, 0, 1]
-
-        # Determination of xmin, xmax, ymin, and ymax
-        xmin = np.amin(dx)
-        xmax = np.amax(dx)
-        ymin = np.amin(doss.doss[1:, :, :])
-        ymax = np.amax(doss.doss[1:, :, :])
-
-        # Plot of all projections
-        if prj == None:
-            for projection in range(1, doss.n_proj+1):
-                # for projection in range(1, 2):
-                if doss.spin == 1:
-                    if doss.n_proj > 1:
-                        if linestl is None:
-                            ax.plot(dx, doss.doss[:, projection], color=color[projection-1],
-                                    label=labels[projection-1], linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection], color=color[projection-1],
-                                    label=labels[projection-1], linestyle=linestl[projection-1], linewidth=linewidth)
-                    else:
-                        ax.plot(dx, doss.doss[:, projection],
-                                color=color, linewidth=linewidth)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color[projection-1],
-                                    label=labels[projection-1], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, -doss.doss[:, projection, 1], color=color[projection-1],
-                                    label=labels[projection-1], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0],
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, -doss.doss[:, projection, 1],
-                                    linestyle='--', linewidth=linewidth)
-                    elif beta == accepted_beta[1]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color[projection-1],
-                                    label=labels[projection-1], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, doss.doss[:, projection, 1], color=color[projection-1],
-                                    label=labels[projection-1], linestyle='--', linewidth=linewidth)
-
-                        else:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color,
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, doss.doss[:, projection, 1], color=color,
-                                    linestyle='--', linewidth=linewidth)
-
-        # Plot of selected projections
-        else:
-            for index, projection in enumerate(prj):
-                if doss.spin == 1:
-                    if doss.n_proj > 1:
-                        if linestl is None:
-                            ax.plot(dx, doss.doss[:, projection], color=color[index],
-                                    label=labels[index], linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection], color=color[index],
-                                    label=labels[index], linestyle=linestl[index], linewidth=linewidth)
-                    else:
-                        ax.plot(dx, doss.doss[:, projection],
-                                color=color, linewidth=linewidth)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color[index],
-                                    label=labels[index], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, -doss.doss[:, projection, 1], color=color[index],
-                                    label=labels[index], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0],
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, -doss.doss[:, projection, 1],
-                                    linestyle='--', linewidth=linewidth)
-                    elif beta == accepted_beta[1]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color[index],
-                                    label=labels[index], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, doss.doss[:, projection, 1], color=color[index],
-                                    label=labels[index], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx_alpha, doss.doss[:, projection, 0], color=color,
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx_beta, doss.doss[:, projection, 1], color=color,
-                                    linestyle='--', linewidth=linewidth)
-
-        yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
-        xfermi_level = np.zeros(2)
-        if beta == accepted_beta[0]:
-            ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
-        else:
-            yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
-            ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
-        y_zero = np.zeros(2)
-        x_zero = np.linspace(xmin, xmax, 2)
-        ax.plot(x_zero, y_zero, color='black', linewidth=0.4)
-        if dos_range is not None:
-            ymin = dos_range[0]
-            ymax = dos_range[1]
-            plt.ylim(ymin, ymax)
-        else:
-            if doss.spin == 1:
-                ymin = 0
-                plt.ylim(ymin, ymax*1.05)
-            elif doss.spin == 2:
-                if beta == accepted_beta[0]:
-                    ymin = 0
-                    plt.ylim(ymin, ymax*1.05)
-                elif beta == accepted_beta[1]:
-                    plt.ylim(ymin*1.05, ymax*1.05)
-
-    # Plot for overlap == False
-    else:
-        # Error checks on colors, labels, and linestl
-        if isinstance(color, list):
-            warnings.warn('When overlap is false color should be a string!',
-                          stacklevel=2)
-            color = 'blue'
-
-        if isinstance(labels, list):
-            warnings.warn('When overlap is false labels should be a string!',
-                          stacklevel=2)
-            labels = None
-
-        if isinstance(linestl, list):
-            warnings.warn('When overlap is false color should be a string!',
-                          stacklevel=2)
-            linestl = '-'
-
-        # Creation of dx for the plot
-        if doss.spin == 1:
-            dx = doss.doss[:, 0]
-        elif doss.spin == 2:
-            dx = doss.doss[:, 0, :]
-            dx_alpha = doss.doss[:, 0, 0]
-            dx_beta = doss.doss[:, 0, 1]
-
-        # Determination of xmin and xmax
-        xmin = np.amin(dx)
-        xmax = np.amax(dx)
-
-        # Creation xfermi, x_zero, and y_zero
-        xfermi = np.zeros(2)
-        x_zero = np.linspace(xmin, xmax, 2)
-        y_zero = np.zeros(2)
-
-        # Creation of subplots for all projections
-        if prj is None:
-            fig, axs = plt.subplots(
-                nrows=doss.n_proj, ncols=1, sharex=True, figsize=figsize)
-            # If only one projection is generated, axs is not subscriptable
-            if doss.n_proj == 1:
-                axs = [axs]
-        # Creation of subplots for selected projections
-        else:
-            fig, axs = plt.subplots(
-                nrows=len(prj), ncols=1, sharex=True, figsize=figsize)
-            # If only one projection is generated, axs is not subscriptable
-            if len(prj) == 1:
-                axs = [axs]
-
-        # Plot for all projections
-        if prj is None:
-            for projection in range(doss.n_proj):
-                if doss.spin == 1:
-                    ymin = 0
-                    ymax = np.amax(doss.doss[:, projection+1])
-                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                    axs[projection].plot(dx, doss.doss[:, projection+1],
-                                         color=color, linestyle=linestl, linewidth=linewidth)
-                    axs[projection].plot(
-                        xfermi, yfermi, color=fermi, linewidth=1.5)
-                    if dos_range is not None:
-                        ymin = dos_range[0]
-                        ymax = dos_range[1]
-                    axs[projection].set_ylim(ymin, ymax)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        ymin = 0
-                        ymax = np.amax(doss.doss[:, projection+1, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
-                        axs[projection].plot(dx_alpha, doss.doss[:, projection+1, 0], color=color,
-                                             linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[projection].plot(dx_beta, -doss.doss[:, projection+1, 1], color=color,
-                                             linestyle='--', linewidth=linewidth, label='Beta')
-                        axs[projection].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        axs[projection].set_ylim(ymin, ymax)
-                    elif beta == accepted_beta[1]:
-                        ymin = -np.amax(doss.doss[:, projection+1, :])
-                        ymax = np.amax(doss.doss[:, projection+1, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
-                        axs[projection].plot(dx_alpha, doss.doss[:, projection+1, 0], color=color,
-                                             linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[projection].plot(dx_beta, doss.doss[:, projection+1, 1], color=color,
-                                             linestyle='--', linewidth=linewidth, label='Beta')
-                        axs[projection].plot(x_zero, y_zero, linewidth=0.4)
-                        axs[projection].plot(
-                            xfermi, yfermi, color=fermi, linewidth=2.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        axs[projection].set_ylim(ymin, ymax)
-
-        # Plot for selected projections
-        else:
-            for index, projection in enumerate(prj):
-                if doss.spin == 1:
-                    ymin = 0
-                    ymax = np.amax(doss.doss[:, projection])
-                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                    axs[index].plot(dx, doss.doss[:, projection],
-                                    color=color, linestyle=linestl, linewidth=linewidth)
-                    axs[index].plot(xfermi, yfermi, color=fermi, linewidth=1.5)
-                    if dos_range is not None:
-                        ymin = dos_range[0]
-                        ymax = dos_range[1]
-                    axs[index].set_ylim(ymin, ymax)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        ymin = 0
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                        axs[index].plot(dx_alpha, doss.doss[:, projection, 0], color=color,
-                                        linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[index].plot(dx_beta, -doss.doss[:, projection, 1], color=color,
-                                        linestyle='--', linewidth=linewidth, label='Beta')
-                        axs[index].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        axs[index].set_ylim(ymin, ymax)
-                    elif beta == accepted_beta[1]:
-                        ymin = -np.amax(doss.doss[:, projection, :])
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                        axs[index].plot(dx_alpha, doss.doss[:, projection, 0], color=color,
-                                        linestyle='-', linewidth=linewidth, label='Alpha')
-                        axs[index].plot(dx_beta, doss.doss[:, projection, 1], color=color,
-                                        linestyle='--', linewidth=linewidth, label='Beta')
-                        axs[index].plot(x_zero, y_zero, linewidth=0.4)
-                        axs[index].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        axs[index].set_ylim(ymin, ymax)
-
-        if (doss.spin == 2) and (beta == accepted_beta[1]):
-            plt.legend()
-
-    if energy_range is not None:
-        xmin = energy_range[0]
-        xmax = energy_range[1]
-    plt.xlim(xmin, xmax)
-
-    if title is not None:
-        fig.suptitle(title)
-    if labels is not None:
-        plt.legend()
-
-    return fig
-
-
 def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down',
                           dos_prj=None, energy_range=None, dos_max_range=None,
                           color_band='blue', color_dos='blue', labels=None, linestl_band='-',
@@ -1646,6 +801,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import H_to_eV, eV_to_H
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
@@ -1728,6 +884,7 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -1773,302 +930,58 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     plt.show()
 
 
-def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range, linestl_bd,
-                linestl_doss, linewidth, prj, figsize, labels, dos_max_range, title, dos_beta):
+def plot_cry_bands(bands, k_labels=None, energy_range=None, title=None,
+                   not_scaled=False, mode='single', linestl='-', linewidth=1,
+                   color='blue', fermi='forestgreen', k_range=None, labels=None,
+                   figsize=None, scheme=None, sharex=True, sharey=True, save_to_file=None):
     """
-    The base function to plot electron / phonon band structure + DOS
-
-    Args:
-        bands (object): Object containing band structure data
-        doss (object): Object containing density of states data
-        k_labels (list or None): List of labels for high symmetry points along the path
-        color_bd (str): Color for the band structure plot
-        color_doss (str or list or tuple): Color(s) for the density of states plot
-        fermi (str): Color for the Fermi level lines
-        energy_range (list or None): Range of energy values for the y-axis
-        linestl_bd (str): Linestyle for the band structure plot
-        linestl_doss (str or list or tuple or None): Linestyle(s) for the density of states plot
-        linewidth (float): Width of the lines
-        prj (list or None): List of projection indices for plotting specific projections
-        figsize (tuple): Figure size (width, height)
-        labels (str or list or tuple or None): Labels for the density of states plot
-        dos_max_range (float or None): Maximum range of the density of states plot
-        title (str or None): Title of the figure
-        dos_beta (str): Beta state for the density of states plot ('up' or 'down')
-
-    Returns:
-        fig (object): Figure object containing the plotted data
+    Deprecated
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
     import warnings
-    from os import path
 
-    # Dictionary of greek letters for the band plot in the electronic structure
-    greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
-             'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
-             'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
-             'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
+    warnings.warn("Deprecated. This function calls 'plot_electron_band' with unit = eV",
+                  stacklevel=2)
 
-    if isinstance(color_doss, list) or isinstance(color_doss, tuple):
-        # Error check on linestl_doss length when the prj kwargs is not used
-        if (prj is None) and (len(color_doss) != doss.n_proj):
-            if len(color_doss) > doss.n_proj:
-                warnings.warn('You have a number of linestl_doss elements is greater than the number of projection!',
-                              stacklevel=2)
-            else:
-                raise ValueError(
-                    "You don't have enough elements in linestl_doss for the number of projection required")
-        # Error check on linestl_doss length when the prj kwargs is used
-        elif (prj is not None) and (len(color_doss) != len(prj)):
-            if len(color_doss) > len(prj):
-                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!',
-                              stacklevel=2)
-            else:
-                raise ValueError(
-                    "You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
-    else:
-        if prj == None:
-            nprj = doss.n_proj
-        else:
-            nprj = len(prj)
-        if nprj > 1:
-            warnings.warn(
-                'Only one color / no color is given. All DOS projections are in the same color.')
-        color_doss = [color_doss for i in range(nprj)]
+    plot_electron_band(bands, k_labels=k_labels, mode=mode, not_scaled=not_scaled,
+                       energy_range=energy_range, k_range=k_range, color=color,
+                       labels=labels, linestl=linestl, linewidth=linewidth,
+                       fermi=fermi, title=title, figsize=figsize, scheme=scheme,
+                       sharex=sharex, sharey=sharey, save_to_file=save_to_file)
 
-    if isinstance(labels, list) or isinstance(labels, tuple):
-        # Error check on labels length when the prj kwargs is not used
-        if (prj is None) and (len(labels) != doss.n_proj):
-            if len(labels) > doss.n_proj:
-                warnings.warn(
-                    'You have a number of labels greater than the number of projection!')
-            else:
-                raise ValueError(
-                    "You don't have enough elements in labels for the numeber of projection required")
-        # Error check on labels length when the prj kwargs is used
-        elif (prj is not None) and (len(labels) != len(prj)):
-            if len(labels) > len(prj):
-                warnings.warn('You have a number of linestl_doss element greater than the number of projection required(prj elements)!',
-                              stacklevel=2)
-            else:
-                raise ValueError(
-                    "You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
-    else:
-        if prj == None:
-            nprj = doss.n_proj
-        else:
-            nprj = len(prj)
-        if nprj > 1:
-            warnings.warn('Label not given. No label is available for DOS.')
-        labels = [None for i in range(nprj)]
 
-    # DOS beta state
-    if dos_beta == 'up':
-        spin_idx = -1  # DOS in crystal output is distinguished by +/- sign already
-        line_0 = False
-    elif dos_beta == 'down':
-        spin_idx = 1
-        line_0 = True
-    else:
-        raise ValueError("'dos_beta' should be either 'up' or 'down'.")
-    if doss.doss.shape[2] == 2:
-        doss.doss[:, :, 1] = doss.doss[:, :, 1] * spin_idx
+def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False, labels=None,
+                  figsize=None, linestl=None, linewidth=1, title=None, beta='up',
+                  energy_range=None, dos_range=None, prj=None, save_to_file=None):
+    """
+    Deprecated
+    """
+    import warnings
 
-    # Definition and creation of the figure and the axes
-    fig, axs = plt.subplots(nrows=1, ncols=2, gridspec_kw={'width_ratios': [2, 1]},
-                            sharex=False, sharey=True, figsize=figsize)
-    if title != None:
-        fig.suptitle(title)
+    warnings.warn("Deprecated. This function calls 'plot_electron_dos' with unit = eV",
+                  stacklevel=2)
+    plot_electron_dos(doss, beta=beta, overlap=overlap, prj=prj, energy_range=energy_range,
+                      dos_range=dos_range, color=color, labels=labels, linestl=linestl,
+                      linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,
+                      save_to_file=save_to_file)
 
-    # Definition of the hsp position variables
-    hsp = bands.tick_position
 
-    # Error check on k_labels lenght against the HSP poisitions
-    if k_labels is not None:
-        if len(hsp) != len(k_labels):
-            if len(hsp) > len(k_labels):
-                raise ValueError(
-                    'You have specified a number of label smaller than the number of High Simmetry Point along the path')
-            elif len(hsp) < len(k_labels):
-                raise ValueError(
-                    'You have more labels than the High Simmetry point along the path')
+def plot_cry_es(bands, doss, k_labels=None, color_bd='blue', color_doss='blue',
+                fermi='forestgreen', energy_range=None, linestl_bd='-',
+                linestl_doss=None, linewidth=1, prj=None, figsize=None, labels=None,
+                dos_max_range=None, title=None, dos_beta='down', save_to_file=None):
+    """
+    Deprecated
+    """
+    import warnings
 
-    # Local variable definition for the band plot
-    dx_bd = bands.k_point_plot
-    pltband = bands.bands
-    no_bands = np.shape(pltband)[0]
-    ymin_bd = np.amin(pltband)
-    ymax_bd = np.amax(pltband)
-    xmin_bd = np.amin(dx_bd)
-    xmax_bd = np.amax(dx_bd)
-    count1 = 0
-    count2 = 0
-
-    # band plot
-    for i in range(no_bands):
-        if bands.spin == 1:
-            axs[0].plot(dx_bd, pltband[i, :], color=color_bd,
-                        linestyle=linestl_bd, linewidth=linewidth)
-
-        elif bands.spin == 2:
-            if count1 == count2:
-                axs[0].plot(dx_bd, pltband[i, :, 0], color=color_bd,
-                            linestyle='-', linewidth=linewidth, label='Alpha')
-                axs[0].plot(dx_bd, pltband[i, :, 1], color=color_bd,
-                            linestyle='--', linewidth=linewidth, label='Beta')
-            else:
-                axs[0].plot(dx_bd, pltband[i, :, 0], color=color_bd,
-                            linestyle='-', linewidth=linewidth)
-                axs[0].plot(dx_bd, pltband[i, :, 1], color=color_bd,
-                            linestyle='--', linewidth=linewidth)
-
-        count1 += 1
-
-    # Definition of dx for the doss plot
-    if doss.spin == 1:
-        dx_dos = doss.doss[:, 0]
-    elif doss.spin == 2:
-        dx_dos = doss.doss[:, 0, :]
-        dx_alpha = doss.doss[:, 0, 0]
-        dx_beta = doss.doss[:, 0, 1]
-
-    # Determination of xmin, xmax, ymin, and ymax
-    if prj != None:
-        argplt = prj
-    else:
-        argplt = range(1, doss.doss.shape[1])
-
-    # Plot a vertical line at 0 DOS. Only for spin polarized cases
-    if line_0 == True and doss.spin == 2:
-        xmin_dos = np.amin(doss.doss[:, argplt, 1])
-        xmax_dos = np.amax(doss.doss[:, argplt, 0])
-        # make the scale symmetric, for comparison
-        xmin_dos = -max([abs(xmin_dos), abs(xmax_dos)])
-        xmax_dos = -xmin_dos
-    else:
-        xmin_dos = 0.
-        xmax_dos = np.amax(doss.doss[:, argplt, :])
-
-    ymin_dos = np.amin(dx_dos)
-    ymax_dos = np.amax(dx_dos)
-
-    # Plot of all projections
-    if prj is None:
-        for projection in range(1, doss.n_proj+1):
-            if doss.spin == 1:
-
-                if doss.n_proj > 1:
-
-                    if linestl_doss is None:
-                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[projection-1],
-                                    label=labels[projection-1], linewidth=linewidth)
-
-                    else:
-                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[projection-1],
-                                    label=labels[projection-1], linestyle=linestl_doss[projection-1], linewidth=linewidth)
-
-                else:
-                    axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[0],
-                                linewidth=linewidth)
-
-            elif doss.spin == 2:
-                if doss.n_proj > 1:
-                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[projection-1],
-                                label=labels[projection-1], linestyle='-', linewidth=linewidth)
-                    axs[1].plot(doss.doss[:, projection, 1], dx_beta, color=color_doss[projection-1],
-                                label=labels[projection-1], linestyle='--', linewidth=linewidth)
-                else:
-                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[0],
-                                linestyle='-', linewidth=linewidth)
-                    axs[1].plot(doss.doss[:, projection, 1], dx_beta, color=color_doss[0],
-                                linestyle='--', linewidth=linewidth)
-
-    # Plot of a selected number of projections
-    else:
-        for index, projection in enumerate(prj):
-            if doss.spin == 1:
-                if doss.n_proj > 1:
-                    if linestl_doss is None:
-                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[index],
-                                    label=labels[index], linewidth=linewidth)
-                    else:
-                        axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[index],
-                                    label=labels[index], linestyle=linestl_doss[index], linewidth=linewidth)
-                else:
-                    axs[1].plot(doss.doss[:, projection], dx_dos, color=color_doss[0],
-                                linewidth=linewidth)
-            elif doss.spin == 2:
-                if doss.n_proj > 1:
-                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[index],
-                                label=labels[index], linestyle='-', linewidth=linewidth)
-                    axs[1].plot(doss.doss[:, projection, 1], dx_beta, color=color_doss[index],
-                                label=labels[index], linestyle='--', linewidth=linewidth)
-                else:
-                    axs[1].plot(doss.doss[:, projection, 0], dx_alpha, color=color_doss[0],
-                                linestyle='-', linewidth=linewidth)
-                    axs[1].plot(doss.doss[:, projection, 1], dx_beta, color=color_doss[0],
-                                linestyle='--', linewidth=linewidth)
-
-    if ymin_bd > ymin_dos:
-        ymin = ymin_dos
-    elif ymin_bd <= ymin_dos:
-        ymin = ymin_bd
-
-    if ymax_bd >= ymax_dos:
-        ymax = ymax_bd
-    elif ymax_bd < ymax_dos:
-        ymax = ymax_dos
-
-    xmax_bd = hsp[len(hsp)-1]
-    # Plot of HSP lines
-    yhsp = np.linspace(ymin-5, ymax+5, 2)
-    for j in hsp:
-        xhsp = np.ones(2)*j
-        axs[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
-
-    # Creation if HSP label ticks
-    hsp_label = []
-    if k_labels is not None:
-        for n in k_labels:
-            if n in greek:
-                g = greek.get(n)
-                hsp_label.append(g)
-            else:
-                hsp_label.append(n)
-
-    axs[0].set_xticks(hsp)
-    if k_labels is not None:
-        axs[0].set_xticklabels(hsp_label)
-
-    xfermi_bd = np.linspace(xmin_bd, xmax_bd, 2)
-    xfermi_dos = np.linspace(xmin_dos*1.05, xmax_dos*1.05, 2)
-    yfermi = np.zeros(2)
-
-    # Plot of fermi level lines both in the band and the doss plot
-    axs[0].plot(xfermi_bd, yfermi, color=fermi, linewidth=1.5)
-    axs[1].plot(xfermi_dos, yfermi, color=fermi, linewidth=1.5)
-
-    axs[0].set_xlim(xmin_bd, xmax_bd)
-
-    if dos_max_range is not None:
-        xmax_dos = dos_max_range
-
-    # if (prj is None) and (doss.n_proj not in prj):
-    #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
-
-    if line_0 == True:
-        axs[1].plot(np.zeros([2,]), [ymin, ymax], color='black', linewidth=0.5)
-    axs[1].set_xlim(xmin_dos*1.05, xmax_dos*1.05)
-
-    if energy_range is not None:
-        ymin = energy_range[0]
-        ymax = energy_range[1]
-
-    plt.ylim(ymin, ymax)
-    plt.legend()
-
-    return fig
+    warnings.warn("Deprecated. This function calls 'plot_electron_banddos' with unit = eV.",
+                  stacklevel=2)
+    plot_electron_banddos(bands, doss, k_labels=None, dos_beta=dos_beta, dos_prj=prj,
+                          energy_range=energy_range, dos_max_range=dos_max_range,
+                          color_band=color_bd, color_dos=color_doss, labels=labels,
+                          linestl_band=linestl_bd, linestl_dos=linestl_doss,
+                          linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,
+                          save_to_file=save_to_file)
 
 
 def plot_cry_contour(contour_obj, save_to_file=False):
@@ -2307,7 +1220,6 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
         - Sets the x-axis label as 'd  [$\AA$]' and the y-axis label as r'$\rho$  [$\frac{e}{\AA^3}$]'.
         - Saves the plot to a file named 'figure_rholine_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
     """
     import matplotlib.pyplot as plt
     import os
@@ -2344,7 +1256,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of chemical potential for each temperature.
         - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
 
     """
     import sys
@@ -2486,7 +1398,7 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
         - Plots the electrical conductivity as a function of chemical potential for each temperature.
         - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'sigma_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
 
     """
     import sys
@@ -2619,7 +1531,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -2755,7 +1667,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
         - Plots the electrical conductivity as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -2883,9 +1795,9 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the chemical potential, distinguishing between n-type and p-type conduction.
+        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import matplotlib.pyplot as plt
@@ -3092,8 +2004,8 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the charge carrier concentration, distinguishing between n-type and p-type conduction.
         - If save_to_file is True, saves the plot to a file named 'powerfactor_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -3311,7 +2223,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         - Prompts the user to input the value of ktot in W-1K-1m-1.
         - Prompts the user to choose the direction to plot among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz.
         - Calculates the ZT value using the Seebeck coefficient and electrical conductivity data.
-        - Plots the ZT value for each temperature.
+        - Plots the ZT value for each temperature as a function of the chemical potential.
         - If save_to_file is True, saves the plot to a file named 'zt_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'zt_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -3427,7 +2339,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 
 def plot_cry_multiseebeck(*seebeck):
     """
-    Plot the multiseebeck coefficient for different temperatures.
+    Plot the seebeck coefficients from different files as a function of chemical potential.
 
     Args:
         *seebeck: Variable number of seebeck objects containing the data for the Seebeck coefficient.
@@ -3439,7 +2351,7 @@ def plot_cry_multiseebeck(*seebeck):
         - Prompts the user to input the index of the temperature to plot.
         - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
-        - Plots the multiseebeck coefficient for each seebeck object.
+        - Plots the seebeck coefficient for each seebeck object.
         - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
         - Saves the plot to a file named 'multiseebeckYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
@@ -3558,7 +2470,7 @@ def plot_cry_multiseebeck(*seebeck):
 
 def plot_cry_multisigma(*sigma):
     """
-    Plot the multisigma conductivity for different temperatures.
+    Plot the electrical conductivities from different files as a function of the chemical potential.
 
     Args:
         *sigma: Variable number of sigma objects containing the data for the conductivity.
@@ -3570,7 +2482,7 @@ def plot_cry_multisigma(*sigma):
         - Prompts the user to input the index of the temperature to plot.
         - Prompts the user to input the lower and higher values of chemical potential to plot in eV.
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
-        - Plots the multisigma conductivity for each sigma object.
+        - Plots the electrical conductivity for each sigma object.
         - Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.
         - Saves the plot to a file named 'multisigmaYYYY-MM-DD_HHMMSS.jpg', where YYYY-MM-DD_HHMMSS represents the current date and time.
     """
@@ -3754,7 +2666,8 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 
 def plot_cry_young(theta, phi, S):
     """
-    Plot crystal Young's modulus property.
+    Compute Young's modulus for each direction of the space (i.e., each pair
+    of theta and phi angles).
 
     Args:
         theta (float): Theta value.
@@ -3762,12 +2675,10 @@ def plot_cry_young(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Young's modulus property.
+        float: Young's modulus values.
 
     Notes:
-        - Computes the Young's modulus property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The Young's modulus property represents the crystal's stiffness.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3819,7 +2730,8 @@ def plot_cry_young(theta, phi, S):
 
 def plot_cry_comp(theta, phi, S):
     """
-    Plot crystal compression property.
+    Compute linear compressibility for each direction of the space (i.e., each
+    pair of theta and phi angles).
 
     Args:
         theta (float): Theta value.
@@ -3827,12 +2739,10 @@ def plot_cry_comp(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Compression property.
+        float: Linear compressibility values.
 
     Notes:
-        - Computes the compression property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The compression property represents the crystal's compression behavior.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3873,7 +2783,9 @@ def plot_cry_comp(theta, phi, S):
 
 def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     """
-    Plot crystal shear properties.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the shear modulus is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -3886,9 +2798,7 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
         numpy.ndarray: Shear property array.
 
     Notes:
-        - Computes shear properties for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting shear property can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -3959,7 +2869,9 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
 
 def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     """
-    Plot crystal Poisson's ratio.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the Poisson ratio is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -3972,9 +2884,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         numpy.ndarray: Poisson's ratio array.
 
     Notes:
-        - Computes Poisson's ratio for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting Poisson's ratio can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -4045,20 +2955,22 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         return poisson_max
 
 
-def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
+def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype="png",
                  transparency=False):
     """
-    Plot crystal elastic properties.
+    Plot crystal elastic properties on the basis of the elastic tensor. A
+    variable number of elastic tensors can be provided in order to get
+    multiple plots in one shot, establishing a fixed color scale among them.
 
     Args:
-        choose (str): Property to plot. Options: "young", "comp", "shear avg",
-            "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
+        choose (str): Property to plot. Options: "young", "comp", "shear avg", 
+        "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
         ndeg (int): Number of degrees for discretization.
         *args: Variable number of elastic tensors.
         dpi (int, optional): Dots per inch for saving the plot. Default is 200.
-        filetype (str, optional): File format of the output plot. Default is ".png".
-        transparency (bool, optional): Flag indicating whether to make the plot
-            background transparent. Default is False.
+        filetype (str, optional): File format of the output plot. Default is "png".
+        transparency (bool, optional): Flag indicating whether to make the plot 
+        background transparent. Default is False.
 
     Returns:
         None
@@ -4162,10 +3074,290 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         ax.set_box_aspect(aspect=(1, 1, 1))  # Fix aspect ratio
 
         plt.show()
-        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") +
+        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S.") +
                     filetype, dpi=dpi, transparent=transparency)
 
         # <--
+
+
+def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5,
+                  fmin=None, fmax=None, ylim=None, savefig=False, dpi=300,
+                  filetype='png', exp_spec=None, sep=";", show=True,
+                  export_csv=False, label=None, xlabel='Wavenumber [cm$^{-1}$]',
+                  ylabel='Intensity [arb. u.]', linewidth=2.0, padd=100,
+                  fontsize=12, style=None, compstyle=None, nopadding=False,
+                  figsize=(16, 6)):
+    """
+    This function enables the simulation of vibrational spectra based on a 2D 
+    NumPy array containing a list of transition frequencies and the 
+    corresponding intensities. The code allows users to model spectral
+    broadening according to various profiles (Gaussian, Lorentzian, 
+    pseudo-Voigt), or zero broadening (Dirac deltas-like lines). Please, note
+    that by turning the optional argument 'component' to `True` you can
+    additionally plot contributions arising from each transition.
+
+    Args:
+        transitions (float|numpy.ndarray): Array containing transition frequencies
+        (axis=0) and corresponding intensities (axis=1).
+        typeS (str): String specifying the spectral profile: 'bars',
+        'lorentz', 'gauss', 'pvoigt'. 
+        components (bool, optional): Whether to plot contributions arising from
+        each transition (default is `False`).  
+        bwidth (float, optional): Half-width at half-maximum of the Lorentzian 
+        profile (default is 5).
+        stdev (float, optional): Standard deviation of the Gaussian profile 
+        (default is 5).
+        eta (float, optional): Fraction of Lorentzian character in pseudo-Voigt
+        profile (default is 0.5).
+        fmin (float, optional): Minimum frequency.
+        fmax(float, optional): Maximum frequency.
+        ylim (float, optional): Maximum intensity.
+        savefig (bool, optional): Whether to save the figure (default is `False`).
+        dpi (float, optional): Dots per inches (default is 300).
+        filetype (str, optional): File extension (default is 'png').
+        show (bool, optional): Whether to show the figure (default is `True`).
+        export_csv (bool, optional): Whether to save plot in csv format (default is 
+        `False`).
+        xlabel (str, optional): x-axis label (default is 'Wavenumber [cm$^{-1}$]').
+        ylabel (str, optional): y-axis label (default is 'Intensity [arb. u.]').
+        linewidth (float): Linewidth (default is 2.0).
+        padd (float, optional): left- and right- hand side padding expressed in the
+        same unit of the quantity reported in x-axis (default is 100).
+        fontsize (integer, optional): Fontsize (default is 12).
+        style (str, optional): String specifying Matplotlib style. 
+        compstyle (str|list, optional): List containing Matplotlib styles to plot
+        each component. 
+        nopadding (bool, optional): Whether to remove padding (default is `False`).
+        figsize (real|list, optional): List of two numbers specifying the aspect
+        ratio of the figure (default is [16, 6]).
+
+    Returns:
+        None
+    """
+
+    import numpy as np
+    from numpy import genfromtxt
+    import matplotlib.pyplot as plt
+    from copy import deepcopy
+    import math
+    import time
+
+    if (show):
+        plt.figure(figsize=figsize)
+    if (ylim is not None):
+        plt.ylim(0, ylim)
+
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+    plt.xlabel(xlabel, fontsize=fontsize)
+    plt.ylabel(ylabel, fontsize=fontsize)
+
+    bars = False
+    lorentz = False
+    gauss = False
+    pseudo_voigt = False
+
+    if typeS == 'bars':
+        bars = True
+
+    if typeS == 'lorentz':
+        lorentz = True
+
+    if typeS == 'gauss':
+        gauss = True
+
+    if typeS == 'pvoigt':
+        pseudo_voigt = True
+
+    n = 20000
+
+    if fmin is None:
+        fmin = min(transitions[:, 0] - padd)
+    if fmax is None:
+        fmax = max(transitions[:, 0] + padd)
+
+    x = np.linspace(fmin, fmax, num=n)
+    y = np.zeros(n)
+
+    spec_data = np.block([[x], [y]]).T
+    sbuff = np.block([[x], [y]]).T
+
+    if bars:
+        spec_data = np.concatenate((spec_data, transitions), axis=0)
+        spec_data = spec_data[spec_data[:, 0].argsort()]
+    elif lorentz:
+        iL = 0
+        L = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                lorentz = (1/math.pi)*bwidth / \
+                    ((f-transitions[i, 0])**2+bwidth**2)*transitions[i, 1]
+                sbuff[j, 1] = lorentz
+            L.append(deepcopy(sbuff))
+            iL = iL + 1
+        if (not components):
+            for i in range(len(L)):
+                spec_data[:, 1] = spec_data[:, 1] + L[i][:, 1]
+        else:
+            for i in range(len(L)):
+                plt.plot(spec_data[:, 0], L[i][:, 1], linewidth=linewidth)
+            for i in range(len(L)):
+                spec_data[:, 1] = spec_data[:, 1] + L[i][:, 1]
+
+    elif gauss:
+        G = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                gauss = (1/(stdev*math.sqrt(2*math.pi))) * \
+                    math.exp(-((f-transitions[i, 0])**2) /
+                             (2*stdev**2))*transitions[i, 1]
+                sbuff[j, 1] = gauss
+            G.append(deepcopy(sbuff))
+        if (not components):
+            for i in range(len(G)):
+                spec_data[:, 1] = spec_data[:, 1] + G[i][:, 1]
+        else:
+            for i in range(len(G)):
+                plt.plot(spec_data[:, 0], G[i][:, 1], linewidth=linewidth)
+            for i in range(len(G)):
+                spec_data[:, 1] = spec_data[:, 1] + G[i][:, 1]
+
+    elif pseudo_voigt:
+        V = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                gauss = (1/(stdev*math.sqrt(2*math.pi))) * \
+                    math.exp(-((f-transitions[i, 0])**2) /
+                             (2*stdev**2))*transitions[i, 1]
+                lorentz = (1/math.pi)*bwidth / \
+                    ((f-transitions[i, 0])**2+bwidth**2)*transitions[i, 1]
+                sbuff[j, 1] = eta*lorentz + (1-eta)*gauss
+            V.append(deepcopy(sbuff))
+        if (not components):
+            for i in range(len(V)):
+                spec_data[:, 1] = spec_data[:, 1] + V[i][:, 1]
+        else:
+            for i in range(len(V)):
+                if (compstyle is not None):
+                    plt.plot(spec_data[:, 0], V[i][:, 1], compstyle[i],
+                             linewidth=linewidth)
+                else:
+                    plt.plot(spec_data[:, 0], V[i][:, 1], linewidth=linewidth)
+            for i in range(len(V)):
+                spec_data[:, 1] = spec_data[:, 1] + V[i][:, 1]
+
+    if (exp_spec is not None):
+        exp_data = genfromtxt(exp_spec, delimiter=sep)
+        area_spec_data = np.trapz(spec_data[:, 1], spec_data[:, 0])
+        area_exp_data = np.trapz(exp_data[:, 1], exp_data[:, 0])
+        norm_fac = area_spec_data / area_exp_data
+        baseline = 0.2
+        exp_data[:, 1] = exp_data[:, 1] * norm_fac - baseline  # * 0.5
+        plt.plot(exp_data[:, 0], exp_data[:, 1], 'r-', linewidth=linewidth)
+
+    if label is not None:
+        plt.plot(spec_data[:, 0], spec_data[:, 1], linewidth=linewidth,
+                 label=label)
+    elif (style is not None):
+        plt.plot(spec_data[:, 0], spec_data[:, 1], style, linewidth=linewidth)
+    else:
+        plt.plot(spec_data[:, 0], spec_data[:, 1], linewidth=linewidth)
+
+    if (savefig):
+        plt.savefig(typeS + time.strftime("%Y-%m-%d_%H%M%S.") + filetype,
+                    format=filetype, dpi=dpi)
+    if (show):
+        plt.show()
+
+    if (export_csv):
+        np.savetxt(typeS + time.strftime("%Y-%m-%d_%H%M%S.") + 'csv',
+                   spec_data, delimiter=';')
+
+
+def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
+                        eta=0.5, fmin=None, fmax=None, ylim=None,
+                        savefig=False, dpi=300, filetype='png', label=None,
+                        xlabel='Wavenumber [cm$^{-1}$]',
+                        ylabel='Instensity [arb. u.]', linewidth=2.0, padd=100,
+                        fontsize=12, style=None, nopadding=False,
+                        figsize=(16, 6)):
+    """
+    This function is a wrapper for `plot_spec` function, enablng the simulation 
+    of many vibrational spectra coming from a list of NumPy array.  
+
+    Args:
+        transitions (float|numpy.ndarray): Array containing transition frequencies
+        (axis=0) and corresponding intensities (axis=1).
+        typeS (str): String specifying the spectral profile: 'bars',
+        'lorentz', 'gauss', 'pvoigt'. 
+        components (bool, optional): Whether to plot contributions arising from
+        each transition (default is `False`).  
+        bwidth (float, optional): Half-width at half-maximum of the Lorentzian 
+        profile (default is 5).
+        stdev (float, optional): Standard deviation of the Gaussian profile 
+        (default is 5).
+        eta (float, optional): Fraction of Lorentzian character in pseudo-Voigt
+        profile (default is 0.5).
+        fmin (float, optional): Minimum frequency.
+        fmax(float, optional): Maximum frequency.
+        ylim (float, optional): Maximum intensity.
+        savefig (bool, optional): Whether to save the figure (default is `False`).
+        dpi (float, optional): Dots per inches (default is 300).
+        filetype (str, optional): File extension (default is 'png').
+        xlabel (str, optional): x-axis label (default is 'Wavenumber [cm$^{-1}$]').
+        ylabel (str, optional): y-axis label (default is 'Intensity [arb. u.]').
+        linewidth (float): Linewidth (default is 2.0).
+        padd (float, optional): left- and right- hand side padding expressed in the
+        same unit of the quantity reported in x-axis (default is 100).
+        fontsize (integer, optional): Fontsize (default is 12).
+        style (str, optional): String specifying Matplotlib style. 
+        nopadding (bool, optional): Whether to remove padding (default is `False`).
+        figsize (real|list, optional): List of two numbers specifying the aspect
+        ratio of the figure (default is [16, 6]).
+
+    Returns:
+        None
+    """
+
+    import matplotlib.pyplot as plt
+    import time
+
+    plt.figure(figsize=figsize)
+    plt.xlabel(xlabel, fontsize=fontsize)
+    plt.ylabel(ylabel, fontsize=fontsize)
+
+    for i, transitions in enumerate(files):
+        if (label is not None):
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False, label=label[i],
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, xlabel=xlabel, ylabel=ylabel)
+        elif (style is not None):
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False,
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, style=style[i], xlabel=xlabel,
+                      ylabel=ylabel)
+        else:
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False,
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, xlabel=xlabel, ylabel=ylabel)
+
+    if (label is not None):
+        plt.legend(loc='upper left', fontsize=fontsize)
+
+    if (savefig):
+        plt.savefig("multi_" + typeS + time.strftime("%Y-%m-%d_%H%M%S.") +
+                    filetype, format=filetype, dpi=dpi)
+
+    plt.show()
 
 
 def save_plot(path_to_file, format='png'):

@@ -38,7 +38,7 @@ class Mode:
         self.ncalc = len(frequency)
         self.frequency = np.array(frequency, dtype=float)
         self.volume = np.array(volume, dtype=float)
-        self.eigenvector = np.array(eigenvector, dtype=float)
+        self.eigenvector = np.array(eigenvector, dtype=complex)
 
     def get_zp_energy(self):
         """
@@ -190,6 +190,11 @@ class Mode:
         self.c_v = hbar_freq**2 / kb_t / temperature * expon / (expon - 1)**2
 
         return self.c_v
+
+    def get_classical_amplitude(self, struc):
+        """
+        Empty method - development ongoing
+        """
 
     def polynomial_fit(self, order=[2, 3]):
         """
@@ -378,7 +383,7 @@ class Harmonic():
             warnings.warn("Data exists. Cannot overwrite the existing data.")
             return self
 
-        output = Crystal_output().read_cry_output(output_name)
+        output = Crystal_output(output_name)
         output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
         strucs = _restore_pcel(output, scelphono)
 
@@ -422,10 +427,7 @@ class Harmonic():
         :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
         :raise Exception: If q point is not found.
         """
-        import yaml
-        import numpy as np
-        from CRYSTALpytools.units import au_to_angstrom
-        from pymatgen.core.structure import Structure
+        from CRYSTALpytools.thermodynamics import Phonopy
         import warnings
 
         if hasattr(self, "volume"):
@@ -435,83 +437,13 @@ class Harmonic():
             edft = 0.
             warnings.warn('DFT energy is set to 0.')
 
-        file = open(phono_yaml, 'r', errors='ignore')
-        data = yaml.safe_load(file)
-        file.close()
+        # Get geometry
         if struc_yaml != None:
-            struc_file = open(struc_yaml, 'r')
-            struc_data = yaml.safe_load(struc_file)
-            struc_file.close()
+            structure = Phonopy.read_structure(struc_yaml)
         else:
-            struc_data = data
+            structure = Phonopy.read_structure(phono_yaml)
 
-        # Get unit
-        try: # band.yaml
-            len_unit = struc_data['length_unit']
-        except KeyError: # phonopy.yaml
-            len_unit = struc_data['physical_unit']['length']
-
-        if len_unit == 'angstrom':
-            unit_len = 1.0
-        elif len_unit == 'au':
-            unit_len = au_to_angstrom(1.0)
-        else:
-            raise Exception("Unknown length unit. Available options: au, angstrom.")
-
-        # Get structure
-        spec = []
-        coord = []
-        try: # band.yaml
-            latt = np.array(struc_data['lattice'], dtype=float) * unit_len
-            for idx_a, atom in enumerate(struc_data['points']):
-                spec.append(atom['symbol'])
-                coord.append(atom['coordinates'])
-        except KeyError: # phonopy.yaml
-            latt = np.array(struc_data['primitive_cell']['lattice'], dtype=float) * unit_len
-            for idx_a, atom in enumerate(struc_data['primitive_cell']['points']):
-                spec.append(atom['symbol'])
-                coord.append(atom['coordinates'])
-
-        structure = Structure(lattice=latt, species=spec, coords=coord)
-        natom = len(spec)
-
-        if q_id == None and q_coord == None:
-            nqpoint = data['nqpoint']
-            qinfo = np.array(range(nqpoint), dtype=int)
-        elif q_id != None:
-            qinfo = np.array(q_id, dtype=int)
-            nqpoint = len(qinfo)
-        elif q_id == None and q_coord != None:
-            qinfo = np.array(q_coord, dtype=float)
-            nqpoint = len(qinfo)
-
-        qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
-        nmode = np.array([3 * natom for i in range(nqpoint)]) # No fragment phonon is assumed.
-        frequency = np.zeros([nqpoint, 3 * natom])
-        # Read phonon
-        real_q = 0
-        for idx_p, phonon in enumerate(data['phonon']):
-            if real_q == nqpoint:
-                break
-
-            if len(qinfo.shape) == 1: # q_id and all q points
-                if idx_p == qinfo[real_q]:
-                    qpoint[real_q][0] = np.array(phonon['q-position'])
-                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
-                    real_q += 1
-                else:
-                    continue
-            else: # q_coord
-                coord = np.array(phonon['q-position'])
-                if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
-                    qpoint[real_q][0] = coord
-                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
-                    real_q += 1
-                else:
-                    continue
-
-        if real_q < nqpoint:
-            raise Exception('Some q points are missing from the yaml file.')
+        qpoint, frequency = Phonopy.read_frequency(phono_yaml, q_id=q_id, q_coord=q_coord)
 
         # set object
         self.from_frequency(edft=edft, qpoint=qpoint, frequency=frequency*scale,
@@ -860,15 +792,12 @@ class Quasi_harmonic:
                 overlaps. If none, do not sort modes.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New Attributes**
-
-        * self.ncalc (int): Number of HA phonon calculations.  
-        * self.combined_phonon (list[Harmonic]): List of Harmonic objects.  
-        * self.combined_volume (list[float]): Volumes. Unit: Angstrom^3  
-        * self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol  
-        * self.combined_mode (list[Mode]): List of mode objects.  
+            self (Quasi_harmonic): New Attributes listed below
+            self.ncalc (int): Number of HA phonon calculations.
+            self.combined_phonon (list[Harmonic]): List of Harmonic objects.
+            self.combined_volume (list[float]): Volumes. Unit: Angstrom^3
+            self.combined_edft (list[float]): DFT total energies. Unit: KJ/mol
+            self.combined_mode (list[Mode]): List of mode objects.
         """
         from CRYSTALpytools.thermodynamics import Harmonic
         import warnings
@@ -953,7 +882,7 @@ class Quasi_harmonic:
         else:
             read_eigvt = False
 
-        output = Crystal_output().read_cry_output(input_file)
+        output = Crystal_output(input_file)
         output.get_phonon(read_eigvt=read_eigvt, rm_imaginary=False, rm_overlap=False)
         strucs = _restore_pcel(output, scelphono)
 
@@ -1086,7 +1015,6 @@ class Quasi_harmonic:
         import numpy as np
         import warnings
         from CRYSTALpytools.thermodynamics import Mode
-        from CRYSTALpytools.thermodynamics import Output
 
         # Sorting data according to volumes
         sorted_vol = np.zeros([self.ncalc, 2])
@@ -1115,7 +1043,7 @@ class Quasi_harmonic:
         # Frequency, ncalc * nqpoint * nmode array
         combined_freq = np.zeros([self.ncalc, nqpoint, nmode])
         # Eigenvector, ncalc * nqpoint * nmode * natom * 3 array
-        combined_eigvt = np.zeros([self.ncalc, nqpoint, nmode, natom, 3])
+        combined_eigvt = np.zeros([self.ncalc, nqpoint, nmode, natom, 3], dtype=complex)
         for idx_new, idx_vol in enumerate(sorted_vol):
             ha_phonon = ha_list[int(idx_vol[0])]
             combined_phonon.append(ha_phonon)
@@ -1132,24 +1060,25 @@ class Quasi_harmonic:
             combined_eigvt = np.transpose(combined_eigvt, axes=[1, 0, 2, 3, 4])
 
         # Sort phonon modes if requested
-        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode])
+        close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode], dtype=int)
         if mode_sort_tol != None and do_eigvt == True:
             for idx_q in range(nqpoint):
                 combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
                     = self._phonon_continuity(combined_freq[idx_q],
                                               combined_eigvt[idx_q],
                                               mode_sort_tol=mode_sort_tol)
-            # nqpoint * ncalc * nmode_ref * nmode_sort array to
-            # nqpoint * nmode_ref * ncalc * nmode_sort array
+            # nqpoint * ncalc * nmode_ref * nmode_sort array to nqpoint * nmode_ref * ncalc * nmode_sort array
             close_overlap = np.transpose(close_overlap, axes=[0, 2, 1, 3])
             for q, overlap_q in enumerate(close_overlap):
-                overlap_numbers = np.sum(overlap_q)
-                if overlap_numbers > 0:
-                    warnings.warn('Close overlap of phonon modes detected at qpoint: %3i, %6i overlaps out of %6i modes.'
-                                  % (q, int(overlap_numbers), int(nqpoint * nmode)),
-                                  stacklevel=2)
+                n_overlap = int(np.sum(overlap_q))
+                if n_overlap > 0:
+                    warnings.warn(
+                        'Close overlap of phonon modes detected at qpoint {}: {} overlaps out of {}*{} mode combinations at this point.'.format(q, n_overlap, nmode, nmode),
+                        stacklevel=2
+                    )
+
         elif mode_sort_tol != None and do_eigvt == False:
-            warnings.warn('Eigenvectors not read. Mode sorting not available.')
+            warnings.warn('Eigenvectors not read. Mode sorting not available.', stacklevel=2)
 
         # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
         combined_freq = np.transpose(combined_freq, axes=[0, 2, 1])
@@ -1207,73 +1136,57 @@ class Quasi_harmonic:
                 dimension) and the current one (3rd).
         """
         import numpy as np
+        import copy
 
         # Exclude negative and 0 frequencies
         ncalc = len(freq)
         nmode = len(freq[0])
-        ng_mode = 0
-        for idx_c, calc in enumerate(freq):
-            for idx_f, frequency in enumerate(calc):
-                if np.isnan(frequency) or (frequency < 1e-4):
-                    ng_mode_c = idx_f
-                else:
-                    break
-
-            if ng_mode_c > ng_mode:
-                ng_mode = ng_mode_c
 
         # Sort phonon
-        products = np.zeros([ncalc, nmode])
-        for sort_c in range(1, ncalc):
-            ref_c = sort_c - 1
-            for ref_m in range(ng_mode + 1, nmode):
-                ref_pdt = 0.
-                sort_m_save = 0
-                for sort_m in range(ng_mode + 1, nmode):
-                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
-                        continue
-
-                    sort_pdt = abs(np.sum(
-                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
-                    ))
-                    if sort_pdt > ref_pdt:
-                        if sort_m < ref_m:
-                            check_pdt = abs(np.sum(
-                                eigvt[ref_c, sort_m] * eigvt[sort_c, sort_m]
-                            ))
-
-                            if check_pdt > sort_pdt:
-                                continue
-
-                        ref_pdt = sort_pdt
-                        sort_m_save = sort_m
-
-                products[sort_c, ref_m] = ref_pdt
-                freq[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                    = freq[[sort_c, sort_c], [ref_m, sort_m_save]]
-                eigvt[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                    = eigvt[[sort_c, sort_c], [ref_m, sort_m_save]]
-                if symm:
-                    symm[[sort_c, sort_c], [sort_m_save, ref_m]] \
-                        = symm[[sort_c, sort_c], [ref_m, sort_m_save]]
-
-        # Look for close overlaps
         close_overlap = np.zeros([ncalc, nmode, nmode])
         for sort_c in range(1, ncalc):
             ref_c = sort_c - 1
-            for ref_m in range(ng_mode + 1, nmode):
-                ref_pdt = products[sort_c, ref_m]
-                for sort_m in range(ng_mode + 1, nmode):
-                    if symm and symm[0, ref_m] != symm[sort_c, sort_m]:
+            ref_eigvt = copy.deepcopy(eigvt[ref_c])
+            sort_eigvt = copy.deepcopy(eigvt[sort_c])
+            ref_eigvt = np.reshape(ref_eigvt, [nmode, nmode], order='C')
+            sort_eigvt = np.reshape(sort_eigvt, [nmode, nmode], order='C')
+            mode_product = np.abs(np.dot(ref_eigvt, sort_eigvt.conjugate().T)) # row: ref_m, col: sort_m
+            for ref_m in range(nmode):
+                sorted_pdt = 0.
+                sorted_m = 0
+                if freq[ref_c, ref_m] < 1e-4 or np.isnan(freq[ref_c, ref_m]):
+                    continue
+                for sort_m, sort_pdt in enumerate(mode_product[ref_m, :]):
+                    if freq[sort_c, sort_m] < 1e-4 or np.isnan(freq[sort_c, sort_m]):
                         continue
-                    if sort_m == ref_m:
+                    if symm != None and symm[ref_c, ref_m] != symm[sort_c, sort_m]:
                         continue
 
-                    sort_pdt = abs(np.sum(
-                        eigvt[ref_c, ref_m] * eigvt[sort_c, sort_m]
-                    ))
-                    if ref_pdt - sort_pdt < mode_sort_tol:
-                        close_overlap[ref_c, ref_m, sort_m] = 1
+                    if sort_pdt > sorted_pdt:
+                        if sort_m < ref_m:
+                            if mode_product[sort_m, sort_m] > sort_pdt:
+                                continue
+
+                        sorted_pdt = sort_pdt
+                        sorted_m = sort_m
+
+                # Very poor overlaps
+                if sorted_pdt < mode_sort_tol:
+                    raise ValueError('Poor continuity detected! The maximum overlap is {} between Mode {}, Calc {} and Mode {}, Calc {}'.format(sorted_pdt, ref_m, ref_c, sorted_m, sort_c))
+                # Look for close overlaps
+                for sort_m, i in enumerate(sorted_pdt - mode_product[ref_m, :]):
+                    if i > 0 and i < mode_sort_tol:
+                        close_overlap[sort_c, ref_m, sort_m] = 1
+                    else:
+                        continue
+
+                # products[sort_c, ref_m] = ref_pdt
+                freq[[sort_c, sort_c], [sorted_m, ref_m]] = freq[[sort_c, sort_c], [ref_m, sorted_m]]
+                eigvt[[sort_c, sort_c], [sorted_m, ref_m]] = eigvt[[sort_c, sort_c], [ref_m, sorted_m]]
+                if symm != None:
+                    symm[[sort_c, sort_c], [sorted_m, ref_m]] = symm[[sort_c, sort_c], [ref_m, sorted_m]]
+                # Also update mode_product for all ref_m
+                mode_product[:, [sorted_m, ref_m]] = mode_product[:, [ref_m, sorted_m]]
 
         return freq, eigvt, close_overlap
 
@@ -1479,16 +1392,16 @@ class Quasi_harmonic:
                 * L-BFGS-B(with boundary)
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New Attributes**
-
-        * ``self.temperature`` in K and ``self.pressure`` in GPa.  
-        * ``self.volume``, nPressure\*nTemperature. Equilibrium volumes. Unit: Angstrom^3  
-        * ``self.helmholtz`` and ``self.gibbs``, nPressure\*nTemperature. Helmholtz and Gibbs free energies. Unit: kJ/mol  
-        * ``self.entropy``, nPressure\*nTemperature, Entropy. Unit: J/mol\*K  
-        * ``self.c_v``, nPressure\*nTemperature, Constant volume specific heat. Unit: J/mol\*K  
-        * ``self.e0_eos`` and ``self.e0_eos_method`` Pymatgen EOS objects and string. EOS used to fit DFT energy.  
+            self (Quasi_harmonic): New Attributes listed below
+            self.temperature (array): Unit: K
+            self.pressure (array): Unit: GPa
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
+            self.gibbs (array): Gibbs free energy. Unit: kJ/mol
+            self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_v (array): Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.e0_eos (Pymatgen EOS): Pymatgen EOS object. EOS used to fit DFT energy.
+            self.e0_eos_method (str): Name of the EOS.
 
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
         """
@@ -1607,8 +1520,12 @@ class Quasi_harmonic:
         For arguments, see ``self.thermo_freq``.
 
         Returns:
-            self.gamma(array): npressure\*ntemperature array of macroscopic
-                Grüneisen parameter. Temperature should > 0.
+            self (Quasi_harmonic): New attributes listed below. Other attributes are the same as ``self.thermo_freq``.
+            self.gruneisen(array): npressure\*ntemperature, same below. Macroscopic Grüneisen parameter. Temperature should > 0.
+            self.alpha_vgru (array): Thermal expansion coefficient by Grüneisen method.
+            self.c_pgru (array): Constant pressure specific heat by Grüneisen method. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.k_t (array): Isothermal bulk modulus. Unit: GPa.
+            self.k_sgru (array): Adiabatic bulk modulus by Grüneisen method. Unit: GPa.
         """
         import numpy as np
         import scipy.constants as scst
@@ -1707,15 +1624,19 @@ class Quasi_harmonic:
 
             ``poly_order`` should >= 2.
 
+        For arguments, see ``self.thermo_freq``.
+
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.c_p``, nPressure\*nTemperature, Constant pressure specific heat. Unit: J/mol\*K  
-        * ``self.fe_eos`` and ``self.fe_eos_method`` nTemperature\*1 list of Pymatgen EOS objects and string. EOSs used to fit HA free energy at constant temperature.
-
-        For arguments and other attributes, see ``Quasi_harmonic.thermo_freq``.
+            self (Quasi_harmonic): New attributes listed below
+            self.temperature (array): Unit: K
+            self.pressure (array): Unit: GPa
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
+            self.gibbs (array): Gibbs free energy. Unit: kJ/mol
+            self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_p (array): Constant pressure specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.fe_eos (list[Pymatgen EOS]): nTemperature\*1 list of Pymatgen EOS objects. EOSs used to fit HA free energy at constant temperature.
+            self.fe_eos_method (str): The name of EOS used.
 
         :raise Exception: If the number of HA calculations is less than 4.
         :raise ValueError: If temperature or pressure is defined neither here nor during initialization.
@@ -1857,14 +1778,9 @@ class Quasi_harmonic:
                 to help the user choose the optimal fitting.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.vol_fit`` nPressure\*1 list of Numpy polynomial object,
-        the fitted volume V(T)  
-        * ``self.alpha_v`` nPressure\*nTemperature array, expansion
-        coefficients at equilibrium volumes
+            self (Quasi_harmonic): New attributes listed below
+            self.vol_fit (list): nPressure\*1. List of Numpy polynomial object, the fitted volume V(T)
+            self.alpha_v (array): nPressure\*nTemperature. Expansion coefficients at equilibrium volumes
         """
         import numpy as np
         from scipy.optimize import least_squares
@@ -1982,12 +1898,9 @@ class Quasi_harmonic:
                 (int, optional): To restore EOS.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.k_t`` nPressure\*nTemperature array, isothermal bulk modulus.  
-        * ``self.k_s`` nPressure\*nTemperature array, adiabatic bulk modulus.  
+            self (Quasi_harmonic): New attributes listed below
+            self.k_t (array): nPressure\*nTemperature, same below. Isothermal bulk modulus. Unit: GPa.
+            self.k_s (array): Adiabatic bulk modulus. Unit: GPa.
         """
         import scipy.constants as scst
         from sympy import diff, lambdify, symbols
@@ -2049,11 +1962,9 @@ class Quasi_harmonic:
             C_{p} - C_{V} = \\alpha_{V}^{2}K_{T}VT
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.c_v`` or ``self.c_p``  Dependents on the fitting method.
+            self (Quasi_harmonic): New attributes listed below
+            self.c_v (array): nPressure\*nTemperature, same below. Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
+            self.c_p (array): Constant pressure specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
 
         .. note::
 
@@ -2132,16 +2043,10 @@ class Quasi_harmonic:
                 geometries are used besides the interpolated ones.
 
         Returns:
-            self (Quasi_harmonic)
-
-        **New attributes**
-
-        * ``self.lattice`` nPressure\*nTemperature\*nLattice array. The
-        equilibrium values of minimal set of lattice parameters.  
-        * ``self.latt_fit`` nPressure\*nLattice list of Numpy polynomial
-        object, the fitted a(v). Linear part only.  
-        * ``self.alpha_latt`` nPressure\*nTemperature\*nLattice array.
-        Linear expansion coefficients. Linear part only.
+            self (Quasi_harmonic): New attributes listed below
+            self.lattice (array): nPressure\*nTemperature\*nLattice. The equilibrium values of minimal set of lattice parameters.
+            self.latt_fit (list): nPressure\*nLattice. Numpy polynomial object, the fitted a(v). Linear part only.
+            self.alpha_latt (array): nPressure\*nTemperature\*nLattice. Linear expansion coefficients. Linear part only.
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.core.lattice import Lattice
@@ -2411,12 +2316,40 @@ def _restore_pcel(crysout, scelphono):
     pbc = {3 : (True, True, True),
            2 : (True, True, False),
            1 : (True, False, False)}
+
     # Get structure. Address the issue with QHA file
     idx_line = 0
     structures = []
+    # Molecule 0D
+    if ndimen == 0:
+        if scelphono != []:
+            warnings.warn('0D system is used. There is nothing to reduce.', stacklevel=2)
+        while idx_line < len(crysout.data):
+            if re.match(r'^\s+GEOMETRY FOR WAVE FUNCTION', crysout.data[idx_line]):
+                idx_line += 6
+                all_species = []
+                all_coord = []
+                while re.match(r'^\s+[0-9]+\s+[A-Z]+', crysout.data[idx_line]):
+                    data = crysout.data[idx_line].strip().split()
+                    all_coord.append(data[4:])
+                    all_species.append(data[3].capitalize())
+                    idx_line += 1
+
+                all_coord = np.array(all_coord, dtype=float)
+                min_max = max([max(all_coord[:, 0]) - min(all_coord[:, 0]),
+                               max(all_coord[:, 1]) - min(all_coord[:, 1]),
+                               max(all_coord[:, 2]) - min(all_coord[:, 2])])
+                lattice = np.identity(3)*(min_max+10)
+                structures.append(Structure(lattice, all_species, all_coord))
+                idx_line += 1
+            else:
+                idx_line += 1
+
+        return structures
+
+    # Other cases
     while idx_line < len(crysout.data):
-        if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS',
-                    crysout.data[idx_line]):
+        if re.match(r'^\s+DIRECT LATTICE VECTORS CARTESIAN COMPONENTS', crysout.data[idx_line]):
             idx_line += 2
             vec1 = np.array(crysout.data[idx_line].strip().split()[0:3], dtype=float)
             vec2 = np.array(crysout.data[idx_line + 1].strip().split()[0:3], dtype=float)
@@ -2433,14 +2366,6 @@ def _restore_pcel(crysout, scelphono):
             all_coord = np.array(all_coord, dtype=float)
             scel_latt = np.vstack([vec1, vec2, vec3])
 
-            # Molecule 0D
-            if ndimen == 0:
-                warnings.warn('0D system is used. There is nothing to reduce.')
-                structures.append(Molecule(species=all_species, coords=all_coord))
-                idx_line += 1
-                continue
-
-            # Periodic systems
             if scelphono != []:
                 scell_mx = np.eye(3, dtype=float)
                 scell_mx[: ndimen, : ndimen] = np.array(scelphono)[: ndimen, : ndimen]
@@ -2476,6 +2401,191 @@ def _restore_pcel(crysout, scelphono):
         structures = structures[1:]
 
     return structures
+
+
+class Phonopy():
+    """
+    The convertor between Phonopy and CRYSTALpytools file formats
+    """
+    @classmethod
+    def read_structure(cls, file):
+        """
+        Read geometry from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        band.yaml or phonopy.yaml or phonopy_disp.yaml files.
+
+        Args:
+            file (str): Phonopy yaml file
+
+        Returns:
+            struc (Pymatgen Structure)
+
+        :raise Exception: If the length unit in yaml file is neither 'au' nor 'angstrom'.
+        """
+        import yaml
+        import numpy as np
+        from CRYSTALpytools.units import au_to_angstrom
+        from pymatgen.core.structure import Structure
+
+        struc_file = open(file, 'r')
+        data = yaml.safe_load(struc_file)
+        struc_file.close()
+
+        # Get unit
+        try: # band.yaml
+            len_unit = data['length_unit']
+        except KeyError: # phonopy.yaml
+            len_unit = data['physical_unit']['length']
+
+        if len_unit == 'angstrom':
+            unit_len = 1.0
+        elif len_unit == 'au':
+            unit_len = au_to_angstrom(1.0)
+        else:
+            raise Exception("Unknown length unit. Available options: au, angstrom.")
+
+        # Get structure
+        spec = []
+        coord = []
+        try: # band.yaml
+            latt = np.array(data['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(data['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+        except KeyError: # phonopy.yaml
+            latt = np.array(data['primitive_cell']['lattice'], dtype=float) * unit_len
+            for idx_a, atom in enumerate(data['primitive_cell']['points']):
+                spec.append(atom['symbol'])
+                coord.append(atom['coordinates'])
+
+        struc = Structure(lattice=latt, species=spec, coords=coord)
+
+        return struc
+
+    @classmethod
+    def read_frequency(cls, file, q_id=None, q_coord=None):
+        """
+        Read phonon frequency from `Phonopy <https://phonopy.github.io/phonopy/>`_
+        band.yaml or qpoints.yaml files. Frequency units must be THz (default
+        of Phonopy).
+
+        Args:
+            file (str): Phonopy yaml file
+            q_id (list[int]): Specify the id (from 0) of q points to be read.
+                nqpoint\*1 list.
+            q_coord (list[list]): Specify the coordinates of q points to be
+                read. nqpoint\*3 list.
+
+        ``q_id`` and ``q_coord`` should not be set simultaneously. If set,
+        ``q_id`` takes priority and ``q_coord`` is ignored. If both are none,
+        all the points will be read.
+
+        Returns:
+            qpoint (list): natom\*2 list. 1st element: 3\*1 array. Fractional
+                coordinates of q points; 2nd element: float. Weight
+            frequency (array): nqpint\*nmode array. Phonon frequency in THz.
+
+        :raise Exception: If (some of) q point is not found.
+        """
+        import yaml
+        import numpy as np
+        import warnings
+
+        phono_file = open(file, 'r', errors='ignore')
+        data = yaml.safe_load(phono_file)
+        phono_file.close()
+
+        if q_id == None and q_coord == None:
+            nqpoint = data['nqpoint']
+            qinfo = np.array(range(nqpoint), dtype=int)
+        elif q_id != None:
+            qinfo = np.array(q_id, dtype=int)
+            nqpoint = len(qinfo)
+        elif q_id == None and q_coord != None:
+            qinfo = np.array(q_coord, dtype=float)
+            nqpoint = len(qinfo)
+
+        natom = int(len(data['phonon'][0]['band']) / 3)
+
+        qpoint = [[np.zeros([3, 1]), 1 / nqpoint] for i in range(nqpoint)]
+        frequency = np.zeros([nqpoint, 3 * natom])
+        # Read phonon
+        real_q = 0
+        for idx_p, phonon in enumerate(data['phonon']):
+            if real_q == nqpoint:
+                break
+
+            if len(qinfo.shape) == 1: # q_id and all q points
+                if idx_p == qinfo[real_q]:
+                    qpoint[real_q][0] = np.array(phonon['q-position'])
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+            else: # q_coord
+                coord = np.array(phonon['q-position'])
+                if np.linalg.norm(qinfo[real_q] - coord) < 1e-4:
+                    qpoint[real_q][0] = coord
+                    frequency[real_q, :] = np.array([i['frequency'] for i in phonon['band']])
+                    real_q += 1
+                else:
+                    continue
+
+        if real_q < nqpoint:
+            raise Exception('Some q points are missing from the yaml file.')
+
+        return qpoint, frequency
+
+    @classmethod
+    def write_force_constants(cls, hessfile='HESSFREQ.DAT', phonopyfile='FORCE_CONSTANTS'):
+        """
+        Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file.
+
+        For example, to convert the calculation 'example' with a 4\*4\*4
+        supercelland get phonon frequencies at Gamma point, use the following
+        code:
+
+        .. code-block::
+
+            >>> from CRYSTALpytools.thermodynamics import Phonopy
+            >>> Phonopy.write_force_constants(hessfile='example.HESSFREQ')
+            >>> phonopy --crystal --qpoints='0 0 0' -c example.out --dim='4 4 4' --readfc
+
+        Args:
+            hessfile (str): The HESSFREQ.DAT file
+            phonopyfile (str): The output name
+
+        """
+        import re
+        import numpy as np
+        from CRYSTALpytools.units import H_to_eV, angstrom_to_au
+
+        # Note: Phonopy requires mass unweighted Hessian
+        # Read hessfreq.dat
+        file = open(hessfile, 'r')
+        data = file.read()
+        file.close()
+
+        hess = np.array(data.strip().split(), dtype=float)
+        natom = int((len(hess) / 9)**0.5)
+
+        hess = np.reshape(hess, [3*natom, 3*natom], order='F')
+        hess = angstrom_to_au(angstrom_to_au(H_to_eV(hess))) # Hartree.Bohr^-2 to eV.Angstrom^-2
+        # Symmstrize Hessian with its lower half - Important. To address the print issue of HESSFREQ.DAT
+        for i in range(3*natom):
+            for j in range(i+1, 3*natom):
+                hess[i, j] = hess[j, i]
+
+        # Write force_constants
+        file = open(phonopyfile, 'w')
+        file.write('%4i%4i\n' % (natom, natom))
+        for i in range(natom):
+            for j in range(natom):
+                file.write('%4i%4i\n' % (i + 1, j + 1))
+                dynamic = hess[int(3 * i):int(3 * i + 3), int(3 * j):int(3 * j + 3)]
+                for d in dynamic:
+                    file.write('%22.15f%22.15f%22.15f\n' % (d[0], d[1], d[2]))
+
+        file.close()
 
 class Output():
     """
@@ -2580,30 +2690,28 @@ class Output():
         Args:
             qha (Quasi_harmonic): :code:`CRYSTALpytools.thermodynamic.Quasi_harmonic`
                 object.
-            close_overlap (array[bool]): ncalc\*nmode\*nmode. Whether close
-                overlap is identified between the previous calculation (2nd
-                dimension) and the current one (3rd).
+            close_overlap (array[int]): nqpoint\*nmode_ref\*ncalc\*nmode_sort.
+                Number of close overlaps.
         """
         import numpy as np
 
-        nmode = len(qha.combined_mode)
+        nmode = len(qha.combined_mode[0])
         file = open(qha.filename, 'a+')
         file.write('%s\n\n' % '## CLOSE OVERLAPS OF PHONON FREQUENCIES')
         for idx_q, mode_q in enumerate(qha.combined_mode):
             file.write('%30s%8i\n\n' % ('### CLOSE OVERLAPS AT QPOINT #', idx_q))
-            file.write('%10s%10s%10s%10s\n' %
-                       ('Calc_Ref', 'Mode_Ref', 'Calc_Sort', 'Mode_Sort'))
+            file.write('%s%8i\n\n' % ('    Total number of overlaps =', np.sum(close_overlap[idx_q])))
+            file.write('%6s%s\n' % ('', 'Mode and calc order starts from 1. Calc number in ascending order of volume'))
+            file.write('%16s%16s%16s%16s\n' %
+                       ('Ref_mode #', 'Sort_mode #', 'Ref_Calc #', 'Sort_Calc #'))
             for idx_mref, mode in enumerate(mode_q):
-                if np.sum(close_overlap[idx_q, idx_mref]) < 1.:
+                if np.sum(close_overlap[idx_q, idx_mref]) < 1:
                     continue
                 for idx_csort in range(1, qha.ncalc):
                     for idx_msort in range(nmode):
-                        if close_overlap[idx_q, idx_mref, idx_csort, idx_msort]:
-                            file.write('%10i%10i%10i%10i\n' %
-                                       (idx_mref + 1, idx_csort - 1, idx_csort, idx_msort + 1))
-                        else:
-                            continue
-
+                        if close_overlap[idx_q, idx_mref, idx_csort, idx_msort] != 0:
+                            file.write('%16i%16i%16i%16i\n' %
+                                       (idx_mref + 1, idx_msort + 1, idx_csort, idx_csort + 1))
             file.write('\n')
 
         file.close()
