@@ -34,8 +34,8 @@ def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
         None
     """
     import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
     import numpy as np
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
 
     vector_ab = obj_echg.a - obj_echg.b
     lenght_ab = np.sqrt(vector_ab[0]**2 + vector_ab[1]**2 + vector_ab[2]**2)
@@ -490,13 +490,11 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import thz_to_cm, cm_to_thz
-    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -579,13 +577,11 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import eV_to_H, H_to_eV
-    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^eV$', unit, re.IGNORECASE):
@@ -660,13 +656,11 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import H_to_eV, eV_to_H
-    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
@@ -741,13 +735,11 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
-    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -838,13 +830,11 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         ValueError: If the unit parameter is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import H_to_eV, eV_to_H
-    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     from CRYSTALpytools.units import H_to_eV, eV_to_H
 
     if re.match(r'^ev$', unit, re.IGNORECASE):
@@ -925,13 +915,11 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
         ValueError: If the unit parameter is unknown.
 
     """
-    import matplotlib.pyplot as plt
-    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
-    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     import matplotlib.pyplot as plt
 
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     from CRYSTALpytools.units import cm_to_thz, thz_to_cm
 
     if re.match(r'^cm\-1$', unit, re.IGNORECASE):
@@ -3455,6 +3443,288 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
 
 
 # ----------------------------------ANHARMONIC--------------------------------#
+
+def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5,
+                  fmin=None, fmax=None, ylim=None, savefig=False, dpi=300,
+                  filetype='png', exp_spec=None, sep=";", show=True,
+                  export_csv=False, label=None, xlabel='Wavenumber [cm$^{-1}$]',
+                  ylabel='Intensity [arb. u.]', linewidth=2.0, padd=100,
+                  fontsize=12, style=None, compstyle=None, nopadding=False,
+                  figsize=(16, 6)):
+    """
+    This function enables the simulation of vibrational spectra based on a 2D 
+    NumPy array containing a list of transition frequencies and the 
+    corresponding intensities. The code allows users to model spectral
+    broadening according to various profiles (Gaussian, Lorentzian, 
+    pseudo-Voigt), or zero broadening (Dirac deltas-like lines). Please, note
+    that by turning the optional argument 'component' to `True` you can
+    additionally plot contributions arising from each transition.
+
+    Args:
+        transitions (float|numpy.ndarray): Array containing transition frequencies
+        (axis=0) and corresponding intensities (axis=1).
+        typeS (str): String specifying the spectral profile: 'bars',
+        'lorentz', 'gauss', 'pvoigt'. 
+        components (bool, optional): Whether to plot contributions arising from
+        each transition (default is `False`).  
+        bwidth (float, optional): Half-width at half-maximum of the Lorentzian 
+        profile (default is 5).
+        stdev (float, optional): Standard deviation of the Gaussian profile 
+        (default is 5).
+        eta (float, optional): Fraction of Lorentzian character in pseudo-Voigt
+        profile (default is 0.5).
+        fmin (float, optional): Minimum frequency.
+        fmax(float, optional): Maximum frequency.
+        ylim (float, optional): Maximum intensity.
+        savefig (bool, optional): Whether to save the figure (default is `False`).
+        dpi (float, optional): Dots per inches (default is 300).
+        filetype (str, optional): File extension (default is 'png').
+        show (bool, optional): Whether to show the figure (default is `True`).
+        export_csv (bool, optional): Whether to save plot in csv format (default is 
+        `False`).
+        xlabel (str, optional): x-axis label (default is 'Wavenumber [cm$^{-1}$]').
+        ylabel (str, optional): y-axis label (default is 'Intensity [arb. u.]').
+        linewidth (float): Linewidth (default is 2.0).
+        padd (float, optional): left- and right- hand side padding expressed in the
+        same unit of the quantity reported in x-axis (default is 100).
+        fontsize (integer, optional): Fontsize (default is 12).
+        style (str, optional): String specifying Matplotlib style. 
+        compstyle (str|list, optional): List containing Matplotlib styles to plot
+        each component. 
+        nopadding (bool, optional): Whether to remove padding (default is `False`).
+        figsize (real|list, optional): List of two numbers specifying the aspect
+        ratio of the figure (default is [16, 6]).
+
+    Returns:
+        None
+    """
+
+    import math
+    import time
+    from copy import deepcopy
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from numpy import genfromtxt
+
+    if (show):
+        plt.figure(figsize=figsize)
+    if (ylim is not None):
+        plt.ylim(0, ylim)
+
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+    plt.xlabel(xlabel, fontsize=fontsize)
+    plt.ylabel(ylabel, fontsize=fontsize)
+
+    bars = False
+    lorentz = False
+    gauss = False
+    pseudo_voigt = False
+
+    if typeS == 'bars':
+        bars = True
+
+    if typeS == 'lorentz':
+        lorentz = True
+
+    if typeS == 'gauss':
+        gauss = True
+
+    if typeS == 'pvoigt':
+        pseudo_voigt = True
+
+    n = 20000
+
+    if fmin is None:
+        fmin = min(transitions[:, 0] - padd)
+    if fmax is None:
+        fmax = max(transitions[:, 0] + padd)
+
+    x = np.linspace(fmin, fmax, num=n)
+    y = np.zeros(n)
+
+    spec_data = np.block([[x], [y]]).T
+    sbuff = np.block([[x], [y]]).T
+
+    if bars:
+        spec_data = np.concatenate((spec_data, transitions), axis=0)
+        spec_data = spec_data[spec_data[:, 0].argsort()]
+    elif lorentz:
+        iL = 0
+        L = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                lorentz = (1/math.pi)*bwidth / \
+                    ((f-transitions[i, 0])**2+bwidth**2)*transitions[i, 1]
+                sbuff[j, 1] = lorentz
+            L.append(deepcopy(sbuff))
+            iL = iL + 1
+        if (not components):
+            for i in range(len(L)):
+                spec_data[:, 1] = spec_data[:, 1] + L[i][:, 1]
+        else:
+            for i in range(len(L)):
+                plt.plot(spec_data[:, 0], L[i][:, 1], linewidth=linewidth)
+            for i in range(len(L)):
+                spec_data[:, 1] = spec_data[:, 1] + L[i][:, 1]
+
+    elif gauss:
+        G = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                gauss = (1/(stdev*math.sqrt(2*math.pi))) * \
+                    math.exp(-((f-transitions[i, 0])**2) /
+                             (2*stdev**2))*transitions[i, 1]
+                sbuff[j, 1] = gauss
+            G.append(deepcopy(sbuff))
+        if (not components):
+            for i in range(len(G)):
+                spec_data[:, 1] = spec_data[:, 1] + G[i][:, 1]
+        else:
+            for i in range(len(G)):
+                plt.plot(spec_data[:, 0], G[i][:, 1], linewidth=linewidth)
+            for i in range(len(G)):
+                spec_data[:, 1] = spec_data[:, 1] + G[i][:, 1]
+
+    elif pseudo_voigt:
+        V = []
+        for i in range(len(transitions)):
+            if transitions[i, 1] == 0:
+                continue
+            for j, f in enumerate(spec_data[:, 0]):
+                gauss = (1/(stdev*math.sqrt(2*math.pi))) * \
+                    math.exp(-((f-transitions[i, 0])**2) /
+                             (2*stdev**2))*transitions[i, 1]
+                lorentz = (1/math.pi)*bwidth / \
+                    ((f-transitions[i, 0])**2+bwidth**2)*transitions[i, 1]
+                sbuff[j, 1] = eta*lorentz + (1-eta)*gauss
+            V.append(deepcopy(sbuff))
+        if (not components):
+            for i in range(len(V)):
+                spec_data[:, 1] = spec_data[:, 1] + V[i][:, 1]
+        else:
+            for i in range(len(V)):
+                if (compstyle is not None):
+                    plt.plot(spec_data[:, 0], V[i][:, 1], compstyle[i],
+                             linewidth=linewidth)
+                else:
+                    plt.plot(spec_data[:, 0], V[i][:, 1], linewidth=linewidth)
+            for i in range(len(V)):
+                spec_data[:, 1] = spec_data[:, 1] + V[i][:, 1]
+
+    if (exp_spec is not None):
+        exp_data = genfromtxt(exp_spec, delimiter=sep)
+        area_spec_data = np.trapz(spec_data[:, 1], spec_data[:, 0])
+        area_exp_data = np.trapz(exp_data[:, 1], exp_data[:, 0])
+        norm_fac = area_spec_data / area_exp_data
+        baseline = 0.2
+        exp_data[:, 1] = exp_data[:, 1] * norm_fac - baseline  # * 0.5
+        plt.plot(exp_data[:, 0], exp_data[:, 1], 'r-', linewidth=linewidth)
+
+    if label is not None:
+        plt.plot(spec_data[:, 0], spec_data[:, 1], linewidth=linewidth,
+                 label=label)
+    elif (style is not None):
+        plt.plot(spec_data[:, 0], spec_data[:, 1], style, linewidth=linewidth)
+    else:
+        plt.plot(spec_data[:, 0], spec_data[:, 1], linewidth=linewidth)
+
+    if (savefig):
+        plt.savefig(typeS + time.strftime("%Y-%m-%d_%H%M%S.") + filetype,
+                    format=filetype, dpi=dpi)
+    if (show):
+        plt.show()
+
+    if (export_csv):
+        np.savetxt(typeS + time.strftime("%Y-%m-%d_%H%M%S.") + 'csv',
+                   spec_data, delimiter=';')
+
+
+def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
+                        eta=0.5, fmin=None, fmax=None, ylim=None,
+                        savefig=False, dpi=300, filetype='png', label=None,
+                        xlabel='Wavenumber [cm$^{-1}$]',
+                        ylabel='Instensity [arb. u.]', linewidth=2.0, padd=100,
+                        fontsize=12, style=None, nopadding=False,
+                        figsize=(16, 6)):
+    """
+    This function is a wrapper for `plot_spec` function, enablng the simulation 
+    of many vibrational spectra coming from a list of NumPy array.  
+
+    Args:
+        transitions (float|numpy.ndarray): Array containing transition frequencies
+        (axis=0) and corresponding intensities (axis=1).
+        typeS (str): String specifying the spectral profile: 'bars',
+        'lorentz', 'gauss', 'pvoigt'. 
+        components (bool, optional): Whether to plot contributions arising from
+        each transition (default is `False`).  
+        bwidth (float, optional): Half-width at half-maximum of the Lorentzian 
+        profile (default is 5).
+        stdev (float, optional): Standard deviation of the Gaussian profile 
+        (default is 5).
+        eta (float, optional): Fraction of Lorentzian character in pseudo-Voigt
+        profile (default is 0.5).
+        fmin (float, optional): Minimum frequency.
+        fmax(float, optional): Maximum frequency.
+        ylim (float, optional): Maximum intensity.
+        savefig (bool, optional): Whether to save the figure (default is `False`).
+        dpi (float, optional): Dots per inches (default is 300).
+        filetype (str, optional): File extension (default is 'png').
+        xlabel (str, optional): x-axis label (default is 'Wavenumber [cm$^{-1}$]').
+        ylabel (str, optional): y-axis label (default is 'Intensity [arb. u.]').
+        linewidth (float): Linewidth (default is 2.0).
+        padd (float, optional): left- and right- hand side padding expressed in the
+        same unit of the quantity reported in x-axis (default is 100).
+        fontsize (integer, optional): Fontsize (default is 12).
+        style (str, optional): String specifying Matplotlib style. 
+        nopadding (bool, optional): Whether to remove padding (default is `False`).
+        figsize (real|list, optional): List of two numbers specifying the aspect
+        ratio of the figure (default is [16, 6]).
+
+    Returns:
+        None
+    """
+
+    import time
+
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=figsize)
+    plt.xlabel(xlabel, fontsize=fontsize)
+    plt.ylabel(ylabel, fontsize=fontsize)
+
+    for i, transitions in enumerate(files):
+        if (label is not None):
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False, label=label[i],
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, xlabel=xlabel, ylabel=ylabel)
+        elif (style is not None):
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False,
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, style=style[i], xlabel=xlabel,
+                      ylabel=ylabel)
+        else:
+            plot_spec(transitions, typeS, components, bwidth, stdev, eta, fmin,
+                      fmax, ylim, show=False, savefig=False,
+                      linewidth=linewidth, padd=padd, nopadding=nopadding,
+                      fontsize=fontsize, xlabel=xlabel, ylabel=ylabel)
+
+    if (label is not None):
+        plt.legend(loc='upper left', fontsize=fontsize)
+
+    if (savefig):
+        plt.savefig("multi_" + typeS + time.strftime("%Y-%m-%d_%H%M%S.") +
+                    filetype, format=filetype, dpi=dpi)
+
+    plt.show()
+
 
 ##############################################################################
 #                                                                            #
