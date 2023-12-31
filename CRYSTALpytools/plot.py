@@ -1147,6 +1147,7 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
 
 # ------------------------------DENSITY OF STATES-----------------------------#
 
+
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       energy_range=None, dos_range=None, color='blue',
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
