@@ -9,15 +9,16 @@ Submodules
 CRYSTALpytools instructions for users.
 
 .. toctree::
-	:maxdepth: 1
+   :maxdepth: 1
 
-	crystalpytools.adsorb
-	crystalpytools.calculate
-	crystalpytools.convert
-	crystalpytools.crystal_io
-	crystalpytools.execute
-	crystalpytools.plot
-	crystalpytools.thermodynamics
+   crystalpytools.adsorb
+   crystalpytools.calculate
+   crystalpytools.convert
+   crystalpytools.crystal_io
+   crystalpytools.execute
+   crystalpytools.geometry
+   crystalpytools.plot
+   crystalpytools.thermodynamics
 
 Developers
 ----------
@@ -25,10 +26,12 @@ Developers
 CRYSTALpytools instructions for developers.
 
 .. toctree::
-	:maxdepth: 1
+   :maxdepth: 1
 
-	crystalpytools.base.crysd12
-	crystalpytools.base.crysout
-	crystalpytools.base.propout
-	crystalpytools.base.inputbase
-	crystalpytools.base.basisset
+   crystalpytools.base.basisset
+   crystalpytools.base.crysd12
+   crystalpytools.base.crysout
+   crystalpytools.base.inputbase
+   crystalpytools.base.plotbase
+   crystalpytools.base.propout
+

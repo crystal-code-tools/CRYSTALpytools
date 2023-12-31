@@ -13,17 +13,88 @@ Functions to visualize CRYSTAL outputs.
 # ---------------------------------SPIN CURRENTS------------------------------#
 
 
-def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None,
+                   dpi=400, savefig=False, name='echg_map'):
     """
-    Plot a 2D vector field.
+    Plots the 2D ECHG density map from a fort.25 file.
 
     Args:
-        header (list): List containing header information.
+        obj_echg (crystal_io.Properties_output): Properties output object.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions. Default is 150.
+        xticks (int, optional): Number of ticks in the x direction. Default is 5.
+        yticks (int, optional): Number of ticks in the y direction. Default is 5.
+        cmap_max(float, optional): Maximum value used for the colormap. Default is None.
+        cmap_min(float, optional): Minimun value used for the colormap. Default is None.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
+        savefig (bool): Chose to save the figure or not. Default is False.
+        name (str): Name for the colormap.
+
+   Returns:
+        None
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import numpy as np
+
+    vector_ab = obj_echg.a - obj_echg.b
+    lenght_ab = np.sqrt(vector_ab[0]**2 + vector_ab[1]**2 + vector_ab[2]**2)
+    vector_cb = obj_echg.c - obj_echg.b
+    lenght_cb = np.sqrt(vector_cb[0]**2 + vector_cb[1]**2 + vector_cb[2]**2)
+    points_ab = len(obj_echg.density_map[:, 0])
+    points_cb = len(obj_echg.density_map[0, :])
+
+    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
+    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
+    for i in range(0, points_ab):
+        for j in range(0, points_cb):
+            mesh_y[i, j] = (((lenght_ab / points_ab) * i) *
+                            np.sqrt(1 - (obj_echg.cosxy**2)))
+            mesh_x[i, j] = ((lenght_cb / points_cb) * j) + \
+                (((lenght_ab / points_ab) * i) * obj_echg.cosxy)
+
+    dens = obj_echg.density_map * (1.88973**2)  # Bohr to Angstrom conversion
+
+    if cmap_max is None:
+        max_data = np.amax(dens)
+    else:
+        max_data = cmap_max
+
+    if cmap_min is None:
+        min_data = np.amin(dens)
+    else:
+        min_data = cmap_min
+
+    fig, ax = plt.subplots()
+    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
+    divider = make_axes_locatable(ax)
+    im.set_clim(vmin=min_data, vmax=max_data)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    fig.colorbar(im, cax=cax, orientation='vertical')
+    ax.set_xlabel('$\AA$')
+    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
+    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
+    ax.set_ylabel('$\AA$')
+    ax.set_aspect(1.0)
+    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
+    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - (obj_echg.cosxy**2)))
+    if savefig:
+        plt.savefig(name, dpi=dpi)
+
+    plt.show()
+
+
+def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
+    """
+    Plots the 2D magnetization vector field.
+
+    Args:
+        header (list): List containing information about the fort.25 header.
         dens (numpy.ndarray): Array containing the vector field data.
-        colormapdens (str or list): Colormap for the density values.
         quivscale (float): Scale factor for the quiver plot.
-        name (str): Name of the output plot file.
-        dpi (int, optional): DPI (dots per inch) for the output plot. Default is 400.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
 
     Returns:
         None
@@ -111,7 +182,7 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     # Plotting
 
     m = plt.figure()
-    m = plt.contourf(mesh_x, mesh_y, mod_m, colormapdens, cmap='cool')
+    m = plt.contourf(mesh_x, mesh_y, mod_m, levels, cmap='cool')
     m = plt.colorbar(mappable=m)
     m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale=quivscale)
     m = plt.xlabel('$\AA$')
@@ -121,16 +192,16 @@ def plot_vecfield2D_m(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_j(header, dens, quivscale, name='SC', levels=150, dpi=400):
     """
-    Plots a 2D vector field.
+    Plots the 2D vector field of the spin current.
 
     Args:
-        header (list): Header information.
-        dens (ndarray): Array representing the vector field density.
-        colormapdens (str): Colormap for density.
-        quivscale (float): Scale factor for the vector field.
-        name (str): Name of the output file.
+        header (list): List containing information about the fort.25 header.
+        dens (numpy.ndarray): Array representing the vector field.
+        quivscale (float): Scale factor for the quiver plot.
+        name (str, optional):  Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
         dpi (int, optional): DPI (dots per inch) for the output image. Defaults to 400.
 
     Returns:
@@ -217,7 +288,7 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
                                                                                    dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
 
     j = plt.figure()
-    j = plt.contourf(mesh_x, mesh_y, mod_j, colormapdens, cmap='winter')
+    j = plt.contourf(mesh_x, mesh_y, mod_j, levels, cmap='winter')
     j = plt.colorbar(mappable=j)
     j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale=quivscale)
     j = plt.xlabel('$\AA$')
@@ -227,19 +298,19 @@ def plot_vecfield2D_j(header, dens, colormapdens, quivscale, name, dpi=400):
     plt.show()
 
 
-def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale, name, dpi=400):
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', levels=150, dpi=400):
     """
-    Plots a 2D vector field of current density components.
+    Plots the 2D spin current density vector fields.
 
     Args:
-        header (list): List containing information about the vector field.
-        dens_JX (ndarray): Array representing the X-component of the current density.
-        dens_JY (ndarray): Array representing the Y-component of the current density.
-        dens_JZ (ndarray): Array representing the Z-component of the current density.
-        colormapdens: Colormap for the density plot.
+        header (list): List containing information about the fort.25 header.
+        dens_JX (numpy.ndarray): Array representing the X-component of the spin current density.
+        dens_JY (numpy.ndarray): Array representing the Y-component of the spin current density.
+        dens_JZ (numpy.ndarray): Array representing the Z-component of the spin current density.
         quivscale: Scale factor for the quiver plot.
-        name (str): Name used for saving the plots.
-        dpi (int): Dots per inch for saving the plots. Defaults to 400.
+        name (str, optional): Name used for saving the plots.
+        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
+        dpi (int, optional): DPI (Dots per inch) for saving the plots. Defaults to 400.
 
     Returns:
         None
@@ -349,7 +420,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     # Plotting
 
     JX = plt.figure()
-    JX = plt.contourf(mesh_x, mesh_y, mod_JX, colormapdens, cmap='summer')
+    JX = plt.contourf(mesh_x, mesh_y, mod_JX, levels, cmap='summer')
     JX = plt.colorbar(mappable=JX)
     JX = plt.quiver(mesh_projx, mesh_projy, projx_JX,
                     projy_JX, scale=quivscale)
@@ -358,7 +429,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JX = plt.savefig(name+'_JX', dpi=dpi)
 
     JY = plt.figure()
-    JY = plt.contourf(mesh_x, mesh_y, mod_JY, colormapdens, cmap='summer')
+    JY = plt.contourf(mesh_x, mesh_y, mod_JY, levels, cmap='summer')
     JY = plt.colorbar(mappable=JY)
     JY = plt.quiver(mesh_projx, mesh_projy, projx_JY,
                     projy_JY, scale=quivscale)
@@ -367,7 +438,7 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, colormapdens, quivscale
     JY = plt.savefig(name+'_JY', dpi=dpi)
 
     JZ = plt.figure()
-    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, colormapdens, cmap='summer')
+    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, levels, cmap='summer')
     JZ = plt.colorbar(mappable=JZ)
     JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ,
                     projy_JZ, scale=quivscale)
@@ -419,6 +490,9 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import thz_to_cm, cm_to_thz
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     import matplotlib.pyplot as plt
@@ -505,6 +579,9 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         ValueError: If the specified unit is unknown.
 
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import eV_to_H, H_to_eV
+    from CRYSTALpytools.base.plotbase import plot_cry_bands
     import re
 
     import matplotlib.pyplot as plt
@@ -548,7 +625,6 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     plt.show()
 
 
-
 # ------------------------------DENSITY OF STATES-----------------------------#
 
 
@@ -584,6 +660,9 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     Returns:
         None
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import H_to_eV, eV_to_H
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     import matplotlib.pyplot as plt
@@ -662,6 +741,9 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     Returns:
         None
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+    from CRYSTALpytools.base.plotbase import plot_cry_doss
     import re
 
     import matplotlib.pyplot as plt
@@ -713,7 +795,6 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     plt.show()
 
 
-
 # ----------------------------BAND + DENSITY OF STATES------------------------#
 
 
@@ -757,6 +838,9 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         ValueError: If the unit parameter is unknown.
 
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import H_to_eV, eV_to_H
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     import matplotlib.pyplot as plt
@@ -841,6 +925,9 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
         ValueError: If the unit parameter is unknown.
 
     """
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+    from CRYSTALpytools.base.plotbase import plot_cry_es
     import re
 
     import matplotlib.pyplot as plt
@@ -888,7 +975,6 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
         save_plot(save_to_file)
 
     plt.show()
-
 
 
 ##############################################################################
@@ -1143,7 +1229,6 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
         - Sets the x-axis label as 'd  [$\AA$]' and the y-axis label as r'$\rho$  [$\frac{e}{\AA^3}$]'.
         - Saves the plot to a file named 'figure_rholine_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
         - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
     """
     import os
     import time
@@ -1265,7 +1350,7 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of chemical potential for each temperature.
         - Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
 
     """
     import sys
@@ -1407,7 +1492,7 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.
         - Plots the Seebeck coefficient as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'seebeck_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import time
@@ -1813,7 +1898,7 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     Notes:
         - Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.
         - Plots the electrical conductivity as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - If save_to_file is True, saves the plot to a file named 'sigma_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import time
@@ -2069,9 +2154,9 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
-        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg'.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the chemical potential, distinguishing between n-type and p-type conduction.
+        - If save_to_file is True, saves the plot to a file named 'powerfactor_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
     import time
@@ -2279,8 +2364,8 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
 
     Notes:
         - Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.
-        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data.
-        - Plots the power factor for each temperature, distinguishing between n-type and p-type conduction.
+        - Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.
+        - Plots the power factor for each temperature as a function of the charge carrier concentration, distinguishing between n-type and p-type conduction.
         - If save_to_file is True, saves the plot to a file named 'powerfactor_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'powerfactor_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -2501,7 +2586,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         - Prompts the user to input the value of ktot in W-1K-1m-1.
         - Prompts the user to choose the direction to plot among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz.
         - Calculates the ZT value using the Seebeck coefficient and electrical conductivity data.
-        - Plots the ZT value for each temperature.
+        - Plots the ZT value for each temperature as a function of the chemical potential.
         - If save_to_file is True, saves the plot to a file named 'zt_at_T_K___YYYY-MM-DD_HHMMSS.jpg' for each temperature, and 'zt_different_T_YYYY-MM-DD_HHMMSS.jpg' for all temperatures combined.
     """
     import sys
@@ -2626,7 +2711,8 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 
 def plot_cry_young(theta, phi, S):
     """
-    Plot crystal Young's modulus property.
+    Compute Young's modulus for each direction of the space (i.e., each pair
+    of theta and phi angles).
 
     Args:
         theta (float): Theta value.
@@ -2634,12 +2720,10 @@ def plot_cry_young(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Young's modulus property.
+        float: Young's modulus values.
 
     Notes:
-        - Computes the Young's modulus property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The Young's modulus property represents the crystal's stiffness.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -2693,7 +2777,8 @@ def plot_cry_young(theta, phi, S):
 
 def plot_cry_comp(theta, phi, S):
     """
-    Plot crystal compression property.
+    Compute linear compressibility for each direction of the space (i.e., each
+    pair of theta and phi angles).
 
     Args:
         theta (float): Theta value.
@@ -2701,12 +2786,10 @@ def plot_cry_comp(theta, phi, S):
         S (numpy.ndarray): Compliance matrix.
 
     Returns:
-        float: Compression property.
+        float: Linear compressibility values.
 
     Notes:
-        - Computes the compression property for the given theta and phi values.
-        - Uses the given compliance matrix (S).
-        - The compression property represents the crystal's compression behavior.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -2749,7 +2832,9 @@ def plot_cry_comp(theta, phi, S):
 
 def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     """
-    Plot crystal shear properties.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the shear modulus is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -2762,9 +2847,7 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
         numpy.ndarray: Shear property array.
 
     Notes:
-        - Computes shear properties for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting shear property can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -2837,7 +2920,9 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
 
 def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     """
-    Plot crystal Poisson's ratio.
+    For each direction of the space (i.e., for each pair
+    of theta and phi angles) the Poisson ratio is computed for the third angle
+    chi and the average, maximum and minimum values are stored.
 
     Args:
         theta_1D (numpy.ndarray): One-dimensional array of theta values.
@@ -2850,9 +2935,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         numpy.ndarray: Poisson's ratio array.
 
     Notes:
-        - Computes Poisson's ratio for each combination of theta and phi.
-        - Uses the given compliance matrix (S) and discretization parameters (ndeg).
-        - The resulting Poisson's ratio can be either the average, minimum, or maximum value.
+        - This function is intended to be called by cry_ela_plot
     """
     import numpy as np
 
@@ -2928,17 +3011,19 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
     """
-    Plot crystal elastic properties.
+    Plot crystal elastic properties on the basis of the elastic tensor. A
+    variable number of elastic tensors can be provided in order to get
+    multiple plots in one shot, establishing a fixed color scale among them.
 
     Args:
-        choose (str): Property to plot. Options: "young", "comp", "shear avg",
-            "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
+        choose (str): Property to plot. Options: "young", "comp", "shear avg", 
+        "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
         ndeg (int): Number of degrees for discretization.
         *args: Variable number of elastic tensors.
         dpi (int, optional): Dots per inch for saving the plot. Default is 200.
-        filetype (str, optional): File format of the output plot. Default is ".png".
-        transparency (bool, optional): Flag indicating whether to make the plot
-            background transparent. Default is False.
+        filetype (str, optional): File format of the output plot. Default is "png".
+        transparency (bool, optional): Flag indicating whether to make the plot 
+        background transparent. Default is False.
 
     Returns:
         None
@@ -3043,7 +3128,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         ax.set_box_aspect(aspect=(1, 1, 1))  # Fix aspect ratio
 
         plt.show()
-        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S") +
+        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S.") +
                     filetype, dpi=dpi, transparent=transparency)
 
         # <--

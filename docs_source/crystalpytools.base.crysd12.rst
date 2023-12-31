@@ -47,7 +47,7 @@ It is also possible to set individual blocks by a string. The ``set_block`` meth
 
 .. code-block::
 
-    >>> obj.scf.set_dft('SPIN\\nEXCHANGE\\nPBE\\nCORRELAT\\nP86\\n')
+    >>> obj.scf.set_dft('SPIN\nEXCHANGE\nPBE\nCORRELAT\nP86\n')
 
 For basis set, it is not a typical ``BlockBASE`` object (though it inherits ``BlockBASE``). When 'BASISSET' keyword is used, it is called in the same way as other blocks. When explicit definitions of basis set are used, it can be defined via formatted string, file, `Basis Set Exchange (BSE) <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ and :ref:`BasisSetBASE <ref-base-basisset>` object. The ending line '99 0' is required.
 

@@ -4,6 +4,7 @@ long_description = 'Python tools for the <a href="https://www.crystal.unito.it/i
 
 setuptools.setup(
     name="CRYSTALpytools",        
+    version="2023.10.02",
     author_email="crystalcodetools@gmail.com",
     description="Python tools for the CRYSTAL code developed and mantained by the CRYSTAL code developers.",
     long_description=long_description,
@@ -28,7 +29,6 @@ setuptools.setup(
 	"PyYAML",
 	"mendeleev>=0.14.0",
     "pymatgen>=2022.7.25",
-	"pymatgen<2023.6.28",
     "ase>=3.22.1",
     "basis_set_exchange>=0.9.1"
     ]
