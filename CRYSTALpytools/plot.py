@@ -778,7 +778,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         dos_prj (list): Index of selected projection. Consistent with the index of the 2nd dimension
             of doss.doss.
         energy_range (list): A list of two values representing the energy range to be plotted.
-        dos_max_range (float): Maximum DOS range for the y-axis.
+        dos_range (list): DOS range for the y-axis.
         color_band (str): Color of the electron bands in the plot.
         color_dos (str): Color of the density of states (DOS) in the plot.
         labels (list): A list of labels for the plot legend.
