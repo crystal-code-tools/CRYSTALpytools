@@ -41,8 +41,9 @@ class Crystal_input(Crystal_inputBASE):
             **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
         """
         import re
-        from pymatgen.core.structure import IStructure, Structure
+
         from pymatgen.core.lattice import Lattice
+        from pymatgen.core.structure import IStructure, Structure
 
         struc_3d = IStructure.from_file(file)
         if keyword == 'CRYSTAL':
@@ -257,6 +258,7 @@ class Crystal_output:
             self.symmops (numpy.ndarray): Symmetry operators
         """
         import re
+
         import numpy as np
 
         self.n_symmops = 0
@@ -301,14 +303,16 @@ class Crystal_output:
             self.geometry (Structure | Molecule): A pymatgen Structure or
                 molecule object.
         """
-        import re
         import os
+        import re
         import warnings
+
         import numpy as np
+
         from CRYSTALpytools.base.crysout import GeomBASE
-        from CRYSTALpytools.geometry import rotate_lattice
-        from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import rotate_lattice
 
         # Get geometry
         bg_line = -1
@@ -424,6 +428,7 @@ class Crystal_output:
         """
         import re
         import warnings
+
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -467,6 +472,7 @@ class Crystal_output:
         CRYSTAL 0~3D space group number. Before geometry editing.
         """
         import re
+
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -500,6 +506,7 @@ class Crystal_output:
         """
         import re
         import warnings
+
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -623,6 +630,7 @@ class Crystal_output:
                 expansion matrix
         """
         import re
+
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -672,13 +680,15 @@ class Crystal_output:
             self.primitive_geometry (Structure | Molecule): A pymatgen
                 Structure or molecule object.
         """
-        import re
         import os
+        import re
         import warnings
+
         import numpy as np
-        from CRYSTALpytools.geometry import get_pcel
-        from CRYSTALpytools.crystal_io import Crystal_gui
+
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import get_pcel
 
         ndimen = self.get_dimensionality()
         self.get_geometry(initial=initial, write_gui=False)
@@ -942,6 +952,7 @@ class Crystal_output:
             self.scf_deltae (array): Energy difference. Unit: eV
         """
         import numpy as np
+
         from CRYSTALpytools.base.crysout import SCFBASE
 
         if all_cycles == True:
@@ -1028,6 +1039,7 @@ class Crystal_output:
         """
         import re
         import warnings
+
         import numpy as np
 
         mulliken = []  # empty, 1*1 or 2*1 list
@@ -1143,14 +1155,16 @@ class Crystal_output:
             self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
             self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
-        from CRYSTALpytools.crystal_io import Crystal_gui
-        from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.base.crysout import OptBASE
-        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
-        from pymatgen.core.lattice import Lattice
-        import numpy as np
-        import re
         import os
+        import re
+
+        import numpy as np
+        from pymatgen.core.lattice import Lattice
+
+        from CRYSTALpytools.base.crysout import OptBASE
+        from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
 
         ndimen = self.get_dimensionality()
         countline = 0
@@ -1323,8 +1337,9 @@ class Crystal_output:
             self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
         """
-        import warnings
         import re
+        import warnings
+
         import numpy as np
 
         if initial == False or grad == True:
@@ -1691,6 +1706,7 @@ class Crystal_output:
         """
 
         import re
+
         import numpy as np
 
         # Initialize some logical variables
@@ -2407,7 +2423,7 @@ class Properties_output:
 
         try:
             file = open(self.file_name, 'r')
-            self.data = file.readline()
+            self.data = file.readlines()
             file.close()
 
             # directory

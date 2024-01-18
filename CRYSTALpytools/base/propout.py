@@ -3,6 +3,8 @@
 """
 Classes and methods to phrase output files by 'properties' calculations.
 """
+
+
 class OutBASE():
     """
     Base object for Properties output file. Auxiliary information is
@@ -11,13 +13,15 @@ class OutBASE():
     Args:
         filename (str): Properties output file name.
     """
+
     def __init__(self, filename):
         try:
             file = open(filename, 'r', errors='ignore')
             self.data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError('EXITING: an output file needs to be specified')
+            raise FileNotFoundError(
+                'EXITING: an output file needs to be specified')
 
     @classmethod
     def get_geometry(cls, filename):
@@ -31,6 +35,7 @@ class OutBASE():
             struc (Structure): Pymatgen structure
         """
         import re
+
         import numpy as np
         from pymatgen.core.structure import Structure
 
@@ -68,7 +73,8 @@ class OutBASE():
             raise Exception('Valid geometry not found.')
 
         return Structure(lattice=lattice, species=species, coords=cart_coord,
-                        coords_are_cartesian=True)
+                         coords_are_cartesian=True)
+
     @classmethod
     def get_lattice(cls, filename):
         """
@@ -115,6 +121,7 @@ class OutBASE():
             k_pos3d(array): nkpoint\*3 fractional coordinates of k points
         """
         import re
+
         import numpy as np
 
         data = cls(filename=filename).data
@@ -128,7 +135,8 @@ class OutBASE():
                 bg = np.array(line[10:25].strip().split(), dtype=float)
                 ed = np.array(line[26:41].strip().split(), dtype=float)
                 if len(tick_pos3d) > 0:
-                    if np.array_equal(tick_pos3d[-1], bg): # do not repeat the same point in the middle
+                    # do not repeat the same point in the middle
+                    if np.array_equal(tick_pos3d[-1], bg):
                         tick_pos3d.append(ed)
                     else:
                         tick_pos3d.append(bg)
@@ -168,6 +176,7 @@ class DOSBASE():
             The first entry of 2nd dimension is energy / frequency axis.
             Unit: eV / THz. Other entries are data in states / eV or states / THz.
     """
+
     def __init__(self, n_energy, n_proj, spin, efermi, doss, unit):
         self.n_energy = n_energy
         self.n_proj = n_proj
@@ -186,8 +195,10 @@ class DOSBASE():
             data (list[str]): A list of string (DOSS.DAT).
         """
         import re
+
         import numpy as np
-        from CRYSTALpytools.units import H_to_eV, eV_to_H, cm_to_thz, thz_to_cm
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         # Read the information about the file
         n_energy = int(data[0].split()[2])
@@ -202,7 +213,7 @@ class DOSBASE():
             is_electron = False
             unit = 'THz'
 
-        if n_proj > 16: # 16 entries per line at most. A problem for PHONDOS
+        if n_proj > 16:  # 16 entries per line at most. A problem for PHONDOS
             raise Exception('Too many projects. Use fort.25 or output file.')
 
         first_energy = 4
@@ -216,12 +227,14 @@ class DOSBASE():
             # line where the first beta energy is. Written this way to help identify
             first_energy_beta = first_energy + n_energy + 3
             for i, line in enumerate(data[first_energy_beta:-1]):
-                doss[i, :n_proj+1, 1] = np.array([float(n) for n in line.split()])
+                doss[i, :n_proj+1, 1] = np.array([float(n)
+                                                 for n in line.split()])
 
         # Convert all the energy to eV / THz
         if is_electron == True:
             doss[:, 0, :] = H_to_eV(doss[:, 0, :])
-            doss[:, 1:, :] = eV_to_H(doss[:, 1:, :]) # states/Hartree to states/eV
+            # states/Hartree to states/eV
+            doss[:, 1:, :] = eV_to_H(doss[:, 1:, :])
         else:
             doss[:, 0, :] = cm_to_thz(doss[:, 0, :])
             doss[:, 1:, :] = thz_to_cm(doss[:, 1:, :])
@@ -237,9 +250,11 @@ class DOSBASE():
         Args:
             data (list[str]): A list of string (fort.25).
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, eV_to_H, cm_to_thz, thz_to_cm
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         data_in_block = []
         energy_in_block = []
@@ -268,7 +283,8 @@ class DOSBASE():
                     countpt += len(value)
                 data_per_block = np.array(data_per_block, dtype=float)
                 # Align Fermi energy to 0, consistent with DOSS file
-                energy_per_block = np.linspace(miny, miny + dy * (npt - 1), npt)
+                energy_per_block = np.linspace(
+                    miny, miny + dy * (npt - 1), npt)
                 energy_per_block = energy_per_block - efermi
                 data_in_block.append(data_per_block)
                 energy_in_block.append(energy_per_block)
@@ -287,7 +303,7 @@ class DOSBASE():
 
         doss = np.zeros([n_energy, n_proj + 1, spin], dtype=float)
         for idx_block, block in enumerate(data_in_block):
-            if idx_block < n_proj: # alpha state
+            if idx_block < n_proj:  # alpha state
                 idx_proj = idx_block + 1
                 idx_spin = 0
             else:
@@ -299,7 +315,8 @@ class DOSBASE():
         # Convert all the energy to eV
         if type == 'DOSS':
             doss[:, 0, :] = H_to_eV(doss[:, 0, :])
-            doss[:, 1:, :] = eV_to_H(doss[:, 1:, :]) # states/Hartree to states/eV
+            # states/Hartree to states/eV
+            doss[:, 1:, :] = eV_to_H(doss[:, 1:, :])
             unit = 'eV'
         elif type == 'PDOS':
             doss[:, 0, :] = cm_to_thz(doss[:, 0, :])
@@ -330,6 +347,7 @@ class BandsBASE():
     * ``self.tick_pos3d``: array, 3D fractional coordinates of tick labels in reciprocal space  
     * ``self.k_point_pos3d``: array, 3D fractional coordinates of k points in reciprocal space  
     """
+
     def __init__(self, spin, n_tick, tick_position, tick_label, efermi,
                  n_bands, bands, n_kpoints, k_point_plot, unit):
         self.spin = spin
@@ -358,9 +376,12 @@ class BandsBASE():
         Args:
             data (list[str]): A list of string (BAND.DAT).
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, cm_to_thz
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz
+
         # Read the information about the file
         # number of k points in the calculation
         n_kpoints = int(data[0].split()[2])
@@ -396,18 +417,20 @@ class BandsBASE():
 
         # Read the bands and store them into a numpy array
         for i, line in enumerate(data[first_k:first_k+n_kpoints]):
-            bands[:n_bands+1, i, 0] = np.array([float(n) for n in line.split()[1:]])
+            bands[:n_bands+1, i,
+                  0] = np.array([float(n) for n in line.split()[1:]])
             k_point_plot[i] = float(line.split()[0])
 
         if spin == 2:
             # line where the first beta band is. Written this way to help identify
             first_k_beta = first_k + n_kpoints + 15 + 2*n_tick + 2
             for i, line in enumerate(data[first_k_beta:-1]):
-                bands[:n_bands+1, i, 1] = np.array([float(n) for n in line.split()[1:]])
+                bands[:n_bands+1, i,
+                      1] = np.array([float(n) for n in line.split()[1:]])
 
-        if is_electron == True: # Convert all the energy to eV
+        if is_electron == True:  # Convert all the energy to eV
             bands[:, :, :] = H_to_eV(bands[:, :, :])
-        else: # Convert all the frequency to THz
+        else:  # Convert all the frequency to THz
             bands[:, :, :] = cm_to_thz(bands[:, :, :])
 
         return cls(spin, n_tick, tick_position, tick_label, efermi,
@@ -426,9 +449,11 @@ class BandsBASE():
         Args:
             data (list[str]): A list of string (fort.25).
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, cm_to_thz
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz
 
         data_in_block = []
         k_in_block = []
@@ -449,8 +474,10 @@ class BandsBASE():
                 efermi = float(data[countline][42:54])
 
                 tick_line = data[countline + 2].strip().split()
-                tick_bg = '({:1d},{:1d},{:1d})'.format(int(tick_line[0]), int(tick_line[1]), int(tick_line[2]))
-                tick_ed = '({:1d},{:1d},{:1d})'.format(int(tick_line[3]), int(tick_line[4]), int(tick_line[5]))
+                tick_bg = '({:1d},{:1d},{:1d})'.format(
+                    int(tick_line[0]), int(tick_line[1]), int(tick_line[2]))
+                tick_ed = '({:1d},{:1d},{:1d})'.format(
+                    int(tick_line[3]), int(tick_line[4]), int(tick_line[5]))
                 if tick_label == []:
                     tick_label = [tick_bg, tick_ed]
                 else:
@@ -467,7 +494,7 @@ class BandsBASE():
                     countpt += len(value)
                 # Align Fermi energy to 0, consistent with BAND.DAT file
                 data_per_block = np.array(data_per_block, dtype=float) - efermi
-                if k_in_block == []: # Initial k path
+                if k_in_block == []:  # Initial k path
                     k_per_block = np.linspace(0, dk * (npt - 1), npt)
                 else:
                     bg = k_in_block[-1][-1] + dk
@@ -502,8 +529,9 @@ class BandsBASE():
         k_point_plot = np.array([], dtype=float)
         bands = np.array([], dtype=float)
         for idx_block, block in enumerate(data_in_block):
-            if idx_block < nblock: # alpha state
-                k_point_plot = np.concatenate([k_point_plot, k_in_block[idx_block]])
+            if idx_block < nblock:  # alpha state
+                k_point_plot = np.concatenate(
+                    [k_point_plot, k_in_block[idx_block]])
                 bands = np.concatenate([bands, block])
             else:
                 bands = np.concatenate([bands, block])
@@ -517,4 +545,3 @@ class BandsBASE():
 
         return cls(spin, n_tick, tick_position, tick_label, efermi,
                    n_bands, bands, n_kpoints, k_point_plot, unit)
-
