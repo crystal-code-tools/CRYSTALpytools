@@ -10,7 +10,7 @@ Functions to visualize CRYSTAL outputs.
 #                                                                            #
 ##############################################################################
 
-# ---------------------------------SPIN CURRENTS------------------------------#
+#------------------------------------ECHG------------------------------------#
 
 
 def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
@@ -83,6 +83,7 @@ def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
 
     plt.show()
 
+#----------------------------------SPIN CURRENTS------------------------------#
 
 def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """
@@ -449,13 +450,13 @@ def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', 
     plt.show()
 
 
-# -------------------------------BAND STRUCTURES------------------------------#
+#--------------------------------BAND STRUCTURES------------------------------#
 
 def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
                      not_scaled=False, energy_range=None, k_range=None,
                      color='blue', labels=None, linestl='-', linewidth=1,
                      line_freq0=None, title=None, figsize=None,
-                     scheme=None, sharex=True, sharey=True, save_to_file=None, dpi=300, fontsize=12, transparency=False):
+                     scheme=None, sharex=True, sharey=True, fontsize=12):
     """
     A wrapper of plot_cry_bands for phonon band structure.
 
@@ -522,26 +523,27 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     if len(bands) == 1:
         bands = bands[0]
 
-    fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
+    fig, ax = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
                          color=color, fermi=line_freq0, k_range=k_range, labels=labels,
-                         figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey)
+                         figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey, fermialpha=1, fermiwidth=0)
     if is_thz == True:
         fig.supylabel('Frequency (THz)', fontsize=fontsize)
     else:
         fig.supylabel('Frequency (cm$^{-1}$)', fontsize=fontsize)
 
-    if save_to_file != None:
-        save_plot(save_to_file, dpi=dpi, transparency=transparency)
+    # if save_to_file != None:
+    #     save_plot(save_to_file, dpi=dpi, transparency=transparency)
 
-    plt.show()
+    # plt.show()
+    return fig, ax 
 
 
 def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
                        not_scaled=False, energy_range=None, k_range=None,
                        color='blue', labels=None, linestl='-', linewidth=1,
                        fermi='forestgreen', fermiwidth=1.5, fermialpha=1, title=None, figsize=None,
-                       scheme=None, sharex=True, sharey=True, save_to_file=None, dpi=300, fontsize=12, transparency=False):
+                       scheme=None, sharex=True, sharey=True, fontsize=12):
     """
     A wrapper of plot_cry_bands for electron band structure.
 
@@ -607,7 +609,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     if len(bands) == 1:
         bands = bands[0]
 
-    fig = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
+    fig, ax = plot_cry_bands(bands, k_labels=k_labels, energy_range=energy_range, title=title,
                          not_scaled=not_scaled, mode=mode, linestl=linestl, linewidth=linewidth,
                          color=color, fermi=fermi, fermiwidth=fermiwidth, fermialpha=fermialpha, k_range=k_range, labels=labels,
                          figsize=figsize, scheme=scheme, sharex=sharex, sharey=sharey)
@@ -616,19 +618,20 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     else:
         fig.supylabel('$E-E_{F}$ (Hartree)', fontsize=fontsize)
 
-    if save_to_file != None:
-        save_plot(save_to_file, dpi=dpi, transparency=transparency)
+    # if save_to_file != None:
+    #     save_plot(save_to_file, dpi=dpi, transparency=transparency)
+    #
+    # plt.show()
+    return fig, ax
 
-    plt.show()
 
-
-# ------------------------------DENSITY OF STATES-----------------------------#
+#-------------------------------DENSITY OF STATES-----------------------------#
 
 
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       energy_range=None, dos_range=None, color='blue',
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
-                      title=None, figsize=None, save_to_file=None):
+                      title=None, figsize=None):
     """
     A wrapper of plot_cry_doss for electron density of states.
 
@@ -688,7 +691,7 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     if len(doss) == 1:
         doss = doss[0]
 
-    fig = plot_cry_doss(doss, color=color, fermi=fermi, overlap=overlap,
+    fig, ax = plot_cry_doss(doss, color=color, fermi=fermi, overlap=overlap,
                         labels=labels, figsize=figsize, linestl=linestl,
                         linewidth=linewidth, title=title, beta=beta,
                         energy_range=energy_range, dos_range=dos_range, prj=prj)
@@ -699,16 +702,17 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
         fig.supylabel('DOS (states/Hartree)')
         fig.supxlabel('Energy (Hartree)')
 
-    if save_to_file != None:
-        save_plot(save_to_file)
-
-    plt.show()
+    # if save_to_file != None:
+    #     save_plot(save_to_file)
+    #
+    # plt.show()
+    return fig, ax
 
 
 def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
                     freq_range=None, dos_range=None, color='blue',
                     labels=None, linestl=None, linewidth=1, line_freq0=None,
-                    title=None, figsize=None, save_to_file=None):
+                    title=None, figsize=None):
     """
     A wrapper of plot_cry_doss for electron density of states.
 
@@ -770,7 +774,7 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
     if len(doss) == 1:
         doss = doss[0]
 
-    fig = plot_cry_doss(doss, color=color, fermi=line_freq0, overlap=overlap,
+    fig, ax = plot_cry_doss(doss, color=color, fermi=line_freq0, overlap=overlap,
                         labels=labels, figsize=figsize, linestl=linestl,
                         linewidth=linewidth, title=title, beta='up',
                         energy_range=freq_range, dos_range=dos_range, prj=prj)
@@ -782,20 +786,21 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
         fig.supylabel('DOS (states/cm$^{-1}$)')
         fig.supxlabel('Frequency (cm$^{-1}$)')
 
-    if save_to_file != None:
-        save_plot(save_to_file)
+    # if save_to_file != None:
+    #     save_plot(save_to_file)
+    #
+    # plt.show()
+    return fig, ax
 
-    plt.show()
 
-
-# ----------------------------BAND + DENSITY OF STATES------------------------#
+#-----------------------------BAND + DENSITY OF STATES------------------------#
 
 
 def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down',
                           dos_prj=None, energy_range=None, dos_max_range=None,
                           color_band='blue', color_dos='blue', labels=None, linestl_band='-',
                           linestl_dos=None, linewidth=1, fermi='forestgreen',
-                          title=None, figsize=None, save_to_file=None):
+                          title=None, figsize=None):
     """
     A wrapper of plot_cry_es for electron band structure + dos. For spin-polarized cases, beta state.
 
@@ -862,7 +867,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
             bands.bands[:, :, :] = eV_to_H(bands.bands[:, :, :])
         bands.unit = unit
 
-    fig = plot_cry_es(bands=bands, doss=doss, k_labels=k_labels, color_bd=color_band,
+    fig, ax = plot_cry_es(bands=bands, doss=doss, k_labels=k_labels, color_bd=color_band,
                       color_doss=color_dos, fermi=fermi, energy_range=energy_range,
                       linestl_bd=linestl_band, linestl_doss=linestl_dos,
                       linewidth=linewidth, prj=dos_prj, figsize=figsize, labels=labels,
@@ -872,17 +877,18 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
     else:
         fig.supylabel('Energy (Hartree)')
 
-    if save_to_file != None:
-        save_plot(save_to_file)
-
-    plt.show()
+    # if save_to_file != None:
+    #     save_plot(save_to_file)
+    #
+    # plt.show()
+    return fig, ax
 
 
 def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
                         freq_range=None, dos_max_range=None, color_band='blue',
                         color_dos='blue', labels=None, linestl_band='-',
                         linestl_dos=None, linewidth=1, freq0_line=None,
-                        title=None, figsize=None, save_to_file=None):
+                        title=None, figsize=None):
     """
     A wrapper of plot_cry_es for phonon band structure + dos. Only one pair is permitted.
 
@@ -950,7 +956,7 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     if line_freq0 == None:
         line_freq0 = (1., 0., 0., 0.)  # Transparent
 
-    fig = plot_cry_es(bands=bands, doss=doss, k_labels=k_labels, color_bd=color_band,
+    fig, ax = plot_cry_es(bands=bands, doss=doss, k_labels=k_labels, color_bd=color_band,
                       color_doss=color_dos, fermi=line_freq0, energy_range=energy_range,
                       linestl_bd=linestl_band, linestl_doss=linestl_dos,
                       linewidth=linewidth, prj=dos_prj, figsize=figsize, labels=labels,
@@ -960,10 +966,11 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     else:
         fig.supylabel('Frequency (cm$^{-1}$)')
 
-    if save_to_file != None:
-        save_plot(save_to_file)
-
-    plt.show()
+    # if save_to_file != None:
+    #     save_plot(save_to_file)
+    #
+    # plt.show()
+    return fig, ax
 
 
 ##############################################################################
@@ -972,10 +979,10 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
 #                                                                            #
 ##############################################################################
 
-# ---------------------------------CONTOUR PLOT-------------------------------#
+#----------------------------------CONTOUR PLOT-------------------------------#
 
 
-def plot_cry_contour(contour_obj, save_to_file=False):
+def plot_cry_contour(contour_obj):
     """
     Plot a contour plot.
 
@@ -1049,13 +1056,13 @@ def plot_cry_contour(contour_obj, save_to_file=False):
     plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
 
-def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=False):
+def plot_cry_contour_differences(contour_obj, contour_obj_ref):
     """
     Plot the differences between two contour plots.
 
@@ -1151,15 +1158,15 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref, save_to_file=Fals
     plt.savefig(path, bbox_inches='tight', dpi=600)
     print('\nThe image has been saved in the current directory')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
-# -------------------------------------XRD------------------------------------#
+#--------------------------------------XRD------------------------------------#
 
 
-def plot_cry_xrd(xrd_obj, save_to_file=False):
+def plot_cry_xrd(xrd_obj):
     """
     Plot the X-ray diffraction pattern.
 
@@ -1194,15 +1201,15 @@ def plot_cry_xrd(xrd_obj, save_to_file=False):
     plt.title(xrd_obj.title, fontsize=20)
     plt.savefig(path, bbox_inches='tight', dpi=600)
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
-# ------------------------------------RHOLINE---------------------------------#
+#-------------------------------------RHOLINE---------------------------------#
 
 
-def plot_cry_rholine(rholine_obj, save_to_file=False):
+def plot_cry_rholine(rholine_obj):
     """
     Plot the resistivity as a function of distance.
 
@@ -1234,15 +1241,15 @@ def plot_cry_rholine(rholine_obj, save_to_file=False):
     plt.title(rholine_obj.title, fontsize=15)
     plt.savefig(path, bbox_inches='tight', dpi=600)
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
-# ----------------------------------LAPLACIAN---------------------------------#
+#-----------------------------------LAPLACIAN---------------------------------#
 
 
-def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
+def plot_cry_lapl_profile(lapl_obj):
     """
     Plot the Laplacian profile of a crystal.
 
@@ -1278,13 +1285,14 @@ def plot_cry_lapl_profile(lapl_obj, save_to_file=False):
     plt.xlabel('Distance [A]')
     plt.ylabel('Laplacian [e/A^5]')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
+#-----------------------------DENSITY PROFILE---------------------------------#
 
-def plot_cry_density_profile(lapl_obj, save_to_file=False):
+def plot_cry_density_profile(lapl_obj):
     """
     Plot the density profile of a crystal.
 
@@ -1310,8 +1318,8 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
     plt.xlabel('Distance [A]')
     plt.ylabel('Density [e/A^3]')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
     plt.show()
 
@@ -1321,10 +1329,10 @@ def plot_cry_density_profile(lapl_obj, save_to_file=False):
 #                                                                            #
 ##############################################################################
 
-# ------------------------------------SEEBACK---------------------------------#
+#-------------------------------------SEEBACK---------------------------------#
 
 
-def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
+def plot_cry_seebeck_potential(seebeck_obj):
     """
     Plot the Seebeck coefficient as a function of chemical potential.
 
@@ -1463,11 +1471,11 @@ def plot_cry_seebeck_potential(seebeck_obj, save_to_file=False):
     plt.savefig('seebeck_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     plt.show()
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
-def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
+def plot_cry_seebeck_carrier(seebeck_obj):
     """
     Plot the Seebeck coefficient as a function of charge carrier concentration.
 
@@ -1600,8 +1608,8 @@ def plot_cry_seebeck_carrier(seebeck_obj, save_to_file=False):
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     plt.show()
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
 def plot_cry_multiseebeck(*seebeck):
@@ -1736,9 +1744,9 @@ def plot_cry_multiseebeck(*seebeck):
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
 
-# ------------------------------------SIGMA-----------------------------------#
+#-------------------------------------SIGMA-----------------------------------#
 
-def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
+def plot_cry_sigma_potential(sigma_obj):
     """
     Plot the electrical conductivity as a function of chemical potential.
 
@@ -1869,11 +1877,11 @@ def plot_cry_sigma_potential(sigma_obj, save_to_file=False):
     plt.savefig('sigma_potential_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
-def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
+def plot_cry_sigma_carrier(sigma_obj):
     """
     Plot the electrical conductivity as a function of charge carrier concentration.
 
@@ -1998,8 +2006,8 @@ def plot_cry_sigma_carrier(sigma_obj, save_to_file=False):
     plt.savefig('sigma_carrier_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
 def plot_cry_multisigma(*sigma):
@@ -2127,9 +2135,9 @@ def plot_cry_multisigma(*sigma):
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
 
 
-# -------------------------------POWERFACTOR----------------------------------#
+#--------------------------------POWERFACTOR----------------------------------#
 
-def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
+def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj):
     """
     Plot the power factor for different potentials.
 
@@ -2335,11 +2343,11 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj, save_to_file=False):
 
     plt.savefig('powerfactor_potential_different_T_' + time.strftime(
         "%Y-%m-%d_%H%M%S") + '.jpg', format='jpg', dpi=100, bbox_inches='tight')
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
-def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
+def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj):
     """
     Plot the power factor for different charge carrier concentrations.
 
@@ -2553,13 +2561,13 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj, save_to_file=False):
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
     # plt.show()
 
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
-# ------------------------------------ZT--------------------------------------#
+#-------------------------------------ZT--------------------------------------#
 
 
-def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
+def plot_cry_zt(seebeck_obj, sigma_obj):
     """
     Plot the ZT value for different temperatures.
 
@@ -2686,8 +2694,8 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
         plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
     plt.savefig('zt_different_T_' + time.strftime("%Y-%m-%d_%H%M%S") +
                 '.jpg', format='jpg', dpi=100, bbox_inches='tight')
-    if save_to_file != False:
-        save_plot(save_to_file)
+    # if save_to_file != False:
+    #     save_plot(save_to_file)
 
 
 ##############################################################################
@@ -2696,7 +2704,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj, save_to_file=False):
 #                                                                            #
 ##############################################################################
 
-# -------------------------------YOUNG MODULUS--------------------------------#
+#--------------------------------YOUNG MODULUS--------------------------------#
 
 def plot_cry_young(theta, phi, S):
     """
@@ -2761,7 +2769,7 @@ def plot_cry_young(theta, phi, S):
     E_tmp = 1 / e  # is the Young Modulus of each cycle
     return E_tmp
 
-# ---------------------------COMPRESSION PROPERTIES---------------------------#
+#----------------------------COMPRESSION PROPERTIES---------------------------#
 
 
 def plot_cry_comp(theta, phi, S):
@@ -2817,7 +2825,7 @@ def plot_cry_comp(theta, phi, S):
     return B
 
 
-# -------------------------------SHEAR MODULUS--------------------------------#
+#--------------------------------SHEAR MODULUS--------------------------------#
 
 def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
     """
@@ -2905,7 +2913,7 @@ def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
         return shear_max
 
 
-# -----------------------------------POISSON RATIO----------------------------#
+#------------------------------------POISSON RATIO----------------------------#
 
 def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
     """
@@ -2995,7 +3003,7 @@ def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
         return poisson_max
 
 
-# ---------------------------------ELASTIC------------------------------------#
+#----------------------------------ELASTIC------------------------------------#
 
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
@@ -3129,11 +3137,11 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
 #                                                                            #
 ##############################################################################
 
-# -----------------------------------HARMONIC---------------------------------#
+#------------------------------------HARMONIC---------------------------------#
 
 def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-',
                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                    label=None, save_to_file=None, dpi=300, transparency=False):
+                    label=None):
     """Generates the IR spectra for the IRSPEC.DAT file produced by an IRSPEC calculation
 
     Args:
@@ -3198,7 +3206,7 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
                 'This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
 
     if figsize is not None:
-        plt.figure(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize)
 
     if mode == modes[0]:
 
@@ -3271,11 +3279,11 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
             ymax.append(max(y)+10)
 
             if label is not None:
-                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
+                ax = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
                                color=color[index], label=label[index])
                 plt.legend()
             else:
-                fig = plt.plot(
+                ax = plt.plot(
                     x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
 
         xmin = min(xmin)
@@ -3304,15 +3312,16 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
     else:
         plt.ylabel('Reflectance (A.U.)')
 
-    if save_to_file != None:
-        save_plot(save_to_file, dpi, transparency)
-
-    plt.show()
+    # if save_to_file != None:
+    #     save_plot(save_to_file, dpi, transparency)
+    #
+    # plt.show()
+    return fig, ax
 
 
 def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
                      linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                     label=None, save_to_file=False, dpi=300, transparency=False):
+                     label=None):
     """Generates the RAMAN spectra for the RAMSPEC.DAT file produced by an RAMSPEC calculation
 
     Args:
@@ -3364,7 +3373,7 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
         mode = modes[0]
 
     if figsize is not None:
-        fig = plt.figure(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize)
 
     if mode == modes[0]:
 
@@ -3449,11 +3458,11 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
             ymax.append(max(y)+10)
 
             if label is not None:
-                fig = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
+                ax  = plt.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
                                color=color[index], label=label[index])
                 plt.legend()
             else:
-                fig = plt.plot(
+                ax = plt.plot(
                     x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
 
         xmin = min(xmin)
@@ -3479,13 +3488,14 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
     else:
         plt.ylabel('Reflectance (A.U.)')
 
-    if save_to_file != None:
-        save_plot(save_to_file, dpi, transparency)
+    # if save_to_file != None:
+    #     save_plot(save_to_file, dpi, transparency)
+    #
+    # plt.show()
+    return fig, ax
 
-    plt.show()
 
-
-# ----------------------------------ANHARMONIC--------------------------------#
+#-----------------------------------ANHARMONIC--------------------------------#
 
 def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0.5,
                   fmin=None, fmax=None, ylim=None, savefig=False, dpi=300,
@@ -3776,41 +3786,41 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
 ##############################################################################
 
 
-def save_plot(path_to_file, dpi, transparency):
-    """
-    Save the plot as a file.
-
-    Args:
-        path_to_file (str): Path to the output file.
-        format (str, optional): File format of the output plot. Default is 'png'.
-
-    Raises:
-        FileNotFoundError: If the specified folder does not exist.
-
-    Returns:
-        None
-    """
-    import warnings
-    from os import path
-
-    import matplotlib.pyplot as plt
-
-    folder = path.split(path_to_file)[0]
-    file = path.split(path_to_file)[1]
-    extension = path.splitext(file)[-1]
-    extension_list = ['.png', '.jpg', '.jpeg', '.tif', '.pdf', '.svg', '.eps']
-
-    if folder == '':
-        folder = '.'
-    if extension != '':
-        if extension in extension_list:
-            format = extension[1:]
-        else:
-            warnings.warn('Unrecognized file format. PNG format is used.',
-                          stacklevel=2)
-
-    if path.exists(folder) == True:
-        plt.savefig('%s/%s.%s' % (folder, file, format),
-                    dpi=dpi, transparent=transparency)
-    else:
-        raise FileNotFoundError('Folder %s does not exist' % path_to_file)
+# def save_plot(path_to_file, dpi, transparency):
+#     """
+#     Save the plot as a file.
+#
+#     Args:
+#         path_to_file (str): Path to the output file.
+#         format (str, optional): File format of the output plot. Default is 'png'.
+#
+#     Raises:
+#         FileNotFoundError: If the specified folder does not exist.
+#
+#     Returns:
+#         None
+#     """
+#     import warnings
+#     from os import path
+#
+#     import matplotlib.pyplot as plt
+#
+#     folder = path.split(path_to_file)[0]
+#     file = path.split(path_to_file)[1]
+#     extension = path.splitext(file)[-1]
+#     extension_list = ['.png', '.jpg', '.jpeg', '.tif', '.pdf', '.svg', '.eps']
+#
+#     if folder == '':
+#         folder = '.'
+#     if extension != '':
+#         if extension in extension_list:
+#             format = extension[1:]
+#         else:
+#             warnings.warn('Unrecognized file format. PNG format is used.',
+#                           stacklevel=2)
+#
+#     if path.exists(folder) == True:
+#         plt.savefig('%s/%s.%s' % (folder, file, format),
+#                     dpi=dpi, transparent=transparency)
+#     else:
+#         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
