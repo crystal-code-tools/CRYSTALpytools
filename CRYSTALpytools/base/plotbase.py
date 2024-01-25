@@ -243,8 +243,9 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         ymax = fig[1]
         xmin = fig[2]
         xmax = fig[3]
-        ax = fig[5]
-        fig = fig[4]
+        hsp = fig[4]
+        ax = fig[6]
+        fig = fig[5]
 
     hsp_label = []
     high_sym_point = []
@@ -601,7 +602,7 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
         ymin = min(ymin)
         ymax = max(ymax)
 
-    return ymin, ymax, xmin, xmax, fig, ax
+    return ymin, ymax, xmin, xmax, hsp, fig, ax
 
 
 def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
