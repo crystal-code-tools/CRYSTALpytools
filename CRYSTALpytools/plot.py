@@ -797,7 +797,7 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
 
 
 def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down',
-                          dos_prj=None, energy_range=None, dos_max_range=None,
+                          dos_prj=None, energy_range=None, dos_range=None,
                           color_band='blue', color_dos='blue', labels=None, linestl_band='-',
                           linestl_dos=None, linewidth=1, fermi='forestgreen',
                           title=None, figsize=None):
@@ -817,7 +817,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         dos_prj (list): Index of selected projection. Consistent with the index of the 2nd dimension
             of doss.doss.
         energy_range (list): A list of two values representing the energy range to be plotted.
-        dos_max_range (float): Maximum DOS range for the y-axis.
+        dos_range (list): DOS range for the y-axis.
         color_band (str): Color of the electron bands in the plot.
         color_dos (str): Color of the density of states (DOS) in the plot.
         labels (list): A list of labels for the plot legend.
@@ -828,6 +828,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         title (str): Title of the plot.
         figsize (list[float]): Size of the figure in inches (width, height).
         save_to_file (str): File name to save the plot.
+        legend (bool): Enables or disables the legend of the density of states (DOS).
 
     Returns:
         None
@@ -871,7 +872,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
                       color_doss=color_dos, fermi=fermi, energy_range=energy_range,
                       linestl_bd=linestl_band, linestl_doss=linestl_dos,
                       linewidth=linewidth, prj=dos_prj, figsize=figsize, labels=labels,
-                      dos_max_range=dos_max_range, title=title, dos_beta=dos_beta)
+                      dos_range=dos_range, title=title, dos_beta=dos_beta, legend=legend)
     if is_ev == True:
         fig.supylabel('Energy (eV)')
     else:

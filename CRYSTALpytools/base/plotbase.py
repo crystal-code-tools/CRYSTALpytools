@@ -995,7 +995,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
 
 
 def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range, linestl_bd,
-                linestl_doss, linewidth, prj, figsize, labels, dos_max_range, title, dos_beta):
+                linestl_doss, linewidth, prj, figsize, labels, dos_range, title, dos_beta, legend):
     """
     The base function to plot electron / phonon band structure + DOS
 
@@ -1013,9 +1013,10 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         prj (list or None): List of projection indices for plotting specific projections
         figsize (tuple): Figure size (width, height)
         labels (str or list or tuple or None): Labels for the density of states plot
-        dos_max_range (float or None): Maximum range of the density of states plot
+        dos_range (list or None): Range of the density of states plot
         title (str or None): Title of the figure
         dos_beta (str): Beta state for the density of states plot ('up' or 'down')
+        legend (bool): Enables or disables the legend
 
     Returns:
         fig (object): Figure object containing the plotted data
@@ -1273,8 +1274,9 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
 
     ax[0].set_xlim(xmin_bd, xmax_bd)
 
-    if dos_max_range is not None:
-        xmax_dos = dos_max_range
+    if dos_range is not None:
+        xmin_dos = dos_range[0]
+        xmax_dos = dos_range[1]
 
     # if (prj is None) and (doss.n_proj not in prj):
     #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
@@ -1288,6 +1290,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         ymax = energy_range[1]
 
     plt.ylim(ymin, ymax)
-    plt.legend()
+    if legend:
+        plt.legend()
 
     return fig, ax
