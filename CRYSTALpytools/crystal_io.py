@@ -2755,17 +2755,17 @@ class Properties_output:
         if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
             self.levels = ctr1
             self.colors = colors1
-            self.linetyles = ls1
+            self.linestyles = ls1
             self.fmt = '%1.3f'
         elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
             self.levels = ctr2
             self.colors = colors2
-            self.linetyles = ls2
+            self.linestyles = ls2
             self.fmt = '%1.3f'
         elif (self.tipo == 'SURFELFB'):
             self.levels = ctr3
             self.colors = colors3
-            self.linetyles = ls3
+            self.linestyles = ls3
             self.fmt = '%1.2f'
 
         return self
