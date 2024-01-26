@@ -168,7 +168,7 @@ class Crystal_output:
             if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
                 output_name = output_name+'.out'
             file = open(output_name, 'r', errors='ignore')
-            self.data = file.readline()
+            self.data = file.readlines()
             file.close()
         except:
             raise FileNotFoundError(
@@ -2138,7 +2138,7 @@ class Properties_input:
                 if input_name[-3:] != 'd12':
                     input_name = input_name+'.d12'
                 file = open(input_name, 'r')
-                self.data = file.readline()
+                self.data = file.readlines()
                 file.close()
             except:
                 print('EXITING: a .d3 file needs to be specified')
@@ -2398,7 +2398,7 @@ class Properties_input:
 
         with open(input_name, 'w') as file:
             for line in property_input_list:
-                file.writeline(line)
+                file.writelines(line)
 
 
 class Properties_output:
@@ -3279,7 +3279,7 @@ class Crystal_gui:
 
         try:
             file = open(gui_file, 'r')
-            data = file.readline()
+            data = file.readlines()
             file.close()
         except:
             raise FileNotFoundError(
@@ -3401,7 +3401,7 @@ class Crystal_density():
 
         try:
             file = open(self.file_name, 'r')
-            data = file.readline()
+            data = file.readlines()
             file.close()
         except:
             print('EXITING: a CRYSTAL .f98 file needs to be specified')
@@ -3756,7 +3756,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
         spinor+charges+fock+density+density3_data[end:]
     with open(new_density, 'w') as file:
         for line in final_fort98:
-            file.writeline(line)
+            file.writelines(line)
 
 
 def write_cry_density(fort98_name, new_p, new_fort98):
@@ -3778,7 +3778,7 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     import numpy as np
 
     file = open(fort98_name, 'r')
-    data = file.readline()
+    data = file.readlines()
     file.close()
 
     density = Crystal_density(fort98_name)
@@ -3803,7 +3803,7 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     final_fort98 = data[0:beginning]+new_fock+new_density+data[end:]
     with open(new_fort98, 'w') as file:
         for line in final_fort98:
-            file.writeline(line)
+            file.writelines(line)
 
 
 class External_unit:
