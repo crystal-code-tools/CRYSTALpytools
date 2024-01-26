@@ -13,6 +13,7 @@ class Crystal_input(Crystal_inputBASE):
     Crystal input object inherited from the :ref:`Crystal_inputBASE <ref-base-crysd12>`
     object. For the basic set-ups of keywords, please refer to manuals there.
     """
+
     def __init__(self):
         super(Crystal_input, self).__init__()
 
@@ -40,8 +41,9 @@ class Crystal_input(Crystal_inputBASE):
             **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
         """
         import re
-        from pymatgen.core.structure import IStructure, Structure
+
         from pymatgen.core.lattice import Lattice
+        from pymatgen.core.structure import IStructure, Structure
 
         struc_3d = IStructure.from_file(file)
         if keyword == 'CRYSTAL':
@@ -72,6 +74,7 @@ class Crystal_input(Crystal_inputBASE):
             coordinates of another symmetry equivalent atom is used.
         """
         import re
+
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.geometry import refine_geometry
 
@@ -90,7 +93,8 @@ class Crystal_input(Crystal_inputBASE):
                     except ValueError:
                         z_input = atom[i][0]
                     atom[i][0] = z_input
-            super(Crystal_input, self).geom.crystal(IGR=sg, latt=latt, atom=atom)
+            super(Crystal_input, self).geom.crystal(
+                IGR=sg, latt=latt, atom=atom)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
@@ -155,6 +159,7 @@ class Crystal_output:
             self (Crystal_output)
         """
         import re
+        import sys
 
         self.name = output_name
 
@@ -166,7 +171,8 @@ class Crystal_output:
             self.data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError('EXITING: a .out file needs to be specified')
+            raise FileNotFoundError(
+                'EXITING: a .out file needs to be specified')
 
         # Check the calculation terminated correctly
         self.terminated = False
@@ -252,6 +258,7 @@ class Crystal_output:
             self.symmops (numpy.ndarray): Symmetry operators
         """
         import re
+
         import numpy as np
 
         self.n_symmops = 0
@@ -266,7 +273,8 @@ class Crystal_output:
                 break
 
         if self.n_symmops > 0:
-            self.symmops = np.reshape(np.array(symmops, dtype=float), [self.n_symmops, 4, 3])
+            self.symmops = np.reshape(np.array(symmops, dtype=float), [
+                                      self.n_symmops, 4, 3])
 
         return self.symmops
 
@@ -295,14 +303,16 @@ class Crystal_output:
             self.geometry (Structure | Molecule): A pymatgen Structure or
                 molecule object.
         """
-        import re
         import os
+        import re
         import warnings
+
         import numpy as np
+
         from CRYSTALpytools.base.crysout import GeomBASE
-        from CRYSTALpytools.geometry import rotate_lattice
-        from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import rotate_lattice
 
         # Get geometry
         bg_line = -1
@@ -363,12 +373,15 @@ class Crystal_output:
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
+                gui = cry_pmg2gui(struc, gui_file=gui_name,
+                                  symmetry=True, zconv=zconv, **kwargs)
             elif symmetry == None:
-                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=gui_name,
+                                  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
                 self.get_symmops()
-                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=None,
+                                  symmetry=False, zconv=zconv)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
                 gui.space_group = self.sg_number
@@ -377,7 +390,8 @@ class Crystal_output:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=None,
+                                  symmetry=False, zconv=zconv)
                 # Replace the symmops with the reference file
                 gui.symmops = gui_ref.symmops
                 gui.n_symmops = gui_ref.n_symmops
@@ -390,7 +404,8 @@ class Crystal_output:
         """
         Return the last optimised geometry.
         """
-        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
+        struc = self.get_geometry(
+            initial=False, write_gui=write_gui_file, symm_info=symm_info)
         if 'Molecule' in str(type(struc)):
             self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
                               self.atom_numbers,
@@ -413,6 +428,7 @@ class Crystal_output:
         """
         import re
         import warnings
+
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -456,6 +472,7 @@ class Crystal_output:
         CRYSTAL 0~3D space group number. Before geometry editing.
         """
         import re
+
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -489,6 +506,7 @@ class Crystal_output:
         """
         import re
         import warnings
+
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -538,7 +556,7 @@ class Crystal_output:
 
         symbol = []
         for i in self.atom_numbers:
-            symbol.append(element(int(i%100)).symbol)
+            symbol.append(element(int(i % 100)).symbol)
 
         return symbol
 
@@ -574,7 +592,8 @@ class Crystal_output:
             frac_coord = struc.frac_coords.tolist()
             composite_coord = []
             for i in range(struc.num_sites):
-                composite_coord.append(frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
+                composite_coord.append(
+                    frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
 
         return np.array(composite_coord, dtype=float)
 
@@ -611,6 +630,7 @@ class Crystal_output:
                 expansion matrix
         """
         import re
+
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -660,13 +680,15 @@ class Crystal_output:
             self.primitive_geometry (Structure | Molecule): A pymatgen
                 Structure or molecule object.
         """
-        import re
         import os
+        import re
         import warnings
+
         import numpy as np
-        from CRYSTALpytools.geometry import get_pcel
-        from CRYSTALpytools.crystal_io import Crystal_gui
+
         from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import get_pcel
 
         ndimen = self.get_dimensionality()
         self.get_geometry(initial=initial, write_gui=False)
@@ -688,7 +710,8 @@ class Crystal_output:
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name,
+                                  symmetry=True, **kwargs)
             elif symmetry == None:
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
             elif symmetry == 'initial':
@@ -759,7 +782,7 @@ class Crystal_output:
 
         return self.primitive_reciprocal_lattice
 
-    def get_config_analysis(self,return_multiplicity=False):
+    def get_config_analysis(self, return_multiplicity=False):
         """
         Return the configuration analysis for solid solutions (CONFCON keyword in input)
 
@@ -769,6 +792,7 @@ class Crystal_output:
             list or str: Configuration analysis if available, or a warning message
         """
         import re
+
         import numpy as np
 
         # Check this is a configuration analysis calculation
@@ -820,8 +844,8 @@ class Crystal_output:
         if return_multiplicity == True:
             input_string = ' '.join(config_list.tolist())
             matches = re.findall(r'MULTIPLICITY\s*:\s*(\d+)', input_string)
-            
-            #multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+1]
+
+            # multiplicity_tmp = config_list[np.where(config_list == 'MULTIPLICITY')[0]+1]
             multiplicity = [int(x) for x in matches]
             self.multiplicity = multiplicity
         config_list = config_list.tolist()
@@ -834,7 +858,6 @@ class Crystal_output:
         self.atom_type1 = atom_type1
         self.atom_type2 = atom_type2
 
-        
         if return_multiplicity == True:
             return [self.atom_type1, self.atom_type2, multiplicity]
         else:
@@ -929,6 +952,7 @@ class Crystal_output:
             self.scf_deltae (array): Energy difference. Unit: eV
         """
         import numpy as np
+
         from CRYSTALpytools.base.crysout import SCFBASE
 
         if all_cycles == True:
@@ -976,7 +1000,8 @@ class Crystal_output:
         """
         from CRYSTALpytools.base.crysout import SCFBASE
 
-        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
+        output = SCFBASE.read_fermi_energy(
+            self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
         self.fermi_energy = output[2]
 
@@ -997,7 +1022,8 @@ class Crystal_output:
         """
         from CRYSTALpytools.base.crysout import SCFBASE
 
-        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
+        output = SCFBASE.read_band_gap(
+            self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
         self.band_gap = output[2]
 
@@ -1013,15 +1039,16 @@ class Crystal_output:
         """
         import re
         import warnings
+
         import numpy as np
 
-        mulliken = [] # empty, 1*1 or 2*1 list
+        mulliken = []  # empty, 1*1 or 2*1 list
         countline = 0
         countm = 0
         while countline < self.eoo:
             line = self.data[countline]
             if re.match(r'\s*MULLIKEN POPULATION ANALYSIS', line):
-                mulliken_charge = [] # natom*1
+                mulliken_charge = []  # natom*1
                 countline += 4
                 line2 = self.data[countline]
                 while len(line2.strip()) != 0:
@@ -1045,7 +1072,8 @@ class Crystal_output:
         else:
             apb = np.array(mulliken[0], dtype=float)
             amb = np.array(mulliken[1], dtype=float)
-            self.mulliken_charges = np.array([apb, (apb + amb) / 2, (apb - amb) / 2])
+            self.mulliken_charges = np.array(
+                [apb, (apb + amb) / 2, (apb - amb) / 2])
             self.spin_pol = True
 
         return self.mulliken_charges
@@ -1127,14 +1155,16 @@ class Crystal_output:
             self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
             self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
-        from CRYSTALpytools.crystal_io import Crystal_gui
-        from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.base.crysout import OptBASE
-        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
-        from pymatgen.core.lattice import Lattice
-        import numpy as np
-        import re
         import os
+        import re
+
+        import numpy as np
+        from pymatgen.core.lattice import Lattice
+
+        from CRYSTALpytools.base.crysout import OptBASE
+        from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.crystal_io import Crystal_gui
+        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
 
         ndimen = self.get_dimensionality()
         countline = 0
@@ -1255,7 +1285,8 @@ class Crystal_output:
         if write_gui == True:
             if gui_name == None:
                 gui_name = os.path.splitext(self.name)[0]
-            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
+            gui_list = [
+                '{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
 
             if symmetry == 'pymatgen':
                 for idx_s, s in enumerate(self.opt_geometry):
@@ -1263,7 +1294,8 @@ class Crystal_output:
                                       symmetry=True, **kwargs)
             elif symmetry == None:
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
+                    gui = cry_pmg2gui(
+                        s, gui_file=gui_list[idx_s], symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
                 for idx_s, s in enumerate(self.opt_geometry):
@@ -1305,12 +1337,15 @@ class Crystal_output:
             self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
         """
-        import warnings, re
+        import re
+        import warnings
+
         import numpy as np
 
         if initial == False or grad == True:
             if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
-                warnings.warn('Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
+                warnings.warn(
+                    'Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
                 initial = True
                 grad = False
 
@@ -1324,8 +1359,10 @@ class Crystal_output:
             for i, line in enumerate(self.data):
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                     for j in range(i+2, i+2+self.n_atoms):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+                        self.forces_atoms.append(
+                            self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(
+                        self.forces_atoms, dtype=float)
 
                 if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
                     for j in range(i+4, i+7):
@@ -1341,8 +1378,10 @@ class Crystal_output:
 
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                     for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+                        self.forces_atoms.append(
+                            self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(
+                        self.forces_atoms, dtype=float)
 
         return self
 
@@ -1397,7 +1436,9 @@ class Crystal_output:
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
         """
         import re
+
         import numpy as np
+
         from CRYSTALpytools.base.crysout import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
@@ -1427,7 +1468,7 @@ class Crystal_output:
                 countline += 1
                 continue
             # Q point info + frequency
-            ## Dispersion
+            # Dispersion
             elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
                 countline += 1
@@ -1438,43 +1479,47 @@ class Crystal_output:
                 self.qpoint.append([coord / shrink, weight])
                 self.nqpoint += 1
                 countline += 2
-                ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
+                # Read phonons
+                phonon = PhononBASE.readmode_basic(
+                    self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
-            ## Gamma point
+            # Gamma point
             elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
                 countline += 2
-                ## Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
+                # Read phonons
+                phonon = PhononBASE.readmode_basic(
+                    self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
-            ## Phonon eigenvector
-            ### Gamma point: real numbers. Imaginary = 0
+            # Phonon eigenvector
+            # Gamma point: real numbers. Imaginary = 0
             elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
                 if read_eigvt == False:
                     countline += 1
                     continue
                 countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
+                eigvt = PhononBASE.readmode_eigenvector(
+                    self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 self.eigenvector.append(eigvt[1] + 0.j)
-            ### Dispersion: complex numbers
+            # Dispersion: complex numbers
             elif re.match(r'^\s+MODES IN PHASE', line):
                 if read_eigvt == False:
                     countline += 1
                     continue
-                if found_anti == False: # Real k point
+                if found_anti == False:  # Real k point
                     self.eigenvector.append(tmp_eigvt)
                 countline += 2
                 found_anti = False
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
+                eigvt = PhononBASE.readmode_eigenvector(
+                    self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 tmp_eigvt = eigvt[1] + 0.j
             elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
@@ -1483,7 +1528,8 @@ class Crystal_output:
                     continue
                 countline += 2
                 found_anti = True
-                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
+                eigvt_anti = PhononBASE.readmode_eigenvector(
+                    self.data[:self.eoo], countline)
                 countline = eigvt_anti[0]
                 self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
             # Other data
@@ -1493,7 +1539,7 @@ class Crystal_output:
 
         if is_freq == False:
             raise Exception('Not a frequency calculation.')
-        if found_anti == False and read_eigvt == True: # The last real k point
+        if found_anti == False and read_eigvt == True:  # The last real k point
             self.eigenvector.append(tmp_eigvt)
 
         # Format data
@@ -1527,7 +1573,6 @@ class Crystal_output:
             # remove classical amplitude
             elif str(eigvt_amplitude).lower() == 'classical-rev':
                 struc = self.get_geometry(initial=False, write_gui=False)
-                
 
             # To a specific value
             else:
@@ -1551,7 +1596,8 @@ class Crystal_output:
         """
         import warnings
 
-        warnings.warn('This method is deprecated. Use `get_phonon`.', stacklevel=2)
+        warnings.warn(
+            'This method is deprecated. Use `get_phonon`.', stacklevel=2)
         return self
 
     def get_mode(self):
@@ -1658,8 +1704,9 @@ class Crystal_output:
         attributes have been listed here, but the yy, zz, xy, xz, yz components
         are available as well.  
         """
-        
+
         import re
+
         import numpy as np
 
         # Initialize some logical variables
@@ -1680,7 +1727,7 @@ class Crystal_output:
         VCI_Ram_T_tot = False
         VCI_Ram_T_comp = False
 
-        #Initialize some member variables
+        # Initialize some member variables
         IR_HO = []
         IR_VSCF = []
         IR_VCI = []
@@ -1697,7 +1744,7 @@ class Crystal_output:
         Ram_VCI_0K_comp = []
         Ram_VCI_T_comp = []
 
-        # Initialize some buffers 
+        # Initialize some buffers
         bufferHO_IR = []
         bufferHO_Ram_0K_tot = []
         bufferHO_Ram_T_tot = []
@@ -1707,7 +1754,7 @@ class Crystal_output:
         bufferVSCF_Ram_0K_tot = []
         bufferVSCF_Ram_T_tot = []
         bufferVSCF_Ram_0K_comp = []
-        bufferVSCF_Ram_T_comp= []
+        bufferVSCF_Ram_T_comp = []
         bufferVCI_IR = []
         bufferVCI_Ram_0K_tot = []
         bufferVCI_Ram_T_tot = []
@@ -1717,14 +1764,14 @@ class Crystal_output:
         # Big loop over lines of CRYSTAL output file -->
         for i, line in enumerate(self.data):
 
-            if re.match(r'\s*HARMONIC IR SPECTRUM',line):
+            if re.match(r'\s*HARMONIC IR SPECTRUM', line):
                 if re.match(r'\s*HO', self.data[i-1]):
                     HO_IR = True
                 else:
                     print('Something went wrong with your CRYSTAL output file.')
                 save = True
 
-            if re.match(r'\s*ANHARMONIC IR SPECTRUM',line):
+            if re.match(r'\s*ANHARMONIC IR SPECTRUM', line):
                 if re.match(r'\s*VSCF', self.data[i-1]):
                     VSCF_IR = True
                 elif re.match(r'\s*VCI*', self.data[i-1]):
@@ -1732,8 +1779,8 @@ class Crystal_output:
                 else:
                     print('Something went wrong with your CRYSTAL output file.')
                 save = True
-                
-            if re.match(r'\s*HARMONIC RAMAN SPECTRUM',line):
+
+            if re.match(r'\s*HARMONIC RAMAN SPECTRUM', line):
                 if re.match(r'\s*\[ 0 K \]', self.data[i+1]):
                     if re.match(r'\s*I_TOT', self.data[i+4]):
                         HO_Ram_0K_tot = True
@@ -1745,8 +1792,8 @@ class Crystal_output:
                     else:
                         HO_Ram_T_comp = True
                 save = True
-            
-            if re.match(r'\s*ANHARMONIC RAMAN SPECTRUM',line):
+
+            if re.match(r'\s*ANHARMONIC RAMAN SPECTRUM', line):
                 if re.match(r'\s*VSCF', self.data[i-1]):
                     if re.match(r'\s*\[ 0 K \]', self.data[i+1]):
                         if re.match(r'\s*I_TOT', self.data[i+4]):
@@ -1761,7 +1808,7 @@ class Crystal_output:
                 save = True
                 if re.match(r'\s*VCI*', self.data[i-1]):
                     if re.match(r'\s*\[ 0 K \]', self.data[i+1]):
-                        if re.match(r'\s*I_TOT',self.data[i+4]):
+                        if re.match(r'\s*I_TOT', self.data[i+4]):
                             VCI_Ram_0K_tot = True
                         else:
                             VCI_Ram_0K_comp = True
@@ -1770,8 +1817,8 @@ class Crystal_output:
                             VCI_Ram_T_tot = True
                         else:
                             VCI_Ram_T_comp = True
-                save = True   
-            
+                save = True
+
             if re.match(r'\s*HHHHHHHHHHHHH', line):
                 save = False
                 HO_IR = False
@@ -1789,7 +1836,7 @@ class Crystal_output:
                 VCI_Ram_0K_comp = False
                 VCI_Ram_T_tot = False
                 VCI_Ram_T_comp = False
-                
+
             if save:
                 if HO_IR:
                     bufferHO_IR.append(line)
@@ -1821,66 +1868,66 @@ class Crystal_output:
                     bufferVCI_Ram_0K_comp.append(line)
                 if VCI_Ram_T_comp:
                     bufferVCI_Ram_T_comp.append(line)
-        # <--      
+        # <--
 
-        # Save and parse VSCF data for IR spectrum 
+        # Save and parse VSCF data for IR spectrum
         n_VSCF_ir = len(bufferVSCF_IR)
         if n_VSCF_ir > 0:
-           for i, line in enumerate(bufferVSCF_IR[5:n_VSCF_ir-1]):
-              IR_VSCF.append(line.split()[3:6])
-              for j in range(3):
-                  IR_VSCF[i][j] = float(IR_VSCF[i][j])
-           IR_VSCF = np.array(IR_VSCF)
-           self.IR_VSCF_T = IR_VSCF[:,0:3:2]
-           self.IR_VSCF_0K = IR_VSCF[:,0:2]
-           
-        # Save and parse VCI data for IR spectrum 
+            for i, line in enumerate(bufferVSCF_IR[5:n_VSCF_ir-1]):
+                IR_VSCF.append(line.split()[3:6])
+                for j in range(3):
+                    IR_VSCF[i][j] = float(IR_VSCF[i][j])
+            IR_VSCF = np.array(IR_VSCF)
+            self.IR_VSCF_T = IR_VSCF[:, 0:3:2]
+            self.IR_VSCF_0K = IR_VSCF[:, 0:2]
+
+        # Save and parse VCI data for IR spectrum
         n_VCI_ir = len(bufferVCI_IR)
         if n_VCI_ir > 0:
-           for i, line in enumerate(bufferVCI_IR[5:n_VCI_ir-1]):
+            for i, line in enumerate(bufferVCI_IR[5:n_VCI_ir-1]):
                 IR_VCI.append(line.split()[3:6])
                 for j in range(3):
-                   IR_VCI[i][j] = float(IR_VCI[i][j])
-           IR_VCI = np.array(IR_VCI)
-           self.IR_VCI_T = IR_VCI[:,0:3:2]
-           self.IR_VCI_0K = IR_VCI[:,0:2]
-           
+                    IR_VCI[i][j] = float(IR_VCI[i][j])
+            IR_VCI = np.array(IR_VCI)
+            self.IR_VCI_T = IR_VCI[:, 0:3:2]
+            self.IR_VCI_0K = IR_VCI[:, 0:2]
+
         # Save and parse HO data for IR spectrum
         n_HO_ir = len(bufferHO_IR)
-        if n_HO_ir > 0: 
-           for i, line in enumerate(bufferHO_IR[5:n_HO_ir-1]):
-              IR_HO.append(line.split()[3:6])
-              for j in range(3):
-                  IR_HO[i][j] = float(IR_HO[i][j])
-           IR_HO = np.array(IR_HO)
-           self.IR_HO_T = IR_HO[:,0:3:2]
-           self.IR_HO_0K = IR_HO[:,0:2]
-         
-       # Save and parse HO data for Raman spectrum (0K, tot)   
+        if n_HO_ir > 0:
+            for i, line in enumerate(bufferHO_IR[5:n_HO_ir-1]):
+                IR_HO.append(line.split()[3:6])
+                for j in range(3):
+                    IR_HO[i][j] = float(IR_HO[i][j])
+            IR_HO = np.array(IR_HO)
+            self.IR_HO_T = IR_HO[:, 0:3:2]
+            self.IR_HO_0K = IR_HO[:, 0:2]
+
+        # Save and parse HO data for Raman spectrum (0K, tot)
         n_HO_Ram_0K_tot = len(bufferHO_Ram_0K_tot)
         if n_HO_Ram_0K_tot > 0:
-           for i, line in enumerate(bufferHO_Ram_0K_tot[6:n_HO_Ram_0K_tot-1]):
-               Ram_HO_0K_tot.append(line.split()[3:7])
-               for j in range(4):
-                  Ram_HO_0K_tot[i][j] = float(Ram_HO_0K_tot[i][j])
-           Ram_HO_0K_tot = np.array(Ram_HO_0K_tot)
-           self.Ram_HO_0K_tot = Ram_HO_0K_tot[:,0:2]
-           self.Ram_HO_0K_per = Ram_HO_0K_tot[:,0:3:2]
-           self.Ram_HO_0K_par = Ram_HO_0K_tot[:,0:4:3]
+            for i, line in enumerate(bufferHO_Ram_0K_tot[6:n_HO_Ram_0K_tot-1]):
+                Ram_HO_0K_tot.append(line.split()[3:7])
+                for j in range(4):
+                    Ram_HO_0K_tot[i][j] = float(Ram_HO_0K_tot[i][j])
+            Ram_HO_0K_tot = np.array(Ram_HO_0K_tot)
+            self.Ram_HO_0K_tot = Ram_HO_0K_tot[:, 0:2]
+            self.Ram_HO_0K_per = Ram_HO_0K_tot[:, 0:3:2]
+            self.Ram_HO_0K_par = Ram_HO_0K_tot[:, 0:4:3]
 
-       # Save and parse HO data for Raman spectrum (T, tot)   
-        n_HO_Ram_T_tot = len(bufferHO_Ram_T_tot) 
+        # Save and parse HO data for Raman spectrum (T, tot)
+        n_HO_Ram_T_tot = len(bufferHO_Ram_T_tot)
         if n_HO_Ram_T_tot > 0:
             for i, line in enumerate(bufferHO_Ram_T_tot[6:n_HO_Ram_T_tot-1]):
-                Ram_HO_T_tot.append(line.split()[3:7]) 
+                Ram_HO_T_tot.append(line.split()[3:7])
                 for j in range(4):
                     Ram_HO_T_tot[i][j] = float(Ram_HO_T_tot[i][j])
             Ram_HO_T_tot = np.array(Ram_HO_T_tot)
-            self.Ram_HO_T_tot = Ram_HO_T_tot[:,0:2]
-            self.Ram_HO_T_per = Ram_HO_T_tot[:,0:3:2]
-            self.Ram_HO_T_par = Ram_HO_T_tot[:,0:4:3]
-                
-       # Save and parse HO data for Raman spectrum (0K, comp)   
+            self.Ram_HO_T_tot = Ram_HO_T_tot[:, 0:2]
+            self.Ram_HO_T_per = Ram_HO_T_tot[:, 0:3:2]
+            self.Ram_HO_T_par = Ram_HO_T_tot[:, 0:4:3]
+
+        # Save and parse HO data for Raman spectrum (0K, comp)
         n_HO_Ram_0K_comp = len(bufferHO_Ram_0K_comp)
         if n_HO_Ram_0K_comp > 0:
             for i, line in enumerate(bufferHO_Ram_0K_comp[6:n_HO_Ram_0K_comp-1]):
@@ -1888,14 +1935,14 @@ class Crystal_output:
                 for j in range(7):
                     Ram_HO_0K_comp[i][j] = float(Ram_HO_0K_comp[i][j])
             Ram_HO_0K_comp = np.array(Ram_HO_0K_comp)
-            self.Ram_HO_0K_comp_xx = Ram_HO_0K_comp[:,0:2]
-            self.Ram_HO_0K_comp_xy = Ram_HO_0K_comp[:,0:3:2]
-            self.Ram_HO_0K_comp_xz = Ram_HO_0K_comp[:,0:4:3]
-            self.Ram_HO_0K_comp_yy = Ram_HO_0K_comp[:,0:5:4]
-            self.Ram_HO_0K_comp_yz = Ram_HO_0K_comp[:,0:6:5]
-            self.Ram_HO_0K_comp_zz = Ram_HO_0K_comp[:,0:7:6]
-            
-       # Save and parse HO data for Raman spectrum (T, comp)   
+            self.Ram_HO_0K_comp_xx = Ram_HO_0K_comp[:, 0:2]
+            self.Ram_HO_0K_comp_xy = Ram_HO_0K_comp[:, 0:3:2]
+            self.Ram_HO_0K_comp_xz = Ram_HO_0K_comp[:, 0:4:3]
+            self.Ram_HO_0K_comp_yy = Ram_HO_0K_comp[:, 0:5:4]
+            self.Ram_HO_0K_comp_yz = Ram_HO_0K_comp[:, 0:6:5]
+            self.Ram_HO_0K_comp_zz = Ram_HO_0K_comp[:, 0:7:6]
+
+        # Save and parse HO data for Raman spectrum (T, comp)
         n_HO_Ram_T_comp = len(bufferHO_Ram_T_comp)
         if n_HO_Ram_T_comp > 0:
             for i, line in enumerate(bufferHO_Ram_T_comp[6:n_HO_Ram_T_comp-1]):
@@ -1903,14 +1950,14 @@ class Crystal_output:
                 for j in range(7):
                     Ram_HO_T_comp[i][j] = float(Ram_HO_T_comp[i][j])
             Ram_HO_T_comp = np.array(Ram_HO_T_comp)
-            self.Ram_HO_T_comp_xx = Ram_HO_T_comp[:,0:2]
-            self.Ram_HO_T_comp_xy = Ram_HO_T_comp[:,0:3:2]
-            self.Ram_HO_T_comp_xz = Ram_HO_T_comp[:,0:4:3]
-            self.Ram_HO_T_comp_yy = Ram_HO_T_comp[:,0:5:4]
-            self.Ram_HO_T_comp_yz = Ram_HO_T_comp[:,0:6:5]
-            self.Ram_HO_T_comp_zz = Ram_HO_T_comp[:,0:7:6]
-                
-       # Save and parse VSCF data for Raman spectrum (0K, tot)   
+            self.Ram_HO_T_comp_xx = Ram_HO_T_comp[:, 0:2]
+            self.Ram_HO_T_comp_xy = Ram_HO_T_comp[:, 0:3:2]
+            self.Ram_HO_T_comp_xz = Ram_HO_T_comp[:, 0:4:3]
+            self.Ram_HO_T_comp_yy = Ram_HO_T_comp[:, 0:5:4]
+            self.Ram_HO_T_comp_yz = Ram_HO_T_comp[:, 0:6:5]
+            self.Ram_HO_T_comp_zz = Ram_HO_T_comp[:, 0:7:6]
+
+        # Save and parse VSCF data for Raman spectrum (0K, tot)
         n_VSCF_Ram_0K_tot = len(bufferVSCF_Ram_0K_tot)
         if n_VSCF_Ram_0K_tot > 0:
             for i, line in enumerate(bufferVSCF_Ram_0K_tot[6:n_VSCF_Ram_0K_tot-1]):
@@ -1918,38 +1965,38 @@ class Crystal_output:
                 for j in range(4):
                     Ram_VSCF_0K_tot[i][j] = float(Ram_VSCF_0K_tot[i][j])
             Ram_VSCF_0K_tot = np.array(Ram_VSCF_0K_tot)
-            self.Ram_VSCF_0K_tot = Ram_VSCF_0K_tot[:,0:2]
-            self.Ram_VSCF_0K_per = Ram_VSCF_0K_tot[:,0:3:2]
-            self.Ram_VSCF_0K_par = Ram_VSCF_0K_tot[:,0:4:3]
-          
-       # Save and parse VSCF data for Raman spectrum (T, tot)   
+            self.Ram_VSCF_0K_tot = Ram_VSCF_0K_tot[:, 0:2]
+            self.Ram_VSCF_0K_per = Ram_VSCF_0K_tot[:, 0:3:2]
+            self.Ram_VSCF_0K_par = Ram_VSCF_0K_tot[:, 0:4:3]
+
+        # Save and parse VSCF data for Raman spectrum (T, tot)
         n_VSCF_Ram_T_tot = len(bufferVSCF_Ram_T_tot)
         if n_VSCF_Ram_T_tot > 0:
-              for i, line in enumerate(bufferVSCF_Ram_T_tot[6:n_VSCF_Ram_T_tot-1]):
-                  Ram_VSCF_T_tot.append(line.split()[3:7])
-                  for j in range(4):
-                      Ram_VSCF_T_tot[i][j] = float(Ram_VSCF_T_tot[i][j])
-              Ram_VSCF_T_tot = np.array(Ram_VSCF_T_tot)
-              self.Ram_VSCF_T_tot = Ram_VSCF_T_tot[:,0:2]
-              self.Ram_VSCF_T_per = Ram_VSCF_T_tot[:,0:3:2]
-              self.Ram_VSCF_T_par = Ram_VSCF_T_tot[:,0:4:3] 
-        
-       # Save and parse VSCF data for Raman spectrum (0K, comp)   
+            for i, line in enumerate(bufferVSCF_Ram_T_tot[6:n_VSCF_Ram_T_tot-1]):
+                Ram_VSCF_T_tot.append(line.split()[3:7])
+                for j in range(4):
+                    Ram_VSCF_T_tot[i][j] = float(Ram_VSCF_T_tot[i][j])
+            Ram_VSCF_T_tot = np.array(Ram_VSCF_T_tot)
+            self.Ram_VSCF_T_tot = Ram_VSCF_T_tot[:, 0:2]
+            self.Ram_VSCF_T_per = Ram_VSCF_T_tot[:, 0:3:2]
+            self.Ram_VSCF_T_par = Ram_VSCF_T_tot[:, 0:4:3]
+
+        # Save and parse VSCF data for Raman spectrum (0K, comp)
         n_VSCF_Ram_0K_comp = len(bufferVSCF_Ram_0K_comp)
         if n_VSCF_Ram_0K_comp > 0:
-              for i, line in enumerate(bufferVSCF_Ram_0K_comp[6:n_VSCF_Ram_0K_comp-1]):
-                  Ram_VSCF_0K_comp.append(line.split()[3:10])
-                  for j in range(7):
-                      Ram_VSCF_0K_comp[i][j] = float(Ram_VSCF_0K_comp[i][j])
-              Ram_VSCF_0K_comp = np.array(Ram_VSCF_0K_comp)
-              self.Ram_VSCF_0K_comp_xx = Ram_VSCF_0K_comp[:,0:2]
-              self.Ram_VSCF_0K_comp_xy = Ram_VSCF_0K_comp[:,0:3:2]
-              self.Ram_VSCF_0K_comp_xz = Ram_VSCF_0K_comp[:,0:4:3]
-              self.Ram_VSCF_0K_comp_yy = Ram_VSCF_0K_comp[:,0:5:4]
-              self.Ram_VSCF_0K_comp_yz = Ram_VSCF_0K_comp[:,0:6:5]
-              self.Ram_VSCF_0K_comp_zz = Ram_VSCF_0K_comp[:,0:7:6]
-            
-       # Save and parse VSCF data for Raman spectrum (T, comp)   
+            for i, line in enumerate(bufferVSCF_Ram_0K_comp[6:n_VSCF_Ram_0K_comp-1]):
+                Ram_VSCF_0K_comp.append(line.split()[3:10])
+                for j in range(7):
+                    Ram_VSCF_0K_comp[i][j] = float(Ram_VSCF_0K_comp[i][j])
+            Ram_VSCF_0K_comp = np.array(Ram_VSCF_0K_comp)
+            self.Ram_VSCF_0K_comp_xx = Ram_VSCF_0K_comp[:, 0:2]
+            self.Ram_VSCF_0K_comp_xy = Ram_VSCF_0K_comp[:, 0:3:2]
+            self.Ram_VSCF_0K_comp_xz = Ram_VSCF_0K_comp[:, 0:4:3]
+            self.Ram_VSCF_0K_comp_yy = Ram_VSCF_0K_comp[:, 0:5:4]
+            self.Ram_VSCF_0K_comp_yz = Ram_VSCF_0K_comp[:, 0:6:5]
+            self.Ram_VSCF_0K_comp_zz = Ram_VSCF_0K_comp[:, 0:7:6]
+
+        # Save and parse VSCF data for Raman spectrum (T, comp)
         n_VSCF_Ram_T_comp = len(bufferVSCF_Ram_T_comp)
         if n_VSCF_Ram_T_comp > 0:
             for i, line in enumerate(bufferVSCF_Ram_T_comp[6:n_VSCF_Ram_T_comp-1]):
@@ -1957,14 +2004,14 @@ class Crystal_output:
                 for j in range(7):
                     Ram_VSCF_T_comp[i][j] = float(Ram_VSCF_T_comp[i][j])
             Ram_VSCF_T_comp = np.array(Ram_VSCF_T_comp)
-            self.Ram_VSCF_T_comp_xx = Ram_VSCF_T_comp[:,0:2]
-            self.Ram_VSCF_T_comp_xy = Ram_VSCF_T_comp[:,0:3:2]
-            self.Ram_VSCF_T_comp_xz = Ram_VSCF_T_comp[:,0:4:3]
-            self.Ram_VSCF_T_comp_yy = Ram_VSCF_T_comp[:,0:5:4]
-            self.Ram_VSCF_T_comp_yz = Ram_VSCF_T_comp[:,0:6:5]
-            self.Ram_VSCF_T_comp_zz = Ram_VSCF_T_comp[:,0:7:6]
-            
-       # Save and parse VCI data for Raman spectrum (0K, tot)   
+            self.Ram_VSCF_T_comp_xx = Ram_VSCF_T_comp[:, 0:2]
+            self.Ram_VSCF_T_comp_xy = Ram_VSCF_T_comp[:, 0:3:2]
+            self.Ram_VSCF_T_comp_xz = Ram_VSCF_T_comp[:, 0:4:3]
+            self.Ram_VSCF_T_comp_yy = Ram_VSCF_T_comp[:, 0:5:4]
+            self.Ram_VSCF_T_comp_yz = Ram_VSCF_T_comp[:, 0:6:5]
+            self.Ram_VSCF_T_comp_zz = Ram_VSCF_T_comp[:, 0:7:6]
+
+        # Save and parse VCI data for Raman spectrum (0K, tot)
         n_VCI_Ram_0K_tot = len(bufferVCI_Ram_0K_tot)
         if n_VCI_Ram_0K_tot > 0:
             for i, line in enumerate(bufferVCI_Ram_0K_tot[6:n_VCI_Ram_0K_tot-1]):
@@ -1972,11 +2019,11 @@ class Crystal_output:
                 for j in range(4):
                     Ram_VCI_0K_tot[i][j] = float(Ram_VCI_0K_tot[i][j])
             Ram_VCI_0K_tot = np.array(Ram_VCI_0K_tot)
-            self.Ram_VCI_0K_tot = Ram_VCI_0K_tot[:,0:2]
-            self.Ram_VCI_0K_per = Ram_VCI_0K_tot[:,0:3:2]
-            self.Ram_VCI_0K_par = Ram_VCI_0K_tot[:,0:4:3]
-        
-       # Save and parse VCI data for Raman spectrum (T, tot)   
+            self.Ram_VCI_0K_tot = Ram_VCI_0K_tot[:, 0:2]
+            self.Ram_VCI_0K_per = Ram_VCI_0K_tot[:, 0:3:2]
+            self.Ram_VCI_0K_par = Ram_VCI_0K_tot[:, 0:4:3]
+
+        # Save and parse VCI data for Raman spectrum (T, tot)
         n_VCI_Ram_T_tot = len(bufferVCI_Ram_T_tot)
         if n_VCI_Ram_T_tot > 0:
             for i, line in enumerate(bufferVCI_Ram_T_tot[6:n_VCI_Ram_T_tot-1]):
@@ -1984,11 +2031,11 @@ class Crystal_output:
                 for j in range(4):
                     Ram_VCI_T_tot[i][j] = float(Ram_VCI_T_tot[i][j])
             Ram_VCI_T_tot = np.array(Ram_VCI_T_tot)
-            self.Ram_VCI_T_tot = Ram_VCI_T_tot[:,0:2]
-            self.Ram_VCI_T_per = Ram_VCI_T_tot[:,0:3:2]
-            self.Ram_VCI_T_par = Ram_VCI_T_tot[:,0:4:3]
-       
-       # Save and parse VCI data for Raman spectrum (0K, comp)   
+            self.Ram_VCI_T_tot = Ram_VCI_T_tot[:, 0:2]
+            self.Ram_VCI_T_per = Ram_VCI_T_tot[:, 0:3:2]
+            self.Ram_VCI_T_par = Ram_VCI_T_tot[:, 0:4:3]
+
+        # Save and parse VCI data for Raman spectrum (0K, comp)
         n_VCI_Ram_0K_comp = len(bufferVCI_Ram_0K_comp)
         if n_VCI_Ram_0K_comp > 0:
             for i, line in enumerate(bufferVCI_Ram_0K_comp[6:n_VCI_Ram_0K_comp-1]):
@@ -1996,14 +2043,14 @@ class Crystal_output:
                 for j in range(7):
                     Ram_VCI_0K_comp[i][j] = float(Ram_VCI_0K_comp[i][j])
             Ram_VCI_0K_comp = np.array(Ram_VCI_0K_comp)
-            self.Ram_VCI_0K_comp_xx = Ram_VCI_0K_comp[:,0:2]
-            self.Ram_VCI_0K_comp_xy = Ram_VCI_0K_comp[:,0:3:2]
-            self.Ram_VCI_0K_comp_xz = Ram_VCI_0K_comp[:,0:4:3]
-            self.Ram_VCI_0K_comp_yy = Ram_VCI_0K_comp[:,0:5:4]
-            self.Ram_VCI_0K_comp_yz = Ram_VCI_0K_comp[:,0:6:5]
-            self.Ram_VCI_0K_comp_zz = Ram_VCI_0K_comp[:,0:7:6]
-            
-       # Save and parse VCI data for Raman spectrum (T, comp)   
+            self.Ram_VCI_0K_comp_xx = Ram_VCI_0K_comp[:, 0:2]
+            self.Ram_VCI_0K_comp_xy = Ram_VCI_0K_comp[:, 0:3:2]
+            self.Ram_VCI_0K_comp_xz = Ram_VCI_0K_comp[:, 0:4:3]
+            self.Ram_VCI_0K_comp_yy = Ram_VCI_0K_comp[:, 0:5:4]
+            self.Ram_VCI_0K_comp_yz = Ram_VCI_0K_comp[:, 0:6:5]
+            self.Ram_VCI_0K_comp_zz = Ram_VCI_0K_comp[:, 0:7:6]
+
+        # Save and parse VCI data for Raman spectrum (T, comp)
         n_VCI_Ram_T_comp = len(bufferVCI_Ram_T_comp)
         if n_VCI_Ram_T_comp > 0:
             for i, line in enumerate(bufferVCI_Ram_T_comp[6:n_VCI_Ram_T_comp-1]):
@@ -2011,12 +2058,12 @@ class Crystal_output:
                 for j in range(7):
                     Ram_VCI_T_comp[i][j] = float(Ram_VCI_T_comp[i][j])
             Ram_VCI_T_comp = np.array(Ram_VCI_T_comp)
-            self.Ram_VCI_T_comp_xx = Ram_VCI_T_comp[:,0:2]
-            self.Ram_VCI_T_comp_xy = Ram_VCI_T_comp[:,0:3:2]
-            self.Ram_VCI_T_comp_xz = Ram_VCI_T_comp[:,0:4:3]
-            self.Ram_VCI_T_comp_yy = Ram_VCI_T_comp[:,0:5:4]
-            self.Ram_VCI_T_comp_yz = Ram_VCI_T_comp[:,0:6:5]
-            self.Ram_VCI_T_comp_zz = Ram_VCI_T_comp[:,0:7:6]
+            self.Ram_VCI_T_comp_xx = Ram_VCI_T_comp[:, 0:2]
+            self.Ram_VCI_T_comp_xy = Ram_VCI_T_comp[:, 0:3:2]
+            self.Ram_VCI_T_comp_xz = Ram_VCI_T_comp[:, 0:4:3]
+            self.Ram_VCI_T_comp_yy = Ram_VCI_T_comp[:, 0:5:4]
+            self.Ram_VCI_T_comp_yz = Ram_VCI_T_comp[:, 0:6:5]
+            self.Ram_VCI_T_comp_zz = Ram_VCI_T_comp[:, 0:7:6]
 
         return self
 
@@ -2068,7 +2115,6 @@ class Crystal_output:
 
 class Properties_input:
     """Create a properties_input object"""
-
 
     def __init__(self, input_name=None):
         """Initialise the object"""
@@ -2126,7 +2172,7 @@ class Properties_input:
                            '%s %s\n' % (Fermi, print_option)]
 
     def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
-                         precision = 5, title='BAND STRUCTURE CALCULATION'):
+                         precision=5, title='BAND STRUCTURE CALCULATION'):
         """
         Returns the bands block for a bands calculation.
 
@@ -2141,8 +2187,9 @@ class Properties_input:
             title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
         """
 
-        import numpy as np
         import sys
+
+        import numpy as np
 
         bands_block = []
 
@@ -2168,7 +2215,8 @@ class Properties_input:
         k_unique = np.unique(k_path)
 
         # Find the shrinking factor
-        k_unique = np.array(np.around(k_unique, precision)*10**precision, dtype=int)
+        k_unique = np.array(np.around(k_unique, precision)
+                            * 10**precision, dtype=int)
         if len(k_unique) > 2:
             gcd = np.gcd.reduce(k_unique)
         else:
@@ -2183,7 +2231,7 @@ class Properties_input:
                            ' '+str(first_band)+' '+str(last_band)+' ' +
                            str(print_option)+' '+str(print_eig)+'\n')
 
-        # Add the symmetry lines
+        # Add the symmetry line
         for i in range(len(k_path[:-1])):
             bands_block.append(' '.join([str(x) for x in k_path[i]])+'  ' +
                                ' '.join([str(x) for x in k_path[i+1]])+'\n')
@@ -2339,8 +2387,8 @@ class Properties_input:
             input_name (str): The name of the output file.
         """
 
-        import sys
         import itertools
+        import sys
 
         if self.is_newk == False:
             property_input_list = self.property_block
@@ -2386,7 +2434,8 @@ class Properties_output:
             self.title = os.path.split(properties_output)[1]
 
         except:
-            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+            raise FileNotFoundError(
+                'EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_vecfield(self, properties_output, which_prop):
         """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
@@ -2435,11 +2484,11 @@ class Properties_output:
             if (ncol % i) == 0:
                 ncol_split = int(ncol/i)
 
-        blines = (nrow*ncol)/6
-        if (blines % 6) == 0:
-            blines = int(blines)
+        bline = (nrow*ncol)/6
+        if (bline % 6) == 0:
+            bline = int(bline)
         else:
-            blines = int(blines) + 1
+            bline = int(bline) + 1
 
         # Reads the types of density properties requested by the user and initializes the data arrays
         check = np.zeros(3, dtype=int)
@@ -2465,19 +2514,19 @@ class Properties_output:
             iamhere = 3
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_m[r, s, 1] = data[i +
-                                                iamhere+blines+skip].split()[j]
+                                                iamhere+bline+skip].split()[j]
                     self.dens_m[r, s, 2] = data[i+iamhere +
-                                                (2*blines)+(2*skip)].split()[j]
+                                                (2*bline)+(2*skip)].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
                         s += 1
-            iamhere = iamhere + 3*blines + 2*skip
+            iamhere = iamhere + 3*bline + 2*skip
         if check[1]:
             if iamhere == 0:
                 iamhere = 3
@@ -2485,19 +2534,19 @@ class Properties_output:
                 iamhere = iamhere + skip
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_j[r, s, 1] = data[i +
-                                                iamhere+blines+skip].split()[j]
+                                                iamhere+bline+skip].split()[j]
                     self.dens_j[r, s, 2] = data[i +
-                                                iamhere+2*blines+2*skip].split()[j]
+                                                iamhere+2*bline+2*skip].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
                     else:
                         s += 1
-            iamhere = iamhere + 3*blines + 2*skip
+            iamhere = iamhere + 3*bline + 2*skip
         if check[2]:
             if iamhere == 0:
                 iamhere = 3
@@ -2505,25 +2554,25 @@ class Properties_output:
                 iamhere = iamhere + skip
             r = 0
             s = 0
-            for i in range(0, blines):
+            for i in range(0, bline):
                 for j in range(0, len(data[i+iamhere].split())):
                     self.dens_JX[r, s, 0] = data[i+iamhere].split()[j]
                     self.dens_JX[r, s, 1] = data[i +
-                                                 iamhere+blines+skip].split()[j]
+                                                 iamhere+bline+skip].split()[j]
                     self.dens_JX[r, s, 2] = data[i+iamhere +
-                                                 (2*blines)+(2*skip)].split()[j]
+                                                 (2*bline)+(2*skip)].split()[j]
                     self.dens_JY[r, s, 0] = data[i+iamhere +
-                                                 (3*blines)+(3*skip)].split()[j]
+                                                 (3*bline)+(3*skip)].split()[j]
                     self.dens_JY[r, s, 1] = data[i+iamhere +
-                                                 (4*blines)+(4*skip)].split()[j]
+                                                 (4*bline)+(4*skip)].split()[j]
                     self.dens_JY[r, s, 2] = data[i+iamhere +
-                                                 (5*blines)+(5*skip)].split()[j]
+                                                 (5*bline)+(5*skip)].split()[j]
                     self.dens_JZ[r, s, 0] = data[i+iamhere +
-                                                 (6*blines)+(6*skip)].split()[j]
+                                                 (6*bline)+(6*skip)].split()[j]
                     self.dens_JZ[r, s, 1] = data[i+iamhere +
-                                                 (7*blines)+(7*skip)].split()[j]
+                                                 (7*bline)+(7*skip)].split()[j]
                     self.dens_JZ[r, s, 2] = data[i+iamhere +
-                                                 (8*blines)+(8*skip)].split()[j]
+                                                 (8*bline)+(8*skip)].split()[j]
                     if s == (ncol - 1):
                         r += 1
                         s = 0
@@ -2547,14 +2596,15 @@ class Properties_output:
         from CRYSTALpytools.base.propout import BandsBASE, OutBASE
 
         self.read_file(band_file)
-        if '-%-' in self.data[0]: #fort.25 file format
+        if '-%-' in self.data[0]:  # fort.25 file format
             self.bands = BandsBASE.f25_parser(self.data)
-        else: #BAND.DAT file format
+        else:  # BAND.DAT file format
             self.bands = BandsBASE.BAND_parser(self.data)
 
         if output != None:
             self.bands.geometry = OutBASE.get_geometry(output)
-            self.bands.tick_pos3d, self.bands.k_point_pos3d = OutBASE.get_3dkcoord(output)
+            self.bands.tick_pos3d, self.bands.k_point_pos3d = OutBASE.get_3dkcoord(
+                output)
             self.bands.reciprocal_latt = self.bands.geometry.lattice.reciprocal_lattice.matrix
 
         return self.bands
@@ -2573,9 +2623,9 @@ class Properties_output:
         from CRYSTALpytools.base.propout import DOSBASE
 
         self.read_file(properties_output)
-        if '-%-' in self.data[0]: #fort.25 file format
+        if '-%-' in self.data[0]:  # fort.25 file format
             self.doss = DOSBASE.f25_parser(self.data)
-        else: #DOSS.DAT file format
+        else:  # DOSS.DAT file format
             self.doss = DOSBASE.DOSS_parser(self.data)
 
         return self.doss
@@ -2606,10 +2656,11 @@ class Properties_output:
         Returns:
             Properties_output: The updated Properties_output object.
         """
-        import sys
         import re
-        import pandas as pd
+        import sys
+
         import numpy as np
+        import pandas as pd
 
         self.read_file(properties_output)
 
@@ -2728,8 +2779,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted XRD spectrum data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -2803,8 +2855,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted density line data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -2848,8 +2901,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted Seebeck coefficient data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -2927,8 +2981,9 @@ class Properties_output:
         Returns:
             self: The modified object with extracted electrical conductivity data.
         """
-        import sys
         import re
+        import sys
+
         import pandas as pd
 
         self.read_file(properties_output)
@@ -3006,9 +3061,10 @@ class Properties_output:
         Returns:
             self: The modified object with extracted Laplacian profile data.
         """
-        import pandas as pd
         import re
+
         import numpy as np
+        import pandas as pd
 
         data = self.data
         filename = self.abspath
@@ -3071,9 +3127,10 @@ class Properties_output:
         Returns:
             self: The modified object with extracted density profile data.
         """
-        import pandas as pd
         import re
+
         import numpy as np
+        import pandas as pd
 
         self.read_file(properties_output)
 
@@ -3206,6 +3263,7 @@ class Crystal_gui:
     This class can read a CRYSTAL gui file into an object or substrate
     information of the object to generate a gui file.
     """
+
     def __init__(self):
         pass
 
@@ -3224,7 +3282,8 @@ class Crystal_gui:
             data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError('A CRYSTAL geometry file needs to be specified: .gui, fort.34 or opt* files.')
+            raise FileNotFoundError(
+                'A CRYSTAL geometry file needs to be specified: .gui, fort.34 or opt* files.')
 
         self.dimensionality = int(data[0].split()[0])
         self.lattice = []
@@ -3270,7 +3329,8 @@ class Crystal_gui:
         # Cell vectors
         for vector in self.lattice:
             file.writelines('{}\n'.format(
-                ''.join(['{0: 20.12E}'.format(np.round(n, 12)) for n in vector])
+                ''.join(['{0: 20.12E}'.format(np.round(n, 12))
+                        for n in vector])
             ))
         # N symm ops
         file.writelines('{:5d}\n'.format(self.n_symmops))
@@ -3279,7 +3339,8 @@ class Crystal_gui:
         sym_list = np.reshape(self.symmops, [self.n_symmops*4, 3])
         for symmops in sym_list:
             file.writelines('{}\n'.format(
-                ''.join(['{0: 20.12f}'.format(np.round(n, 12)) for n in symmops])
+                ''.join(['{0: 20.12f}'.format(np.round(n, 12))
+                        for n in symmops])
             ))
         # N atoms
         file.writelines('{:5d}\n'.format(self.n_atoms))
@@ -3289,12 +3350,14 @@ class Crystal_gui:
             if self.atom_number[i] in pseudo_atoms:
                 file.writelines('{:5d}{}\n'.format(
                     int(self.atom_number[i])+200,
-                    ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
+                    ''.join(['{0: 20.12E}'.format(np.round(x, 12))
+                            for x in self.atom_positions[i]])
                 ))
             else:
                 file.writelines('{:5d}{}\n'.format(
                     int(self.atom_number[i]),
-                    ''.join(['{0: 20.12E}'.format(np.round(x, 12)) for x in self.atom_positions[i]])
+                    ''.join(['{0: 20.12E}'.format(np.round(x, 12))
+                            for x in self.atom_positions[i]])
                 ))
 
         # space group + n symm ops
@@ -3331,9 +3394,10 @@ class Crystal_density():
         self.file_name = fort98_unit
         self.is_irr = True
 
-        import sys
-        import numpy as np
         import re
+        import sys
+
+        import numpy as np
 
         try:
             file = open(self.file_name, 'r')
@@ -3357,8 +3421,8 @@ class Crystal_density():
 
             elif re.match(r'^INF', line):
                 self.inf_vec = []
-                inf_n_lines = int(np.ceil(inf_vec_len/8))
-                for j in range(inf_n_lines):
+                inf_n_line = int(np.ceil(inf_vec_len/8))
+                for j in range(inf_n_line):
                     self.inf_vec.extend([int(x) for x in data[i+1+j].split()])
                 n_symmops = self.inf_vec[0]
                 n_atoms = self.inf_vec[23]
@@ -3376,14 +3440,14 @@ class Crystal_density():
 
             elif re.match(r'^TOL', line):
                 self.tol_vec = []
-                tol_n_lines = int(np.ceil(tol_vec_len/8))
-                for j in range(tol_n_lines):
+                tol_n_line = int(np.ceil(tol_vec_len/8))
+                for j in range(tol_n_line):
                     self.tol_vec.extend([int(x) for x in data[i+1+j].split()])
 
             elif re.match(r'^PAR', line):
                 self.par_vec = []
-                par_n_lines = int(np.ceil(par_vec_len/4))
-                for j in range(par_n_lines):
+                par_n_line = int(np.ceil(par_vec_len/4))
+                for j in range(par_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
@@ -3396,9 +3460,9 @@ class Crystal_density():
                 # lattice vectors and transformation matrix from primitive to
                 # crystallographic cell
                 # Read all of it first and separate later
-                xyvgve_n_lines = int(np.ceil((n_symmops*12+18)/4))
+                xyvgve_n_line = int(np.ceil((n_symmops*12+18)/4))
                 xyvgve_vec = []
-                for j in range(xyvgve_n_lines):
+                for j in range(xyvgve_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # The line below fixes that issue
@@ -3415,10 +3479,10 @@ class Crystal_density():
 
             elif re.match(r'^BASATO', line):
                 if basato1 == False:
-                    basato_n_lines = int(
+                    basato_n_line = int(
                         np.ceil((n_atoms*4+n_shells*5+n_prim_gto*7)/4))
                     basato_vec = []
-                    for j in range(basato_n_lines):
+                    for j in range(basato_n_line):
                         # The negative elements appear connected to the previous one
                         # eg:  0.0000000000000E+00-1.0000000000000E+00
                         # The line below fixes that issue
@@ -3469,28 +3533,28 @@ class Crystal_density():
                 self.spin = []
                 self.ghost = []
                 n_ghost = 0
-                n_spin_lines = int(np.ceil((n_atoms*2)/8))
+                n_spin_line = int(np.ceil((n_atoms*2)/8))
                 n_basold = 0
-                if 'BASOLD' in data[i+n_spin_lines+1]:
+                if 'BASOLD' in data[i+n_spin_line+1]:
                     n_basold = 9 + 3 * \
                         self.inf_vec[1] + n_shells + 3*n_atoms+3 * \
                         n_shells+self.inf_vec[4]+1+3*self.inf_vec[78]
-                n_basold_lines = int(np.ceil((n_basold)/4))
-                n_charge_lines = int(np.ceil(n_atoms/4))
-                skip = n_spin_lines + n_charge_lines + 1 + n_basold_lines
-                for j in range(n_spin_lines):
+                n_basold_line = int(np.ceil((n_basold)/4))
+                n_charge_line = int(np.ceil(n_atoms/4))
+                skip = n_spin_line + n_charge_line + 1 + n_basold_line
+                for j in range(n_spin_line):
                     self.spin.extend([int(x) for x in data[i + j + 1].split()])
-                if 'IGHOST' in data[i+n_spin_lines+1]:
+                if 'IGHOST' in data[i+n_spin_line+1]:
                     n_ghost = int(np.ceil((n_atoms)/8)) + 1
                     skip = skip + n_ghost
                     for j in range(n_ghost-1):
                         self.ghost.extend(
-                            [float(x) for x in data[i + j + n_spin_lines + 2].split()])
-                f_irr_n_lines = int(np.ceil(f_irr_len/4))
-                for j in range(n_charge_lines):
+                            [float(x) for x in data[i + j + n_spin_line + 2].split()])
+                f_irr_n_line = int(np.ceil(f_irr_len/4))
+                for j in range(n_charge_line):
                     self.charges.extend(
-                        [float(x) for x in data[i+j+n_spin_lines+n_basold+n_ghost+1].split()])
-                for j in range(f_irr_n_lines):
+                        [float(x) for x in data[i+j+n_spin_line+n_basold+n_ghost+1].split()])
+                for j in range(f_irr_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -3500,9 +3564,9 @@ class Crystal_density():
                         self.f_irr.append(
                             float(data[i+skip+j][(item)*21:(item+1)*21]))
                 self.p_irr = []
-                p_irr_n_lines = int(np.ceil(p_irr_len/4))
+                p_irr_n_line = int(np.ceil(p_irr_len/4))
                 skip += 1
-                for k in range(i+skip+j, i+skip+j+p_irr_n_lines):
+                for k in range(i+skip+j, i+skip+j+p_irr_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -3545,8 +3609,8 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.nnnc = []
-                nnnc_n_lines = int(np.ceil(nnnc_len/8))
-                for j in range(nnnc_n_lines):
+                nnnc_n_line = int(np.ceil(nnnc_len/8))
+                for j in range(nnnc_n_line):
                     # The negative elements appear connected to the previous one
                     # eg:  0.0000000000000E+00-1.0000000000000E+00
                     # As opposite to the loops above where the float read was 20
@@ -3560,7 +3624,7 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la3 = []
-                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_line = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'LA4' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
@@ -3575,7 +3639,7 @@ class Crystal_density():
                 # each couple, and its size corresponds to the total number
                 # of shell couple in the shell couple sets
                 self.la4 = []
-                # nnnc_n_lines = int(np.ceil(nnnc_len/8))
+                # nnnc_n_line = int(np.ceil(nnnc_len/8))
                 j = i+1
                 while 'IROF' not in data[j].split()[0]:
                     # The negative elements appear connected to the previous one
@@ -3605,6 +3669,7 @@ def cry_combine_density(density1, density2, density3, new_density='new_density.f
     """
 
     import sys
+
     import numpy as np
 
     try:
@@ -3718,9 +3783,9 @@ def write_cry_density(fort98_name, new_p, new_fort98):
 
     density = Crystal_density(fort98_name)
 
-    n_spin_lines = int(np.ceil((density.inf_vec[23] * 2) / 8))
-    n_charges_lines = int(np.ceil((density.inf_vec[23]) / 4))
-    beginning = data.index('SPINOR\n') + n_spin_lines + n_charges_lines + 1
+    n_spin_line = int(np.ceil((density.inf_vec[23] * 2) / 8))
+    n_charges_line = int(np.ceil((density.inf_vec[23]) / 4))
+    beginning = data.index('SPINOR\n') + n_spin_line + n_charges_line + 1
     end = data.index('   NCF\n')
 
     new_fock_vect = [0] * len(density.f_irr)
@@ -3739,3 +3804,84 @@ def write_cry_density(fort98_name, new_p, new_fort98):
     with open(new_fort98, 'w') as file:
         for line in final_fort98:
             file.writelines(line)
+
+
+class External_unit:
+    # WORK IN PROGRESS
+    # This class will generate an object from the CRYSTAL external units like: IRSPEC.DAT
+    # RAMSPEC.DAT tha can be plotted through the corresponding function in plot.py
+
+    def __init__(self):
+
+        pass
+
+    def read_external_unit(self, external_unit):
+        import os
+
+        self.file_name = external_unit
+        try:
+            file = open(external_unit, 'r')
+            self.data = file.readlines()
+            file.close()
+
+            # directory
+            dir_name = os.path.split(external_unit)[0]
+            self.abspath = os.path.join(dir_name)
+
+            # title (named "title" only to distinguish from "file_name" which means another thing)
+            self.title = os.path.split(external_unit)[1]
+
+        except:
+            raise FileNotFoundError(
+                'EXITING: a CRYSTAL generated .DAT unit file needs to be specified')
+
+    def read_cry_irspec(self, external_unit):
+        import numpy as np
+
+        self.read_external_unit(external_unit)
+
+        data = self.data
+
+        for index, line in enumerate(data):
+            data[index] = line.split()
+
+        columns = len(data[0])
+        no_points = len(data)
+
+        if columns > 3:
+            self.calculation = 'solid'
+        else:
+            self.calculation = 'molecule'
+
+        irspec = np.zeros((no_points, columns))
+
+        for i, line in enumerate(data):
+            for j, element in enumerate(line):
+                irspec[i, j] = float(element)
+
+        self.irspec = irspec
+
+        return self
+
+    def read_cry_ramspec(self, external_unit):
+        import numpy as np
+
+        self.read_external_unit(external_unit)
+
+        data = self.data
+
+        for index, line in enumerate(data):
+            data[index] = line.split()
+
+        columns = len(data[0])
+        no_points = len(data)
+
+        ramspec = np.zeros((no_points, columns))
+
+        for i, line in enumerate(data):
+            for j, element in enumerate(line):
+                ramspec[i, j] = float(element)
+
+        self.ramspec = ramspec
+
+        return self
