@@ -18,7 +18,7 @@ class Crystal_input(Crystal_inputBASE):
 
     Args:
         source (str): Template file or string. An empty object is generated for
-        ``''``.
+            ``''``.
     """
     def __init__(self, source=''):
         import os
@@ -1097,7 +1097,7 @@ class Crystal_output:
 
         Returns:
             self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
-                natom\*3 for spin-polarised systems. [total, :math:`\alpha`, :math:`\beta`].
+                natom\*3 for spin-polarised systems. [total, :math:`\\alpha`, :math:`\\beta`].
         """
         import re
         import warnings
@@ -1588,94 +1588,93 @@ class Crystal_output:
 
         Returns:
         self.IR_HO_0K (array[float]): 2D numpy array containing harmonic IR
-        frequency and intensities computed at 0 K. 
+            frequency and intensities computed at 0 K. 
         self.IR_HO_T (array[float]): 2D numpy array containing harmonic IR
-        frequency and intensities computed at temperature T. 
+            frequency and intensities computed at temperature T. 
         self.IR_VSCF_0K (array[float]): 2D numpy array containing VSCF IR
-        frequency and intensities computed at 0 K. 
+            frequency and intensities computed at 0 K. 
         self.IR_VSCF_T (array[float]): 2D numpy array containing VSCF IR 
-        frequency and intensities computed at temperature T.
+            frequency and intensities computed at temperature T.
         self.IR_VCI_0K (array[float]): 2D numpy array containing VCI IR
-        frequency and intensities computed at 0 K. 
+            frequency and intensities computed at 0 K. 
         self.IR_VCI_T (array[float]): 2D numpy array containing VCI IR 
-        frequency and intensities computed at temperature T.
+            frequency and intensities computed at temperature T.
 
         self.Ram_HO_0K_tot (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (total) computed at 0 K. 
+            Raman frequency and intensities (total) computed at 0 K. 
         self.Ram_HO_0K_per (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (perpendicular component ) computed at 
-        temperature 0 K. 
+            Raman frequency and intensities (perpendicular component ) computed at 
+            temperature 0 K. 
         self.Ram_HO_0K_par (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (parallel component ) computed at 
-        temperature 0 K. 
+            Raman frequency and intensities (parallel component ) computed at 
+            temperature 0 K. 
         self.Ram_HO_T_tot (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (total) computed at temperature T. 
+            Raman frequency and intensities (total) computed at temperature T. 
         self.Ram_HO_T_per (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (perpendicular component ) computed at 
-        temperature T. 
+            Raman frequency and intensities (perpendicular component ) computed at 
+            temperature T. 
         self.Ram_HO_T_par (array[float]): 2D numpy array containing harmonic
-        Raman frequency and intensities (parallel component ) computed at 
-        temperature T. 
+            Raman frequency and intensities (parallel component ) computed at 
+            temperature T. 
 
         self.Ram_VSCF_0K_tot (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (total) computed at 0 K. 
+            Raman frequency and intensities (total) computed at 0 K. 
         self.Ram_VSCF_0K_per (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (perpendicular component) computed at 
-        0 K. 
+            Raman frequency and intensities (perpendicular component) computed at 
+            0 K. 
         self.Ram_VSCF_0K_par (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (parallel component) computed at 
-        0 K. 
+            Raman frequency and intensities (parallel component) computed at 
+            0 K. 
         self.Ram_VSCF_T_tot (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (total) computed at temperature T. 
+            Raman frequency and intensities (total) computed at temperature T. 
         self.Ram_VSCF_T_per (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (perpendicular component) computed at 
-        temperature T. 
+            Raman frequency and intensities (perpendicular component) computed at 
+            temperature T. 
         self.Ram_VSCF_T_par (array[float]): 2D numpy array containing VSCF
-        Raman frequency and intensities (parallel component) computed at 
-        temperature T. 
+            Raman frequency and intensities (parallel component) computed at 
+            temperature T. 
 
         self.Ram_VCI_0K_tot (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (total) computed at 0 K. 
+            Raman frequency and intensities (total) computed at 0 K. 
         self.Ram_VCI_0K_per (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (perpendicular component) computed at 
-        0 K. 
+            Raman frequency and intensities (perpendicular component) computed at 
+            0 K. 
         self.Ram_VCI_0K_par (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (parallel component) computed at 
-        0 K. 
+            Raman frequency and intensities (parallel component) computed at 
+            0 K. 
         self.Ram_VCI_T_tot (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (total) computed at temperature T. 
+            Raman frequency and intensities (total) computed at temperature T. 
         self.Ram_VCI_T_per (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (perpendicular component) computed at 
-        temperature T. 
+            Raman frequency and intensities (perpendicular component) computed at 
+            temperature T. 
         self.Ram_VCI_T_par (array[float]): 2D numpy array containing VCI
-        Raman frequency and intensities (parallel component) computed at 
-        temperature T.
+            Raman frequency and intensities (parallel component) computed at 
+            temperature T.
 
         self.Ram_HO_0K_comp_xx (array[float]): 2D numpy array containing
-        harmonic Raman frequency and intensities (xx component) computed at 0
-        K.
+            harmonic Raman frequency and intensities (xx component) computed at 0
+            K.
         self.Ram_HO_T_comp_xx (array[float]): 2D numpy array containing
-        harmonic Raman frequency and intensities (xx component) computed at
-        temperature T.
+            harmonic Raman frequency and intensities (xx component) computed at
+            temperature T.
         self.Ram_VSCF_0K_comp_xx (array[float]): 2D numpy array containing
-        VSCF Raman frequency and intensities (xx component) computed at 0 K.
+            VSCF Raman frequency and intensities (xx component) computed at 0 K.
         self.Ram_VSCF_T_comp_xx (array[float]): 2D numpy array containing
-        VSCF Raman frequency and intensities (xx component) computed at
-        temperature T.
+            VSCF Raman frequency and intensities (xx component) computed at
+            temperature T.
         self.Ram_VCI_0K_comp_xx (array[float]): 2D numpy array containing
-        VCI Raman frequency and intensities (xx component) computed at 0 K.
+            VCI Raman frequency and intensities (xx component) computed at 0 K.
         self.Ram_VCI_T_comp_xx (array[float]): 2D numpy array containing
-        VCI Raman frequency and intensities (xx component) computed at
-        temperature T.
+            VCI Raman frequency and intensities (xx component) computed at
+            temperature T.
 
         .. note::
-        Please, note that for the sake of brevity, only the xx Raman component
-        attributes have been listed here, but the yy, zz, xy, xz, yz components
-        are available as well.  
+
+            Please, note that for the sake of brevity, only the xx Raman component
+            attributes have been listed here, but the yy, zz, xy, xz, yz components
+            are available as well.  
         """
-
         import re
-
         import numpy as np
 
         # Initialize some logical variables
@@ -2089,7 +2088,7 @@ class Properties_input(Properties_inputBASE):
 
     Args:
         source (str): Template file or string. An empty object is generated for
-        ``''``.
+            ``''``.
     """
     def __init__(self, source=''):
         import os
