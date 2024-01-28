@@ -384,7 +384,7 @@ class Crystal_output:
         import re
         import warnings
         import numpy as np
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
 
@@ -625,7 +625,7 @@ class Crystal_output:
         """
         Conventional atom numbers. After geometry editing.
         """
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.base.output import GeomBASE
 
         _, conv_z = GeomBASE.read_conv_z(self.data, 0)
         return conv_z
@@ -755,7 +755,7 @@ class Crystal_output:
             return self.primitive_geometry
 
         shrink_mx = np.linalg.inv(self.trans_matrix)
-        pstruc = self.geometry.get_pcel(self.geometry, self.trans_matrix)
+        pstruc = self.geometry.get_pcel(self.trans_matrix)
 
         self.primitive_geometry = pstruc
         # Write gui files
@@ -1017,7 +1017,7 @@ class Crystal_output:
             self.scf_deltae (array): Energy difference. Unit: eV
         """
         import numpy as np
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
         if all_cycles == True:
             self.scf_cycles = []
@@ -1062,7 +1062,7 @@ class Crystal_output:
                 be either a 2\*1 array (``history=False``) or a nCYC\*2 array
                 (``history=True``).
         """
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
         output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
@@ -1083,7 +1083,7 @@ class Crystal_output:
                 2\*1 array (``history=False``) or a nCYC\*2 array
                 (``history=True``).
         """
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
         output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
@@ -1436,7 +1436,7 @@ class Crystal_output:
         """
         import re
         import numpy as np
-        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
         is_freq = False

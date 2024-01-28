@@ -46,6 +46,10 @@ class ElectronBand():
         self.tick_pos3d = np.array(tick_pos3d, dtype=float)
         self.k_path3d = np.array(k_path3d, dtype=float)
         self.unit = unit
+        # old attrs, commensurate with old codes
+        self.tick_position = self.tick_pos
+        self.k_point_plot = self.k_path
+        self.k_point_pos3d = self.k_path3d
 
     @classmethod
     def from_file(cls, band, output=None):
@@ -85,7 +89,7 @@ class ElectronBand():
 
     def plot(self, unit='eV', k_labels=None, energy_range=None, k_range=None,
              color='blue', linestl='-', linewidth=1, fermi='forestgreen',
-             title=None, figsize=None, save_to_file=None):
+             fermiwidth=1.5, fermialpha=1, title=None, figsize=None, save_to_file=None):
         """
         Plot band structure of a single system using `matplotlib <https://matplotlib.org/>`_.
         For arguments setting up figures, colors and lines styles, please refer
@@ -102,6 +106,8 @@ class ElectronBand():
             linestl (str): Linestyle string.
             linewidth (float): The width of the plot lines.
             fermi (str): The color of the Fermi level line.
+            fermiwidth (float): The width of the fermi line.
+            fermialpha (float): Opacity of the fermi level 0-1.
             title (str): The title of the plot.
             figsize (list): The figure size specified as [width, height].
             save_to_file (str): The file name to save the plot.

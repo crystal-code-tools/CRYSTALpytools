@@ -114,7 +114,7 @@ class GeomBASE():
                 conv_z = np.array(conv_z, dtype=int)
                 break
             else:
-                countline += 3
+                countline += 1
 
         if len(conv_z) == 0:
             raise Exception('Geometry information not found.')
@@ -356,7 +356,7 @@ class OptBASE():
         import warnings
         import numpy as np
         from CRYSTALpytools.units import H_to_eV
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.base.output import GeomBASE
 
         e = []
         de = []

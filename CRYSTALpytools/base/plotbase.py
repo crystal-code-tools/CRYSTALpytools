@@ -30,12 +30,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
         fermialpha(float): Opacity of the fermi level 0-1
         fermiwidth(float): Width of the fermi level
-
-    Raises:
-        ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
-
     Returns:
         None
+
+    :raise ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
     """
     import sys
     import warnings
@@ -178,9 +176,9 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         # HSP line plot
         if isinstance(bands, list):
-            hsp = bands[0].tick_position
+            hsp = bands[0].tick_pos
         else:
-            hsp = bands.tick_position
+            hsp = bands.tick_pos
 
         if k_labels is not None:
             if len(hsp) != len(k_labels):
@@ -306,7 +304,7 @@ def plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sha
     import matplotlib.pyplot as plt
     import numpy as np
 
-    dx = bands.k_point_plot
+    dx = bands.k_path
 
     pltband = bands.bands
     no_bands = np.shape(pltband)[0]
@@ -355,8 +353,8 @@ def plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
 
     # scaling that enables the comparison of band structure calculated at different pressures
     if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_point_plot)
-        xmin = np.amin(bands[0].k_point_plot)
+        reference = xmax = np.amax(bands[0].k_path)
+        xmin = np.amin(bands[0].k_path)
 
     else:
         xmax = []
@@ -376,10 +374,10 @@ def plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
     for index, data in enumerate(bands):
         # scaling that enables the comparison of band structure calculated at different pressures
         if not_scaled is False:
-            k_max = np.amax(data.k_point_plot)
-            dx = (data.k_point_plot/k_max)*reference
+            k_max = np.amax(data.k_path)
+            dx = (data.k_path/k_max)*reference
         else:
-            dx = data.k_point_plot
+            dx = data.k_path
             xmin.append(np.amin(dx))
             xmax.append(np.amax(dx))
 
@@ -485,8 +483,8 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
         ax = [ax]
     # Scaling with different size of the same brillouin zone
     if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_point_plot)
-        xmin = np.amin(bands[0].k_point_plot)
+        reference = xmax = np.amax(bands[0].k_path)
+        xmin = np.amin(bands[0].k_path)
 
     else:
         xmax = []
@@ -501,14 +499,14 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
         for row in range(n_rows):
             data = bands[count3]
             if count3 == 0:
-                hsp = data.tick_position
+                hsp = data.tick_pos
             pltband = data.bands
             no_bands = np.shape(pltband)[0]
             if not_scaled is False:
-                k_max = np.amax(data.k_point_plot)
-                dx = (data.k_point_plot/k_max)*reference
+                k_max = np.amax(data.k_path)
+                dx = (data.k_path/k_max)*reference
             else:
-                dx = data.k_point_plot
+                dx = data.k_path
                 xmin.append(np.amin(dx))
                 xmax.append(np.amax(dx))
             ymin.append(np.amin(pltband))
@@ -1102,7 +1100,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         fig.suptitle(title)
 
     # Definition of the hsp position variables
-    hsp = bands.tick_position
+    hsp = bands.tick_pos
 
     # Error check on k_labels lenght against the HSP poisitions
     if k_labels is not None:
@@ -1115,7 +1113,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                     'You have more labels than the High Simmetry point along the path')
 
     # Local variable definition for the band plot
-    dx_bd = bands.k_point_plot
+    dx_bd = bands.k_path
     pltband = bands.bands
     no_bands = np.shape(pltband)[0]
     ymin_bd = np.amin(pltband)

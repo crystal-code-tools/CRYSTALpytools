@@ -299,7 +299,7 @@ class CrgraParser():
                     atom_spec.append(int(line[0:4]))
                     atom_coord.append([float(line[-60:-40]), float(line[-40:-20]), float(line[-20:])])
                 else:
-                    latt.append([float(line[0:20]), float(line[20:40]), float([40:])])
+                    latt.append([float(line[0:20]), float(line[20:40]), float(line[40:])])
 
             countline += 1
 

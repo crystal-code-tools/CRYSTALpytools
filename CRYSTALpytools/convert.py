@@ -487,16 +487,18 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
             lattice_vectors = copy.deepcopy(structure.lattice.matrix)
             atom_coords = copy.deepcopy(structure.cart_coords)
 
-        structure = Structure(lattice_vectors, structure.atomic_numbers,
-                              atom_coords, coords_are_cartesian=True)
+        structure = CStructure(lattice_vectors, structure.atomic_numbers,
+                               atom_coords, coords_are_cartesian=True)
 
         gui.lattice = structure.lattice.matrix
         gui.n_atoms = structure.num_sites
 
         if symmetry == True:
             if gui.dimensionality == 3:
-                structure = SpacegroupAnalyzer(structure, **kwargs).get_refined_structure()
-                gui.space_group, gui.n_symmops, gui.symmops = get_sg_symmops(structure, **kwargs)
+                structure.get_sg_symmops(**kwargs)
+                gui.space_group = structure.sg
+                gui.n_symmops = structure.n_symmops
+                gui.symmops = structure.symmops
             elif gui.dimensionality == 2:
                 # Get group number before editing- inheriated from previous version
                 gui.space_group = SpacegroupAnalyzer(structure, **kwargs).get_space_group_number()
