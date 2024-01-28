@@ -74,7 +74,7 @@ rst_prolog = u"""\
 
 .. only:: html
 
-  :math:`\renewcommand\AA{\text{Å}}`
+  :math:`\newcommand{\AA}{\text{Å}}`
 
 """
 
