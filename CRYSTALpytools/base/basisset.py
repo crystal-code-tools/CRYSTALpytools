@@ -1,403 +1,405 @@
-class BS_GTF():
+class AtomBS():
     """
-    A Gaussian type function object.
+    Basis set class for CRYSTALpytools
 
     Args:
-        info (str): GTF radial coefficients in CRYSTAL format
+        z (int): Conventional atomic number
+        nshell (int): Number of shells
+        ECP (str): Effective core potential, printed before basis sets
     """
+    def __init__(self, z, nshell, ECP=None):
+        from mendeleev import element
 
-    def __init__(self, info):
-        info = info.replace('D', 'E').split()
-        if len(info) == 2:
-            self.exp = eval(info[0])
-            self.contr = eval(info[1])
-            self.pcoef = None
-        elif len(info) == 3:
-            self.exp = eval(info[0])
-            self.contr = eval(info[1])
-            self.pcoef = eval(info[2])
-        else:
-            raise ValueError('Input format error.')
+        self.z = int(z)
+        self.nshell = int(nshell)
+        self.ECP = ECP
+        self.element = element(z % 100)
+        self.shells = []
+        # self.charge = self.element.atomic_number # For charge neutrality check - all-electron BSs only
 
-    @property
-    def data(self):
+    def define_a_shell(self, ITYB, LAT, NG, CHE, SCAL, orbitals=[]):
         """
-        Print basis set information in CRYSTAL format
-        """
-        return self._print_data()
-
-    def _print_data(self):
-        """
-        Return to a string in CRYSTAL format
-        """
-        if self.pcoef == None:
-            bs_str = '  {: 16.10E}    {: 16.10E}\n'.format(
-                self.exp, self.contr)
-        else:
-            bs_str = '  {: 16.10E}    {: 16.10E}    {: 16.10E}\n'.format(
-                self.exp, self.contr, self.pcoef)
-
-        return bs_str
-
-
-class BS_Shell():
-    """
-    The Shell object to set a general basis set.
-
-    Args:
-        info (list[str]): String in Crystal format
-
-    Other arguments are consistent with CRYSTAL manual.
-    """
-
-    def __init__(self, ITYB, LAT, NG, CHE, SCAL, info):
-        from CRYSTALpytools.base.basisset import BS_GTF
-
-        if ITYB != 0:
-            raise ValueError(
-                'BS_Shell class is limited to general definitions of basis set.')
-
-        self.type = ITYB
-        self.angular = LAT
-        self.ngtf = NG
-        self.chg = CHE
-        self.scale = SCAL
-        self.gtf = []
-        for line in info:
-            self.gtf.append(BS_GTF(line))
-
-    @property
-    def data(self):
-        """
-        Print basis set information in CRYSTAL format
-        """
-        return self._print_data()
-
-    def _print_data(self):
-        """
-        Return to a string in CRYSTAL format
-        """
-        bs_str = ''
-        bs_str += format('%-2i%-2i%-3i%-6.2f%-6.2f\n' %
-                         (self.type, self.angular, self.ngtf, self.chg, self.scale))
-        for g in self.gtf:
-            bs_str += g.data
-
-        return bs_str
-
-
-class BS_Atom():
-    """
-    The atom object to set a basis set.
-
-    .. note::
-
-        The type of basis set should be consistent for all the shells.
-        Otherwise unexpected errors might happen.
-
-        Free effective core pseudopotential (ECP) definition not supported.
-
-    Args:
-        z (int): Convential atomic number Z.
-        info (list(str)): String in Crystal BS format
-    """
-
-    def __init__(self, z, info):
-        import re
-        from CRYSTALpytools.base.basisset import BS_Shell
-
-        if z > 99:
-            self.z = z % 100
-        else:
-            self.z = z
-        self.conventional_atomic_number(z)
-        self.nshell = 0
-        self.shell = []
-        self.ecp = None
-        set_stdbs = False
-        info.append('')  # Avoid index out of range error
-        for idx, line in enumerate(info):
-            if re.match(r'^[0-2]\s+[0-5]\s+[0-9]+\s+[0-9,\.,\-,\+]+\s+[0-9,\.,\-,\+]+$', line):
-                self.nshell += 1
-                data = line.split()
-                ITYB = int(data[0])
-                LAT = int(data[1])
-                NG = int(data[2])
-                CHE = float(data[3])
-                SCAL = float(data[4])
-                if ITYB == 0:  # General definition of basis sets
-                    self.shell.append(
-                        BS_Shell(ITYB, LAT, NG, CHE, SCAL,
-                                 info[idx + 1: idx + NG + 1])
-                    )
-                else:  # Standard STO-3G / 3(6)-21G* basis sets
-                    set_stdbs = True
-                    break
-            elif re.match(r'^[A-Z]+', line): # ECP line
-                if re.match(r'^INPUT', line):
-                    raise ValueError('Free-format ECP not supported')
-                self.ecp = line
-            else:
-                continue
-
-        if set_stdbs == True:
-            self._set_stdbs(info)
-
-    def conventional_atomic_number(self, zconv):
-        """
-        Set convential atomic number.
+        Define shells of atomic basis sets. Arguments are consistent with
+        CRYSTAL manual.
 
         Args:
-            zconv (int): Z(real atomic number) + n\*100. N is an integer.
+            ITYB (int): Type of Gaussain orbitals
+            LAT (int): Angular momentum
+            NG (int): Number of Gaussian orbitals
+            CHE (float): Charge
+            SCAL (float): Scaling factor
+            orbitals (list): nGTO\*2 or nGTO\*3 (sp type) list of exponent
+                and contraction factors
+        Returns:
+            obj (AtomBS)
         """
-        if zconv % 100 != self.z:
-            raise ValueError(
-                'Convential atomic number should be Z + n*100. N is an integer.')
+        shell = {}
+        if int(ITYB) not in [0, 1, 2]:
+            raise ValueError('Unknown basis set type.')
+        shell['type'] = int(ITYB)
 
-        self.zconv = zconv
-        return
+        if int(LAT) not in range(6): # Maximum g shell
+            raise ValueError('Unknown angular momentum')
+        shell['angular momentum'] = int(LAT)
 
-    def _set_stdbs(self, z, info):
+        if int(NG) != len(orbitals) and ITYB == 0:
+            raise ValueError('Inconsistent definition of number of Gaussian orbitals.')
+        shell['n orbital'] = int(NG)
+        shell['charge'] = float(CHE)
+        shell['scale factor'] = float(SCAL)
+        shell['orbitals'] = orbitals
+
+        self.shells.append(shell)
+        # self.charge -= CHE
+        return self
+
+    @classmethod
+    def read_bse(cls, bs, z):
         """
-        Set the standard STO-3G / 3(6)-21G* basis sets. All the settings will
-        be converted to general BS definitions.
+        Read basis sets saved in `Basis Set Exchange(BSE) <https://www.basissetexchange.org/>`_ 
+        dictionary format and assign charge.
+
+        .. note::
+            All electron basis sets only. Atoms are charge neutral.
 
         Args:
-            info (list(str)): String in Crystal BS format
+            bs (str): Name of basis set
+            z (int): Conventional atomic number
+        Returns:
+            obj (AtomBS)
         """
+        from mendeleev import element
+        import numpy as np
         import warnings
-        import copy
         try:
             import basis_set_exchange as bse
-            print("module bse imported")
         except ImportError:
-            import sys
-            print (sys.exc_info())
-            print("module basis_set_exchange unavailable: please install to activate")
-#        import basis_set_exchange as bse
+            raise ImportError('basis_set_exchange package is not available or incompatible with your hardware (a known issue for arm64 chips).')
 
-        from CRYSTALpytools.base.basisset import Basisset
+        zreal = int(z)%100
+        dic = bse.get_basis(bs, elements=[element(zreal).symbol])
 
-        warnings.warn('''The built-in standard STO-3G / 3(6)-21G basis set is used.
-CRYSTALpytools will substract basis set definition from Basis Set Exchange.
-That might lead to discripencies in basis set definitions.''')
-
-        # set a general 1-atom BS template
-        ITYB_init = info[1].split()[0]
-        NG_init = info[1].split()[2]
-        if ITYB_init == 1:  # STO-3G
-            bs = Basisset('STO-3G', [self.z, ])
-        elif ITYB_init == 2 and NG_init == 3:  # 3-21G
-            bs = Basisset('3-21G', [self.z, ])
-        elif ITYB_init == 2 and NG_init == 6:  # 6-21G
-            bs = Basisset('6-21G', [self.z, ])
+        # ECP basis sets, do not automatically assign charge
+        if dic['elements'][str(zreal)].get('ecp_potentials') != None:
+            warnings.warn('ECP is used. Automatic assignment of atomic charge is disabled.', stacklevel=2)
+            shellname = 'ecp_potentials'
+            expname = 'gaussian_exponents'
+            coeffname = 'coefficients'
+            nshell = len(dic['elements'][str(zreal)][shellname])
+            obj = cls(z, nshell)
+            chg = [0. for i in range(nshell)]
         else:
-            raise ValueError('Basis set input format error.')
+            shellname = 'electron_shells'
+            expname = 'exponents'
+            coeffname = 'coefficients'
+            nshell = len(dic['elements'][str(zreal)][shellname])
+            obj = cls(z, nshell)
+            chg = obj._assign_charge(obj.element, dic) # Assign charge
 
-        atom = bs.atom[self.z]
-        self.nshell = copy.deepcopy(atom.nshell)
-        self.shell = copy.deepcopy(atom.shell)
-        del atom, bs
-        # Update object with user defined value. Every line defines a shell
-        for idx, line in enumerate(info):
-            data = line.split()
-            if len(data) == 2:
-                continue
-            if self.shell[idx].angular != int(data[1]) or self.shell[idx].ngtf != int(data[2]):
-                warnings.warn(
-                    'The sequence of input BS is not consistent with BSE data. Trying to find the matched shell...')
-                found_flag = False
-                for j in range(len(info)):
-                    data2 = info[j].split()
-                    if self.shell[j].angular == int(data2[1]) or self.shell[j].ngtf != int(data2[2]):
-                        self.shell[j].chg = float(data2[3])
-                        self.shell[j].scale = float(data2[4])
-                        found_flag = True
-                        break
-                if found_flag == False:
-                    raise Exception(
-                        'The input BS is not a correct STO-3G / 3(6)-21G basis set.')
+        # Add GTO shell
+        for ishell in range(nshell):
+            angshell = dic['elements'][str(zreal)][shellname][ishell]['angular_momentum']
+            if len(angshell) == 1: # angular momentum in CRYSTAL format
+                angshell = angshell[0]
+                if angshell == 0:
+                    angcrys = angshell
+                else:
+                    angcrys = angshell + 1
             else:
-                self.shell[idx].chg = float(data[3])
-                self.shell[idx].scale = float(data[4])
-        return
+                angcrys = 1
 
-    @property
-    def data(self):
-        """
-        Print basis set information in CRYSTAL format
-        """
-        return self._print_data()
+            if angcrys > 5:
+                raise ValueError('H orbital and beyond is not available.')
 
-    def _print_data(self):
-        """
-        Return to a string in CRYSTAL format
+            ngto = len(dic['elements'][str(zreal)][shellname][ishell][expname])
+            orbs = np.vstack([
+                np.array(dic['elements'][str(zreal)][shellname][ishell][expname], dtype=float),
+                np.array(dic['elements'][str(zreal)][shellname][ishell][coeffname], dtype=float)
+            ]).transpose()
+            obj.define_a_shell(0, angcrys, ngto, chg[ishell], 1.0, orbitals=orbs)
 
+        return obj
+
+    @staticmethod
+    def _assign_charge(element, bs):
+        """
+        Assign charge to basis sets from BSE, where the charge info is missing.
+
+        BSE sorts shells by angular momentum acending order, i.e., 1s, 2s, 3s, 2p, 3p, 3d...
+
+        .. note::
+            All electron basis sets only. Atoms are charge neutral.
+
+        Args:
+            element (element): `Mendeleev <https://mendeleev.readthedocs.io/en/stable/>`_
+                Element object.
+            bs (dict): BSE basis set dictionary
         Returns:
-            bs_str (str): Formatted basis set string of an atom.
+            chg (list): nshell\*1 list of charge assigned to every shell.
         """
-        bs_str = ''
-        bs_str += format('%-5i%-5i\n' % (self.zconv, self.nshell))
-        if self.ecp != None:
-            bs_str += format('%s\n' % self.ecp)
+        z = str(element.atomic_number)
+        # ECP basis sets not allowed
+        if bs['elements'][z].get('ecp_potentials') != None:
+            raise ValueError('Only all-electron basis sets are supported.')
 
-        for s in self.shell:
-            bs_str += s.data
+        nshell = len(bs['elements'][z]['electron_shells'])
+        chg = []
 
-        return bs_str
+        ang = 0 # Angular momentum
+        nang = 0 # counter of same angular momentum
+        ang_symbol = {0 : 's', 1 : 'p', 2 : 'd', 3 : 'f', 4 : 'g'}
+        for ishell in range(nshell):
+            # Assign charges of physical shells to GTO shells
+            angshell = bs['elements'][z]['electron_shells'][ishell]['angular_momentum']
+            if len(angshell) == 1: # s, p, d, f, g orbitals
+                angshell = angshell[0]
+                if ang != angshell:
+                    ang = angshell
+                    nang = 1
+                else:
+                    nang += 1
+
+                try:
+                    chg.append(float(element.ec.conf[(nang+ang, ang_symbol[ang])])) # 1s, 2p, 3d ...
+                except:
+                    chg.append(0.)
+
+            else: # sp orbitals
+                angshell = -1
+                if ang != angshell:
+                    ang = angshell
+                    nang = 1
+                else:
+                    nang += 1
+
+                # In case that s but no p
+                try:
+                    schg = float(element.ec.conf[(nang+1, 's')]) # 2sp ...
+                except:
+                    schg = 0.
+                try:
+                    pchg = float(element.ec.conf[(nang+1, 'p')]) # 2sp ...
+                except:
+                    pchg = 0.
+
+                chg.append(schg + pchg)
+
+        return chg
+
+    @classmethod
+    def read_crystal(cls, text):
+        """
+        Analyze text in CRYSTAL format.
+        """
+        import re
+
+        lines = text.strip().split('\n')
+        if re.match(r'^[0-9]+\s+[0-9]+$', lines[0].strip()):
+            z = int(lines[0].strip().split()[0])
+            nshell = int(lines[0].strip().split()[1])
+        else:
+            raise ValueError('Input string is not a CRYSTAL formatted basis set. Atom and n shells are unknown.')
+
+        # ECP
+        if not re.match(r'^[0-9]+', lines[1]):
+            if 'INPUT' not in lines[1]:
+                ecp = lines[1].strip()
+                nl = 2
+            else: # manual definition of ECP
+                ecp = lines[1].strip()
+                for nl, l in enumerate(lines[2:]):
+                    if len(l.strip().split()) != 5:
+                        ecp = ecp + '\n' + l
+                    else:
+                        break
+                nl += 1
+        else:
+            ecp = None
+            nl = 1
+
+        obj = cls(z, nshell, ecp)
+        title = []
+        gto = []
+        while nl < len(lines):
+            data = lines[nl].strip().split()
+            if len(data) == 5:
+                title.append([int(data[0]), int(data[1]), int(data[2]), float(data[3]), float(data[4])])
+                gto_shell = []
+                ngto = int(data[2])
+                if int(data[0]) == 0:
+                    for i in range(ngto):
+                        data2 = lines[nl + i + 1].strip().split()
+                        gto_shell.append([float(i.replace('D', 'E')) for i in data2])
+                    nl += ngto + 1
+                    gto.append(gto_shell)
+                else:
+                    nl += 1
+            else:
+                nl += 1
+
+        for nshell, shell in enumerate(title):
+            obj.define_a_shell(shell[0], shell[1], shell[2], shell[3], shell[4], gto[nshell])
+
+        return obj
+
+    def print_crystal(self):
+        """
+        Print basis set into CRYSTAL format
+        """
+        if self.nshell != len(self.shells):
+            raise ValueError('Number of shells is not consistent with shells defined.')
+
+        txt_out = '{:d} {:d}\n'.format(self.z, self.nshell)
+        if self.ECP != None:
+            txt_out = txt_out + '{}\n'.format(self.ECP)
+        for s in self.shells:
+            txt_out = txt_out + '{:d} {:d} {:d} {:.2f} {:.2f}\n'.format(
+                s['type'], s['angular momentum'], s['n orbital'], s['charge'], s['scale factor']
+            )
+            if s['type'] == 0:
+                for o in s['orbitals']:
+                    if len(o) == 3: # sp orbitals
+                        txt_out = txt_out + '{: 18.10f}{: 18.10f}{: 18.10f}\n'.format(o[0], o[1], o[2])
+                    elif len(o) == 2: # others
+                        txt_out = txt_out + '{: 18.10f}{: 18.10f}\n'.format(o[0], o[1])
+                    else:
+                        raise ValueError('Input error: Unknown GTO definition.')
+
+        return txt_out
 
 
 class BasisSetBASE():
     """
-    The basisset object in CRYSTAL format. When called, one can pass the
-    following arguments:
-
-    Args:
-        name (str | None): When specified, download the corresponding basis set
-            from `Basis Set Exchange(BSE) <https://www.basissetexchange.org/>`_
-        element (list[str] | list[int]): Elements to download. Either as a list
-            of atomic numbers or labels.
-
-    .. note::
-
-        For basis sets from BSE, reference and roles are omitted.
-
+    The basisset object base object, as the class of basis sets defined for the
+    whole system. Basis sets from string, file or `Basis Set Exchange(BSE) <https://www.basissetexchange.org/>`_,
+    can be read and saved as a list of ``AtomBS`` objects. 
     """
 
     def __init__(self):
-        pass
+        self.atoms = []
 
-    @classmethod
-    def from_bse(cls, name, element, zconv=None):
+    def from_bse(self, bs, z):
         """
-        Download basis set definitions from BSE.
+        Get or append basis sets from `Basis Set Exchange(BSE) <https://www.basissetexchange.org/>`_.
 
         Args:
-            name (str): Basis set's name.
-            element (list[str] | list[int]): List of elements.
+            bs (str): Name of basis set. Only one name is accepted.
+            z (int | list[int]): Conventional atomic number.
+        Returns:
+            self
         """
-        import basis_set_exchange as bse
+        # from CRYSTALpytools.base.basisset import AtomBS
 
-        bs_str = bse.get_basis(name, elements=element, fmt='crystal')
+        if type(z) == int:
+            z = [z]
+        elif type(z) != list and type(z) != tuple:
+            raise ValueError('Conventional atomic number must be either list or int.')
 
-        return cls()._set_atom(bs_str, zconv)
-
-    @classmethod
-    def from_string(cls, bs_str, fmt='crystal'):
-        """
-        Define basis set from a string.
-
-        Args:
-            bs_str (str)
-            fmt (str): Format string. Consistent with BSE python API.
-        """
-        import re
-        import basis_set_exchange as bse
-
-        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
-            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
-
-        return cls()._set_atom(bs_str)
-
-    @classmethod
-    def from_file(cls, file, fmt='crystal'):
-        """
-        Define a basis set from a file.
-        """
-        import re
-        try:
-            import basis_set_exchange as bse
-            print("module bse imported")
-        except ImportError:
-            import sys
-            print (sys.exc_info())
-            print("module basis_set_exchange unavailable: please install to activate")
-#        import basis_set_exchange as bse
-
-        bs_file = open(file, 'r')
-        bs_str = bs_file.read()
-        bs_file.close()
-        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
-            bs_str = bse.convert_formatted_basis_str(bs_str, fmt, 'crystal')
-
-        return cls()._set_atom(bs_str)
-
-    def _set_atom(self, info, zconv=None):
-        """
-        Assign basis set parameters at atom level.
-
-        Args:
-            info (str): String in Crystal format
-            zconv (list[int]): If not none, use the conventional atomic number.
-                Its length must be nelement. Its sequence must be consistent
-                with basis set's
-        """
-        import re
-        from CRYSTALpytools.base.basisset import BS_Atom
-
-        info = info.strip().split('\n')
-        info = [i.strip() for i in info]
-
-        atom_list = []
-        atom_range = []
-        for idx, line in enumerate(info):
-            if re.match(r'^[0-9]+\s+[0-9]+$', line):
-                if re.match(r'^99\s+0$', line):
-                    atom_range.append(idx)
-                    break
-                if zconv == None:
-                    z = int(line.split()[0])  # Conventional atomic number
-                else:
-                    z = zconv[len(atom_range) - 1]
-                atom_list.append(z)
-                atom_range.append(idx)
-
-        self.atom = {}
-        for idx, z in enumerate(atom_list):
-            atom_obj = BS_Atom(z, info[atom_range[idx]: atom_range[idx + 1]])
-            self.atom[z] = atom_obj
+        for onez in z:
+            self.atoms.append(AtomBS.read_bse(bs, onez))
 
         return self
 
-    @property
-    def data(self):
+    def from_string(self, bs, fmt='crystal'):
         """
-        Print basis set information in CRYSTAL format
-        """
-        bs_str = ''
-        for a in list(self.atom.values()):
-            bs_str += a.data
-        bs_str += '99   0\n'
-
-        return bs_str
-
-    def to_file(self, file='BASISSET.DAT', fmt='crystal'):
-        """
-        Print formatted data into a text file.
+        Parse basis set strings.
 
         Args:
-            file (str)
-            fmt (str): Output format
+            bs (str): Basis set string.
+            fmt (str): Format string. Consistent with BSE python API. For non-
+                CRYSTAL formats, only all-electron basis sets are supported.
+                Charge of each shell will be automatically assigned to get
+                charge neutral atoms if ``fmt`` is not 'crystal'.
+        Returns:
+            self
         """
-        import os
+        from mendeleev import element
         import re
-        import warnings
         try:
             import basis_set_exchange as bse
-            print("module bse imported")
         except ImportError:
-            import sys
-            print (sys.exc_info())
-            print("module basis_set_exchange unavailable: please install to activate")
-    #    import basis_set_exchange as bse
+            if fmt.lower() != 'crystal':
+                raise ValueError("""'basis_set_exchange' python module is probably not installed or incompatible with your hardware (arm64 chips).
+In this case, only 'fmt=crystal' is accepted.""")
+        # from CRYSTALpytools.base.basisset import AtomBS
 
-        f = open(file, 'w+')
-        if os.path.isfile(file):
-            warnings.warn('File exists. New entry will be attached to the end.')
+        if fmt.lower() != 'crystal':
+            bs = bse.read_formatted_basis_str(bs, fmt)
+            # get definitions of inidival atoms
+            atomlist = []
+            elementlist = []
+            for i in bs['elements'].keys():
+                atom = {
+                    'molssi_bse_schema' : bs['molssi_bse_schema'],
+                    'elements'          : {i : bs['elements'][i]},
+                    'function_types'    : bs['function_types'],
+                    'name'              : bs['name'],
+                    'description'       : bs['description'],
+                }
+                atomlist.append(atom)
+                elementlist.append(element(int(i)))
 
-        bs_str = self.data
-        if not re.match(r'^crystal$', fmt, re.IGNORECASE):
-            bs_str = bse.convert_formatted_basis_str(bs_str, 'crystal', fmt)
+            # Get basis sets
+            for i in range(len(atomlist)):
+                atom = AtomBS.read_crystal(bse.write_formatted_basis_str(atomlist[i], 'crystal'))
+                # charge info might be missing
+                chg = atom._assign_charge(elementlist[i], atomlist[i])
+                for sh in range(len(atom.shells)):
+                    atom.shells[sh]['charge'] = chg[sh]
+                self.atoms.append(atom)
 
-        f.write('%s' % bs_str)
-        f.close()
+        else:
+            bs = bs.strip().split('\n')
+            block = ''
+            endflag = False
+            for line in bs:
+                if re.match(r'^\s*[0-9]+\s+[0-9]+$', line):
+                    if block != '':
+                        self.atoms.append(AtomBS.read_crystal(block))
+                    data = line.strip().split()
+                    if data[0] == '99' and data[1] == '0':
+                        block = ''
+                        break
+                    else:
+                        block = line + '\n'
+
+                elif re.match(r'^\s*$', line):
+                    continue
+                else:
+                    block += line + '\n'
+            # When '99 0' is not added
+            if block != '':
+                self.atoms.append(AtomBS.read_crystal(block))
+
+        return self
+
+    def from_file(self, bs, fmt='crystal'):
+        """
+        Parse basis set files.
+
+        Args:
+            bs (str): Basis set file.
+            fmt (str): Format string. Consistent with BSE python API. For non-
+                CRYSTAL formats, only all-electron basis sets are supported.
+                Charge of each shell will be automatically assigned to get
+                charge neutral atoms.
+        Returns:
+            self
+        """
+        file = open(bs, 'r')
+        bstr = file.read()
+        file.close()
+        self.from_string(bs=bstr, fmt=fmt)
+
+        return self
+
+    def print_crystal(self):
+        """
+        Print the information into CRYSTAL basis set format
+        """
+        bstr = ''
+        for atom in self.atoms:
+            bstr += atom.print_crystal()
+        bstr += '99 0\n'
+
+        return bstr

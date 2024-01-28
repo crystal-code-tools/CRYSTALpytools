@@ -6,16 +6,53 @@ from corresponding files are provided.
 """
 from CRYSTALpytools import units
 from CRYSTALpytools.base.crysd12 import Crystal_inputBASE
+from CRYSTALpytools.base.propd3 import Properties_inputBASE
+from CRYSTALpytools.base.output import POutBASE
+from CRYSTALpytools.geometry import Crystal_gui
 
 
 class Crystal_input(Crystal_inputBASE):
     """
     Crystal input object inherited from the :ref:`Crystal_inputBASE <ref-base-crysd12>`
-    object. For the basic set-ups of keywords, please refer to manuals there.
-    """
+    object. For the basic set-ups of keywords, please refer to manuals :ref:`there <ref-base-crysd12>`.
 
-    def __init__(self):
-        super(Crystal_input, self).__init__()
+    Args:
+        source (str): Template file or string. An empty object is generated for
+        ``''``.
+    """
+    def __init__(self, source=''):
+        import os
+
+        super().__init__()
+        if type(source) != str:
+            raise ValueError('Unknown input value. Only string is allowed')
+
+        if source != '':
+            if os.path.exists(source):
+                inp = open(source, 'r')
+                source = inp.read()
+                inp.close()
+            super().analyze_text(source)
+
+    def read_file(self, source):
+        """
+        Initialize the object if not yet done.
+
+        Args:
+            source (str): The name of the input file.
+        Returns:
+            self (Crystal_input)
+        """
+        self.__init__(source)
+
+    def write_file(self, file):
+        """
+        Write data to a file
+        """
+        out = open(file, 'w')
+        out.write('%s' % self.data)
+        out.close()
+        return self
 
     def geom_from_cif(self, file, zconv=None, keyword='EXTERNAL',
                       pbc=[True, True, True], gui_name='fort.34', **kwargs):
@@ -41,20 +78,16 @@ class Crystal_input(Crystal_inputBASE):
             **kwargs: Passed to Pymatgen `SpacegroupAnalyzer <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer>`_ object.
         """
         import re
-
+        from CRYSTALpytools.geometry import CStructure
         from pymatgen.core.lattice import Lattice
-        from pymatgen.core.structure import IStructure, Structure
 
-        struc_3d = IStructure.from_file(file)
-        if keyword == 'CRYSTAL':
-            struc = struc_3d
-        else:
-            latt_mx = struc_3d.lattice.matrix
+        struc = CStructure.from_file(file)
+        if keyword != 'CRYSTAL': # PBC might vary
+            latt_mx = struc.lattice.matrix
             latt = Lattice(latt_mx, pbc=pbc)
-            struc = Structure(latt,
-                              species=list(struc_3d.atomic_numbers),
-                              coords=struc_3d.cart_coords,
-                              coords_are_cartesian=True)
+            struc = CStructure(lattice=latt, species=struc.species,
+                               coords=struc.cart_coords, coords_are_cartesian=True)
+
         self.geom_from_pmg(struc, zconv, keyword, gui_name, **kwargs)
 
         return self
@@ -73,83 +106,140 @@ class Crystal_input(Crystal_inputBASE):
             original CIF file if 'CRYSTAL' is used, in which case
             coordinates of another symmetry equivalent atom is used.
         """
-        import re
-
         from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.geometry import refine_geometry
+        from CRYSTALpytools.geometry import CStructure
 
-        if re.match(r'^EXTERNAL$', keyword, re.IGNORECASE):
+        if type(struc) != CStructure:
+            struc = CStructure.from_pmg(struc)
+
+        if keyword.upper() == 'EXTERNAL':
             super(Crystal_input, self).geom.external()
             gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True,
                               zconv=zconv, **kwargs)
-        elif re.match(r'^CRYSTAL$', keyword, re.IGNORECASE):
-            sg, _, latt, natom, atom = refine_geometry(struc, **kwargs)
+        elif keyword.upper() == 'CRYSTAL':
+            struc.refine_geometry(**kwargs)
             if zconv != None:
                 z_atom_index = [i[0] for i in zconv]
-                for i in range(natom):
+                for i in range(struc.natom_irr):
                     try:
                         atom_to_sub = z_atom_index.index(i)
                         z_input = zconv[atom_to_sub][1]
                     except ValueError:
-                        z_input = atom[i][0]
-                    atom[i][0] = z_input
-            super(Crystal_input, self).geom.crystal(
-                IGR=sg, latt=latt, atom=atom)
+                        z_input = struc.atom[i][0]
+                    struc.atom[i][0] = z_input
+            super().geom.crystal(IGR=struc.sg, latt=struc.platt, atom=struc.atom)
         else:
             raise ValueError("Input keyword format error: {}".format(keyword))
 
         return self
 
-    def bs_from_bse(self, name, element, zconv=None):
+    def bs_user(self, bs_str, z=[], fmt='crystal', append=False, charge=None,
+                ECP=None, BSfile=None, title='MYBASIS'):
         """
-        Download basis set definitions from BSE. A wrapper of BasisSetBASE.from_bse.
+        A shortcut to get user defined (free format) basis sets from `Basis Set
+        Exchange (BSE) <https://www.basissetexchange.org/>`_, formatted string
+        or file.
+
+        In some rare cases the user might want to manually change the charge
+        assigned to the atoms to get ionic initial guess.
 
         Args:
-            name (str): Basis set's name.
-            element (list[str] | list[int]): List of elements.
-            zconv (list[int]): If not none, use the conventional atomic number.
-                Its length must be the same as element. Its sequence must be
-                consistent with basis set's
+            bs_str (str): Name of basis set(BSE), formatted string or file.
+            z (list[int]): List of elements, specified by conventional atomic
+                numbers. BSE only.
+            fmt (str): Format string. Consistent with `BSE python API
+                       <https://molssi-bse.github.io/basis_set_exchange/usage.html#versioning>`_.
+                       For string and files.
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway. Useful when
+                different series of basis sets are defined
+            charge (dict): To define charge. Keys: z, conventional atomic
+                number; Values: charge of shells, whose sequence must be
+                consistent with BS definition.
+            ECP (dict): Definition of effective core pseudopotentials. Keys:
+                z, conventional atomic number; Values: ECP string.
+            BSfile (str): If not None, print basis set definitions into
+                ``BSfile`` and use ``title`` as the entry to 'BASISSET' keyword
+            title (str): Useful when ``BSfile`` is not None.
         """
-        from CRYSTALpytools.base.basisset import BasisSetBASE
+        if z == []:
+            try:
+                file = open(bs_str, 'r') # file
+                self.basisset.from_file(bs_str, fmt, append)
+            except FileNotFoundError: # string
+                self.basisset.from_string(bs_str, fmt, append)
+        else: # BSE
+            self.basisset.from_bse(bs_str, z, append)
 
-        return BasisSetBASE.from_bse(name=name, element=element, zconv=zconv)
+        # set charge
+        if charge != None:
+            for i in list(charge.keys()):
+                found_atom = False
+                for j, at in enumerate(self.basisset._bs_obj.atoms):
+                    if at.z != i:
+                        continue
+                    else:
+                        found_atom = True
+                        break
+                if found_atom == False:
+                    raise Exception('Unknown z value.')
+                if len(at.shells) != len(charge[i]):
+                    raise Exception('Charge definition of element {} is inconsistent with its basis set.'.format(i))
+                for ishell, chg in enumerate(charge[i]):
+                    self.basisset._bs_obj.atoms[j].shells[ishell]['charge'] = chg
 
-    def bs_from_string(bs_str, fmt='crystal'):
+        # set ECP
+        if ECP != None:
+            for i in list(ECP.keys()):
+                found_atom = False
+                for j, at in enumerate(self.basisset._bs_obj.atoms):
+                    if at.z != i:
+                        continue
+                    else:
+                        found_atom = True
+                        break
+                if found_atom == False:
+                    raise Exception('Unknown z value.')
+                self.basisset._bs_obj.atoms[j].ECP = ECP[i]
+
+        if BSfile != None:
+            if append == False:
+                file = open(BSfile, 'w')
+            else:
+                file = open(BSfile, 'a')
+            file.write('%s\n' % title)
+            file.write('%s' % self.basisset._bs_obj.print_crystal())
+            file.close()
+            self.basisset._bs_obj = None
+            self.basisset._block_dict['BASISSET'][0] = None
+            self.basisset.basisset(title)
+
+        return self
+
+    def bs_keyword(self, keyword):
         """
-        Define basis set from a string. A wrapper of BasisSetBASE.from_string.
+        A shortcut to define basis sets by keywords. Equivalent to ``self.basisset.basisset``
 
         Args:
-            bs_str (str)
-            fmt (str): Format string. Consistent with BSE python API.
+            keyword (str): Name of basis set
         """
-        from CRYSTALpytools.base.basisset import BasisSetBASE
-
-        return BasisSetBASE.from_string(bs_str=bs_str, fmt=fmt)
-
-    def bs_from_file(file, fmt='crystal'):
-        """
-        Define a basis set from a file. A wrapper of BasisSetBASE.from_file.
-        """
-        from CRYSTALpytools.base.basisset import BasisSetBASE
-
-        return BasisSetBASE.from_file(file=file, fmt=fmt)
+        self.basisset.basisset(keyword)
+        return self
 
 
 class Crystal_output:
-    """This class reads a CRYSTAL output and generates an object."""
+    """
+    This class reads a CRYSTAL output and generates an object.
+
+    Args:
+        output (str): Filename
+    """
 
     def __init__(self, output=None):
-        """
-        Initialize the Crystal_output.
-
-        Args:
-            output (str): Filename
-        """
         if output != None:
-            self._read_output(output)
+            self.read_file(output)
 
-    def _read_output(self, output_name):
+    def read_file(self, output_name):
         """
         Reads a CRYSTAL output file.
 
@@ -159,7 +249,6 @@ class Crystal_output:
             self (Crystal_output)
         """
         import re
-        import sys
 
         self.name = output_name
 
@@ -171,8 +260,7 @@ class Crystal_output:
             self.data = file.readlines()
             file.close()
         except:
-            raise FileNotFoundError(
-                'EXITING: a .out file needs to be specified')
+            raise FileNotFoundError('EXITING: a .out file needs to be specified')
 
         # Check the calculation terminated correctly
         self.terminated = False
@@ -188,15 +276,6 @@ class Crystal_output:
             self.eoo = len(self.data)
 
         return self
-
-    def read_cry_output(self, output_name):
-        """
-        Deprecated
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Define output during initialization.')
-        return self._read_output(output_name)
 
     def get_dielectric_tensor(self):
         """Extracts the dielectric tensor from the output.
@@ -258,7 +337,6 @@ class Crystal_output:
             self.symmops (numpy.ndarray): Symmetry operators
         """
         import re
-
         import numpy as np
 
         self.n_symmops = 0
@@ -273,8 +351,7 @@ class Crystal_output:
                 break
 
         if self.n_symmops > 0:
-            self.symmops = np.reshape(np.array(symmops, dtype=float), [
-                                      self.n_symmops, 4, 3])
+            self.symmops = np.reshape(np.array(symmops, dtype=float), [self.n_symmops, 4, 3])
 
         return self.symmops
 
@@ -300,19 +377,16 @@ class Crystal_output:
                 SpacegroupAnalyzer object.
 
         Returns:
-            self.geometry (Structure | Molecule): A pymatgen Structure or
-                molecule object.
+            self.geometry (CStructure | CMolecule): A modified pymatgen Structure
+                or molecule object.
         """
         import os
         import re
         import warnings
-
         import numpy as np
-
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
-        from CRYSTALpytools.geometry import rotate_lattice
 
         # Get geometry
         bg_line = -1
@@ -351,16 +425,10 @@ class Crystal_output:
                         break
 
         if lattice_line != -1:
-            latt_crys = [
-                self.data[lattice_line + 2].strip().split(),
-                self.data[lattice_line + 3].strip().split(),
-                self.data[lattice_line + 4].strip().split()
-            ]
-            latt_crys = np.array(latt_crys, dtype=float)
-            latt_pmg = struc.lattice.matrix
-            # latt_crys = latt_pmg @ rot, rotation matrix obtained from the last config
-            rot = np.linalg.inv(latt_pmg) @ latt_crys
-            struc = rotate_lattice(struc, rot)
+            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
+            a_pmg = struc.lattice.matrix[0, :]
+            # Rotate the geometry back
+            struc = struc.rot_cel(a_pmg, a_crys)
 
         self.geometry = struc
 
@@ -373,15 +441,12 @@ class Crystal_output:
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(struc, gui_file=gui_name,
-                                  symmetry=True, zconv=zconv, **kwargs)
+                gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
             elif symmetry == None:
-                gui = cry_pmg2gui(struc, gui_file=gui_name,
-                                  symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=gui_name,  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
                 self.get_symmops()
-                gui = cry_pmg2gui(struc, gui_file=None,
-                                  symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
                 gui.space_group = self.sg_number
@@ -390,8 +455,7 @@ class Crystal_output:
                 warnings.warn('Symmetry adapted from reference geometry. Make sure that is desired.',
                               stacklevel=2)
                 gui_ref = Crystal_gui().read_gui(symmetry)
-                gui = cry_pmg2gui(struc, gui_file=None,
-                                  symmetry=False, zconv=zconv)
+                gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 # Replace the symmops with the reference file
                 gui.symmops = gui_ref.symmops
                 gui.n_symmops = gui_ref.n_symmops
@@ -404,8 +468,7 @@ class Crystal_output:
         """
         Return the last optimised geometry.
         """
-        struc = self.get_geometry(
-            initial=False, write_gui=write_gui_file, symm_info=symm_info)
+        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
         if 'Molecule' in str(type(struc)):
             self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
                               self.atom_numbers,
@@ -428,7 +491,6 @@ class Crystal_output:
         """
         import re
         import warnings
-
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -472,7 +534,6 @@ class Crystal_output:
         CRYSTAL 0~3D space group number. Before geometry editing.
         """
         import re
-
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -506,7 +567,6 @@ class Crystal_output:
         """
         import re
         import warnings
-
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         ndimen = self.get_dimensionality()
@@ -565,7 +625,7 @@ class Crystal_output:
         """
         Conventional atom numbers. After geometry editing.
         """
-        from CRYSTALpytools.base.crysout import GeomBASE
+        from CRYSTALpytools.base.output import GeomBASE
 
         _, conv_z = GeomBASE.read_conv_z(self.data, 0)
         return conv_z
@@ -592,8 +652,7 @@ class Crystal_output:
             frac_coord = struc.frac_coords.tolist()
             composite_coord = []
             for i in range(struc.num_sites):
-                composite_coord.append(
-                    frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
+                composite_coord.append(frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
 
         return np.array(composite_coord, dtype=float)
 
@@ -630,7 +689,6 @@ class Crystal_output:
                 expansion matrix
         """
         import re
-
         import numpy as np
 
         ndimen = self.get_dimensionality()
@@ -677,18 +735,15 @@ class Crystal_output:
                 SpacegroupAnalyzer object.
 
         Returns:
-            self.primitive_geometry (Structure | Molecule): A pymatgen
-                Structure or molecule object.
+            self.primitive_geometry (CStructure | CMolecule): A modified
+                pymatgen Structure or molecule object.
         """
         import os
         import re
         import warnings
-
         import numpy as np
-
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
-        from CRYSTALpytools.geometry import get_pcel
 
         ndimen = self.get_dimensionality()
         self.get_geometry(initial=initial, write_gui=False)
@@ -700,7 +755,7 @@ class Crystal_output:
             return self.primitive_geometry
 
         shrink_mx = np.linalg.inv(self.trans_matrix)
-        pstruc = get_pcel(self.geometry, self.trans_matrix)
+        pstruc = self.geometry.get_pcel(self.trans_matrix)
 
         self.primitive_geometry = pstruc
         # Write gui files
@@ -710,8 +765,7 @@ class Crystal_output:
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
-                gui = cry_pmg2gui(pstruc, gui_file=gui_name,
-                                  symmetry=True, **kwargs)
+                gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
             elif symmetry == None:
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
             elif symmetry == 'initial':
@@ -931,6 +985,17 @@ class Crystal_output:
 
         return self
 
+    def get_final_energy(self):
+        """
+        Get the final energy of the system. A wrapper of ``self.get_convergence``.
+
+        Returns:
+            self.final_energy (float): The final energy of the system.
+        """
+        self.get_convergence(history=False)
+
+        return self.final_energy
+
     #### SCF ####
 
     def get_scf_convergence(self, all_cycles=False):
@@ -952,8 +1017,7 @@ class Crystal_output:
             self.scf_deltae (array): Energy difference. Unit: eV
         """
         import numpy as np
-
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
         if all_cycles == True:
             self.scf_cycles = []
@@ -998,10 +1062,9 @@ class Crystal_output:
                 be either a 2\*1 array (``history=False``) or a nCYC\*2 array
                 (``history=True``).
         """
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
-        output = SCFBASE.read_fermi_energy(
-            self.data[:self.eoo], self.eoo - 1, history=history)
+        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
         self.fermi_energy = output[2]
 
@@ -1020,10 +1083,9 @@ class Crystal_output:
                 2\*1 array (``history=False``) or a nCYC\*2 array
                 (``history=True``).
         """
-        from CRYSTALpytools.base.crysout import SCFBASE
+        from CRYSTALpytools.base.output import SCFBASE
 
-        output = SCFBASE.read_band_gap(
-            self.data[:self.eoo], self.eoo - 1, history=history)
+        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
         self.spin_pol = output[1]
         self.band_gap = output[2]
 
@@ -1039,7 +1101,6 @@ class Crystal_output:
         """
         import re
         import warnings
-
         import numpy as np
 
         mulliken = []  # empty, 1*1 or 2*1 list
@@ -1072,50 +1133,12 @@ class Crystal_output:
         else:
             apb = np.array(mulliken[0], dtype=float)
             amb = np.array(mulliken[1], dtype=float)
-            self.mulliken_charges = np.array(
-                [apb, (apb + amb) / 2, (apb - amb) / 2])
+            self.mulliken_charges = np.array([apb, (apb + amb) / 2, (apb - amb) / 2])
             self.spin_pol = True
 
         return self.mulliken_charges
 
-    def get_final_energy(self):
-        """
-        Get the final energy of the system. A wrapper of ``self.get_convergence``.
-
-        Returns:
-            self.final_energy (float): The final energy of the system.
-        """
-        self.get_convergence(history=False)
-
-        return self.final_energy
-
-    def get_num_cycles(self):
-        """Deprecated
-
-        Returns:
-            self.scf_cycles (int): Number of SCF cycles.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use get_scf_convergence.', stacklevel=2)
-        self.get_scf_convergence(all_cycles=False)
-
-        return self.scf_cycles
-
     #### Optimization ####
-
-    def get_opt_convergence_energy(self):
-        """Deprecated. Returns the energy for each opt step.
-
-        Returns:
-            self.opt_energy (array): Energy for each optimization step.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use get_opt_convergence.', stacklevel=2)
-        self.get_opt_convergence()
-
-        return self.opt_energy
 
     def get_opt_convergence(self, primitive=False, scf_history=False,
                             write_gui=False, gui_name=None,
@@ -1149,22 +1172,19 @@ class Crystal_output:
             self.opt_status (str): 'terminated', 'converged', 'failed' and 'unknown'
             self.opt_energy (array): Total energy convergence. Unit: eV
             self.opt_deltae (array): Total energy difference. Unit: eV
-            self.opt_geometry (list): Pymatgen structure at each step.
+            self.opt_geometry (list): Modified CStructure/CMolecule at each step.
             self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
             self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
             self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
         """
-        import os
-        import re
-
-        import numpy as np
-        from pymatgen.core.lattice import Lattice
-
-        from CRYSTALpytools.base.crysout import OptBASE
-        from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
-        from CRYSTALpytools.geometry import get_pcel, rotate_lattice
+        from CRYSTALpytools.convert import cry_pmg2gui
+        from CRYSTALpytools.base.output import OptBASE
+        from pymatgen.core.lattice import Lattice
+        import numpy as np
+        import re
+        import os
 
         ndimen = self.get_dimensionality()
         countline = 0
@@ -1247,24 +1267,13 @@ class Crystal_output:
 
         # Lattice matrix rotation issue
         if ndimen != 0 and lattice_line != -1:
-            mx_crys = [
-                self.data[lattice_line + 2].strip().split(),
-                self.data[lattice_line + 3].strip().split(),
-                self.data[lattice_line + 4].strip().split()
-            ]
-            mx_crys = np.array(mx_crys, dtype=float)
-            # Reference lattice
-            latt_ref = Lattice(mx_crys)
-            # Pmg lattice
-            latt_pmg = Lattice.from_parameters(
-                a=latt_ref.a, b=latt_ref.b, c=latt_ref.c,
-                alpha=latt_ref.alpha, beta=latt_ref.beta, gamma=latt_ref.gamma
-            )
-            mx_pmg = latt_pmg.matrix
-            # mx_crys = mx_pmg @ rot
-            rot = np.linalg.inv(mx_pmg) @ mx_crys
+            # Reference lattice vector a
+            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
+            # Pmg lattice vector a
+            a_pmg = struc0.lattice.matrix[0, :]
+            # Rotate lattice: CStructure.rot_cel
             for idx_s, s in enumerate(self.opt_geometry):
-                self.opt_geometry[idx_s] = rotate_lattice(s, rot)
+                self.opt_geometry[idx_s] = s.rot_cel(a_crys, a_pmg)
 
         # Get primitive cell
         if primitive == True:
@@ -1275,7 +1284,7 @@ class Crystal_output:
                 self.get_trans_matrix()
                 shrink_mx = np.linalg.inv(self.trans_matrix)
                 for idx_s, s in enumerate(self.opt_geometry):
-                    self.opt_geometry[idx_s] = get_pcel(s, self.trans_matrix)
+                    self.opt_geometry[idx_s] = s.get_pcel(self.trans_matrix)
 
         # SCF history
         if scf_history == True:
@@ -1285,8 +1294,7 @@ class Crystal_output:
         if write_gui == True:
             if gui_name == None:
                 gui_name = os.path.splitext(self.name)[0]
-            gui_list = [
-                '{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
+            gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
 
             if symmetry == 'pymatgen':
                 for idx_s, s in enumerate(self.opt_geometry):
@@ -1294,8 +1302,7 @@ class Crystal_output:
                                       symmetry=True, **kwargs)
             elif symmetry == None:
                 for idx_s, s in enumerate(self.opt_geometry):
-                    gui = cry_pmg2gui(
-                        s, gui_file=gui_list[idx_s], symmetry=False)
+                    gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
                 for idx_s, s in enumerate(self.opt_geometry):
@@ -1337,15 +1344,12 @@ class Crystal_output:
             self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
         """
-        import re
-        import warnings
-
+        import warnings, re
         import numpy as np
 
         if initial == False or grad == True:
             if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
-                warnings.warn(
-                    'Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
+                warnings.warn('Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
                 initial = True
                 grad = False
 
@@ -1359,10 +1363,8 @@ class Crystal_output:
             for i, line in enumerate(self.data):
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                     for j in range(i+2, i+2+self.n_atoms):
-                        self.forces_atoms.append(
-                            self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(
-                        self.forces_atoms, dtype=float)
+                        self.forces_atoms.append(self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
                 if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
                     for j in range(i+4, i+7):
@@ -1378,10 +1380,8 @@ class Crystal_output:
 
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
                     for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
-                        self.forces_atoms.append(
-                            self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(
-                        self.forces_atoms, dtype=float)
+                        self.forces_atoms.append(self.data[j].strip().split()[2:])
+                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
         return self
 
@@ -1404,15 +1404,8 @@ class Crystal_output:
             q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
                 overlapping points, defined as the 2nd norm of the difference
                 of fractional q vectors
-            eigvt_amplitude (float | str): *``read_eigvt = True only``*
-                Amplitude of normalization, Or 'classical', 'classical-rev',
-                classical amplitude and revmove classical amplitude.
-
-        .. note::
-
-            In QHA calculations, the 'q point' dimension refer to harmonic
-            phonons computed. In other cases it refers to points in reciprocal
-            space.
+            eigvt_amplitude (float|str): Normalize the eigenvector to a certian
+                amplitude. Either a number or 'classical' (classical amplitude).
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1434,12 +1427,16 @@ class Crystal_output:
                 specifying whether the mode is Raman active
             self.eigenvector (array[complex]): *``read_eigvt = True only``*
                 nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
+
+        .. note::
+
+            In QHA calculations, ``self.nqpoint`` refer to harmonic phonons
+            computed. In other cases it refers to actual q points in reciprocal
+            space.
         """
         import re
-
         import numpy as np
-
-        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
         is_freq = False
@@ -1468,7 +1465,7 @@ class Crystal_output:
                 countline += 1
                 continue
             # Q point info + frequency
-            # Dispersion
+            ## Dispersion
             elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
                 shrink = int(line.strip().split()[-1])
                 countline += 1
@@ -1480,36 +1477,33 @@ class Crystal_output:
                 self.nqpoint += 1
                 countline += 2
                 # Read phonons
-                phonon = PhononBASE.readmode_basic(
-                    self.data[:self.eoo], countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
-            # Gamma point
+            ## Gamma point
             elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
                 countline += 2
                 # Read phonons
-                phonon = PhononBASE.readmode_basic(
-                    self.data[:self.eoo], countline)
+                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
                 countline = phonon[0]
                 self.frequency.append(phonon[1])
                 self.intens.append(phonon[2])
                 self.IR.append(phonon[3])
                 self.Raman.append(phonon[4])
-            # Phonon eigenvector
-            # Gamma point: real numbers. Imaginary = 0
+            ## Phonon eigenvector
+            ### Gamma point: real numbers. Imaginary = 0
             elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
                 if read_eigvt == False:
                     countline += 1
                     continue
                 countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(
-                    self.data[:self.eoo], countline)
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 self.eigenvector.append(eigvt[1] + 0.j)
-            # Dispersion: complex numbers
+            ### Dispersion: complex numbers
             elif re.match(r'^\s+MODES IN PHASE', line):
                 if read_eigvt == False:
                     countline += 1
@@ -1518,8 +1512,7 @@ class Crystal_output:
                     self.eigenvector.append(tmp_eigvt)
                 countline += 2
                 found_anti = False
-                eigvt = PhononBASE.readmode_eigenvector(
-                    self.data[:self.eoo], countline)
+                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt[0]
                 tmp_eigvt = eigvt[1] + 0.j
             elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
@@ -1528,8 +1521,7 @@ class Crystal_output:
                     continue
                 countline += 2
                 found_anti = True
-                eigvt_anti = PhononBASE.readmode_eigenvector(
-                    self.data[:self.eoo], countline)
+                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
                 countline = eigvt_anti[0]
                 self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
             # Other data
@@ -1571,9 +1563,8 @@ class Crystal_output:
             if str(eigvt_amplitude).lower() == 'classical':
                 pass
             # remove classical amplitude
-            elif str(eigvt_amplitude).lower() == 'classical-rev':
-                struc = self.get_geometry(initial=False, write_gui=False)
-
+            # elif str(eigvt_amplitude).lower() == 'classical-rev':
+            #     struc = self.get_geometry(initial=False, write_gui=False)
             # To a specific value
             else:
                 for idx_q in range(self.nqpoint):
@@ -1589,28 +1580,6 @@ class Crystal_output:
             self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
 
         return self
-
-    def get_q_info(self):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn(
-            'This method is deprecated. Use `get_phonon`.', stacklevel=2)
-        return self
-
-    def get_mode(self):
-        """
-        Deprecated.
-        """
-        return self.get_q_info()
-
-    def get_phonon_eigenvector(self):
-        """
-        Deprecated.
-        """
-        return self.get_q_info()
 
     def get_anh_spectra(self):
         """
@@ -2113,82 +2082,69 @@ class Crystal_output:
         return self.tensor
 
 
-class Properties_input:
-    """Create a properties_input object"""
+class Properties_input(Properties_inputBASE):
+    """
+    Properties input object inherited from the :ref:`Properties_inputBASE <ref-base-propd3>`
+    object. For the basic set-ups of keywords, please refer to manuals :ref:`there <ref-base-propd3>`.
 
-    def __init__(self, input_name=None):
-        """Initialise the object"""
+    Args:
+        source (str): Template file or string. An empty object is generated for
+        ``''``.
+    """
+    def __init__(self, source=''):
+        import os
 
-        self.is_newk = False
+        super().__init__()
+        if type(source) != str:
+            raise ValueError('Unknown input value. Only string is allowed')
 
-    def from_file(self, input_name):
+        if source != '':
+            if os.path.exists(source):
+                inp = open(source, 'r')
+                source = inp.read()
+                inp.close()
+            super().analyze_text(source)
+
+    def read_file(self, source):
         """
-        Read the properties input from a file.
+        Initialize the object if not yet done.
 
         Args:
-            input_name (str): The name of the input file.
+            source (str): The name of the input file.
         Returns:
-            self (Properties_input): The Properties_input object.
+            self (Properties_input)
         """
-        import sys
+        self.__init__(source)
 
-        self.name = input_name
-        if input_name is not None:
-            try:
-                if input_name[-3:] != 'd12':
-                    input_name = input_name+'.d12'
-                file = open(input_name, 'r')
-                self.data = file.readlines()
-                file.close()
-            except:
-                print('EXITING: a .d3 file needs to be specified')
-                sys.exit(1)
+    def write_file(self, file):
+        """
+        Writes the properties input to a file.
 
-            # Check if NEWK is in the input
-            if 'NEWK\n' in self.data:
-                self.is_newk = True
-                self.newk_block = self.data[0:2]
-                self.property_block = self.data[2:]
-            else:
-                self.is_newk = False
-                self.property_block = self.data
-
+        Args:
+            file (str): The name of the d3 file.
+        """
+        out = open(file, 'w')
+        out.write('%s' % self.data)
+        out.close()
         return self
 
-    def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
+    def make_bands_block(self, k_path, n_kpoints, first_band, last_band,
+                         print_eig=0, print_option=1, precision=5,
+                         title='BAND STRUCTURE CALCULATION'):
         """
-        Returns the newk block.
+        A shortcut for ``self.band()``. Also accepts pymatgen `HighSymmKpath <https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.bandstructure.HighSymmKpath>`_
+        objects for k path.
 
         Args:
-            shrink1 (int): The first newk shrinking factor.
-            shrink2 (int): The second newk shrinking factor.
-            Fermi (int): Fermi recalculation option (default is 1).
-            print_option (int): Properties printing option (default is 0).
-        """
-
-        self.is_newk = True
-
-        self.newk_block = ['NEWK\n', '%s %s\n' % (shrink1, shrink2),
-                           '%s %s\n' % (Fermi, print_option)]
-
-    def make_bands_block(self, k_path, n_kpoints, first_band, last_band, print_eig=0, print_option=1,
-                         precision=5, title='BAND STRUCTURE CALCULATION'):
-        """
-        Returns the bands block for a bands calculation.
-
-        Args:
-            k_path (list or HighSymmKpath): The k-path for the bands calculation.
+            k_path (list | HighSymmKpath): The k-path for the bands calculation.
             n_kpoints (int): The number of k-points along the path.
             first_band (int): The index of the first band.
             last_band (int): The index of the last band.
             print_eig (int): Printing options for eigenvalues (default is 0).
             print_option (int): Properties printing options (default is 1).
-            precision (int): Number of zeros in the calculation of the gcd            
-            title (str): The title of the calculation (default is 'BAND STRUCTURE CALCULATION').
+            precision (int): Precision in the calculation of ``numpy.gcd``
+            title (str): The title of the calculation.
         """
-
-        import sys
-
         import numpy as np
 
         bands_block = []
@@ -2202,215 +2158,163 @@ class Properties_input:
                 # This is a pmg HighSymmKpath object
                 k_path_pmg.append(k_path.kpath['kpoints'][i].tolist())
             k_path = np.array(k_path_pmg)
-
         elif type(k_path[0]) == list:
             # This is a list of lists
             k_path = np.array(k_path)
-
         else:
-            print('EXITING: k_path type must be a list of list (k coordinates) or\
-                a pymatgen HighSymmKpath object. %s selected' % type(k_path))
-            sys.exit(1)
+            raise ValueError('k_path must be a list of list (k coordinates) or a pymatgen HighSymmKpath object. {} used'.format(type(k_path)))
 
         k_unique = np.unique(k_path)
-
         # Find the shrinking factor
-        k_unique = np.array(np.around(k_unique, precision)
-                            * 10**precision, dtype=int)
+        k_unique = np.array(np.around(k_unique, precision)*10**precision, dtype=int)
         if len(k_unique) > 2:
             gcd = np.gcd.reduce(k_unique)
         else:
             gcd = np.gcd(k_unique[0], k_unique[1])
-        k_path = np.array((k_path/gcd)*10**precision, dtype=int)
+
+        k_path = (k_path/gcd)*10**precision
+        k_path = np.array(k_path, dtype=int)
         shrink = int(10**precision/gcd)
 
-        bands_block.append('BAND\n')
-        bands_block.append(title+'\n')
+        # Add the symmetry lines
+        k_path_prt = []
+        for i in range(len(k_path)-1):
+            # The same K points repeat multiple times for HighSymmKpath
+            if np.linalg.norm(k_path[i] - k_path[i+1]) < 1e-4:
+                continue
+            k_path_prt.append([k_path[i], k_path[i+1]])
 
-        bands_block.append(str(len(k_path)-1)+' '+str(shrink)+' '+str(n_kpoints) +
-                           ' '+str(first_band)+' '+str(last_band)+' ' +
-                           str(print_option)+' '+str(print_eig)+'\n')
+        return self.band(title, len(k_path_prt)-1, shrink, n_kpoints, first_band,
+                         last_band, print_option, print_eig, k_path_prt)
 
-        # Add the symmetry line
-        for i in range(len(k_path[:-1])):
-            bands_block.append(' '.join([str(x) for x in k_path[i]])+'  ' +
-                               ' '.join([str(x) for x in k_path[i+1]])+'\n')
-
-        bands_block.append('END\n')
-
-        self.property_block = bands_block
-
-        return self
-
-    def make_doss_block(self, n_points=200, band_range=None, e_range=None, plotting_option=2,
-                        poly=12, print_option=1):
+    def make_doss_block(self, n_points=200, band_range=None, e_range=None,
+                        plotting_option=2, poly=12, print_option=1,
+                        projections=[], proj_type='atom', output_file=None):
         """
-        Returns the doss block for a doss calculation.
+        A shortcut for ``self.doss()``.
 
         Args:
-            n_points (int): The number of points in the DOS plot (default is 200).
-            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
-            e_range (list or tuple): The energy range for the DOS calculation (default is None).
-            plotting_option (int): DOS plotting options (default is 2).
-            poly (int): Degree of the polynomial for smearing (default is 12).
-            print_option (int): Properties printing options (default is 1).
+            n_points (int): The number of points in the DOS plot.
+            band_range (list or tuple): The range of bands to include in the DOS calculation.
+            e_range (list or tuple): The energy range for the DOS calculation. Unit: eV
+            plotting_option (int): DOS plotting options.
+            poly (int): Degree of the polynomial for smearing.
+            print_option (int): Properties printing options.
+            projections (list): nProj\*nElement list of ints specifying the
+                projections for the pdoss calculation, or nProj\*1 list of
+                strings specifying element names to project on all atoms of the
+                same element (``output_file`` is needed).
+            proj_type (str): Type of projection ('atom' or 'site').
+            output_file (str): Output file of 'crystal' calculation.
         """
-
-        import sys
-
         # either band_range or e_range needs to be specified
-        doss_block = []
         if band_range == None and e_range == None:
-            print('EXITING: please specify either band_range or e_range. None selected')
-            sys.exit(1)
+            raise ValueError('Either band_range or e_range should be specified. None specified.')
         elif band_range != None and e_range != None:
-            print('EXITING: please specify either band_range or e_range. Both selected')
-            sys.exit(1)
+            raise ValueError('Either band_range or e_range should be specified. 2 specified')
         elif type(band_range) == list and len(band_range) == 2:
-            doss_range = band_range
+            pass
         elif type(e_range) == list and len(e_range) == 2:
-            doss_range = [-1, -1]
-
+            e_range = [units.eV_to_H(i) for i in e_range]
         else:
-            print('EXITING: either the band_range argument or the e_range argument\
-                do not match the required format (2 item list)')
-            sys.exit(1)
+            raise ValueError('Format error for band_range or the e_range (2 item list)')
 
-        doss_block.append('DOSS\n')
-        doss_block.append(str(0)+' '+str(n_points)+' '+str(doss_range[0])+' ' +
-                          str(doss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
-                          str(print_option)+'\n')
+        prj = []
+        if projections != []:
+            if proj_type != 'atom' and proj_type != 'ao':
+                raise ValueError("proj_type should be either be 'ao' or 'atom'")
 
-        if doss_range == [-1, -1]:
-            doss_block.append(
-                str(units.eV_to_H(e_range[0]))+' '+str(units.eV_to_H(e_range[1]))+'\n')
+            if type(projections[0]) == str:
+                if output_file == None:
+                    raise ValueError('Outut file is needed.')
+                else:
+                    if proj_type == 'ao':
+                        warnings.warn("When element name is specified, proj_type must be 'atom'.",
+                                      stacklevel=2)
 
-        doss_block.append('END\n')
-
-        self.property_block = doss_block
-
-        return self
-
-    def make_pdoss_block(self, projections, proj_type='atom', output_file=None, n_points=200, band_range=None,
-                         e_range=None, plotting_option=2, poly=12, print_option=1):
-        """
-        Returns the pdoss block for a pdoss calculation.
-
-        Args:
-            projections (dict): Dictionary specifying the projections for the pdoss calculation.
-            proj_type (str): Type of projection ('atom' or 'site') (default is 'atom').
-            output_file (str): Output file name (default is None).
-            n_points (int): The number of points in the DOS plot (default is 200).
-            band_range (list or tuple): The range of bands to include in the DOS calculation (default is None).
-            e_range (list or tuple): The energy range for the DOS calculation (default is None).
-            plotting_option (int): DOS plotting options (default is 2).
-            poly (int): Degree of the polynomial for smearing (default is 12).
-            print_option (int): Properties printing options (default is 1).
-        """
-
-        import sys
-
-        pdoss_block = []
-        if band_range == None and e_range == None:
-            print('EXITING: please specify either band_range or e_range. None selected')
-            sys.exit(1)
-        elif band_range != None and e_range != None:
-            print('EXITING: please specify either band_range or e_range. Both selected')
-            sys.exit(1)
-        elif type(band_range) == list and len(band_range) == 2:
-            pdoss_range = band_range
-            range_is_bands = True
-        elif type(e_range) == list and len(e_range) == 2:
-            pdoss_range = [-1, -1]
-            range_is_bands = False
-
-        else:
-            print('EXITING: either the band_range argument or the e_range argument\
-                do not match the required format (2 item list)')
-            sys.exit(1)
-
-        pdoss_block.append('DOSS\n')
-        pdoss_block.append(str(len(projections))+' '+str(n_points)+' '+str(pdoss_range[0])+' ' +
-                           str(pdoss_range[1])+' '+str(plotting_option)+' '+str(poly)+' ' +
-                           str(print_option)+'\n')
-
-        if range_is_bands == False:
-            pdoss_block.append(
-                str(round(units.eV_to_H(e_range[0]), 6))+' '+str(round(units.eV_to_H(e_range[1]), 6))+'\n')
-
-        flat_proj = [x for sublist in projections for x in sublist]
-
-        if all(isinstance(x, int) for x in flat_proj):
-            if proj_type == 'atom':
-                for proj in projections:
-                    pdoss_block.append(str(-len(proj))+' ' +
-                                       ' '.join([str(x) for x in proj])+'\n')
-            if proj_type == 'ao':
-                for proj in projections:
-                    pdoss_block.append(str(len(proj))+' ' +
-                                       ' '.join([str(x) for x in proj])+'\n')
-            elif proj_type != 'atom' and proj_type != 'ao':
-                print(
-                    'EXITING: please specify either atom or ao projection. %s selected' % proj_type)
-                sys.exit(1)
-        elif all(isinstance(x, str) for x in flat_proj):
-            if output_file == None:
-                print(
-                    'EXITING: please specify an outut file to use the atoms projection.')
-                sys.exit(1)
+                    output = Crystal_output(output_file)
+                    for prje in projections:
+                        index = [i+1 for i, ele in enumerate(output.atom_symbols) if prje.upper() == ele.upper()]
+                        prj.append([-len(index),] + index)
             else:
-                output = Crystal_output(output_file)
-                output.get_last_geom()
-                atoms_symbols = output.atom_symbols
-                atoms_symbols.insert(0, 0)
+                if proj_type == 'atom':
+                    for p in projections:
+                        prj.append([-len(p),] + list(p))
+                else:
+                    for p in projections:
+                        prj.append([len(p),] + list(p))
 
-                for proj in projections:
-                    atom_positions_list = []
-                    for element in proj:
-                        index = [i for i, ele in enumerate(
-                            atoms_symbols) if ele == element.upper()]
-                        atom_positions_list.append([str(x) for x in index])
-                    pdoss_block.append(
-                        str(-len(index))+' '+' '.join([str(x) for x in index])+'\n')
+        if e_range == None:
+            return self.doss(len(prj), n_points, band_range[0], band_range[1], plotting_option, poly, print_option, prj)
+        else:
+            return self.doss(len(prj), n_points, -1, -1, plotting_option, poly, print_option, e_range, prj)
 
-        pdoss_block.append('END\n')
 
-        self.property_block = pdoss_block
+    def make_pdoss_block(self, projections, proj_type='atom', output_file=None,
+                         n_points=200, band_range=None, e_range=None,
+                         plotting_option=2, poly=12, print_option=1):
+        """
+        Deprecated. Use either ``self.doss()`` or ``self.make_doss_block()``
+        """
+        import warnings
 
-        return self
+        warnings.warn('Deprecated. Use make_doss_block() method instead.', stacklevel=2)
+        return self.make_doss_block(n_points, band_range, e_range, plotting_option,
+                                    poly, print_option, projections, proj_type, output_file)
+
+    def make_newk_block(self, shrink1, shrink2, Fermi=1, print_option=0):
+        """
+        Deprecated. Use ``self.newk()``.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use newk() method instead.', stacklevel=2)
+        return self.newk(shrink1, shrink2, Fermi, print_option)
+
+    def from_file(self, input_name):
+        """
+        Deprecated. Use ``read_file()``
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use read_file() method instead.', stacklevel=2)
+        return self.__init__(input_name)
 
     def write_properties_input(self, input_name):
         """
-        Writes the properties input to a file.
-
-        Args:
-            input_name (str): The name of the output file.
+        Deprecated. Use ``write_file()``
         """
+        import warnings
 
-        import itertools
-        import sys
-
-        if self.is_newk == False:
-            property_input_list = self.property_block
-        if self.is_newk == True:
-            property_input_list = list(itertools.chain(
-                self.newk_block, self.property_block))
-
-        with open(input_name, 'w') as file:
-            for line in property_input_list:
-                file.writelines(line)
+        warnings.warn('Deprecated. Use write_file() method instead.', stacklevel=2)
+        return self.write_file(input_name)
 
 
-class Properties_output:
-    """Creates a Properties_output object."""
+class Properties_output(POutBASE):
+    """
+    Creates a Properties_output object. Since not all results from 'properties'
+    executable creates are summarized in output, methods of this class usually
+    requires multiple files.
 
-    def __init__(self):
-        """Initialize the Properties_output object."""
+    .. note::
 
-        pass
+        Most of methods directly dealing with output file itself are saved in
+        ``base.output.POutBASE`` object. Users typically do not need to call
+        methods there since they are called internally.
+
+    Args:
+        properties_output (str): Properties output file
+    """
+
+    def __init__(self, properties_output=None):
+        if properties_output != None:
+            self.read_file(properties_output)
+        else:
+            pass
 
     def read_file(self, properties_output):
-        """Parse the properties output file.
+        """
+        Parse the properties output file.
 
         Args:
             properties_output (str): The properties output file.
@@ -2434,8 +2338,7 @@ class Properties_output:
             self.title = os.path.split(properties_output)[1]
 
         except:
-            raise FileNotFoundError(
-                'EXITING: a CRYSTAL properties file needs to be specified')
+            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
 
     def read_vecfield(self, properties_output, which_prop):
         """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
@@ -2580,73 +2483,44 @@ class Properties_output:
                         s += 1
         return self
 
-    def read_electron_band(self, band_file, output=None):
+    def read_electron_band(self, band_file):
         """
-        Generate bands object from CRYSTAL BAND.DAT or fort.25 file.
-        Energy unit: eV. E Fermi is aligned to 0.
+        Generate bands object from CRYSTAL BAND.DAT or fort.25 file. Energy
+        unit: eV. E Fermi is aligned to 0.
 
         Args:
             band_file (str): Name of BAND.DAT or fort.25 file
-            output (str): Properties output file (.outp or .out). For 3D k
-                coordinates and geometry information.
 
         Returns:
-            self.bands (BandsBASE): A Bands base object
+            self.bands (ElectronBand): An ``CRYSTALpytools.electronics.ElectronBand`` object
         """
-        from CRYSTALpytools.base.propout import BandsBASE, OutBASE
+        from CRYSTALpytools.electronics import ElectronBand
+        import warnings
 
-        self.read_file(band_file)
-        if '-%-' in self.data[0]:  # fort.25 file format
-            self.bands = BandsBASE.f25_parser(self.data)
-        else:  # BAND.DAT file format
-            self.bands = BandsBASE.BAND_parser(self.data)
-
-        if output != None:
-            self.bands.geometry = OutBASE.get_geometry(output)
-            self.bands.tick_pos3d, self.bands.k_point_pos3d = OutBASE.get_3dkcoord(
-                output)
-            self.bands.reciprocal_latt = self.bands.geometry.lattice.reciprocal_lattice.matrix
+        if not hasattr(self, 'file_name'):
+            warnings.warn('Properties output file not found: 3D k path not available',
+                          stacklevel=2)
+            self.bands = ElectronBand.from_file(band_file)
+        else:
+            self.bands = ElectronBand.from_file(band_file, self.file_name)
 
         return self.bands
 
-    def read_electron_dos(self, properties_output):
+    def read_electron_dos(self, dos_file):
         """
-        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file.
-        Energy unit: eV. E Fermi is aligned to 0.
-
+        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file. Energy
+        unit: eV. E Fermi is aligned to 0.
         Args:
-            properties_output (str): File name
+            dos_file (str): Name of DOSS.DAT or fort.25 file
 
         Returns:
-            self.doss (DOSBASE): A DOS base object
+            self.doss (ElectronDOS): An ``CRYSTALpytools.electronics.ElectronDOS`` object
         """
-        from CRYSTALpytools.base.propout import DOSBASE
+        from CRYSTALpytools.electronics import ElectronDOS
 
-        self.read_file(properties_output)
-        if '-%-' in self.data[0]:  # fort.25 file format
-            self.doss = DOSBASE.f25_parser(self.data)
-        else:  # DOSS.DAT file format
-            self.doss = DOSBASE.DOSS_parser(self.data)
+        self.doss = ElectronDOS.from_file(dos_file)
 
         return self.doss
-
-    def read_cry_bands(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_band instead.')
-        return self.read_electron_band(properties_output)
-
-    def read_cry_doss(self, properties_output):
-        """
-        Deprecated.
-        """
-        import warnings
-
-        warnings.warn('Deprecated. Use read_electron_dos instead.')
-        return self.read_electron_dos(properties_output)
 
     def read_cry_contour(self, properties_output):
         """Read the CRYSTAL contour files to create the contour objects.
@@ -3184,191 +3058,43 @@ class Properties_output:
 
         return self
 
-    def read_cry_ECHG(self, properties_output):
+    def read_cry_ECHG(self, f25_file):
         """
         Read density profile data from a file.
 
         Args:
-            properties_output (str): Path to the fort.25 file.
+            f25_file (str): Path to the fort.25 file.
         Returns:
-            self: The modified object with extracted ECHG data.
+            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
         """
-        import numpy as np
+        from CRYSTALpytools.electronics import ChargeDensity
 
-        self.read_file(properties_output)
-        data = self.data
+        self.echg = ChargeDensity.read_ECHG(f25_file)
+        return self.echg
 
-        points_ab = int(data[0].split()[1])
-        points_bc = int(data[0].split()[2])
-        self.cosxy = float(data[0][42:54])
-        self.a = np.array([data[1][0:12],
-                           data[1][12:24],
-                           data[1][24:36]], dtype=float)
-        self.b = np.array([data[1][36:48],
-                           data[1][48:60],
-                           data[1][60:72]], dtype=float)
-        self.c = np.array([data[2][0:12],
-                           data[2][12:24],
-                           data[2][24:36]], dtype=float)
-
-        self.density_map = np.zeros((points_ab, points_bc), dtype=float)
-
-        number_points = points_ab * points_bc
-        lines = int(number_points / 6)
-        if number_points % 6 != 0:
-            lines = lines + 1
-
-        density_temp = np.zeros(number_points, dtype=float)
-        j = 0
-        for i in range(0, lines):
-            for k in range(0, len(data[3 + i].split())):
-                density_temp[j] = data[3 + i].split()[k]
-                j += 1
-
-        k = 0
-        for j in range(0, points_bc):
-            for i in range(points_ab - 1, -1, -1):
-                self.density_map[i, j] = density_temp[k]
-                k += 1
-
-        return self
-
-    def read_cry_ECHG_delta(self, properties_output1, properties_output2):
+    def read_cry_ECHG_delta(self, f25_file1, f25_file2):
         """
-        Read density profile data from two files and plots the difference.
-        It is important that the header stays the same for the two output files.
+        Read density profile data from two files and plots the difference. It
+        is important to have consistent grid definitions, otherwise error is
+        raised.
 
         Args:
-            properties_output1 (str): Path to first fort.25 file.
-            properties_output2 (str): Path to second fort.25 file.
+            f25_file1 (str): Path to first fort.25 file.
+            f25_file2 (str): Path to second fort.25 file.
         Returns:
-            self: The modified object with extracted ECHG data.
+            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
         """
+        from CRYSTALpytools.electronics import ChargeDensity
 
-        out1 = Properties_output().read_cry_ECHG(properties_output1)
-        out2 = Properties_output().read_cry_ECHG(properties_output2)
-
-        self.a = out1.a
-        self.b = out1.b
-        self.c = out1.c
-        self.cosxy = out1.cosxy
-
-        self.density_map = out1.density_map - out2.density_map
-
-        return self
+        self.echg = ChargeDensity.read_ECHG(f25_file1, f25_file2)
+        return self.echg
 
 
-class Crystal_gui:
+
+class Crystal_gui(Crystal_gui):
     """
-    This class can read a CRYSTAL gui file into an object or substrate
-    information of the object to generate a gui file.
+    Inherited from ``geometry.Crystal_gui``. See documentations :ref:`there <ref-geometry>`.
     """
-
-    def __init__(self):
-        pass
-
-    def read_gui(self, gui_file):
-        """
-        This is used mainly to convert the object into an ASE or pymatgen
-        object.
-
-        Args:
-            gui_file (str): The CRYSTAL structure (gui) file
-        """
-        import numpy as np
-
-        try:
-            file = open(gui_file, 'r')
-            data = file.readlines()
-            file.close()
-        except:
-            raise FileNotFoundError(
-                'A CRYSTAL geometry file needs to be specified: .gui, fort.34 or opt* files.')
-
-        self.dimensionality = int(data[0].split()[0])
-        self.lattice = []
-        self.symmops = []
-        for i in range(1, 4):
-            self.lattice.append([float(x) for x in data[i].split()])
-        self.n_symmops = int(data[4].split()[0])
-        for i in range(5, 5+self.n_symmops*4):
-            self.symmops.append(data[i].split())
-        self.symmops = np.reshape(np.array(self.symmops, dtype=float),
-                                  [self.n_symmops, 4, 3])
-        self.n_atoms = int(data[5+self.n_symmops*4].split()[0])
-        self.atom_number = []
-        self.atom_positions = []
-        for i in range(6+self.n_symmops*4, 6+self.n_symmops*4+self.n_atoms):
-            atom_line = data[i].split()
-            self.atom_number.append(int(atom_line[0]))
-            self.atom_positions.append([float(x) for x in atom_line[1:]])
-        self.space_group = int(data[-1].split()[0])
-
-        return self
-
-    def write_gui(self, gui_file, symm=True, pseudo_atoms=[]):
-        """
-        Write a CRYSTAL gui file (to file)
-
-        Args:
-            gui_file (str): The name of the gui that is going to be written (
-                including .gui).
-            symm (bool): Whether to include symmetry operations.
-            pseudo_atoms (list[int]): A list of atoms whose core is described
-                by a pseudopotential
-        """
-        import numpy as np
-
-        if symm == False:
-            self.n_symmops = 1
-            self.symmops = np.vstack([np.eye(3), [0.0, 0.0, 0.0]])
-
-        file = open(gui_file, 'w')
-        # First line
-        file.writelines('%4s   1   1\n' % self.dimensionality)
-        # Cell vectors
-        for vector in self.lattice:
-            file.writelines('{}\n'.format(
-                ''.join(['{0: 20.12E}'.format(np.round(n, 12))
-                        for n in vector])
-            ))
-        # N symm ops
-        file.writelines('{:5d}\n'.format(self.n_symmops))
-
-        # symm ops
-        sym_list = np.reshape(self.symmops, [self.n_symmops*4, 3])
-        for symmops in sym_list:
-            file.writelines('{}\n'.format(
-                ''.join(['{0: 20.12f}'.format(np.round(n, 12))
-                        for n in symmops])
-            ))
-        # N atoms
-        file.writelines('{:5d}\n'.format(self.n_atoms))
-
-        # atom number (including pseudopotentials) + coordinates cart
-        for i in range(self.n_atoms):
-            if self.atom_number[i] in pseudo_atoms:
-                file.writelines('{:5d}{}\n'.format(
-                    int(self.atom_number[i])+200,
-                    ''.join(['{0: 20.12E}'.format(np.round(x, 12))
-                            for x in self.atom_positions[i]])
-                ))
-            else:
-                file.writelines('{:5d}{}\n'.format(
-                    int(self.atom_number[i]),
-                    ''.join(['{0: 20.12E}'.format(np.round(x, 12))
-                            for x in self.atom_positions[i]])
-                ))
-
-        # space group + n symm ops
-        if symm == True:
-            file.writelines('{:5d}{:5d}\n'.format(
-                self.space_group, self.n_symmops
-            ))
-        else:
-            file.writelines('{:5d}{:5d}\n'.format(1, 1))
-
-        file.close()
 
 
 class Crystal_density():

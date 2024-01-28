@@ -1,5 +1,5 @@
 CRYSTALpytools.crystal_io module
-===================================
+================================
 
 .. _ref-crystalio:
 

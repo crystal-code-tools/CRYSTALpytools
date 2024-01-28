@@ -8,57 +8,62 @@ Python wrapper for CRYSTAL inputs. Provides basic classes, methods and attribute
 Structure of classes
 --------------------
 
-#. CRYSTAL keywords are used as methods. Calling a method modifies the corresponding attributes.
+#. All the information are stored in the dictionary ``obj._block_dict``, with the keywords as keys and lists as values. See below for definitions of list elements. The sequence of key-value pairs should follow the requirement of d12/d3 files. For example, in ``Geom``, the 'OPTGEOM' key-value pair should always be placed after the 'SUPERCEL' key-value pair.
 
-#. Keyword-like attributes (keyword not closed by 'END') are named as ``_attr`` and the corresponding method should be ``attr()``.
+#. Keywords in a block are NON-REPEATABLE. If the same keyword can appear multiple times, please consider to divide the input into multiple subblocks. Both :ref:`Crystal_inputBASE <ref-base-crysd12>` and :ref:`Properties_inputBASE <ref-base-propd3>` use 'dummpy' subblocks. For details please refer to docs there.
 
-#. Block-like attributes (keyword closed by 'END') are named as ``_block_attr``. The corresponding method is ``set_attr()``. Another method with ``@property`` decorator should be set in such way that when called without ``_block_attr`` existing, create a new one, otherwise return to it.
+#. Keywords are called as methods. For 'keyword-like' keywords (keywords not closed by 'END'), calling the method (``obj.keyword(value)``) modifies the value in ``obj._block_dict``. For 'block-like' keywords (keyword closed by 'END'), calling ``obj.keyword()`` modifies the sub-block attribute ``obj._keyword``, which is a derivative of  ``BlockBASE``. ``obj.keyword`` returns to this attribute.
 
-#. ``_block_bg`` attribute has the keyword or undefined 1st line of a block. In class Optgeom, that is 'OPTGEOM\n' and in Geom, that is title line. When it is empty, it should be set as ``None``.
+#. For ``BlockBASE`` objects, ``_block_bg`` attribute has the keyword or title line of a block. For example, ``Optgeom`` has 'OPTGEOM\n' and ``Geom`` has title line.
 
-#. Similarly, ``_block_ed`` attribute has the ending line of a block. In class BasisSet, by default that is 'ENDBS\n'. When it is empty, it should be set as ``None``.
+#. Similarly, ``_block_ed`` attribute has the ending line of a block. In ``BasisSet``, by default that is 'ENDBS\n'. ``''`` is automatically set for ``_block_ed`` if 'BASISSET' keyword is used.
 
-#. When ``_block_bg`` and ``_block_ed`` are both ``''`` (note that is not ``None``), the whole block is regarded as empty and its data will not be updated.
+#. The ``_block_data`` attribute is the formatted CRYSTAL input string, which can be called and updated by the 'data' attriute ``obj.data``.
 
-#. The ``_block_data`` attribute stored the d12/d3 formatted text of the whole block.
+#. ``_block_key`` is the sorted, non-repeated lists of keys defined in ``_block_dict``.
 
-#. The ``_block_dict`` attribute is a dictionary whose keys are CRYSTAL keywords and values are corresponding attributes. The sequence of key-value pairs should follow the requirement of d12/d3 files. For example, in Geom class, the 'OPTGEOM' keyword and corresponding attribute should always be placed after the 'SUPERCEL' keyword.
-
-#. ``_block_key`` and ``_block_value`` are sorted, non-repeated lists of keys and values defined in ``_block_dict``.
+#. ``_block_valid`` is a boolian to indicate whether to print out the data of this block.
 
 Add keyword-related methods
 ---------------------------
 
 Layer 1: ``Crystal_inputBASE`` or ``Properties_inputBASE`` Objects. 
 
-Layer 2: 3 basic blocks, Geom, BasisSet and SCF. A BlockBASE class should be created.
+Layer 2: All of them are inherited from ``BlockBASE``. For d12, 3 basic blocks, ``geom``, ``basisSet`` and ``scf``. For d3, optional, ``append1`` to ``append5``, useful only when the same keyword in main block (not protected by sub-blocks) is set for multiple times, for example, 'ECHG' + 'PATO' + 'ECHG'.
 
-Layer 3: Sub-blocks closed by END, such as 'OPTGEOM'. A BlockBASE class should be created. 
+Layer 3: Sub-blocks closed by END, such as 'OPTGEOM'. Inherited from ``BlockBASE``.
 
-   Layer 2 and 3 should be created as the value of ``_block_attr`` attribute of the upper layer, with corresponding ``set_attr`` method and ``attr()`` method decorated by ``@property``
-
-Layer 4: Keyword-like inputs.
+Layer 4: Keyword-like inputs or sub-sub-blocks.
 
    * Keywords with 'matrix-like' (ndimen\*ndimen) inputs, such as 'SUPERCEL'. Use ``set_matrix`` + ``assign_keyword``.
    * Keywords with 'list-like' (nline + a list of nline, or 1 line of multiple values) inputs, such as 'ATOMSPIN'. Use ``set_list`` + ``assign_keyword``.  
    * Keywords with 0 or 1 line input, such as 'TOLDEE' and 'CVOLOPT'. Use ``assign_keyword``.  
    * Other irregular keywords, such as 'SHRINK'. Design a special scheme and use ``assign_keyword``.  
+   * Sub-sub-blocks, same as sub-blocks. Change ``_block_bg`` and ``_block_ed`` accordingly.  
+
+All the information, including keywords and subblocks, are stored as a dictionary under ``obj._block_dict`` attribute. The key is CRYSTAL keyword (not all the keywords are supported). The value is a list.
+
+#. The first element
+    * For 'keyword-like' keywords ``None``, ``''`` or value(string). ``None`` means skipping the keyword and corresponding values. ``''`` prints out keyword. ``key\nvalue`` is printed out for other formatted string values.
+    * For 'block-like' keywords, the first element must not be edited. It is a string that directs to the real attribute of that sub-block, such as ``_optgeom``. Using attribute operation functions and text saved the developer can visit the 'real' attribute without triggering potential commands defined in ``@property`` decorated ``keyword(self)`` functions.
+
+#. The second element: boolian. Whether the keyword requires a block object.
+
+#. The third element: A list of conflicting keywords. See the next section.
+
+#. The fourth element: Valid only if the second element is ``True``. A string that initializes the subblock object. For example, in ``Geom()._block_dict``, the fourth element of the list corresponding to 'OPTGEOM' key is 'crysd12.Optgeom()'. This helps the code to initialize sub-block objects automatically by ``eval()`` command. All the sub-blocks are initialized with ``_block_valid = False`` when the block object is initialized.
 
 Address conflicts
 -----------------
 
-To address conflicts between 2 'keyword-like' inputs, one can simply direct 2 different keywords to the same attribute. For example, both 'SUPERCEL' and 'SCELPHONO' keywords directs to the ``_sp_matrix`` attribute of Geom object. By setting either one the other is automatically covered.
+To address conflicts of keywords, the ``clean_conflict`` method is automatically called. A list of conflicting keywords should be given. The list can include the input keyword itself. Conflicting keywords, if they are 'keyword-like', the first elements of their 'value list' in ``_block_dict`` are set to ``None``; if they are 'block-like', they are re-initialized with ``_block_valid = False``.
 
-To address conflicts involving 'block-like' inputs, the ``clean_conflict`` method should be used. Check the explanations below.
-
-Planned developments
+Other comments
 --------------------
 
-#. Add Properties_inputBASE
+#. Not all the keywords in CRYSTAL manual have been implemented. Calling the non-existing attributes or methods causes problems. Please raise an issue in GitHub repo to contact the authors if you need any specific keyword immidiately.
 
-#. Redo 'FIXINDEX' of SCF block. Make an individual class for GEOM / BASE / GEBA. The current implementation does not support GEBA.
-
-#. Add CPHF / QHA / EOS blocks 
+#. Please also read documentations and examples for :ref:`Crystal_inputBASE <ref-base-crysd12>`, :ref:`Properties_inputBASE <ref-base-propd3>` and :ref:`crystal_io <ref-crystalio>`.
 
 .. automodule:: CRYSTALpytools.base.inputbase
    :members:

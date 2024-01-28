@@ -493,7 +493,7 @@ class Harmonic():
         :raise AttributeError: If computational data is stored in the object.
         :raise ValueError: If neither of the 2 available options are defined.
         """
-        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.thermodynamics import Mode
         import numpy as np
 

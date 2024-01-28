@@ -16,6 +16,7 @@ CRYSTALpytools instructions for users.
    crystalpytools.convert
    crystalpytools.crystal_io
    crystalpytools.execute
+   crystalpytools.electronics
    crystalpytools.geometry
    crystalpytools.plot
    crystalpytools.thermodynamics
@@ -28,10 +29,11 @@ CRYSTALpytools instructions for developers.
 .. toctree::
    :maxdepth: 1
 
+   crystalpytools.base.inputbase
    crystalpytools.base.basisset
    crystalpytools.base.crysd12
-   crystalpytools.base.crysout
-   crystalpytools.base.inputbase
+   crystalpytools.base.propd3
+   crystalpytools.base.output
+   crystalpytools.base.extfmt
    crystalpytools.base.plotbase
-   crystalpytools.base.propout
 
