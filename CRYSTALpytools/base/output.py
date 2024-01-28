@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Classes and methods to phrase 'crystal' output file.
+Classes and methods to parse the output files (screen output, or .out and
+.outp files) of 'crystal' and 'properties' executables.
 """
 class GeomBASE():
     """
@@ -20,12 +21,12 @@ class GeomBASE():
 
         Returns:
             countline (int): Line number of output file.
-            struc (Pymatgen Structure | Molecule)
+            struc (CStructure | CMolecule): Modified Pymatgen Structure and Molecule
         """
         import re
         import numpy as np
         from pymatgen.core.lattice import Lattice
-        from pymatgen.core.structure import Structure, Molecule
+        from CRYSTALpytools.geometry import CStructure, CMolecule
 
         pbc = {0 : (False, False, False),
                1 : (True, False, False),
@@ -69,10 +70,10 @@ class GeomBASE():
                 coords = np.array(coords, dtype=float)
                 if ndimen != 0:
                     coords[:, 0:ndimen] = coords[:, 0:ndimen] @ latt_mx[0:ndimen, 0:ndimen] # to cartesian coords
-                    struc = Structure(lattice=latt, species=species,
-                                      coords=coords, coords_are_cartesian=True)
+                    struc = CStructure(lattice=latt, species=species,
+                                       coords=coords, coords_are_cartesian=True)
                 else:
-                    struc = Molecule(species=species, coords=coords)
+                    struc = CMolecule(species=species, coords=coords)
                 break
             else:
                 countline += 1
@@ -679,3 +680,141 @@ class PhononBASE():
                     crysout.Raman[q][n] = False
 
         return crysout
+
+
+class POutBASE():
+    """
+    Base object for Properties output file. Auxiliary information is
+    substracted. Other data is read from formatted files respectively.
+
+    Args:
+        filename (str): Properties output file name.
+    """
+    def __init__(self, filename):
+        try:
+            file = open(filename, 'r', errors='ignore')
+            self.data = file.readlines()
+            file.close()
+        except:
+            raise FileNotFoundError('EXITING: an output file needs to be specified')
+
+    def get_geometry(self):
+        """
+        Get geometry from properties output calculation. A 3D geometry is
+        generated since no dimensionality information is provided.
+
+        Returns:
+            struc (CStructure): Modified Pymatgen structure
+        """
+        import re
+        import numpy as np
+        from CRYSTALpytools.geometry import CStructure
+
+        data = self.data
+        countline = 0
+        lattice = []
+        cart_coord = []
+        species = []
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s+DIRECT LATTICE VECTOR COMPONENTS', line):
+                lattice = [data[countline+1].strip().split(),
+                           data[countline+2].strip().split(),
+                           data[countline+3].strip().split()]
+                countline += 4
+                continue
+            elif re.match(r'^\s+ATOM N\.AT\.\s+SHELL\s+X\(A\)', line):
+                countline += 2
+                line = data[countline]
+                while not re.match(r'^\s*\*+\s*$', line):
+                    line_data = line.strip().split()
+                    species.append(line_data[2].capitalize())
+                    cart_coord.append(line_data[4:7])
+                    countline += 1
+                    line = data[countline]
+
+                break
+            else:
+                countline += 1
+                continue
+
+        lattice = np.array(lattice, dtype=float)
+        cart_coord = np.array(cart_coord, dtype=float)
+        if len(lattice) == 0 or len(cart_coord) == 0:
+            raise Exception('Valid geometry not found.')
+
+        return CStructure(lattice=lattice, species=species, coords=cart_coord,
+                          coords_are_cartesian=True)
+
+    def get_lattice(self):
+        """
+        Get lattice matrix from properties output calculation. A 3D lattice is
+        generated since no dimensionality information is provided.
+
+        Returns:
+            matrix (array): 3\*3 lattice matrix
+        """
+        struc = self.get_geometry()
+        return struc.lattice.matrix
+
+    def get_reciprocal_lattice(self):
+        """
+        Get reciprocal lattice matrix from properties output calculation. A 3D
+        lattice is generated since no dimensionality information is provided.
+
+        Returns:
+            matrix (array): 3\*3 reciprocal lattice matrix
+        """
+        struc = self.get_geometry()
+        return struc.lattice.reciprocal_lattice.matrix
+
+    def get_3dkcoord(self):
+        """
+        BANDS calculation only. Get 3D coordinates of k points and shrinking
+        factors from output file.
+
+        Returns:
+            tick_pos3d (array): ntick\*3 array of fractional coordinates of
+                high symmetry k points
+            k_pos3d(array): nkpoint\*3 fractional coordinates of k points
+        """
+        import re
+        import numpy as np
+
+        data = self.data
+        is_band = False
+        tick_pos3d = []
+        k_pos3d = np.array([np.nan, np.nan, np.nan], dtype=float)
+        for nline, line in enumerate(data):
+            if re.match(r'^\s*\*\s+BAND STRUCTURE\s+\*$', line):
+                is_band = True
+            elif re.match(r'^\s*LINE\s+[0-9]+\s+\(', line):
+                bg = np.array(line[10:25].strip().split(), dtype=float)
+                ed = np.array(line[26:41].strip().split(), dtype=float)
+                if len(tick_pos3d) > 0:
+                    # do not repeat the same point in the middle
+                    if np.array_equal(tick_pos3d[-1], bg):
+                        tick_pos3d.append(ed)
+                    else:
+                        tick_pos3d.append(bg)
+                        tick_pos3d.append(ed)
+                else:
+                    tick_pos3d.append(bg)
+                    tick_pos3d.append(ed)
+            elif re.match(r'^\s*[0-9]+ POINTS \- SHRINKING', line):
+                nkp = int(line.strip().split()[0])
+                kpos = np.concatenate([np.linspace(bg[0], ed[0], nkp),
+                                       np.linspace(bg[1], ed[1], nkp),
+                                       np.linspace(bg[2], ed[2], nkp)])
+                kpos = np.reshape(kpos, [3, nkp], order='C')
+                k_pos3d = np.vstack([k_pos3d, kpos.transpose()])
+            elif re.match(r'^\s*[0-9]+ DATA WRITTEN ON UNIT 25', line):
+                break
+
+        if is_band == False:
+            raise Exception('Not a valid band calculation.')
+
+        tick_pos3d = np.array(tick_pos3d)
+        k_pos3d = k_pos3d[1:, :]
+
+        return tick_pos3d, k_pos3d

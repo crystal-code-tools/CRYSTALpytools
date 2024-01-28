@@ -3,8 +3,6 @@
 """
 Base functions for plotting 2D and 3D figures
 """
-
-
 def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, linestl,
                    linewidth, color, fermi, k_range, labels, figsize, scheme,
                    sharex, sharey, fermiwidth, fermialpha):
@@ -469,7 +467,6 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
     else:
         if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
             raise ValueError('scheme needs to be a tuple or a list')
-            sys.exit(1)
         elif len(scheme) > 2:
             raise ValueError(
                 'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
@@ -1294,3 +1291,66 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         plt.legend()
 
     return fig, ax
+
+
+def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cbar_label):
+    """
+    Plot 2D scalar field map.
+
+    Args:
+        datamap (array): 2D map data.
+        gridv (array): 2\*3 base vectors of 2D map.
+        levels (int | array-like): Determines the number and positions of the contour lines/regions.
+        xticks (int): Number of ticks in the x direction.
+        yticks (int): Number of ticks in the y direction.
+        cmap_max (float): Maximum value used for the colormap.
+        cmap_min (float): Minimun value used for the colormap.
+        cbar_label (str): Title of colorbar (typically for quantuity and unit)
+    Returns:
+        fig (Figure): Matplotlib figure object.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import numpy as np
+
+    vector_ab = gridv[0, :]
+    length_ab = np.norm(v1)
+    vector_cb = gridv[1, :]
+    length_cb = np.norm(v2)
+    points_ab = datamap.shape[0]
+    points_cb = datamap.shape[1]
+    cosxy = np.dot(vector_ab, vector_cb) / np.norm(vector_ab) / np.norm(vector_cb)
+
+    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
+    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
+    for i in range(0, points_ab):
+        for j in range(0, points_cb):
+            mesh_y[i, j] = (lenght_ab / points_ab) * i * np.sqrt(1 - cosxy**2)
+            mesh_x[i, j] = (lenght_cb / points_cb) * j + (lenght_ab / points_ab) * i * cosxy
+
+    if cmap_max is None:
+        max_data = np.amax(datamap)
+    else:
+        max_data = cmap_max
+
+    if cmap_min is None:
+        min_data = np.amin(datamap)
+    else:
+        min_data = cmap_min
+
+    fig, ax = plt.subplots()
+    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
+    divider = make_axes_locatable(ax)
+    im.set_clim(vmin=min_data, vmax=max_data)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label(cbar_label, rotation=270)
+    ax.set_xlabel('$\AA$')
+    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
+    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
+    ax.set_ylabel('$\AA$')
+    ax.set_aspect(1.0)
+    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
+    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - obj_echg.cosxy**2))
+
+    return fig

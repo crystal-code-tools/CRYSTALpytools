@@ -6,68 +6,112 @@ Base object of all the input (d12/d3) blocks.
 class BlockBASE():
     """
     The base class of 'block' objects
+
+    Args:
+        bg (str): Beginning line. Keyword or title
+        ed (str): Ending line.
+        dic (dict): Keyword and value (in text) pairs. Format is listed below.
+
+    Returns:
+        self (BlockBASE): New attributes listed below
+        self._block_bg (str): Keyword of the block
+        self._block_ed (str): End of block indicator, 'END'
+        self._block_data (str) : Formatted text string for d12.
+        self._block_dict (dict): Keyword and value (in text) pairs.
+            * Key: CRYSTAL keyword in string.
+            * Value: A 3\*1 or 4\*1 list.
+                * 1st element: For keywords: String, formatted output; ``None``, not including the keyword; ``''``, keyword only
+                * 1st element: For subblocks: Name of the 'real' attribute (protected by property decorator)
+                * 2nd: bool, whether it is a sub-block or not;
+                * 3rd: A list of conflicting keywords.
+                * 4th: Subblock only. String that initializes the subblock object.
+        self._block_key (list): Allowed keyword list
+        self._block_valid (bool): Whether this block is valid and for print.
     """
 
-    def __init__(self):
-        self._block_bg = ''
-        self._block_ed = ''
-        self._block_data = ''
-        self._block_dict = {}
+    def __init__(self, bg, ed, dic):
+        from CRYSTALpytools.base import crysd12, propd3
+
+        self._block_bg = bg # Title or keyword of the block
+        self._block_ed = ed # End of block indicator
+        self._block_data = '' # Formatted text string
+        self._block_dict = dic # Data
+        self._block_valid = True # Whether this block is valid and for print
+
         key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
         self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        for k in key:
+            if self._block_dict[k][1] == True: # Initialize all the subblock objs
+                obj = eval(self._block_dict[k][3])
+                obj._block_valid = False
+                setattr(self, self._block_dict[k][0], obj)
+
+    def __call__(self, obj=''):
+        if type(obj) == str:
+            self.__init__()
+            if obj != '':
+                self.analyze_text(obj)
+        elif obj == None:
+            self.__init__()
+            self._block_valid = False
+        elif type(obj) == type(self):
+            self = obj
+        else:
+            raise ValueError('Unknown data type.')
 
     @property
     def data(self):
         """
         Settings in all the attributes are summarized here.
         """
+        import warnings
+
+        if self._block_valid == False:
+            warnings.warn("This block is not visible. Set 'self._block_valid = True' to get data",
+                          stacklevel=2)
+            return ''
+
         self.update_block()
         text = ''
         for i in [self._block_bg, self._block_data, self._block_ed]:
-            if i == None:
-                continue
             text += i
         return text
 
-    @staticmethod
-    def assign_keyword(key, shape, value=None):
+    def assign_keyword(self, key, shape, value=''):
         """
         Transform value into string formats.
 
         Args:
-            key (str): CRYSTAL keyword
             shape (list[int]): 1D list. Shape of input text. Length: Number of
                 lines; Element: Number of values
-            value (list | str): List, a 1D list of arguments; ``None`` or a list
-                begins with ``None``, return to keyword only; ``''`` or a list begins
-                with ``''``, Clean everything
+            value (list | str): List, a 1D list of arguments; ``''`` or a list
+                begins with ``''``, return to ``''``; ``None`` or a list
+                begins with ``None``, return ``None``.
 
         Returns:
             text (str): CRYSTAL input
         """
+        # Check the validity of key
+        if key not in self._block_key:
+            raise ValueError("Cannot recognize keyword '{}'.".format(key))
+
+        self.clean_conflict(key)
+
         if type(value) != list and type(value) != tuple:
             value = [value, ]
 
-        # Keyword only : Value is None and and key is not ''
-        if value[0] == None and key != '':
-            return '{}\n'.format(key)
-
-        # Clean everything : Empty key or value is ''
-        if value[0] == '' or key == '':
-            return ''
+        # Keyword only or cleanup: Value is '' or None
+        if value[0] == '' or value[0] == None:
+            self._block_dict[key][0] = value[0]
+            return self
 
         # Wrong input: Number of args defined by shape != input.
         if sum(shape) != len(value):
             raise ValueError(
-                "The number of input parameters '{}' does not meet requirements.".format(value))
+                "Value does not meet requirement of keyword '{}'.".format(key))
 
-        # Correct number of args and valid key. Key = None, no keyword
-        if key != None:
-            text = '{}\n'.format(key)
-        else:
-            text = ''
+        # Correct number of args
+        text = ''
         value_counter = 0
         for nvalue in shape:
             for v in value[value_counter:value_counter + nvalue]:
@@ -75,7 +119,8 @@ class BlockBASE():
             text += '\n'
             value_counter += nvalue
 
-        return text
+        self._block_dict[key][0] = text
+        return self
 
     @staticmethod
     def set_matrix(mx):
@@ -92,10 +137,10 @@ class BlockBASE():
         """
         import numpy as np
 
-        if mx == '':  # Clean data
-            return [], ''
-        elif mx == None:  # Keyword only
+        if mx == None:  # Clean data
             return [], None
+        elif mx == '':  # Keyword only
+            return [], ''
 
         matrix = np.array(mx)
         if matrix.shape[0] != matrix.shape[1]:
@@ -119,10 +164,10 @@ class BlockBASE():
             shape (list): 1 + length 1D list or []
             args (list): Flattened list, [] or ''
         """
-        if args[0] == '':  # Clean data
-            return [], ''
-        elif args[0] == None:  # Keyword only
+        if args[0] == None:  # Clean data
             return [], None
+        elif args[0] == '':  # Keyword only
+            return [], ''
 
         if len(args) != 2 or int(args[0]) != len(args[1]):
             return ValueError('Input format error. Arguments should be int + list')
@@ -140,50 +185,33 @@ class BlockBASE():
 
         return shape, value
 
-    def clean_conflict(self, newattr, conflict):
+    def clean_conflict(self, key):
         """
-        Addressing the conflictions between attributes, usually between blocks
-        or block and keywords. For conflictions between keywords, they are set
-        to direct the same attribute.
+        Addressing the conflictions between keywords.
 
         Args:
-            newattr (str): The attribute explicitly specified.
-            conflict (list[str]): The list of conflicting attributes including
-                the called one. 'Real' attributes (begins with '_') are needed.
+            key (str): The keyword specified.
         """
-        for cttr in conflict:
-            if cttr == newattr:
+        import warnings
+        for cttr in self._block_dict[key][2]:
+            cttr = cttr.upper()
+            if cttr == key:
                 continue
 
-            if hasattr(self, cttr):
-                if '_block' in cttr:  # Block conflicts
-                    obj = getattr(self, cttr)
-                    obj.clean_block()
-                    setattr(self, cttr, obj)
-                else:  # Keyword conflict
-                    setattr(self, cttr, '')
-        return
+            if self._block_dict[cttr][1] == False: # keyword
+                if self._block_dict[cttr][0] != None:
+                    warnings.warn("'{}' conflicts with the existing '{}'. The old one is deleted.".format(key, cttr),
+                                  stacklevel=3)
+                    self._block_dict[cttr][0] = None
+            else: # subblock
+                obj = getattr(self, self._block_dict[cttr][0])
+                if obj._block_valid == True:
+                    warnings.warn("'{}' conflicts with the existing '{}'. The old one is deleted.".format(key, cttr),
+                                  stacklevel=3)
+                    obj(None)
+                    setattr(self, self._block_dict[cttr][0], obj)
 
-    def clean_block(self):
-        """
-        Clean all the keyword-related attributes (accessible attributes).
-
-        .. note::
-
-            This method directly deletes all the attributes. Alternatively, by
-            setting an attribute with '', the attribute is kept but its old
-            values are erased.
-
-        """
-        self._block_bg = ''
-        self._block_ed = ''
-        self._block_data = ''
-        for a in self._block_attr:
-            try:
-                delattr(self, a)
-            except AttributeError:
-                continue
-        return
+        return self
 
     def update_block(self):
         """
@@ -191,33 +219,34 @@ class BlockBASE():
         ``_block_data`` attribute for inspection and print
         """
         self._block_data = ''
-        if self._block_bg != '' or self._block_ed != '':
-            for attr in self._block_attr:
-                if attr[0] == '_':  # Keyword-like attributes
-                    if hasattr(self, attr):
-                        self._block_data += getattr(self, attr)
-                else:  # Block-like attributes
-                    # If sub-block does not exist, call @property name will create a new one. Call _block_name instead
-                    attr_real = '_block_' + attr
-                    if hasattr(self, attr_real):
-                        obj = getattr(self, attr_real)
-                        obj.update_block()
-                        for i in [obj._block_bg, obj._block_data, obj._block_ed]:
-                            if i == None:
-                                continue
-                            self._block_data += i
-        return
+        for key in self._block_key:
+            if self._block_dict[key][1] == False: # Keyword-like attributes
+                if self._block_dict[key][0] != None:
+                    self._block_data += key + '\n' + self._block_dict[key][0]
+            else: # Block-like attributes, get data from the corresponding attribute
+                # It is important to use real attribute here for subblocks
+                # To avoid automatically setting objreal._block_valid == True
+                objreal = getattr(self, self._block_dict[key][0])
+                if objreal._block_valid == True:
+                    # It is important to use @property decorated attribute here for sub-sub-blocks
+                    # some of them are the same as subblocks but different keywords
+                    # The modification method is a decorated attribute in its upper block (self)
+                    obj = getattr(self, key.lower())
+                    self._block_data += obj.data # update and print subblock
+                    setattr(self, self._block_dict[key][0], obj)
+        return self
 
     def analyze_text(self, text):
         """
         Analyze the input text and return to corresponding attributes
         """
         import warnings
+        from CRYSTALpytools.base import crysd12, propd3
 
         if self._block_ed == None:
             end_block_label = ''
         else:
-            end_block_label = self._block_ed
+            end_block_label = 'END'
 
         textline = text.strip().split('\n')
         attr = ''
@@ -225,37 +254,35 @@ class BlockBASE():
         value = ''
         for idx, t in enumerate(textline[::-1]):
             if t.upper() in self._block_key:  # Keyword line: ending point
-                value += t + '\n'
-                attr = self._block_dict[t]
-                value = '\n'.join([i for i in value.strip().split('\n')[::-1]]) + '\n' # Reverse the string
-                if attr[0] == '_': # Keyword-like attributes
-                    attr_real = attr
-                    if hasattr(self, attr_real):
-                        warnings.warn("Keyword same as or equivalent to '{}' exists. The new entry will cover the old one".format(t),
+                t = t.upper()
+                if self._block_dict[t][1] == False: # Keyword-like attributes
+                    if self._block_dict[t][0] != None:
+                        warnings.warn("Keyword '{}' exists. The new entry will cover the old one".format(t),
                                       stacklevel=2)
-                    setattr(self, attr, value)
+                    self._block_dict[t][0] = value
                 else:  # Block-like attributes
-                    attr_real = '_block_' + attr
-                    # If sub-block does not exist, call @property name will create a new one. Call _block_name instead
-                    if hasattr(self, attr_real):
-                        warnings.warn("Keyword same as or equivalent to '{}' exists. The new entry will cover the old one".format(t),
+                    obj = getattr(self, self._block_dict[t][0])
+                    if obj._block_valid == True:
+                        warnings.warn("Keyword '{}' exists. The new entry will cover the old one".format(t),
                                       stacklevel=2)
-                    # This step will create an obj if the real attribute does not exist
-                    obj = getattr(self, attr)
-                    obj.analyze_text(value)
-                    # @property does not have setter
-                    setattr(self, attr_real, obj)
-
+                    # Update obj
+                    obj(value)
+                    setattr(self, self._block_dict[t][0], obj)
                 # Clean values
                 value = ''
-            elif t in end_block_label: # End line: starting point
+            elif end_block_label in t.upper(): # End line: starting point
                 continue
             else:
-                value += t + '\n'
+                value = t + '\n' + value
         # Last lines if unallocated string exists
         if value != '':
-            value = '\n'.join([i for i in value.strip().split('\n')[::-1]]) + '\n' # Reverse the string
-            value = value[1:]
-            self._block_data = value + self._block_data
-
-        return
+            if self._block_bg == value: # for subblocks
+                pass
+            else: # saved into beginning lines
+                textline = value.strip().split('\n')
+                for t in textline:
+                    if self._block_bg == t + '\n':
+                        pass
+                    else:
+                        self._block_bg = self._block_bg + t + '\n'
+        return self
