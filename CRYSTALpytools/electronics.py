@@ -519,7 +519,7 @@ class ElectronBandDOS():
 
 class ChargeDensity():
     """
-    Charge (spin) density object. Unit: :math:`e.\AA^{-3}`.
+    Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`.
 
     Args:
         spin (int): 1, closed shell; 2, open shell
@@ -588,7 +588,7 @@ class ChargeDensity():
 
         Args:
             option (str): 'charge' or 'spin'
-            unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}`.
+            unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\\AA^{-3}` or 'a.u.' for :math:`e.Bohr^{-3}`.
             levels (int | array-like): The number and positions of the contour lines/regions. Default is 150.
             xticks (int): *Optional* Number of ticks in the x direction.
             yticks (int): *Optional* Number of ticks in the y direction.
@@ -614,7 +614,7 @@ class ChargeDensity():
         Set units of data of ``ChargeDensity`` object.
 
         Args:
-            unit (str): 'Angstrom', :math:`e.\AA^{-3}`.
+            unit (str): 'Angstrom', :math:`e.\\AA^{-3}`.
                 'a.u.', :math:`e.Bohr^{-3}`.
         """
         from CRYSTALpytools.units import au_to_angstrom, angstrom_to_au

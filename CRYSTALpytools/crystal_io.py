@@ -1097,7 +1097,7 @@ class Crystal_output:
 
         Returns:
             self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
-                natom\*3 for spin-polarised systems. [total, :math:`\alpha`, :math:`\beta`].
+                natom\*3 for spin-polarised systems. [total, :math:`\\alpha`, :math:`\\beta`].
         """
         import re
         import warnings
