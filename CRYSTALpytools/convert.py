@@ -30,78 +30,33 @@ def cry_ase2gui(structure, gui_file=None, vacuum=None, symmetry=True):
 
 def cry_bands2pmg(band, output, labels=None):
     """
-    Transform a CRYSTAL bands object into a Pymatgen bands object. No
-    projection is available for now.
+    Transform a CRYSTAL bands object/file into a Pymatgen ``BandStructureSymmLine``
+    object (inherited from ``BandStructure``). No projection is available for now.
+    Output is mandatory here.
 
     Args:
-        band (str|Band): CRYSTAL fort.25 or BAND.DAT file or CRYSTALpytools
-            Band object
+        band (str|ElectronBand): CRYSTAL fort.25 or BAND.DAT file or
+            CRYSTALpytools ElectronBand object
         output (str): CRYSTAL properties output file
         labels (list[str]): K point labels to display in the band structure.
 
     Returns:
         BandStructureSymmLine: Pymatgen band structure object.
     """
-    import numpy as np
-    import warnings
+    from CRYSTALpytools.electronics import ElectronBand
     from CRYSTALpytools.crystal_io import Properties_output
-    from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-    from pymatgen.core.lattice import Lattice
-    from pymatgen.electronic_structure.core import Spin
 
     # Generate the Band object
     if type(band) == str:
-        band = Properties_output().read_electron_band(band, output=output)
-
-    rep_latt = band.reciprocal_latt
-    # label dictionary
-    labels_dict = {}
-    if labels == None:
-        labels = band.tick_label
+        band = ElectronBand.from_file(band, output)
     else:
-        if len(labels) < band.n_tick:
-            warnings.warn(
-                '''{:d} ticks available in band object, but {:d} labels are provided.
-The default labels will be used for missing ones.'''.format(band.n_tick, len(labels)),
-                stacklevel=2
-            )
-            for i in range(len(labels), band.n_tick):
-                labels.append(band.tick_label[i])
+        pout = Properties_output(output)
+        band._set_unit('eV')
+        band.geometry = pout.get_geometry()
+        band.reciprocal_latt = pout.get_reciprocal_lattice()
+        band.tick_pos3d, band.k_path3d = pout.get_3dkcoord()
 
-        elif len(labels) > band.n_tick:
-            warnings.warn(
-                '''{:d} ticks available in band object, but {:d} labels are provided.
-The redundant labels will be omitted.'''.format(band.n_tick, len(labels)),
-                stacklevel=2
-            )
-            labels = labels[:band.n_tick]
-
-        else:
-            pass
-
-    for i in range(band.n_tick):
-        labels_dict[labels[i]] = band.tick_pos3d[i]
-
-
-    # Energy eigenvalues
-    # pymatgen will plot the bands wrt to the Fermi Energy
-    band_energy = band.bands + band.efermi
-    if band.spin == 1:
-        eigenvals = {
-            Spin.up : band_energy[:, :, 0]
-        }
-    else:
-        eigenvals = {
-            Spin.up   : band_energy[:, :, 0],
-            Spin.down : band_energy[:, :, 1]
-        }
-
-    return BandStructureSymmLine(kpoints=band.k_point_pos3d,
-                                 eigenvals=eigenvals,
-                                 lattice=Lattice(band.reciprocal_latt),
-                                 efermi=band.efermi,
-                                 labels_dict=labels_dict,
-                                 coords_are_cartesian=False)
+    return band.to_pmg(labels, output)
 
 
 def cry_gui2ase(gui, vacuum=None, **kwargs):
@@ -420,7 +375,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     """
     from CRYSTALpytools.crystal_io import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
-    from CRYSTALpytools.geometry import get_sg_symmops
+    from CRYSTALpytools.geometry import CStructure
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     from pymatgen.core.surface import center_slab
     from pymatgen.core.structure import Structure, Molecule
@@ -433,10 +388,8 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     if pbc == None:
         if 'Molecule' in str(type(structure)):
             pbc = (False, False, False)
-            structure = Structure(lattice=np.eye(3)*500,
-                                  species=list(structure.atomic_numbers),
-                                  coords=structure.cart_coords.tolist(),
-                                  coords_are_cartesian=True)
+            structure = Molecule(structure.species,
+                                 [i.coords for i in structure.sites])
         else:
             pbc = structure.pbc
 
@@ -451,9 +404,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     elif dimensionality == 0 and 'Molecule' not in str(type(structure)):
         warnings.warn('Dimensionality is set to 0, but the structure is not a molecule. Periodicity will be removed.')
         molecule = Molecule(structure.species,
-                            [i.coords for i in structure.sites],
-                            structure.charge,
-                            [i.properties for i in struc.sites])
+                            [i.coords for i in structure.sites])
         is_molecule = True # 0D object called as molecule
     elif dimensionality > 0 and 'Molecule' in str(type(structure)):
         warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
