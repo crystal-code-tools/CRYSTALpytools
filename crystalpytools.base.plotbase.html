@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.base.plotbase module &mdash; CRYSTALpytools 2023.10.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.plotbase.html" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=ddecebb9"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="CRYSTALpytools.base.extfmt module" href="crystalpytools.base.extfmt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials.html">Examples and Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">Module-specific Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.base.plotbase module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.base.plotbase module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.base.plotbase.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-base-plotbase-module">
+<h1>CRYSTALpytools.base.plotbase module<a class="headerlink" href="#crystalpytools-base-plotbase-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.base.plotbase"><span id="ref-base-plotbase"></span>Base functions for plotting 2D and 3D figures</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_cry_bands">
+<span class="sig-name descname"><span class="pre">plot_cry_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermiwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermialpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_cry_bands" title="Link to this definition"></a></dt>
+<dd><p>The base function to plot electron  phonon density of states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>object</em><em>]</em>) – List of band objects or a single band object.</p></li>
+<li><p><strong>k_labels</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em>) – List of strings specifying the labels for high symmetry points along the path.</p></li>
+<li><p><strong>energy_range</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>, </em><em>None</em><em>]</em>) – List of two integers or floats specifying the energy range (min, max).</p></li>
+<li><p><strong>title</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em>) – Title of the plot.</p></li>
+<li><p><strong>not_scaled</strong> (<em>bool</em>) – Flag indicating whether to scale the band structure for comparison.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Mode of the plot (‘single’, ‘multi’, ‘compare’).</p></li>
+<li><p><strong>linestl</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Line style or list of line styles for the bands.</p></li>
+<li><p><strong>linewidth</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – Line width or list of line widths for the bands.</p></li>
+<li><p><strong>color</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Color or list of colors for the bands.</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color of the Fermi level.</p></li>
+<li><p><strong>fermiwidth</strong> (<em>float</em>) – Thickness of the Fermi level</p></li>
+<li><p><strong>fermialpha</strong> (<em>float</em>) – Opacity of the Fermi level</p></li>
+<li><p><strong>k_range</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em>) – List of two strings specifying the range of k points to plot.</p></li>
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em>) – List of labels for the bands in multi-mode.</p></li>
+<li><p><strong>figsize</strong> (<em>Union</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>, </em><em>None</em><em>]</em>) – Figure size.</p></li>
+<li><p><strong>scheme</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>, </em><em>None</em><em>]</em>) – Subplot scheme in compare-mode (number of rows, number of columns).</p></li>
+<li><p><strong>sharex</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>str</em><em>]</em>) – Flag or ‘row’ or ‘col’ specifying sharing of x-axis.</p></li>
+<li><p><strong>sharey</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>str</em><em>]</em>) – Flag or ‘row’ or ‘col’ specifying sharing of y-axis.</p></li>
+<li><p><strong>fermialpha</strong> – Opacity of the fermi level 0-1</p></li>
+<li><p><strong>fermiwidth</strong> – Width of the fermi level</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If an invalid mode flag is specified or if there are errors in the input parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_single_cry_bands">
+<span class="sig-name descname"><span class="pre">plot_single_cry_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_single_cry_bands" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_multi_cry_bands">
+<span class="sig-name descname"><span class="pre">plot_multi_cry_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_multi_cry_bands" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_compare_cry_bands">
+<span class="sig-name descname"><span class="pre">plot_compare_cry_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermiwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermialpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_compare_cry_bands" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_cry_doss">
+<span class="sig-name descname"><span class="pre">plot_cry_doss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_cry_doss" title="Link to this definition"></a></dt>
+<dd><p>The base function to plot electron / phonon density of states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doss</strong> (<em>object</em>) – The density of states object.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> or </em><em>list</em>) – The color(s) of the plot(s).</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – The color of the Fermi level line.</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em>) – True if the projections should overlap, False otherwise.</p></li>
+<li><p><strong>labels</strong> (<em>str</em><em> or </em><em>list</em>) – The label(s) for the plot(s).</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – The figure size (width, height) in inches.</p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em> or </em><em>list</em>) – The line style(s) for the plot(s).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – The width of the line(s) in points.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of the plot.</p></li>
+<li><p><strong>beta</strong> (<em>str</em>) – The beta value (‘up’ or ‘down’).</p></li>
+<li><p><strong>energy_range</strong> (<em>tuple</em>) – The energy range (xmin, xmax) for the x-axis.</p></li>
+<li><p><strong>dos_range</strong> (<em>tuple</em>) – The density of states range (ymin, ymax) for the y-axis.</p></li>
+<li><p><strong>prj</strong> (<em>None</em><em> or </em><em>list</em>) – The projection(s) to plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_cry_es">
+<span class="sig-name descname"><span class="pre">plot_cry_es</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_bd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_bd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_cry_es" title="Link to this definition"></a></dt>
+<dd><p>The base function to plot electron / phonon band structure + DOS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>object</em>) – Object containing band structure data</p></li>
+<li><p><strong>doss</strong> (<em>object</em>) – Object containing density of states data</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em><em> or </em><em>None</em>) – List of labels for high symmetry points along the path</p></li>
+<li><p><strong>color_bd</strong> (<em>str</em>) – Color for the band structure plot</p></li>
+<li><p><strong>color_doss</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>tuple</em>) – Color(s) for the density of states plot</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color for the Fermi level lines</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em><em> or </em><em>None</em>) – Range of energy values for the y-axis</p></li>
+<li><p><strong>linestl_bd</strong> (<em>str</em>) – Linestyle for the band structure plot</p></li>
+<li><p><strong>linestl_doss</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>tuple</em><em> or </em><em>None</em>) – Linestyle(s) for the density of states plot</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Width of the lines</p></li>
+<li><p><strong>prj</strong> (<em>list</em><em> or </em><em>None</em>) – List of projection indices for plotting specific projections</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – Figure size (width, height)</p></li>
+<li><p><strong>labels</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>tuple</em><em> or </em><em>None</em>) – Labels for the density of states plot</p></li>
+<li><p><strong>dos_range</strong> (<em>list</em><em> or </em><em>None</em>) – Range of the density of states plot</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> or </em><em>None</em>) – Title of the figure</p></li>
+<li><p><strong>dos_beta</strong> (<em>str</em>) – Beta state for the density of states plot (‘up’ or ‘down’)</p></li>
+<li><p><strong>legend</strong> (<em>bool</em>) – Enables or disables the legend</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>object</em>) – Figure object containing the plotted data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_2Dscalar">
+<span class="sig-name descname"><span class="pre">plot_2Dscalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_2Dscalar" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D scalar field map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datamap</strong> (<em>array</em>) – 2D map data.</p></li>
+<li><p><strong>gridv</strong> (<em>array</em>) – 2*3 base vectors of 2D map.</p></li>
+<li><p><strong>levels</strong> (<em>int</em><em> | </em><em>array-like</em>) – Determines the number and positions of the contour lines/regions.</p></li>
+<li><p><strong>xticks</strong> (<em>int</em>) – Number of ticks in the x direction.</p></li>
+<li><p><strong>yticks</strong> (<em>int</em>) – Number of ticks in the y direction.</p></li>
+<li><p><strong>cmap_max</strong> (<em>float</em>) – Maximum value used for the colormap.</p></li>
+<li><p><strong>cmap_min</strong> (<em>float</em>) – Minimun value used for the colormap.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Title of colorbar (typically for quantuity and unit)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib figure object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.base.extfmt.html" class="btn btn-neutral float-left" title="CRYSTALpytools.base.extfmt module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

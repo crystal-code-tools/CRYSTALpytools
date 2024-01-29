@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.plot module &mdash; CRYSTALpytools 2023.10.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.plot.html" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=ddecebb9"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.thermodynamics module" href="crystalpytools.thermodynamics.html" />
+    <link rel="prev" title="CRYSTALpytools.geometry module" href="crystalpytools.geometry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials.html">Examples and Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">Module-specific Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.plot module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.plot.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="module-CRYSTALpytools.plot">
+<span id="crystalpytools-plot-module"></span><h1>CRYSTALpytools.plot module<a class="headerlink" href="#module-CRYSTALpytools.plot" title="Link to this heading"></a></h1>
+<p>Functions to visualize CRYSTAL outputs.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_dens_ECHG">
+<span class="sig-name descname"><span class="pre">plot_dens_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_echg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_dens_ECHG" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Plots the 2D ECHG density map from a fort.25 file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>obj_echg (ChargeDensity): Charge/spin density object.
+unit (str): The energy unit for <strong>plotting</strong>. ‘Angstrom’ for <span class="math notranslate nohighlight">\(e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}\)</span>.
+levels (int | array-like): Number and positions of the contour lines/regions.
+xticks (int): Number of ticks in the x direction.
+yticks (int): Number of ticks in the y direction.
+cmap_max(float): Maximum value used for the colormap.
+cmap_min(float): Minimun value used for the colormap.
+name (str):  Name of the colormap. None for not saving it.
+dpi (int): <em>Valid if name!=None</em> Resolution (dots per inch) for the output image.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_spin_ECHG">
+<span class="sig-name descname"><span class="pre">plot_spin_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_echg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_spin_ECHG" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Plots the 2D spin density map from a ECHG output file (fort.25). For charge
+density map please refer to <code class="docutils literal notranslate"><span class="pre">plot_dens_ECHG</span></code>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>obj_echg (ChargeDensity): Charge/spin density object.
+unit (str): The energy unit for <strong>plotting</strong>. ‘Angstrom’ for <span class="math notranslate nohighlight">\(e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}\)</span>.
+levels (int | array-like): <em>Optional</em> Determines the number and positions of the contour lines/regions. Default is 150.
+xticks (int): <em>Optional</em> Number of ticks in the x direction. Default is 5.
+yticks (int): <em>Optional</em> Number of ticks in the y direction. Default is 5.
+cmap_max(float): <em>Optional</em>, Maximum value used for the colormap. Default is None.
+cmap_min(float): <em>Optional</em> Minimun value used for the colormap. Default is None.
+dpi (int): <em>Optional</em> Resolution (dots per inch) for the output image. Default is 400.
+savefig (bool): <em>Optional</em> Chose to save the figure or not. Default is False.
+name (str): <em>Valid if savefig=True</em> Name for the colormap.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_vecfield2D_m">
+<span class="sig-name descname"><span class="pre">plot_vecfield2D_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MAG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_vecfield2D_m" title="Link to this definition"></a></dt>
+<dd><p>Plots the 2D magnetization vector field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> (<em>list</em>) – List containing information about the fort.25 header.</p></li>
+<li><p><strong>dens</strong> (<em>numpy.ndarray</em>) – Array containing the vector field data.</p></li>
+<li><p><strong>quivscale</strong> (<em>float</em>) – Scale factor for the quiver plot.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name used for saving the plots.</p></li>
+<li><p><strong>levels</strong> (<em>int</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Determines the number and positions of the contour lines/regions.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – DPI (dots per inch) for the output image. Default is 400.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_vecfield2D_j">
+<span class="sig-name descname"><span class="pre">plot_vecfield2D_j</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_vecfield2D_j" title="Link to this definition"></a></dt>
+<dd><p>Plots the 2D vector field of the spin current.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> (<em>list</em>) – List containing information about the fort.25 header.</p></li>
+<li><p><strong>dens</strong> (<em>numpy.ndarray</em>) – Array representing the vector field.</p></li>
+<li><p><strong>quivscale</strong> (<em>float</em>) – Scale factor for the quiver plot.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name used for saving the plots.</p></li>
+<li><p><strong>levels</strong> (<em>int</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Determines the number and positions of the contour lines/regions.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – DPI (dots per inch) for the output image. Defaults to 400.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_vecfield2D_J">
+<span class="sig-name descname"><span class="pre">plot_vecfield2D_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dens_JX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dens_JY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dens_JZ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SCD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_vecfield2D_J" title="Link to this definition"></a></dt>
+<dd><p>Plots the 2D spin current density vector fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> (<em>list</em>) – List containing information about the fort.25 header.</p></li>
+<li><p><strong>dens_JX</strong> (<em>numpy.ndarray</em>) – Array representing the X-component of the spin current density.</p></li>
+<li><p><strong>dens_JY</strong> (<em>numpy.ndarray</em>) – Array representing the Y-component of the spin current density.</p></li>
+<li><p><strong>dens_JZ</strong> (<em>numpy.ndarray</em>) – Array representing the Z-component of the spin current density.</p></li>
+<li><p><strong>quivscale</strong> – Scale factor for the quiver plot.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name used for saving the plots.</p></li>
+<li><p><strong>levels</strong> (<em>int</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Determines the number and positions of the contour lines/regions.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – DPI (Dots per inch) for saving the plots. Defaults to 400.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_phonon_band">
+<span class="sig-name descname"><span class="pre">plot_phonon_band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cm-1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_freq0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_phonon_band" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_bands for phonon band structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>BandsBASE</em><em>|</em><em>list</em>) – Bands object generated by <cite>CRYSTALpytools.crystal_io.Crystal_output.read_pband</cite> or
+a list of BandsBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The unit of frequency. Can be ‘cm-1’ or ‘THz’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek alphabets should be, for example, ‘Gamma’.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – The plotting mode. Possible values are ‘single’, ‘multi’, and ‘compare’.</p></li>
+<li><p><strong>not_scaled</strong> (<em>bool</em>) – Whether to scale the x-axis for different volumes.</p></li>
+<li><p><strong>energy_range</strong> (<em>array</em>) – A 2x1 array specifying the energy range.</p></li>
+<li><p><strong>k_range</strong> (<em>array</em>) – A 2x1 array specifying the k-range.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>|</em><em>list</em>) – Color of plot lines. Should be consistent with bands.</p></li>
+<li><p><strong>labels</strong> (<em>str</em><em>|</em><em>list</em>) – Plot legend. Should be consistent with bands.</p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em>|</em><em>list</em>) – Linestyle string. Should be consistent with bands.</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – The width of the plot lines.</p></li>
+<li><p><strong>line_freq0</strong> (<em>str</em>) – The color of the frequency=0 line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – The figure size specified as [width, height].</p></li>
+<li><p><strong>scheme</strong> (<em>list</em><em>|</em><em>tuple</em>) – The layout of subplots.</p></li>
+<li><p><strong>sharex</strong> (<em>bool</em>) – Whether to share the x-axis among subplots.</p></li>
+<li><p><strong>sharey</strong> (<em>bool</em>) – Whether to share the y-axis among subplots.</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – The file name to save the plot.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Dots per inch resolution of the saved file.</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – Fontsize of the axis labels.</p></li>
+<li><p><strong>transparency</strong> (<em>bool</em>) – Background transparency of the saved file,</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the specified unit is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_electron_band">
+<span class="sig-name descname"><span class="pre">plot_electron_band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermiwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermialpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_electron_band" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_bands for electron band structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>BandsBASE</em><em>|</em><em>list</em>) – Bands object generated by <cite>CRYSTALpytools.crystal_io.Properties_output.read_bands</cite> or
+a list of BandsBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The unit of energy. Can be ‘eV’ or ‘Hartree’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek alphabets should be, for example, ‘Gamma’.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – The plotting mode. Possible values are ‘single’, ‘multi’, and ‘compare’.</p></li>
+<li><p><strong>not_scaled</strong> (<em>bool</em>) – Whether to scale the x-axis for different volumes.</p></li>
+<li><p><strong>energy_range</strong> (<em>array</em>) – A 2x1 array specifying the energy range.</p></li>
+<li><p><strong>k_range</strong> (<em>array</em>) – A 2x1 array specifying the k-range.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>|</em><em>list</em>) – Color of plot lines. Should be consistent with bands.</p></li>
+<li><p><strong>labels</strong> (<em>str</em><em>|</em><em>list</em>) – Plot legend. Should be consistent with bands.</p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em>|</em><em>list</em>) – Linestyle string. Should be consistent with bands.</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – The width of the plot lines.</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – The color of the Fermi level line.</p></li>
+<li><p><strong>fermiwidth</strong> (<em>float</em>) – The width of the fermi line.</p></li>
+<li><p><strong>fermialpha</strong> (<em>float</em>) – Opacity of the fermi level 0-1.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – The figure size specified as [width, height].</p></li>
+<li><p><strong>scheme</strong> (<em>list</em><em>|</em><em>tuple</em>) – The layout of subplots.</p></li>
+<li><p><strong>sharex</strong> (<em>bool</em>) – Whether to share the x-axis among subplots.</p></li>
+<li><p><strong>sharey</strong> (<em>bool</em>) – Whether to share the y-axis among subplots.</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – The file name to save the plot.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Dots per inch resolution of the saved file.</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – Fontsize of the axis labels</p></li>
+<li><p><strong>transparency</strong> – Background Transparency of the saved file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the specified unit is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_electron_dos">
+<span class="sig-name descname"><span class="pre">plot_electron_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'up'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_electron_dos" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_doss for electron density of states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doss</strong> (<em>DOSBASE</em>) – DOS obect generated by code:<cite>CRYSTALpytools.crystal_io.Properties_output.read_doss</cite>.
+Or a list of DOSBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘eV’ or ‘Hartree’</p></li>
+<li><p><strong>beta</strong> (<em>str</em>) – Plot spin-down state ‘up’ or ‘down’</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em>) – Plotting multiple lines into the same figure</p></li>
+<li><p><strong>prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the
+index of the 2nd dimension of <code class="code docutils literal notranslate"><span class="pre">doss.doss</span></code></p></li>
+<li><p><strong>energy_range</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – 2*1 list of energy range</p></li>
+<li><p><strong>dos_range</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – 2*1 list of DOS range</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Color of plot lines. <em>Should be
+consistent with number of projections.</em></p></li>
+<li><p><strong>labels</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Plot legend. <em>Should be consistent with
+number of projections.</em></p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – linestyle string. <em>Should be consistent
+with number of projections.</em></p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – </p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color of Fermi level line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – </p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_phonon_dos">
+<span class="sig-name descname"><span class="pre">plot_phonon_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cm-1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_freq0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_phonon_dos" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_doss for electron density of states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doss</strong> (<em>DOSBASE</em>) – DOS obect generated by code:<cite>CRYSTALpytools.crystal_io.Crystal_output.read_pdos</cite>.
+Or a list of DOSBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘cm-1’ or ‘THz’</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em>) – Plotting multiple lines into the same figure</p></li>
+<li><p><strong>prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the
+index of the 2nd dimension of <code class="code docutils literal notranslate"><span class="pre">doss.doss</span></code></p></li>
+<li><p><strong>freq_range</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – 2*1 list of frequency range</p></li>
+<li><p><strong>dos_range</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – 2*1 list of DOS range</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Color of plot lines. <em>Should be
+consistent with number of projections.</em></p></li>
+<li><p><strong>labels</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Plot legend. <em>Should be consistent with
+number of projections.</em></p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – linestyle string. <em>Should be consistent
+with number of projections.</em></p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – </p></li>
+<li><p><strong>line_freq0</strong> (<em>str</em>) – Color of frequency = 0 line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – </p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_electron_banddos">
+<span class="sig-name descname"><span class="pre">plot_electron_banddos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'down'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_electron_banddos" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_es for electron band structure + dos. For spin-polarized cases, beta state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>BandsBASE</em><em>|</em><em>list</em>) – Bands object generated by CRYSTALpytools.crystal_io.Properties_output.read_bands
+or a list of BandsBASE objects.</p></li>
+<li><p><strong>doss</strong> (<em>DOSBASE</em>) – DOS object generated by CRYSTALpytools.crystal_io.Properties_output.read_doss
+or a list of DOSBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Unit of energy. Valid options are ‘eV’ or ‘Hartree’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek alphabets should be
+represented as strings, for example, ‘Gamma’.</p></li>
+<li><p><strong>dos_beta</strong> (<em>str</em>) – Spin state to plot. Valid options are ‘Up’ or ‘down’. If ‘down’, the beta
+state will be plotted on the same side as the alpha state, otherwise on the other side.</p></li>
+<li><p><strong>dos_prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the index of the 2nd dimension
+of doss.doss.</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em>) – A list of two values representing the energy range to be plotted.</p></li>
+<li><p><strong>dos_range</strong> (<em>list</em>) – DOS range for the y-axis.</p></li>
+<li><p><strong>color_band</strong> (<em>str</em>) – Color of the electron bands in the plot.</p></li>
+<li><p><strong>color_dos</strong> (<em>str</em>) – Color of the density of states (DOS) in the plot.</p></li>
+<li><p><strong>labels</strong> (<em>list</em>) – A list of labels for the plot legend.</p></li>
+<li><p><strong>linestl_band</strong> (<em>str</em>) – Linestyle of the electron bands.</p></li>
+<li><p><strong>linestl_dos</strong> (<em>str</em>) – Linestyle of the density of states (DOS).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Width of the lines in the plot.</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color of the Fermi level line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – Size of the figure in inches (width, height).</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name to save the plot.</p></li>
+<li><p><strong>legend</strong> (<em>bool</em>) – Enables or disables the legend of the density of states (DOS).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the unit parameter is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_phonon_banddos">
+<span class="sig-name descname"><span class="pre">plot_phonon_banddos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cm-1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_max_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq0_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_phonon_banddos" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of plot_cry_es for phonon band structure + dos. Only one pair is permitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>BandsBASE</em><em>|</em><em>list</em>) – Bands object generated by CRYSTALpytools.crystal_io.Properties_output.read_bands
+or a list of BandsBASE objects.</p></li>
+<li><p><strong>doss</strong> (<em>DOSBASE</em>) – DOS object generated by CRYSTALpytools.crystal_io.Properties_output.read_doss
+or a list of DOSBASE objects.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Unit of frequency. Valid options are ‘cm-1’ or ‘THz’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek alphabets should be
+represented as strings, for example, ‘Gamma’.</p></li>
+<li><p><strong>dos_prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the index of the 2nd dimension
+of doss.doss.</p></li>
+<li><p><strong>freq_range</strong> (<em>list</em>) – A list of two values representing the frequency range to be plotted.</p></li>
+<li><p><strong>dos_max_range</strong> (<em>float</em>) – Maximum DOS range for the y-axis.</p></li>
+<li><p><strong>color_band</strong> (<em>str</em>) – Color of the phonon bands in the plot.</p></li>
+<li><p><strong>color_dos</strong> (<em>str</em>) – Color of the density of states (DOS) in the plot.</p></li>
+<li><p><strong>labels</strong> (<em>list</em>) – A list of labels for the plot legend.</p></li>
+<li><p><strong>linestl_band</strong> (<em>str</em>) – Linestyle of the phonon bands.</p></li>
+<li><p><strong>linestl_dos</strong> (<em>str</em>) – Linestyle of the density of states (DOS).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Width of the lines in the plot.</p></li>
+<li><p><strong>freq0_line</strong> (<em>str</em>) – Color of the frequency=0 line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – Size of the figure in inches (width, height).</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name to save the plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the unit parameter is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_contour">
+<span class="sig-name descname"><span class="pre">plot_cry_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contour_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_contour" title="Link to this definition"></a></dt>
+<dd><p>Plot a contour plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contour_obj</strong> (<em>object</em>) – Contour object representing the contour plot.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Plots a contour plot based on the data in the contour object.</p></li>
+<li><p>Retrieves the data from the contour object and converts it to a 2D list.</p></li>
+<li><p>Sets the figure size based on x_graph_param and y_graph_param attributes of the contour object.</p></li>
+<li><p>Sets the x-axis and y-axis labels.</p></li>
+<li><p>Creates a meshgrid using the x_points and y_points attributes of the contour object.</p></li>
+<li><p>Defines contour levels, colors, linestyles, and fmt.</p></li>
+<li><p>Plots the contour plot.</p></li>
+<li><p>Saves the plot to a file named ‘figure_TIPO_YYYY-MM-DD_HHMMSS.jpg’ in the current directory.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file specified by save_to_file parameter.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_contour_differences">
+<span class="sig-name descname"><span class="pre">plot_cry_contour_differences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contour_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_obj_ref</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_contour_differences" title="Link to this definition"></a></dt>
+<dd><p>Plot the differences between two contour plots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contour_obj</strong> (<em>object</em>) – Contour object representing the original contour plot.</p></li>
+<li><p><strong>contour_obj_ref</strong> (<em>object</em>) – Contour object representing the reference contour plot.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Plots the differences between two contour plots.</p></li>
+<li><p>Requires the contour objects to have a tipo attribute with values ‘SURFLAPP’, ‘SURFLAPM’, ‘SURFRHOO’, or ‘SURFELFB’.</p></li>
+<li><p>Calculates the difference between the dataframes of the two contour objects.</p></li>
+<li><p>Sets the figure size based on x_graph_param and y_graph_param attributes of the contour object.</p></li>
+<li><p>Sets the x-axis and y-axis labels.</p></li>
+<li><p>Creates a meshgrid using the x_points and y_points attributes of the contour object.</p></li>
+<li><p>Defines contour levels, colors, and linestyles.</p></li>
+<li><p>Plots the contour differences.</p></li>
+<li><p>Saves the plot to a file named ‘figure_diff_TIPO_YYYY-MM-DD_HHMMSS.jpg’ in the current directory.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file specified by save_to_file parameter.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_xrd">
+<span class="sig-name descname"><span class="pre">plot_cry_xrd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrd_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_xrd" title="Link to this definition"></a></dt>
+<dd><p>Plot the X-ray diffraction pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xrd_obj</strong> (<em>object</em>) – XRD object containing the data for the X-ray diffraction pattern.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Plots the X-ray diffraction pattern.</p></li>
+<li><p>Sets the figure size to [16, 9].</p></li>
+<li><p>Sets the x-axis limit to (0, 30).</p></li>
+<li><p>Saves the plot to a file named ‘figure_XRD_YYYY-MM-DD_HHMMSS.jpg’ in the current directory.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file specified by save_to_file parameter.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_rholine">
+<span class="sig-name descname"><span class="pre">plot_cry_rholine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rholine_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_rholine" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Plot the resistivity as a function of distance.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>rholine_obj (object): Rholine object containing the data for the resistivity.
+save_to_file (bool, optional): If True, saves the plot to a file. Default is False.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Plots the resistivity as a function of distance.</p></li>
+<li><p>Sets the x-axis label as ‘d  [$AA$]’ and the y-axis label as r’$</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p>ho$  [$
+rac{e}{AA^3}$]’.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Saves the plot to a file named ‘figure_rholine_YYYY-MM-DD_HHMMSS.jpg’ in the current directory.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file specified by save_to_file parameter.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_lapl_profile">
+<span class="sig-name descname"><span class="pre">plot_cry_lapl_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lapl_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_lapl_profile" title="Link to this definition"></a></dt>
+<dd><p>Plot the Laplacian profile of a crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lapl_obj</strong> (<em>object</em>) – Laplacian object containing the data for the Laplacian profile.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – Indicates whether to save the plot to a file. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Plots the Laplacian profile using the data from the Laplacian object.</p></li>
+<li><p>The x-axis represents the distance in angstroms.</p></li>
+<li><p>The y-axis represents the Laplacian in electrons per cubic angstrom to the fifth power (e/A^5).</p></li>
+<li><p>The area under the curve where the Laplacian is negative is filled with a light blue color.</p></li>
+<li><p>The area under the curve where the Laplacian is positive is filled with a light coral color.</p></li>
+<li><p>If save_to_file is set to a file path, the plot is saved to that file.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_density_profile">
+<span class="sig-name descname"><span class="pre">plot_cry_density_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lapl_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_density_profile" title="Link to this definition"></a></dt>
+<dd><p>Plot the density profile of a crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lapl_obj</strong> (<em>object</em>) – Laplacian object containing the data for the density profile.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – Indicates whether to save the plot to a file. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Plots the density profile using the data from the Laplacian object.</p></li>
+<li><p>The x-axis represents the distance in angstroms.</p></li>
+<li><p>The y-axis represents the density in electrons per cubic angstrom (e/A^3).</p></li>
+<li><p>If save_to_file is set to a file path, the plot is saved to that file.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_seebeck_potential">
+<span class="sig-name descname"><span class="pre">plot_cry_seebeck_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seebeck_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_seebeck_potential" title="Link to this definition"></a></dt>
+<dd><p>Plot the Seebeck coefficient as a function of chemical potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seebeck_obj</strong> (<em>object</em>) – Seebeck object containing the data for the Seebeck coefficient.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.</p></li>
+<li><p>Plots the Seebeck coefficient as a function of chemical potential for each temperature.</p></li>
+<li><p>Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘seebeck_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘seebeck_potential_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_seebeck_carrier">
+<span class="sig-name descname"><span class="pre">plot_cry_seebeck_carrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seebeck_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_seebeck_carrier" title="Link to this definition"></a></dt>
+<dd><p>Plot the Seebeck coefficient as a function of charge carrier concentration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seebeck_obj</strong> – Seebeck object containing the data for the Seebeck coefficient.</p></li>
+<li><p><strong>save_to_file</strong> (<em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.</p></li>
+<li><p>Plots the Seebeck coefficient as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘seebeck_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘seebeck_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_multiseebeck">
+<span class="sig-name descname"><span class="pre">plot_cry_multiseebeck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">seebeck</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_multiseebeck" title="Link to this definition"></a></dt>
+<dd><p>Plot the multiseebeck coefficient for different temperatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*seebeck</strong> – Variable number of seebeck objects containing the data for the Seebeck coefficient.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to input the index of the temperature to plot.</p></li>
+<li><p>Prompts the user to input the lower and higher values of chemical potential to plot in eV.</p></li>
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz.</p></li>
+<li><p>Plots the multiseebeck coefficient for each seebeck object.</p></li>
+<li><p>Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.</p></li>
+<li><p>Saves the plot to a file named ‘multiseebeckYYYY-MM-DD_HHMMSS.jpg’, where YYYY-MM-DD_HHMMSS represents the current date and time.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_sigma_potential">
+<span class="sig-name descname"><span class="pre">plot_cry_sigma_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_sigma_potential" title="Link to this definition"></a></dt>
+<dd><p>Plot the electrical conductivity as a function of chemical potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma_obj</strong> (<em>object</em>) – Sigma object containing the data for electrical conductivity.</p></li>
+<li><p><strong>save_to_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.</p></li>
+<li><p>Plots the electrical conductivity as a function of chemical potential for each temperature.</p></li>
+<li><p>Distinguishes between n-type and p-type conduction with dashed and solid lines, respectively.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘sigma_potential_different_T_YYYY-MM-DD_HHMMSS.jpg’.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_sigma_carrier">
+<span class="sig-name descname"><span class="pre">plot_cry_sigma_carrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_sigma_carrier" title="Link to this definition"></a></dt>
+<dd><p>Plot the electrical conductivity as a function of charge carrier concentration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma_obj</strong> – Sigma object containing the data for the electrical conductivity.</p></li>
+<li><p><strong>save_to_file</strong> (<em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.</p></li>
+<li><p>Plots the electrical conductivity as a function of charge carrier concentration for each temperature, distinguishing between n-type and p-type conduction.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘sigma_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘sigma_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_multisigma">
+<span class="sig-name descname"><span class="pre">plot_cry_multisigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_multisigma" title="Link to this definition"></a></dt>
+<dd><p>Plot the multisigma conductivity for different temperatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*sigma</strong> – Variable number of sigma objects containing the data for the conductivity.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to input the index of the temperature to plot.</p></li>
+<li><p>Prompts the user to input the lower and higher values of chemical potential to plot in eV.</p></li>
+<li><p>Prompts the user to choose the direction to plot among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz.</p></li>
+<li><p>Plots the multisigma conductivity for each sigma object.</p></li>
+<li><p>Differentiates transport coefficients due to n-type or p-type conduction using dashed and solid lines.</p></li>
+<li><p>Saves the plot to a file named ‘multisigmaYYYY-MM-DD_HHMMSS.jpg’, where YYYY-MM-DD_HHMMSS represents the current date and time.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_powerfactor_potential">
+<span class="sig-name descname"><span class="pre">plot_cry_powerfactor_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seebeck_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_powerfactor_potential" title="Link to this definition"></a></dt>
+<dd><p>Plot the power factor for different potentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seebeck_obj</strong> – Seebeck object containing the data for the Seebeck coefficient.</p></li>
+<li><p><strong>sigma_obj</strong> – Sigma object containing the data for the electrical conductivity.</p></li>
+<li><p><strong>save_to_file</strong> (<em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.</p></li>
+<li><p>Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.</p></li>
+<li><p>Plots the power factor for each temperature as a function of the chemical potential, distinguishing between n-type and p-type conduction.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘powerfactor_potential_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘powerfactor_potential_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_powerfactor_carrier">
+<span class="sig-name descname"><span class="pre">plot_cry_powerfactor_carrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seebeck_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_powerfactor_carrier" title="Link to this definition"></a></dt>
+<dd><p>Plot the power factor for different charge carrier concentrations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seebeck_obj</strong> – Seebeck object containing the data for the Seebeck coefficient.</p></li>
+<li><p><strong>sigma_obj</strong> – Sigma object containing the data for the electrical conductivity.</p></li>
+<li><p><strong>save_to_file</strong> (<em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to choose the direction to plot among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz.</p></li>
+<li><p>Calculates the power factor using the Seebeck coefficient and electrical conductivity data for each temperature.</p></li>
+<li><p>Plots the power factor for each temperature as a function of the charge carrier concentration, distinguishing between n-type and p-type conduction.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘powerfactor_carrier_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘powerfactor_carrier_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_zt">
+<span class="sig-name descname"><span class="pre">plot_cry_zt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seebeck_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_zt" title="Link to this definition"></a></dt>
+<dd><p>Plot the ZT value for different temperatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seebeck_obj</strong> – Seebeck object containing the data for the Seebeck coefficient.</p></li>
+<li><p><strong>sigma_obj</strong> – Sigma object containing the data for the electrical conductivity.</p></li>
+<li><p><strong>save_to_file</strong> (<em>optional</em>) – If True, saves the plot to a file. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Prompts the user to input the value of ktot in W-1K-1m-1.</p></li>
+<li><p>Prompts the user to choose the direction to plot among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz.</p></li>
+<li><p>Calculates the ZT value using the Seebeck coefficient and electrical conductivity data.</p></li>
+<li><p>Plots the ZT value for each temperature as a function of the chemical potential.</p></li>
+<li><p>If save_to_file is True, saves the plot to a file named ‘zt_at_T_K___YYYY-MM-DD_HHMMSS.jpg’ for each temperature, and ‘zt_different_T_YYYY-MM-DD_HHMMSS.jpg’ for all temperatures combined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_young">
+<span class="sig-name descname"><span class="pre">plot_cry_young</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_young" title="Link to this definition"></a></dt>
+<dd><p>Compute Young’s modulus for each direction of the space (i.e., each pair
+of theta and phi angles).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – Theta value.</p></li>
+<li><p><strong>phi</strong> (<em>float</em>) – Phi value.</p></li>
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – Compliance matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Young’s modulus values.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function is intended to be called by cry_ela_plot</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_comp">
+<span class="sig-name descname"><span class="pre">plot_cry_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_comp" title="Link to this definition"></a></dt>
+<dd><p>Compute linear compressibility for each direction of the space (i.e., each
+pair of theta and phi angles).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – Theta value.</p></li>
+<li><p><strong>phi</strong> (<em>float</em>) – Phi value.</p></li>
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – Compliance matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>float</strong> – Linear compressibility values.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function is intended to be called by cry_ela_plot</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_shear">
+<span class="sig-name descname"><span class="pre">plot_cry_shear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_1D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_1D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndeg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear_choice</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_shear" title="Link to this definition"></a></dt>
+<dd><p>For each direction of the space (i.e., for each pair
+of theta and phi angles) the shear modulus is computed for the third angle
+chi and the average, maximum and minimum values are stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta_1D</strong> (<em>numpy.ndarray</em>) – One-dimensional array of theta values.</p></li>
+<li><p><strong>phi_1D</strong> (<em>numpy.ndarray</em>) – One-dimensional array of phi values.</p></li>
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – Compliance matrix.</p></li>
+<li><p><strong>ndeg</strong> (<em>int</em>) – Number of degrees for discretization.</p></li>
+<li><p><strong>shear_choice</strong> (<em>str</em>) – Type of shear property to plot. Options: “avg”, “min”, “max”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy.ndarray</strong> – Shear property array.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function is intended to be called by cry_ela_plot</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_poisson">
+<span class="sig-name descname"><span class="pre">plot_cry_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_1D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_1D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndeg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poisson_choice</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_poisson" title="Link to this definition"></a></dt>
+<dd><p>For each direction of the space (i.e., for each pair
+of theta and phi angles) the Poisson ratio is computed for the third angle
+chi and the average, maximum and minimum values are stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta_1D</strong> (<em>numpy.ndarray</em>) – One-dimensional array of theta values.</p></li>
+<li><p><strong>phi_1D</strong> (<em>numpy.ndarray</em>) – One-dimensional array of phi values.</p></li>
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – Compliance matrix.</p></li>
+<li><p><strong>ndeg</strong> (<em>int</em>) – Number of degrees for discretization.</p></li>
+<li><p><strong>poisson_choice</strong> (<em>str</em>) – Type of Poisson’s ratio to plot. Options: “avg”, “min”, “max”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>numpy.ndarray</strong> – Poisson’s ratio array.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function is intended to be called by cry_ela_plot</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_ela">
+<span class="sig-name descname"><span class="pre">plot_cry_ela</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndeg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transparency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_ela" title="Link to this definition"></a></dt>
+<dd><p>Plot crystal elastic properties on the basis of the elastic tensor. A
+variable number of elastic tensors can be provided in order to get
+multiple plots in one shot, establishing a fixed color scale among them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>choose</strong> (<em>str</em>) – Property to plot. Options: “young”, “comp”, “shear avg”,</p></li>
+<li><p><strong>min&quot;</strong> (<em>&quot;poisson</em>) – </p></li>
+<li><p><strong>max&quot;</strong> (<em>&quot;shear</em>) – </p></li>
+<li><p><strong>avg&quot;</strong> (<em>&quot;poisson</em>) – </p></li>
+<li><p><strong>min&quot;</strong> – </p></li>
+<li><p><strong>max&quot;.</strong> (<em>&quot;poisson</em>) – </p></li>
+<li><p><strong>ndeg</strong> (<em>int</em>) – Number of degrees for discretization.</p></li>
+<li><p><strong>*args</strong> – Variable number of elastic tensors.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – Dots per inch for saving the plot. Default is 200.</p></li>
+<li><p><strong>filetype</strong> (<em>str</em><em>, </em><em>optional</em>) – File format of the output plot. Default is “png”.</p></li>
+<li><p><strong>transparency</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating whether to make the plot</p></li>
+<li><p><strong>False.</strong> (<em>background transparent. Default is</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_irspec">
+<span class="sig-name descname"><span class="pre">plot_cry_irspec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">irspec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cm-1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tab:blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_irspec" title="Link to this definition"></a></dt>
+<dd><p>Generates the IR spectra for the IRSPEC.DAT file produced by an IRSPEC calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>irspec</strong> (<em>External_unit object</em>) – Object generated by the read_cry_irspec function necessary for the plot</p></li>
+<li><p><strong>x_unit</strong> (<em>str</em><em>, </em><em>optional</em>) – Unit measure of the x axes. Avalilable: ‘cm-1’ and ‘nm’. Defaults to ‘cm-1’.</p></li>
+<li><p><strong>y_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Peak broadening modality in absorbance and reflectance.
+Available: ‘LG’(Lorentzian-Gaussian broadening), ‘V’ (Voight broadening), ‘RS’ (Rayleigh spherical particles), ‘RE’ (Rayleigh with elipsoid particles), ‘REFL’ (Reflectance)
+Defaults to ‘LG’.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Image dimensions correspondig to matplotlib figsize. Defaults to None.</p></li>
+<li><p><strong>linestyle</strong> (<em>str/list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – linestyle corresponding to the matplotlib one it can be a list for a multiplot. Defaults to ‘-‘.</p></li>
+<li><p><strong>linewidth</strong> (<em>float/list</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – linewidth corresponding to the matplotlib one it can be a list for a multiplot. Defaults to 1.5.</p></li>
+<li><p><strong>color</strong> (<em>str/list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Color of the spectra it can accept all matplotlib colors it can be a list for multiplots. Defaults to ‘tab:blue’.</p></li>
+<li><p><strong>freq_range</strong> (<em>list</em><em>, </em><em>optional</em>) – Two element list [min, max], that allows to visualize the spectra in a given frequency window. Defaults to None.</p></li>
+<li><p><strong>int_range</strong> (<em>list</em><em>, </em><em>optional</em>) – Two element list [min, max], that allows to visualize the spectra in a given intensity window. Defaults to None.</p></li>
+<li><p><strong>label</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of labels for the legend of a multiplot. Defaults to None.</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em><em>, </em><em>optional</em>) – Filename of the spectra to be saved. Defaults to None.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – Resolution of the saved file. Defaults to 300.</p></li>
+<li><p><strong>transparency</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the transparency of the saved file background. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – The function raises an error when the object to be plotted does not have the required y_mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_ramspec">
+<span class="sig-name descname"><span class="pre">plot_cry_ramspec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ramspec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tab:blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_ramspec" title="Link to this definition"></a></dt>
+<dd><p>Generates the RAMAN spectra for the RAMSPEC.DAT file produced by an RAMSPEC calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>irspec</strong> (<em>External_unit object</em>) – Object generated by the read_cry_ramspec function necessary for the plot</p></li>
+<li><p><strong>y_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Polarization of the spectra for the simulated compound
+Available: ‘total’, ‘parallel’, ‘perpendicular’ (for powders), ‘xx’, ‘xy’, ‘xz’, ‘yy’, ‘yz’, ‘zz’ (for single crystals)
+Defaults to ‘LG’.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Image dimensions correspondig to matplotlib figsize. Defaults to None.</p></li>
+<li><p><strong>linestyle</strong> (<em>str/list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – linestyle corresponding to the matplotlib one it can be a list for a multiplot. Defaults to ‘-‘.</p></li>
+<li><p><strong>linewidth</strong> (<em>float/list</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – linewidth corresponding to the matplotlib one it can be a list for a multiplot. Defaults to 1.5.</p></li>
+<li><p><strong>color</strong> (<em>str/list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Color of the spectra it can accept all matplotlib colors it can be a list for multiplots. Defaults to ‘tab:blue’.</p></li>
+<li><p><strong>freq_range</strong> (<em>list</em><em>, </em><em>optional</em>) – Two element list [min, max], that allows to visualize the spectra in a given frequency window. Defaults to None.</p></li>
+<li><p><strong>int_range</strong> (<em>list</em><em>, </em><em>optional</em>) – Two element list [min, max], that allows to visualize the spectra in a given intensity window. Defaults to None.</p></li>
+<li><p><strong>label</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of labels for the legend of a multiplot. Defaults to None.</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em><em>, </em><em>optional</em>) – Filename of the spectra to be saved. Defaults to None.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – Resolution of the saved file. Defaults to 300.</p></li>
+<li><p><strong>transparency</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enables the transparency of the saved file background. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_spec">
+<span class="sig-name descname"><span class="pre">plot_cry_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typeS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">';'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Wavenumber</span> <span class="pre">[cm$^{-1}$]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Intensity</span> <span class="pre">[arb.</span> <span class="pre">u.]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compstyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nopadding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(16,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_spec" title="Link to this definition"></a></dt>
+<dd><p>This function enables the simulation of vibrational spectra based on a 2D
+NumPy array containing a list of transition frequencies and the
+corresponding intensities. The code allows users to model spectral
+broadening according to various profiles (Gaussian, Lorentzian,
+pseudo-Voigt), or zero broadening (Dirac deltas-like lines). Please, note
+that by turning the optional argument ‘component’ to <cite>True</cite> you can
+additionally plot contributions arising from each transition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transitions</strong> (<em>float</em><em>|</em><em>numpy.ndarray</em>) – Array containing transition frequencies</p></li>
+<li><p><strong>intensities</strong> (<em>(</em><em>axis=0</em><em>) </em><em>and corresponding</em>) – </p></li>
+<li><p><strong>typeS</strong> (<em>str</em>) – String specifying the spectral profile: ‘bars’,</p></li>
+<li><p><strong>'lorentz'</strong> – </p></li>
+<li><p><strong>'gauss'</strong> – </p></li>
+<li><p><strong>'pvoigt'.</strong> – </p></li>
+<li><p><strong>components</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot contributions arising from</p></li>
+<li><p><strong>transition</strong> (<em>each</em>) – </p></li>
+<li><p><strong>bwidth</strong> (<em>float</em><em>, </em><em>optional</em>) – Half-width at half-maximum of the Lorentzian</p></li>
+<li><p><strong>profile</strong> (<em>default is 0.5</em>) – </p></li>
+<li><p><strong>stdev</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of the Gaussian profile</p></li>
+<li><p><strong>5</strong><strong>)</strong><strong>.</strong> (<em>(</em><em>default is</em>) – </p></li>
+<li><p><strong>eta</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of Lorentzian character in pseudo-Voigt</p></li>
+<li><p><strong>profile</strong> – </p></li>
+<li><p><strong>fmin</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum frequency.</p></li>
+<li><p><strong>fmax</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum frequency.</p></li>
+<li><p><strong>ylim</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum intensity.</p></li>
+<li><p><strong>savefig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save the figure (default is <cite>False</cite>).</p></li>
+<li><p><strong>dpi</strong> (<em>float</em><em>, </em><em>optional</em>) – Dots per inches (default is 300).</p></li>
+<li><p><strong>filetype</strong> (<em>str</em><em>, </em><em>optional</em>) – File extension (default is ‘png’).</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to show the figure (default is <cite>True</cite>).</p></li>
+<li><p><strong>export_csv</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save plot in csv format (default is</p></li>
+<li><p><strong>False</strong><strong>)</strong><strong>.</strong> – </p></li>
+<li><p><strong>xlabel</strong> (<em>str</em><em>, </em><em>optional</em>) – x-axis label (default is ‘Wavenumber [cm$^{-1}$]’).</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em><em>, </em><em>optional</em>) – y-axis label (default is ‘Intensity [arb. u.]’).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Linewidth (default is 2.0).</p></li>
+<li><p><strong>padd</strong> (<em>float</em><em>, </em><em>optional</em>) – left- and right- hand side padding expressed in the</p></li>
+<li><p><strong>x-axis</strong> (<em>same unit</em><em> of </em><em>the quantity reported in</em>) – </p></li>
+<li><p><strong>fontsize</strong> (<em>integer</em><em>, </em><em>optional</em>) – Fontsize (default is 12).</p></li>
+<li><p><strong>style</strong> (<em>str</em><em>, </em><em>optional</em>) – String specifying Matplotlib style.</p></li>
+<li><p><strong>compstyle</strong> (<em>str</em><em>|</em><em>list</em><em>, </em><em>optional</em>) – List containing Matplotlib styles to plot</p></li>
+<li><p><strong>component.</strong> (<em>each</em>) – </p></li>
+<li><p><strong>nopadding</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to remove padding (default is <cite>False</cite>).</p></li>
+<li><p><strong>figsize</strong> (<em>real</em><em>|</em><em>list</em><em>, </em><em>optional</em>) – List of two numbers specifying the aspect</p></li>
+<li><p><strong>figure</strong> (<em>ratio</em><em> of </em><em>the</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.plot.plot_cry_spec_multi">
+<span class="sig-name descname"><span class="pre">plot_cry_spec_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typeS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Wavenumber</span> <span class="pre">[cm$^{-1}$]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Instensity</span> <span class="pre">[arb.</span> <span class="pre">u.]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nopadding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(16,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.plot.plot_cry_spec_multi" title="Link to this definition"></a></dt>
+<dd><p>This function is a wrapper for <cite>plot_spec</cite> function, enablng the simulation
+of many vibrational spectra coming from a list of NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transitions</strong> (<em>float</em><em>|</em><em>numpy.ndarray</em>) – Array containing transition frequencies</p></li>
+<li><p><strong>intensities</strong> (<em>(</em><em>axis=0</em><em>) </em><em>and corresponding</em>) – </p></li>
+<li><p><strong>typeS</strong> (<em>str</em>) – String specifying the spectral profile: ‘bars’,</p></li>
+<li><p><strong>'lorentz'</strong> – </p></li>
+<li><p><strong>'gauss'</strong> – </p></li>
+<li><p><strong>'pvoigt'.</strong> – </p></li>
+<li><p><strong>components</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot contributions arising from</p></li>
+<li><p><strong>transition</strong> (<em>each</em>) – </p></li>
+<li><p><strong>bwidth</strong> (<em>float</em><em>, </em><em>optional</em>) – Half-width at half-maximum of the Lorentzian</p></li>
+<li><p><strong>profile</strong> (<em>default is 0.5</em>) – </p></li>
+<li><p><strong>stdev</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of the Gaussian profile</p></li>
+<li><p><strong>5</strong><strong>)</strong><strong>.</strong> (<em>(</em><em>default is</em>) – </p></li>
+<li><p><strong>eta</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of Lorentzian character in pseudo-Voigt</p></li>
+<li><p><strong>profile</strong> – </p></li>
+<li><p><strong>fmin</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum frequency.</p></li>
+<li><p><strong>fmax</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum frequency.</p></li>
+<li><p><strong>ylim</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum intensity.</p></li>
+<li><p><strong>savefig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save the figure (default is <cite>False</cite>).</p></li>
+<li><p><strong>dpi</strong> (<em>float</em><em>, </em><em>optional</em>) – Dots per inches (default is 300).</p></li>
+<li><p><strong>filetype</strong> (<em>str</em><em>, </em><em>optional</em>) – File extension (default is ‘png’).</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em><em>, </em><em>optional</em>) – x-axis label (default is ‘Wavenumber [cm$^{-1}$]’).</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em><em>, </em><em>optional</em>) – y-axis label (default is ‘Intensity [arb. u.]’).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Linewidth (default is 2.0).</p></li>
+<li><p><strong>padd</strong> (<em>float</em><em>, </em><em>optional</em>) – left- and right- hand side padding expressed in the</p></li>
+<li><p><strong>x-axis</strong> (<em>same unit</em><em> of </em><em>the quantity reported in</em>) – </p></li>
+<li><p><strong>fontsize</strong> (<em>integer</em><em>, </em><em>optional</em>) – Fontsize (default is 12).</p></li>
+<li><p><strong>style</strong> (<em>str</em><em>, </em><em>optional</em>) – String specifying Matplotlib style.</p></li>
+<li><p><strong>nopadding</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to remove padding (default is <cite>False</cite>).</p></li>
+<li><p><strong>figsize</strong> (<em>real</em><em>|</em><em>list</em><em>, </em><em>optional</em>) – List of two numbers specifying the aspect</p></li>
+<li><p><strong>figure</strong> (<em>ratio</em><em> of </em><em>the</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.geometry.html" class="btn btn-neutral float-left" title="CRYSTALpytools.geometry module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.thermodynamics.html" class="btn btn-neutral float-right" title="CRYSTALpytools.thermodynamics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

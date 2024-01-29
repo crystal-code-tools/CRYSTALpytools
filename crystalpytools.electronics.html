@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.electronics module &mdash; CRYSTALpytools 2023.10.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.electronics.html" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=ddecebb9"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.geometry module" href="crystalpytools.geometry.html" />
+    <link rel="prev" title="CRYSTALpytools.execute module" href="crystalpytools.execute.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials.html">Examples and Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">Module-specific Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.electronics module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.electronics.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-electronics-module">
+<h1>CRYSTALpytools.electronics module<a class="headerlink" href="#crystalpytools-electronics-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.electronics"><span id="ref-electronics"></span>A post-processing module for electronic properties</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronBand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reciprocal_latt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_pos3d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_path3d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Electron band object. Energy unit: eV. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>tick_pos</strong> (<em>array</em>) – n_tick*1 array of 1D tick coordinates. Unit: Angstrom</p></li>
+<li><p><strong>tick_label</strong> (<em>list</em>) – n_tick*1 of default tick labels</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV.</p></li>
+<li><p><strong>bands</strong> (<em>array</em>) – n_bands*n_kpoints*spin array of energy. Unit: eV</p></li>
+<li><p><strong>k_path</strong> (<em>array</em>) – 1D coordinates of k points. Unit: Angstrom</p></li>
+<li><p><strong>geometry</strong> (<em>Structure</em>) – Pymatgen structure</p></li>
+<li><p><strong>reciprocal_latt</strong> (<em>array</em>) – 3*3 array of reciprocal lattice matrix. Not
+valid if <code class="docutils literal notranslate"><span class="pre">geometry</span></code> is specified.</p></li>
+<li><p><strong>tick_pos3d</strong> (<em>array</em>) – n_tick*1 3D fractional tick coordinates</p></li>
+<li><p><strong>k_path3d</strong> (<em>array</em>) – n_kpoints*3 3D fractional coordinates of k points</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘eV’: eV-Angstrom.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate an <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> object from fort.25 / BAND.DAT file.
+Optional 3D space data is read from the output file of ‘properties’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>band</strong> (<em>str</em>) – ‘fort.25’ or ‘BAND.DAT’</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ElectronBand</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermiwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermialpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand.plot" title="Link to this definition"></a></dt>
+<dd><p>Plot band structure of a single system using <a class="reference external" href="https://matplotlib.org/">matplotlib</a>.
+For arguments setting up figures, colors and lines styles, please refer
+to <a class="reference external" href="https://matplotlib.org/">matplotlib</a>.
+For multiple systems, use <code class="docutils literal notranslate"><span class="pre">CRYSTALpytools.plot.plot_electron_band</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – The energy unit for <strong>plotting</strong>. ‘eV’ or ‘a.u.’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek
+letters should be, for example, ‘Gamma’.</p></li>
+<li><p><strong>energy_range</strong> (<em>array</em>) – A 2x1 array specifying the energy range.</p></li>
+<li><p><strong>k_range</strong> (<em>array</em>) – A 2x1 array specifying the k-range.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Color of plot lines.</p></li>
+<li><p><strong>linestl</strong> (<em>str</em>) – Linestyle string.</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – The width of the plot lines.</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – The color of the Fermi level line.</p></li>
+<li><p><strong>fermiwidth</strong> (<em>float</em>) – The width of the fermi line.</p></li>
+<li><p><strong>fermialpha</strong> (<em>float</em>) – Opacity of the fermi level 0-1.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – The figure size specified as [width, height].</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – The file name to save the plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand.bandgap">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandgap</span></span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand.bandgap" title="Link to this definition"></a></dt>
+<dd><p>A shortcut for band gap only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand.get_bandgap">
+<span class="sig-name descname"><span class="pre">get_bandgap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand.get_bandgap" title="Link to this definition"></a></dt>
+<dd><p>Get band gap. For spin-polarized systems, 2*1 arrays are used for
+<span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> states. Data is rounded to 6 decimal
+places.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self.gap</strong> (<em>float</em>) – Band gap. Default unit: eV</p></li>
+<li><p><strong>self.vbm</strong> (<em>flat</em>) – Valence band maximum, with reference to Fermi
+level. Default unit: eV</p></li>
+<li><p><strong>self.cbm</strong> (<em>float</em>) – Conduction band minimum, with reference to Fermi
+level. Default unit: eV</p></li>
+<li><p><strong>self.gap_pos</strong> (<em>array</em>) – 1D coordinates of vbm (1st element) and cbm
+(2nd element). For spin-polarized cases, <code class="docutils literal notranslate"><span class="pre">self.gap_pos[0,</span> <span class="pre">:]</span></code>
+are vbm and cbm of <span class="math notranslate nohighlight">\(\alpha\)</span> state. Default unit: Angstrom</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand.to_pmg">
+<span class="sig-name descname"><span class="pre">to_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand.to_pmg" title="Link to this definition"></a></dt>
+<dd><p>Get Pymatgen <code class="docutils literal notranslate"><span class="pre">BandStructureSymmLine</span></code> object (inherited from <code class="docutils literal notranslate"><span class="pre">BandStructure</span></code>).
+No projection is available for now.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>3D information for output file is mandatory here.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>labels</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – K point labels to display in the band structure.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>BandStructureSymmLine</strong> – Pymatgen band structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBand._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBand._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> object. Internal method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘eV’: Energy unit = eV, Length unit = Angstrom;
+‘a.u.’: Energy unit = Hartree. Length unit = Bohr</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronDOS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronDOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronDOS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Electron DOS object. Energy unit: eV. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV.</p></li>
+<li><p><strong>doss</strong> (<em>array</em>) – n_proj*n_energy*spin array of DOS. Positive values
+for both spin up and spin down states</p></li>
+<li><p><strong>energy</strong> (<em>array</em>) – Positions of DOS peaks (x axis)</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘eV’: eV-Angstrom.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronDOS.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronDOS.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate an <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> object from fort.25 / DOSS.DAT file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>band</strong> (<em>str</em>) – ‘fort.25’ or ‘DOSS.DAT’</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ElectronDOS</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronDOS.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'up'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronDOS.plot" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of <code class="docutils literal notranslate"><span class="pre">CRYSTALpytools.plot.plot_electron_dos</span></code>
+For arguments setting up figures, colors and lines styles, please refer
+to <a class="reference external" href="https://matplotlib.org/">matplotlib</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – The energy unit for <strong>plotting</strong>. ‘eV’ or ‘a.u.’.</p></li>
+<li><p><strong>beta</strong> (<em>str</em>) – Plot spin-down state ‘up’ or ‘down’</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em>) – Plotting multiple lines into the same figure</p></li>
+<li><p><strong>prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the
+index of the 2nd dimension of <code class="docutils literal notranslate"><span class="pre">self.doss</span></code></p></li>
+<li><p><strong>energy_range</strong> (<em>array</em>) – 2*1 array of energy range</p></li>
+<li><p><strong>dos_range</strong> (<em>array</em>) – 2*1 array of DOS range</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Color of plot lines. <em>Should be
+consistent with number of projections.</em></p></li>
+<li><p><strong>labels</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – Plot legend. <em>Should be consistent with
+number of projections.</em></p></li>
+<li><p><strong>linestl</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – linestyle string. <em>Should be consistent
+with number of projections.</em></p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – </p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color of Fermi level line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – </p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronDOS._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronDOS._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘eV’: Energy unit = eV;
+‘a.u.’: Energy unit = Hartree</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBandDOS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronBandDOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBandDOS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Electron band + dos object. Energy unit: eV. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>band</strong> (<a class="reference internal" href="#CRYSTALpytools.electronics.ElectronBand" title="CRYSTALpytools.electronics.ElectronBand"><em>ElectronBand</em></a>) – <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> object</p></li>
+<li><p><strong>dos</strong> (<a class="reference internal" href="#CRYSTALpytools.electronics.ElectronDOS" title="CRYSTALpytools.electronics.ElectronDOS"><em>ElectronDOS</em></a>) – <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> object</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBandDOS.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBandDOS.from_file" title="Link to this definition"></a></dt>
+<dd><p>Get ElectronBandDOS object from files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>band</strong> (<em>str</em>) – ‘fort.25’ or ‘BAND.DAT’</p></li>
+<li><p><strong>dos</strong> (<em>str</em>) – ‘fort.25’ or ‘DOSS.DAT’</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Property output file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ElectronBandDOS</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBandDOS.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'down'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestl_dos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forestgreen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBandDOS.plot" title="Link to this definition"></a></dt>
+<dd><p>A wrapper of <code class="docutils literal notranslate"><span class="pre">CRYSTALpytools.plot.plot_electron_banddos</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – The energy unit for <strong>plotting</strong>. ‘eV’ or ‘a.u.’.</p></li>
+<li><p><strong>k_labels</strong> (<em>list</em>) – A list of high-symmetric k point labels. Greek letters should be
+represented as strings, for example, ‘Gamma’.</p></li>
+<li><p><strong>dos_beta</strong> (<em>str</em>) – Spin state to plot. Valid options are ‘Up’ or ‘down’. If ‘down’, the <span class="math notranslate nohighlight">\(\beta\)</span>
+state will be plotted on the same side as the <span class="math notranslate nohighlight">\(\alpha\)</span> state, otherwise on the other side.</p></li>
+<li><p><strong>dos_prj</strong> (<em>list</em>) – Index of selected projection. Consistent with the index of the 2nd dimension
+of doss.doss.</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em>) – A list of two values representing the energy range to be plotted.</p></li>
+<li><p><strong>dos_range</strong> (<em>float</em>) – Maximum DOS range for the y-axis.</p></li>
+<li><p><strong>color_band</strong> (<em>str</em>) – Color of the electron bands in the plot.</p></li>
+<li><p><strong>color_dos</strong> (<em>str</em>) – Color of the density of states (DOS) in the plot.</p></li>
+<li><p><strong>labels</strong> (<em>list</em>) – A list of labels for the plot legend.</p></li>
+<li><p><strong>linestl_band</strong> (<em>str</em>) – Linestyle of the electron bands.</p></li>
+<li><p><strong>linestl_dos</strong> (<em>str</em>) – Linestyle of the density of states (DOS).</p></li>
+<li><p><strong>linewidth</strong> (<em>float</em>) – Width of the lines in the plot.</p></li>
+<li><p><strong>fermi</strong> (<em>str</em>) – Color of the Fermi level line.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the plot.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – Size of the figure in inches (width, height).</p></li>
+<li><p><strong>save_to_file</strong> (<em>str</em>) – File name to save the plot.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ElectronBandDOS._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ElectronBandDOS._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ElectronBandDOS</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘eV’: Energy unit = eV, length unit = Angstrom
+‘a.u.’: Energy unit = Hartree, length unit = Bohr</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ChargeDensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargeDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spinmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ChargeDensity" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Charge (spin) density object. Unit: <span class="math notranslate nohighlight">\(e.\AA^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>gridv</strong> (<em>array</em>) – 2*3 (2D) or 3*3 (3D) base vectors of data grid</p></li>
+<li><p><strong>chgmap</strong> (<em>array</em>) – 2D or 3D charge density map</p></li>
+<li><p><strong>spinmap</strong> (<em>array</em>) – 2D or 3D spin density map</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ChargeDensity.from_ECHG">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ChargeDensity.from_ECHG" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> object from ECHG fort.25 file (2D map), or
+from multiple fort.25 files by substracting values from the first entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>str</em>) – One or multiple fort.25 file names, separated by comma.
+The first entry is the ‘reference’ and data of the following
+entries are substracted from the first one.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ChargeDensity</em>)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If inconsistent data grid is read.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ChargeDensity.plot_ECHG">
+<span class="sig-name descname"><span class="pre">plot_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'charge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ChargeDensity.plot_ECHG" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D charge/spin density map. A wrapper of <code class="docutils literal notranslate"><span class="pre">plot.plot_dens_ECHG</span></code>
+and <code class="docutils literal notranslate"><span class="pre">plot.plot_spin_ECHG</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>option</strong> (<em>str</em>) – ‘charge’ or ‘spin’</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The energy unit for <strong>plotting</strong>. ‘Angstrom’ for <span class="math notranslate nohighlight">\(e.\AA^{-3}\)</span> or ‘a.u.’ for <span class="math notranslate nohighlight">\(e.Bohr^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>int</em><em> | </em><em>array-like</em>) – The number and positions of the contour lines/regions. Default is 150.</p></li>
+<li><p><strong>xticks</strong> (<em>int</em>) – <em>Optional</em> Number of ticks in the x direction.</p></li>
+<li><p><strong>yticks</strong> (<em>int</em>) – <em>Optional</em> Number of ticks in the y direction.</p></li>
+<li><p><strong>cmap_max</strong> (<em>float</em>) – <em>Optional</em>, Maximum value used for the colormap.</p></li>
+<li><p><strong>cmap_min</strong> (<em>float</em>) – Minimun value used for the colormap.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the colormap. None for not saving it.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – <em>Valid if name!=None</em> Resolution (dots per inch) for the output image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.electronics.ChargeDensity._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.electronics.ChargeDensity._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘Angstrom’, <span class="math notranslate nohighlight">\(e.\AA^{-3}\)</span>.
+‘a.u.’, <span class="math notranslate nohighlight">\(e.Bohr^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.execute.html" class="btn btn-neutral float-left" title="CRYSTALpytools.execute module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.geometry.html" class="btn btn-neutral float-right" title="CRYSTALpytools.geometry module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
