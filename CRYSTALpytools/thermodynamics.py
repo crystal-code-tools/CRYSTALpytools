@@ -493,7 +493,7 @@ class Harmonic():
         :raise AttributeError: If computational data is stored in the object.
         :raise ValueError: If neither of the 2 available options are defined.
         """
-        from CRYSTALpytools.base.crysout import PhononBASE
+        from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.thermodynamics import Mode
         import numpy as np
 
@@ -1395,7 +1395,7 @@ class Quasi_harmonic:
             self (Quasi_harmonic): New Attributes listed below
             self.temperature (array): Unit: K
             self.pressure (array): Unit: GPa
-            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
             self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
             self.gibbs (array): Gibbs free energy. Unit: kJ/mol
             self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
@@ -1630,7 +1630,7 @@ class Quasi_harmonic:
             self (Quasi_harmonic): New attributes listed below
             self.temperature (array): Unit: K
             self.pressure (array): Unit: GPa
-            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\AA^{3}`
+            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
             self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
             self.gibbs (array): Gibbs free energy. Unit: kJ/mol
             self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`

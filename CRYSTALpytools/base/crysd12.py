@@ -8,118 +8,89 @@ from CRYSTALpytools.base.inputbase import BlockBASE
 class Crystal_inputBASE(BlockBASE):
     """
     The base class of Crystal_input class
+
+    Args:
+        geba (bool): Whether it is a normal d12 object or a GEBA subblock
     """
 
-    def __init__(self):
+    def __init__(self, geba=False):
+        if geba == False:
+            # These are dummy keys, not printed out
+            dic = {
+                'GEOM'     : ['_geom', True, [], 'crysd12.Geom()'],
+                'BASISSET' : ['_basisset', True, [], 'crysd12.BasisSet()'],
+                'SCF'      : ['_scf', True, [], 'crysd12.SCF()'],
+            }
+        else:
+            dic = {
+                'GEOM'     : ['_geom', True, [], 'crysd12.Geom()'],
+                'BASISSET' : ['_basisset', True, [], 'crysd12.BasisSet()'],
+            }
         # Initialize the object to empty values
-        self._block_bg = None  # Avoid empty bg and ed lines
-        self._block_ed = None
-        self._block_data = ''
-        self._block_attr = ['geom', 'basisset', 'scf']
+        super().__init__('', '', dic)
 
     @property
     def geom(self):
-        if not hasattr(self, '_block_geom'):
-            self.set_geom()
-        return self._block_geom
-
-    def set_geom(self, obj=None):
         """
-        Geom subblock
-
-        Args:
-            obj (Geom | str): A block object of 'GEOM' submodule. Or a string
-                in CRYSTAL d12 format.
+        Geometry subblock
         """
-        from CRYSTALpytools.base.crysd12 import Geom
-
-        self._block_geom = Geom()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_geom.clean_block()
-            else:
-                dimen_list = ['CRYSTAL\n', 'SLAB\n', 'POLYMER\n', 'MOLECULE\n',
-                              'HELIX\n', 'EXTERNAL\n', 'DLVINPUT\n']
-                title = obj.split('\n')[0]
-                if title in dimen_list: # No title line
-                    self._block_geom.analyze_text(obj)
-                else: # Have title line
-                    self._block_geom.title(title)
-                    self._block_geom.analyze_text(obj)
-        else:
-            self._block_geom = obj
+        self._geom._block_valid = True
+        return self._geom
 
     @property
     def basisset(self):
-        if not hasattr(self, '_block_basisset'):
-            self.set_basisset()
-        return self._block_basisset
-
-    def set_basisset(self, obj=None):
         """
         Basis set subblock
-
-        Args:
-            obj (BasisSet | str): A block object of basis set submodule. Or a
-                string in CRYSTAL d12 format
         """
-        from CRYSTALpytools.base.crysd12 import BasisSet
-
-        self._block_basisset = BasisSet()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '':# Clean data
-                self._block_basisset.clean_block()
-            else:
-                self._block_basisset.analyze_text(obj)
-        else:
-            self._block_basisset = obj
+        self._basisset._block_valid = True
+        return self._basisset
 
     @property
     def scf(self):
-        if not hasattr(self, '_block_scf'):
-            self.set_scf()
-        return self._block_scf
-
-    def set_scf(self, obj=None):
         """
         SCF subblock
+        """
+        self._scf._block_valid = True
+        return self._scf
+
+    @property
+    def data(self):
+        """
+        Settings in all the attributes are summarized here.
+        """
+        import warnings
+
+        if self._block_valid == False:
+            warnings.warn("This block is not visible. Set 'self._block_valid = True' to get data",
+                          stacklevel=2)
+            return ''
+
+        # If objects are set separately, BASISSET might coincide with 'ENDGEOM'
+        if self._basisset._block_dict['BASISSET'][0] != None and self._geom._block_ed != '':
+            self._geom._block_ed = ''
+
+        self.update_block()
+        text = ''
+        for i in [self._block_bg, self._block_data, self._block_ed]:
+            text += i
+        return text
+
+    def analyze_text(self, data):
+        """
+        Analyze formatted d12 file. A 'complete' d12 file with geometry, basis
+        set and SCF blocks is suggested.
 
         Args:
-            obj (SCF | str): A block object of SCF submodule. Or a string in
-                CRYSTAL d12 format
-        """
-        from CRYSTALpytools.base.crysd12 import SCF
-
-        self._block_scf = SCF()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_scf.clean_block()
-            else:
-                self._block_scf.analyze_text(obj)
-        else:
-            self._block_scf = obj
-
-    def from_file(self, file):
-        """
-        Generate a CrystalInputBASE obj from a d12 file. A 'complete' d12 file
-        with geometry, basis set and SCF blocks is suggested.
+            data (str): Formatted string.
         """
         import re
 
-        inp = open(file, 'r')
-        data = inp.read()
-        inp.close()
         data_lines = data.strip().split('\n')
 
-        self.set_geom()
-        self.set_basisset()
-        self.set_scf()
+        # initialization
+        self.geom()
+        self.basisset()
+        self.scf()
 
         # Divide data into 3 blocks
         text = ['', '', '']
@@ -148,8 +119,8 @@ class Crystal_inputBASE(BlockBASE):
                     block_counter += 1
         # Case 2: BASISSET keyword
         else:
-            self.basisset._block_ed = None
-            self.geom._block_ed = None
+            self.basisset._block_ed = ''
+            self.geom._block_ed = ''
             block_counter = 0
             for d in data_lines:
                 d = d.strip()
@@ -162,31 +133,15 @@ class Crystal_inputBASE(BlockBASE):
                 else:
                     text[block_counter] += d + '\n'
 
-        # Title line
-        self.geom.title(data_lines[0])
         # The 0D geometry keyword 'MOLECULE' and the molecular crystal option 'MOLECULE'
         if 'MOLECULE' not in data_lines[1] and 'MOLECULE' in text[0]:
-            text[0] = re.sub('MOLECULE', 'MOLEISO', text[0])
+            text[0] = re.sub('MOLECULE', 'MOLECULE2', text[0])
 
         self.geom.analyze_text(text[0])
-        if 'BASISSET' not in data:
-            self.basisset.from_string(text[1])
-        else:
-            self.basisset.analyze_text(text[1])
+        self.basisset.analyze_text(text[1])
         self.scf.analyze_text(text[2])
 
         return self
-
-    def to_file(self, file):
-        """
-        Write data to a file
-        """
-        out = open(file, 'w')
-        # If objects are set separately, BASISSET might coincide with 'ENDGEOM'
-        if 'BASISSET' in self.data and 'ENDGEOM' in self.data:
-            self.geom._block_ed = ''
-        out.write('%s' % self.data)
-        out.close()
 
 
 class Geom(BlockBASE):
@@ -195,40 +150,72 @@ class Geom(BlockBASE):
     """
 
     def __init__(self):
-        self._block_bg = 'Generated by CRYSTALpytools\n'  # Set title as bg label
-        self._block_ed = 'ENDGEOM\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'CRYSTAL'   : '_basegeom',
-            'SLAB'      : '_basegeom',
-            'POLYMER'   : '_basegeom',
-            'HELIX'     : '_basegeom',
-            'MOLECULE'  : '_basegeom',
-            'EXTERNAL'  : '_basegeom',
-            'DLVINPUT'  : '_basegeom',
-            'SUPERCEL'  : '_sp_matrix',
-            'SUPERCELL' : '_sp_matrix',
-            'SUPERCON'  : '_sp_matrix',
-            'SCELCONF'  : '_sp_matrix',
-            'SCELPHONO' : '_sp_matrix',
-            'ATOMBSSE'  : '_atombsse',
-            'ATOMDISP'  : '_atomdisp',
-            'ATOMINSE'  : '_atominse',
-            'ATOMORDE'  : '_atomorde',
-            'ATOMREMO'  : '_atomremo',
-            'MOLEISO'   : '_moleiso', # The original 'MOLECULE' option to isolate molecules
-            'EXTPRT'    : '_extprt',
-            'CIFPRT'    : '_cifprt',
-            'CIFPRTSYM' : '_cifprtsym',
-            'COORPRT'   : '_coorprt',
-            'TESTGEOM'  : '_testgeom',
-            'OPTGEOM'   : 'optgeom',  # Sub-block properties must be named without the initial underscore
-            'FREQCALC'  : 'freqcalc',
+        bg = 'Generated by CRYSTALpytools\n'  # Set title as bg label
+        ed = 'ENDGEOM\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        geom = ['CRYSTAL', 'SLAB', 'POLYMER', 'HELIX', 'MOLECULE', 'EXTERNAL', 'DLVINPUT']
+        scel = ['SUPERCEL', 'SUPERCELL', 'SUPERCON', 'SCELCONF', 'SCELPHONO']
+        dic = {
+            'CRYSTAL'   : [None, False, geom],
+            'SLAB'      : [None, False, geom],
+            'POLYMER'   : [None, False, geom],
+            'HELIX'     : [None, False, geom],
+            'MOLECULE'  : [None, False, geom],
+            'EXTERNAL'  : [None, False, geom],
+            'DLVINPUT'  : [None, False, geom],
+            # ---- supercell ----
+            'SUPERCEL'  : [None, False, scel],
+            'SUPERCELL' : [None, False, scel],
+            'SUPERCON'  : [None, False, scel],
+            'SCELCONF'  : [None, False, scel],
+            'SCELPHONO' : [None, False, scel],
+            # ---- editing ----
+            'ATOMBSSE'  : [None, False, []],
+            'ATOMDISP'  : [None, False, []],
+            'ATOMINSE'  : [None, False, []],
+            'ATOMORDE'  : [None, False, []],
+            'ATOMREMO'  : [None, False, []],
+            'ATOMSUBS'  : [None, False, []],
+            'MOLECULE2' : [None, False, []], # The original 'MOLECULE' option to isolate molecules. The key does not change printed out text.
+            'ELASTIC'   : [None, False, []],
+            # ---- print ----
+            'EXTPRT'    : [None, False, []],
+            'CIFPRT'    : [None, False, []],
+            'CIFPRTSYM' : [None, False, []],
+            'COORPRT'   : [None, False, []],
+            'TESTGEOM'  : [None, False, ['TESTGEOM', 'OPTGEOM', 'FREQCALC']],
+            # ---- blocks ----
+            'OPTGEOM'   : ['_optgeom', True, ['TESTGEOM', 'OPTGEOM', 'FREQCALC'], 'crysd12.Optgeom()'],
+            'FREQCALC'  : ['_freqcalc', True, ['TESTGEOM', 'OPTGEOM', 'FREQCALC'], 'crysd12.Freqcalc()'],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        self._block_valid = True
+        super().__init__(bg, ed, dic)
+
+    def __call__(self, obj=''):
+        """
+        Call Geom subblock
+
+        Args:
+            obj (Geom | str): A 'GEOM' block object or a string in CRYSTAL d12
+            format.
+        """
+        dimen_list = ['CRYSTAL\n', 'SLAB\n', 'POLYMER\n', 'MOLECULE\n',
+                      'HELIX\n', 'EXTERNAL\n', 'DLVINPUT\n']
+        if type(obj) == str:
+            self.__init__()
+            if obj != '':
+                title = obj.split('\n')[0]
+                if title not in dimen_list: # Have title line
+                    self.title(title)
+                self.analyze_text(obj)
+        elif obj == None:
+            self.__init__()
+            self._block_valid = False
+        elif type(obj) == type(self):
+            self = obj
+        else:
+            raise ValueError('Unknown data type.')
 
     @property
     def data(self):
@@ -236,21 +223,25 @@ class Geom(BlockBASE):
         Settings in all the attributes are summarized here. Covers the data
         property in BlockBASE, to address the ambiguity of 'MOLECULE' keywords.
         """
-        import re
+        import re, warnings
+
+        if self._block_valid == False:
+            warnings.warn("This block is not visible. Set 'self._block_valid = True' to get data",
+                          stacklevel=2)
+            return ''
 
         self.update_block()
         text = ''
         for i in [self._block_bg, self._block_data, self._block_ed]:
-            if i == None:
-                continue
             text += i
-
-        return re.sub('MOLEISO', 'MOLECULE', text)
+        return re.sub('MOLECULE2', 'MOLECULE', text)
 
     def title(self, title='Generated by CRYSTALpytools'):
+        if title == None or title == '':
+            title='Generated by CRYSTALpytools'
         self._block_bg = '{}\n'.format(title)
 
-    def crystal(self, IGR=None, latt=[], atom=[], IFLAG=0, IFHR=0, IFSO=0, origin=[]):
+    def crystal(self, IGR='', latt=[], atom=[], IFLAG=0, IFHR=0, IFSO=0, origin=[]):
         """
         Define 'CRYSTAL' structure
 
@@ -264,12 +255,8 @@ class Geom(BlockBASE):
             IFSO (int): See the manual
             origin (list): *IFSO > 1* See the manual
         """
-        if IGR == None:  # No entry. Return keyword
-            self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', [])
-            return
-        elif IGR == '':  # Clean data
-            self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', [], '')
-            return
+        if IGR == '' or IGR == None:  # Keyword only or remove everything
+            super().assign_keyword('CRYSTAL', [], IGR); return self
 
         if IFSO <= 1:
             shape = [3, 1]
@@ -287,22 +274,18 @@ class Geom(BlockBASE):
         # Format atoms - frac 12 digits, cart 16 digits
         atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
                  '{0: 12.8f}'.format(a[2]), '{0: 12.8f}'.format(a[3])] for a in atom]
-        atominput = super(Geom, self).set_list(len(atom), atom)
+        atominput = super().set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword('CRYSTAL', shape, value)
+        super().assign_keyword('CRYSTAL', shape, value); return self
 
-    def slab(self, IGR=None, latt=[], atom=[]):
+    def slab(self, IGR='', latt=[], atom=[]):
         """
         Define 'SLAB' structure
         """
-        if IGR == None:  # No entry. Return keyword
-            self._basegeom = super(Geom, self).assign_keyword('SLAB', [])
-            return
-        elif IGR == '':  # Clean data
-            self._basegeom = super(Geom, self).assign_keyword('SLAB', [], '')
-            return
+        if IGR == None or IGR == '':  # Return keyword or Clean data
+            super().assign_keyword('SLAB', [], IGR); return self
 
         shape = [1, ]
         value = ['{:<3d}'.format(int(IGR)), ]
@@ -313,22 +296,18 @@ class Geom(BlockBASE):
         # Format atoms - frac 12 digits, cart 16 digits
         atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
                  '{0: 12.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
-        atominput = super(Geom, self).set_list(len(atom), atom)
+        atominput = super().set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword('SLAB', shape, value)
+        super().assign_keyword('SLAB', shape, value); return self
 
-    def polymer(self, IGR=None, latt=[], atom=[]):
+    def polymer(self, IGR='', latt=[], atom=[]):
         """
         Define 'POLYMER' structure
         """
-        if IGR == None:  # No entry. Return keyword
-            self._basegeom = super(Geom, self).assign_keyword('POLYMER', [])
-            return
-        elif IGR == '':  # Clean data
-            self._basegeom = super(Geom, self).assign_keyword('POLYMER', [], '')
-            return
+        if IGR == None or IGR == '':  # Return keyword or Clean data
+            super().assign_keyword('POLYMER', [], IGR); return self
 
         shape = [1, ]
         value = ['{:<3d}'.format(int(IGR)), ]
@@ -339,13 +318,13 @@ class Geom(BlockBASE):
         # Format atoms - frac 12 digits, cart 16 digits
         atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
                  '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
-        atominput = super(Geom, self).set_list(len(atom), atom)
+        atominput = super().set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword('POLYMER', shape, value)
+        super().assign_keyword('POLYMER', shape, value); return self
 
-    def helix(self, N1=None, N2=0, latt=[], atom=[]):
+    def helix(self, N1='', N2=0, latt=[], atom=[]):
         """
         Define 'HELIX' structure
 
@@ -353,12 +332,8 @@ class Geom(BlockBASE):
             N1 (int): See the manual
             N2 (int): See the manual
         """
-        if N1 == None:  # No entry. Return keyword
-            self._basegeom = super(Geom, self).assign_keyword('HELIX', [])
-            return
-        elif N1 == '':  # Clean data
-            self._basegeom = super(Geom, self).assign_keyword('HELIX', [], '')
-            return
+        if N1 == None or N1 == '':  # Return keyword or Clean data
+            super().assign_keyword('HELIX', [], N1); return self
 
         shape = [2, ]
         value = ['{:<3d}'.format(int(N1)), '{:<3d}'.format(int(N2)), ]
@@ -369,28 +344,27 @@ class Geom(BlockBASE):
         # Format atoms - frac 12 digits, cart 16 digits
         atom = [['{:<4d}'.format(int(a[0])), '{0: 12.8f}'.format(a[1]),
                  '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
-        atominput = super(Geom, self).set_list(len(atom), atom)
+        atominput = super().set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword('HELIX', shape, value)
+        super().assign_keyword('HELIX', shape, value); return self
 
-    def molecule(self, IGR=None, atom=[]):
+    def molecule(self, IGR='', atom=[]):
         """
         Define 'MOLECULE' structure
         """
         import warnings
 
         # The 0D geometry keyword 'MOLECULE' and the molecular crystal option 'MOLECULE'
-        if hasattr(self, '_basegeom'):
-            warnings.warn("Geometry definition exists. To launch the MOLECULE option that isolates molecules from lattice, use the 'self.moleiso' method.", stacklevel=2)
+        geom = ['CRYSTAL', 'SLAB', 'POLYMER', 'HELIX', 'MOLECULE', 'EXTERNAL', 'DLVINPUT']
+        for i in geom:
+            if self[i][0] != None:
+                warnings.warn("Geometry definition exists. To launch the MOLECULE to isolate molecules from lattice, use the 'geom.molecule2' method.",
+                              stacklevel=2)
 
-        if IGR == None:  # No entry. Return keyword
-            self._basegeom = super(Geom, self).assign_keyword('MOLECULE', [])
-            return
-        elif IGR == '':  # Clean data
-            self._basegeom = super(Geom, self).assign_keyword('MOLECULE', [], '')
-            return
+        if IGR == None or IGR == '':  # Return keyword or Clean data
+            super().assign_keyword('MOLECULE', [], IGR); return self
 
         shape = [1, ]
         value = ['{:<3d}'.format(int(IGR)), ]
@@ -398,59 +372,71 @@ class Geom(BlockBASE):
         # Format atoms - frac 12 digits, cart 16 digits
         atom = [['{:<4d}'.format(int(a[0])), '{0: 16.8f}'.format(a[1]),
                  '{0: 16.8f}'.format(a[2]), '{0: 16.8f}'.format(a[3])] for a in atom]
-        atominput = super(Geom, self).set_list(len(atom), atom)
+        atominput = super().set_list(len(atom), atom)
         shape += atominput[0]
         value += atominput[1]
 
-        self._basegeom = super(Geom, self).assign_keyword('MOLECULE', shape, value)
+        super().assign_keyword('MOLECULE', shape, value); return self
 
-    def external(self, key='EXTERNAL'):
+    def external(self, external=''):
         """
         Define 'EXTERNAL' structure
         """
-        self._basegeom = super(Geom, self).assign_keyword(key, [])
+        super().assign_keyword('EXTERNAL', [], external); return self
 
-    def dlvinput(self, key='DLVINPUT'):
+    def dlvinput(self, dlvinput=''):
         """
         Define 'DLVINPUT' structure
         """
-        self._basegeom = super(Geom, self).assign_keyword(key, [])
+        super().assign_keyword('DLVINPUT', [], dlvinput); return self
 
-    def supercel(self, mx=None):
+    # ---- supercell ----
+
+    def supercel(self, mx=''):
         """
         Supercell by 'SUPERCEL' keyword
 
         Args:
-            mx (array | list | str): ndimen \* ndimen matrix, [] or ''
+            mx (array | list | str): ndimen \* ndimen matrix, ``None`` or ``''``
         """
-        shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword('SUPERCEL', shape, value)
+        shape, value = super().set_matrix(mx)
+        super().assign_keyword('SUPERCEL', shape, value); return self
 
-    def supercon(self, mx=None):
+    def supercon(self, mx=''):
         """
         Supercell by 'SUPERCON' keyword
         """
-        shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword('SUPERCON', shape, value)
+        shape, value = super().set_matrix(mx)
+        super().assign_keyword('SUPERCON', shape, value); return self
 
-    def scelconf(self, mx=None):
+    def scelconf(self, mx=''):
         """
         Supercell by 'SCELCONF' keyword
         """
-        shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword('SCELCONF', shape, value)
+        shape, value = super().set_matrix(mx)
+        super().assign_keyword('SCELCONF', shape, value); return self
 
-    def scelphono(self, mx=None):
+    def scelphono(self, mx=''):
         """
         Supercell by 'SCELPHONO' keyword
         """
-        shape, value = super(Geom, self).set_matrix(mx)
-        self._sp_matrix = super(Geom, self).assign_keyword('SCELPHONO', shape, value)
+        shape, value = super().set_matrix(mx)
+        super().assign_keyword('SCELPHONO', shape, value); return self
 
-    def atombsse(self, IAT=None, NSTAR=None, RMAX=None):
-        self._atombsse = super(Geom, self).assign_keyword('ATOMBSSE', [3, ], [IAT, NSTAR, RMAX])
+    # ---- editing ----
 
-    def atomdisp(self, NDISP=None, atom=[]):
+    def elastic(self, IDEF='', mx=''):
+        shape = [1,]
+        value = [IDEF,]
+        out1, out2 = super().set_matrix(mx)
+        shape.extend(out1)
+        value.extend(out2)
+        super().assign_keyword('ELASTIC', shape, value); return self
+
+    def atombsse(self, IAT='', NSTAR=None, RMAX=None):
+        super().assign_keyword('ATOMBSSE', [3, ], [IAT, NSTAR, RMAX]); return self
+
+    def atomdisp(self, NDISP='', atom=[]):
         """
         ATOMDISP keyword
 
@@ -458,10 +444,10 @@ class Geom(BlockBASE):
             NDISP (int): See manual
             atom (list): NDISP\*4 list. Including LB, DX, DY, DZ
         """
-        shape, value = super(Geom, self).set_list(NDISP, atom)
-        self._atomdisp = super(Geom, self).assign_keyword('ATOMDISP', shape, value)
+        shape, value = super().set_list(NDISP, atom)
+        super().assign_keyword('ATOMDISP', shape, value); return self
 
-    def atominse(self, NINS=None, atom=[]):
+    def atominse(self, NINS='', atom=[]):
         """
         ATOMINSE keyword
 
@@ -469,13 +455,13 @@ class Geom(BlockBASE):
             NINS (int): See manual
             atom (list): NINS\*4 list. Including NA, X, Y, Z
         """
-        shape, value = super(Geom, self).set_list(NINS, atom)
-        self._atominse = super(Geom, self).assign_keyword('ATOMINSE', shape, value)
+        shape, value = super().set_list(NINS, atom)
+        super().assign_keyword('ATOMINSE', shape, value); return self
 
-    def atomorde(self, key='ATOMORDE'):
-        self._atomorde = super(Geom, self).assign_keyword(key, [])
+    def atomorde(self, atomorde=''):
+        super().assign_keyword('ATOMORDE', [], atomorde); return self
 
-    def atomremo(self, NL=None, atom=[]):
+    def atomremo(self, NL='', atom=[]):
         """
         ATOMREMO keyword
 
@@ -483,10 +469,22 @@ class Geom(BlockBASE):
             NL (int): See manual
             atom (list): NL\*1 list. Including LB
         """
-        shape, value = super(Geom, self).set_list(NL, atom)
-        self._atomremo = super(Geom, self).assign_keyword('ATOMREMO', shape, value)
+        shape, value = super().set_list(NL, atom)
+        super().assign_keyword('ATOMREMO', shape, value); return self
 
-    def moleiso(self, NMOL=None, atom=[]):
+    def atomsubs(self, NSOST='', atom=[]):
+        """
+        ATOMSUBS keyword
+
+        Args:
+            NSOST (int): See manual
+            atom (list): NSOST\*2 list. Conventional atomic number of atoms to
+                be substituted and to substituted
+        """
+        shape, value = super().set_list(NSOST, atom)
+        super().assign_keyword('ATOMSUBS', shape, value); return self
+
+    def molecule2(self, NMOL='', atom=[]):
         """
         .. note::
 
@@ -498,92 +496,43 @@ class Geom(BlockBASE):
             NMOL (int)
             atom (list[list[int]]): NMOL\*4 list. See CRYSTAL manual.
         """
-        shape, value = super(Geom, self).set_list(NMOL, atom)
-        self._moleiso = super(Geom, self).assign_keyword('MOLECULE', shape, value)
+        shape, value = super().set_list(NMOL, atom)
+        super().assign_keyword('MOLECULE', shape, value); return self
 
-    def extprt(self, key='EXTPRT'):
-        self._extprt = super(Geom, self).assign_keyword(key, [])
+    # ---- printing ----
 
-    def cifprt(self, key='CIFPRT'):
-        self._cifprt = super(Geom, self).assign_keyword(key, [])
+    def extprt(self, extprt=''):
+        super().assign_keyword('EXTPRT', [], extprt); return self
 
-    def cifprtsym(self, key='CIFPRTSYM'):
-        self._cifprtsym = super(Geom, self).assign_keyword(key, [])
+    def cifprt(self, cifprt=''):
+        super().assign_keyword('CIFPRT', [], cifprt); return self
 
-    def coorprt(self, key='COORPRT'):
-        self._coorprt = super(Geom, self).assign_keyword(key, [])
+    def cifprtsym(self, cifprtsym=''):
+        super().assign_keyword('CIFPRTSYM', [], cifprtsym); return self
 
-    def testgeom(self, key='TESTGEOM'):
-        conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
-        super(Geom, self).clean_conflict('_testgeom', conflict)
+    def coorprt(self, coorprt=''):
+        super().assign_keyword('COORPRT', [], coorprt); return self
 
-        self._testgeom = super(Geom, self).assign_keyword(key, [])
+    def testgeom(self, testgeom=''):
+        super().assign_keyword('TESTGEOM', [], testgeom); return self
+
+    # ---- blocks ----
 
     @property
     def optgeom(self):
         """
         Subblock object OPTGEOM
         """
-        if not hasattr(self, '_block_optgeom'):
-            self.set_optgeom()
-        return self._block_optgeom
-
-    def set_optgeom(self, obj=None):
-        """
-        Optgeom subblock
-
-        Args:
-            obj (Optgeom | str): A block object of 'OPTGEOM' submodule. Or a
-                string in CRYSTAL d12 format
-        """
-        from CRYSTALpytools.base.crysd12 import Optgeom
-
-        conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
-        super(Geom, self).clean_conflict('_block_optgeom', conflict)
-
-        self._block_optgeom = Optgeom()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_optgeom.clean_block()
-            else:
-                self._block_optgeom.analyze_text(obj)
-        else:
-            self._block_optgeom = obj
+        self._optgeom._block_valid = True
+        return self._optgeom
 
     @property
     def freqcalc(self):
         """
         Subblock object FREQCALC
         """
-        if not hasattr(self, '_block_freqcalc'):
-            self.set_freqcalc()
-        return self._block_freqcalc
-
-    def set_freqcalc(self, obj=None):
-        """
-        Freqcalc subblock
-
-        Args:
-            obj (Freqcalc | str): A block object of 'FREQCALC' submodule. Or a
-                string in CRYSTAL d12 format
-        """
-        from CRYSTALpytools.base.crysd12 import Freqcalc
-
-        conflict = ['_block_optgeom', '_block_freqcalc', '_testgeom']
-        super(Geom, self).clean_conflict('_block_freqcalc', conflict)
-
-        self._block_freqcalc = Freqcalc()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_freqcalc.clean_block()
-            else:
-                self._block_freqcalc.analyze_text(obj)
-        else:
-            self._block_freqcalc = obj
+        self._freqcalc._block_valid = True
+        return self._freqcalc
 
 
 class Optgeom(BlockBASE):
@@ -592,145 +541,167 @@ class Optgeom(BlockBASE):
     """
 
     def __init__(self):
-        self._block_bg = 'OPTGEOM\n'
-        self._block_ed = 'ENDOPT\n'
-        self._block_data = ''
-        self._block_dict = {
-            'FULLOPTG'    : '_opttype',
-            'CELLONLY'    : '_opttype',
-            'INTREDUN'    : '_opttype',
-            'ITATOCEL'    : '_opttype',
-            'CVOLOPT'     : '_opttype',
-            'HESSIDEN'    : '_opthess',
-            'HESSMOD1'    : '_opthess',
-            'HESSMOD2'    : '_opthess',
-            'HESSNUM'     : '_opthess',
-            'TOLDEG'      : '_toldeg',
-            'TOLDEX'      : '_toldex',
-            'TOLDEE'      : '_toldee',
-            'MAXCYCLE'    : '_maxcycle',
-            'FRAGMENT'    : '_fragment',
-            'RESTART'     : '_restart',
-            'FINALRUN'    : '_finalrun',
-            'EXTPRESS'    : '_extpress',
-            'ALLOWTRUSTR' : '_usetrustr',
-            'NOTRUSTR'    : '_usetrustr',
-            'MAXTRADIUS'  : '_maxtradius',
-            'TRUSTRADIUS' : '_trustradius',
-            'ONELOG'      : '_printonelog',
-            'NOXYZ'       : '_printxyz',
-            'NOSYMMOPS'   : '_printsymmops',
-            'PRINTFORCES' : '_printforces',
-            'PRINTHESS'   : '_printhess',
-            'PRINTOPT'    : '_printopt',
-            'PRINT'       : '_print',
+        bg = 'OPTGEOM\n'
+        ed = 'ENDOPT\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        opttype = ['FULLOPTG', 'CELLONLY', 'INTREDUN', 'ITATOCEL', 'CVOLOPT']
+        hess = ['HESSIDEN', 'HESSMOD1', 'HESSMOD2', 'HESSNUM']
+        dic = {
+            'FULLOPTG'    : [None, False, opttype],
+            'FULLOPTG'    : [None, False, opttype],
+            'CELLONLY'    : [None, False, opttype],
+            'INTREDUN'    : [None, False, opttype],
+            'ITATOCEL'    : [None, False, opttype],
+            'CVOLOPT'     : [None, False, opttype],
+            'HESSIDEN'    : [None, False, hess],
+            'HESSMOD1'    : [None, False, hess],
+            'HESSMOD2'    : [None, False, hess],
+            'HESSNUM'     : [None, False, hess],
+            'TOLDEG'      : [None, False, []],
+            'TOLDEX'      : [None, False, []],
+            'TOLDEE'      : [None, False, []],
+            'MAXCYCLE'    : [None, False, []],
+            'FRAGMENT'    : [None, False, []],
+            'RESTART'     : [None, False, []],
+            'FINALRUN'    : [None, False, []],
+            'EXTPRESS'    : [None, False, []],
+            'ALLOWTRUSTR' : [None, False, ['NOTRUSTR',]],
+            'NOTRUSTR'    : [None, False, ['ALLOWTRUSTR', 'MAXTRADIUS', 'TRUSTRADIUS']],
+            'MAXTRADIUS'  : [None, False, ['NOTRUSTR',]],
+            'TRUSTRADIUS' : [None, False, ['NOTRUSTR',]],
+            'ONELOG'      : [None, False, []],
+            'NOXYZ'       : [None, False, []],
+            'NOSYMMOPS'   : [None, False, []],
+            'PRINTFORCES' : [None, False, []],
+            'PRINTHESS'   : [None, False, []],
+            'PRINTOPT'    : [None, False, []],
+            'PRINT'       : [None, False, []],
+            # ---- transition states ----
+            'TSOPT'       : [None, False, []],
+            'MODEFOLLOW'  : [None, False, []],
+            'PATHFOLLOW'  : [None, False, []],
+            'FITTOPATH'   : [None, False, []],
+            'CHNGTSFOL'   : [None, False, []],
+            'SCANATOM'    : [None, False, []],
+            'SCANREDU'    : [None, False, []],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
 
-    def fulloptg(self, key='FULLOPTG'):
-        self._opttype = super(Optgeom, self).assign_keyword(key, [])
+    # __call__ method inherited from BlockBASE
 
-    def cellonly(self, key='CELLONLY'):
-        self._opttype = super(Optgeom, self).assign_keyword(key, [])
+    def fulloptg(self, fulloptg=''):
+        super().assign_keyword('FULLOPTG', [], fulloptg); return self
 
-    def intredun(self, key='INTREDUN'):
-        self._opttype = super(Optgeom, self).assign_keyword(key, [])
+    def cellonly(self, cellonly=''):
+        super().assign_keyword('CELLONLY', [], cellonly); return self
 
-    def itatocel(self, key='ITATOCEL'):
-        self._opttype = super(Optgeom, self).assign_keyword(key, [])
+    def intredun(self, intredun=''):
+        super().assign_keyword('INTREDUN', [], intredun); return self
 
-    def cvolopt(self, key='CVOLOPT'):
-        self._opttype = super(Optgeom, self).assign_keyword(key, [])
+    def itatocel(self, itatocel=''):
+        super().assign_keyword('ITATOCEL', [], itatocel); return self
 
-    def hessiden(self, key='HESSIDEN'):
-        self._opthess = super(Optgeom, self).assign_keyword(key, [])
+    def cvolopt(self, cvolopt=''):
+        super().assign_keyword('CVOLOPT', [], cvolopt); return self
 
-    def hessmod1(self, key='HESSMOD1'):
-        self._opthess = super(Optgeom, self).assign_keyword(key, [])
+    def hessiden(self, hessiden=''):
+        super().assign_keyword('HESSIDEN', [], hessiden); return self
 
-    def hessmod2(self, key='HESSMOD2'):
-        self._opthess = super(Optgeom, self).assign_keyword(key, [])
+    def hessmod1(self, hessmod1=''):
+        super().assign_keyword('HESSMOD1', [], hessmod1); return self
 
-    def hessnum(self, key='HESSNUM'):
-        self._opthess = super(Optgeom, self).assign_keyword(key, [])
+    def hessmod2(self, hessmod2=''):
+        super().assign_keyword('HESSMOD2', [], hessmod2); return self
 
-    def toldeg(self, TG=None):
-        self._toldeg = super(Optgeom, self).assign_keyword('TOLDEG', [1, ], TG)
+    def hessnum(self, hessnum=''):
+        super().assign_keyword('HESSNUM', [], hessnum); return self
 
-    def toldex(self, TX=None):
-        self._toldex = super(Optgeom, self).assign_keyword('TOLDEX', [1, ], TX)
+    def toldeg(self, TG=0.0003):
+        super().assign_keyword('TOLDEG', [1,], TG); return self
 
-    def toldee(self, IG=None):
-        self._toldee = super(Optgeom, self).assign_keyword('TOLDEE', [1, ], IG)
+    def toldex(self, TX=0.0012):
+        super().assign_keyword('TOLDEX', [1,], TX); return self
 
-    def maxcycle(self, MAX=None):
-        self._maxcycle = super(Optgeom, self).assign_keyword('MAXCYCLE', [1, ], MAX)
+    def toldee(self, IG=7):
+        super().assign_keyword('TOLDEE', [1,], IG); return self
 
-    def fragment(self, NL=None, LB=[]):
+    def maxcycle(self, MAX=50):
+        super().assign_keyword('MAXCYCLE', [1,], MAX); return self
+
+    def fragment(self, NL='', LB=[]):
         """
         Args:
-            NL (int | str): Number of atoms. See manual. Or ''
+            NL (int | str): Number of atoms. See manual
             LB (list[int]): Label of atoms. See manual
         """
-        shape, value = super(Optgeom, self).set_list(NL, LB)
-        self._fragment = super(Optgeom, self).assign_keyword('FRAGMENT', shape, value)
+        shape, value = super().set_list(NL, LB)
+        super().assign_keyword('FRAGMENT', shape, value); return self
 
-    def restart(self, key='RESTART'):
-        self._restart = super(Optgeom, self).assign_keyword(key, [])
+    def restart(self, restart=''):
+        super().assign_keyword('RESTART', [], restart); return self
 
-    def finalrun(self, ICODE=None):
-        self._finalrun = super(Optgeom, self).assign_keyword('FINALRUN', [1, ], ICODE)
+    def finalrun(self, ICODE=4):
+        super().assign_keyword('FINALRUN', [1,], ICODE); return self
 
-    def extpress(self, pres=None):
-        self._extpress = super(Optgeom, self).assign_keyword('EXTPRESS', [1, ], pres)
+    def extpress(self, pres=''):
+        super().assign_keyword('EXTPRESS', [1,], pres); return self
 
-    def allowtrustr(self, key='ALLOWTRUSTR'):
-        self._usetrustr = super(Optgeom, self).assign_keyword(key, [])
+    def allowtrustr(self, allowtrustr=''):
+        super().assign_keyword('ALLOWTRUSTR', [], allowtrustr); return self
 
-    def notrustr(self, key='NOTRUSTR'):
-        self._usetrustr = super(Optgeom, self).assign_keyword(key, [])
+    def notrustr(self, notrustr=''):
+        super().assign_keyword('NOTRUSTR', [], notrustr); return self
 
-    def maxtradius(self, TRMAX=None):
-        import warnings
+    def maxtradius(self, TRMAX=4.0):
+        super().assign_keyword('MAXTRADIUS', [1,], TRMAX); return self
 
-        if hasattr(self, '_usetrustr'):
-            if self._usetrustr == 'NOTRUSTR\n':
-                warnings.warn("The pre-set 'NOTRUSTR' keyword will be removed.", stacklevel=2)
-                self.notrustr('')
-        self._maxtradius = super(Optgeom, self).assign_keyword('MAXTRADIUS', [1, ], TRMAX)
+    def trustradius(self, TRADIUS=0.5):
+        super().assign_keyword('TRUSTRADIUS', [1,], TRADIUS); return self
 
-    def trustradius(self, TRADIUS=None):
-        import warnings
+    def onelog(self, onelog=''):
+        super().assign_keyword('ONELOG', [], onelog); return self
 
-        if hasattr(self, '_usetrustr'):
-            if self._usetrustr == 'NOTRUSTR\n':
-                warnings.warn("The pre-set 'NOTRUSTR' keyword will be removed.", stacklevel=2)
-                self.notrustr('')
-        self._trustradius = super(Optgeom, self).assign_keyword('TRUSTRADIUS', [1, ], TRADIUS)
+    def noxyz(self, noxyz=''):
+        super().assign_keyword('NOXYZ', [], noxyz); return self
 
-    def onelog(self, key='ONELOG'):
-        self._printonelog = super(Optgeom, self).assign_keyword(key, [])
+    def nosymmops(self, nosymmops=''):
+        super().assign_keyword('NOSYMMOPS', [], nosymmops); return self
 
-    def noxyz(self, key='NOXYZ'):
-        self._printxyz = super(Optgeom, self).assign_keyword(key, [])
+    def printforces(self, printforces=''):
+        super().assign_keyword('PRINTFORCES', [], printforces); return self
 
-    def nosymmops(self, key='NOSYMMOPS'):
-        self._printsymmops = super(Optgeom, self).assign_keyword(key, [])
+    def printhess(self, printhess=''):
+        super().assign_keyword('PRINTHESS', [], printhess); return self
 
-    def printforces(self, key='PRINTFORCES'):
-        self._printforces = super(Optgeom, self).assign_keyword(key, [])
+    def printopt(self, printopt=''):
+        super().assign_keyword('PRINTOPT', [], printopt); return self
 
-    def printhess(self, key='PRINTHESS'):
-        self._printhess = super(Optgeom, self).assign_keyword(key, [])
+    def print(self, prt=''):
+        super().assign_keyword('PRINT', [], prt); return self
 
-    def printopt(self, key='PRINTOPT'):
-        self._printopt = super(Optgeom, self).assign_keyword(key, [])
+    # ---- transition states ----
 
-    def print(self, key='PRINT'):
-        self._print = super(Optgeom, self).assign_keyword(key, [])
+    def tsopt(self, tsopt=''):
+        super().assign_keyword('TSOPT', [], tsopt); return self
+
+    def modefollow(self, MODEFOL=''):
+        super().assign_keyword('MODEFOLLOW', [1,], MODEFOL); return self
+
+    def pathfollow(self, NPATHFOL=''):
+        super().assign_keyword('PATHFOLLOW', [1,], NPATHFOL); return self
+
+    def fittopath(self, NPATHFOL2='', NPATHWEIGHT=''):
+        super().assign_keyword('FITTOPATH', [2,], [NPATHFOL2, NPATHWEIGHT]); return self
+
+    def chngtsfol(self, chngtsfol=''):
+        super().assign_keyword('CHNGTSFOL', [], chngtsfol); return self
+
+    def scanatom(self, NATSCAN='', TARGET='', MSCAN=''):
+        super().assign_keyword('SCANATOM', [3,], [NATSCAN, TARGET, MSCAN]); return self
+
+    def scanredu(self, IREDSCA='', ENDSCA='', MAXSCA=''):
+        super().assign_keyword('SCANREDU', [3,], [IREDSCA, ENDSCA, MAXSCA]); return self
 
 
 class Freqcalc(BlockBASE):
@@ -739,741 +710,798 @@ class Freqcalc(BlockBASE):
     """
 
     def __init__(self):
-        self._block_bg = 'FREQCALC\n'
-        self._block_ed = 'ENDFREQ\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'NOOPTGEOM'  : '_nooptgeom',  # A tailored sub-block
-            'PREOPTGEOM' : 'optgeom',  # A tailored sub-block
-            'DISPERSION' : '_dispersion',
-            'BANDS'      : '_bands',
-            'NUMDERIV'   : '_numderiv',
-            'STEPSIZE'   : '_stepsize',
-            'RESTART'    : '_restart',
-            'MODES'      : '_modes',
-            'NOMODES'    : '_modes',
-            'PRESSURE'   : '_pressure',
-            'TEMPERAT'   : '_temperat',
+        bg = 'FREQCALC\n'
+        ed = 'ENDFREQ\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        dic = {
+            'NOOPTGEOM'  : [None, False, ['NOOPTGEOM', 'PREOPTGEOM']],
+            'PREOPTGEOM' : ['_preoptgeom', True, ['NOOPTGEOM', 'PREOPTGEOM'], 'crysd12.Optgeom()'],
+            'DISPERSION' : [None, False, []],
+            'BANDS'      : [None, False, []],
+            'NUMDERIV'   : [None, False, []],
+            'STEPSIZE'   : [None, False, []],
+            'RESTART'    : [None, False, []],
+            'MODES'      : [None, False, ['MODES', 'NOMODES']],
+            'NOMODES'    : [None, False, ['MODES', 'NOMODES']],
+            'PRESSURE'   : [None, False, []],
+            'TEMPERAT'   : [None, False, []],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
 
-    def nooptgeom(self, key='NOOPTGEOM'):
-        conflict = ['_block_optgeom', '_nooptgeom']
-        super(Freqcalc, self).clean_conflict('_nooptgeom', conflict)
+    # __call__ method inherited from BlockBASE
 
-        self._nooptgeom = super(Freqcalc, self).assign_keyword(key, [])
+    def nooptgeom(self, nooptgeom=''):
+        super().assign_keyword('NOOPTGEOM', [], nooptgeom); return self
 
     @property
-    def optgeom(self):
-        try:
-            return self._block_optgeom
-        except AttributeError:
-            raise AttributeError(
-                "Attribute does not exist.  'preoptgeom' should be specified at first")
-
-    def preoptgeom(self, obj=None):
+    def preoptgeom(self):
         """
-        Args:
-            obj (Optgeom): An Optgeom block object
+        Subblock object PREOPTGEOM
         """
-        import warnings
+        self._preoptgeom._block_valid = True
+        # Change the keyword
+        self._preoptgeom._block_bg = 'PREOPTGEOM\n'
+        self._preoptgeom._block_ed = 'END\n'
+        return self._preoptgeom
 
-        warnings.warn(
-            "Keyword 'PREOPTGEOM' is launched. To set geometric optimization keywords, use 'self.optgeom' attribute.")
+    def dispersion(self, dispersion=''):
+        super().assign_keyword('DISPERSION', [], dispersion); return self
 
-        conflict = ['_block_optgeom', '_nooptgeom']
-        super(Freqcalc, self).clean_conflict('_block_optgeom', conflict)
-
-        if obj == None:  # New obj
-            self._block_optgeom = Optgeom()
-            self._block_optgeom._block_bg = 'PREOPTGEOM\n'
-            self._block_optgeom._block_ed = 'END\n'
-        elif obj == '':
-            self._block_optgeom.clean_block()
+    def bands(self, ISS='', NSUB=None, NLINE=None, points=[]):
+        if ISS == None or ISS == '':
+            super().assign_keyword('BANDS', [], ISS)
         else:
-            self._block_optgeom = obj
-            self._block_optgeom._block_bg = 'PREOPTGEOM\n'
-            self._block_optgeom._block_ed = 'END\n'
+            shape, value = super().set_list(NLINE, points)
+            super().assign_keyword('BANDS', [2, ] + shape, [ISS, NSUB] + value)
+        return self
 
-    def dispersion(self, key='DISPERSION'):
-        self._dispersion = super(Freqcalc, self).assign_keyword(key, [])
+    def modes(self, modes=''):
+        super().assign_keyword('MODES', [], modes); return self
 
-    def bands(self, ISS=None, NSUB=None, NLINE=None, points=[]):
-        if ISS == None:
-            self._bands = super(Freqcalc, self).assign_keyword('BANDS', [])
-        elif ISS == '':
-            self._bands = super(Freqcalc, self).assign_keyword('', [])
-        else:
-            shape, value = super(Freqcalc, self).set_list(NLINE, points)
-            self._bands = super(Freqcalc, self).assign_keyword('BANDS', [2, ] + shape, [ISS, NSUB] + value)
+    def nomodes(self, nomodes=''):
+        super().assign_keyword('NOMODES', [], nomodes); return self
 
-    def modes(self, key='MODES'):
-        self._modes = super(Freqcalc, self).assign_keyword(key, [])
+    def numderiv(self, N=1):
+        super().assign_keyword('NUMDERIV', [1,], N); return self
 
-    def nomodes(self, key='NOMODES'):
-        self._modes = super(Freqcalc, self).assign_keyword(key, [])
+    def pressure(self, NP='', P1=None, P2=None):
+        super().assign_keyword('PRESSURE', [3,], [NP, P1, P2]); return self
 
-    def numderiv(self, N=None):
-        self._numderiv = super(Freqcalc, self).assign_keyword(
-            'NUMDERIV', [1, ], N)
+    def restart(self, restart=''):
+        super().assign_keyword('RESTART', [], restart); return self
 
-    def pressure(self, NP=None, P1=None, P2=None):
-        self._pressure = super(Freqcalc, self).assign_keyword(
-            'PRESSURE', [3, ], [NP, P1, P2])
+    def stepsize(self, STEP=0.003):
+        super().assign_keyword('NUMDERIV', [1,], STEP); return self
 
-    def restart(self, key='RESTART'):
-        self._restart = super(Freqcalc, self).assign_keyword('RESTART', [])
-
-    def stepsize(self, STEP=None):
-        self._stepsize = super(Freqcalc, self).assign_keyword('NUMDERIV', [1, ], STEP)
-
-    def temperat(self, NT=None, T1=None, T2=None):
-        self._temperat = super(Freqcalc, self).assign_keyword('TEMPERAT', [3, ], [NT, T1, T2])
+    def temperat(self, NT='', T1=None, T2=None):
+        super().assign_keyword('TEMPERAT', [3,], [NT, T1, T2]); return self
 
 
 class BasisSet(BlockBASE):
     """
     Basis Set block object
     """
-
     def __init__(self):
-        self._block_bg = ''
-        self._block_ed = 'ENDBS\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'BASISSET' : '_basisset',
-            'GHOSTS'   : '_ghosts',
+        bg = ''
+        ed = 'ENDBS\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        dic = {
+            'BASISSET'    : [None, False, []],
+            'GHOSTS'      : [None, False, []],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
+        self._bs_obj = None # BasisSetBASE object
 
-    def basisset(self, NAME=None):
-        self._basisset = super(BasisSet, self).assign_keyword(
-            'BASISSET', [1, ], NAME)
-        if NAME == '':
-            self._block_ed = 'ENDBS\n'
-        else: # Otherwise _block_bg and _block_ed = '', this block would be recoginzed as an empty block
-            self._block_ed = None
+    # __call__ method inherited from BlockBASE
 
-    def from_bse(self, name, element, filename=None, append=False):
+    @property
+    def data(self):
         """
-        Download basis set definitions from `Basis Set Exchange <https://www.basissetexchange.org/>`_.
+        Settings in all the attributes are summarized here. Covers the data
+        property in BlockBASE, to deal with user's definition of basis sets.
+        """
+        import warnings
+
+        if self._block_valid == False:
+            warnings.warn("This block is not visible. Set 'self._block_valid = True' to get data",
+                          stacklevel=2)
+            return ''
+
+        self.update_block()
+        if self._block_dict['BASISSET'][0] == None and self._bs_obj != None:
+            text = self._block_bg + self._bs_obj.print_crystal()
+        else:
+            text = self._block_bg
+
+        for i in [self._block_data, self._block_ed]:
+            text += i
+
+        return text
+
+    def analyze_text(self, text):
+        """
+        Analyze the input and return to corresponding attributes. Add support
+        to basis set strings
+        """
+        import re
+        from CRYSTALpytools.base.basisset import BasisSetBASE
+
+        super().analyze_text(text)
+        lines = self._block_bg.split('\n')
+        usrbs = False
+        for nline, line in enumerate(lines):
+            line = line.strip()
+            if re.match(r'^[0-9]+\s+[0-9]+$', line): # If there is a user defined basis set
+                line2 = lines[nline+1].strip().split()
+                if len(line2) == 5:
+                    usrbs = True
+                    break
+
+        if usrbs == True: # user defined basis set
+            self._block_bg = ''
+            self._block_ed = 'ENDBS\n'
+            ed = -1
+            for nline, line in enumerate(lines):
+                line = line.strip()
+                if re.match(r'^99\s+0$', line):
+                    ed = nline
+                    break
+            if ed < 0:
+                raise ValueError('Valid definition of basis set does not exist')
+
+            bsblock = ''.join([i+'\n' for i in lines])
+            self._bs_obj = BasisSetBASE().from_string(bsblock)
+        else: # keyword
+            self._block_ed = ''
+
+        return self
+
+    # ---------------- Keywords ----------------
+    def basisset(self, NAME=''):
+        import warnings
+
+        if NAME == None:
+            self._block_ed = 'ENDBS\n'
+        else:
+            self._block_ed = ''
+            if self._bs_obj != None:
+                warnings.warn("User's definition of baisis set is not empty. It will be covered by 'BASISSET' keyword.",
+                              stacklevel=2)
+                self._bs_obj = None
+
+        super().assign_keyword('BASISSET', [1,], NAME); return self
+
+    def ghosts(self, NA='', LA=[]):
+        shape, value = super().set_list(NA, LA)
+        super().assign_keyword('GHOSTS', shape, value); return self
+
+    # ---------------- User defined basis sets ----------------
+    # Wrapper defined in crystal_io.Crystal_iput()
+    def from_bse(self, name, z, append=False):
+        """
+        Download basis set definitions from `Basis Set Exchange (BSE) <https://www.basissetexchange.org/>`_.
 
         Args:
             name (str): Basis set's name.
-            element (list[str] | list[int] | list[list[str | int, int]]): List
-                of elements, specified by either atomic number or label. When
-                a nelement\*2 list is used, the second entry is recognized as
-                conventional atomic numbers.
-            filename (None | str): If not None, print basis set definitions to
-                a text file
+            z (list[int]): List of elements, specified by conventional atomic
+                numbers.
             append (bool): Whether to cover old entries. If the old entry
-                contains 'BASISSET', it will be removed anyway.
+                contains 'BASISSET', it will be removed anyway. Useful when
+                different series of basis sets are defined
         """
         from CRYSTALpytools.base.basisset import BasisSetBASE
+        import warnings
 
-        self._check_bs(append)
-        if type(element[0]) == list or type(element[0]) == tuple:
-            element_real = [i[0] for i in element]
-            zconv = [i[1] for i in element]
-            bs_obj = BasisSetBASE.from_bse(name, element_real, zconv)
+        if self._block_dict['BASISSET'][0] != None:
+            warnings.warn("'BASISSET' keyword exists, it will be removed.", stacklevel=2)
+            self._block_dict['BASISSET'][0] = None
+
+        self._block_ed = 'ENDBS\n'
+
+        if append == True and self._bs_obj != None:
+            self._bs_obj.from_bse(name, z)
         else:
-            bs_obj = BasisSetBASE.from_bse(name, element)
+            self._bs_obj = BasisSetBASE().from_bse(name, z)
 
-        self._basisset += bs_obj.data
+        return self
 
-        if filename != None:
-            bs_obj.to_file(file=filename)
-
-    def from_string(self, string, fmt='crystal', filename=None, append=False):
+    def from_string(self, string, fmt='crystal', append=False):
         """
         Basis set from a string
 
         Args:
-            string (str): A line of string. Use '\\n' to break lines. The ending
-                line '99 0' is needed but not 'END'.
-            fmt (str): Format of basis set string. if not 'crystal', this
-                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
-            filename (None | str): See ``from_bse``
-            append (bool): See ``from_bse``
+            string (str): Basis set definition.
+            fmt (str): Format string. Consistent with `BSE <https://www.basissetexchange.org/>`_
+                python API. For non-CRYSTAL formats, only all-electron basis
+                sets are supported. Charge of each shell will be automatically
+                assigned to get charge neutral atoms.
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway. Useful when
+                different series of basis sets are defined
         """
         from CRYSTALpytools.base.basisset import BasisSetBASE
+        import warnings
 
-        self._check_bs(append)
-        bs_obj = BasisSetBASE.from_string(string, fmt)
-        self._basisset += bs_obj.data
+        if self._block_dict['BASISSET'][0] != None:
+            warnings.warn("'BASISSET' keyword exists, it will be removed.", stacklevel=2)
+            self._block_dict['BASISSET'][0] = None
 
-        if filename != None:
-            bs_obj.to_file(file=filename)
+        self._block_ed = 'ENDBS\n'
 
-    def from_file(self, file, fmt='crystal', filename=None, append=False):
+        if append == True and self._bs_obj != None:
+            self._bs_obj.from_string(string, fmt)
+        else:
+            self._bs_obj = BasisSetBASE().from_string(string, fmt)
+
+        return self
+
+    def from_file(self, file, fmt='crystal', append=False):
         """
         Basis set from a file
 
         Args:
-            file (file): A formatted text file with basis set definitions. The
-                ending line '99 0' is needed but not 'END'.
-            fmt (str): Format of basis set string. if not 'crystal', this
-                method calls `Basis Set Exchange API <https://molssi-bse.github.io/basis_set_exchange/index.html>`_ to convert it.
-            filename (None | str): See ``from_bse``
-            append (bool): See ``from_bse``
+            file (file): Basis set definition.
+            fmt (str): Format string. Consistent with `BSE <https://www.basissetexchange.org/>`_
+                python API. For non-CRYSTAL formats, only all-electron basis
+                sets are supported. Charge of each shell will be automatically
+                assigned to get charge neutral atoms.
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway. Useful when
+                different series of basis sets are defined
         """
         from CRYSTALpytools.base.basisset import BasisSetBASE
+        import warnings
 
-        self._check_bs(append)
-        bs_obj = BasisSetBASE.from_file(file, fmt)
-        self._basisset += bs_obj.data
+        if self._block_dict['BASISSET'][0] != None:
+            warnings.warn("'BASISSET' keyword exists, it will be removed.", stacklevel=2)
+            self._block_dict['BASISSET'][0] = None
 
-        if filename != None:
-            bs_obj.to_file(file=filename)
+        self._block_ed = 'ENDBS\n'
 
-    def from_obj(self, bs_obj, filename=None, append=False):
+        if append == True and self._bs_obj != None:
+            self._bs_obj.from_file(file, fmt)
+        else:
+            self._bs_obj = BasisSetBASE().from_file(file, fmt)
+
+        return self
+
+    def from_obj(self, bs_obj, append=False):
         """
-        Define basis set from a BasisSetBASE object.
+        Define basis set from a ``base.basisset.BasisSetBASE`` object.
 
         Args:
-            bs_obj (BasisSetBASE): A CRYSTALpytools.base.basisset.BasisSetBASE
-                object.
-            filename (None | str): See ``from_bse``
-            append (bool): See ``from_bse``
+            bs_obj (BasisSetBASE)
+            append (bool): Whether to cover old entries. If the old entry
+                contains 'BASISSET', it will be removed anyway. Useful when
+                different series of basis sets are defined
         """
-        self._check_bs(append)
-        self._basisset += bs_obj.data
-
-        if filename != None:
-            bs_obj.to_file(file=filename)
-
-    def _check_bs(self, append):
-        """
-        Check basis set definitions. Not an independent method that designed to
-        be called.
-        """
+        from CRYSTALpytools.base.basisset import BasisSetBASE
         import warnings
-        import re
 
-        if hasattr(self, '_basisset') and append == False:
-            warnings.warn('The previous basis set will be erased.', stacklevel=2)
-            self._basisset = ''
-            if 'BASISSET' in self._basisset:
-                self._block_ed = 'ENDBS\n'
-        elif hasattr(self, '_basisset') and append == True:
-            if 'BASISSET' in self._basisset:
-                warnings.warn("'BASISSET' detected. The previous definition will be erased anyway.",
-                              stacklevel=2)
-                self._basisset = ''
-                self._block_ed = 'ENDBS\n'
-            else:
-                self._basisset = re.sub(r'99\s+0\n$', "", self._basisset)
+        if self._block_dict['BASISSET'][0] != None:
+            warnings.warn("'BASISSET' keyword exists, it will be removed.", stacklevel=2)
+            self._block_dict['BASISSET'][0] = None
+
+        self._block_ed = 'ENDBS\n'
+
+        if append == True and self._bs_obj != None:
+            self._bs_obj.atoms.extend(bs_obj.atoms)
         else:
-            self._basisset = ''
+            self._bs_obj = bs_obj
 
-    def ghosts(self, NA=None, LA=[]):
-        shape, value = super(BasisSet, self).set_list(NA, LA)
-        self._ghosts = super(BasisSet, self).assign_keyword(
-            'GHOSTS', shape, value)
+        return self
 
 
 class SCF(BlockBASE):
     """
     SCF block object
     """
-
     def __init__(self):
-        self._block_bg = ''
-        self._block_ed = 'ENDSCF\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'FIXINDEX' : '_fixbg',
-            'DFT'      : 'dft',  # DFT sub-block
-            'DFTD3'    : 'dftd3',  # DFTD3 sub-block
-            'GCP'      : 'gcp',  # GCP sub-block
-            'GCPAUTO'  : '_gcpauto',
-            'SMEAR'    : '_smear',
-            'ATOMSPIN' : '_atomspin',
-            'TOLDEE'   : '_toldee',
-            'DIIS'     : '_diis',
-            'NODIIS'   : '_diis',
-            'DIISALLK' : '_diisallk',
-            'HISTDIIS' : '_histdiis',
-            'PRTDIIS'  : '_prtdiis',
-            'MAXCYCLE' : '_maxcycle',
-            'GUESSP'   : '_guessp',
-            'FMIXING'  : '_fmixing',
-            'NOBIPOLA' : '_nobipola',
-            'NOBIPCOU' : '_nobipcou',
-            'NOBIPEXC' : '_nobipexc',
-            'TOLINTEG' : '_tolinteg',
-            'LDREMO'   : '_ldremo',
-            'BIPOSIZE' : '_biposize',
-            'EXCHSIZE' : '_exchsize',
-            'SHRINK'   : '_shrink',
-            'EXCHANGE' : '_exchange',
-            'POSTSCF'  : '_postscf',
-            'PPAN'     : '_ppan',
-            'GRADCAL'  : '_gradcal',
-            'CMPLXFAC' : '_cmplxfac',
-            'REPLDATA' : '_repldata',
-            'STDIAG'   : '_stdiag',
-            'GEOM'     : 'fixgeom',  # FIXINDEX - GEOM subblock. Must be put at the end
-            'BASE'     : 'fixbase',  # FIXINDEX - BASE subblock. Must be put at the end. GEBA subblock not supported
+        bg = ''
+        ed = 'ENDSCF\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        hamiltonian = ['RHF', 'UHF', 'ROHF', 'HF3C', 'HFSOL3C','DFT']
+        dic = {
+            'FIXINDEX' : [None, False, []],# Must be here
+            # ---- Hamiltonian ----
+            'RHF'      : [None, False, hamiltonian],
+            'UHF'      : [None, False, hamiltonian],
+            'ROHF'     : [None, False, hamiltonian],
+            'DFT'      : ['_dft', True, hamiltonian, 'crysd12.DFT()'],# DFT sub-block
+            # ---- Semi classical ----
+            'HF3C'     : ['_hf3c', True, hamiltonian, 'crysd12.HF3C()'],  # HF3C sub-block
+            'HFSOL3C'  : ['_hfsol3c', True, hamiltonian, 'crysd12.HF3C()'],  # HFSOL3C sub-block
+            'DFTD3'    : ['_dftd3', True, [], 'crysd12.DFTD3()'],# DFTD3 sub-block
+            'GCP'      : ['_gcp', True, ['GCPAUTO'], 'crysd12.GCP()'],# GCP sub-block
+            'GCPAUTO'  : [None, False, ['GCP']],
+            # ---- Spin ----
+            'ATOMSPIN' : [None, False, []],
+            # ---- SCF control ----
+            'TOLDEE'   : [None, False, []],
+            'GUESSP'   : [None, False, []],
+            'MAXCYCLE' : [None, False, []],
+            'SMEAR'    : [None, False, []],
+            'LDREMO'   : [None, False, []],
+            'LEVSHIFT' : [None, False, ['DIIS', 'DIISALLK', 'SLOSHING', 'BROYDEN']],
+            # ---- Integation ----
+            'SHRINK'   : [None, False, []],
+            'TOLINTEG' : [None, False, ['NOBIPOLA', 'NOBIPCOU', 'NOBIPEXC']],
+            'BIPOLAR'  : [None, False, ['NOBIPOLA',]],
+            'BIPOSIZE' : [None, False, []],
+            'EXCHSIZE' : [None, False, []],
+            'NOBIPOLA' : [None, False, ['TOLINTEG', 'BIPOLAR']],
+            'NOBIPCOU' : [None, False, ['TOLINTEG']],
+            'NOBIPEXC' : [None, False, ['TOLINTEG']],
+            # ---- Diagonalization ----
+            'FMIXING'  : [None, False, []],
+            'ANDERSON' : [None, False, []],
+            'BROYDEN'  : [None, False, ['LEVSHIFT']],
+            'DIIS'     : [None, False, ['DIIS', 'DIISALLK', 'SLOSHING', 'NODIIS', 'LEVSHIFT']],
+            'NODIIS'   : [None, False, ['DIIS', 'DIISALLK', 'SLOSHING', 'NODIIS']],
+            'DIISALLK' : [None, False, ['DIIS', 'DIISALLK', 'SLOSHING', 'NODIIS', 'LEVSHIFT']],
+            'SLOSHING' : [None, False, ['DIIS', 'DIISALLK', 'SLOSHING', 'NODIIS', 'LEVSHIFT']],
+            'HISTDIIS' : [None, False, ['NODIIS', 'LEVSHIFT']],
+            'THREDIIS' : [None, False, ['NODIIS', 'LEVSHIFT']],
+            'THRKDIIS' : [None, False, ['NODIIS', 'LEVSHIFT']],
+            'SLOSHFAC' : [None, False, ['DIIS', 'DIISALLK', 'NODIIS', 'LEVSHIFT']],
+            'PRTDIIS'  : [None, False, ['NODIIS', 'LEVSHIFT']],
+            # ---- Post SCF ----
+            'EXCHANGE' : [None, False, []],
+            'POSTSCF'  : [None, False, []],
+            'PPAN'     : [None, False, []],
+            'GRADCAL'  : [None, False, []],
+            # ---- MPP ----
+            'CMPLXFAC' : [None, False, []],
+            'REPLDATA' : [None, False, []],
+            'STDIAG'   : [None, False, []],
+            # ---- FIXINDEX ----
+            'GEOM'     : ['_geom', True, ['GEOM', 'BASE', 'GEBA'], 'crysd12.Geom()'],# FIXINDEX - GEOM subblock. Must be at the end
+            'BASE'     : ['_base', True, ['GEOM', 'BASE', 'GEBA'], 'crysd12.BasisSet()'],# FIXINDEX - BASE subblock. Must be at the end.
+            'GEBA'     : ['_geba', True, ['GEOM', 'BASE', 'GEBA'], 'crysd12.Crystal_inputBASE(geba=True)'],# FIXINDEX - GEBA subblock. Must be at the end.
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
+
+    # __call__ method inherited from BlockBASE
+
+    @property
+    def data(self):
+        """
+        Print formatted input. Redefined to address the END keywords of
+        FIXINDEX blocks
+        """
+        import warnings
+
+        if self._block_valid == False:
+            warnings.warn("This block is not visible. Set 'self._block_valid = True' to get data",
+                          stacklevel=2)
+            return ''
+
+        if self._geom._block_valid == True or self._base._block_valid == True or self._geba._block_valid == True:
+            self._block_ed = ''
+
+        self.update_block()
+        text = ''
+        for i in [self._block_bg, self._block_data, self._block_ed]:
+            text += i
+        return text
+
+    # ---------------- Hamiltonian ----------------
+
+    def rhf(self, rhf=''):
+        super().assign_keyword('RHF', [], rhf)
+        return self
+
+    def uhf(self, uhf=''):
+        super().assign_keyword('UHF', [], uhf)
+        return self
+
+    def rohf(self, NSPIN=''):
+        super().assign_keyword('ROHF', [1,], NSPIN)
+        return self
 
     @property
     def dft(self):
         """
         Subblock object DFT
         """
-        if not hasattr(self, '_block_dft'):
-            self.set_dft()
-        return self._block_dft
+        self._dft._block_valid = True
+        return self._dft
 
-    def set_dft(self, obj=None):
+    # ---------------- Semi-classical ----------------
+
+    @property
+    def hf3c(self):
         """
-        DFT subblock
-
-        Args:
-            obj (DFT | str): A block object of 'DFT' submodule. Or a string in
-                CRYSTAL d12 format
+        Subblock object HF3C
         """
-        from CRYSTALpytools.base.crysd12 import DFT
+        self._hf3c._block_valid = True
+        return self._hf3c
 
-        self._block_dft = DFT()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_dft.clean_block()
-            else:
-                self._block_dft.analyze_text(obj)
-        else:
-            self._block_dft = obj
+    @property
+    def hfsol3c(self):
+        """
+        Subblock object HFSOL3C
+        """
+        self._hfsol3c._block_valid = True
+        return self._hfsol3c
+
 
     @property
     def dftd3(self):
         """
         Subblock object DFTD3
         """
-        if not hasattr(self, '_block_dftd3'):
-            self.set_dftd3()
-        return self._block_dftd3
-
-    def set_dftd3(self, obj=None):
-        """
-        DFTD3 subblock
-
-        Args:
-            obj (DFTD3 | str): A block object of 'DFTD3' submodule. Or a string
-                in CRYSTAL d12 format
-        """
-        from CRYSTALpytools.base.crysd12 import DFTD3
-
-        self._block_dftd3 = DFTD3()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_dftd3.clean_block()
-            else:
-                self._block_dftd3.analyze_text(obj)
-        else:
-            self._block_dftd3 = obj
+        self._dftd3._block_valid = True
+        return self._dftd3
 
     @property
     def gcp(self):
         """
         Subblock object GCP
         """
-        if not hasattr(self, '_block_gcp'):
-            self.set_gcp()
-        return self._block_gcp
+        self._gcp._block_valid = True
+        return self._gcp
 
-    def set_gcp(self, obj=None):
+    def gcpauto(self, gcpauto=''):
+        super().assign_keyword('GCPAUTO', [], gcpauto); return self
+
+    # ---------------- Spin ----------------
+
+    def atomspin(self, NA='', LA=[]):
+        shape, value = super().set_list(NA, LA)
+        super().assign_keyword('ATOMSPIN', shape, value); return self
+
+    # ---------------- SCF control ----------------
+
+    def toldee(self, ITOL=6):
+        super().assign_keyword('TOLDEE', [1,], ITOL); return self
+
+    def guessp(self, guessp=''):
+        super().assign_keyword('GUESSP', [], guessp); return self
+
+    def maxcycle(self, MAX=50):
+        super().assign_keyword('MAXCYCLE', [1,], MAX); return self
+
+    def ldremo(self, value=''):
+        super().assign_keyword('LDREMO', [1,], value); return self
+
+    def smear(self, WIDTH=''):
+        super().assign_keyword('SMEAR', [1,], WIDTH); return self
+
+    def levshift(self, ISHIFT='', ILOCK=''):
+        super().assign_keyword('LEVSHIFT', [2,], [ISHIFT, ILOCK]); return self
+
+    # ---------------- Integration ----------------
+
+    def shrink(self, IS='', ISP='', IS1='', IS2='', IS3=''):
         """
-        GCP subblock
-
-        Args:
-            obj (GCP | str): A block object of 'GCP' submodule. Or a string in
-                CRYSTAL d12 format.
+        Shrink parameters.
         """
-        from CRYSTALpytools.base.crysd12 import GCP
-
-        self._block_gcp = GCP()
-        if obj == None:  # Initialize block
-            return
-        elif type(obj) == str:
-            if obj == '': # Clean data
-                self._block_gcp.clean_block()
-            else:
-                self._block_gcp.analyze_text(obj)
+        if IS1 == '':
+            super().assign_keyword('SHRINK', [2,], [IS, ISP]); return self
         else:
-            self._block_gcp = obj
+            super().assign_keyword('SHRINK', [2, 3], [IS, ISP, IS1, IS2, IS3]); return self
+
+    def tolinteg(self, ITOL1=7, ITOL2=7, ITOL3=7, ITOL4=7, ITOL5=14):
+        super().assign_keyword('TOLINTEG', [5,], [ITOL1, ITOL2, ITOL3, ITOL4, ITOL5]); return self
+
+    def biposize(self, ISIZE=4000000):
+        super().assign_keyword('BIPOSIZE', [1,], ISIZE); return self
+
+    def exchsize(self, ISIZE=4000000):
+        super().assign_keyword('EXCHSIZE', [1,], ISIZE); return self
+
+    def bipolar(self, ITCOUL=18, ITEXCH=14):
+        super().assign_keyword('BIPOLAR', [2,], [ITCOUL, ITEXCH]); return self
+
+    def nobipola(self, nobipola=''):
+        super().assign_keyword('NOBIPOLA', [], nobipola); return self
+
+    def nobipcou(self, nobipcou=''):
+        super().assign_keyword('NOBIPCOU', [], nobipcou); return self
+
+    def nobipexc(self, nobipexc=''):
+        super().assign_keyword('NOBIPEXC', [], nobipexc); return self
+
+    # ---------------- Diagonalization ----------------
+
+    def fmixing(self, IPMIX=30):
+        super().assign_keyword('FMIXING', [1,], IPMIX); return self
+
+    def diis(self, diis=''):
+        super().assign_keyword('DIIS', [], diis); return self
+
+    def nodiis(self, nodiis=''):
+        super().assign_keyword('NODIIS', [], nodiis); return self
+
+    def diisallk(self, diisallk=''):
+        super().assign_keyword('DIISALLK', [], diisallk); return self
+
+    def sloshing(self, sloshing=''):
+        super().assign_keyword('SLOSHING', [], sloshing); return self
+
+    def histdiis(self, NCYC=''):
+        super().assign_keyword('HISTDIIS', [1,], NCYC); return self
+
+    def thrediis(self, DEDIIS=''):
+        super().assign_keyword('THREDIIS', [1,], DEDIIS); return self
+
+    def thrkdiis(self, DIISTHR=''):
+        super().assign_keyword('THRKDIIS', [1,], DIISTHR); return self
+
+    def sloshfac(self, FKERK=1.2):
+        super().assign_keyword('SLOSHFAC', [1,], FKERK); return self
+
+    def prtdiis(self, prtdiis=''):
+        super().assign_keyword('PRTDIIS', [], prtdiis); return self
+
+    def anderson(self, anderson=''):
+        super().assign_keyword('ANDERSON', [], anderson); return self
+
+    def broyden(self, W0=0.0001, IMIX=50, ISTART=2):
+        super().assign_keyword('BROYDEN', [3,], [W0, IMIX, ISTART]); return self
+
+
+    # ---------------- Post SCF ----------------
+
+    def ppan(self, ppan=''):
+        super().assign_keyword('PPAN', [], ppan); return self
+
+    def gradcal(self, gradcal=''):
+        super().assign_keyword('GRADCAL', [], gradcal); return self
+
+    def exchange(self, exchange=''):
+        super().assign_keyword('EXCHANGE', [], exchange); return self
+
+    def postscf(self, postscf=''):
+        super().assign_keyword('POSTSCF', [], postscf); return self
+
+    # ---------------- MPP ----------------
+
+    def cmplxfac(self, WEIGHT=2.0):
+        super().assign_keyword('CMPLXFAC', [1, ], WEIGHT); return self
+
+    def repldata(self, repldata=''):
+        super().assign_keyword('REPLDATA', [], repldata); return self
+
+    def stdiag(self, stdiag=''):
+        super().assign_keyword('STDIAG', [], stdiag); return self
+
+    # ---------------- FIXINDEX ----------------
+
+    def fixindex(self, fixindex=''):
+        """
+        Fixindex keywords.
+
+        .. note::
+            'GEOM' is a ``Geom`` object. To modify keywords ('CRYSTAL' as
+            example), use ``input.scf.geom.crystal()``.
+
+            'BASE' is a ``BasisSet`` object. To define basis set from bse, use
+            ``input.scf.base.from_bse()``.
+
+            'GEBA' is a ``Crystal_inputBASE`` object. To modify keywords
+            ('CRYSTAL' as example), use ``input.scf.geba.geom.crystal()``.
+        """
+        super().assign_keyword('FIXINDEX', [], fixindex); return self
 
     @property
-    def fixgeom(self):
-        try:
-            return self._block_fixgeom
-        except AttributeError:
-            raise AttributeError(
-                "Attribute does not exist. 'fixindex' is not defined.")
+    def geom(self):
+        """
+        Subblock object GEOM
+        """
+        self._geom._block_valid = True
+        self.fixindex()
+        self._geom._block_bg = 'ENDSCF\nGEOM\n'
+        self._geom._block_ed = 'END\n'
+        return self._geom
 
     @property
-    def fixbase(self):
-        try:
-            return self._block_fixbase
-        except AttributeError:
-            raise AttributeError(
-                "Attribute does not exist. 'fixindex' is not defined.")
-
-    def fixindex(self, key1=None, obj1=None, obj2=None):
+    def base(self):
         """
-        Args:
-            key1 (str): 'GEOM', 'BASE' or 'GEBA'. Fixindex block keywords
-            obj1 (Geom | BasisSet): Geometry or basis set object.
-            obj2 (BasisSet): *key1 = GEBA only*. Basis set object.
+        Subblock object BASE
         """
-        import warnings
+        self._base._block_valid = True
+        self.fixindex()
+        self._base._block_bg = 'ENDSCF\nBASE\n'
+        self._base._block_ed = 'END\n'
+        return self._base
 
-        if key1 == None:
-            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
+    @property
+    def geba(self):
+        """
+        Subblock object GEBA
+        """
+        self._geba._block_valid = True
+        self.fixindex()
+        self._geba._block_bg = 'ENDSCF\nGEBA\n'
+        self._geba._block_ed = 'END\n'
+        self._geba.geom._block_bg = ''
+        self._geba.geom._block_ed = 'END\n'
+        self._geba.basisset._block_ed = ''
+        return self._geba
 
-        elif key1 == '':
-            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [], '')
-            self._block_ed = 'ENDSCF\n'
-            if hasattr(self, '_block_fixgeom'):
-                self._block_fixgeom.clean_block()
-            elif hasattr(self, '_block_fixbase'):
-                self._block_fixbase.clean_block()
 
-        elif key1 == 'GEOM':
-            warnings.warn( "'GEOM' keyword of 'FIXINDEX' is identified. Use 'fixgeom' for attributes of the geometry subblock.",
-                          stacklevel=2)
-            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
-            self._block_fixgeom = Geom()
-            if obj1 == None:
-                self._block_fixgeom._block_bg = 'ENDSCF\nGEOM\n'
-                self._block_fixgeom._block_ed = 'END\n'
-                self._block_ed = None # Not '', or the block would be recoginized as an empty one
-            elif obj1 == '':
-                self._block_fixgeom.clean_block()
-                self._block_ed = 'ENDSCF\n'
-            else:
-                self._block_fixgeom = obj1
-                self._block_fixgeom._block_bg = 'ENDSCF\nGEOM\n'
-                self._block_fixgeom._block_ed = 'END\n'
-                self._block_ed = None # Not '', or the block would be recoginized as an empty one
+class HF3C(BlockBASE):
+    """
+    HF3C block object
+    """
+    def __init__(self):
+        bg = 'HF3C\n'
+        ed = 'END\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        dic = {
+            'RESCALES8' : [None, False, []],
+            'SCALEGCP'  : [None, False, []],
+        }
+        super().__init__(bg, ed, dic)
 
-        elif key1 == 'BASE':
-            warnings.warn("'BASE' keyword of 'FIXINDEX' is identified. Use 'fixbase' for attributes of the basis set subblock.",
-                          stacklevel=2)
-            self._fixbg = super(SCF, self).assign_keyword('FIXINDEX', [])
-            self._block_fixbase = BasisSet()
-            if obj1 == None:
-                self._block_fixbase._block_bg = 'ENDSCF\nBASE\n'
-                self._block_fixbase._block_ed = 'END\n'
-                self._block_ed = None # Not '', or the block would be recoginized as an empty one
-            elif obj1 == '':
-                self._block_fixbase.clean_block()
-                self._block_ed = 'ENDSCF\n'
-            else:
-                self._block_fixbase = obj1
-                self._block_fixbase._block_bg = 'ENDSCF\nBASE\n'
-                self._block_fixbase._block_ed = 'END\n'
-                self._block_ed = None # Not '', or the block would be recoginized as an empty one
+    # __call__ method inherited from BlockBASE
 
-        # GEBA subblock not supported
-        # elif key1 == 'GEBA':
-        #     warnings.warn("'GEBA' keyword of 'FIXINDEX' is identified. Use 'fixgeom' for attributes of the geometry subblock and 'fixbase' for attributes of the basis set subblock.")
-        #     self._block_fixgeom = Geom()
-        #     self._block_fixbase = BasisSet()
-        #     if obj1 == None:
-        #         self._block_fixgeom._block_bg = 'GEBA\n'
-        #         self._block_fixgeom._block_ed = ''
-        #         self._block_fixbase._block_bg = ''
-        #         self._block_fixbase._block_ed = 'END\n'
-        #     elif obj1 == '':
-        #         self._block_fixgeom.clean_block()
-        #         self._block_fixbase.clean_block()
-        #     else:
-        #         self._block_fixgeom = obj1
-        #         self._block_fixgeom._block_bg = 'GEBA\n'
-        #         self._block_fixgeom._block_ed = ''
-        #         self._block_fixbase = obj2
-        #         self._block_fixbase._block_bg = ''
-        #         self._block_fixbase._block_ed = 'END\n'
+    def rescales8(self, s8=''):
+        super().assign_keyword('RESCALES8', [1,], s8); return self
 
-        else:
-            raise ValueError('Keyword error. Allowed keywords: GEOM, BASE. GEBA not supported.')
+    def scalegcp(self, gcp=''):
+        super().assign_keyword('SCALEGCP', [1,], gcp); return self
 
-    def biposize(self, ISIZE=None):
-        self._biposize = super(SCF, self).assign_keyword('BIPOSIZE', [1, ], ISIZE)
 
-    def exchsize(self, ISIZE=None):
-        self._exchsize = super(SCF, self).assign_keyword('EXCHSIZE', [1, ], ISIZE)
+class HFSOL3C(HF3C):
+    """
+    HFSOL3C block object
+    """
+    def __init__(self):
+        super().__init__()
+        self._block_bg = 'HFSOL3C\n'
 
-    def toldee(self, ITOL=None):
-        self._toldee = super(SCF, self).assign_keyword('TOLDEE', [1, ], ITOL)
-
-    def guessp(self, key='GUESSP'):
-        self._guessp = super(SCF, self).assign_keyword(key, [])
-
-    def atomspin(self, NA=None, LA=[]):
-        shape, value = super(SCF, self).set_list(NA, LA)
-        self._atomspin = super(SCF, self).assign_keyword('ATOMSPIN', shape, value)
-
-    def tolinteg(self, ITOL1=None, ITOL2=None, ITOL3=None, ITOL4=None, ITOL5=None):
-        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
-        super(SCF, self).clean_conflict('_tolinteg', conflict)
-        self._tolinteg = super(SCF, self).assign_keyword(
-            'TOLINTEG', [5, ], [ITOL1, ITOL2, ITOL3, ITOL4, ITOL5]
-        )
-
-    def nobipola(self, key='NOBIPOLA'):
-        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
-        super(SCF, self).clean_conflict('_nobipola', conflict)
-        self._nobipola = super(SCF, self).assign_keyword(key, [])
-
-    def nobipcou(self, key='NOBIPCOU'):
-        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
-        super(SCF, self).clean_conflict('_nobipcou', conflict)
-        self._nobipcou = super(SCF, self).assign_keyword(key, [])
-
-    def nobipexc(self, key='NOBIPEXC'):
-        conflict = ['_tolinteg', '_nobipola', '_nobipcou', '_nobipexc']
-        super(SCF, self).clean_conflict('_nobipexc', conflict)
-        self._nobipexc = super(SCF, self).assign_keyword(key, [])
-
-    def ldremo(self, value):
-        self._ldremo = super(SCF, self).assign_keyword('LDREMO', [1, ], value)
-
-    def maxcycle(self, MAX=None):
-        self._maxcycle = super(SCF, self).assign_keyword('MAXCYCLE', [1, ], MAX)
-
-    def fmixing(self, IPMIX=None):
-        self._maxcycle = super(SCF, self).assign_keyword('FMIXING', [1, ], IPMIX)
-
-    def shrink(self, IS=None, ISP=None, IS1=None, IS2=None, IS3=None):
-        if IS1 == None:
-            self._shrink = super(SCF, self).assign_keyword('SHRINK', [2, ], [IS, ISP])
-        else:
-            self._shrink = super(SCF, self).assign_keyword('SHRINK', [2, 3],
-                                                           [IS, ISP, IS1, IS2, IS3])
-
-    def gcpauto(self, key='GCPAUTO'):
-        self._gcpauto = super(SCF, self).assign_keyword(key, [])
-
-    def smear(self, WIDTH=None):
-        self._smear = super(SCF, self).assign_keyword('SMEAR', [1, ], WIDTH)
-
-    def ppan(self, key='PPAN'):
-        self._ppan = super(SCF, self).assign_keyword(key, [])
-
-    def gradcal(self, key='GRADCAL'):
-        self._gradcal = super(SCF, self).assign_keyword(key, [])
-
-    def exchange(self, key='EXCHANGE'):
-        self._exchange = super(SCF, self).assign_keyword(key, [])
-
-    def postscf(self, key='POSTSCF'):
-        self._postscf = super(SCF, self).assign_keyword(key, [])
-
-    def diis(self, key='DIIS'):
-        self._diis = super(SCF, self).assign_keyword(key, [])
-
-    def nodiis(self, key='NODIIS'):
-        self._diis = super(SCF, self).assign_keyword(key, [])
-
-    def diisallk(self, key='DIISALLK'):
-        import warnings
-
-        if hasattr(self, '_diis'):
-            if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
-                              stacklevel=2)
-                self._diis = ''
-        self._diisallk = super(SCF, self).assign_keyword(key, [])
-
-    def histdiis(self, NCYC=None):
-        import warnings
-
-        if hasattr(self, '_diis'):
-            if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
-                              stacklevel=2)
-                self._diis = ''
-        self._histdiis = super(SCF, self).assign_keyword('HISTDIIS', [1,], NCYC)
-
-    def prtdiis(self, key='PRTDIIS'):
-        import warnings
-
-        if hasattr(self, '_diis'):
-            if 'NODIIS' in self._diis:
-                warnings.warn("Keyword 'NODIIS' is set. It will be removed.",
-                              stacklevel=2)
-                self._diis = ''
-        self._prtdiis = super(SCF, self).assign_keyword(key, [])
-
-    def cmplxfac(self, WEIGHT=None):
-        self._cmplxfac = super(SCF, self).assign_keyword('CMPLXFAC', [1, ], WEIGHT)
-
-    def repldata(self, key='REPLDATA'):
-        self._repldata = super(SCF, self).assign_keyword(key, [])
-
-    def stdiag(self, key='STDIAG'):
-        self._stdiag = super(SCF, self).assign_keyword(key, [])
+    # __call__ method inherited from BlockBASE
 
 
 class DFT(BlockBASE):
     """
     DFT block object
     """
-
     def __init__(self):
-        self._block_bg = 'DFT\n'
-        self._block_ed = 'ENDDFT\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'SPIN'     : '_spin',
-            'EXCHANGE' : '_exchange',
-            'CORRELAT' : '_correlat',
-            'OLDGRID'  : '_gridsz',
-            'LGRID'    : '_gridsz',
-            'XLGRID'   : '_gridsz',
-            'XXLGRID'  : '_gridsz',
-            'XXXLGRID' : '_gridsz',
-            'RADIAL'   : '_gridr',
-            'ANGULAR'  : '_grida',
-            'SVWN'     : '_xcfunc', # Standalone keywords for text analysis - I know it's a stupid idea - to ensure interactive i/o
-            'BLYP'     : '_xcfunc',
-            'PBEXC'    : '_xcfunc',
-            'PBESOLXC' : '_xcfunc',
-            'SOGGAXC'  : '_xcfunc',
-            'SOGGA11'  : '_xcfunc',
-            'B3PW'     : '_xcfunc',
-            'B3LYP'    : '_xcfunc',
-            'PBE0'     : '_xcfunc',
-            'PBESOL0'  : '_xcfunc',
-            'B1WC'     : '_xcfunc',
-            'WC1LYP'   : '_xcfunc',
-            'B97H'     : '_xcfunc',
-            'PBE0-13'  : '_xcfunc',
-            'SOGGA11X' : '_xcfunc',
-            'MPW1PW91' : '_xcfunc',
-            'MPW1K'    : '_xcfunc',
-            'HSE06'    : '_xcfunc',
-            'HSESOL'   : '_xcfunc',
-            'SC-BLYP'  : '_xcfunc',
-            'HISS'     : '_xcfunc',
-            'RSHXLDA'  : '_xcfunc',
-            'WB97'     : '_xcfunc',
-            'WB97X'    : '_xcfunc',
-            'LC-WPBE'  : '_xcfunc',
-            'LC-WPBESOL': '_xcfunc',
-            'LC-WBLYP' : '_xcfunc',
-            'LC-BLYP'  : '_xcfunc',
-            'CAM-B3LYP': '_xcfunc',
-            'LC-PBE'   : '_xcfunc',
-            'M06L'     : '_xcfunc',
-            'REVM06L'  : '_xcfunc',
-            'MN15L'    : '_xcfunc',
-            'SCAN'     : '_xcfunc',
-            'R2SCAN'   : '_xcfunc',
-            'B1B95'    : '_xcfunc',
-            'MPW1B95'  : '_xcfunc',
-            'MPW1B1K'  : '_xcfunc',
-            'PW6B95'   : '_xcfunc',
-            'PWB6K'    : '_xcfunc',
-            'M05'      : '_xcfunc',
-            'M052X'    : '_xcfunc',
-            'M06'      : '_xcfunc',
-            'M062X'    : '_xcfunc',
-            'M06HF'    : '_xcfunc',
-            'MN15'     : '_xcfunc',
-            'REVM06'   : '_xcfunc',
-            'SCAN0'    : '_xcfunc',
-            'R2SCANH'  : '_xcfunc',
-            'R2SCAN0'  : '_xcfunc',
-            'R2SCAN50' : '_xcfunc',
-            'MN15'     : '_xcfunc',
-            'BLYP-D3'  : '_xcfunc',
-            'PBE-D3'   : '_xcfunc',
-            'B97-D3'   : '_xcfunc',
-            'B3LYP-D3' : '_xcfunc',
-            'PBE0-D3'  : '_xcfunc',
-            'PW1PW-D3' : '_xcfunc',
-            'M06-D3'   : '_xcfunc',
-            'HSE06-D3' : '_xcfunc',
-            'HSESOL-D3': '_xcfunc',
-            'LC-WPBE-D3': '_xcfunc',
-            'B3LYP-D3' : '_xcfunc',
-            'PBEH3C'   : '_xcfunc',
-            'HSE3C'    : '_xcfunc',
-            'B973C'    : '_xcfunc',
-            'PBESOL03C': '_xcfunc',
-            'HSESOL3C' : '_xcfunc',
+        bg = 'DFT\n'
+        ed = 'ENDDFT\n'
+        standalone_func = [
+            'SVWN', 'BLYP', 'PBEXC', 'PBESOLXC', 'SOGGAXC', 'SOGGA11', 'B3PW',
+            'B3LYP', 'PBE0', 'PBESOL0', 'B1WC', 'WC1LYP', 'B97H', 'PBE0-13',
+            'SOGGA11X', 'MPW1PW91', 'MPW1K', 'HSE06', 'HSESOL', 'SC-BLYP',
+            'HISS', 'RSHXLDA', 'WB97', 'WB97X', 'LC-WPBE', 'LC-WPBESOL',
+            'LC-WBLYP', 'LC-BLYP', 'CAM-B3LYP', 'LC-PBE', 'M06L', 'REVM06L',
+            'MN15L', 'SCAN', 'R2SCAN', 'B1B95', 'MPW1B95', 'MPW1B1K', 'PW6B95',
+            'PWB6K', 'M05', 'M052X', 'M06', 'M062X', 'M06HF', 'MN15', 'REVM06',
+            'SCAN0', 'R2SCANH', 'R2SCAN0', 'R2SCAN50', 'MN15',
+            'BLYP-D3', 'PBE-D3', 'B97-D3', 'B3LYP-D3', 'PBE0-D3', 'PW1PW-D3',
+            'M06-D3', 'HSE06-D3', 'HSESOL-D3', 'LC-WPBE-D3', 'B3LYP-D3',
+            'PBEH3C', 'HSE3C', 'B973C', 'PBESOL03C', 'HSESOL3C'
+        ]
+        user_func = [
+            'EXCHANGE', 'CORRELAT', 'HYBRID', 'NONLOCAL'
+        ]
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        ## User defined functionals
+        dic = {
+            'SPIN'     : [None, False, []],
+            'EXCHANGE' : [None, False, standalone_func + user_func],
+            'CORRELAT' : [None, False, standalone_func + user_func],
+            'HYBRID'   : [None, False, standalone_func + user_func],
+            'NONLOCAL' : [None, False, standalone_func + user_func],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        ## Standalone functionals
+        for func in standalone_func:
+            dic[func] = [None, False, standalone_func + user_func]
 
-    def spin(self, key='SPIN'):
-        self._spin = super(DFT, self).assign_keyword(key, [])
+        ## Control keywords
+        grid = ['OLDGRID', 'LGRID', 'XLGRID', 'XXLGRID', 'XXXLGRID', 'HUGEGRID',
+                'RADIAL', 'ANGULAR']
+        dic.update({
+            'SR-OMEGA'     : [None, False,[]],
+            'MR-OMEGA'     : [None, False,[]],
+            'LR-OMEGA'     : [None, False,[]],
+            'SR-HYB-WB97X' : [None, False,[]],
+            'LSRSH-PBE'    : [None, False,[]],
+            'OLDGRID'      : [None, False, grid],
+            'LGRID'        : [None, False, grid],
+            'XLGRID'       : [None, False, grid],
+            'XXLGRID'      : [None, False, grid],
+            'XXXLGRID'     : [None, False, grid],
+            'HUGEGRID'     : [None, False, grid],
+            'RADIAL'       : [None, False, grid],
+            'ANGULAR'      : [None, False, grid],
+        })
+        super().__init__(bg, ed, dic)
 
-    def exchange(self, ex=None):
-        if hasattr(self, '_xcfunc'):
-            raise AttributeError(
-                'Exchange-correlation functional is already set.')
-        self._exchange = super(DFT, self).assign_keyword('EXCHANGE', [1, ], ex)
+    # __call__ method inherited from BlockBASE
 
-    def correlat(self, cor=None):
-        if hasattr(self, '_xcfunc'):
-            raise AttributeError('Exchange-correlation functional is already set.')
-        self._correlat = super(DFT, self).assign_keyword('CORRELAT', [1, ], cor)
+    def spin(self, spin=''):
+        super().assign_keyword('SPIN', [], spin)
+        return self
 
-    def xcfunc(self, xc=None):
-        if hasattr(self, '_exchange') or hasattr(self, '_correlat'):
-            raise AttributeError('Separate keywords are set for exchange / correlation functionals.')
-        self._xcfunc = super(DFT, self).assign_keyword(None, [1, ], xc)
+    def exchange(self, ex=''):
+        exlist = [
+            'LDA', 'VBH', 'BECKE', 'mPW91', 'PBE', 'PBESOL', 'PWGGA', 'SOGGA',
+            'WCGGA'
+        ]
+        if ex != '' and ex != None:
+            if ex not in exlist:
+                raise ValueError('Unknown exchange functional name.')
+        super().assign_keyword('EXCHANGE', [1,], ex)
+        return self
 
-    def lgrid(self, key='LGRID'):
-        self._gridsz = super(DFT, self).assign_keyword(key, [])
+    def correlat(self, cor=''):
+        corlist = [
+            'PWLSD', 'PZ', 'VBH', 'VWN', 'LYP', 'P86', 'PBE', 'PBESOL',
+            'PWGGA', 'WL', 'B95'
+        ]
+        if cor != '' and cor != None:
+            if cor not in corlist:
+                raise ValueError('Unknown correlation functional name.')
+        super().assign_keyword('CORRELAT', [1,], cor)
+        return self
 
-    def oldgrid(self, key='OLDGRID'):
-        self._gridsz = super(DFT, self).assign_keyword(key, [])
+    def xcfunc(self, xc=''):
+        if xc != None and xc != '':
+            if xc not in self._block_key:
+                raise ValueError('Unknown functional name.')
+        super().assign_keyword(xc, [], '')
+        return self
 
-    def xlgrid(self, key='XLGRID'):
-        self._gridsz = super(DFT, self).assign_keyword(key, [])
+    def sr_omega(self, sr_omega=''):
+        super().assign_keyword('SR-OMEGA', [1,], sr_omega); return self
 
-    def xxlgrid(self, key='XXLGRID'):
-        self._gridsz = super(DFT, self).assign_keyword(key, [])
+    def mr_omega(self, mr_omega=''):
+        super().assign_keyword('MR-OMEGA', [1,], mr_omega); return self
 
-    def xxxlgrid(self, key='XXXLGRID'):
-        self._gridsz = super(DFT, self).assign_keyword(key, [])
+    def lr_omega(self, lr_omega=''):
+        super().assign_keyword('LR-OMEGA', [1,], lr_omega); return self
 
-    def radial(self, NR=None, RL=[], IL=[]):
-        if hasattr(self, '_gridsz'):
-            raise AttributeError("Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
+    def sr_hyb_wb97x(self, sr_c=''):
+        super().assign_keyword('SR-HYB-WB97X', [1,], sr_c); return self
+
+    def lsrsh_pbe(self, omega='', sr_c=0., lr_c=0.):
+        super().assign_keyword('LSRSH-PBE', [3,], [omega, sr_c, lr_c]); return self
+
+    def lgrid(self, lgrid=''):
+        super().assign_keyword('LGRID', [], lgrid); return self
+
+    def oldgrid(self, oldgrid=''):
+        super().assign_keyword('OLDGRID', [], oldgrid); return self
+
+    def xlgrid(self, xlgrid=''):
+        super().assign_keyword('XLGRID', [], xlgrid); return self
+
+    def xxlgrid(self, xxlgrid=''):
+        super().assign_keyword('XXLGRID', [], xxlgrid); return self
+
+    def xxxlgrid(self, xxxlgrid=''):
+        super().assign_keyword('XXXLGRID', [], xxxlgrid); return self
+
+    def hugegrid(self, hugegrid=''):
+        super().assign_keyword('HUGEGRID', [], hugegrid); return self
+
+    def radial(self, NR='', RL=[], IL=[]):
         if NR != None and NR != '':
-            if len(RL) != len(IL) and NR != len(RL):
-                raise ValueError('Inconsistent definition of parameters.')
-        self._gridr = super(DFT, self).assign_keyword('RADIAL', [1, len(RL), len(IL)], [NR, ] + RL + IL)
+            RL = list(RL)
+            IL = list(IL)
+            if NR != len(IL) and NR != len(RL):
+                raise ValueError('Inconsistent definition. NR is not equal to lengths of RL or IL.')
+        super().assign_keyword('RADIAL', [1, NR, NR], [NR, ] + RL + IL)
+        return self
 
-    def angular(self, NI=None, AL=[], LEV=[]):
-        if hasattr(self, '_gridsz'):
-            raise AttributeError("Pre-defined integrated grid '{}' is defined.".format(self._gridsz[:-1]))
+    def angular(self, NI='', AL=[], LEV=[]):
         if NI != None and NI != '':
-            if len(AL) != len(LEV) and NI != len(AL):
-                raise ValueError('Inconsistent definition of parameters.')
-        self._grida = super(DFT, self).assign_keyword('ANGULAR', [1, len(AL), len(LEV)], [NI, ] + AL + LEV)
+            AL = list(AL)
+            LEV = list(LEV)
+            if NI != len(LEV) and NI != len(AL):
+                raise ValueError('Inconsistent definition. NI is not equal to lengths of AL or LEV')
+        super().assign_keyword('ANGULAR', [1, NI, NI], [NI, ] + AL + LEV)
+        return self
 
 
 class DFTD3(BlockBASE):
@@ -1482,67 +1510,67 @@ class DFTD3(BlockBASE):
     """
 
     def __init__(self):
-        self._block_bg = 'DFTD3\n'
-        self._block_ed = 'END\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'VERSION'   : '_version',
-            'FUNC'      : '_func',
-            'ABC'       : '_abc',
-            'S6'        : '_s6',
-            'S8'        : '_s8',
-            'A1'        : '_a1',
-            'A2'        : '_a2',
-            'RS6'       : '_rs6',
-            'RS8'       : '_rs8',
-            'RADIUS'    : '_radius',
-            'CNRADIUS'  : '_cnradius',
-            'ABCRADIUS' : '_abcradius',
-            'PRINTC6'   : '_printc6',
+        bg = 'DFTD3\n'
+        ed = 'END\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        dic = {
+            'VERSION'   : [None, False, []],
+            'FUNC'      : [None, False, []],
+            'ABC'       : [None, False, []],
+            'S6'        : [None, False, []],
+            'S8'        : [None, False, []],
+            'A1'        : [None, False, ['RS6', 'RS8']],#BJ damping
+            'A2'        : [None, False, ['RS6', 'RS8']],#BJ damping
+            'RS6'       : [None, False, ['A1', 'A2']],#zero damping
+            'RS8'       : [None, False, ['A1', 'A2']],#zero damping
+            'RADIUS'    : [None, False, []],
+            'CNRADIUS'  : [None, False, []],
+            'ABCRADIUS' : [None, False, []],
+            'PRINTC6'   : [None, False, []],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
 
-    def version(self, NAT=None):
-        self._version = super(DFTD3, self).assign_keyword('VERSION', [1, ], NAT)
+    # __call__ method inherited from BlockBASE
 
-    def func(self, CHAR=None):
-        self._func = super(DFTD3, self).assign_keyword('FUNC', [1, ], CHAR)
+    def version(self, NAT=4):
+        super().assign_keyword('VERSION', [1,], NAT); return self
 
-    def abc(self, key='ABC'):
-        self._abc = super(DFTD3, self).assign_keyword(key, [])
+    def func(self, CHAR=''):
+        super().assign_keyword('FUNC', [1,], CHAR); return self
 
-    def s6(self, s6=None):
-        self._s6 = super(DFTD3, self).assign_keyword('S6', [1, ], s6)
+    def abc(self, abc=''):
+        super().assign_keyword('ABC', [], abc); return self
 
-    def s8(self, s8=None):
-        self._s8 = super(DFTD3, self).assign_keyword('S8', [1, ], s8)
+    def s6(self, s6=''):
+        super().assign_keyword('S6', [1,], s6); return self
 
-    def a1(self, a1=None):
-        self._a1 = super(DFTD3, self).assign_keyword('A1', [1, ], a1)
+    def s8(self, s8=''):
+        super().assign_keyword('S8', [1,], s8); return self
 
-    def a2(self, a1=None):
-        self._a2 = super(DFTD3, self).assign_keyword('A2', [1, ], a2)
+    def a1(self, a1=''):
+        super().assign_keyword('A1', [1,], a1); return self
 
-    def rs6(self, rs6=None):
-        self._rs6 = super(DFTD3, self).assign_keyword('RS6', [1, ], rs6)
+    def a2(self, a2=''):
+        super().assign_keyword('A2', [1,], a2); return self
 
-    def rs8(self, rs8=None):
-        self._rs8 = super(DFTD3, self).assign_keyword('RS8', [1, ], rs8)
+    def rs6(self, rs6=''):
+        super().assign_keyword('RS6', [1,], rs6); return self
 
-    def radius(self, radius=None):
-        self._radius = super(DFTD3, self).assign_keyword('RADIUS', [1, ], radius)
+    def rs8(self, rs8=''):
+        super().assign_keyword('RS8', [1,], rs8); return self
 
-    def cnradius(self, cnradius=None):
-        self._cnradius = super(DFTD3, self).assign_keyword('CNRADIUS', [1, ], cnradius)
+    def radius(self, radius=''):
+        super().assign_keyword('RADIUS', [1,], radius); return self
 
-    def abcradius(self, abcradius=None):
-        self._abcradius = super(DFTD3, self).assign_keyword('ABCRADIUS', [1, ], abcradius)
+    def cnradius(self, cnradius=''):
+        super().assign_keyword('CNRADIUS', [1,], cnradius); return self
 
-    def printc6(self, key='PRINTC6'):
-        self._printc6 = super(DFTD3, self).assign_keyword(key, [])
+    def abcradius(self, abcradius=''):
+        super().assign_keyword('ABCRADIUS', [1,], abcradius); return self
+
+    def printc6(self, printc6=''):
+        super().assign_keyword('PRINTC6', [], printc6); return self
 
 
 class GCP(BlockBASE):
@@ -1551,40 +1579,41 @@ class GCP(BlockBASE):
     """
 
     def __init__(self):
-        self._block_bg = 'GCP\n'
-        self._block_ed = 'END\n'
-        self._block_data = ''
-        self._block_dict = {  # The sequence of keywords should follow rules in the manual
-            'METHOD'     : '_method',
-            'SIGMA'      : '_sigma',
-            'ALPHA'      : '_alpha',
-            'BETA'       : '_beta',
-            'ETA'        : '_eta',
-            'RADIUS'     : '_radius',
-            'PRINTEMISS' : '_printemiss',
+        bg = 'GCP\n'
+        ed = 'END\n'
+        # The sequence of keywords should follow rules in the manual
+        # Read inputbase.py for the definition of dict values
+        dic = {
+            'METHOD'     : [None, False, []],
+            'SIGMA'      : [None, False, []],
+            'ALPHA'      : [None, False, []],
+            'BETA'       : [None, False, []],
+            'ETA'        : [None, False, []],
+            'RADIUS'     : [None, False, []],
+            'PRINTEMISS' : [None, False, []],
         }
-        key = list(self._block_dict.keys())
-        attr = list(self._block_dict.values())
-        self._block_key = sorted(set(key), key=key.index)
-        self._block_attr = sorted(set(attr), key=attr.index)
+        super().__init__(bg, ed, dic)
 
-    def method(self, method=None):
-        self._method = super(GCP, self).assign_keyword('METHOD', [1, ], method)
+    # __call__ method inherited from BlockBASE
 
-    def sigma(self, sigma=None):
-        self._sigma = super(GCP, self).assign_keyword('SIGMA', [1, ], sigma)
+    def method(self, method=''):
+        super().assign_keyword('METHOD', [1, ], method); return self
 
-    def alpha(self, alpha=None):
-        self._alpha = super(GCP, self).assign_keyword('ALPHA', [1, ], alpha)
+    def sigma(self, sigma=''):
+        super().assign_keyword('SIGMA', [1, ], sigma); return self
 
-    def beta(self, beta=None):
-        self._beta = super(GCP, self).assign_keyword('BETA', [1, ], beta)
+    def alpha(self, alpha=''):
+        super().assign_keyword('ALPHA', [1, ], alpha); return self
 
-    def eta(self, eta=None):
-        self._eta = super(GCP, self).assign_keyword('ETA', [1, ], eta)
+    def beta(self, beta=''):
+        super().assign_keyword('BETA', [1, ], beta); return self
 
-    def radius(self, radius=None):
-        self._radius = super(GCP, self).assign_keyword('RADIUS', [1, ], radius)
+    def eta(self, eta=''):
+        super().assign_keyword('ETA', [1, ], eta); return self
 
-    def printemiss(self, key='PRINTEMISS'):
-        self._printemiss = super(GCP, self).assign_keyword(key, [])
+    def radius(self, radius=''):
+        super().assign_keyword('RADIUS', [1, ], radius); return self
+
+    def printemiss(self, printemiss=''):
+        super().assign_keyword('PRINTEMISS', [], printemiss); return self
+

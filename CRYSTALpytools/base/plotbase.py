@@ -3,8 +3,6 @@
 """
 Base functions for plotting 2D and 3D figures
 """
-
-
 def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, linestl,
                    linewidth, color, fermi, k_range, labels, figsize, scheme,
                    sharex, sharey, fermiwidth, fermialpha):
@@ -32,12 +30,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
         fermialpha(float): Opacity of the fermi level 0-1
         fermiwidth(float): Width of the fermi level
-
-    Raises:
-        ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
-
     Returns:
         None
+
+    :raise ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
     """
     import sys
     import warnings
@@ -180,9 +176,9 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
         # HSP line plot
         if isinstance(bands, list):
-            hsp = bands[0].tick_position
+            hsp = bands[0].tick_pos
         else:
-            hsp = bands.tick_position
+            hsp = bands.tick_pos
 
         if k_labels is not None:
             if len(hsp) != len(k_labels):
@@ -308,7 +304,7 @@ def plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sha
     import matplotlib.pyplot as plt
     import numpy as np
 
-    dx = bands.k_point_plot
+    dx = bands.k_path
 
     pltband = bands.bands
     no_bands = np.shape(pltband)[0]
@@ -357,8 +353,8 @@ def plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
 
     # scaling that enables the comparison of band structure calculated at different pressures
     if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_point_plot)
-        xmin = np.amin(bands[0].k_point_plot)
+        reference = xmax = np.amax(bands[0].k_path)
+        xmin = np.amin(bands[0].k_path)
 
     else:
         xmax = []
@@ -378,10 +374,10 @@ def plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
     for index, data in enumerate(bands):
         # scaling that enables the comparison of band structure calculated at different pressures
         if not_scaled is False:
-            k_max = np.amax(data.k_point_plot)
-            dx = (data.k_point_plot/k_max)*reference
+            k_max = np.amax(data.k_path)
+            dx = (data.k_path/k_max)*reference
         else:
-            dx = data.k_point_plot
+            dx = data.k_path
             xmin.append(np.amin(dx))
             xmax.append(np.amax(dx))
 
@@ -469,7 +465,6 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
     else:
         if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
             raise ValueError('scheme needs to be a tuple or a list')
-            sys.exit(1)
         elif len(scheme) > 2:
             raise ValueError(
                 'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
@@ -488,8 +483,8 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
         ax = [ax]
     # Scaling with different size of the same brillouin zone
     if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_point_plot)
-        xmin = np.amin(bands[0].k_point_plot)
+        reference = xmax = np.amax(bands[0].k_path)
+        xmin = np.amin(bands[0].k_path)
 
     else:
         xmax = []
@@ -504,14 +499,14 @@ def plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
         for row in range(n_rows):
             data = bands[count3]
             if count3 == 0:
-                hsp = data.tick_position
+                hsp = data.tick_pos
             pltband = data.bands
             no_bands = np.shape(pltband)[0]
             if not_scaled is False:
-                k_max = np.amax(data.k_point_plot)
-                dx = (data.k_point_plot/k_max)*reference
+                k_max = np.amax(data.k_path)
+                dx = (data.k_path/k_max)*reference
             else:
-                dx = data.k_point_plot
+                dx = data.k_path
                 xmin.append(np.amin(dx))
                 xmax.append(np.amax(dx))
             ymin.append(np.amin(pltband))
@@ -1105,7 +1100,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         fig.suptitle(title)
 
     # Definition of the hsp position variables
-    hsp = bands.tick_position
+    hsp = bands.tick_pos
 
     # Error check on k_labels lenght against the HSP poisitions
     if k_labels is not None:
@@ -1118,7 +1113,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                     'You have more labels than the High Simmetry point along the path')
 
     # Local variable definition for the band plot
-    dx_bd = bands.k_point_plot
+    dx_bd = bands.k_path
     pltband = bands.bands
     no_bands = np.shape(pltband)[0]
     ymin_bd = np.amin(pltband)
@@ -1294,3 +1289,66 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         plt.legend()
 
     return fig, ax
+
+
+def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cbar_label):
+    """
+    Plot 2D scalar field map.
+
+    Args:
+        datamap (array): 2D map data.
+        gridv (array): 2\*3 base vectors of 2D map.
+        levels (int | array-like): Determines the number and positions of the contour lines/regions.
+        xticks (int): Number of ticks in the x direction.
+        yticks (int): Number of ticks in the y direction.
+        cmap_max (float): Maximum value used for the colormap.
+        cmap_min (float): Minimun value used for the colormap.
+        cbar_label (str): Title of colorbar (typically for quantuity and unit)
+    Returns:
+        fig (Figure): Matplotlib figure object.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import numpy as np
+
+    vector_ab = gridv[0, :]
+    length_ab = np.norm(v1)
+    vector_cb = gridv[1, :]
+    length_cb = np.norm(v2)
+    points_ab = datamap.shape[0]
+    points_cb = datamap.shape[1]
+    cosxy = np.dot(vector_ab, vector_cb) / np.norm(vector_ab) / np.norm(vector_cb)
+
+    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
+    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
+    for i in range(0, points_ab):
+        for j in range(0, points_cb):
+            mesh_y[i, j] = (lenght_ab / points_ab) * i * np.sqrt(1 - cosxy**2)
+            mesh_x[i, j] = (lenght_cb / points_cb) * j + (lenght_ab / points_ab) * i * cosxy
+
+    if cmap_max is None:
+        max_data = np.amax(datamap)
+    else:
+        max_data = cmap_max
+
+    if cmap_min is None:
+        min_data = np.amin(datamap)
+    else:
+        min_data = cmap_min
+
+    fig, ax = plt.subplots()
+    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
+    divider = make_axes_locatable(ax)
+    im.set_clim(vmin=min_data, vmax=max_data)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label(cbar_label, rotation=270)
+    ax.set_xlabel('$\AA$')
+    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
+    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
+    ax.set_ylabel('$\AA$')
+    ax.set_aspect(1.0)
+    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
+    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - obj_echg.cosxy**2))
+
+    return fig

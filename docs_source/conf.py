@@ -66,6 +66,18 @@ add_module_names = False
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# Sort functions as they are in source code.
+autodoc_member_order = 'bysource'
+
+# \AA for Angstrom symbol in math block
+rst_prolog = u"""\
+
+.. only:: html
+
+  :math:`\\newcommand{\\AA}{\\text{Å}}`
+
+"""
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

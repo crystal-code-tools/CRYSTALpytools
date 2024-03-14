@@ -10,78 +10,87 @@ Functions to visualize CRYSTAL outputs.
 #                                                                            #
 ##############################################################################
 
-#------------------------------------ECHG------------------------------------#
+#-------------------------------ECHG charge density----------------------------#
 
 
-def plot_dens_ECHG(obj_echg, levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None,
-                   dpi=400, savefig=False, name='echg_map'):
+def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None, dpi=400, name=None):
     """
     Plots the 2D ECHG density map from a fort.25 file.
 
     Args:
-        obj_echg (crystal_io.Properties_output): Properties output object.
-        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions. Default is 150.
-        xticks (int, optional): Number of ticks in the x direction. Default is 5.
-        yticks (int, optional): Number of ticks in the y direction. Default is 5.
-        cmap_max(float, optional): Maximum value used for the colormap. Default is None.
-        cmap_min(float, optional): Minimun value used for the colormap. Default is None.
-        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
-        savefig (bool): Chose to save the figure or not. Default is False.
-        name (str): Name for the colormap.
+        obj_echg (ChargeDensity): Charge/spin density object.
+        unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}`.
+        levels (int | array-like): Number and positions of the contour lines/regions.
+        xticks (int): Number of ticks in the x direction.
+        yticks (int): Number of ticks in the y direction.
+        cmap_max(float): Maximum value used for the colormap.
+        cmap_min(float): Minimun value used for the colormap.
+        name (str):  Name of the colormap. None for not saving it.
+        dpi (int): *Valid if name!=None* Resolution (dots per inch) for the output image.
+   Returns:
+        None
+    """
+    from CRYSTALpytools.base.plotbase import plot_2Dscalar
+    import copy
+
+    obj = copy.deepcopy(obj_echg)
+    obj._set_unit(unit)
+    if unit.lower() == 'angstrom':
+        cbarlabel = 'Charge Density ($|e|.\AA^{-3}$)'
+    else:
+        cbarlabel = 'Charge Density ($|e|.Bohr^{-3}$)'
+
+    fig = plot_2Dscalar(obj.chgmap, obj.gridv, levels, xticks, yticks,
+                        cmap_max, cmap_min, cbarlabel)
+
+    # if name != None:
+    #     save_plot(name, dpi=dpi)
+
+    plt.show()
+    return
+
+#--------------------------------ECHG spin density-----------------------------#
+
+def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None, dpi=400, name=None):
+    """
+    Plots the 2D spin density map from a ECHG output file (fort.25). For charge
+    density map please refer to ``plot_dens_ECHG``.
+
+    Args:
+        obj_echg (ChargeDensity): Charge/spin density object.
+        unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}`.
+        levels (int | array-like): *Optional* Determines the number and positions of the contour lines/regions. Default is 150.
+        xticks (int): *Optional* Number of ticks in the x direction. Default is 5.
+        yticks (int): *Optional* Number of ticks in the y direction. Default is 5.
+        cmap_max(float): *Optional*, Maximum value used for the colormap. Default is None.
+        cmap_min(float): *Optional* Minimun value used for the colormap. Default is None.
+        dpi (int): *Optional* Resolution (dots per inch) for the output image. Default is 400.
+        savefig (bool): *Optional* Chose to save the figure or not. Default is False.
+        name (str): *Valid if savefig=True* Name for the colormap.
 
    Returns:
         None
     """
-    import matplotlib.pyplot as plt
-    import numpy as np
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from CRYSTALpytools.base.plotbase import plot_2Dscalar
+    import copy
 
-    vector_ab = obj_echg.a - obj_echg.b
-    lenght_ab = np.sqrt(vector_ab[0]**2 + vector_ab[1]**2 + vector_ab[2]**2)
-    vector_cb = obj_echg.c - obj_echg.b
-    lenght_cb = np.sqrt(vector_cb[0]**2 + vector_cb[1]**2 + vector_cb[2]**2)
-    points_ab = len(obj_echg.density_map[:, 0])
-    points_cb = len(obj_echg.density_map[0, :])
-
-    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
-    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
-    for i in range(0, points_ab):
-        for j in range(0, points_cb):
-            mesh_y[i, j] = (((lenght_ab / points_ab) * i) *
-                            np.sqrt(1 - (obj_echg.cosxy**2)))
-            mesh_x[i, j] = ((lenght_cb / points_cb) * j) + \
-                (((lenght_ab / points_ab) * i) * obj_echg.cosxy)
-
-    dens = obj_echg.density_map * (1.88973**2)  # Bohr to Angstrom conversion
-
-    if cmap_max is None:
-        max_data = np.amax(dens)
+    obj = copy.deepcopy(obj_echg)
+    obj._set_unit(unit)
+    if unit.lower() == 'angstrom':
+        cbarlabel = 'Spin Density ($|e|.\AA^{-3}$)'
     else:
-        max_data = cmap_max
+        cbarlabel = 'Spin Density ($|e|.Bohr^{-3}$)'
 
-    if cmap_min is None:
-        min_data = np.amin(dens)
-    else:
-        min_data = cmap_min
+    fig = plot_2Dscalar(obj.spinmap, obj.gridv, levels, xticks, yticks,
+                        cmap_max, cmap_min, cbarlabel)
 
-    fig, ax = plt.subplots()
-    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
-    divider = make_axes_locatable(ax)
-    im.set_clim(vmin=min_data, vmax=max_data)
-    cax = divider.append_axes('right', size='5%', pad=0.05)
-    fig.colorbar(im, cax=cax, orientation='vertical')
-    ax.set_xlabel('$\AA$')
-    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
-    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
-    ax.set_ylabel('$\AA$')
-    ax.set_aspect(1.0)
-    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
-    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - (obj_echg.cosxy**2)))
-    if savefig:
-        plt.savefig(name, dpi=dpi)
+    # if name != None:
+    #     save_plot(name, dpi=dpi)
 
     plt.show()
+    return
 
 #----------------------------------SPIN CURRENTS------------------------------#
 
@@ -487,9 +496,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     Returns:
         None
 
-    Raises:
-        ValueError: If the specified unit is unknown.
-
+    :raise ValueError: If the specified unit is unknown.
     """
     import re
 
@@ -576,9 +583,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     Returns:
         None
 
-    Raises:
-        ValueError: If the specified unit is unknown.
-
+    :raise ValueError: If the specified unit is unknown.
     """
     import re
 
@@ -833,9 +838,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
     Returns:
         None
 
-    Raises:
-        ValueError: If the unit parameter is unknown.
-
+    :raise ValueError: If the unit parameter is unknown.
     """
     import re
 
@@ -919,9 +922,7 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     Returns:
         None
 
-    Raises:
-        ValueError: If the unit parameter is unknown.
-
+    :raise ValueError: If the unit parameter is unknown.
     """
     import re
 
@@ -3162,8 +3163,7 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
         dpi (int, optional): Resolution of the saved file. Defaults to 300.
         transparency (bool, optional): Enables the transparency of the saved file background. Defaults to False.
 
-    Raises:
-        ValueError: The function raises an error when the object to be plotted does not have the required y_mode  
+    :raise ValueError: The function raises an error when the object to be plotted does not have the required y_mode  
     """
 
     import sys
