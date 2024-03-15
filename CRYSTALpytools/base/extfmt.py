@@ -4,6 +4,8 @@
 Classes and methods to parse multiple external output formats by 'crystal' and
 'properties' executables, such as 'BAND.DAT' and 'fort.25' formats.
 """
+
+
 class CrgraParser():
     """
     A collection of functions to parse Crgra fort.25 files. Instantiation of
@@ -28,16 +30,19 @@ class CrgraParser():
             k_path (array): 1D coordinates of k points. Unit: Angstrom
             unit (str): 'eV' or 'THz'
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, cm_to_thz, au_to_angstrom
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, au_to_angstrom, cm_to_thz
 
         file = open(filename, 'r')
         data = file.readlines()
         file.close
 
         if '-%-' not in data[0] or 'BAND' not in data[0]:
-            raise Exception("File '{}' is not a Crgra fort.25 BAND format file.".format(filename))
+            raise Exception(
+                "File '{}' is not a Crgra fort.25 BAND format file.".format(filename))
 
         data_in_block = []
         k_in_block = []
@@ -58,8 +63,10 @@ class CrgraParser():
                 efermi = float(data[countline][42:54])
 
                 tick_line = data[countline + 2].strip().split()
-                tick_bg = '({:1d},{:1d},{:1d})'.format(int(tick_line[0]), int(tick_line[1]), int(tick_line[2]))
-                tick_ed = '({:1d},{:1d},{:1d})'.format(int(tick_line[3]), int(tick_line[4]), int(tick_line[5]))
+                tick_bg = '({:1d},{:1d},{:1d})'.format(
+                    int(tick_line[0]), int(tick_line[1]), int(tick_line[2]))
+                tick_ed = '({:1d},{:1d},{:1d})'.format(
+                    int(tick_line[3]), int(tick_line[4]), int(tick_line[5]))
                 if tick_label == []:
                     tick_label = [tick_bg, tick_ed]
                 else:
@@ -76,7 +83,7 @@ class CrgraParser():
                     countpt += len(value)
                 # Align Fermi energy to 0, consistent with BAND.DAT file
                 data_per_block = np.array(data_per_block, dtype=float) - efermi
-                if k_in_block == []: # Initial k path
+                if k_in_block == []:  # Initial k path
                     k_per_block = np.linspace(0, dk * (npt - 1), npt)
                 else:
                     bg = k_in_block[-1][-1] + dk
@@ -111,7 +118,7 @@ class CrgraParser():
         k_path = np.array([], dtype=float)
         bands = np.array([], dtype=float)
         for idx_block, block in enumerate(data_in_block):
-            if idx_block < nblock: # alpha state
+            if idx_block < nblock:  # alpha state
                 k_path = np.concatenate([k_path, k_in_block[idx_block]])
                 bands = np.concatenate([bands, block])
             else:
@@ -148,16 +155,19 @@ class CrgraParser():
             energy (int): Number of sampling points (energy or frequency).
             unit (str): 'eV' or 'THz'
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, eV_to_H, cm_to_thz, thz_to_cm
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         file = open(filename, 'r')
         data = file.readlines()
         file.close
 
         if '-%-' not in data[0] or 'DOS' not in data[0]:
-            raise Exception("File '{}' is not a Crgra fort.25 PDOS/DOSS format file.".format(filename))
+            raise Exception(
+                "File '{}' is not a Crgra fort.25 PDOS/DOSS format file.".format(filename))
         else:
             # Assuming all projections have the same energy/frequency range
             line = data[0].strip().split()
@@ -205,7 +215,7 @@ class CrgraParser():
 
         doss = np.zeros([n_proj, n_energy, spin], dtype=float)
         for idx_block, block in enumerate(data_in_block):
-            if idx_block < n_proj: # alpha state
+            if idx_block < n_proj:  # alpha state
                 idx_proj = idx_block
                 idx_spin = 0
                 doss[idx_proj, :, idx_spin] = block
@@ -217,7 +227,7 @@ class CrgraParser():
         # Convert all the energy to eV
         if ftype == 'DOSS':
             energy = H_to_eV(energy)
-            doss = eV_to_H(doss) # states/Hartree to states/eV
+            doss = eV_to_H(doss)  # states/Hartree to states/eV
             unit = 'eV'
         elif ftype == 'PDOS':
             energy = cm_to_thz(energy)
@@ -247,16 +257,19 @@ class CrgraParser():
             map2 (array): *Valid for spin* 2D scalar field map commensurate with MAPNET defined above.
             unit (str): 'a.u.'
         """
-        import numpy as np
-        from CRYSTALpytools.geometry import CStructure
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.geometry import CStructure
 
         file = open(filename, 'r')
         data = file.readlines()
         file.close
 
         if '-%-' not in data[0] or 'MAPN' not in data[0]:
-            raise Exception("File '{}' is not a Crgra fort.25 2D isovalue map file.".format(filename))
+            raise Exception(
+                "File '{}' is not a Crgra fort.25 2D isovalue map file.".format(filename))
 
         # Spin
         ihferm = int(data[0][3])
@@ -266,13 +279,16 @@ class CrgraParser():
         points_bc = int(data[0][13:18])
         cosxy = float(data[0][42:54])
 
-        a = np.array([data[1][0:12], data[1][12:24], data[1][24:36]], dtype=float)
-        b = np.array([data[1][36:48], data[1][48:60], data[1][60:72]], dtype=float)
-        c = np.array([data[2][0:12], data[2][12:24], data[2][24:36]], dtype=float)
-        pbc_dict = {3 : [True, True, True],
-                    2 : [True, True, False],
-                    1 : [True, False, False],
-                    0 : [False, False, False]}
+        a = np.array([data[1][0:12], data[1][12:24],
+                     data[1][24:36]], dtype=float)
+        b = np.array([data[1][36:48], data[1][48:60],
+                     data[1][60:72]], dtype=float)
+        c = np.array([data[2][0:12], data[2][12:24],
+                     data[2][24:36]], dtype=float)
+        pbc_dict = {3: [True, True, True],
+                    2: [True, True, False],
+                    1: [True, False, False],
+                    0: [False, False, False]}
         pbc = pbc_dict[int(data[2][45:])]
         npt = points_ab * points_bc
 
@@ -290,20 +306,23 @@ class CrgraParser():
                 density_maps[countspin].extend(value)
                 countpt += len(value)
             else:
-                if '-%-' in line: # Spin block
+                if '-%-' in line:  # Spin block
                     countspin += 1
                     countpt = 0
                     countline += 3
                     continue
                 elif re.match(r'^\s+[0-9]+\s+[A-Z]+', line):
                     atom_spec.append(int(line[0:4]))
-                    atom_coord.append([float(line[-60:-40]), float(line[-40:-20]), float(line[-20:])])
+                    atom_coord.append(
+                        [float(line[-60:-40]), float(line[-40:-20]), float(line[-20:])])
                 else:
-                    latt.append([float(line[0:20]), float(line[20:40]), float(line[40:])])
+                    latt.append([float(line[0:20]), float(
+                        line[20:40]), float(line[40:])])
 
             countline += 1
 
-        struc = CStructure(latt, atom_spec, atom_coord, coords_are_cartesian=True)
+        struc = CStructure(latt, atom_spec, atom_coord,
+                           coords_are_cartesian=True)
         struc.lattice._pbc = pbc
         map1 = np.array(density_maps[0], dtype=float)
         map1 = np.reshape(map1, [points_ab, points_bc], order='F')
@@ -339,16 +358,19 @@ class XmgraceParser():
             k_path (array): 1D coordinates of k points. Unit: Angstrom
             unit (str): 'eV' or 'THz'
         """
-        import numpy as np
-        from CRYSTALpytools.units import H_to_eV, cm_to_thz, au_to_angstrom
         import re
+
+        import numpy as np
+
+        from CRYSTALpytools.units import H_to_eV, au_to_angstrom, cm_to_thz
 
         file = open(filename, 'r')
         data = file.readlines()
         file.close
 
         if '#' not in data[0] or 'NBND' not in data[0]:
-            raise Exception("File '{}' is not a BAND.DAT / PHONBANDS.DAT file.".format(filename))
+            raise Exception(
+                "File '{}' is not a BAND.DAT / PHONBANDS.DAT file.".format(filename))
 
         # Read the information about the file
         # number of k points in the calculation
@@ -385,18 +407,20 @@ class XmgraceParser():
 
         # Read the bands and store them into a numpy array
         for i, line in enumerate(data[first_k:first_k+n_kpoints]):
-            bands[:n_bands+1, i, 0] = np.array([float(n) for n in line.split()[1:]])
+            bands[:n_bands+1, i,
+                  0] = np.array([float(n) for n in line.split()[1:]])
             k_path[i] = float(line.split()[0])
 
         if spin == 2:
             # line where the first beta band is. Written this way to help identify
             first_k_beta = first_k + n_kpoints + 15 + 2*n_tick + 2
             for i, line in enumerate(data[first_k_beta:-1]):
-                bands[:n_bands+1, i, 1] = np.array([float(n) for n in line.split()[1:]])
+                bands[:n_bands+1, i,
+                      1] = np.array([float(n) for n in line.split()[1:]])
 
-        if is_electron == True: # Convert all the energy to eV
+        if is_electron == True:  # Convert all the energy to eV
             bands[:, :, :] = H_to_eV(bands[:, :, :])
-        else: # Convert all the frequency to THz
+        else:  # Convert all the frequency to THz
             bands[:, :, :] = cm_to_thz(bands[:, :, :])
 
         # k coordinates unit. Typically that does not matter
@@ -424,14 +448,17 @@ class XmgraceParser():
             unit (str): 'eV' or 'THz'
         """
         import re
+
         import numpy as np
-        from CRYSTALpytools.units import H_to_eV, eV_to_H, cm_to_thz, thz_to_cm
+
+        from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         file = open(filename, 'r')
         data = file.readlines()
         file.close
         if '#' not in data[0] or 'NPROJ' not in data[0]:
-            raise Exception("File '{}' is not a DOSS.DAT / PHONDOS.DAT file.".format(filename))
+            raise Exception(
+                "File '{}' is not a DOSS.DAT / PHONDOS.DAT file.".format(filename))
 
         # Read the information about the file
         n_energy = int(data[0].split()[2])
@@ -446,30 +473,31 @@ class XmgraceParser():
             is_electron = False
             unit = 'THz'
 
-        if n_proj > 16: # 16 entries per line at most. A problem for PHONDOS
+        if n_proj > 16:  # 16 entries per line at most. A problem for PHONDOS
             raise Exception('Too many projects. Use fort.25 or output file.')
 
         first_energy = 4
         # Allocate the doss as np arrays
         energy = np.zeros([n_energy,], dtype=float)
-        doss = np.zeros([n_proj, n_energy, spin], dtype=float)
+        doss = np.zeros([n_energy, n_proj, spin], dtype=float)
         # Read the doss and store them into a numpy array
         for i, line in enumerate(data[first_energy:first_energy + n_energy]):
             line_data = np.array(line.strip().split(), dtype=float)
             energy[i] = line_data[0]
-            doss[:, i, 0] = line_data[1:]
+            doss[i, :, 0] = line_data[1:]
 
         if spin == 2:
             # line where the first beta energy is. Written this way to help identify
             first_energy_beta = first_energy + n_energy + 3
             for i, line in enumerate(data[first_energy_beta:-1]):
                 line_data = np.array(line.strip().split(), dtype=float)
-                doss[:, i, 1] = -line_data[1:]
+                doss[i, :, 1] = -line_data[1:]
 
         # Convert all the energy to eV / THz
         if is_electron == True:
             energy = H_to_eV(energy)
-            doss = eV_to_H(doss) # states/Hartree to states/eV
+            doss = eV_to_H(doss)  # states/Hartree to states/eV
+            print(np.shape(doss))
         else:
             energy = cm_to_thz(energy)
             doss = thz_to_cm(doss)

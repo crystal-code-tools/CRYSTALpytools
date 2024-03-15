@@ -24,6 +24,7 @@ class ElectronBand():
         k_path3d (array): n_kpoints\*3 3D fractional coordinates of k points
         unit (str): In principle, should always be 'eV': eV-Angstrom.
     """
+
     def __init__(self, spin, tick_pos, tick_label, efermi, bands, k_path,
                  geometry=None, reciprocal_latt=None, tick_pos3d=None,
                  k_path3d=None, unit='eV'):
@@ -69,7 +70,7 @@ class ElectronBand():
         file = open(band)
         flag = file.readline()
         file.close()
-        if '-%-' in flag: #fort.25 file format
+        if '-%-' in flag:  # fort.25 file format
             bandout = CrgraParser.band(band)
         else:
             bandout = XmgraceParser.band(band)
@@ -197,14 +198,17 @@ class ElectronBand():
         Returns:
             BandStructureSymmLine: Pymatgen band structure.
         """
-        import numpy as np
         import warnings
-        from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+
+        import numpy as np
         from pymatgen.core.lattice import Lattice
+        from pymatgen.electronic_structure.bandstructure import \
+            BandStructureSymmLine
         from pymatgen.electronic_structure.core import Spin
 
         if not hasattr(self, 'tick_pos3d'):
-            raise Exception('3D information is unknown: No properties output file was read.')
+            raise Exception(
+                '3D information is unknown: No properties output file was read.')
 
         # Set unit to eV-Angstrom
         self._set_unit('eV')
@@ -217,7 +221,7 @@ class ElectronBand():
         else:
             if len(labels) < self.n_tick:
                 warnings.warn(
-'''{:d} ticks available in band object, but {:d} labels are provided.
+                    '''{:d} ticks available in band object, but {:d} labels are provided.
 The default labels will be used for missing ones.'''.format(self.n_tick, len(labels)),
                     stacklevel=2
                 )
@@ -226,7 +230,7 @@ The default labels will be used for missing ones.'''.format(self.n_tick, len(lab
 
             elif len(labels) > self.n_tick:
                 warnings.warn(
-'''{:d} ticks available in band object, but {:d} labels are provided.
+                    '''{:d} ticks available in band object, but {:d} labels are provided.
 The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
                     stacklevel=2
                 )
@@ -242,10 +246,10 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
         # pymatgen will plot the bands wrt to the Fermi Energy
         band_energy = self.bands + self.efermi
         if self.spin == 1:
-            eigenvals = {Spin.up : band_energy[:, :, 0]}
+            eigenvals = {Spin.up: band_energy[:, :, 0]}
         else:
-            eigenvals = {Spin.up   : band_energy[:, :, 0],
-                         Spin.down : band_energy[:, :, 1]}
+            eigenvals = {Spin.up: band_energy[:, :, 0],
+                         Spin.down: band_energy[:, :, 1]}
 
         return BandStructureSymmLine(kpoints=self.k_path3d,
                                      eigenvals=eigenvals,
@@ -262,13 +266,14 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
             unit (str): 'eV': Energy unit = eV, Length unit = Angstrom;
                 'a.u.': Energy unit = Hartree. Length unit = Bohr
         """
-        from CRYSTALpytools.units import H_to_eV, eV_to_H, au_to_angstrom, angstrom_to_au
+        from CRYSTALpytools.units import (H_to_eV, angstrom_to_au,
+                                          au_to_angstrom, eV_to_H)
 
         if unit.lower() == self.unit.lower():
             return self
 
-        opt_e_props = ['gap', 'vbm', 'cbm'] # Optional energy properties
-        opt_d_props = ['gap_pos'] # Optional distance properties
+        opt_e_props = ['gap', 'vbm', 'cbm']  # Optional energy properties
+        opt_d_props = ['gap_pos']  # Optional distance properties
         if unit.lower() == 'ev':
             self.unit = 'eV'
             self.bands = H_to_eV(self.bands)
@@ -319,12 +324,13 @@ class ElectronDOS():
         energy (array): Positions of DOS peaks (x axis)
         unit (str): In principle, should always be 'eV': eV-Angstrom.
     """
+
     def __init__(self, spin, efermi, doss, energy, unit='eV'):
         import numpy as np
 
         self.spin = spin
         self.efermi = efermi
-        self.n_proj = len(doss)
+        self.n_proj = np.shape(doss)[1]
         self.doss = np.array(doss, dtype=float)
         self.n_energy = len(energy)
         self.energy = np.array(energy, dtype=float)
@@ -345,7 +351,7 @@ class ElectronDOS():
         file = open(dos)
         flag = file.readline()
         file.close()
-        if '-%-' in flag: #fort.25 file format
+        if '-%-' in flag:  # fort.25 file format
             dosout = CrgraParser.dos(dos)
         else:
             dosout = XmgraceParser.dos(dos)
@@ -406,8 +412,8 @@ class ElectronDOS():
         if unit.lower() == self.unit.lower():
             return self
 
-        opt_e_props = [] # Optional energy properties
-        opt_d_props = [] # Optional energy inverse properties
+        opt_e_props = []  # Optional energy properties
+        opt_d_props = []  # Optional energy inverse properties
         if unit.lower() == 'ev':
             self.unit = 'eV'
             self.efermi = H_to_eV(self.efermi)
@@ -448,6 +454,7 @@ class ElectronBandDOS():
         band (ElectronBand): ``ElectronBand`` object
         dos (ElectronDOS): ``ElectronDOS`` object
     """
+
     def __init__(self, band, dos):
         self.band = band
         self.dos = dos
@@ -529,6 +536,7 @@ class ChargeDensity():
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
+
     def __init__(self, spin, gridv, chgmap, spinmap=None, struc=None, unit='Angstrom'):
         import numpy as np
 
@@ -559,14 +567,16 @@ class ChargeDensity():
         """
         from CRYSTALpytools.base.extfmt import CrgraParser
 
-        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(args[0])
+        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(
+            args[0])
 
         if len(args) > 1:
             for arg in args[1:]:
                 _, a1, b1, c1, _, _, map11, map21, _ = CrgraParser.mapn(arg)
                 if np.norm(a-a1) > 1e-4 or np.norm(b-b1) > 1e-4 or np.norm(c-c1) > 1e-4 \
-                or np.norm(map11.shape-map1.shape) > 1e-4 or np.norm(map21.shape-map2.shape) > 1e-4:
-                    raise Exception("Inconsistent grid definition beween file '{}' and file '{}'".format(args[0], arg))
+                        or np.norm(map11.shape-map1.shape) > 1e-4 or np.norm(map21.shape-map2.shape) > 1e-4:
+                    raise Exception(
+                        "Inconsistent grid definition beween file '{}' and file '{}'".format(args[0], arg))
                 map1 -= map11
                 map2 -= map21
 
@@ -602,9 +612,11 @@ class ChargeDensity():
         from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
 
         if option.lower() == 'charge':
-            plot_dens_ECHG(self, unit, levels, xticks, yticks, cmap_max, cmap_min, name, dpi)
+            plot_dens_ECHG(self, unit, levels, xticks, yticks,
+                           cmap_max, cmap_min, name, dpi)
         elif option.lower() == 'spin':
-            plot_spin_ECHG(self, unit, levels, xticks, yticks, cmap_max, cmap_min, name, dpi)
+            plot_spin_ECHG(self, unit, levels, xticks, yticks,
+                           cmap_max, cmap_min, name, dpi)
         else:
             raise ValueError("Unknown option '{}'.".format(option))
         return
@@ -617,21 +629,25 @@ class ChargeDensity():
             unit (str): 'Angstrom', :math:`e.\\AA^{-3}`.
                 'a.u.', :math:`e.Bohr^{-3}`.
         """
-        from CRYSTALpytools.units import au_to_angstrom, angstrom_to_au
+        from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
 
         if unit.lower() == self.unit.lower():
             return self
 
-        if unit.lower() == 'angstrom': # 1/Bohr to 1/Angstrom
+        if unit.lower() == 'angstrom':  # 1/Bohr to 1/Angstrom
             self.unit = 'Angstrom'
-            self.chgmap = angstrom_to_au(angstrom_to_au(angstrom_to_au(self.chgmap)))
+            self.chgmap = angstrom_to_au(
+                angstrom_to_au(angstrom_to_au(self.chgmap)))
             if self.spinmap != None:
-                self.spinmap = angstrom_to_au(angstrom_to_au(angstrom_to_au(self.spinmap)))
-        elif unit.lower() == 'a.u.': # 1/Angstrom to 1/Bohr
+                self.spinmap = angstrom_to_au(
+                    angstrom_to_au(angstrom_to_au(self.spinmap)))
+        elif unit.lower() == 'a.u.':  # 1/Angstrom to 1/Bohr
             self.unit = 'a.u.'
-            self.chgmap = au_to_angstrom(au_to_angstrom(au_to_angstrom(self.chgmap)))
+            self.chgmap = au_to_angstrom(
+                au_to_angstrom(au_to_angstrom(self.chgmap)))
             if self.spinmap != None:
-                self.spinmap = au_to_angstrom(au_to_angstrom(au_to_angstrom(self.spinmap)))
+                self.spinmap = au_to_angstrom(
+                    au_to_angstrom(au_to_angstrom(self.spinmap)))
         else:
             raise ValueError('Unknown unit.')
 
