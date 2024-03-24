@@ -3107,7 +3107,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
 
         m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
         m.set_array(R[k])
-        fig.colorbar(m, shrink=0.7, location="left")
+        fig.colorbar(m, ax=ax, shrink=0.7, location="left")
 
         # Make the planes transparent
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
