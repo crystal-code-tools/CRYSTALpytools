@@ -835,7 +835,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         title (str): Title of the plot.
         figsize (list[float]): Size of the figure in inches (width, height).
         save_to_file (str): File name to save the plot.
-        legend (bool): Enables or disables the legend of the density of states (DOS).
+        legend (bool): Obsolete. Only for compatibility.
 
     Returns:
         None
@@ -877,7 +877,7 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
                       color_doss=color_dos, fermi=fermi, energy_range=energy_range,
                       linestl_bd=linestl_band, linestl_doss=linestl_dos,
                       linewidth=linewidth, prj=dos_prj, figsize=figsize, labels=labels,
-                      dos_range=dos_range, title=title, dos_beta=dos_beta, legend=legend)
+                      dos_range=dos_range, title=title, dos_beta=dos_beta)
     if is_ev == True:
         fig.supylabel('Energy (eV)')
     else:

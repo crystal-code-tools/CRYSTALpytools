@@ -497,7 +497,7 @@ class XmgraceParser():
         if is_electron == True:
             energy = H_to_eV(energy)
             doss = eV_to_H(doss)  # states/Hartree to states/eV
-            print(np.shape(doss))
+            # print(np.shape(doss))
         else:
             energy = cm_to_thz(energy)
             doss = thz_to_cm(doss)
