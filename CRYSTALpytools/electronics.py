@@ -90,7 +90,7 @@ class ElectronBand():
 
     def plot(self, unit='eV', k_labels=None, energy_range=None, k_range=None,
              color='blue', linestl='-', linewidth=1, fermi='forestgreen',
-             fermiwidth=1.5, fermialpha=1, title=None, figsize=None, save_to_file=None):
+             fermiwidth=1.5, fermialpha=1, title=None, figsize=None):
         """
         Plot band structure of a single system using `matplotlib <https://matplotlib.org/>`_.
         For arguments setting up figures, colors and lines styles, please refer
@@ -111,19 +111,19 @@ class ElectronBand():
             fermialpha (float): Opacity of the fermi level 0-1.
             title (str): The title of the plot.
             figsize (list): The figure size specified as [width, height].
-            save_to_file (str): The file name to save the plot.
         Returns:
-            None
+            fig (Figure): Matplotlib figure object
+            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_band
 
-        plot_electron_band(self, unit=unit, k_labels=k_labels, mode='single',
-                           not_scaled=False, energy_range=energy_range,
-                           k_range=k_range, color=color, labels=None,
-                           linestl=linestl, linewidth=linewidth, fermi=fermi,
-                           title=title, figsize=figsize, scheme=None,
-                           sharex=True, sharey=True, save_to_file=save_to_file)
-        return
+        fig, ax = plot_electron_band(
+            self, unit=unit, k_labels=k_labels, mode='single',
+            not_scaled=False, energy_range=energy_range, k_range=k_range,
+            color=color, labels=None, linestl=linestl, linewidth=linewidth,
+            fermi=fermi, title=title, figsize=figsize, scheme=None,
+            sharex=True, sharey=True)
+        return fig, ax
 
     @property
     def bandgap(self):
@@ -362,7 +362,7 @@ class ElectronDOS():
     def plot(self, unit='eV', beta='up', overlap=False, prj=None,
              energy_range=None, dos_range=None, color='blue', labels=None,
              linestl=None, linewidth=1, fermi='forestgreen', title=None,
-             figsize=None, save_to_file=None):
+             figsize=None):
         """
         A wrapper of ``CRYSTALpytools.plot.plot_electron_dos``
         For arguments setting up figures, colors and lines styles, please refer
@@ -386,18 +386,20 @@ class ElectronDOS():
             fermi (str): Color of Fermi level line.
             title (str)
             figsize (list[float])
-            save_to_file (str): File name.
+
         Returns:
-            None
+            fig (Figure): Matplotlib figure object
+            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_dos
 
-        plot_electron_dos(self, unit=unit, beta=beta, overlap=overlap, prj=prj,
-                          energy_range=energy_range, dos_range=dos_range,
-                          color=color, labels=labels, linestl=linestl,
-                          linewidth=linewidth, fermi=fermi, title=title,
-                          figsize=figsize, save_to_file=save_to_file)
-        return
+        fig, ax = plot_electron_dos(
+            self, unit=unit, beta=beta, overlap=overlap, prj=prj,
+            energy_range=energy_range, dos_range=dos_range, color=color,
+            labels=labels, linestl=linestl, linewidth=linewidth, fermi=fermi,
+            title=title, figsize=figsize)
+
+        return fig, ax
 
     def _set_unit(self, unit):
         """
@@ -478,7 +480,7 @@ class ElectronBandDOS():
     def plot(self, unit='eV', k_labels=None, dos_beta='down', dos_prj=None,
              energy_range=None, dos_range=None, color_band='blue',
              color_dos='blue', labels=None, linestl_band='-', linestl_dos=None,
-             linewidth=1, fermi='forestgreen', title=None, figsize=None, save_to_file=None):
+             linewidth=1, fermi='forestgreen', title=None, figsize=None):
         """
         A wrapper of ``CRYSTALpytools.plot.plot_electron_banddos``
 
@@ -501,16 +503,21 @@ class ElectronBandDOS():
             fermi (str): Color of the Fermi level line.
             title (str): Title of the plot.
             figsize (list[float]): Size of the figure in inches (width, height).
-            save_to_file (str): File name to save the plot.
+
+        Returns:
+            fig (Figure): Matplotlib figure object
+            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_banddos
 
-        plot_electron_banddos(self.band, self.dos, unit=unit, k_labels=k_labels,
-                              dos_beta=dos_beta, dos_prj=dos_prj, energy_range=energy_range,
-                              dos_range=dos_range, color_band=color_band,
-                              color_dos=color_dos, labels=labels, linestl_band=linestl_band,
-                              linestl_dos=linestl_dos, linewidth=linewidth, fermi=fermi,
-                              title=title, figsize=figsize, save_to_file=save_to_file)
+        fig, ax = plot_electron_banddos(
+            self.band, self.dos, unit=unit, k_labels=k_labels,
+            dos_beta=dos_beta, dos_prj=dos_prj, energy_range=energy_range,
+            dos_range=dos_range, color_band=color_band, color_dos=color_dos,
+            labels=labels, linestl_band=linestl_band, linestl_dos=linestl_dos,
+            linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,)
+
+        return fig, ax
 
     def _set_unit(unit):
         """
@@ -591,7 +598,7 @@ class ChargeDensity():
         return obj
 
     def plot_ECHG(self, option='charge',  unit='Angstrom', levels=150,
-                  xticks=5, yticks=5, cmap_max=None, cmap_min=None, name=None, dpi=400):
+                  xticks=5, yticks=5, cmap_max=None, cmap_min=None, dpi=400):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
@@ -602,24 +609,25 @@ class ChargeDensity():
             levels (int | array-like): The number and positions of the contour lines/regions. Default is 150.
             xticks (int): *Optional* Number of ticks in the x direction.
             yticks (int): *Optional* Number of ticks in the y direction.
-            cmap_max(float): *Optional*, Maximum value used for the colormap.
-            cmap_min(float): Minimun value used for the colormap.
-            name (str): Name of the colormap. None for not saving it.
-            dpi (int): *Valid if name!=None* Resolution (dots per inch) for the output image.
+            cmap_max(float): *Optional* Maximum value used for the colormap.
+            cmap_min(float): *Optional* Minimun value used for the colormap.
+            dpi (int): *Optional* Resolution (dots per inch) for the output image.
+
         Returns:
-            None
+            fig (Figure): Matplotlib figure object
+            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
 
         if option.lower() == 'charge':
-            plot_dens_ECHG(self, unit, levels, xticks, yticks,
-                           cmap_max, cmap_min, name, dpi)
+            fig, ax = plot_dens_ECHG(self, unit, levels, xticks, yticks,
+                                     cmap_max, cmap_min, dpi)
         elif option.lower() == 'spin':
-            plot_spin_ECHG(self, unit, levels, xticks, yticks,
-                           cmap_max, cmap_min, name, dpi)
+            fig, ax = plot_spin_ECHG(self, unit, levels, xticks, yticks,
+                                     cmap_max, cmap_min, dpi)
         else:
             raise ValueError("Unknown option '{}'.".format(option))
-        return
+        return fig, ax
 
     def _set_unit(self, unit):
         """

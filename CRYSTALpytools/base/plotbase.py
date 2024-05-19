@@ -32,8 +32,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
         fermialpha(float): Opacity of the fermi level 0-1
         fermiwidth(float): Width of the fermi level
+
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
     """
@@ -622,7 +624,8 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
         prj (None or list): The projection(s) to plot.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import sys
     import warnings
@@ -1003,7 +1006,8 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         dos_beta (str): Beta state for the density of states plot ('up' or 'down')
 
     Returns:
-        fig (object): Figure object containing the plotted data
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import warnings
     from os import path
@@ -1248,7 +1252,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     # if (prj is None) and (doss.n_proj not in prj):
     #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
 
-    ax[1].hlines(0., xmin_dos, xmax_dos, color=fermi, linewidth=1.5)
+    ax[1].hlines(0., xmin_dos*1.05, xmax_dos*1.05, color=fermi, linewidth=1.5)
     ax[1].set_xlim(xmin_dos*1.05, xmax_dos*1.05)
 
     if labels != None:
@@ -1270,8 +1274,10 @@ def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cb
         cmap_max (float): Maximum value used for the colormap.
         cmap_min (float): Minimun value used for the colormap.
         cbar_label (str): Title of colorbar (typically for quantuity and unit)
+
     Returns:
-        fig (Figure): Matplotlib figure object.
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
     import numpy as np
@@ -1319,4 +1325,4 @@ def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cb
     ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
     ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - obj_echg.cosxy**2))
 
-    return fig
+    return fig, ax

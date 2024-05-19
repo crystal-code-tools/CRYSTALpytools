@@ -14,7 +14,7 @@ Functions to visualize CRYSTAL outputs.
 
 
 def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None, dpi=400, name=None):
+                   yticks=5, cmap_max=None, cmap_min=None, dpi=400):
     """
     Plots the 2D ECHG density map from a fort.25 file.
 
@@ -26,10 +26,11 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
         yticks (int): Number of ticks in the y direction.
         cmap_max(float): Maximum value used for the colormap.
         cmap_min(float): Minimun value used for the colormap.
-        name (str):  Name of the colormap. None for not saving it.
         dpi (int): *Valid if name!=None* Resolution (dots per inch) for the output image.
-   Returns:
-        None
+    
+    Returns:
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import copy
 
@@ -42,19 +43,19 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
     else:
         cbarlabel = 'Charge Density ($|e|.Bohr^{-3}$)'
 
-    fig = plot_2Dscalar(obj.chgmap, obj.gridv, levels, xticks, yticks,
+    fig, ax = plot_2Dscalar(obj.chgmap, obj.gridv, levels, xticks, yticks,
                         cmap_max, cmap_min, cbarlabel)
 
     # if name != None:
     #     save_plot(name, dpi=dpi)
 
     plt.show()
-    return
+    return fig, ax
 
 #--------------------------------ECHG spin density-----------------------------#
 
 def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None, dpi=400, name=None):
+                   yticks=5, cmap_max=None, cmap_min=None, dpi=400):
     """
     Plots the 2D spin density map from a ECHG output file (fort.25). For charge
     density map please refer to ``plot_dens_ECHG``.
@@ -68,11 +69,10 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
         cmap_max(float): *Optional*, Maximum value used for the colormap. Default is None.
         cmap_min(float): *Optional* Minimun value used for the colormap. Default is None.
         dpi (int): *Optional* Resolution (dots per inch) for the output image. Default is 400.
-        savefig (bool): *Optional* Chose to save the figure or not. Default is False.
-        name (str): *Valid if savefig=True* Name for the colormap.
 
-   Returns:
-        None
+    Returns:
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import copy
 
@@ -85,14 +85,14 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
     else:
         cbarlabel = 'Spin Density ($|e|.Bohr^{-3}$)'
 
-    fig = plot_2Dscalar(obj.spinmap, obj.gridv, levels, xticks, yticks,
+    fig, ax = plot_2Dscalar(obj.spinmap, obj.gridv, levels, xticks, yticks,
                         cmap_max, cmap_min, cbarlabel)
 
     # if name != None:
     #     save_plot(name, dpi=dpi)
 
     plt.show()
-    return
+    return fig, ax
 
 #----------------------------------SPIN CURRENTS------------------------------#
 
@@ -583,7 +583,8 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         transparency: Background Transparency of the saved file.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If the specified unit is unknown.
     """
@@ -662,10 +663,10 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
         fermi (str): Color of Fermi level line.
         title (str)
         figsize (list[float])
-        save_to_file (str): File name.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import re
 
@@ -742,10 +743,10 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
         line_freq0 (str): Color of frequency = 0 line.
         title (str)
         figsize (list[float])
-        save_to_file (str): File name.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import re
 
@@ -834,11 +835,11 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
         fermi (str): Color of the Fermi level line.
         title (str): Title of the plot.
         figsize (list[float]): Size of the figure in inches (width, height).
-        save_to_file (str): File name to save the plot.
         legend (bool): Obsolete. Only for compatibility.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If the unit parameter is unknown.
     """
@@ -919,10 +920,10 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
         freq0_line (str): Color of the frequency=0 line.
         title (str): Title of the plot.
         figsize (list[float]): Size of the figure in inches (width, height).
-        save_to_file (str): File name to save the plot.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If the unit parameter is unknown.
     """
