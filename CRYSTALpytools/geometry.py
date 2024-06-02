@@ -512,49 +512,39 @@ class CStructure(Structure):
 
         return rcel
 
-    def Miller_norm(self, miller, d=1.0):
+    def miller_norm(self, miller):
         """
         Find the norm vector of a specified Miller plane
 
         Args:
-            miller (array | list): 3\*1 list of Miller index
-            d (fload): Length of norm vector
+            miller (array | list): Miller indices. 3\*1 1D array or nmiller\*3 3D array
 
         Returns:
-            vec (array): 3\*1 norm vector, normalized to 1.
+            vec (array): Norm vector, normalized to 1. 3\*1 1D array or nmiller\*3 3D array
         """
         import numpy as np
 
-        zeros = np.argwhere(abs(miller) < 1)
-        if len(zeros) == 0:
-            vec1 = np.array([1/miller[0], 0, 0]) - np.array([0, 0, 1/miller[2]])
-            vec2 = np.array([0, 1/miller[1], 0]) - np.array([0, 0, 1/miller[2]])
-            vec1 = np.dot(vec1, self.lattice.matrix)
-            vec2 = np.dot(vec2, self.lattice.matrix)
-            vec = np.cross(vec1, vec2)
-        elif len(zeros) == 1:
-            if zeros[0][0] == 0:
-                vec1 = [1, 0, 0]
-                vec2 = np.array([0, 1/miller[1], 0]) - np.array([0, 0, 1/miller[2]])
-            elif zeros[0][0] == 1:
-                vec1 = np.array([1/miller[0], 0, 0]) - np.array([0, 0, 1/miller[2]])
-                vec2 = [0, 1, 0]
-            else:
-                vec1 = [0, 0, 1]
-                vec2 = np.array([1/miller[0], 0, 0]) - np.array([0, 1/miller[1], 0])
-            vec1 = np.dot(vec1, self.lattice.matrix)
-            vec2 = np.dot(vec2, self.lattice.matrix)
-            vec = np.cross(vec1, vec2)
+        if len(np.shape(miller)) == 1:
+            dimen = 1
+            miller = np.array([miller], dtype=int)
+        elif len(np.shape(miller)) > 1:
+            dimen = 2
+            miller = np.array(miller, dtype=int)
         else:
-            if zeros[0][0] == 0 and zeros[1][0] == 1:
-                vec = np.array([0., 0., 1.])
-            elif zeros[0][0] == 0 and zeros[1][0] == 2:
-                vec = np.array([0., 1., 0.])
-            else:
-                vec = np.array([1., 0., 0.])
-            vec = np.dot(vec, self.lattice.matrix)
+            raise ValueError('Unknown Miller index format.')
 
-        vec = vec / np.linalg.norm(vec) * d
+        if np.shape(miller)[1] != 3:
+            raise ValueError('Unknown Miller index format.')
+        nmiller = np.shape(miller)[0]
+
+        vec = np.zeros([nmiller, 3])
+        for im, m in enumerate(miller):
+            cart_vec = self.lattice.reciprocal_lattice_crystallographic.get_cartesian_coords(m)
+            vec[im, :] = cart_vec / np.linalg.norm(cart_vec)
+
+        if dimen == 1:
+            vec = vec[0, :]
+
         return vec
 
     def write_gui(self, gui_file=None, pbc=None, vacuum=500., symmetry=True,

@@ -32,8 +32,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
         sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
         fermialpha(float): Opacity of the fermi level 0-1
         fermiwidth(float): Width of the fermi level
+
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
     """
@@ -192,17 +194,10 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
                         'You have more labels than the High Simmetry point along the path')
 
         hsp[len(hsp)-1] = xmax
-
-        y_band = np.linspace(ymin*1.05, ymax*1.05, 2)
-
-        for j in hsp:
-            x_band = np.ones(2)*j
-            ax.plot(x_band, y_band, color='black', linewidth=0.5)
+        ax.vlines(hsp, ymin*1.05, ymax*1.05, color='black', linewidth=0.5)
 
         # plot of the fermi level
-        x = np.linspace(xmin, xmax, 2)
-        y = np.zeros(2)
-        ax.plot(x, y, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+        ax.hlines(0., xmin, xmax, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
 
         # definition of the plot title
         if title is not None:
@@ -277,12 +272,14 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
 
     path_dict = dict(zip(high_sym_point2, hsp))
 
-    # definition of the ylim
-    if (energy_range is not None) and (sharey == True):
-        ymin = energy_range[0]
-        ymax = energy_range[1]
+    # definition of the y axis for single subplot
+    if mode != modes[2]:
+        if energy_range is not None:
+            ymin = energy_range[0]
+            ymax = energy_range[1]
+        ax.set_ylim(ymin, ymax)
 
-    # definition of the xlim
+    # definition of the x axis
     if k_range is not None:
         xmin = path_dict[k_range[0]]
         xmax = path_dict[k_range[1]]
@@ -292,7 +289,6 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
     else:
         plt.xticks(hsp)
 
-    plt.ylim(ymin, ymax)
     if (mode == modes[0]) or (mode == modes[1]):
         plt.xlim(xmin, xmax)
     elif (mode == modes[2]) and (k_range is not None):
@@ -534,28 +530,15 @@ def __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth
                         ax[row, col].plot(
                             dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
 
-            # Plot of the HSPs lines
-            yhsp = np.linspace(np.amin(pltband)+5, np.amax(pltband)+5, 2)
-            for j in hsp:
-                xhsp = np.ones(2)*j
-                if n_rows == 1:
-                    ax[col].plot(
-                        xhsp, yhsp, color='black', linewidth=0.5)
-                else:
-                    ax[row, col].plot(
-                        xhsp, yhsp, color='black', linewidth=0.5)
-
             # Fermi level line plot
-            xfermi = np.linspace(np.amin(pltband), np.amax(pltband), 2)
-            yfermi = np.zeros(2)
             if n_rows == 1:
-                ax[col].plot(
-                    xfermi, yfermi, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+                ax[col].hlines(0., np.amin(pltband), np.amax(pltband),
+                               color=fermi, linewidth=fermiwidth, alpha=fermialpha)
             else:
-                ax[row, col].plot(
-                    xfermi, yfermi, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+                ax[row, col].hlines(0., np.amin(pltband), np.amax(pltband),
+                                    color=fermi, linewidth=fermiwidth, alpha=fermialpha)
 
-            # Definition of x and y limits
+            # Definition of x limits
             if n_rows == 1:
                 if sharex is not True:
                     """hsp_label = []
@@ -569,10 +552,6 @@ def __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth
                     warnings.warn(
                         'The sharex = False option has not been developed yet')
                 ax[col].set_xlim([np.amin(dx), np.amax(dx)])
-                if (sharey is not True) and (energy_range is not None):
-                    ax[col].set_ylim([energy_range[0], energy_range[1]])
-                else:
-                    ax[col].set_ylim([np.amin(pltband), np.amax(pltband)])
             else:
                 if sharex is not True:
                     """hsp_label = []
@@ -586,14 +565,36 @@ def __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth
                     warnings.warn(
                         'The sharex = False option has not been developed yet')
                 ax[row, col].set_xlim([np.amin(dx), np.amax(dx)])
-                if (sharey is not True) and (energy_range is not False):
-                    ax[row, col].set_ylim(
-                        [energy_range[0], energy_range[1]])
-                else:
-                    ax[row, col].set_ylim(
-                        [np.amin(pltband), np.amax(pltband)])
 
             count3 += 1
+
+    # Plot of the HSPs lines and setup Y axis
+    for col in range(n_col):
+        for row in range(n_rows):
+            if energy_range != None:
+                pymin = min(energy_range)
+                pymax = max(energy_range)
+            else:
+                if sharey == True:
+                    pymin = min(ymin)
+                    pymax = max(ymax)
+                elif sharey == False:
+                    pymin = ymin[int(col*n_rows+row)]
+                    pymax = ymax[int(col*n_rows+row)]
+                elif sharey == 'row':
+                    pymin = min([ymin[int(i*n_rows+row)] for i in range(n_col)])
+                    pymax = max([ymax[int(i*n_rows+row)] for i in range(n_col)])
+                elif sharey == 'col':
+                    pymin = min(ymin[int(col*n_rows):int(col*n_rows+n_rows)])
+                    pymax = max(ymax[int(col*n_rows):int(col*n_rows+n_rows)])
+
+            # Plot of the HSPs lines
+            if n_rows == 1:
+                ax[col].vlines(hsp, pymin, pymax, color='black', linewidth=0.5)
+                ax[col].set_ylim(pymin, pymax)
+            else:
+                ax[row, col].vlines(hsp, pymin, pymax, color='black', linewidth=0.5)
+                ax[row, col].set_ylim(pymin, pymax)
 
     if (isinstance(ymin, list)) or (isinstance(ymax, list)):
         ymin = min(ymin)
@@ -623,7 +624,8 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
         prj (None or list): The projection(s) to plot.
 
     Returns:
-        None
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import sys
     import warnings
@@ -981,7 +983,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
 
 
 def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range, linestl_bd,
-                linestl_doss, linewidth, prj, figsize, labels, dos_range, title, dos_beta, legend):
+                linestl_doss, linewidth, prj, figsize, labels, dos_range, title, dos_beta):
     """
     The base function to plot electron / phonon band structure + DOS
 
@@ -1002,10 +1004,10 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
         dos_range (list or None): Range of the density of states plot
         title (str or None): Title of the figure
         dos_beta (str): Beta state for the density of states plot ('up' or 'down')
-        legend (bool): Enables or disables the legend
 
     Returns:
-        fig (object): Figure object containing the plotted data
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import warnings
     from os import path
@@ -1213,24 +1215,15 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                     ax[1].plot(doss.doss[:, projection, 1], dx_dos, color=color_doss[0],
                                linestyle='--', linewidth=linewidth)
 
-    if ymin_bd > ymin_dos:
-        ymin = ymin_dos
-    elif ymin_bd <= ymin_dos:
-        ymin = ymin_bd
-
-    if ymax_bd >= ymax_dos:
-        ymax = ymax_bd
-    elif ymax_bd < ymax_dos:
-        ymax = ymax_dos
-
-    xmax_bd = hsp[len(hsp)-1]
-    # Plot of HSP lines
-    yhsp = np.linspace(ymin-5, ymax+5, 2)
-    for j in hsp:
-        xhsp = np.ones(2)*j
-        ax[0].plot(xhsp, yhsp, color='black', linewidth=0.5)
-
-    # Creation if HSP label ticks
+    # Set Y axis, HSP lines (band) and 0 Lines (DOS)
+    if energy_range is not None:
+        ymin = energy_range[0]
+        ymax = energy_range[1]
+    else:
+        ymin = min([ymin_bd, ymin_dos])
+        ymax = max([ymax_bd, ymax_dos])
+    ax[0].vlines(hsp, ymin, ymax, color='black', linewidth=0.5)
+    ax[0].set_ylim(ymin, ymax)
     hsp_label = []
     if k_labels is not None:
         for n in k_labels:
@@ -1239,19 +1232,17 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                 hsp_label.append(g)
             else:
                 hsp_label.append(n)
-
     ax[0].set_xticks(hsp)
     if k_labels is not None:
         ax[0].set_xticklabels(hsp_label)
 
-    xfermi_bd = np.linspace(xmin_bd, xmax_bd, 2)
-    xfermi_dos = np.linspace(xmin_dos*1.05, xmax_dos*1.05, 2)
-    yfermi = np.zeros(2)
+    if line_0 == True:
+        ax[1].vlines(0., ymin, ymax, color='black', linewidth=0.5)
+    ax[1].set_ylim(ymin, ymax)
 
-    # Plot of fermi level lines both in the band and the doss plot
-    ax[0].plot(xfermi_bd, yfermi, color=fermi, linewidth=1.5)
-    ax[1].plot(xfermi_dos, yfermi, color=fermi, linewidth=1.5)
-
+    # Set X axis and fermi lines
+    xmax_bd = hsp[len(hsp)-1]
+    ax[0].hlines(0., xmin_bd, xmax_bd, color=fermi, linewidth=1.5)
     ax[0].set_xlim(xmin_bd, xmax_bd)
 
     if dos_range is not None:
@@ -1261,16 +1252,10 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     # if (prj is None) and (doss.n_proj not in prj):
     #    xmax_dos = np.amax(doss.doss[:, 1:doss.n_proj-1, :])
 
-    if line_0 == True:
-        ax[1].plot(np.zeros([2,]), [ymin, ymax], color='black', linewidth=0.5)
+    ax[1].hlines(0., xmin_dos*1.05, xmax_dos*1.05, color=fermi, linewidth=1.5)
     ax[1].set_xlim(xmin_dos*1.05, xmax_dos*1.05)
 
-    if energy_range is not None:
-        ymin = energy_range[0]
-        ymax = energy_range[1]
-
-    plt.ylim(ymin, ymax)
-    if legend:
+    if labels != None:
         ax[1].legend()
 
     return fig, ax
@@ -1289,8 +1274,10 @@ def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cb
         cmap_max (float): Maximum value used for the colormap.
         cmap_min (float): Minimun value used for the colormap.
         cbar_label (str): Title of colorbar (typically for quantuity and unit)
+
     Returns:
-        fig (Figure): Matplotlib figure object.
+        fig (Figure): Matplotlib figure object
+        ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
     import numpy as np
@@ -1338,4 +1325,4 @@ def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cb
     ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
     ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - obj_echg.cosxy**2))
 
-    return fig
+    return fig, ax

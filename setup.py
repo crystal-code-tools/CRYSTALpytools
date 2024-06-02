@@ -1,10 +1,11 @@
 import setuptools
+from datetime import date
 
 long_description = 'Python tools for the <a href="https://www.crystal.unito.it/index.php">CRYSTAL code</a> developed and mantained by the CRYSTAL code developers'
 
 setuptools.setup(
     name="CRYSTALpytools",        
-    version="2023.10.02",
+    version=date.today().strftime('%Y.%m.%d'),
     author_email="crystalcodetools@gmail.com",
     description="Python tools for the CRYSTAL code developed and mantained by the CRYSTAL code developers.",
     long_description=long_description,
@@ -21,15 +22,14 @@ setuptools.setup(
     packages=setuptools.find_packages(include=['CRYSTALpytools', 'CRYSTALpytools.*']),
     #python_requires=">=3.8",
     install_requires=[
-	"numpy",
+	"numpy<2.0",
 	"sympy",
-	"scipy",
+	"scipy<1.14.0",
 	"matplotlib",
 	"pandas",
 	"PyYAML",
 	"mendeleev>=0.14.0",
     "pymatgen>=2022.7.25",
-    "pymatgen<2024.1.27",
     "ase>=3.22.1",
     "basis_set_exchange>=0.9.1"
     ]
