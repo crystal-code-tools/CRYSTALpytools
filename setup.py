@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=[
 	"numpy<2.0",
 	"sympy",
-	"scipy",
+	"scipy<1.14.0",
 	"matplotlib",
 	"pandas",
 	"PyYAML",
