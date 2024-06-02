@@ -31,28 +31,39 @@ class CrgraParser():
             unit (str): 'eV' or 'THz'
         """
         import re
-
         import numpy as np
-
         from CRYSTALpytools.units import H_to_eV, au_to_angstrom, cm_to_thz
 
         file = open(filename, 'r')
         data = file.readlines()
-        file.close
+        file.close()
 
-        if '-%-' not in data[0] or 'BAND' not in data[0]:
-            raise Exception(
-                "File '{}' is not a Crgra fort.25 BAND format file.".format(filename))
+        if '-%-' not in data[0]:
+            raise Exception("File '{}' is not in Crgra fort.25 format.".format(filename))
+        # Band and DOS data might be written into the same f25 file.
+        isband = False
+        bgline = None
+        for nline, line in enumerate(data):
+            if 'BAND' in line:
+                isband = True
+                bgline = nline
+                break
+            else:
+                continue
+        if isband != True:
+            raise Exception("'BAND' keyword is not found in file '{}'.".format(filename))
 
         data_in_block = []
         k_in_block = []
         n_kpoints = 0
         tick_pos = [0.,]
         tick_label = []
-        countline = 0
+        countline = bgline
         while countline < len(data):
             line = data[countline]
-            if '-%-' in line:
+            if re.match(r'^\-\%\-', line):
+                if not re.match(r'^\-\%\-.*BAND', line): # Other data
+                    break
                 line = line.strip().split()
                 ihferm = int(line[0][3])
                 n_bands = int(line[1])
@@ -156,34 +167,45 @@ class CrgraParser():
             unit (str): 'eV' or 'THz'
         """
         import re
-
         import numpy as np
-
         from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         file = open(filename, 'r')
         data = file.readlines()
-        file.close
+        file.close()
 
-        if '-%-' not in data[0] or 'DOS' not in data[0]:
-            raise Exception(
-                "File '{}' is not a Crgra fort.25 PDOS/DOSS format file.".format(filename))
-        else:
-            # Assuming all projections have the same energy/frequency range
-            line = data[0].strip().split()
-            npt = int(line[2])
-            # Format issue: there might be no space between dx, dy and fermi
-            dy = float(data[0][30:42])
-            efermi = float(data[0][42:54])
-            miny = float(data[1][12:24])
-            # Align Fermi energy to 0, consistent with DOSS.DAT file
-            energy = np.linspace(miny, miny + dy * (npt - 1), npt) - efermi
+        if '-%-' not in data[0]:
+            raise Exception("File '{}' is not in Crgra fort.25 format.".format(filename))
+        # Band and DOS data might be written into the same f25 file.
+        isdos = False
+        bgline = None
+        for nline, line in enumerate(data):
+            if 'DOS' in line:
+                isdos = True
+                bgline = nline
+                break
+            else:
+                continue
+        if isdos != True:
+            raise Exception("'*DOS*' keyword is not found in file '{}'.".format(filename))
+
+        # Assuming all projections have the same energy/frequency range
+        line = data[bgline].strip().split()
+        npt = int(line[2])
+        # Format issue: there might be no space between dx, dy and fermi
+        dy = float(data[bgline][30:42])
+        efermi = float(data[bgline][42:54])
+        miny = float(data[bgline+1][12:24])
+        # Align Fermi energy to 0, consistent with DOSS.DAT file
+        energy = np.linspace(miny, miny + dy * (npt - 1), npt) - efermi
 
         data_in_block = []
-        countline = 0
+        countline = bgline
         while countline < len(data):
             line = data[countline]
-            if '-%-' in line:
+            if re.match(r'^\-\%\-', line):
+                if not re.match(r'^\-\%\-.*DOS', line): # Other data
+                    break
                 line = line.strip().split()
                 ihferm = int(line[0][3])
                 ftype = line[0][4:]
@@ -258,14 +280,12 @@ class CrgraParser():
             unit (str): 'a.u.'
         """
         import re
-
         import numpy as np
-
         from CRYSTALpytools.geometry import CStructure
 
         file = open(filename, 'r')
         data = file.readlines()
-        file.close
+        file.close()
 
         if '-%-' not in data[0] or 'MAPN' not in data[0]:
             raise Exception(
@@ -359,14 +379,12 @@ class XmgraceParser():
             unit (str): 'eV' or 'THz'
         """
         import re
-
         import numpy as np
-
         from CRYSTALpytools.units import H_to_eV, au_to_angstrom, cm_to_thz
 
         file = open(filename, 'r')
         data = file.readlines()
-        file.close
+        file.close()
 
         if '#' not in data[0] or 'NBND' not in data[0]:
             raise Exception(
@@ -443,19 +461,16 @@ class XmgraceParser():
             spin (array): 1, closed shell; 2, open shell
             efermi (float): Fermi energy. Unit: eV. 0 for phonon bands.
             doss (array): n_proj\*n_energy\*spin array of DOS. Positive values
-                for both spin up and spin down states
             energy (int): Number of sampling points (energy or frequency).
             unit (str): 'eV' or 'THz'
         """
         import re
-
         import numpy as np
-
         from CRYSTALpytools.units import H_to_eV, cm_to_thz, eV_to_H, thz_to_cm
 
         file = open(filename, 'r')
         data = file.readlines()
-        file.close
+        file.close()
         if '#' not in data[0] or 'NPROJ' not in data[0]:
             raise Exception(
                 "File '{}' is not a DOSS.DAT / PHONDOS.DAT file.".format(filename))

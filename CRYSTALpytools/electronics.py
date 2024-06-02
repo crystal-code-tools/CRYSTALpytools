@@ -330,7 +330,7 @@ class ElectronDOS():
 
         self.spin = spin
         self.efermi = efermi
-        self.n_proj = np.shape(doss)[1]
+        self.n_proj = np.shape(doss)[1]-1
         self.doss = np.array(doss, dtype=float)
         self.n_energy = len(energy)
         self.energy = np.array(energy, dtype=float)
