@@ -667,31 +667,30 @@ class Tensor3D():
             self (Tensor3D)
         """
         from scipy.spatial.transform import Rotation as Rot
+        from pymatgen.core.lattice import Lattice
         import copy
 
         # sanity check
         if self.lattice is None:
             raise Exception('Lattice information not available.')
         ## if it is a rotation
-        new_lattice = np.array(new_lattice, dtype=float)
-        rotvec = np.zeros([3,3], dtype=float)
+        nlatt = np.array(new_lattice, dtype=float)
         for i in range(3):
-            vold = self.lattice.matrix[i, :] / np.linalg.norm(self.lattice.matrix[i, :])
-            vnew = new_lattice[i, :] / np.linalg.norm(new_lattice[i, :])
-            vrot = np.cross(vold, vnew)
-            if np.all(np.abs(vrot) < 1e-4):
-                vrot = np.zeros([3,], dtype=float)
-            else:
-                vrot = vrot / np.linalg.norm(vrot) * np.arccos(np.dot(vold, vnew))
-            rotvec[i, :] = np.round(vrot, 6)
-        if (np.all(rotvec[0]==rotvec[1]) and np.all(rotvec[0]==rotvec[2])) != True:
-            raise ValueError('New lattice definition is different from old definition')
+            unorm = np.linalg.norm(self.lattice.matrix[i, :])
+            for j in range(i, 3):
+                if unorm - np.linalg.norm(nlatt[j, :]) < 1e-6:
+                    nlatt[[i, j], :] = nlatt[[j, i], :]
+                    break
+                else:
+                    continue
+
+        rmx = nlatt.transpose() @ np.linalg.inv(self.lattice.matrix.transpose())
+        if np.abs(np.linalg.det(rmx))-1 > 1e-6:
+            raise ValueError('Determinant of rotation matrix does not equal to 1. Not a rotation. Check your lattice input.')
 
         # Rotation of lattice ---> rotation of cartesian base vectors
-        rot = Rot.from_rotvec(rotvec[0])
+        rot = Rot.from_matrix(rmx)
         newbase = rot.inv().apply(np.eye(3)) # New base represented by the old coordinate
-        if abs(np.linalg.det(newcd))-1 > 1e-6:
-            raise ValueError('Determinant of new coordinate system does not equal to 1. Check your lattice input.')
 
         voigt = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]], dtype=int)
         newC = np.zeros([3, 3, 3, 3], dtype=float)
@@ -711,6 +710,7 @@ class Tensor3D():
         self._C = cart2voigt(newC)
         self._S = np.linalg.inv(self._C)
         self._Scart = voigt2cart(self._S)
+        self.lattice = Lattice(new_lattice)
         return self
 
 
@@ -956,7 +956,7 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
                            [0.5, -0.5, 0.5], [0.5, -0.5, -0.5],
                            [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
                            [-0.5, 0.5, 0.5], [-0.5, 0.5, -0.5]])
-        points = np.matmul(points, plot_latt)
+        points = points @ plot_latt
         ax[1].plot(points[:, 0], points[:, 1], points[:, 2], color='tab:gray', linewidth=1)
     else:
         points = np.zeros([1,3])
@@ -971,13 +971,13 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
     # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     # Fixing limits
     if scale_radius == True:
-        xmx = np.max(np.concatenate([points[:, 0], [rmax], u[:, 0]]))
-        ymx = np.max(np.concatenate([points[:, 1], [rmax], u[:, 1]]))
-        zmx = np.max(np.concatenate([points[:, 2], [rmax], u[:, 2]]))
+        xmx = np.max(np.abs(np.concatenate([points[:, 0], [rmax], u[:, 0]])))
+        ymx = np.max(np.abs(np.concatenate([points[:, 1], [rmax], u[:, 1]])))
+        zmx = np.max(np.abs(np.concatenate([points[:, 2], [rmax], u[:, 2]])))
     else:
-        xmx = np.max(np.concatenate([points[:, 0], [1], u[:, 0]]))
-        ymx = np.max(np.concatenate([points[:, 1], [1], u[:, 1]]))
-        zmx = np.max(np.concatenate([points[:, 2], [1], u[:, 2]]))
+        xmx = np.max(np.abs(np.concatenate([points[:, 0], [1], u[:, 0]])))
+        ymx = np.max(np.abs(np.concatenate([points[:, 1], [1], u[:, 1]])))
+        zmx = np.max(np.abs(np.concatenate([points[:, 2], [1], u[:, 2]])))
     ax[1].set_xlim(-xmx, xmx)
     ax[1].set_ylim(-ymx, ymx)
     ax[1].set_zlim3d(-zmx, zmx)
@@ -1058,7 +1058,7 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
                            [0.5, -0.5, 0.5], [0.5, -0.5, -0.5],
                            [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
                            [-0.5, 0.5, 0.5], [-0.5, 0.5, -0.5]])
-        points = np.matmul(points, plot_latt)
+        points = points @ plot_latt
         fig.add_trace(
             go.Scatter3d(
                 x = points[:, 0],
@@ -1073,15 +1073,15 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
     else:
         points = np.zeros([1,3])
 
-    # Fixing limits
+    # Fixing limits. Fix text display issue
     if scale_radius == True:
-        xmx = np.max(np.concatenate([points[:, 0], [rmax], u[:, 0]]))
-        ymx = np.max(np.concatenate([points[:, 1], [rmax], u[:, 1]]))
-        zmx = np.max(np.concatenate([points[:, 2], [rmax], u[:, 2]]))
+        xmx = np.max(np.abs(np.concatenate([points[:, 0], [rmax], u[:, 0]])))
+        ymx = np.max(np.abs(np.concatenate([points[:, 1], [rmax], u[:, 1]])))
+        zmx = np.max(np.abs(np.concatenate([points[:, 2], [rmax], u[:, 2]])))
     else:
-        xmx = np.max(np.concatenate([points[:, 0], [1], u[:, 0]]))
-        ymx = np.max(np.concatenate([points[:, 1], [1], u[:, 1]]))
-        zmx = np.max(np.concatenate([points[:, 2], [1], u[:, 2]]))
+        xmx = np.max(np.abs(np.concatenate([points[:, 0], [1], u[:, 0]])))
+        ymx = np.max(np.abs(np.concatenate([points[:, 1], [1], u[:, 1]])))
+        zmx = np.max(np.abs(np.concatenate([points[:, 2], [1], u[:, 2]])))
     fig.update_layout(
         width=720,
         height=720,
