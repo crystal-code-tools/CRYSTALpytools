@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-A post-processing module for elastic properties.
+The module for elastic properties.
 """
 from CRYSTALpytools import units
 import numpy as np
 
-__all__ = ['Tensor3D']
+__all__ = ['Tensor3D',
+           'young', 'comp', 'shear', 'poisson',
+           'voigt2cart', 'cart2voigt']
 
 
 class Tensor3D():
@@ -37,28 +39,20 @@ class Tensor3D():
             self._S = np.linalg.inv(matrix)
 
         # convert matrices from Voigt notation to Cartesian notation
-        voigt = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]], dtype=int)
-        self._Ccart = np.zeros([3, 3, 3, 3], dtype=float)
-        self._Scart = np.zeros([3, 3, 3, 3], dtype=float)
-        for i in range(3):
-            for j in range(3):
-                v = voigt[i, j]
-                for k in range(3):
-                    for l in range(3):
-                        self._Ccart[i, j, k, l] = self._C[v, voigt[k,l]]
-                        self._Scart[i, j, k, l] = self._S[v, voigt[k,l]]
+        self._Ccart = voigt2cart(self._C)
+        self._Scart = voigt2cart(self._S)
 
     @property
     def stiffness(self):
         """
-        6\*6 stiffness matrix. Unit: GPa.
+        6\*6 stiffness matrix in Voigt annotation. Unit: GPa.
         """
         return self._C
 
     @property
     def compliance(self):
         """
-        6\*6 compliance matrix. Unit: GPa:math:`^{-1}`.
+        6\*6 compliance matrix in Voigt annotation. Unit: GPa:math:`^{-1}`.
         """
         return self._S
 
@@ -200,7 +194,7 @@ class Tensor3D():
                 v[i, :] = v[i, :] / np.linalg.norm(v[i, :])
         # orthogonality
         for i in range(len(u)):
-            if np.abs(np.dot(u[i, :], v[i, :])) > 1e-4:
+            if np.abs(np.dot(u[i, :], v[i, :])) > 1e-6:
                 raise ValueError("Vector pair {:d} (from 0) is non-orthogonal.".format(i))
 
         # add 1 extra dimension to v (nu*1*3)
@@ -424,7 +418,7 @@ class Tensor3D():
                 utextplt = []
                 ru = []
                 for ivp, vp in enumerate(utmp):
-                    if np.abs(np.dot(vp, v0)) > 1e-4: # non-orthogonal
+                    if np.abs(np.dot(vp, v0)) > 1e-6: # non-orthogonal
                         continue
                     uplt.append(vp)
                     if property == 'shear' or property == 'poisson':
@@ -661,16 +655,81 @@ class Tensor3D():
 
         return fig, ax
 
+    def transform(self, new_lattice):
+        """
+        Transform (rotate) the lattice and change matrix elements. Useful when
+        lattice information is available.
+
+        Args:
+            new_lattice (numpy.ndarray) 3\*3 array of new lattice.
+
+        Returns:
+            self (Tensor3D)
+        """
+        from scipy.spatial.transform import Rotation as Rot
+        import copy
+
+        # sanity check
+        if self.lattice is None:
+            raise Exception('Lattice information not available.')
+        ## if it is a rotation
+        new_lattice = np.array(new_lattice, dtype=float)
+        rotvec = np.zeros([3,3], dtype=float)
+        for i in range(3):
+            vold = self.lattice.matrix[i, :] / np.linalg.norm(self.lattice.matrix[i, :])
+            vnew = new_lattice[i, :] / np.linalg.norm(new_lattice[i, :])
+            vrot = np.cross(vold, vnew)
+            if np.all(np.abs(vrot) < 1e-4):
+                vrot = np.zeros([3,], dtype=float)
+            else:
+                vrot = vrot / np.linalg.norm(vrot) * np.arccos(np.dot(vold, vnew))
+            rotvec[i, :] = np.round(vrot, 6)
+        if (np.all(rotvec[0]==rotvec[1]) and np.all(rotvec[0]==rotvec[2])) != True:
+            raise ValueError('New lattice definition is different from old definition')
+
+        # Rotation of lattice ---> rotation of cartesian base vectors
+        rot = Rot.from_rotvec(rotvec[0])
+        newbase = rot.inv().apply(np.eye(3)) # New base represented by the old coordinate
+        if abs(np.linalg.det(newcd))-1 > 1e-6:
+            raise ValueError('Determinant of new coordinate system does not equal to 1. Check your lattice input.')
+
+        voigt = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]], dtype=int)
+        newC = np.zeros([3, 3, 3, 3], dtype=float)
+        for m in range(3):
+            for n in range(3):
+                for o in range(3):
+                    for p in range(3):
+                        C = 0.
+                        for i in range(3):
+                            for j in range(3):
+                                for k in range(3):
+                                    for l in range(3):
+                                        C += newbase[m, i]*newbase[n, j]*newbase[o, k]*newbase[p, l]*self._C[voigt[i, j], voigt[k, l]]
+                        newC[m, n, o, p] = C
+
+        self._Ccart = copy.deepcopy(newC)
+        self._C = cart2voigt(newC)
+        self._S = np.linalg.inv(self._C)
+        self._Scart = voigt2cart(self._S)
+        return self
+
 
 # ----
-# Basic elastic property functions. Currently private.
+# Basic elastic property functions.
 # ----
 def young(S, u):
     """
-    The equation of Young's modulus. Private, use ``Tensor`` object.
+    The equation of Young's modulus. Using ``Tensor3D`` object is recommended.
+
+    .. math::
+
+        E = \\frac{1}{u_{i}u_{j}u_{k}u_{l}S_{ijkl}}
+
+    Einstein's notation is used. :math:`i,j,k,l=1,3; j>i; l>k`.
 
     Args:
-        S (numpy.ndarray): Compliance matrix in Cartesian form. Unit: GPa:math:`^{-1}`.
+        S (numpy.ndarray): 3\*3\*3\*3 compliance matrix in Cartesian form.
+            Unit: GPa:math:`^{-1}`.
         u (numpy.ndarray): nu\*3 array. Must be normalized Cartesian vectors.
 
     Returns:
@@ -687,10 +746,17 @@ def young(S, u):
 
 def comp(S, u):
     """
-    The equation of linear compressibility. Private, use ``Tensor`` object.
+    The equation of linear compressibility. Using ``Tensor3D`` object is recommended.
+
+    .. math::
+
+        \\beta = u_{i}u_{j}S_{ijkk}
+
+    Einstein's notation is used. :math:`i,j,k=1,3; j>i`.
 
     Args:
-        S (numpy.ndarray): Compliance matrix in Cartesian form. Unit: GPa:math:`^{-1}`
+        S (numpy.ndarray): 3\*3\*3\*3 compliance matrix in Cartesian form.
+            Unit: GPa:math:`^{-1}`
         u (numpy.ndarray): nu\*3 array. Must be normalized Cartesian vectors.
 
     Returns:
@@ -707,10 +773,17 @@ def comp(S, u):
 
 def shear(S, u, v):
     """
-    The equation of shear modulus. Private, use ``Tensor`` object.
+    The equation of shear modulus. Using ``Tensor3D`` object is recommended.
+
+    .. math::
+
+        G = \\frac{1}{u_{i}v_{j}u_{k}v_{l}S_{ijkl}}
+
+    Einstein's notation is used. :math:`i,j,k,l=1,3`.
 
     Args:
-        S (numpy.ndarray): Compliance matrix in Cartesian form.. Unit: GPa:math:`^{-1}`.
+        S (numpy.ndarray): 3\*3\*3\*3 compliance matrix in Cartesian form.
+            Unit: GPa:math:`^{-1}`.
         u (numpy.ndarray): nu\*3 array. Must be normalized Cartesian vectors.
         v (numpy.ndarray): nu\*nv\*3 array. Must be normalized Cartesian vectors.
 
@@ -731,10 +804,17 @@ def shear(S, u, v):
 
 def poisson(S, u, v):
     """
-    The equation of Poisson ratio. Private, use ``Tensor`` object.
+    The equation of Poisson ratio. Using ``Tensor3D`` object is recommended.
+
+    .. math::
+
+        \\nu = -\\frac{u_{i}u_{j}v_{k}v_{l}S_{ijkl}}{u_{i}u_{j}u_{k}u_{l}S_{ijkl}}
+
+    Einstein's notation is used. :math:`i,j,k=1,3; j>i`.
 
     Args:
-        S (numpy.ndarray): Compliance matrix in Cartesian form. Unit: GPa:math:`^{-1}`.
+        S (numpy.ndarray): 3\*3\*3\*3 compliance matrix in Cartesian form.
+            Unit: GPa:math:`^{-1}`.
         u (numpy.ndarray): nu\*3 array. Must be normalized Cartesian vectors.
         v (numpy.ndarray): nu\*nv\*3 array. Must be normalized Cartesian vectors.
 
@@ -751,6 +831,52 @@ def poisson(S, u, v):
         nu[iu, :] = -np.einsum('i,j,...k,...l,ij,kl,ijkl->...', u[iu], u[iu], v[iu], v[iu], rf, rf, S)
         nu[iu, :] =  nu[iu, :] / np.einsum('i,j,k,l,ij,kl,ijkl', u[iu], u[iu], u[iu], u[iu], rf, rf, S)
     return nu
+
+# ----
+# auxiliary functions
+# ----
+def voigt2cart(V):
+    """
+    Convert 6\*6 stiffness / compliance matrix in Voigt representation into
+    3\*3\*3\*3 Cartesian representation.
+
+    Args:
+        V (numpy.ndarray): Voigt represented matrix.
+
+    Returns:
+        C (numpy.ndarray): Cartesian represented matrix.
+    """
+    voigt = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]], dtype=int)
+    C = np.zeros([3,3,3,3], dtype=float)
+
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
+                    C[i, j, k, l] = V[voigt[i, j], voigt[k,l]]
+    return C
+
+
+def cart2voigt(C):
+    """
+    Convert 3\*3\*3\*3  stiffness / compliance matrix in Cartesian
+    representation into 6\*6 Voigt representation.
+
+    Args:
+        C (numpy.ndarray): Cartesian represented matrix.
+
+    Returns:
+        V (numpy.ndarray): Voigt represented matrix.
+    """
+    voigt = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]], dtype=int)
+    V = np.zeros([6,6], dtype=float)
+
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
+                    V[voigt[i, j], voigt[k,l]] = C[i, j, k, l]
+    return V
 
 
 # ----
@@ -1024,8 +1150,8 @@ def _plot2D_single(ax, theta, r, norm, color, title, rmax, u, utext, lattice):
         c = lattice[2, :] / np.linalg.norm(lattice[2, :])
         rmarker = rmax/20
         for v, vlabel in zip([a,b,c], ['a','b','c']):
-            if np.abs(np.abs(np.dot(v, norm)) - 1) < 1e-4: # parallel
-                if np.linalg.norm(v+norm) > 1e-4: # same direction, dot
+            if np.abs(np.abs(np.dot(v, norm)) - 1) < 1e-6: # parallel
+                if np.linalg.norm(v+norm) > 1e-6: # same direction, dot
                     ax.scatter(0, 0, c='tab:gray', marker='o')
                 else: # opposite direction, cross
                     ax.scatter(0, 0, c='tab:gray', marker='x')
@@ -1048,7 +1174,7 @@ def _plot2D_single(ax, theta, r, norm, color, title, rmax, u, utext, lattice):
     # plot 1D vectors
     if u is not None:
         for v, vlabel in zip(u, utext):
-            if np.abs(np.dot(v, norm)) > 1e-4: # non-orthogonal
+            if np.abs(np.dot(v, norm)) > 1e-6: # non-orthogonal
                 continue
             cossin_chi = np.matmul(
                 np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
