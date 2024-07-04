@@ -7,6 +7,8 @@ approximations (HA/QHA).
 from CRYSTALpytools.crystal_io import Crystal_output
 from CRYSTALpytools import units
 
+import numpy as np
+
 
 class Mode:
     """
@@ -32,8 +34,6 @@ class Mode:
     """
 
     def __init__(self, rank=0, frequency=[], volume=[], eigenvector=[]):
-        import numpy as np
-
         self.rank = rank
         self.ncalc = len(frequency)
         self.frequency = np.array(frequency, dtype=float)
@@ -433,12 +433,12 @@ class Harmonic():
         if hasattr(self, "volume"):
             warnings.warn("Data exists. Cannot overwrite the existing data.")
             return self
-        if edft == None:
+        if np.all(edft==None):
             edft = 0.
             warnings.warn('DFT energy is set to 0.')
 
         # Get geometry
-        if struc_yaml != None:
+        if np.all(struc_yaml!=None):
             structure = Phonopy.read_structure(struc_yaml)
         else:
             structure = Phonopy.read_structure(phono_yaml)
@@ -500,11 +500,11 @@ class Harmonic():
         if hasattr(self, "mode"):
             raise AttributeError("Data exists. The current command will be ignored.")
 
-        if structure != None:
+        if np.all(structure!=None):
             self.structure = structure
             self.natom = len(structure.species)
             self.volume = structure.lattice.volume
-        elif natom != None and volume != None:
+        elif np.all(natom!=None) and np.all(volume!=None):
             self.natom = int(natom)
             self.volume = float(volume)
         else:
@@ -725,7 +725,7 @@ class Harmonic():
             self.helmholtz = np.transpose(np.array(helmholtz, dtype=float))
             self.gibbs = np.transpose(np.array(gibbs, dtype=float), (2, 1, 0))
 
-        if self.filename != None:
+        if np.all(self.filename!=None):
             self.write_HA_result()
 
         return self
@@ -734,7 +734,7 @@ class Harmonic():
         from CRYSTALpytools.thermodynamics import Output
         import warnings
 
-        if self.filename == None:
+        if np.all(self.filename==None):
             warnings.warn('Output file not specified. Return.')
             return
 
@@ -764,8 +764,6 @@ class Quasi_harmonic:
     """
 
     def __init__(self, temperature=[], pressure=[], filename=None):
-        import numpy as np
-
         if len(temperature) > 0:
             self.temperature = np.array(temperature, dtype=float)
 
@@ -811,7 +809,7 @@ class Quasi_harmonic:
         else:
             self.ncalc = len(input_files)
 
-        if mode_sort_tol != None:
+        if np.all(mode_sort_tol!=None):
             read_eigvt = True
         else:
             read_eigvt = False
@@ -835,10 +833,10 @@ class Quasi_harmonic:
             do_eigvt = False
         else:
             do_eigvt = True
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_combinedata(self)
 
-            if mode_sort_tol != None and do_eigvt == True:
+            if np.all(mode_sort_tol!=None) and do_eigvt == True:
                 Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
@@ -877,7 +875,7 @@ class Quasi_harmonic:
         elif isinstance(input_file, list) and len(input_file) == 1:
             input_file = input_file[0]
 
-        if mode_sort_tol != None:
+        if np.all(mode_sort_tol!=None):
             read_eigvt = True
         else:
             read_eigvt = False
@@ -911,10 +909,10 @@ class Quasi_harmonic:
             do_eigvt = False
         else:
             do_eigvt = True
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_combinedata(self)
 
-            if mode_sort_tol != None and do_eigvt == True:
+            if np.all(mode_sort_tol!=None) and do_eigvt == True:
                 Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
@@ -959,11 +957,11 @@ class Quasi_harmonic:
         else:
             self.ncalc = len(input_files)
 
-        if edft == None:
+        if np.all(edft==None):
             warnings.warn('DFT energy is set to 0.')
             edft = np.zeros([self.ncalc,])
 
-        if struc_yaml == None:
+        if np.all(struc_yaml==None):
             struc_yaml = [None for i in range(self.ncalc)]
 
         ha_list = [
@@ -987,10 +985,10 @@ class Quasi_harmonic:
             do_eigvt = False
         else:
             do_eigvt = True
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_combinedata(self)
 
-            if mode_sort_tol != None and do_eigvt == True:
+            if np.all(mode_sort_tol!=None) and do_eigvt == True:
                 Output.write_QHA_sortphonon(self, close_overlap)
 
         return self
@@ -1061,7 +1059,7 @@ class Quasi_harmonic:
 
         # Sort phonon modes if requested
         close_overlap = np.zeros([nqpoint, self.ncalc, nmode, nmode], dtype=int)
-        if mode_sort_tol != None and do_eigvt == True:
+        if np.all(mode_sort_tol!=None) and do_eigvt == True:
             for idx_q in range(nqpoint):
                 combined_freq[idx_q], combined_eigvt[idx_q], close_overlap[idx_q] \
                     = self._phonon_continuity(combined_freq[idx_q],
@@ -1077,7 +1075,7 @@ class Quasi_harmonic:
                         stacklevel=2
                     )
 
-        elif mode_sort_tol != None and do_eigvt == False:
+        elif np.all(mode_sort_tol!=None) and do_eigvt == False:
             warnings.warn('Eigenvectors not read. Mode sorting not available.', stacklevel=2)
 
         # nqpoint * ncalc * nmode array to nqpoint * nmode * ncalc array
@@ -1159,7 +1157,7 @@ class Quasi_harmonic:
                 for sort_m, sort_pdt in enumerate(mode_product[ref_m, :]):
                     if freq[sort_c, sort_m] < 1e-4 or np.isnan(freq[sort_c, sort_m]):
                         continue
-                    if symm != None and symm[ref_c, ref_m] != symm[sort_c, sort_m]:
+                    if np.all(symm!=None) and symm[ref_c, ref_m] != symm[sort_c, sort_m]:
                         continue
 
                     if sort_pdt > sorted_pdt:
@@ -1183,7 +1181,7 @@ class Quasi_harmonic:
                 # products[sort_c, ref_m] = ref_pdt
                 freq[[sort_c, sort_c], [sorted_m, ref_m]] = freq[[sort_c, sort_c], [ref_m, sorted_m]]
                 eigvt[[sort_c, sort_c], [sorted_m, ref_m]] = eigvt[[sort_c, sort_c], [ref_m, sorted_m]]
-                if symm != None:
+                if np.all(symm!=None):
                     symm[[sort_c, sort_c], [sorted_m, ref_m]] = symm[[sort_c, sort_c], [ref_m, sorted_m]]
                 # Also update mode_product for all ref_m
                 mode_product[:, [sorted_m, ref_m]] = mode_product[:, [ref_m, sorted_m]]
@@ -1233,7 +1231,7 @@ class Quasi_harmonic:
         eos_command += ')'
         eval(eos_command)
 
-        if self.filename != None and write_out == True:
+        if np.all(self.filename!=None) and write_out == True:
             Output.write_QHA_eosfit(self, eos, method)
 
         return eos, method
@@ -1265,7 +1263,7 @@ class Quasi_harmonic:
         rsquare_tot = np.average(rsquare_q, axis=0) # 1 * Norder
         self.fit_order = order_new[np.argmax(rsquare_tot)]
 
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_polyfit(self, order_new, rsquare_q)
 
         return self
@@ -1491,7 +1489,7 @@ class Quasi_harmonic:
                 self.c_v[idx_p, idx_t] = ha.c_v[0, 0]
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_thermofreq(self, min_method, volume_bound)
 
         return self
@@ -1594,7 +1592,7 @@ class Quasi_harmonic:
                 self.alpha_vgru[:, idx_t]**2 * self.volume[:, idx_t] * t * self.k_t[:, idx_t]**2 * 1e-21 * scst.Avogadro / self.c_v[:, idx_t]
 
         # print out options
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_thermogru(self)
 
         return self
@@ -1753,7 +1751,7 @@ class Quasi_harmonic:
             self.c_p[idx_p, :] = -c_p(dt) * 1000 * self.temperature
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_QHA_thermoeos(self)
 
         return self
@@ -1869,7 +1867,7 @@ class Quasi_harmonic:
         self.alpha_v[:, idx_tmin] = 0. # Lowest temperature, alpha = 0
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_expansion_vol(self, fit_order, fit_rs)
 
         return self
@@ -1945,7 +1943,7 @@ class Quasi_harmonic:
                     self.k_s[:, idx_t] = 0.
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_bulk_modulus(self, adiabatic)
 
         return self
@@ -1990,7 +1988,7 @@ class Quasi_harmonic:
             return self
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_specific_heat(self)
 
         return self
@@ -2109,7 +2107,7 @@ self.lattice is stored as a nPressure * nTemperature array.''')
 
         latt_ref = np.array(latt_ref)
         # Add interpolated points
-        if interp != None:
+        if np.all(interp!=None):
             # Lattice
             interp_latt = np.linspace(np.min(latt_ref, axis=0),
                                       np.max(latt_ref, axis=0),
@@ -2251,7 +2249,7 @@ self.lattice is stored as a nPressure * nTemperature array.''')
         self.alpha_latt[:, idx_tmin, :] = 0.
 
         # Print output file
-        if self.filename != None:
+        if np.all(self.filename!=None):
             Output.write_expansion_latt(self, e_err, fit_order,
                                         r_square[:, :, fit_order_idx])
 
@@ -2494,13 +2492,13 @@ class Phonopy():
         data = yaml.safe_load(phono_file)
         phono_file.close()
 
-        if q_id == None and q_coord == None:
+        if np.all(q_id==None) and np.all(q_coord==None):
             nqpoint = data['nqpoint']
             qinfo = np.array(range(nqpoint), dtype=int)
-        elif q_id != None:
+        elif np.all(q_id!=None):
             qinfo = np.array(q_id, dtype=int)
             nqpoint = len(qinfo)
-        elif q_id == None and q_coord != None:
+        elif np.all(q_id==None) and np.all(q_coord!=None):
             qinfo = np.array(q_coord, dtype=float)
             nqpoint = len(qinfo)
 
@@ -2799,7 +2797,7 @@ class Output():
         file.write('%s%6i\n' % ('## FREQUENCY POLYNOMIAL ORDER: ', qha.fit_order))
         file.write('%s%s\n' % ('## EQUILIBRIUM VOLUME MINIMISATION: ', min_method))
         file.write('%s%s\n' % ('## HELMHOLTZ FREE ENERGY EOS: ', qha.e0_eos_method))
-        if volume_bound != None:
+        if np.all(volume_bound!=None):
             file.write('%s\n' %
                        ('## CONSTRAINED VOLUME MINIMIZATION LAUNCHED. VOLUME BOUNDARIES (UNIT: ANGSTROM^3):'))
             file.write('%s%8.2f%s%8.2f\n\n' % 

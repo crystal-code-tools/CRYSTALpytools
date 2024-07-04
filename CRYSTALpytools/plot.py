@@ -3,6 +3,7 @@
 """
 Functions to visualize CRYSTAL outputs.
 """
+import numpy as np
 
 ##############################################################################
 #                                                                            #
@@ -46,9 +47,6 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
     fig, ax = plot_2Dscalar(obj.chgmap, obj.gridv, levels, xticks, yticks,
                         cmap_max, cmap_min, cbarlabel)
 
-    # if name != None:
-    #     save_plot(name, dpi=dpi)
-
     plt.show()
     return fig, ax
 
@@ -87,9 +85,6 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
 
     fig, ax = plot_2Dscalar(obj.spinmap, obj.gridv, levels, xticks, yticks,
                         cmap_max, cmap_min, cbarlabel)
-
-    # if name != None:
-    #     save_plot(name, dpi=dpi)
 
     plt.show()
     return fig, ax
@@ -519,7 +514,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
         bands = [bands]
 
-    if line_freq0 == None:
+    if np.all(line_freq0==None):
         line_freq0 = (1., 0., 0., 0.)  # Transparent
 
     for b in bands:
@@ -541,11 +536,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     else:
         fig.supylabel('Frequency (cm$^{-1}$)', fontsize=fontsize)
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file, dpi=dpi, transparency=transparency)
-
-    # plt.show()
-    return fig, ax 
+    return fig, ax
 
 
 def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
@@ -626,10 +617,6 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     else:
         fig.supylabel('$E-E_{F}$ (a.u.)', fontsize=fontsize)
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file, dpi=dpi, transparency=transparency)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -710,10 +697,6 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
         fig.supylabel('DOS (a.u.)')
         fig.supxlabel('Energy (a.u.)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -777,7 +760,7 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
                 d.doss[:, 1:, :] = thz_to_cm(d.doss[:, 1:, :])
             d.unit = unit
 
-    if line_freq0 == None:
+    if np.all(line_freq0==None):
         line_freq0 = (1., 0., 0., 0.)  # Transparent
     if len(doss) == 1:
         doss = doss[0]
@@ -794,10 +777,6 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
         fig.supylabel('DOS (states/cm$^{-1}$)')
         fig.supxlabel('Frequency (cm$^{-1}$)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -884,10 +863,6 @@ def plot_electron_banddos(bands, doss, unit='eV', k_labels=None, dos_beta='down'
     else:
         fig.supylabel('Energy (a.u.)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -958,7 +933,7 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
             bands.bands[:, :, :] = cm_to_thz(bands.bands[:, :, :])
         bands.unit = unit
 
-    if line_freq0 == None:
+    if np.all(line_freq0==None):
         line_freq0 = (1., 0., 0., 0.)  # Transparent
 
     fig, ax = plot_cry_es(bands=bands, doss=doss, k_labels=k_labels, color_bd=color_band,
@@ -971,10 +946,6 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
     else:
         fig.supylabel('Frequency (cm$^{-1}$)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -3316,10 +3287,6 @@ def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle=
     else:
         plt.ylabel('Reflectance (A.U.)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file, dpi, transparency)
-    #
-    # plt.show()
     return fig, ax
 
 
@@ -3492,10 +3459,6 @@ def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
     else:
         plt.ylabel('Reflectance (A.U.)')
 
-    # if save_to_file != None:
-    #     save_plot(save_to_file, dpi, transparency)
-    #
-    # plt.show()
     return fig, ax
 
 

@@ -3,6 +3,9 @@
 """
 Base object of all the input (d12/d3) blocks.
 """
+import numpy as np
+
+
 class BlockBASE():
     """
     The base class of 'block' objects
@@ -49,9 +52,9 @@ class BlockBASE():
     def __call__(self, obj=''):
         if type(obj) == str:
             self.__init__()
-            if obj != '':
+            if np.all(obj!=''):
                 self.analyze_text(obj)
-        elif obj == None:
+        elif np.all(obj==None):
             self.__init__()
             self._block_valid = False
         elif type(obj) == type(self):
@@ -101,7 +104,7 @@ class BlockBASE():
             value = [value, ]
 
         # Keyword only or cleanup: Value is '' or None
-        if value[0] == '' or value[0] == None:
+        if np.all(value[0]=='') or np.all(value[0]==None):
             self._block_dict[key][0] = value[0]
             return self
 
@@ -135,11 +138,9 @@ class BlockBASE():
             shape (list): ``ndimen*1`` 1D list. All elements are ndimen.
             value (list): ``ndimen*2*1`` 1D list. Flattened matrix.
         """
-        import numpy as np
-
-        if mx == None:  # Clean data
+        if np.all(mx==None):  # Clean data
             return [], None
-        elif mx == '':  # Keyword only
+        elif np.all(mx==''):  # Keyword only
             return [], ''
 
         matrix = np.array(mx)
@@ -164,9 +165,9 @@ class BlockBASE():
             shape (list): 1 + length 1D list or []
             args (list): Flattened list, [] or ''
         """
-        if args[0] == None:  # Clean data
+        if np.all(args[0]==None):  # Clean data
             return [], None
-        elif args[0] == '':  # Keyword only
+        elif np.all(args[0]==''):  # Keyword only
             return [], ''
 
         if len(args) != 2 or int(args[0]) != len(args[1]):
@@ -199,7 +200,7 @@ class BlockBASE():
                 continue
 
             if self._block_dict[cttr][1] == False: # keyword
-                if self._block_dict[cttr][0] != None:
+                if np.all(self._block_dict[cttr][0]!=None):
                     warnings.warn("'{}' conflicts with the existing '{}'. The old one is deleted.".format(key, cttr),
                                   stacklevel=3)
                     self._block_dict[cttr][0] = None
@@ -221,7 +222,7 @@ class BlockBASE():
         self._block_data = ''
         for key in self._block_key:
             if self._block_dict[key][1] == False: # Keyword-like attributes
-                if self._block_dict[key][0] != None:
+                if np.all(self._block_dict[key][0]!=None):
                     self._block_data += key + '\n' + self._block_dict[key][0]
             else: # Block-like attributes, get data from the corresponding attribute
                 # It is important to use real attribute here for subblocks
@@ -243,7 +244,7 @@ class BlockBASE():
         import warnings
         from CRYSTALpytools.base import crysd12, propd3
 
-        if self._block_ed == None:
+        if np.all(self._block_ed==None):
             end_block_label = ''
         else:
             end_block_label = 'END'
@@ -256,7 +257,7 @@ class BlockBASE():
             if t.upper() in self._block_key:  # Keyword line: ending point
                 t = t.upper()
                 if self._block_dict[t][1] == False: # Keyword-like attributes
-                    if self._block_dict[t][0] != None:
+                    if np.all(self._block_dict[t][0]!=None):
                         warnings.warn("Keyword '{}' exists. The new entry will cover the old one".format(t),
                                       stacklevel=2)
                     self._block_dict[t][0] = value
@@ -275,7 +276,7 @@ class BlockBASE():
             else:
                 value = t + '\n' + value
         # Last lines if unallocated string exists
-        if value != '':
+        if np.all(value!=''):
             if self._block_bg == value: # for subblocks
                 pass
             else: # saved into beginning lines

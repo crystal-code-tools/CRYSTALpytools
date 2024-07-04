@@ -5,6 +5,8 @@ Molecule geometries and CRYSTAL gui geometries
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure import Molecule
 
+import numpy as np
+
 
 class Crystal_gui():
     """
@@ -24,13 +26,13 @@ class Crystal_gui():
         self.dimensionality = dimensionality
         self.lattice = lattice
         self.symmops = symmops
-        if symmops != None:
+        if np.all(symmops!=None):
             self.n_symmops = len(symmops)
         else:
             self.n_symmops = 0
         self.atom_number = atom_number
         self.atom_positions = atom_positions
-        if atom_number != None:
+        if np.all(atom_number!=None):
             self.n_atoms = len(atom_number)
         else:
             self.n_atoms = 0
@@ -69,7 +71,7 @@ class Crystal_gui():
             struc = CStructure(lattice=latt, species=struc.species,
                                coords=struc.cart_coords, coords_are_cartesian=True)
         # dimensionality
-        if pbc == None:
+        if np.all(pbc==None):
             pbc = struc.pbc
 
         self.dimensionality = pbc.count(True)
@@ -144,7 +146,7 @@ class Crystal_gui():
             self.atom_number = list(struc.atomic_numbers)
             self.atom_positions = struc.cart_coords
 
-        if zconv != None:
+        if np.all(zconv!=None):
             for atom in zconv:
                 self.atom_number[atom[0]] = atom[1]
 
@@ -384,7 +386,7 @@ class CStructure(Structure):
                 if save == True: # Same rotation, choose the one with no translation
                     self.symmops[save_id] = np.vstack([symmop.rotation_matrix, symmop.translation_vector])
                     ops_tmp[save_id] = symmop
-                elif save == None: # New rotation
+                elif np.all(save==None): # New rotation
                     self.symmops.append(np.vstack([symmop.rotation_matrix, symmop.translation_vector]))
                     ops_tmp.append(symmop)
                     self.n_symmops += 1

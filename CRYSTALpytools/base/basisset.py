@@ -1,3 +1,7 @@
+"""
+Basis set definitions.
+"""
+
 class AtomBS():
     """
     Basis set class for CRYSTALpytools
@@ -80,7 +84,7 @@ class AtomBS():
         dic = bse.get_basis(bs, elements=[element(zreal).symbol])
 
         # ECP basis sets, do not automatically assign charge
-        if dic['elements'][str(zreal)].get('ecp_potentials') != None:
+        if np.all(dic['elements'][str(zreal)].get('ecp_potentials')!=None):
             warnings.warn('ECP is used. Automatic assignment of atomic charge is disabled.', stacklevel=2)
             shellname = 'ecp_potentials'
             expname = 'gaussian_exponents'
@@ -137,9 +141,11 @@ class AtomBS():
         Returns:
             chg (list): nshell\*1 list of charge assigned to every shell.
         """
+        import numpy as np
+
         z = str(element.atomic_number)
         # ECP basis sets not allowed
-        if bs['elements'][z].get('ecp_potentials') != None:
+        if np.all(bs['elements'][z].get('ecp_potentials')!=None):
             raise ValueError('Only all-electron basis sets are supported.')
 
         nshell = len(bs['elements'][z]['electron_shells'])
@@ -246,11 +252,13 @@ class AtomBS():
         """
         Print basis set into CRYSTAL format
         """
+        import numpy as np
+
         if self.nshell != len(self.shells):
             raise ValueError('Number of shells is not consistent with shells defined.')
 
         txt_out = '{:d} {:d}\n'.format(self.z, self.nshell)
-        if self.ECP != None:
+        if np.all(self.ECP!=None):
             txt_out = txt_out + '{}\n'.format(self.ECP)
         for s in self.shells:
             txt_out = txt_out + '{:d} {:d} {:d} {:.2f} {:.2f}\n'.format(

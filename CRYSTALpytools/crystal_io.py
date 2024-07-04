@@ -10,6 +10,8 @@ from CRYSTALpytools.base.propd3 import Properties_inputBASE
 from CRYSTALpytools.base.output import POutBASE
 from CRYSTALpytools.geometry import Crystal_gui
 
+import numpy as np
+
 
 class Crystal_input(Crystal_inputBASE):
     """
@@ -118,7 +120,7 @@ class Crystal_input(Crystal_inputBASE):
                               zconv=zconv, **kwargs)
         elif keyword.upper() == 'CRYSTAL':
             struc.refine_geometry(**kwargs)
-            if zconv != None:
+            if np.all(zconv!=None):
                 z_atom_index = [i[0] for i in zconv]
                 for i in range(struc.natom_irr):
                     try:
@@ -172,7 +174,7 @@ class Crystal_input(Crystal_inputBASE):
             self.basisset.from_bse(bs_str, z, append)
 
         # set charge
-        if charge != None:
+        if np.all(charge!=None):
             for i in list(charge.keys()):
                 found_atom = False
                 for j, at in enumerate(self.basisset._bs_obj.atoms):
@@ -189,7 +191,7 @@ class Crystal_input(Crystal_inputBASE):
                     self.basisset._bs_obj.atoms[j].shells[ishell]['charge'] = chg
 
         # set ECP
-        if ECP != None:
+        if np.all(ECP!=None):
             for i in list(ECP.keys()):
                 found_atom = False
                 for j, at in enumerate(self.basisset._bs_obj.atoms):
@@ -202,7 +204,7 @@ class Crystal_input(Crystal_inputBASE):
                     raise Exception('Unknown z value.')
                 self.basisset._bs_obj.atoms[j].ECP = ECP[i]
 
-        if BSfile != None:
+        if np.all(BSfile!=None):
             if append == False:
                 file = open(BSfile, 'w')
             else:
@@ -236,7 +238,7 @@ class Crystal_output:
     """
 
     def __init__(self, output=None):
-        if output != None:
+        if np.all(output!=None):
             self.read_file(output)
 
     def read_file(self, output_name):
@@ -324,7 +326,7 @@ class Crystal_output:
                 self.dimensionality = int(line.split()[9])
                 break
 
-        if self.dimensionality == None:
+        if np.all(self.dimensionality==None):
             raise Exception('Invalid file. Dimension information not found.')
 
         return self.dimensionality
@@ -436,13 +438,13 @@ class Crystal_output:
         if write_gui == True:
             # Conventional atomic numbers
             zconv = [[i, self.atom_numbers[i]] for i in range(self.n_atoms)]
-            if gui_name == None:
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
                 gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 gui = cry_pmg2gui(struc, gui_file=gui_name,  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
                 self.get_symmops()
@@ -760,13 +762,13 @@ class Crystal_output:
         self.primitive_geometry = pstruc
         # Write gui files
         if write_gui == True:
-            if gui_name == None:
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
@@ -973,7 +975,7 @@ class Crystal_output:
                 is_scf = True
                 break
 
-        if self.final_energy == None:
+        if np.all(self.final_energy==None):
             warnings.warn('No final energy found in the output file. self.final_energy = None',
                           stacklevel=2)
 
@@ -1239,7 +1241,7 @@ class Crystal_output:
 
         # Converged at initial step, or wrong file
         if self.opt_cycles == 0:
-            if e0 == None:
+            if np.all(e0==None):
                 raise Exception('Valid data not found.')
             else:
                 self.opt_cycles += 1
@@ -1253,7 +1255,7 @@ class Crystal_output:
                 self.opt_rmsdisp = np.array([])
         else:
             # restarted from previous opt
-            if e0 == None:
+            if np.all(e0==None):
                 pass
             else:
                 self.opt_cycles += 1
@@ -1292,7 +1294,7 @@ class Crystal_output:
 
         # Write gui files
         if write_gui == True:
-            if gui_name == None:
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
             gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
 
@@ -1300,7 +1302,7 @@ class Crystal_output:
                 for idx_s, s in enumerate(self.opt_geometry):
                     gui = cry_pmg2gui(s, gui_file=gui_list[idx_s],
                                       symmetry=True, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 for idx_s, s in enumerate(self.opt_geometry):
                     gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
             elif symmetry == 'initial':
@@ -2203,9 +2205,9 @@ class Properties_input(Properties_inputBASE):
             output_file (str): Output file of 'crystal' calculation.
         """
         # either band_range or e_range needs to be specified
-        if band_range == None and e_range == None:
+        if np.all(band_range==None) and np.all(e_range==None):
             raise ValueError('Either band_range or e_range should be specified. None specified.')
-        elif band_range != None and e_range != None:
+        elif np.all(band_range!=None) and np.all(e_range!=None):
             raise ValueError('Either band_range or e_range should be specified. 2 specified')
         elif type(band_range) == list and len(band_range) == 2:
             pass
@@ -2220,7 +2222,7 @@ class Properties_input(Properties_inputBASE):
                 raise ValueError("proj_type should be either be 'ao' or 'atom'")
 
             if type(projections[0]) == str:
-                if output_file == None:
+                if np.all(output_file==None):
                     raise ValueError('Outut file is needed.')
                 else:
                     if proj_type == 'ao':
@@ -2239,7 +2241,7 @@ class Properties_input(Properties_inputBASE):
                     for p in projections:
                         prj.append([len(p),] + list(p))
 
-        if e_range == None:
+        if np.all(e_range==None):
             return self.doss(len(prj), n_points, band_range[0], band_range[1], plotting_option, poly, print_option, prj)
         else:
             return self.doss(len(prj), n_points, -1, -1, plotting_option, poly, print_option, e_range, prj)
@@ -2302,7 +2304,7 @@ class Properties_output(POutBASE):
     """
 
     def __init__(self, properties_output=None):
-        if properties_output != None:
+        if np.all(properties_output!=None):
             self.read_file(properties_output)
         else:
             pass

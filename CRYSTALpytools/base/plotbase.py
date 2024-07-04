@@ -94,7 +94,7 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
             raise ValueError('k_labels must be a list of strings')
 
     # Error check on energy range
-    if energy_range != None:
+    if np.all(energy_range!=None):
 
         if isinstance(energy_range, list):
 
@@ -126,7 +126,7 @@ def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, lines
             raise ValueError('k_range must be a list of two strings')
 
     # Error check on title
-    if title != None:
+    if np.all(title!=None):
         if not isinstance(title, str):
             raise ValueError('title needs to be a string')
 
@@ -571,7 +571,7 @@ def __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth
     # Plot of the HSPs lines and setup Y axis
     for col in range(n_col):
         for row in range(n_rows):
-            if energy_range != None:
+            if np.all(energy_range!=None):
                 pymin = min(energy_range)
                 pymax = max(energy_range)
             else:
@@ -726,7 +726,7 @@ def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
         ymax = np.amax(doss.doss[1:, :, :])
 
         # Plot of all projections
-        if prj == None:
+        if np.all(prj==None):
             for projection in range(doss.n_proj):
                 # for projection in range(1, 2):
                 if doss.spin == 1:
@@ -1039,7 +1039,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                 raise ValueError(
                     "You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
     else:
-        if prj == None:
+        if np.all(prj==None):
             nprj = doss.n_proj
         else:
             nprj = len(prj)
@@ -1066,7 +1066,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
                 raise ValueError(
                     "You don't have enough elements in linestl_doss for the number of projection required(prj elements)")
     else:
-        if prj == None:
+        if np.all(prj==None):
             nprj = doss.n_proj
         else:
             nprj = len(prj)
@@ -1089,7 +1089,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     # Definition and creation of the figure and the axes
     fig, ax = plt.subplots(nrows=1, ncols=2, gridspec_kw={'width_ratios': [2, 1]},
                            sharex=False, sharey=True, figsize=figsize)
-    if title != None:
+    if np.all(title!=None):
         fig.suptitle(title)
 
     # Definition of the hsp position variables
@@ -1140,7 +1140,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     dx_dos = doss.energy
 
     # Determination of xmin, xmax, ymin, and ymax
-    if prj != None:
+    if np.all(prj!=None):
         argplt = prj
     else:
         argplt = range(1, doss.doss.shape[1])
@@ -1255,7 +1255,7 @@ def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range
     ax[1].hlines(0., xmin_dos*1.05, xmax_dos*1.05, color=fermi, linewidth=1.5)
     ax[1].set_xlim(xmin_dos*1.05, xmax_dos*1.05)
 
-    if labels != None:
+    if np.all(labels!=None):
         ax[1].legend()
 
     return fig, ax

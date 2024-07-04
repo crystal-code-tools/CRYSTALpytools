@@ -5,6 +5,7 @@ A post-processing module for electronic properties
 """
 from CRYSTALpytools import units
 
+import numpy as np
 
 class ElectronBand():
     """
@@ -40,7 +41,7 @@ class ElectronBand():
         self.n_kpoints = len(k_path)
         self.k_path = np.array(k_path, dtype=float)
         self.geometry = geometry
-        if self.geometry != None:
+        if np.all(self.geometry!=None):
             self.reciprocal_latt = self.geometry.lattice.reciprocal_lattice.matrix
         else:
             self.reciprocal_latt = reciprocal_latt
@@ -75,7 +76,7 @@ class ElectronBand():
         else:
             bandout = XmgraceParser.band(band)
 
-        if output != None:
+        if np.all(output!=None):
             pout = Properties_output(output)
             struc = pout.get_geometry()
             t3d, k3d = pout.get_3dkcoord()
@@ -216,7 +217,7 @@ class ElectronBand():
         rep_latt = self.reciprocal_latt
         # label dictionary
         labels_dict = {}
-        if labels == None:
+        if np.all(labels==None):
             labels = self.tick_label
         else:
             if len(labels) < self.n_tick:
@@ -280,7 +281,7 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
             self.efermi = H_to_eV(self.efermi)
             self.tick_pos = au_to_angstrom(self.tick_pos)
             self.k_path = au_to_angstrom(self.k_path)
-            if self.reciprocal_latt != None:
+            if np.all(self.reciprocal_latt!=None):
                 self.reciprocal_latt = au_to_angstrom(self.reciprocal_latt)
             for p in opt_e_props:
                 if hasattr(self, p):
@@ -296,7 +297,7 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
             self.efermi = eV_to_H(self.efermi)
             self.tick_pos = angstrom_to_au(self.tick_pos)
             self.k_path = angstrom_to_au(self.k_path)
-            if self.reciprocal_latt != None:
+            if np.all(self.reciprocal_latt!=None):
                 self.reciprocal_latt = angstrom_to_au(self.reciprocal_latt)
             for p in opt_e_props:
                 if hasattr(self, p):
@@ -550,7 +551,7 @@ class ChargeDensity():
         self.spin = spin
         self.gridv = np.array(gridv)
         self.chgmap = np.array(chgmap, dtype=float)
-        if spinmap != None:
+        if np.all(spinmap!=None):
             self.spinmap = np.array(spinmap, dtype=float)
         else:
             self.spinmap = None
@@ -646,14 +647,14 @@ class ChargeDensity():
             self.unit = 'Angstrom'
             self.chgmap = angstrom_to_au(
                 angstrom_to_au(angstrom_to_au(self.chgmap)))
-            if self.spinmap != None:
+            if np.all(self.spinmap!=None):
                 self.spinmap = angstrom_to_au(
                     angstrom_to_au(angstrom_to_au(self.spinmap)))
         elif unit.lower() == 'a.u.':  # 1/Angstrom to 1/Bohr
             self.unit = 'a.u.'
             self.chgmap = au_to_angstrom(
                 au_to_angstrom(au_to_angstrom(self.chgmap)))
-            if self.spinmap != None:
+            if np.all(self.spinmap!=None):
                 self.spinmap = au_to_angstrom(
                     au_to_angstrom(au_to_angstrom(self.spinmap)))
         else:

@@ -4,6 +4,8 @@
 Classes and methods of keywords used in 'properties' input file (d3).
 """
 from CRYSTALpytools.base.inputbase import BlockBASE
+import numpy as np
+
 
 class PInputBlock(BlockBASE):
     """
@@ -121,7 +123,7 @@ class PInputBlock(BlockBASE):
             super().assign_keyword('BAND', [], TITLE); return self
 
     def anbd(self, NK='', NB='', TOL='', *args):
-        if NK == None or NK == '':
+        if np.all(NK==None) or np.all(NK==''):
             super().assign_keyword('ANBD', [], NK); return self
         shape = [3,]
         value = [NK, NB, TOL]
@@ -153,7 +155,7 @@ class PInputBlock(BlockBASE):
         """
         if len(args) == 0:
             args = ['']
-        if args[0] == None or args[0] == '':
+        if np.all(args[0]==None) or np.all(args[0]==''):
             shape = []
             value = args[0]
         else:
@@ -283,9 +285,7 @@ class PInputBlock(BlockBASE):
         ``datagrid`` corresponds to X, Y, Z, ZP, ZM and ZD parameters, which
         can be NPU\*3 (``ICA=0``), 2\*1 (``ICA=1``) or 3\*1 (``ICA=2``) lists.
         """
-        import numpy as np
-
-        if ICA == None or ICA == '':
+        if np.all(ICA==None) or np.all(ICA==''):
             super().assign_keyword('POTC', [], ICA); return self
 
         shape = [3,]
@@ -407,9 +407,7 @@ class PInputBlock(BlockBASE):
         Get formatted input text for 'DOSS'-like keywords, including 'DOSS',
         'COHP' and 'COOP'.
         """
-        import numpy as np
-
-        if NPRO == None or NPRO == '':
+        if np.all(NPRO==None) or np.all(NPRO==''):
             return [], NPRO
 
         shape = [7,]
@@ -577,7 +575,7 @@ class EDFT(BlockBASE):
         super().assign_keyword('SAVIN', [], savin); return self
 
     def radial(self, NR='', RL=[], IL=[]):
-        if NR != None and NR != '':
+        if np.all(NR!=None) and np.all(NR!=''):
             RL = list(RL)
             IL = list(IL)
             if NR != len(RL) and NR != len(IL):
@@ -585,7 +583,7 @@ class EDFT(BlockBASE):
         super().assign_keyword('RADIAL', [1, NR, NR], [NR,] + RL + IL); return self
 
     def angular(self, NI='', AL=[], IA=[]):
-        if NI != None and NI != '':
+        if np.all(NI!=None) and np.all(NI!=''):
             AL = list(AL)
             IA = list(IA)
             if NI != len(AL) and NI != len(IA):
@@ -667,7 +665,7 @@ class Grid2D(BlockBASE):
     # __call__ method inherited from BlockBASE
 
     def coordina(self, crda='', crdb='', crdc=''):
-        if crda == None or crda == '':
+        if np.all(crda==None) or np.all(crda==''):
             shape = []
             value = crda
         else:
@@ -714,9 +712,9 @@ class ECHG(Grid2D):
     def __call__(self, IDER='', NPY=100):
         if type(IDER) == str:
             super().__init__('ECHG\n')
-            if IDER != '':
+            if np.all(IDER!=''):
                 self.analyze_text(IDER)
-        elif IDER == None:
+        elif np.all(IDER==None):
             super().__init__('ECHG\n')
             self._block_valid = False
         elif type(IDER) == type(self):
@@ -740,9 +738,9 @@ class POTM(Grid2D):
     def __call__(self, IDER='', ITOL=5, NPY=100):
         if type(IDER) == str:
             super().__init__('POTM\n')
-            if IDER != '':
+            if np.all(IDER!=''):
                 self.analyze_text(IDER)
-        elif IDER == None:
+        elif np.all(IDER==None):
             super().__init__('POTM\n')
             self._block_valid = False
         elif type(IDER) == type(self):
@@ -767,9 +765,9 @@ class CLAS(Grid2D):
     def __call__(self, IDER='', IFOR='', charge=[], NPY=100):
         if type(IDER) == str:
             super().__init__('CLAS\n')
-            if IDER != '':
+            if np.all(IDER!=''):
                 self.analyze_text(IDER)
-        elif IDER == None:
+        elif np.all(IDER==None):
             super().__init__('CLAS\n')
             self._block_valid = False
         elif type(IDER) == type(self):
@@ -805,11 +803,11 @@ class Grid3DBASE(BlockBASE):
         super().__init__(bg, ed, dic)
 
     def scale(self, scale1='', scale2='', scale3=''):
-        if scale1 == '' or scale1 == None: # others
+        if np.all(scale1=='') or np.all(scale1==None): # others
             super().assign_keyword('SCALE', [], scale1)
-        elif scale2 == '': # 2D
+        elif np.all(scale2==''): # 2D
             super().assign_keyword('SCALE', [1,], scale1)
-        elif scale3 == '': # 1D
+        elif np.all(scale3==''): # 1D
             super().assign_keyword('SCALE', [2,], [scale1, scale2])
         else: # 0D
             super().assign_keyword('SCALE', [3,], [scale1, scale2, scale3])
@@ -820,11 +818,11 @@ class Grid3DBASE(BlockBASE):
         Inputs are 2\*1 lists. ``[minvalue, maxvalue]``. The sequence of rg123
         is consistent with CRYSTAL (2D: z; 1D: y, z; 0D: x, y, z)
         """
-        if rg1 == '' or rg1 == None: # others
+        if np.all(rg1=='') or np.all(rg1==None): # others
             super().assign_keyword('RANGE', [], rg1)
-        elif rg2 == '': # 2D
+        elif np.all(rg2==''): # 2D
             super().assign_keyword('RANGE', [1, 1], [rg1[0], rg1[1]])
-        elif scale3 == '': # 1D
+        elif np.all(rg3==''): # 1D
             super().assign_keyword('RANGE', [2, 2], [rg1[0], rg2[0], rg1[1], rg2[1]])
         else: # 0D
             super().assign_keyword('RANGE', [3, 3], [rg1[0], rg2[0], rg3[0], rg1[1], rg2[1], rg3[1]])
@@ -842,9 +840,9 @@ class ECH3(Grid3DBASE):
     def __call__(self, NP=''):
         if type(NP) == str:
             super().__init__('ECH3\n')
-            if NP != '':
+            if np.all(NP!=''):
                 self.analyze_text(NP)
-        elif NP == None:
+        elif np.all(NP==None):
             super().__init__('ECH3\n')
             self._block_valid = False
         elif type(NP) == type(self):
@@ -867,9 +865,9 @@ class POT3(Grid3DBASE):
     def __call__(self, NP='', ITOL=5):
         if type(NP) == str:
             super().__init__('POT3\n')
-            if NP != '':
+            if np.all(NP!=''):
                 self.analyze_text(NP)
-        elif NP == None:
+        elif np.all(NP==None):
             super().__init__('POT3\n')
             self._block_valid = False
         elif type(NP) == type(self):
