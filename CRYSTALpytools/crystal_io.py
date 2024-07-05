@@ -2038,43 +2038,59 @@ class Crystal_output:
         Extracts the elastic tensor from the data.
 
         Returns:
-            list: Symmetrized elastic tensor as a 6x6 nested list.
+            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
+                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
+                The matrix always has 2 dimensions. Unit: GPa (3D), GPa.m (2D),
+                GPa.m:math:`^{2}` (1D).
         """
-        startstring = " SYMMETRIZED ELASTIC"
-        stopstring = " ELASTIC MODULI"
-        self.tensor = []
-        buffer = []
-        strtensor = []
-        copy = False
+        import re
 
-        # Search for elastic tensor and save it into buffer
-        for line in self.data:
-            if line.startswith(startstring):
-                copy = True
-            elif line.startswith(stopstring):
-                copy = False
-            elif copy:
-                buffer.append(line)
+        title = ''
+        buffer = []
+        countline = 0
+        while countline < len(self.data):
+            line = self.data[countline]
+            if re.match(r'^\s*SYMMETRIZED ELASTIC CONSTANTS', line):
+                title = line
+                countline += 2
+                while self.data[countline].strip() != '':
+                    buffer.append(self.data[countline])
+                    countline += 1
+                break
+            else:
+                countline += 1
+                continue
 
         # Build tensor
-        for i in range(6):
+        if len(buffer) == 0:
+            raise Exception('Elastic tensor not found. Check your output file.')
+        else:
+            dimen = len(buffer)
+            self.tensor = np.zeros([dimen,dimen], dtype=float)
+
+        for i in range(dimen):
             # Clean buffer and copy it in strtensor
-            strtensor.append(
-                buffer[i + 1].replace(" |", " ").replace("\n", ""))
-            # Split strtensor strings and copy them in tensor
-            self.tensor.append(strtensor[i].split())
-            # Conversion str -> float
-            for j in range(6 - i):
-                self.tensor[i][j] = float(self.tensor[i][j])
-            # Add zeros
-            for k in range(i):
-                self.tensor[i].insert(0, 0)
+            self.tensor[i, i:ndimen] = np.array(
+                buffer[i].strip().split(), dtype=float
+            )
         buffer.clear()
 
         # Symmetrize tensor
         for i in range(6):
             for j in range(6):
                 self.tensor[j][i] = self.tensor[i][j]
+
+        # Unit conversion
+        if 'gpa' in title.lower():
+            pass
+        elif 'hartree' in title.lower():
+            if dimen == 1: # Eh/rB^3 * rB^2 = Eh/rB ---> J/m
+                unit.au_to_angstrom(
+                    unit.au_to_angstrom(
+                        unit.au_to_GPa(self.tensor)))*1e-20
+            else: # Eh/rB^3 * rB = Eh/rB^2 ---> J/m^2
+                unit.au_to_angstrom(
+                    unit.au_to_GPa(self.tensor))*1e-10
 
         return self.tensor
 

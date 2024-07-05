@@ -56,6 +56,29 @@ class Tensor3D():
         """
         return self._S
 
+    @classmethod
+    def from_file(cls, output):
+        """
+        Read elastic tensor from CRYSTAL output file and generate ``Tensor3D``
+        object. Calls the ``crystal_io.Crystal_output.get_elatensor()`` method.
+        Lattice information is obtained.
+
+        Args:
+            output (str): CRYSTAL output file.
+
+        Returns:
+            cls (Tensor3D)
+        """
+        from CRYSTAlpytools.crystal_io import Crystal_output
+
+        out = Crystal_output(output)
+        if out.get_dimensionality() != 3:
+            raise Exception("Dimensionality error. Input system is not a 3D system.")
+
+        return cls(matrix=out.get_elatensor(),
+                   lattice=out.get_lattice(initial=False),
+                   is_compliance=False)
+
     def get_1D(self, property, u, nchi=180, use_cartesian=True):
         """
         Compute properties along the given vector. Available properties are
