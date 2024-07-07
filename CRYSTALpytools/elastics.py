@@ -24,7 +24,7 @@ class Tensor3D():
         import warnings
         from pymatgen.core.lattice import Lattice
 
-        if lattice is None:
+        if np.all(lattice==None):
             warnings.warn("Lattice information not available, Miller indices and fractional coordinates disabled.",
                           stacklevel=2)
             self.lattice = None
@@ -116,7 +116,7 @@ class Tensor3D():
         if property not in property_list:
             raise ValueError("Unknown property input: '{}'".format(property))
 
-        if use_cartesian != True and self.lattice is None:
+        if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
         u = np.array(u, dtype=float)
@@ -194,7 +194,7 @@ class Tensor3D():
         if property not in property_list:
             raise ValueError("Unknown property input: '{}'".format(property))
 
-        if use_cartesian != True and self.lattice is None:
+        if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
         u = np.array(u, dtype=float)
@@ -236,7 +236,7 @@ class Tensor3D():
     def plot_2D(self, property, plane, ntheta=90, nchi=180,
                 plane_definition='miller', u=None, utext=None,
                 use_cartesian=True, layout=None, add_title=True,
-                uniform_scale=True,plot_lattice=True):
+                uniform_scale=True, plot_lattice=True):
         """
         Plot 2D crystal elastic properties across the given plane. The plane is
         defined by any of the following methods:
@@ -307,7 +307,7 @@ class Tensor3D():
         if plane_definition not in planedef_list:
             raise ValueError("Unknown plane definition: '{}'".format(plane_definition))
 
-        if self.lattice is None:
+        if np.all(self.lattice==None):
             if use_cartesian != True or plot_lattice == True:
                 raise Exception('Lattice matrix not available.')
 
@@ -380,12 +380,12 @@ class Tensor3D():
 
         # Plot
         # Set plot framework
-        if layout is not None:
+        if np.all(layout!=None):
             if layout[0] + layout[1] != len(planeplt):
                 warnings.warn('Inconsistent plane number and figure layout. Default layout is used.',
                               stacklevel=2)
                 layout = None
-        if layout is None:
+        if np.all(layout==None):
             layout = [len(planeplt)//3+1, 0]
             if len(planeplt) < 3:
                 layout[1] = len(planeplt)
@@ -398,7 +398,7 @@ class Tensor3D():
             ax = [ax]
 
         # Prepare 1D plot
-        if u is not None:
+        if np.all(u!=None):
             utmp = np.array(u, dtype=float) # cartesian u, normalised
             if len(np.shape(utmp)) == 1:
                 utmp = np.array([utmp])
@@ -411,7 +411,7 @@ class Tensor3D():
                 for i in range(len(utmp)):
                     utmp[i, :] = utmp[i, :] / np.linalg.norm(utmp[i, :])
 
-            if utext is not None:
+            if np.all(utext!=None):
                 if isinstance(utext, str):
                     if utext.lower() == 'value':
                         utext = ['value' for i in range(len(utmp))]
@@ -436,7 +436,7 @@ class Tensor3D():
         pcolor = list(mcolors.TABLEAU_COLORS.keys())
         for iplot, v0 in enumerate(planeplt):
             # plot 1D vectors
-            if u is not None:
+            if np.all(u!=None):
                 uplt = []
                 utextplt = []
                 ru = []
@@ -449,7 +449,7 @@ class Tensor3D():
                     else:
                         ru.append(self.get_1D(property, vp, nchi, use_cartesian=True))
 
-                    if utext is not None:
+                    if np.all(utext!=None):
                         if utext[ivp].lower() == 'value':
                             utextplt.append('{:.2f}'.format(ru[-1]))
                         else:
@@ -480,28 +480,20 @@ class Tensor3D():
             else:
                 title = ''
 
-            if layout[0] > 1:
-                irow = iplot // layout[1]
-                icol = iplot % layout[1]
-                ax[irow, icol] = _plot2D_single(
-                    ax[irow, icol], chi, r[iplot, :], v0, pcolor[iplot%10],
-                     title, rmax, uplt, utextplt, platt
-                )
-            else:
-                ax[iplot] = _plot2D_single(
+            ax.flat[iplot] = _plot2D_single(
                     ax[iplot], chi, r[iplot, :], v0, pcolor[iplot%10], title,
                     rmax, uplt, utextplt, platt
-                )
-
+            )
 
         if len(planeplt) == 1:
             ax = ax[0]
 
         return fig, ax
 
-    def plot_3D(self, property, nphi=90, ntheta=90, nchi=180, scale_radius=True,
-                u=None, utext=None, use_cartesian=True, plot_lattice=False,
-                use_plotly=False):
+    def plot_3D(self, property, nphi=90, ntheta=90, nchi=180,
+                scale_radius=True, range_cbar=None, range_x=None, range_y=None,
+                range_z=None, u=None, utext=None, use_cartesian=True,
+                plot_lattice=False, plot_lib='matplotlib', **kwargs):
         """
         Plot 3D crystal elastic properties on the basis of the elastic tensor.
         The 3D surface is colored by the elastic property.
@@ -528,24 +520,39 @@ class Tensor3D():
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             scale_radius (bool): To scale the radius by values of the elastic
                 property, or plot a sphere with radius = 1.
+            range_cbar, range_x, range_y, range_z (list[float,float]): *Not
+                suggested* Explicitly specifying the ranges of colorbar, x, y
+                and z axes.
             u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into
                 the figure. A line segment with doubled radius is plotted to
-                indicate the vector.
+                indicate the vector. Or 'max' / 'min' / 'bothends', plot
+                vectors corresponding to the max and min of elastic properties.
             utext (list[str] | str): A string or a list of string. Used to mark
                 The vector. If ``None``, the input ``u`` and the corresponding
                 value is annotated. If 'value', the value is annotated.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
             plot_lattice (bool): Draw the lattice box around the 3D surface.
-            use_plotly (bool): By default use `matplotlib <https://matplotlib.org/>`_.
-                Alternatively use `plotly <https://plotly.com/>`_ to enable
-                interactive inspections in Jupyter Notebook.
+            plot_lib (bool): 'matplotlib' or 'plotly'. By default use
+                `matplotlib <https://matplotlib.org/>`_. Alternatively use
+                `plotly <https://plotly.com/>`_ to enable interactive
+                inspections in Jupyter Notebook.
+            \*\*kwargs: Parameters passed to ``Axes3D.view_init`` (matplotlib)
+                or ``fig.update_layout()`` (plotly). Only camera position
+                keywords are suggested.
 
         Returns:
             fig (Figure): Matplotlib or plotly ``Figure`` object.
             ax (list[Axis] | None): 2\*1 list of matplotlib ``Axis`` object. The
                 first element is the axis of colorbar. The second is the axis of
-                3D surface. ``None`` if ``use_plotly = True``.
+                3D surface. ``None`` if ``plot_lib = 'plotly'``.
+
+        .. note::
+
+            When using ``u='max'``, only one vector will be plotted if the same
+            value is repeated along different directions. Same for ``min`` and
+            ``bothends``.
+
         """
         import warnings
 
@@ -556,9 +563,13 @@ class Tensor3D():
         if property not in property_list:
             raise ValueError("Unknown property input: '{}'".format(property))
 
-        if self.lattice is None:
+        if np.all(self.lattice==None):
             if use_cartesian != True or plot_lattice == True:
                 raise Exception('Lattice matrix not available.')
+
+        if np.all(plot_lib!=None) \
+        and (plot_lib.lower() != 'matplotlib' and plot_lib.lower() != 'plotly'):
+            raise ValueError("Unknown plot library : '{}'. You must use 'matplotlib' or 'plotly'.".format(plot_lib))
 
         # Generate mesh in polar coordinate
         phi = np.linspace(0, 2*np.pi, nphi+1)
@@ -616,8 +627,35 @@ class Tensor3D():
             Z = R * Z
 
         # Get 1D plot
-        if u is not None:
-            uplt = np.array(u, dtype=float) # cartesian u, scaled
+        if np.all(u!=None):
+            if isinstance(u, str):
+                if u.lower() == 'max':
+                    irow = np.argmax(R)//np.shape(R)[1]
+                    icol = np.argmax(R)%np.shape(R)[1]
+                    uplt = np.array([
+                        X[irow, icol], Y[irow, icol], Z[irow, icol],
+                    ], dtype=float)
+                elif u.lower() == 'min':
+                    irow = np.argmin(R)//np.shape(R)[1]
+                    icol = np.argmin(R)%np.shape(R)[1]
+                    uplt = np.array([
+                        X[irow, icol], Y[irow, icol], Z[irow, icol],
+                    ], dtype=float)
+                elif u.lower() == 'bothends':
+                    irow1 = np.argmax(R)//np.shape(R)[1]
+                    icol1 = np.argmax(R)%np.shape(R)[1]
+                    irow2 = np.argmin(R)//np.shape(R)[1]
+                    icol2 = np.argmin(R)%np.shape(R)[1]
+                    uplt = np.array([
+                        [X[irow1, icol1], Y[irow1, icol1], Z[irow1, icol1]],
+                        [X[irow2, icol2], Y[irow2, icol2], Z[irow2, icol2]],
+                    ], dtype=float)
+                else:
+                    raise ValueError("Unknown u value: '{}'".format(u))
+                use_cartesian = True
+            else:
+                uplt = np.array(u, dtype=float) # cartesian u, scaled
+
             if len(np.shape(uplt)) == 1:
                 uplt = np.array([uplt])
 
@@ -639,7 +677,7 @@ class Tensor3D():
             else:
                 for i in range(len(uplt)):
                     uplt[i, :] = 2 * uplt[i, :]
-            if utext is not None:
+            if np.all(utext!=None):
                 if isinstance(utext, str):
                     if utext.lower() == 'value':
                         utext = ['value' for i in range(len(uplt))]
@@ -653,7 +691,7 @@ class Tensor3D():
                     for itxt, txt in enumerate(utext):
                         if txt.lower() == 'value':
                             utext[itxt] = '{:.2f}'.format(Ru[itxt])
-            if utext is None:
+            if np.all(utext==None):
                 if len(uplt) == 1:
                     u = np.array([u], dtype=float)
                 utext = []
@@ -670,13 +708,17 @@ class Tensor3D():
             platt = self.lattice.matrix
 
         # Select plot lib
-        if use_plotly == False:
-            fig, ax = _plot3D_mplib(R, X, Y, Z, scale_radius, uplt, utext, platt)
-        else:
-            fig = _plot3D_plotly(R, X, Y, Z, scale_radius, uplt, utext, platt)
-            ax = None
-
-        return fig, ax
+        if np.all(plot_lib!=None):
+            if plot_lib.lower() == 'matplotlib':
+                fig, ax = _plot3D_mplib(R, X, Y, Z, scale_radius, uplt, utext, platt,
+                                        range_cbar, range_x, range_y, range_z, **kwargs)
+            else:
+                fig = _plot3D_plotly(R, X, Y, Z, scale_radius, uplt, utext, platt,
+                                     range_cbar, range_x, range_y, range_z, **kwargs)
+                ax = None
+            return fig, ax
+        else: # Developer settings. return all the variables required by matplotlib.
+            return R, X, Y, Z, scale_radius, uplt, utext, platt
 
     def transform(self, new_lattice):
         """
@@ -694,7 +736,7 @@ class Tensor3D():
         import copy
 
         # sanity check
-        if self.lattice is None:
+        if np.all(self.lattice==None):
             raise Exception('Lattice information not available.')
         ## if it is a rotation
         nlatt = np.array(new_lattice, dtype=float)
@@ -905,7 +947,8 @@ def cart2voigt(C):
 # ----
 # Tensor plot functions. Private.
 # ----
-def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
+def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
+                  range_x, range_y, range_z, Rlatt=None, **kwargs):
     """
     Get 3D plot using matplotlib. Private.
 
@@ -921,6 +964,13 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
         lattice (numpy.ndarray): Lattice matrix. If not None, plot lattice
             around the 3D plot. The length of lattice vectors are arbitrary and
             no intersection with plot is ensured.
+        range_cbar, range_x, range_y, range_z (list[float,float]): *Not
+            suggested* Explicitly specifying the ranges of colorbar, x, y and z
+            axes.
+        \*\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
+            position keywords are suggested.s
+        Rlatt (numpy.ndarray): *Developers Only* Auxiliary data set to plot
+            lattices of the same scale.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -930,13 +980,17 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
     from matplotlib import animation, cm, colors
     from mpl_toolkits.mplot3d import Axes3D, axes3d
 
-    rmin = np.min(R)
-    rmax = np.max(R)
+    fig = plt.figure(figsize=[6, 5])
+    grid = plt.GridSpec(1, 12) # 5 for plot, 0.5 for colorbar, 0.5 for gap
+    ax = [fig.add_subplot(grid[0]), fig.add_subplot(grid[2:], projection='3d')]
+
+    if np.all(range_cbar==None):
+        rmin = np.min(R)
+        rmax = np.max(R)
+    else:
+        rmin = np.min(range_cbar[0])
+        rmax = np.max(range_cbar[1])
     norm = colors.Normalize(vmin=rmin, vmax=rmax, clip=False)
-    fig = plt.figure(figsize=[5.5, 5])
-    grid = plt.GridSpec(1, 11) # 5 for plot, 0.5 for colorbar
-    ax = [fig.add_subplot(grid[0]),
-          fig.add_subplot(grid[1:], projection='3d')]
 
     ax[1].plot_surface(
         X,
@@ -951,11 +1005,11 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
 
     m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
     m.set_array(np.linspace(rmin, rmax, 100))
-    colorbar = plt.colorbar(m, cax=ax[0], shrink=0.7, location="left")
-    colorbar.set_ticks(np.linspace(rmin, rmax, 5))
+    colorbar = plt.colorbar(m, cax=ax[0], shrink=0.5, location="left")
+    # colorbar.set_ticks(np.linspace(rmin, rmax, 5))
 
     # Plot 1D vectors
-    if u is not None:
+    if np.all(u!=None):
         for v, text in zip(u, utext):
             ax[1].plot([0, v[0]], [0, v[1]], [0, v[2]], color='k', linewidth=1)
             ax[1].text(v[0], v[1], v[2], text)
@@ -963,9 +1017,12 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
         u = np.zeros([1, 3])
 
     # Plot lattice
-    if lattice is not None:
+    if np.all(lattice!=None):
         if scale_radius == True:
-            r = np.max(np.abs(R))
+            if np.all(Rlatt==None):
+                r = np.max(np.abs(R))
+            else:
+                r = np.max(np.abs(Rlatt))
         else:
             r = 1
         lens = [np.linalg.norm(i) for i in lattice]
@@ -1001,20 +1058,33 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice):
         xmx = np.max(np.abs(np.concatenate([points[:, 0], [1], u[:, 0]])))
         ymx = np.max(np.abs(np.concatenate([points[:, 1], [1], u[:, 1]])))
         zmx = np.max(np.abs(np.concatenate([points[:, 2], [1], u[:, 2]])))
-    ax[1].set_xlim(-xmx, xmx)
-    ax[1].set_ylim(-ymx, ymx)
-    ax[1].set_zlim3d(-zmx, zmx)
+    if np.all(range_x==None):
+        range_x = [-xmx, xmx]
+    if np.all(range_y==None):
+        range_y = [-ymx, ymx]
+    if np.all(range_z==None):
+        range_z = [-zmx, zmx]
+
+    ax[1].set_xlim(np.min(range_x), np.max(range_x))
+    ax[1].set_ylim(np.min(range_y), np.max(range_y))
+    ax[1].set_zlim3d(np.min(range_z), np.max(range_z))
+
     ax[1].locator_params(nbins=5)  # tight=True,
     ax[1].set_xlabel("X")
     ax[1].set_ylabel("Y")
     ax[1].set_zlabel("Z")
     # Fix aspect ratio
-    # ax[1].set_box_aspect(aspect=(1, 1, 1))
     ax[1].set_aspect('equal')
+    if len(kwargs.keys()) > 0:
+        ax[1].view_init(**kwargs)
+    if np.all(fig!=None):
+        ax = fig.axes
+
     return fig, ax
 
 
-def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
+def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
+                   range_x, range_y, range_z, **kwargs):
     """
     Get 3D plot using plotly. Private.
 
@@ -1030,23 +1100,33 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
         lattice (numpy.ndarray): Lattice matrix. If not None, plot lattice
             around the 3D plot. The length of lattice vectors are arbitrary and
             no intersection with plot is ensured.
+        range_cbar, range_x, range_y, range_z (list[float,float]): *Not
+            suggested* Explicitly specifying the ranges of colorbar, x, y and z
+            axes.
+        \*\*kwargs: Parameters passed to ``fig.update_layout()`` Only camera
+            position keywords are suggested.
 
     Returns:
         fig (Figure): Plotly Figure object.
     """
     import plotly.graph_objects as go
 
-    rmin = np.min(R)
-    rmax = np.max(R)
+    if np.all(range_cbar==None):
+        rmin = np.min(R)
+        rmax = np.max(R)
+    else:
+        rmin = np.min(range_cbar[0])
+        rmax = np.max(range_cbar[1])
 
-    surface = go.Surface(x=X, y=Y, z=Z, surfacecolor=R, colorscale='Jet')
+    surface = go.Surface(x=X, y=Y, z=Z, surfacecolor=R, colorscale='Jet',
+                         cmin=rmin,cmax=rmax)
     layout = go.Layout(
         title=''
     )
     fig = go.Figure(data=[surface], layout=layout)
 
     # Plot 1D vectors
-    if u is not None:
+    if np.all(u!=None):
         for v, vlabel in zip(u, utext):
             fig.add_trace(
                 go.Scatter3d(
@@ -1065,7 +1145,7 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
         u = np.zeros([1, 3])
 
     # Plot lattice
-    if lattice is not None:
+    if np.all(lattice!=None):
         if scale_radius == True:
             r = np.max(np.abs(R))
         else:
@@ -1105,6 +1185,13 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
         xmx = np.max(np.abs(np.concatenate([points[:, 0], [1], u[:, 0]])))
         ymx = np.max(np.abs(np.concatenate([points[:, 1], [1], u[:, 1]])))
         zmx = np.max(np.abs(np.concatenate([points[:, 2], [1], u[:, 2]])))
+    if np.all(range_x==None):
+        range_x = [-xmx, xmx]
+    if np.all(range_y==None):
+        range_y = [-ymx, ymx]
+    if np.all(range_z==None):
+        range_z = [-zmx, zmx]
+
     fig.update_layout(
         width=720,
         height=720,
@@ -1114,27 +1201,29 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice):
                 backgroundcolor='white',
                 gridcolor='lightgrey',
                 zerolinecolor='black',
-                range=[-xmx, xmx],),
+                range=[np.min(range_x), np.max(range_x)],),
             xaxis_title='X',
             yaxis=dict(
                 showbackground=True,
                 backgroundcolor='white',
                 gridcolor='lightgrey',
                 zerolinecolor='black',
-                range=[-ymx, ymx],),
+                range=[np.min(range_y), np.max(range_y)],),
             yaxis_title='Y',
             zaxis=dict(
                 showbackground=True,
                 backgroundcolor='white',
                 gridcolor='lightgrey',
                 zerolinecolor='black',
-                range=[-zmx, zmx],
+                range=[np.min(range_z), np.max(range_z)],
             ),
             zaxis_title='Z',
         ),
         scene_aspectmode='manual',
         scene_aspectratio=dict(x=xmx, y=ymx, z=zmx),
     )
+    if len(kwargs.keys()) > 0:
+        fig.update_layout(**kwargs)
     return fig
 
 
@@ -1161,13 +1250,13 @@ def _plot2D_single(ax, theta, r, norm, color, title, rmax, u, utext, lattice):
         ax (Axes): Matplotlib axes object
     """
     ax.plot(theta, r, color=color, linewidth=2)
-    if rmax is None:
+    if np.all(rmax==None):
         rmax = np.max(r)
 
     # plot lattice vectors
     theta = np.arccos(norm[2])
     phi = np.arctan2(norm[1], norm[0])
-    if lattice is not None:
+    if np.all(lattice!=None):
         a = lattice[0, :] / np.linalg.norm(lattice[0, :])
         b = lattice[1, :] / np.linalg.norm(lattice[1, :])
         c = lattice[2, :] / np.linalg.norm(lattice[2, :])
@@ -1195,7 +1284,7 @@ def _plot2D_single(ax, theta, r, norm, color, title, rmax, u, utext, lattice):
                         fontstyle='italic', ha='center', va='center')
 
     # plot 1D vectors
-    if u is not None:
+    if np.all(u!=None):
         for v, vlabel in zip(u, utext):
             if np.abs(np.dot(v, norm)) > 1e-6: # non-orthogonal
                 continue

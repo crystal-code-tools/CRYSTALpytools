@@ -15,7 +15,7 @@ import numpy as np
 
 
 def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None, dpi=400):
+                   yticks=5, cmap_max=None, cmap_min=None):
     """
     Plots the 2D ECHG density map from a fort.25 file.
 
@@ -27,8 +27,7 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
         yticks (int): Number of ticks in the y direction.
         cmap_max(float): Maximum value used for the colormap.
         cmap_min(float): Minimun value used for the colormap.
-        dpi (int): *Valid if name!=None* Resolution (dots per inch) for the output image.
-    
+
     Returns:
         fig (Figure): Matplotlib figure object
         ax (Axes): Matplotlib axes object
@@ -53,7 +52,7 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
 #--------------------------------ECHG spin density-----------------------------#
 
 def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None, dpi=400):
+                   yticks=5, cmap_max=None, cmap_min=None):
     """
     Plots the 2D spin density map from a ECHG output file (fort.25). For charge
     density map please refer to ``plot_dens_ECHG``.
@@ -66,7 +65,6 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
         yticks (int): *Optional* Number of ticks in the y direction. Default is 5.
         cmap_max(float): *Optional*, Maximum value used for the colormap. Default is None.
         cmap_min(float): *Optional* Minimun value used for the colormap. Default is None.
-        dpi (int): *Optional* Resolution (dots per inch) for the output image. Default is 400.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -487,8 +485,7 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
         sharey (bool): Whether to share the y-axis among subplots.
         save_to_file (str): The file name to save the plot.
         dpi (int): Dots per inch resolution of the saved file.
-        fontsize (int): Fontsize of the axis labels.            
-        transparency(bool): Background transparency of the saved file,
+        fontsize (int): Fontsize of the axis labels.
 
     Returns:
         None
@@ -570,8 +567,7 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
         sharey (bool): Whether to share the y-axis among subplots.
         save_to_file (str): The file name to save the plot.
         dpi (int): Dots per inch resolution of the saved file.
-        fontsize (int): Fontsize of the axis labels 
-        transparency: Background Transparency of the saved file.
+        fontsize (int): Fontsize of the axis labels.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -2680,431 +2676,160 @@ def plot_cry_zt(seebeck_obj, sigma_obj):
 #                                                                            #
 ##############################################################################
 
-#--------------------------------YOUNG MODULUS--------------------------------#
-
-def plot_cry_young(theta, phi, S):
-    """
-    Compute Young's modulus for each direction of the space (i.e., each pair
-    of theta and phi angles).
-
-    Args:
-        theta (float): Theta value.
-        phi (float): Phi value.
-        S (numpy.ndarray): Compliance matrix.
-
-    Returns:
-        float: Young's modulus values.
-
-    Notes:
-        - This function is intended to be called by cry_ela_plot
-    """
-    import numpy as np
-
-    # C2V = Matrix to refer the Cartesian into Voigt's notation
-    # Observe that the matrix should be written as is shown below
-    # C2V = np.array([[1,6,5],[6,2,4],[5,4,3]])
-    # Since python start counting from zero all numbers must be subtracted by 1
-    C2V = np.array(
-        [
-            [0, 5, 4],
-            [5, 1, 3],
-            [4, 3, 2]
-        ]
-    )
-    # print("The Matrix to convert Cartesian into Voigs Notation: \n", C2V)
-    # creating the 1x3 vector "a"
-    a = np.array(
-        [
-            np.sin(theta) * np.cos(phi),
-            np.sin(theta) * np.sin(phi),
-            np.cos(theta),
-        ]
-    )
-    # e is a pseudo Young modulus value folowing the relation 1/e
-    e = 0.0
-    # i,j,k,l are updatable indices refering to cartesian notation that
-    # will be converted by C2V into Voigt's
-    for i in range(3):
-        for j in range(3):
-            v = C2V[i, j]
-            for k in range(3):
-                for l in range(3):
-                    u = C2V[k, l]
-                    # rf is a factor that must be multipled by the compliance element if
-                    # certain conditions are satisfied
-                    rf = 1
-                    if v >= 3 and u >= 3:
-                        rf = 4
-                    if v >= 3 and u < 3:
-                        rf = 2
-                    if u >= 3 and v < 3:
-                        rf = 2
-
-                    rtmp = a[i] * a[j] * a[k] * a[l] * (S[v, u] / rf)
-                    e = e + rtmp
-    E_tmp = 1 / e  # is the Young Modulus of each cycle
-    return E_tmp
-
-#----------------------------COMPRESSION PROPERTIES---------------------------#
-
-
-def plot_cry_comp(theta, phi, S):
-    """
-    Compute linear compressibility for each direction of the space (i.e., each
-    pair of theta and phi angles).
-
-    Args:
-        theta (float): Theta value.
-        phi (float): Phi value.
-        S (numpy.ndarray): Compliance matrix.
-
-    Returns:
-        float: Linear compressibility values.
-
-    Notes:
-        - This function is intended to be called by cry_ela_plot
-    """
-    import numpy as np
-
-    C2V = np.array(
-        [
-            [0, 5, 4],
-            [5, 1, 3],
-            [4, 3, 2]
-        ]
-    )
-
-    a = np.array(
-        [
-            np.sin(theta) * np.cos(phi),
-            np.sin(theta) * np.sin(phi),
-            np.cos(theta),
-        ]
-    )
-    B = 0.0
-
-    for i in range(3):
-        for j in range(3):
-            v = C2V[i, j]
-            for k in range(3):
-                u = C2V[k, k]
-                rf = 1
-                if v >= 3 and u >= 3:
-                    rf = 4
-                if v >= 3 and u < 3:
-                    rf = 2
-                if u >= 3 and v < 3:
-                    rf = 2
-
-                rtmp = a[i] * a[j] * (S[v, u] / rf)
-                B = B + rtmp
-    return B
-
-
-#--------------------------------SHEAR MODULUS--------------------------------#
-
-def plot_cry_shear(theta_1D, phi_1D, S, ndeg, shear_choice):
-    """
-    For each direction of the space (i.e., for each pair
-    of theta and phi angles) the shear modulus is computed for the third angle
-    chi and the average, maximum and minimum values are stored.
-
-    Args:
-        theta_1D (numpy.ndarray): One-dimensional array of theta values.
-        phi_1D (numpy.ndarray): One-dimensional array of phi values.
-        S (numpy.ndarray): Compliance matrix.
-        ndeg (int): Number of degrees for discretization.
-        shear_choice (str): Type of shear property to plot. Options: "avg", "min", "max".
-
-    Returns:
-        numpy.ndarray: Shear property array.
-
-    Notes:
-        - This function is intended to be called by cry_ela_plot
-    """
-    import numpy as np
-
-    C2V = np.array(
-        [
-            [0, 5, 4],
-            [5, 1, 3],
-            [4, 3, 2],
-        ]
-    )
-    shear_chi = np.zeros(ndeg)
-    shear_min = np.zeros((ndeg, ndeg))
-    shear_max = np.zeros((ndeg, ndeg))
-    shear_avg = np.zeros((ndeg, ndeg))
-    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
-
-    for phi_idx in range(ndeg):
-        phi = phi_1D[phi_idx]
-        for theta_idx in range(ndeg):
-            theta = theta_1D[theta_idx]
-            for chi_idx in range(ndeg):
-                chi = chi_1D[chi_idx]
-                a = np.array(
-                    [
-                        np.sin(theta) * np.cos(phi),
-                        np.sin(theta) * np.sin(phi),
-                        np.cos(theta),
-                    ]
-                )
-                b = np.array(
-                    [
-                        np.cos(theta) * np.cos(phi) * np.cos(chi)
-                        - np.sin(phi) * np.sin(chi),
-                        np.cos(theta) * np.sin(phi) * np.cos(chi)
-                        + np.cos(phi) * np.sin(chi),
-                        -np.sin(theta) * np.cos(chi),
-                    ]
-                )
-                shear_tmp = 0
-                for i in range(3):
-                    for j in range(3):
-                        v = C2V[i, j]
-                        for k in range(3):
-                            for l in range(3):
-                                u = C2V[k, l]
-                                rf = 1
-                                if v >= 3 and u >= 3:
-                                    rf = 4
-                                if v >= 3 and u < 3:
-                                    rf = 2
-                                if u >= 3 and v < 3:
-                                    rf = 2
-                                rtmp = a[i] * b[j] * a[k] * \
-                                    b[l] * (S[v, u] / rf)
-                                shear_tmp = shear_tmp + rtmp
-                shear_chi[chi_idx] = 1 / (4 * shear_tmp)
-            shear_min[phi_idx, theta_idx] = np.amin(shear_chi)
-            shear_max[phi_idx, theta_idx] = np.amax(shear_chi)
-            shear_avg[phi_idx, theta_idx] = np.mean(shear_chi)
-
-    if shear_choice == "avg":
-        return shear_avg
-    if shear_choice == "min":
-        return shear_min
-    if shear_choice == "max":
-        return shear_max
-
-
-#------------------------------------POISSON RATIO----------------------------#
-
-def plot_cry_poisson(theta_1D, phi_1D, S, ndeg, poisson_choice):
-    """
-    For each direction of the space (i.e., for each pair
-    of theta and phi angles) the Poisson ratio is computed for the third angle
-    chi and the average, maximum and minimum values are stored.
-
-    Args:
-        theta_1D (numpy.ndarray): One-dimensional array of theta values.
-        phi_1D (numpy.ndarray): One-dimensional array of phi values.
-        S (numpy.ndarray): Compliance matrix.
-        ndeg (int): Number of degrees for discretization.
-        poisson_choice (str): Type of Poisson's ratio to plot. Options: "avg", "min", "max".
-
-    Returns:
-        numpy.ndarray: Poisson's ratio array.
-
-    Notes:
-        - This function is intended to be called by cry_ela_plot
-    """
-    import numpy as np
-
-    C2V = np.array(
-        [
-            [0, 5, 4],
-            [5, 1, 3],
-            [4, 3, 2],
-        ]
-    )
-    poisson_chi = np.zeros(ndeg)
-    poisson_min = np.zeros((ndeg, ndeg))
-    poisson_max = np.zeros((ndeg, ndeg))
-    poisson_avg = np.zeros((ndeg, ndeg))
-    chi_1D = np.linspace(0, 2 * np.pi, ndeg)
-
-    for phi_idx in range(ndeg):
-        phi = phi_1D[phi_idx]
-        for theta_idx in range(ndeg):
-            theta = theta_1D[theta_idx]
-            for chi_idx in range(ndeg):
-                chi = chi_1D[chi_idx]
-                a = np.array(
-                    [
-                        np.sin(theta) * np.cos(phi),
-                        np.sin(theta) * np.sin(phi),
-                        np.cos(theta),
-                    ]
-                )
-                b = np.array(
-                    [
-                        np.cos(theta) * np.cos(phi) * np.cos(chi)
-                        - np.sin(phi) * np.sin(chi),
-                        np.cos(theta) * np.sin(phi) * np.cos(chi)
-                        + np.cos(phi) * np.sin(chi),
-                        -np.sin(theta) * np.cos(chi),
-                    ]
-                )
-                poisson_num = 0
-                poisson_den = 0
-                for i in range(3):
-                    for j in range(3):
-                        v = C2V[i, j]
-                        for k in range(3):
-                            for l in range(3):
-                                u = C2V[k, l]
-                                rf = 1
-                                if v >= 3 and u >= 3:
-                                    rf = 4
-                                if v >= 3 and u < 3:
-                                    rf = 2
-                                if u >= 3 and v < 3:
-                                    rf = 2
-                                num = (a[i] * a[j] * b[k] * b[l] * S[v, u])/rf
-                                den = (a[i] * a[j] * a[k] * a[l] * S[v, u])/rf
-                                poisson_num = poisson_num + num
-                                poisson_den = poisson_den + den
-                poisson_chi[chi_idx] = - poisson_num / poisson_den
-            poisson_min[phi_idx, theta_idx] = np.amin(poisson_chi)
-            poisson_max[phi_idx, theta_idx] = np.amax(poisson_chi)
-            poisson_avg[phi_idx, theta_idx] = np.mean(poisson_chi)
-
-    if poisson_choice == "avg":
-        return poisson_avg
-    if poisson_choice == "min":
-        return poisson_min
-    if poisson_choice == "max":
-        return poisson_max
-
-
 #----------------------------------ELASTIC------------------------------------#
-
-def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
-                 transparency=False):
+def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
+                     **kwargs):
     """
-    Plot crystal elastic properties on the basis of the elastic tensor. A
-    variable number of elastic tensors can be provided in order to get
-    multiple plots in one shot, establishing a fixed color scale among them.
+    A wrapper function of :ref:`Tensor3D <ref-elastics>` objects to plot 3D
+    crystal elastic properties. The user can plot multiple properties for
+    different systems. The function returns to lists of figure and axes objects
+    for further processing. Only matplotlib is used for plotting. Plotly is
+    not available.
+
+    Properties:
+
+    * "young": Young's modulus.
+    * "comp": Compressibility.
+    * "shear avg": Average shear modulus.
+    * "shear min": Minimum shear modulus.
+    * "shear max": Maximum shear modulus.
+    * "poisson avg": Average Poisson ratio.
+    * "poisson min": Minimum Poisson ratio.
+    * "poisson max": Maximum Poisson ratio.
 
     Args:
-        choose (str): Property to plot. Options: "young", "comp", "shear avg", 
-        "shear min", "shear max", "poisson avg", "poisson min", "poisson max".
-        ndeg (int): Number of degrees for discretization.
-        *args: Variable number of elastic tensors.
-        dpi (int, optional): Dots per inch for saving the plot. Default is 200.
-        filetype (str, optional): File format of the output plot. Default is "png".
-        transparency (bool, optional): Flag indicating whether to make the plot 
-        background transparent. Default is False.
+        property (str | list[str]): The properties to plot. See above.
+        \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
+            Can be CRYSTAL output files, ``Tensor3D`` objects and 6\*6
+            **elastic** matrices in Voigt notation.
+        uniform_scale (bool): Use the same color scale for all plots of the
+            same property.
+        add_title (bool): Add properties as titles of subplots.
+        \*\*kwargs : Plot settings. The settings will be used for all plots.
+            Check :ref:`Tensor3D.plot_3D <ref-elastics>`
 
     Returns:
-        None
+        figs (Figure): For 1 tensor, 1 property, return to a matplotlib Figure
+            object. For 1 tensor and multiple properties or multiple tensors
+            and 1 property, n\*1 list of Figure objects. For multiple tensors
+            and properties, nTensor\*nProperty list.
+        axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
     """
-    import math
-    import sys
-    import time
-
-    import matplotlib.pyplot as plt
+    from CRYSTALpytools.elastics import Tensor3D
     import numpy as np
-    from matplotlib import animation, cm, colors
-    from mpl_toolkits.mplot3d import Axes3D, axes3d
+    import matplotlib.pyplot as plt
+    from matplotlib import cm, colors
+    import warnings
 
-    i = 0
-    R = [None] * len(args)
-    tmin = []
-    tmax = []
+    # sanity check and preparation
+    tensplt = []
+    for t in tensor:
+        if isinstance(t, str):
+            tensplt.append(Tensor3D.from_file(t))
+        elif isinstance(t, Tensor3D):
+            tensplt.append(t)
+        else:
+            ttmp = np.array(t, dtype=float)
+            if np.shape(ttmp)[0] != 6 or np.shape(ttmp)[1] != 6:
+                raise ValueError('Input tensor is not a 6x6 matrix in Voigt notation.')
+            tensplt.append(Tensor3D(matrix=ttmp, lattice=None, is_compliance=False))
 
-    # Compute elastic properties for each tensor -->
-    for C in args:
+    if isinstance(property, str):
+        property = [property]
 
-        # Inverse of the matrix C in GPa (Compliance)
-        S = np.linalg.inv(C)
+    if len(tensplt) == 1 and len(property) > 1 and uniform_scale == True:
+        warnings.warn("'uniform_scale' cannot be used for multiple proeprties of the same system. Using 'uniform_scale = False'.",
+                      stacklevel=2)
+        uniform_scale = False
 
-        # One dimentional array of theta from 0 to pi
-        theta_1D = np.linspace(0, np.pi, ndeg)
-        # One dimentional array of phi from 0 to 2pi
-        phi_1D = np.linspace(0, 2 * np.pi, ndeg)
-        # Make a 2D array for theta and phi
-        theta_2D, phi_2D = np.meshgrid(theta_1D, phi_1D)
+    if 'plot_lib' in kwargs.keys():
+        if kwargs['plot_lib'] == 'plotly':
+            warnings.warn("Only matplotlib is available.", stacklevel=2)
+    kwargs['plot_lib'] = 'matplotlib'
 
-        # Call to function
-        if choose == "young":
-            R[i] = plot_cry_young(theta_2D, phi_2D, S)
-        elif choose == "comp":
-            R[i] = plot_cry_comp(theta_2D, phi_2D, S)
-        elif choose == "shear avg":
-            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "avg")
-        elif choose == "shear min":
-            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "min")
-        elif choose == "shear max":
-            R[i] = plot_cry_shear(theta_1D, phi_1D, S, ndeg, "max")
-        elif choose == "poisson avg":
-            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "avg")
-        elif choose == "poisson min":
-            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "min")
-        elif choose == "poisson max":
-            R[i] = plot_cry_poisson(theta_1D, phi_1D, S, ndeg, "max")
+    # plot
+    n_plot = len(tensplt) * len(property)
+    figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
+    axes = [[0 for i in range(len(property))] for j in range(len(tensplt))]
 
-        i += 1
-    # <--
+    if uniform_scale == False: # Non-uniform scale
+        for ip, p in enumerate(property):
+            kwargs['property'] = p
+            for it, t in enumerate(tensplt):
+                fig, ax = t.plot_3D(**kwargs)
+                if add_title == True:
+                    ax[1].set_title(p)
+                figs[it][ip] = fig
+                axes[it][ip] = ax
+    else: # Uniform scale
+        # possible camera position args
+        camera_args = {}
+        for i in ['elev', 'azim', 'roll', 'vertical_axis', 'share']:
+            try:
+                camera_args[i] = kwargs[i]
+            except KeyError:
+                pass
 
-    # Find highest and lowest values -->
-    for k in range(i):
-        tmin.append(np.min(R[k]))
-        tmax.append(np.max(R[k]))
-    vmin = min(tmin)
-    vmax = max(tmax)
-    # <--
+        for ip, p in enumerate(property):
+            R_all = []
+            X_all = []
+            Y_all = []
+            Z_all = []
+            uplt_all =[]
+            utext_all = []
+            platt_all = []
+            kwargs['property'] = p
+            kwargs['plot_lib'] = None
+            # Get data first
+            for it, t in enumerate(tensplt):
+                R, X, Y, Z, scale_radius, uplt, utext, platt = t.plot_3D(**kwargs)
+                R_all.append(R)
+                X_all.append(X)
+                Y_all.append(Y)
+                Z_all.append(Z)
+                uplt_all.append(uplt)
+                utext_all.append(utext)
+                platt_all.append(platt)
+            # plot
+            try: range_cbar = kwargs['range_cbar']
+            except KeyError: range_cbar = [np.min(R_all), np.max(R_all)]
+            try: range_x = kwargs['range_x']
+            except KeyError: range_x = None
+            try: range_y = kwargs['range_y']
+            except KeyError: range_y = None
+            try: range_z = kwargs['range_z']
+            except KeyError: range_z = None
+            if np.all(platt_all[0]!=None):
+                Rref = R_all[
+                    np.argmax(np.array(R_all).flatten()) // \
+                    (np.shape(R_all[0])[0]* np.shape(R_all[0])[1])
+                ]
+            else:
+                Rref = None
 
-    # Create plot for each tensor -->
-    for k in range(i):
-        X = R[k] * np.sin(theta_2D) * np.cos(phi_2D)
-        Y = R[k] * np.sin(theta_2D) * np.sin(phi_2D)
-        Z = R[k] * np.cos(theta_2D)
+            for it, t in enumerate(tensplt):
+                fig, ax = _plot3D_mplib(
+                    R_all[it], X_all[it], Y_all[it], Z_all[it], scale_radius,
+                    uplt_all[it], utext_all[it], platt_all[it], range_cbar,
+                    range_x, range_y, range_z, Rref, **camera_args
+                )
+                if add_title == True:
+                    ax[1].set_title(p)
+                figs[it][ip] = fig
+                axes[it][ip] = ax
 
-        norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-        fig, ax = plt.subplots(subplot_kw=dict(projection="3d"))
+    # dimensionality
+    if len(tensplt) == 1 and len(property) == 1:
+        figs = figs[0][0]
+        axes = axes[0][0]
+    elif len(tensplt) == 1 and len(property) > 1:
+        figs = figs[0]
+        axes = axes[0]
+    elif len(tensplt) > 1 and len(property) == 1:
+        figs = [i[0] for i in figs]
+        axes = [i[0] for i in axes]
 
-        ax.plot_surface(
-            X,
-            Y,
-            Z,
-            rstride=1,
-            cstride=1,
-            facecolors=cm.jet(norm(R[k])),
-            antialiased=True,
-            alpha=0.75,
-        )
-
-        m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
-        m.set_array(R[k])
-        fig.colorbar(m, ax=ax, shrink=0.7, location="left")
-
-        # Make the planes transparent
-        ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        # Make the grid lines transparent
-        #  ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        #  ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        #  ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        # Fixing limits
-        ax.set_xlim(-1 * np.max(R), np.max(R))
-        ax.set_ylim(-1 * np.max(R), np.max(R))
-        ax.set_zlim3d(-1 * np.max(R), np.max(R))
-        ax.locator_params(nbins=5)  # tight=True,
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
-
-        ax.set_box_aspect(aspect=(1, 1, 1))  # Fix aspect ratio
-
-        plt.show()
-        fig.savefig(choose + time.strftime("%Y-%m-%d_%H%M%S.") +
-                    filetype, dpi=dpi, transparent=transparency)
-
-        # <--
+    return figs, axes
 
 
 ##############################################################################
@@ -3746,48 +3471,26 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
     plt.show()
 
 
-##############################################################################
-#                                                                            #
-#                             COMMON FUNCTIONS                               #
-#                                                                            #
-##############################################################################
+#--------------------------------obsolute functions----------------------------#
 
+def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
+                 transparency=False):
+    """
+    Obsolute. Use ``plot_elastics_3D``.
+    """
+    import warnings
 
-# def save_plot(path_to_file, dpi, transparency):
-#     """
-#     Save the plot as a file.
-#
-#     Args:
-#         path_to_file (str): Path to the output file.
-#         format (str, optional): File format of the output plot. Default is 'png'.
-#
-#     Raises:
-#         FileNotFoundError: If the specified folder does not exist.
-#
-#     Returns:
-#         None
-#     """
-#     import warnings
-#     from os import path
-#
-#     import matplotlib.pyplot as plt
-#
-#     folder = path.split(path_to_file)[0]
-#     file = path.split(path_to_file)[1]
-#     extension = path.splitext(file)[-1]
-#     extension_list = ['.png', '.jpg', '.jpeg', '.tif', '.pdf', '.svg', '.eps']
-#
-#     if folder == '':
-#         folder = '.'
-#     if extension != '':
-#         if extension in extension_list:
-#             format = extension[1:]
-#         else:
-#             warnings.warn('Unrecognized file format. PNG format is used.',
-#                           stacklevel=2)
-#
-#     if path.exists(folder) == True:
-#         plt.savefig('%s/%s.%s' % (folder, file, format),
-#                     dpi=dpi, transparent=transparency)
-#     else:
-#         raise FileNotFoundError('Folder %s does not exist' % path_to_file)
+    warnings.warn("You are calling an obsolute function. Use 'plot_elastics_3D' instead.",
+                  stacklevel=2)
+    args = [i for i in args]
+    figs, axes = plot_elastics_3D(
+        choose, *args, uniform_scale=True, add_title=False, nphi=ndeg,
+        ntheta=ndeg, nchi=ndeg
+    )
+
+    if not isinstance(figs, list):
+        figs = [figs]
+    for nfig, fig in enumerate(figs):
+        fig.savefig(choose + '{:d}'.format(nfig) + filetype,
+                    dpi=dpi, transparent=transparency)
+    return
