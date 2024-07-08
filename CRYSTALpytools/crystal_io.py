@@ -2048,7 +2048,7 @@ class Crystal_output:
         title = ''
         buffer = []
         countline = 0
-        while countline < len(self.data):
+        while countline < self.eoo:
             line = self.data[countline]
             if re.match(r'^\s*SYMMETRIZED ELASTIC CONSTANTS', line):
                 title = line
@@ -2070,28 +2070,31 @@ class Crystal_output:
 
         for i in range(dimen):
             # Clean buffer and copy it in strtensor
-            self.tensor[i, i:ndimen] = np.array(
-                buffer[i].strip().split(), dtype=float
+            self.tensor[i, i:] = np.array(
+                buffer[i].strip().split()[1:-1], dtype=float
             )
         buffer.clear()
 
         # Symmetrize tensor
-        for i in range(6):
-            for j in range(6):
+        for i in range(dimen):
+            for j in range(i,dimen):
                 self.tensor[j][i] = self.tensor[i][j]
 
         # Unit conversion
         if 'gpa' in title.lower():
             pass
         elif 'hartree' in title.lower():
-            if dimen == 1: # Eh/rB^3 * rB^2 = Eh/rB ---> J/m
-                unit.au_to_angstrom(
-                    unit.au_to_angstrom(
-                        unit.au_to_GPa(self.tensor)))*1e-20
-            else: # Eh/rB^3 * rB = Eh/rB^2 ---> J/m^2
-                unit.au_to_angstrom(
-                    unit.au_to_GPa(self.tensor))*1e-10
-
+            if dimen == 1: # Eh/rB ---> J/m
+                length = unit.angstrom_to_au(self.get_lattice(initial=False)[0, 0])
+                self.tensor = self.tensor / length
+                self.tensor =  unit.au_to_GPa(self.tensor) * (unit.au_to_angstrom(1.)*1e-10)**2
+            elif dimen == 2: # Eh/rB^2 ---> J/m^2
+                area = np.linalg.norm(np.cross(
+                    unit.angstrom_to_au(self.get_lattice(initial=False)[0, :2]),
+                    unit.angstrom_to_au(self.get_lattice(initial=False)[1, :2])
+                ))
+                self.tensor = self.tensor / area
+                self.tensor =  unit.au_to_GPa(self.tensor) * (unit.au_to_angstrom(1.)*1e-10)
         return self.tensor
 
 

@@ -2675,8 +2675,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj):
 #                             ELASTIC PROPERTIES                             #
 #                                                                            #
 ##############################################################################
-
-#----------------------------------ELASTIC------------------------------------#
+#--------------------------------3D ELASTIC----------------------------------#
 def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
                      **kwargs):
     """
@@ -2701,7 +2700,8 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
         property (str | list[str]): The properties to plot. See above.
         \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
             Can be CRYSTAL output files, ``Tensor3D`` objects and 6\*6
-            **elastic** matrices in Voigt notation, GPa.
+            **elastic** matrices in Voigt notation, GPa. For files,
+            ``conventional_lattice=True``.
         uniform_scale (bool): Use the same color scale for all plots of the
             same property.
         add_title (bool): Add properties as titles of subplots.
@@ -2830,34 +2830,39 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
     return figs, axes
 
 
-def plot_elastics_2D(property, *tensor, uniform_scale=True, **kwargs):
+#--------------------------------2D ELASTIC----------------------------------#
+def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True, **kwargs):
     """
     A wrapper function of :ref:`Tensor3D or Tensor2D <ref-elastics>` objects to
     plot 2D crystal elastic properties. The user can plot multiple properties
     for different systems. The function returns to lists of figure and axes
-    objects for further processing.
+    objects for further processing. Base units: GPa, m.
 
-    Properties:
+    Properties, depending on the dimensionality of systems:
 
     * "young": Young's modulus.
     * "comp": Compressibility.
-    * "shear": Shear modulus between vectors in plane and plane norm.
-    * "shear avg": Average shear modulus.
-    * "shear min": Minimum shear modulus.
-    * "shear max": Maximum shear modulus.
-    * "poisson": Poisson ratio between vectors in plane and plane norm.
-    * "poisson avg": Average Poisson ratio.
-    * "poisson min": Minimum Poisson ratio.
-    * "poisson max": Maximum Poisson ratio.
+    * "shear": Shear modulus between vectors in plane and plane norm (3D) or in-plane vectors (2D).
+    * "shear avg": Average shear modulus (3D).
+    * "shear min": Minimum shear modulus (3D).
+    * "shear max": Maximum shear modulus (3D).
+    * "poisson": Poisson ratio between vectors in plane and plane norm or in-plane vectors (2D).
+    * "poisson avg": Average Poisson ratio (3D).
+    * "poisson min": Minimum Poisson ratio (3D).
+    * "poisson max": Maximum Poisson ratio (3D).
 
     Args:
         property (str | list[str]): The properties to plot. See above.
         \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
             Can be CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects
             and 6\*6 / 3\*3 **elastic** matrices in Voigt notation, GPa. But
-            dimensionalities of systems must be consistent.
-        uniform_scale (bool): Use the same radius scale for all plots of the
-            same property.
+            dimensionalities of systems must be consistent. For 3D files,
+            ``conventional_lattice=True``.
+        same_fig_2D (bool): *Valid only for 2D systems*. Plot all the pole
+            chart into the same figure. Same dimension as the ``figs`` list.
+        uniform_scale_2D (bool): *Valid only for 2D systems*. Use the same
+            radial scale for all plots of the same property.  ``uniform_scale``
+            can be enabled for different planes of the same system in 3D cases.
         \*\*kwargs : Plot settings. The settings will be used for all plots.
             Check :ref:`Tensor3D.plot_2D and Tensor2D.plot_2D <ref-elastics>`.
 
@@ -2865,18 +2870,20 @@ def plot_elastics_2D(property, *tensor, uniform_scale=True, **kwargs):
         figs (Figure): For 1 tensor, 1 property, return to a matplotlib Figure
             object. For 1 tensor and multiple properties or multiple tensors
             and 1 property, n\*1 list of Figure objects. For multiple tensors
-            and properties, nTensor\*nProperty list.
+            and properties, nTensor\*nProperty list. If ``same_fig_2D=True``,
+            return to a figure.
         axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
     """
-    from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file
+    from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file, _plot2D_single
     import numpy as np
     import warnings
+    import matplotlib.pyplot as plt
 
     # sanity check and preparation
     tensplt = []
     for t in tensor:
         if isinstance(t, str):
-            tensplt.append(Tensor3D.from_file(t))
+            tensplt.append(tensor_from_file(t))
         elif isinstance(t, Tensor3D) or isinstance(t, Tensor2D):
             tensplt.append(t)
         else:
@@ -2891,13 +2898,101 @@ def plot_elastics_2D(property, *tensor, uniform_scale=True, **kwargs):
     if isinstance(property, str):
         property = [property]
 
-    if len(tensplt) == 1 and len(property) > 1 and uniform_scale == True:
-        warnings.warn("'uniform_scale' cannot be used for multiple proeprties of the same system. Using 'uniform_scale = False'.",
+    if len(tensplt) == 1 and len(property) > 1 and uniform_scale_2D == True:
+        warnings.warn("'uniform_scale_2D' cannot be used for multiple proeprties of the same system. Using 'uniform_scale_2D = False'.",
                       stacklevel=2)
         uniform_scale = False
 
-    
 
+    n_plot = len(tensplt) * len(property)
+    if isinstance(tensplt[0], Tensor3D) or n_plot == 1.:
+        same_fig_2D = False
+        uniform_scale_2D = False
+
+    # set subfigures
+    if same_fig_2D == True:
+        if len(property) == 1 and len(tensplt) > 1:
+            figs, axes = plt.subplots(nrows=1, ncols=len(tensplt),
+                                      subplot_kw={'projection' : 'polar'}, layout='tight')
+        else:
+            figs, axes = plt.subplots(nrows=len(tensplt), ncols=len(property),
+                                      subplot_kw={'projection' : 'polar'}, layout='tight')
+    else:
+        figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
+        axes = [[0 for i in range(len(property))] for j in range(len(tensplt))]
+
+    # set colors, nTensplt*nProperty
+    clist = list(mcolors.TABLEAU_COLORS.keys())
+    if len(property) == 1 and len(tensplt) > 1:
+        colors = [[clist[i]] for i in range(len(tensplt))]
+    else:
+        colors = [[clist[i] for i in range(len(property))] for j in range(len(tensplt))]
+
+    # plot
+    if uniform_scale_2D == False: # Non-uniform scale
+        for ip, p in enumerate(property):
+            kwargs['property'] = p
+            for it, t in enumerate(tensplt):
+                if same_fig_2D == False:
+                    fig, ax = t.plot_2D(**kwargs)
+                    figs[it][ip] = fig
+                    axes[it][ip] = ax
+                else:
+                    kwargs['return_data'] = True
+                    chi, r, title, uplt, utextplt, platt = t.plot_2D(**kwargs)
+                    ax.flat[int(it*ip)] = _plot2D_single(
+                        ax.flat[int(it*ip)], chi, r, np.array([0, 0, 1], dtype=float),
+                        colors[it][ip], title, np.max(r), uplt, utextplt, platt
+                    )
+    else: # Uniform scale
+        for ip, p in enumerate(property):
+            chi_all = []
+            r_all = []
+            title_all = []
+            uplt_all =[]
+            utext_all = []
+            platt_all = []
+            kwargs['property'] = p
+            kwargs['return_data'] = True
+            # Get data first
+            for it, t in enumerate(tensplt):
+                chi, r, title, uplt, utextplt, platt = t.plot_2D(**kwargs)
+                chi_all.append(chi)
+                r_all.append(r)
+                title_all.append(title)
+                uplt_all.append(uplt)
+                utext_all.append(utext)
+                platt_all.append(platt)
+            # plot
+            rmax = np.max(r_all)
+            for it, t in enumerate(tensplt):
+                if same_fig_2D == False:
+                    fig, ax = plt.subplots(nrows=1, ncols=1,
+                                           subplot_kw={'projection' : 'polar'}, layout='tight')
+                    ax = _plot2D_single(ax, chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
+                                        colors[it][ip], title_all[it], rmax,
+                                        uplt_all[it], utextplt_all[it], platt_all[it])
+                    figs[it][ip] = fig
+                    axes[it][ip] = ax
+                else:
+                    ax.flat[int(it*ip)] = _plot2D_single(
+                        ax.flat[int(it*ip)], chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
+                        colors[it][ip], title_all[it], rmax, uplt_all[it], utextplt_all[it], platt_all[it]
+                    )
+
+    # dimensionality
+    if same_fig_2D == False:
+        if len(tensplt) == 1 and len(property) == 1:
+            figs = figs[0][0]
+            axes = axes[0][0]
+        elif len(tensplt) == 1 and len(property) > 1:
+            figs = figs[0]
+            axes = axes[0]
+        elif len(tensplt) > 1 and len(property) == 1:
+            figs = [i[0] for i in figs]
+            axes = [i[0] for i in axes]
+
+    return figs, axes
 
 
 ##############################################################################
