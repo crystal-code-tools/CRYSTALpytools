@@ -2701,7 +2701,7 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
         property (str | list[str]): The properties to plot. See above.
         \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
             Can be CRYSTAL output files, ``Tensor3D`` objects and 6\*6
-            **elastic** matrices in Voigt notation.
+            **elastic** matrices in Voigt notation, GPa.
         uniform_scale (bool): Use the same color scale for all plots of the
             same property.
         add_title (bool): Add properties as titles of subplots.
@@ -2715,10 +2715,8 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
             and properties, nTensor\*nProperty list.
         axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
     """
-    from CRYSTALpytools.elastics import Tensor3D
+    from CRYSTALpytools.elastics import Tensor3D, _plot3D_mplib
     import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib import cm, colors
     import warnings
 
     # sanity check and preparation
@@ -2830,6 +2828,76 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
         axes = [i[0] for i in axes]
 
     return figs, axes
+
+
+def plot_elastics_2D(property, *tensor, uniform_scale=True, **kwargs):
+    """
+    A wrapper function of :ref:`Tensor3D or Tensor2D <ref-elastics>` objects to
+    plot 2D crystal elastic properties. The user can plot multiple properties
+    for different systems. The function returns to lists of figure and axes
+    objects for further processing.
+
+    Properties:
+
+    * "young": Young's modulus.
+    * "comp": Compressibility.
+    * "shear": Shear modulus between vectors in plane and plane norm.
+    * "shear avg": Average shear modulus.
+    * "shear min": Minimum shear modulus.
+    * "shear max": Maximum shear modulus.
+    * "poisson": Poisson ratio between vectors in plane and plane norm.
+    * "poisson avg": Average Poisson ratio.
+    * "poisson min": Minimum Poisson ratio.
+    * "poisson max": Maximum Poisson ratio.
+
+    Args:
+        property (str | list[str]): The properties to plot. See above.
+        \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
+            Can be CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects
+            and 6\*6 / 3\*3 **elastic** matrices in Voigt notation, GPa. But
+            dimensionalities of systems must be consistent.
+        uniform_scale (bool): Use the same radius scale for all plots of the
+            same property.
+        \*\*kwargs : Plot settings. The settings will be used for all plots.
+            Check :ref:`Tensor3D.plot_2D and Tensor2D.plot_2D <ref-elastics>`.
+
+    Returns:
+        figs (Figure): For 1 tensor, 1 property, return to a matplotlib Figure
+            object. For 1 tensor and multiple properties or multiple tensors
+            and 1 property, n\*1 list of Figure objects. For multiple tensors
+            and properties, nTensor\*nProperty list.
+        axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
+    """
+    from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file
+    import numpy as np
+    import warnings
+
+    # sanity check and preparation
+    tensplt = []
+    for t in tensor:
+        if isinstance(t, str):
+            tensplt.append(Tensor3D.from_file(t))
+        elif isinstance(t, Tensor3D) or isinstance(t, Tensor2D):
+            tensplt.append(t)
+        else:
+            ttmp = np.array(t, dtype=float)
+            if np.shape(ttmp)[0] == 6 and np.shape(ttmp)[1] == 6:
+                tensplt.append(Tensor3D(matrix=ttmp, lattice=None, is_compliance=False))
+            elif np.shape(ttmp)[0] == 3 and np.shape(ttmp)[1] == 3:
+                tensplt.append(Tensor2D(matrix=ttmp, lattice=None, is_compliance=False))
+            else:
+                raise ValueError('Input tensor is not a 6x6 or 3x3 matrix in Voigt notation.')
+
+    if isinstance(property, str):
+        property = [property]
+
+    if len(tensplt) == 1 and len(property) > 1 and uniform_scale == True:
+        warnings.warn("'uniform_scale' cannot be used for multiple proeprties of the same system. Using 'uniform_scale = False'.",
+                      stacklevel=2)
+        uniform_scale = False
+
+    
+
 
 
 ##############################################################################
