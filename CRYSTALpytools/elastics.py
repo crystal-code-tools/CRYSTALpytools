@@ -862,7 +862,7 @@ class Tensor2D():
         return self._S
 
     @classmethod
-    def from_file(cls, output):
+    def from_file(cls, output, thickness):
         """
         Read elastic tensor from CRYSTAL output file and generate ``Tensor2D``
         object. Calls the ``crystal_io.Crystal_output.get_elatensor()`` method.
@@ -870,7 +870,8 @@ class Tensor2D():
 
         Args:
             output (str): CRYSTAL output file.
-
+            thickness (float): Effective thickness of low dimensional materials,
+                in :math:`\\AA`.
         Returns:
             cls (Tensor2D)
         """
@@ -880,7 +881,7 @@ class Tensor2D():
         if out.get_dimensionality() != 2:
             raise Exception("Dimensionality error. Input system is not a 3D system.")
 
-        return cls(matrix=out.get_elatensor(),
+        return cls(matrix=out.get_elatensor(thickness),
                    lattice=out.get_lattice(initial=False)[0:2,0:2],
                    is_compliance=False)
 
@@ -1379,13 +1380,15 @@ def poisson(S, u, v, ndimen):
 # ----
 # auxiliary functions
 # ----
-def tensor_from_file(output, conventional_lattice=True):
+def tensor_from_file(output, conventional_lattice=True, *thickness):
     """
     A wrapper function to get tensor objects of corresponding dimensionality.
 
     Args:
         output (str): CRYSTAL output file.
         conventional_lattice (bool): 3D only. Get conventional lattice.
+        thickness (float): 2D only. Effective thickness of low dimensional
+            materials, in :math:`\\AA`.
 
     Returns:
         t (Tensor3D | Tensor2D): Tensor objects.
@@ -1396,7 +1399,10 @@ def tensor_from_file(output, conventional_lattice=True):
     if out.get_dimensionality() == 3:
         t = Tensor3D.from_file(output, conventional_lattice=conventional_lattice)
     elif out.get_dimensionality() == 2:
-        t = Tensor2D.from_file(output)
+        if len(thickness) > 0:
+            t = Tensor2D.from_file(output, thickness[0])
+        else:
+            t = Tensor2D.from_file(output, [])
     else:
         raise ValueError('1D or 0D systems. No available tensor objects.')
     return t

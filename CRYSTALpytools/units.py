@@ -57,7 +57,7 @@ def me_to_amu(mass):
 
 def GPa_to_au(pressure):
     # Conversion from GPa to Hartree.Bohr^-3
-    pressure / (1e-9 * constants.physical_constants['Hartree energy'][0] / constants.physical_constants['atomic unit of length'][0]**3)
+    return pressure / (1e-9 * constants.physical_constants['Hartree energy'][0] / constants.physical_constants['atomic unit of length'][0]**3)
 
 def au_to_GPa(pressure):
     # Conversion from Hartree.Bohr^-3 to GPa

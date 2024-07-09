@@ -2033,17 +2033,22 @@ class Crystal_output:
 
         return self
 
-    def get_elatensor(self):
+    def get_elatensor(self, *thickness):
         """
         Extracts the elastic tensor from the data.
 
+        Args:
+            \*thickness (float): Effective thickness of low dimensional
+                 materials, in :math:`\\AA`.
         Returns:
             self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
                 notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
-                The matrix always has 2 dimensions. Unit: GPa (3D), GPa.m (2D),
-                GPa.m:math:`^{2}` (1D).
+                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
+                if effective thickness of materials are specified. Otherwise
+                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
+                small numbers).
         """
-        import re
+        import re, warnings
 
         title = ''
         buffer = []
@@ -2081,20 +2086,35 @@ class Crystal_output:
                 self.tensor[j][i] = self.tensor[i][j]
 
         # Unit conversion
-        if 'gpa' in title.lower():
+        if re.search('gpa', title.lower()):
             pass
-        elif 'hartree' in title.lower():
-            if dimen == 1: # Eh/rB ---> J/m
-                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0])
-                self.tensor = self.tensor / length
-                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**2
-            elif dimen == 2: # Eh/rB^2 ---> J/m^2
+        elif re.search('hartree', title.lower()):
+            if dimen == 1:
+                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
+                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
+            elif dimen == 3:
                 area = np.linalg.norm(np.cross(
-                    units.angstrom_to_au(self.get_lattice(initial=False)[0, :2]),
-                    units.angstrom_to_au(self.get_lattice(initial=False)[1, :2])
-                ))
-                self.tensor = self.tensor / area
-                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)
+                    self.get_lattice(initial=False)[0, :2],
+                    self.get_lattice(initial=False)[1, :2]
+                )) * 1e-20 # AA^2 --> m^2
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
+        else:
+            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
+                          stacklevel=2)
+
+        # Effective thickness
+        if len(thickness) > 0:
+            if dimen == 1:
+                if len(thickness) == 1:
+                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
+                else:
+                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
+            elif dimen == 3:
+                self.tensor = self.tensor / (thickness[0]*1e-10)
+        else:
+            if dimen != 6:
+                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
+                               stacklevel=2)
         return self.tensor
 
 
