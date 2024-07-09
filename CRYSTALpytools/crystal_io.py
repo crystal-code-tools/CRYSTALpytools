@@ -2085,16 +2085,16 @@ class Crystal_output:
             pass
         elif 'hartree' in title.lower():
             if dimen == 1: # Eh/rB ---> J/m
-                length = unit.angstrom_to_au(self.get_lattice(initial=False)[0, 0])
+                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0])
                 self.tensor = self.tensor / length
-                self.tensor =  unit.au_to_GPa(self.tensor) * (unit.au_to_angstrom(1.)*1e-10)**2
+                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**2
             elif dimen == 2: # Eh/rB^2 ---> J/m^2
                 area = np.linalg.norm(np.cross(
-                    unit.angstrom_to_au(self.get_lattice(initial=False)[0, :2]),
-                    unit.angstrom_to_au(self.get_lattice(initial=False)[1, :2])
+                    units.angstrom_to_au(self.get_lattice(initial=False)[0, :2]),
+                    units.angstrom_to_au(self.get_lattice(initial=False)[1, :2])
                 ))
                 self.tensor = self.tensor / area
-                self.tensor =  unit.au_to_GPa(self.tensor) * (unit.au_to_angstrom(1.)*1e-10)
+                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)
         return self.tensor
 
 

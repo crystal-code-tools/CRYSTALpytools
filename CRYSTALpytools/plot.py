@@ -2878,6 +2878,7 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
     import numpy as np
     import warnings
     import matplotlib.pyplot as plt
+    import matplotlib.colors as mcolors
 
     # sanity check and preparation
     tensplt = []
@@ -2938,10 +2939,11 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
                     figs[it][ip] = fig
                     axes[it][ip] = ax
                 else:
+                    iplt = int(it*len(property) + ip)
                     kwargs['return_data'] = True
                     chi, r, title, uplt, utextplt, platt = t.plot_2D(**kwargs)
-                    ax.flat[int(it*ip)] = _plot2D_single(
-                        ax.flat[int(it*ip)], chi, r, np.array([0, 0, 1], dtype=float),
+                    axes.flat[iplt] = _plot2D_single(
+                        axes.flat[iplt], chi, r, np.array([0, 0, 1], dtype=float),
                         colors[it][ip], title, np.max(r), uplt, utextplt, platt
                     )
     else: # Uniform scale
@@ -2961,7 +2963,7 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
                 r_all.append(r)
                 title_all.append(title)
                 uplt_all.append(uplt)
-                utext_all.append(utext)
+                utext_all.append(utextplt)
                 platt_all.append(platt)
             # plot
             rmax = np.max(r_all)
@@ -2975,9 +2977,10 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
                     figs[it][ip] = fig
                     axes[it][ip] = ax
                 else:
-                    ax.flat[int(it*ip)] = _plot2D_single(
-                        ax.flat[int(it*ip)], chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
-                        colors[it][ip], title_all[it], rmax, uplt_all[it], utextplt_all[it], platt_all[it]
+                    iplt = int(it*len(property) + ip)
+                    axes.flat[iplt] = _plot2D_single(
+                        axes.flat[iplt], chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
+                        colors[it][ip], title_all[it], rmax, uplt_all[it], utext_all[it], platt_all[it]
                     )
 
     # dimensionality

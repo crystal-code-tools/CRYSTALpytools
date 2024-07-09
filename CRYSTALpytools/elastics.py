@@ -442,7 +442,7 @@ class Tensor3D():
                     if utext.lower() == 'value':
                         utext = [['value' for i in range(np.shape(utmp)[1])] for j in range(np.shape(utmp)[0])]
                     else:
-                        raise ValueError("Unknown utext value: '{}'.".format(utext))
+                        utext = [[utext for i in range(np.shape(utmp)[1])] for j in range(np.shape(utmp)[0])]
                 else:
                     utext = [utext for j in range(np.shape(utmp)[0])]
                     if len(utext) != np.shape(utmp)[1]:
@@ -715,17 +715,15 @@ class Tensor3D():
             if np.all(utext!=None):
                 if isinstance(utext, str):
                     if utext.lower() == 'value':
-                        utext = ['value' for i in range(len(uplt))]
+                        utext = ['{:.2f}'.format(R) for R in Ru]
                     else:
-                        utext = [utext]
-                if len(utext) != len(uplt):
-                    warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
-                                  stacklevel=2)
-                    utext = None
+                        utext = [utext for i in range(len(uplt))]
                 else:
-                    for itxt, txt in enumerate(utext):
-                        if txt.lower() == 'value':
-                            utext[itxt] = '{:.2f}'.format(Ru[itxt])
+                    if len(utext) != len(uplt):
+                        warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
+                                      stacklevel=2)
+                        utext = None
+
             if np.all(utext==None):
                 if len(uplt) == 1:
                     u = np.array([u], dtype=float)
@@ -1151,15 +1149,16 @@ class Tensor2D():
                     if utext.lower() == 'value':
                         utextplt = ['{:.2f}'.format(i) for i in ru]
                     else:
-                        raise ValueError("Unknown utext value: '{}'.".format(utext))
+                        utextplt = [utext for i in range(len(ru))]
                 else:
+                    utextplt = utext
                     if len(utext) != np.shape(uplt)[0]:
                         warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
                                       stacklevel=2)
-                        utextplt = None
-                    utextplt = uplt
-            else:
-                if not isinstance(u, str):
+                        utext = None
+
+            if np.all(utext==None):
+                if not isinstance(u, str): # max min bothends
                     u = np.array(u, dtype=float)
                 else:
                     u = uplt
