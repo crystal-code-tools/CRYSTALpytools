@@ -4,7 +4,6 @@
 A post-processing module for electronic properties
 """
 from CRYSTALpytools import units
-
 import numpy as np
 
 class ElectronBand():
@@ -13,16 +12,16 @@ class ElectronBand():
 
     Args:
         spin (int): 1, closed shell; 2, open shell
-        tick_pos (array): n_tick\*1 array of 1D tick coordinates. Unit: Angstrom
-        tick_label (list): n_tick\*1 of default tick labels
+        tick_pos (array): 1\*nTick array of 1D tick coordinates. Unit: Angstrom
+        tick_label (list): 1\*nTick of default tick labels
         efermi (float): Fermi energy. Unit: eV.
-        bands (array): n_bands\*n_kpoints\*spin array of energy. Unit: eV
+        bands (array): nBand\*nKpoint\*nSpin array of energy. Unit: eV
         k_path (array): 1D coordinates of k points. Unit: Angstrom
         geometry (Structure): Pymatgen structure
         reciprocal_latt (array): 3\*3 array of reciprocal lattice matrix. Not
             valid if ``geometry`` is specified.
-        tick_pos3d (array): n_tick\*1 3D fractional tick coordinates
-        k_path3d (array): n_kpoints\*3 3D fractional coordinates of k points
+        tick_pos3d (array): 1\*nTick 3D fractional tick coordinates
+        k_path3d (array): nKpoints\*3 3D fractional coordinates of k points
         unit (str): In principle, should always be 'eV': eV-Angstrom.
     """
 
@@ -89,41 +88,22 @@ class ElectronBand():
                        tick_label=bandout[2], efermi=bandout[3],
                        bands=bandout[4], k_path=bandout[5], unit=bandout[6])
 
-    def plot(self, unit='eV', k_labels=None, energy_range=None, k_range=None,
-             color='blue', linestl='-', linewidth=1, fermi='forestgreen',
-             fermiwidth=1.5, fermialpha=1, title=None, figsize=None):
+    def plot(self, **kwargs):
         """
-        Plot band structure of a single system using `matplotlib <https://matplotlib.org/>`_.
-        For arguments setting up figures, colors and lines styles, please refer
-        to `matplotlib <https://matplotlib.org/>`_.
-        For multiple systems, use ``CRYSTALpytools.plot.plot_electron_band``.
+        A wrapper to lot band structure of a single system using matplotlib.
+        For input arguments or plotting multiple systems, check
+        :ref:`plot.plot_electron_band() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            k_labels (list): A list of high-symmetric k point labels. Greek
-                letters should be, for example, 'Gamma'.
-            energy_range (array): A 2x1 array specifying the energy range.
-            k_range (array): A 2x1 array specifying the k-range.
-            color (str): Color of plot lines.
-            linestl (str): Linestyle string.
-            linewidth (float): The width of the plot lines.
-            fermi (str): The color of the Fermi level line.
-            fermiwidth (float): The width of the fermi line.
-            fermialpha (float): Opacity of the fermi level 0-1.
-            title (str): The title of the plot.
-            figsize (list): The figure size specified as [width, height].
+            \*\*kwargs: Check documents for :ref:`plot.plot_electron_band() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_band
 
-        fig, ax = plot_electron_band(
-            self, unit=unit, k_labels=k_labels, mode='single',
-            not_scaled=False, energy_range=energy_range, k_range=k_range,
-            color=color, labels=None, linestl=linestl, linewidth=linewidth,
-            fermi=fermi, title=title, figsize=figsize, scheme=None,
-            sharex=True, sharey=True)
+        kwargs['mode'] = 'single'
+        fig, ax = plot_electron_band(self, **kwargs)
         return fig, ax
 
     @property

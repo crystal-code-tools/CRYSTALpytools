@@ -4,603 +4,424 @@
 Base functions for plotting 2D and 3D figures
 """
 
-
-def plot_cry_bands(bands, k_labels, energy_range, title, not_scaled, mode, linestl,
-                   linewidth, color, fermi, k_range, labels, figsize, scheme,
-                   sharex, sharey, fermiwidth, fermialpha):
+def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
+                       band_label, band_color, band_linestyle, band_linewidth,
+                       fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs):
     """
-    The base function to plot electron  phonon density of states.
+    The plotting function for overlapped band structures of electron or phonon.
+    Also can be used to get a single band.
+
+    .. note::
+
+        You must specify colors in string. List of RGB values are not allowed
+        and might lead to unexpected errors.
 
     Args:
-        bands (Union[List, object]): List of band objects or a single band object.
-        k_labels (Union[List[str], None]): List of strings specifying the labels for high symmetry points along the path.
-        energy_range (Union[List[Union[int, float]], None]): List of two integers or floats specifying the energy range (min, max).
-        title (Union[str, None]): Title of the plot.
-        not_scaled (bool): Flag indicating whether to scale the band structure for comparison.
-        mode (str): Mode of the plot ('single', 'multi', 'compare').
-        linestl (Union[str, List[str]]): Line style or list of line styles for the bands.
-        linewidth (Union[int, List[int]]): Line width or list of line widths for the bands.
-        color (Union[str, List[str]]): Color or list of colors for the bands.
-        fermi (str): Color of the Fermi level.
-        fermiwidth (float): Thickness of the Fermi level
-        fermialpha (float): Opacity of the Fermi level
-        k_range (Union[List[str], None]): List of two strings specifying the range of k points to plot.
-        labels (Union[List[str], None]): List of labels for the bands in multi-mode.
-        figsize (Union[Tuple[int, int], None]): Figure size.
-        scheme (Union[List[int], Tuple[int, int], None]): Subplot scheme in compare-mode (number of rows, number of columns).
-        sharex (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of x-axis.
-        sharey (Union[bool, str]): Flag or 'row' or 'col' specifying sharing of y-axis.
-        fermialpha(float): Opacity of the fermi level 0-1
-        fermiwidth(float): Width of the fermi level
+        ax (Axes): Matplotlib Axes object. To be passed from wrapper functions.
+        bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
+            numpy arrays.
+        k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
+            of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
+        k_label (list[str] | None): 1\*nTick list of strings of the label for
+            high symmetry points along the path. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
+            experssions can also be used as in matplotlib.
+        energy_range (list | None): 1\*2 list of plotting energy range.
+        k_range (list | None): 1\*2 list of plotting k range. Can either be
+            length (float) or k label (str). Must be used with
+            ``not_scaled=False`` and the same set of ``k_label``.
+        band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
+            spin>1 and 1\*nSystem list is used, they are marked with the same
+            label.
+        band_color (list): 1\*nSystem or nSystem\*2 (spin) plot color. If spin
+            >1 and 1\*nSystem list is used, they are in the same color.
+        band_linestyle (list): 1\*nSystem or nSystem\*2 (spin) linestyle string.
+            If spin>1 and 1\*nSystem list is used, they are in the same style.
+        band_linewidth (list): 1\*nSystem or nSystem\*2 (spin) width of the plot
+            lines. If spin>1 and 1\*nSystem list is used, they are in the same
+            width.
+        fermi (float | None): Fermi energy in eV. By default the band is aligned
+            to 0. Can be used to offset the band. None for not plotting Fermi
+            level.
+        fermi_color (str | None): Color of the Fermi level.
+        fermi_linestyle (str | None): Line style of Fermi level.
+        fermi_linewidth(float | None): Width of the Fermi level.
+        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+            when plotting bands. Applied to all bands.
 
     Returns:
-        fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
-
-    :raise ValueError: If an invalid mode flag is specified or if there are errors in the input parameters.
+        ax (Axes): Matplotlib Axes object.
     """
-    import sys
-    import warnings
-
     import matplotlib.pyplot as plt
     import numpy as np
+    import copy
 
-    greek = {'Alpha': '\u0391', 'Beta': '\u0392', 'Gamma': '\u0393', 'Delta': '\u0394', 'Epsilon': '\u0395', 'Zeta': '\u0396', 'Eta': '\u0397',
-             'Theta': '\u0398', 'Iota': '\u0399', 'Kappa': '\u039A', 'Lambda': '\u039B', 'Mu': '\u039C', 'Nu': '\u039D', 'Csi': '\u039E',
-             'Omicron': '\u039F', 'Pi': '\u03A0', 'Rho': '\u03A1', 'Sigma': '\u03A3', 'Tau': '\u03A4', 'Upsilon': '\u03A5', 'Phi': '\u03A6',
-             'Chi': '\u03A7', 'Psi': '\u03A8', 'Omega': '\u03A9', 'Sigma_1': '\u03A3\u2081'}
+    nsys = len(bands)
 
-    # Error check on the mode flag
-    modes = ['single', 'multi', 'compare', 'surface']
-    if mode not in modes:
-        raise ValueError('The selected mode '+mode+' is not among the possible ones: ' +
-                         modes[0]+', ' + modes[1] + ', '+modes[2] + ', or '+modes[3])
+    if (not isinstance(k_label[0], str)) and (not isinstance(k_label[0], float)):
+        raise ValueError("K labels must be string or float number and only 1 set of k labels can be set for 'multi' mode.")
 
-    # Automatically activates the multi mode if bands is a list
-    if (isinstance(bands, list)) and (mode is modes[0]):
-        mode = modes[1]
+    # preprocessing, always scale k path
+    k_path, k_label, energy_range, k_range, commands, \
+    fermi_color, fermi_linestyle, fermi_linewidth = _plot_bands_preprocess(
+        bands, k_path, k_label, False, energy_range, k_range,
+        band_label, band_color, band_linestyle, band_linewidth,
+        fermi, fermi_color, fermi_linestyle, fermi_linewidth
+    )
 
-    # Error chenk on k_label
-    if k_labels is not None:
+    # Start plotting
+    ## Fermi level
+    if np.all(fermi!=None):
+        ax.hlines(fermi, k_range[0], k_range[1], color=fermi_color,
+                  linestyle=fermi_linestyle, linewidth=fermi_linewidth)
 
-        if isinstance(k_labels, list):
-            for element in k_labels:
-                if not isinstance(element, str):
-                    raise ValueError(
-                        'k_label must be a list of strings:' + str(element)+' is not a string')
+    ## high symmetry lines
+    for k in k_path[0]:
+        ax.vlines(k, energy_range[0], energy_range[1], color='k', linewidth=0.5)
 
-            if isinstance(bands, list):
-                ref = bands[0].n_tick
+    ## bands
+    keywords = ['label', 'color', 'linestyle', 'linewidth']
 
-                for i, file in enumerate(bands):
-                    if file.n_tick != ref:
-                        i = str(i)
-                        raise ValueError(
-                            'The ' + i + 'element your file list has a different number of High Symmetry Point!')
-            else:
-                ref = bands.n_tick
+    ilabel = []
+    countlabel = 0
+    for isys in range(nsys):
+        bandsplt = copy.deepcopy(bands[isys])
+        if np.all(fermi!=None):
+            bandsplt = bandsplt + fermi
+            energy_range = energy_range + fermi
 
-            if len(k_labels) < ref:
-                diff = str(ref-len(k_labels))
-                raise ValueError('You are lacking ' + diff +
-                                 ' High Symmetry Points in k_labels!')
+        nband, nkpt, nspin = bandsplt.shape
+        k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
+        for ispin in range(nspin):
+            for icmd in range(4):
+                if np.all(commands[icmd]==None):
+                    continue
+                kwargs[keywords[icmd]] = commands[icmd][isys][ispin]
 
-            elif len(k_labels) > ref:
-                diff = str(len(k_labels)-ref)
-                raise ValueError('You have ' + diff +
-                                 'High Symmetry Points in excess in k_labels')
+            ax.plot(k_pathplt, bandsplt[:, :, ispin].transpose(), **kwargs)
+            # a label for a set of bands, dimension of bandsplt array might vary
+            countlabel = countlabel + nband
+        ilabel.append(countlabel-1)
 
+    # a label for a set of bands, dimension of bandsplt array might vary
+    if np.all(commands[0]!=None):
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend([handles[i] for i in ilabel],
+                  [labels[i] for i in ilabel],
+                  loc='center right')
+
+    ax.set_xticks(k_path[0], labels=k_label[0])
+    ax.set_xlim(k_range)
+    ax.set_ylim(energy_range)
+    return ax
+
+
+def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_range,
+                       band_label, band_color, band_linestyle, band_linewidth,
+                       fermi, fermi_color, fermi_linestyle, fermi_linewidth,
+                       **kwargs):
+    """
+    The plotting function for band structures of electron or phonon in different
+    panels.
+
+    .. note::
+
+        You must specify colors in string. List of RGB values are not allowed
+        and might lead to unexpected errors.
+
+    Args:
+        ax (Axes): Matplotlib Axes object or a flatted list of them. To be
+            passed from wrapper functions.
+        bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
+            numpy arrays.
+        k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
+            of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
+        k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
+             for high symmetry points along the path. If a 1D list is given,
+             the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
+             experssions can also be used  as in matplotlib.
+        not_scaled (bool): Whether to scale the x-axis for different volumes.
+        energy_range (list | None): 1\*2 list of plotting energy range.
+        k_range (list | None): 1\*2 list of plotting k range. Can either be
+            length (float) or k label (str). Must be used with
+            ``not_scaled=False`` and the same set of ``k_label``.
+        band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
+            spin>1 and 1\*nSystem list is used, they are marked with the same
+            label.
+        band_color (list|str): A color string or 1\*2 color list for spin. If
+            nSpin>1 but a string is given, same color for both spins.
+        band_linestyle (list|str): A linestyle string or 1\*2 linestyle list
+            for spin.  If nSpin>1 but a string is given, same linestyle for
+            both spins.
+        band_linewidth (list|float): A linewidth number or 1\*2 linewidth list
+            for spin. If nSpin>1 but a string is given, same linewidth for both
+            spins.
+        fermi (list|float|None): Fermi energy in eV. By default the band is
+            aligned to 0. Can be used to offset the band. None for not plotting
+            Fermi level.
+        fermi_color (str | None): Color of the Fermi level.
+        fermi_linestyle (str | None): Line style of Fermi level.
+        fermi_linewidth(float | None): Width of the Fermi level.
+        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+            when plotting bands. Applied to all bands.
+
+    Returns:
+        ax (Axes): Matplotlib Axes object or a flatted list of them.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import copy
+
+    nsys = len(bands)
+
+    # prepare band plot keywords
+    ## label
+    if np.all(band_label!=None):
+        if isinstance(band_label, str):
+            band_label = [[band_label, band_label] for i in range(nsys)]
         else:
-            raise ValueError('k_labels must be a list of strings')
+            band_label = [[band_label[0], band_label[1]] for i in range(nsys)]
 
-    # Error check on energy range
+    ## color. Default different from overlap plottings
+    if np.all(band_color!=None):
+         if isinstance(band_color, str):
+             band_color = [[band_color, band_color] for i in range(nsys)]
+         else:
+             band_color = [[band_color[0], band_color[1]] for i in range(nsys)]
+    else: # new default
+         band_color = [['tab:blue', 'tab:blue'] for i in range(nsys)]
+
+    ## line style
+    if np.all(band_linestyle!=None):
+        if isinstance(band_linestyle, str):
+            band_linestyle = [[band_linestyle, band_linestyle] for i in range(nsys)]
+        else:
+            band_linestyle = [[band_linestyle[0], band_linestyle[1]] for i in range(nsys)]
+
+    ## line width
+    if np.all(band_linewidth!=None):
+        if isinstance(band_linewidth, float) or isinstance(band_linewidth, int):
+            band_linewidth = [[band_linewidth, band_linewidth] for i in range(nsys)]
+        else:
+            band_linewidth = [[band_linewidth[0], band_linewidth[1]] for i in range(nsys)]
+
+
+    # prepare fermi level
+    if np.all(fermi!=None):
+        if isinstance(fermi, float) or isinstance(fermi, int):
+            fermi = np.array([fermi for i in range(nsys)], dtype=float)
+        else:
+            if len(fermi) != nsys:
+                raise ValueError('Inconsistent numbers of Fermi level and systems')
+
+    # preprocessing
+    k_path, k_label, energy_range, k_range, commands, \
+    fermi_color, fermi_linestyle, fermi_linewidth = _plot_bands_preprocess(
+        bands, k_path, k_label, not_scaled, energy_range, k_range,
+        band_label, band_color, band_linestyle, band_linewidth,
+        fermi, fermi_color, fermi_linestyle, fermi_linewidth
+    )
+
+    # Start plotting
+    keywords = ['label', 'color', 'linestyle', 'linewidth']
+    bandsplt = copy.deepcopy(bands)
+
+    for isys in range(nsys):
+        bandsplt = copy.deepcopy(bands[isys])
+        nband, nkpt, nspin = bandsplt.shape
+        ## Fermi level
+        if np.all(fermi!=None):
+            ax[isys].hlines(fermi[isys], k_range[0], k_range[1], color=fermi_color,
+                            linestyle=fermi_linestyle, linewidth=fermi_linewidth)
+            bandsplt = bandsplt + fermi[isys]
+
+        ## high symmetry lines
+        for k in k_path[isys]:
+            ax[isys].vlines(k, energy_range[0], energy_range[1], color='k', linewidth=0.5)
+
+        ## bands
+        k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
+        for ispin in range(nspin):
+            for icmd in range(4):
+                if np.all(commands[icmd]==None): # 4*nsys*2(spin)
+                    continue
+                kwargs[keywords[icmd]] = commands[icmd][isys][ispin]
+
+            ax[isys].plot(k_pathplt, bandsplt[:, :, ispin].transpose(), **kwargs)
+
+        # a label for a set of bands
+        if np.all(commands[0]!=None):
+            handles, labels = ax[isys].get_legend_handles_labels()
+            ilabel = [int(i*nband) for i in range(nspin)]
+            ax[isys].legend([handles[i] for i in ilabel],
+                            [labels[i] for i in ilabel],
+                            loc='lower right')
+
+        ax[isys].set_xticks(k_path[isys], labels=k_label[isys])
+        ax[isys].set_xlim(k_range)
+        ax[isys].set_ylim(energy_range)
+    return ax
+
+
+def _plot_bands_preprocess(
+    bands, k_path, k_label, not_scaled, energy_range, k_range,
+    band_label, band_color, band_linestyle, band_linewidth,
+    fermi, fermi_color, fermi_linestyle, fermi_linewidth):
+    """
+    Do the boring parameters checking jobs for band structures. For the meanings
+    of parameters, refer to ``plot_overlap_band()`` (``plot_compare_bands`` has
+    less strict requirements).
+
+    ``not_scaled`` is a flag to set whether to set the same length of k pathes
+    of different systems.
+    """
+    import numpy as np
+    import matplotlib.colors as mcolors
+
+    nsys = len(bands)
+
+    # For compatibility with old versions
+    greek = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta',
+             'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Csi', 'Omicron',
+             'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi',
+             'Omega', 'Sigma_1']
+
+    # Prepare k_label
+    if np.all(k_label!=None):
+        if isinstance(k_label[0], str) or isinstance(k_label[0], float): # same definition for all k pathes
+            same_klabel = True
+            if len(k_label) != np.shape(k_path)[1]:
+                raise ValueError('Inconsistent dimensions of k label and k path.')
+            k_label = [k_label for i in range(nsys)]
+        else:
+            same_klabel = False
+            for i in range(nsys):
+                if len(k_label[i]) != len(k_path[i]):
+                    raise ValueError('Inconsistent dimensions of k label and k path.')
+
+        for i, listk in enumerate(k_label):
+            for j, k in enumerate(listk):
+                k = str(k)
+                if k in greek:
+                    if k != 'Sigma_1':
+                        k_label[i][j] = r'$\{}$'.format(k)
+                    else:
+                        k_label[i][j] = r'$\Sigma_{1}$'
+                else:
+                    k_label[i][j] = k
+
+    # scale k path to the longest one
+    if not_scaled == False:
+        alllen = []
+        for i in range(nsys):
+            alllen.append(np.max(k_path[i]) - np.min(k_path[i]))
+        maxlen = np.max(alllen)
+        for i in range(nsys):
+            k_path[i] = k_path[i] / alllen[i] * maxlen
+
+    # Prepare energy and k range
     if np.all(energy_range!=None):
-
-        if isinstance(energy_range, list):
-
-            if len(energy_range) > 2:
-                raise ValueError(
-                    'energy_range must be a list of two int or float (min,max)')
-
-            for element in energy_range:
-                if (not isinstance(element, int)) and (not isinstance(element, float)):
-                    raise ValueError('energy_range must be a list of two int or float (min,max): ' + str(
-                        element)+', is neither a float or an int')
-
-        else:
-            raise ValueError(
-                'energy_range must be a list of two int or float (min,max)')
-
-    # Error check on k_range
-    if k_range is not None:
-        if isinstance(k_range, list):
-            if len(k_range) > 2:
-                raise ValueError('k_range must be a list of two strings')
-
-            for element in k_range:
-                if not isinstance(element, str):
-                    raise ValueError(
-                        'k_label must be a list of two strings:' + str(element)+' is not a string')
-
-        else:
-            raise ValueError('k_range must be a list of two strings')
-
-    # Error check on title
-    if np.all(title!=None):
-        if not isinstance(title, str):
-            raise ValueError('title needs to be a string')
-
-    if (mode == modes[0]) or (mode == modes[1]) or (mode == modes[3]):
-
-        # plotting of a single band object
-        if mode == modes[0]:
-            fig = __plot_single_cry_bands(
-                bands, linestl, linewidth, color, figsize, sharex, sharey)
-            ymin = fig[0]
-            ymax = fig[1]
-            xmin = fig[2]
-            xmax = fig[3]
-            ax = fig[5]
-            fig = fig[4]
-
-        # plot of multiple band objects on a single plot
-        elif mode == modes[1]:
-
-            # Error check on the band on the 'multi' mode flag
-            if not isinstance(bands, list):
-                raise ValueError(
-                    'When you choose a ' + modes[1]+' plot bands needs to be a list of band objects')
-            # Error check on color for the 'multi' mode flag
-            if isinstance(color, list):
-                if len(color) != len(bands):
-                    raise ValueError(
-                        'The number of colors is inconsistent with the number of objects you want to plot')
-            else:
-                color = ['dimgrey', 'blue', 'indigo', 'slateblue',
-                         'thistle', 'purple', 'orchid', 'crimson']
-
-            # Warning comparison with band.spin==2
-            for m in bands:
-                if m.spin == 2:
-                    warnings.warn(
-                        "The 'multi' plot is not fully implemented at the moment for file with NSPIN = 2")
-
-            fig = __plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth,
-                                         color, labels, figsize, sharex, sharey)
-            ymin = fig[0]
-            ymax = fig[1]
-            xmin = fig[2]
-            xmax = fig[3]
-            ax = fig[5]
-            fig = fig[4]
-
-        if mode == modes[3]:
-            warnings.warn('The surface bands is not ready yet')
-            sys.exit(0)
-
-        # HSP line plot
-        if isinstance(bands, list):
-            hsp = bands[0].tick_pos
-        else:
-            hsp = bands.tick_pos
-
-        if k_labels is not None:
-            if len(hsp) != len(k_labels):
-                if len(hsp) > len(k_labels):
-                    raise ValueError(
-                        'You have specified a number of label smalle than the number of High Simmetry Point along the path')
-                elif len(hsp) < len(k_labels):
-                    raise ValueError(
-                        'You have more labels than the High Simmetry point along the path')
-
-        hsp[len(hsp)-1] = xmax
-        ax.vlines(hsp, ymin*1.05, ymax*1.05, color='black', linewidth=0.5)
-
-        # plot of the fermi level
-        ax.hlines(0., xmin, xmax, color=fermi, linewidth=fermiwidth, alpha=fermialpha)
-
-        # definition of the plot title
-        if title is not None:
-            fig.suptitle(title)
-
-        if not isinstance(bands, list):
-            if bands.spin == 2:
-                ax.legend()
-        else:
-            if labels is not None:
-                ax.legend()
-
-    # compare mode plot
-    elif mode == modes[2]:
-
-        # Error check on type(bands)
-        if not isinstance(bands, list):
-            raise ValueError(
-                'When you choose a ' + modes[2]+' plot bands needs to be a list of band objects')
-        # Error check on sharex and sharey option
-        if (not isinstance(sharex, bool)) or (not isinstance(sharey, bool)):
-            accepted_str = ['row', 'col']
-
-            if (isinstance(sharex, str)) or (isinstance(sharey, str)):
-                if sharex not in accepted_str:
-                    raise ValueError('sharex can only be equal to row or col')
-                elif sharey not in accepted_str:
-                    raise ValueError('sharey can only be equal to row or col')
-            else:
-                raise ValueError('sharex and sharey have to be boolean')
-
-        fig = __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
-                                       color, fermi, figsize, scheme, sharex, sharey,
-                                       fermiwidth, fermialpha)
-        ymin = fig[0]
-        ymax = fig[1]
-        xmin = fig[2]
-        xmax = fig[3]
-        hsp = fig[4]
-        ax = fig[6]
-        fig = fig[5]
-
-    hsp_label = []
-    high_sym_point = []
-    if k_labels is not None:
-        for n in k_labels:
-            if n in greek:
-                g = greek.get(n)
-                hsp_label.append(g)
-                high_sym_point.append(n)
-            else:
-                hsp_label.append(n)
-                high_sym_point.append(n)
-
-    # give the possibility through the k_range to select a shorter path than the one calculated
-    high_sym_point2 = high_sym_point
-    count = 0
-    for i in high_sym_point2:
-        repeat = high_sym_point2.count(i)
-        if repeat != 1:
-            for p in range(0, len(high_sym_point2)):
-                if p != count:
-                    repeat_count = 1
-                    q = high_sym_point2[p]
-                    r = high_sym_point[p]
-                    if (q == i) & (q == r):
-                        high_sym_point2[p] = i+str(repeat_count)
-                        repeat_count += 1
-                        if repeat_count > repeat:
-                            repeat_count = 0
-        count += 1
-
-    path_dict = dict(zip(high_sym_point2, hsp))
-
-    # definition of the y axis for single subplot
-    if mode != modes[2]:
-        if energy_range is not None:
-            ymin = energy_range[0]
-            ymax = energy_range[1]
-        ax.set_ylim(ymin, ymax)
-
-    # definition of the x axis
-    if k_range is not None:
-        xmin = path_dict[k_range[0]]
-        xmax = path_dict[k_range[1]]
-
-    if k_labels is not None:
-        plt.xticks(hsp, hsp_label)
+        energy_range = np.array([np.min(energy_range), np.max(energy_range)], dtype=float)
     else:
-        plt.xticks(hsp)
+        energy_range = np.array([np.min(bands), np.max(bands)], dtype=float)
 
-    if (mode == modes[0]) or (mode == modes[1]):
-        plt.xlim(xmin, xmax)
-    elif (mode == modes[2]) and (k_range is not None):
-        warnings.warn('The k_range is not available yet for the compare mode')
-
-    return fig, ax
-
-
-def __plot_single_cry_bands(bands, linestl, linewidth, color, figsize, sharex, sharey):
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    dx = bands.k_path
-
-    pltband = bands.bands
-    no_bands = np.shape(pltband)[0]
-    ymin = np.amin(pltband)
-    ymax = np.amax(pltband)
-    xmin = min(dx)
-    xmax = max(dx)
-    count1 = 0
-    count2 = 0
-
-    # band plot
-    if figsize is not None:
-        fig, ax = plt.subplots(
-            nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-    else:
-        fig, ax = plt.subplots(
-            nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-    for i in range(no_bands):
-
-        if bands.spin == 1:
-            ax.plot(dx, pltband[i, :], color=color,
-                    linestyle=linestl, linewidth=linewidth)
-
-        elif bands.spin == 2:
-            if count1 == count2:
-                ax.plot(dx, pltband[i, :, 0], color='red',
-                        linestyle=linestl, linewidth=linewidth, label='Alpha')
-                ax.plot(dx, pltband[i, :, 1], color='black',
-                        linestyle=linestl, linewidth=linewidth, label='Beta')
-            else:
-                ax.plot(dx, pltband[i, :, 0], color='red',
-                        linestyle=linestl, linewidth=linewidth)
-                ax.plot(dx, pltband[i, :, 1], color='black',
-                        linestyle=linestl, linewidth=linewidth)
-            count1 += 1
-
-    return ymin, ymax, xmin, xmax, fig, ax
-
-
-def __plot_multi_cry_bands(bands,  not_scaled, linestl, linewidth, color,
-                           labels, figsize, sharex, sharey):
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    # scaling that enables the comparison of band structure calculated at different pressures
-    if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_path)
-        xmin = np.amin(bands[0].k_path)
-
-    else:
-        xmax = []
-        xmin = []
-
-    ymin = []
-    ymax = []
-
-    if figsize is not None:
-        fig, ax = plt.subplots(
-            nrows=1, ncols=1, sharex=sharex, sharey=sharey, figsize=figsize)
-    else:
-        fig, ax = plt.subplots(
-            nrows=1, ncols=1, sharex=sharex, sharey=sharey)
-
-    # plot of all the bands obj present in the list
-    for index, data in enumerate(bands):
-        # scaling that enables the comparison of band structure calculated at different pressures
-        if not_scaled is False:
-            k_max = np.amax(data.k_path)
-            dx = (data.k_path/k_max)*reference
-        else:
-            dx = data.k_path
-            xmin.append(np.amin(dx))
-            xmax.append(np.amax(dx))
-
-        pltband = data.bands
-        no_bands = np.shape(pltband)[0]
-        ymin.append(np.amin(pltband))
-        ymax.append(np.amax(pltband))
-
-        count1 = 0
-        count2 = 0
-
-        # Effective plot
-        for j in range(no_bands):
-
-            if (count1 == count2) and (labels is not None):
-                if data.spin == 1:
-                    if isinstance(linestl, list):
-                        if isinstance(linewidth, list):
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl[index], linewidth=linewidth[index], label=labels[index])
-                        else:
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl[index], linewidth=linewidth, label=labels[index])
+    if np.all(k_range!=None):
+        k_range = k_range[0:2]
+        if isinstance(k_range[0], str):
+            if not_scaled == True or same_klabel != True:
+                raise Exception('You must scale k range and use the same set of k labels when restricting them.')
+            for i in range(2):
+                if k_range[i] in greek:
+                    if k_range[i] != 'Sigma_1':
+                        k_range[i] = r'$\{}$'.format(k_range[i])
                     else:
-                        if isinstance(linewidth, list):
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth[index], label=labels[index])
-                        else:
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth, label=labels[index])
-                elif data.spin == 2:
-                    ax.plot(dx, pltband[j, :, 0], color=color[index],
-                            linestyle=linestl, linewidth=linewidth, label=labels[index]+' Alpha')
-                    ax.plot(dx, pltband[j, :, 1], color=color[index],
-                            linestyle='--', linewidth=linewidth, label=labels[index]+' Beta')
+                        k_range[i] = r'$\Sigma_{1}$'
+                else:
+                    k_range[i] = k_range[i]
 
-            else:
-                if data.spin == 1:
-                    if isinstance(linestl, list):
-                        if isinstance(linewidth, list):
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl[index], linewidth=linewidth[index])
-                        else:
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl[index], linewidth=linewidth)
-                    else:
-                        if isinstance(linewidth, list):
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth[index])
-                        else:
-                            ax.plot(dx, pltband[j, :], color=color[index],
-                                    linestyle=linestl, linewidth=linewidth)
-                elif data.spin == 2:
-                    ax.plot(dx, pltband[j, :, 0], color=color[index],
-                            linestyle=linestl, linewidth=linewidth)
-                    ax.plot(dx, pltband[j, :, 1], color=color[index],
-                            linestyle='--', linewidth=linewidth)
+            # label must be found for every system
+            found0 = False
+            found1 = False
+            for i in range(len(k_label[0])):
+                if k_range[0] == k_label[0][i] and found0 != True:
+                    found0 = True
+                    k_range[0] = k_path[0][i]
+                elif k_range[1] == k_label[0][i] and found1 != True:
+                    found1 = True
+                    k_range[1] = k_path[0][i]
 
-            count1 += 1
-
-    if (isinstance(xmin, list)) or (isinstance(xmax, list)):
-        xmin = min(xmin)
-        xmax = max(xmax)
-
-    ymin = min(ymin)
-    ymax = max(ymax)
-
-    return ymin, ymax, xmin, xmax, fig, ax
-
-
-def __plot_compare_cry_bands(bands, energy_range, not_scaled, linestl, linewidth,
-                             color, fermi, figsize, scheme, sharex, sharey,
-                             fermiwidth, fermialpha):
-
-    import sys
-    import warnings
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    # Error check and definition of scheme
-    if scheme is None:
-        n_rows = 1
-        n_col = len(bands)
+            if not (found0 == True and found1 == True):
+                raise Exception('Labelled k range is not found! Check your k_path, k_label and k_range inputs.')
+        # for both label and number k ranges
+        k_range = np.array([np.min(k_range), np.max(k_range)], dtype=float)
     else:
-        if (not isinstance(scheme, tuple)) and (not isinstance(scheme, list)):
-            raise ValueError('scheme needs to be a tuple or a list')
-        elif len(scheme) > 2:
-            raise ValueError(
-                'scheme needs to be a tuple or a list of two elements (nrow,ncol)')
+        k_range = np.array([np.min(k_path), np.max(k_path)], dtype=float)
+
+    # Prepare band plot setups
+    if np.all(band_label!=None):
+        if len(band_label) != nsys:
+            raise ValueError('Inconsistent system labels and number of systems.')
+    else:
+        band_label = []
+    ## color
+    if np.all(band_color!=None):
+        if len(band_color) != nsys:
+            raise ValueError('Inconsistent band colors and number of systems.')
+    else: # defalut setups of band color
+        clist = list(mcolors.TABLEAU_COLORS.keys())
+        band_color = [[clist[i], clist[i]] for i in range(nsys)]
+    ## line style
+    if np.all(band_linestyle!=None):
+        if len(band_linestyle) != nsys:
+            raise ValueError('Inconsistent band line style and number of systems.')
+    else: # defalut setups of line style
+        band_linestyle = [['-', '--'] for i in range(nsys)]
+    ## linewidth
+    if np.all(band_linewidth!=None):
+        if len(band_linewidth) != nsys:
+            raise ValueError('Inconsistent band line width and number of systems.')
+    else: # defalut setups of linewidth
+        band_linewidth = [[1.0, 1.0] for i in range(nsys)]
+
+    for i in range(nsys):
+        nband, nkpt, nspin = bands[i].shape
+        ## label, and default setups of band labels
+        if len(band_label) != 0:
+            if not isinstance(band_label[i], list):
+                if nspin == 2:
+                    band_label[i] = [r'{} ($\alpha$)'.format(band_label[i]),
+                                     r'{} ($\beta$)'.format(band_label[i])]
+                else:
+                    band_label[i] = [band_label[i], band_label[i]]
         else:
-            n_rows = scheme[0]
-            n_col = scheme[1]
-
-    # Creation of the subplots
-    if figsize is None:
-        fig, ax = plt.subplots(nrows=n_rows, ncols=n_col,
-                               sharex=sharex, sharey=sharey, figsize=figsize)
-    else:
-        fig, ax = plt.subplots(nrows=n_rows, ncols=n_col,
-                               sharex=sharex, sharey=sharey, figsize=figsize)
-    if n_rows == 1 and n_col == 1:  # When ax is not a list
-        ax = [ax]
-    # Scaling with different size of the same brillouin zone
-    if not_scaled is False:
-        reference = xmax = np.amax(bands[0].k_path)
-        xmin = np.amin(bands[0].k_path)
-
-    else:
-        xmax = []
-        xmin = []
-
-    ymin = []
-    ymax = []
-    count3 = 0
-
-    # Plot of the different band structure into the subplots
-    for col in range(n_col):
-        for row in range(n_rows):
-            data = bands[count3]
-            if count3 == 0:
-                hsp = data.tick_pos
-            pltband = data.bands
-            no_bands = np.shape(pltband)[0]
-            if not_scaled is False:
-                k_max = np.amax(data.k_path)
-                dx = (data.k_path/k_max)*reference
+            if nspin == 2:
+                band_label.append([r'$\alpha$', r'$\beta$'])
             else:
-                dx = data.k_path
-                xmin.append(np.amin(dx))
-                xmax.append(np.amax(dx))
-            ymin.append(np.amin(pltband))
-            ymax.append(np.amax(pltband))
-            # Effective plotting action
-            for j in range(no_bands):
-                if data.spin == 1:
-                    if n_rows == 1:
-                        ax[col].plot(
-                            dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                    else:
-                        ax[row, col].plot(
-                            dx, pltband[j, :], color=color, linestyle=linestl, linewidth=linewidth)
-                elif data.spin == 2:
-                    if n_rows == 1:
-                        ax[col].plot(dx, pltband[j, :, 0], color=color,
-                                     linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[col].plot(dx, pltband[j, :, 0], color=color,
-                                     linestyle='--', linewidth=linewidth, label='Beta')
-                    else:
-                        ax[row, col].plot(
-                            dx, pltband[j, :, 0], color=color, linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[row, col].plot(
-                            dx, pltband[j, :, 0], color=color, linestyle='--', linewidth=linewidth, label='Beta')
+                band_label = []
+        ## color
+        if np.all(band_color!=None) and not isinstance(band_color[i], list):
+            band_color[i] = [band_color[i], band_color[i]]
+        ## line style
+        if np.all(band_linestyle!=None) and not isinstance(band_linestyle[i], list):
+            band_linestyle[i] = [band_linestyle[i], band_linestyle[i]]
+        ## linewidth
+        if np.all(band_linewidth!=None) and not isinstance(band_linewidth[i], list):
+            band_linewidth[i] = [band_linewidth[i], band_linewidth[i]]
 
-            # Fermi level line plot
-            if n_rows == 1:
-                ax[col].hlines(0., np.amin(pltband), np.amax(pltband),
-                               color=fermi, linewidth=fermiwidth, alpha=fermialpha)
-            else:
-                ax[row, col].hlines(0., np.amin(pltband), np.amax(pltband),
-                                    color=fermi, linewidth=fermiwidth, alpha=fermialpha)
+    if len(band_label) == 0:
+        band_label = None
+    commands = [band_label, band_color, band_linestyle, band_linewidth] # ncmd\*nsys\*2(spin)
 
-            # Definition of x limits
-            if n_rows == 1:
-                if sharex is not True:
-                    """hsp_label = []
-                    for element in k_labels:
-                        if element in k_labels:
-                            g = greek.get(element)
-                            hsp_label.append(g)
-                    ax[col].set_xticks(hsp)
-                    if k_labels is not None:
-                        ax[col].set_xlabels(hsp_label)"""
-                    warnings.warn(
-                        'The sharex = False option has not been developed yet')
-                ax[col].set_xlim([np.amin(dx), np.amax(dx)])
-            else:
-                if sharex is not True:
-                    """hsp_label = []
-                    for element in k_labels:
-                        if element in k_labels:
-                            g = greek.get(element)
-                            hsp_label.append(g)
-                    ax[row, col].set_xticks(hsp)
-                    if k_labels is not None:
-                        ax[row, col].set_xlabels(hsp_label)"""
-                    warnings.warn(
-                        'The sharex = False option has not been developed yet')
-                ax[row, col].set_xlim([np.amin(dx), np.amax(dx)])
+    # Fermi level styles
+    if np.all(fermi!=None):
+        if np.all(fermi_color==None):
+            fermi_color = 'tab:gray'
+        if np.all(fermi_linestyle==None):
+            fermi_linestyle = 'solid'
+        if np.all(fermi_linewidth==None):
+            fermi_linewidth = 1.
 
-            count3 += 1
-
-    # Plot of the HSPs lines and setup Y axis
-    for col in range(n_col):
-        for row in range(n_rows):
-            if np.all(energy_range!=None):
-                pymin = min(energy_range)
-                pymax = max(energy_range)
-            else:
-                if sharey == True:
-                    pymin = min(ymin)
-                    pymax = max(ymax)
-                elif sharey == False:
-                    pymin = ymin[int(col*n_rows+row)]
-                    pymax = ymax[int(col*n_rows+row)]
-                elif sharey == 'row':
-                    pymin = min([ymin[int(i*n_rows+row)] for i in range(n_col)])
-                    pymax = max([ymax[int(i*n_rows+row)] for i in range(n_col)])
-                elif sharey == 'col':
-                    pymin = min(ymin[int(col*n_rows):int(col*n_rows+n_rows)])
-                    pymax = max(ymax[int(col*n_rows):int(col*n_rows+n_rows)])
-
-            # Plot of the HSPs lines
-            if n_rows == 1:
-                ax[col].vlines(hsp, pymin, pymax, color='black', linewidth=0.5)
-                ax[col].set_ylim(pymin, pymax)
-            else:
-                ax[row, col].vlines(hsp, pymin, pymax, color='black', linewidth=0.5)
-                ax[row, col].set_ylim(pymin, pymax)
-
-    if (isinstance(ymin, list)) or (isinstance(ymax, list)):
-        ymin = min(ymin)
-        ymax = max(ymax)
-
-    return ymin, ymax, xmin, xmax, hsp, fig, ax
+    return k_path, k_label, energy_range, k_range, commands, \
+           fermi_color, fermi_linestyle, fermi_linewidth
 
 
 def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
