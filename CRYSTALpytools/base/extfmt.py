@@ -494,25 +494,24 @@ class XmgraceParser():
         first_energy = 4
         # Allocate the doss as np arrays
         energy = np.zeros([n_energy,], dtype=float)
-        doss = np.zeros([n_energy, n_proj, spin], dtype=float)
+        doss = np.zeros([n_proj, n_energy, spin], dtype=float)
         # Read the doss and store them into a numpy array
         for i, line in enumerate(data[first_energy:first_energy + n_energy]):
             line_data = np.array(line.strip().split(), dtype=float)
             energy[i] = line_data[0]
-            doss[i, :, 0] = line_data[1:]
+            doss[:, i, 0] = line_data[1:]
 
         if spin == 2:
             # line where the first beta energy is. Written this way to help identify
             first_energy_beta = first_energy + n_energy + 3
             for i, line in enumerate(data[first_energy_beta:-1]):
                 line_data = np.array(line.strip().split(), dtype=float)
-                doss[i, :, 1] = -line_data[1:]
+                doss[:, i, 1] = -line_data[1:]
 
         # Convert all the energy to eV / THz
         if is_electron == True:
             energy = H_to_eV(energy)
             doss = eV_to_H(doss)  # states/Hartree to states/eV
-            # print(np.shape(doss))
         else:
             energy = cm_to_thz(energy)
             doss = thz_to_cm(doss)

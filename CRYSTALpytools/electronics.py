@@ -313,7 +313,7 @@ class ElectronDOS():
 
         self.spin = spin
         self.efermi = efermi
-        self.n_proj = np.shape(doss)[1]-1
+        self.n_proj = np.shape(doss)[0]
         self.doss = np.array(doss, dtype=float)
         self.n_energy = len(energy)
         self.energy = np.array(energy, dtype=float)
@@ -437,46 +437,23 @@ class ElectronBandDOS():
 
         return cls(ElectronBand.from_file(band, output), ElectronDOS.from_file(dos))
 
-    def plot(self, unit='eV', k_labels=None, dos_beta='down', dos_prj=None,
-             energy_range=None, dos_range=None, color_band='blue',
-             color_dos='blue', labels=None, linestl_band='-', linestl_dos=None,
-             linewidth=1, fermi='forestgreen', title=None, figsize=None):
+    def plot(self, **kwargs):
         """
-        A wrapper of ``CRYSTALpytools.plot.plot_electron_banddos``
+        A wrapper to plot electron band structure + density of states of a]
+        single system with matplotlib. For input arguments, check
+        :ref:`plot.plot_electron_banddos() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            k_labels (list): A list of high-symmetric k point labels. Greek letters should be
-                represented as strings, for example, 'Gamma'.
-            dos_beta (str): Spin state to plot. Valid options are 'Up' or 'down'. If 'down', the :math:`\\beta`
-                state will be plotted on the same side as the :math:`\\alpha` state, otherwise on the other side.
-            dos_prj (list): Index of selected projection. Consistent with the index of the 2nd dimension
-                of doss.doss.
-            energy_range (list): A list of two values representing the energy range to be plotted.
-            dos_range (float): Maximum DOS range for the y-axis.
-            color_band (str): Color of the electron bands in the plot.
-            color_dos (str): Color of the density of states (DOS) in the plot.
-            labels (list): A list of labels for the plot legend.
-            linestl_band (str): Linestyle of the electron bands.
-            linestl_dos (str): Linestyle of the density of states (DOS).
-            linewidth (float): Width of the lines in the plot.
-            fermi (str): Color of the Fermi level line.
-            title (str): Title of the plot.
-            figsize (list[float]): Size of the figure in inches (width, height).
-
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronBandDOS`` object). Check documents for
+                :ref:`plot.plot_electron_banddos() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_banddos
 
-        fig, ax = plot_electron_banddos(
-            self.band, self.dos, unit=unit, k_labels=k_labels,
-            dos_beta=dos_beta, dos_prj=dos_prj, energy_range=energy_range,
-            dos_range=dos_range, color_band=color_band, color_dos=color_dos,
-            labels=labels, linestl_band=linestl_band, linestl_dos=linestl_dos,
-            linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,)
-
+        fig, ax = plot_electron_banddos(self, **kwargs)
         return fig, ax
 
     def _set_unit(unit):
