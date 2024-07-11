@@ -536,13 +536,13 @@ def plot_phonon_band(bands, unit='cm-1', k_labels=None, mode='single',
     return fig, ax
 
 
-def plot_electron_band(*bands, unit='eV', k_label=None, mode='single',
-                       not_scaled=False, energy_range=None, k_range=None,
-                       band_label=None, band_color=None, band_linestyle=None,
-                       band_linewidth=None, fermi=0., fermi_color=None,
-                       fermi_linestyle=None, fermi_linewidth=None,
-                       layout=None, title=None, figsize=[6.4, 4.8],
-                       sharex=True, sharey=True, fontsize=14, **kwargs):
+def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
+                        not_scaled=False, energy_range=[], k_range=[],
+                        band_label=None, band_color=None, band_linestyle=None,
+                        band_linewidth=None, fermi=0., fermi_color='tab:green',
+                        fermi_linestyle='-', fermi_linewidth=1.0,
+                        layout=None, title=None, figsize=[6.4, 4.8],
+                        sharex=True, sharey=True, fontsize=14, **kwargs):
     """
     Plot electron band structures.
 
@@ -551,41 +551,47 @@ def plot_electron_band(*bands, unit='eV', k_label=None, mode='single',
             band structure files of the CRYSTAL properties excutable. Note that
             lattice information is not available if file names are specified.
         unit (str): The unit of energy. Can be 'eV' or 'a.u.'.
-        k_label (list): A list of high-symmetric k point labels. Greek
-            alphabets can be, for example, 'Gamma'. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
-            experssions can also be used as in matplotlib.
+        k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
+             for high symmetry points along the path. If a 1D list is given,
+             the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
+             experssions can also be used  as in matplotlib.
         mode (str): The plotting mode, including 'single', 'multi' and
             'compare'.
         not_scaled (bool): Whether to scale the x-axis for different volumes.
             Useful with ``mode='compare'``. The multi mode forces scaling.
         energy_range (array): A 2x1 array specifying the energy range.
         k_range (array): A 2x1 array specifying the k-range.
-        band_label (str|list): Plot legend. 1\*nSystem or nSystem\*2 (spin)
-            plot legend. If spin>1 and 1\*nSystem list is used, they are marked
+        band_label (str|list): Plot legend. If only one string is given, apply
+            it to all plots. 1\*nSystem or nSystem\*2 (spin) plot legend
+            otherwise. If spin>1 and 1\*nSystem list is used, they are marked
             with the same label.
-        band_color (str|list): Color of band structure. For 'single' and
-            'compare' modes, a color string or 1\*2 color list for spin. For
-            the 'multi' mode, 1\*nSystem or nSystem\*2 (spin) plot color. If
-            spin>1 and spin dimension is not included, spin states are in the
-            same color.
-        band_linestyle (str|list): Linestyle of band structure. For 'single'
-            and 'compare' modes, a linestyle string or 1\*2 linestyle list for
-            spin. For the 'multi' mode, 1\*nSystem or nSystem\*2 (spin)
-            linestyle string. If spin>1 and spin dimension is not included,
-            spin states are in the same style.
-        band_linewidth (str|list): Linewidth of band structure. For 'single'
-            and 'compare' modes, a linewidth string or 1\*2 linewidth list for
-            spin. For the 'multi' mode, 1\*nSystem or nSystem\*2 (spin)
-            linewidth string. If spin>1 and spin dimension is not included,
-            spin states are in the same width.
+        band_color (str|list): Color of band structure. If only one string is
+            given, apply it to all plots. For 'single' and 'compare' modes,
+            also 1\*2 color list for spin. For the 'multi' mode, 1\*nSystem or
+            nSystem\*2 (spin) plot color. If spin>1 and spin dimension is not
+            included, spin states are in the same color. 'None' for default
+            values ('tab:blue' and other tab series).
+        band_linestyle (str|list): Linestyle of band structure. If only one
+            string is given, apply it to all plots. For 'single' and 'compare'
+            also r 1\*2 linestyle list for spin. For the 'multi' mode,
+            1\*nSystem or nSystem\*2 (spin) linestyle string. If spin>1 and
+            spin dimension is not included, spin states are in the same style.
+            'None' for default values ('-').
+        band_linewidth (str|list): Linewidth of band structure. If only one
+            number is given, apply it to all plots. For 'single' and 'compare'
+            modes, also 1\*2 linewidth list for spin. For the 'multi' mode,
+            1\*nSystem or nSystem\*2 (spin) linewidth string. If spin>1 and
+            spin dimension is not included, spin states are in the same width.
+            'None' for default values (1.0).
         fermi (float|list|None): Fermi energy in the same unit as input band
             energy. By default the band is aligned to 0. Can be used to offset
             the band. None for not plotting Fermi. For 'compare' mode,
             different offsets can be used.
-        fermi_color (str | None): Color of the Fermi level.
-        fermi_linestyle (str | None): Line style of Fermi level.
-        fermi_linewidth(float | None): Width of the Fermi level.
-        layout (list|tuple): For 'compare' mode, the layout of subplots.
+        fermi_color (str): Color of the Fermi level.
+        fermi_linestyle (str): Line style of Fermi level.
+        fermi_linewidth(float): Width of the Fermi level.
+        layout (list|tuple): For 'compare' mode, the layout of subplots. The
+            default is 2 cols per row.
         title (str): The title of the plot.
         figsize (list): The figure size specified as \[width, height\].
         sharex (bool): Whether to share the x-axis among subplots.
@@ -599,7 +605,6 @@ def plot_electron_band(*bands, unit='eV', k_label=None, mode='single',
 
     :raise ValueError: If the specified unit is unknown.
     """
-    import re
     import matplotlib.pyplot as plt
     from CRYSTALpytools.electronics import ElectronBand
     from CRYSTALpytools.base.plotbase import plot_overlap_bands, plot_compare_bands
@@ -673,12 +678,12 @@ def plot_electron_band(*bands, unit='eV', k_label=None, mode='single',
 
     # set titles and axes
     if is_ev == True:
-        if np.all(fermi!=0.0) and np.all(fermi!=None):
+        if np.all(fermi!=0.0):
             fig.supylabel('Energy (eV)', fontsize=fontsize)
         else:
             fig.supylabel('$E-E_{F}$ (eV)', fontsize=fontsize)
     else:
-        if np.all(fermi!=0.0) and np.all(fermi!=None):
+        if np.all(fermi!=0.0):
             fig.supylabel('Energy (a.u.)', fontsize=fontsize)
         else:
             fig.supylabel('$E-E_{F}$ (a.u.)', fontsize=fontsize)
@@ -692,79 +697,159 @@ def plot_electron_band(*bands, unit='eV', k_label=None, mode='single',
 #-------------------------------DENSITY OF STATES-----------------------------#
 
 
-def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
-                      energy_range=None, dos_range=None, color='blue',
-                      labels=None, linestl=None, linewidth=1, fermi='forestgreen',
-                      title=None, figsize=None):
+def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
+                       energy_range=[], dos_range=[], dos_label=None,
+                       dos_color=None, dos_linestyle=None, dos_linewidth=None,
+                       fermi=0., fermi_color='tab:green', fermi_linestyle='-',
+                       fermi_linewidth=1.0, title=None, figsize=[6.4, 4.8],
+                       sharex=True, sharey=True, fontsize=14, **kwargs):
     """
-    A wrapper of plot_cry_doss for electron density of states.
+    Plot electron density of states.
 
     Args:
-        doss (DOSBASE): DOS obect generated by code:`CRYSTALpytools.crystal_io.Properties_output.read_doss`.
-            Or a list of DOSBASE objects.
+        \*doss (ElectronDOS|str): ``electronics.ElectronDOS`` object or DOSS
+            files of the CRYSTAL properties excutable. Note that lattice
+            information is not available if file names are specified.
         unit (str): 'eV' or 'a.u.'
-        beta (str): Plot spin-down state 'up' or 'down'
-        overlap (bool): Plotting multiple lines into the same figure
-        prj (list): Index of selected projection. Consistent with the
-            index of the 2nd dimension of :code:`doss.doss`
-        energy_range (list[float]): 2*1 list of energy range
-        dos_range (list[float]): 2*1 list of DOS range
-        color (str | list[str]): Color of plot lines. *Should be
-            consistent with number of projections.*
-        labels (str | list[str]): Plot legend. *Should be consistent with
-            number of projections.*
-        linestl (str | list[str]): linestyle string. *Should be consistent
-            with number of projections.*
-        linewidth (float)
-        fermi (str): Color of Fermi level line.
-        title (str)
-        figsize (list[float])
+        beta (str): Plot settings for :math:`\beta` states ('up' or 'down').
+        overlap (bool): Plotting multiple projections into the same figure.
+            Useful only if a single entry of ``doss`` is plotted. Otherwise
+            projections from the same entry will be overlapped into the same
+            subplot.
+        prj (list): Index of selected projections, consistent with the first
+            dimension of the ``doss``, starting from 1. Effective for all the
+            subplots.
+        energy_range (list): 1\*2 list of energy range
+        dos_range (list): 1\*2 list of DOS range
+        dos_label (str|list): Plot legend. If only one string is given, apply
+            it to all plots. 1\*nPrj or nPrj\*2 (spin) plot legend otherwise.
+            If spin>1 and 1\*nSystem list is used, they are marked with the
+            same label. Effective for all the subplots.
+        dos_color (str|list): Color of DOSS plots. If only one string is given,
+            apply it to all plots. Also 1\*2 color list for spin. When
+            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) plot color. If spin>1
+            and spin dimension is not included, spin states are in the same
+            color. 'None' for default values ('tab:blue' and other tab series).
+            Effective for all the subplots.
+        dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
+            given, apply it to all plots. Also 1\*2 color list for spin. When
+            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) line styles. If spin>1
+            and spin dimension is not included, spin states are in the same
+            linestyle. 'None' for default values ('-'). Effective for all the
+            subplots.
+        dos_linewidth (str|list): Linewidth of DOSS plot. If only one number is
+            given, apply it to all plots. Also 1\*2 color list for spin. When
+            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) line widthes. If spin>1
+            and spin dimension is not included, spin states are in the same
+            linestyle. 'None' for default values (1.0). Effective for all the
+            subplots.
+        fermi (float|list|None): Fermi energy in the same unit as input doss
+            energy. By default the doss is aligned to 0. Can be used to offset
+            the doss. None for not plotting Fermi.
+        fermi_color (str): Color of the Fermi level.
+        fermi_linestyle (str): Line style of Fermi level.
+        fermi_linewidth(float): Width of the Fermi level.
+        title (str): The title of the plot.
+        figsize (list): The figure size specified as \[width, height\].
+        sharex (bool): Whether to share the x-axis among subplots.
+        sharey (bool): Whether to share the y-axis among subplots.
+        fontsize (int): Fontsize of the highest level title and axis labels.
+        \*\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
 
     Returns:
         fig (Figure): Matplotlib figure object
         ax (Axes): Matplotlib axes object
     """
-    import re
-
     import matplotlib.pyplot as plt
-
-    from CRYSTALpytools.base.plotbase import plot_cry_doss
+    from CRYSTALpytools.base.plotbase import plot_doss
+    from CRYSTALpytools.electronics import ElectronDOS
     from CRYSTALpytools.units import H_to_eV, eV_to_H
 
-    if re.match(r'^ev$', unit, re.IGNORECASE):
+    # unit
+    if unit.lower() == 'ev':
         unit = 'eV'
         is_ev = True
-    elif re.match(r'^a\.u\.$', unit, re.IGNORECASE):
+    elif unit.lower() == 'a.u.':
         unit = 'a.u.'
         is_ev = False
     else:
         raise ValueError('Unknown unit.')
 
-    if not (isinstance(doss, list) or isinstance(doss, tuple)):
-        doss = [doss]
+    # instantiation and unit
+    dossplt = []
+    for id, d in enumerate(doss):
+        if isinstance(d, str):
+            dtmp = ElectronDOS.from_file(d)
+        elif isinstance(d, ElectronDOS):
+            dtmp = d
+        else:
+            raise ValueError('Unknown input type for doss.')
 
-    for d in doss:
-        if unit != d.unit:
+        if unit != dtmp.unit:
             if unit == 'eV':
-                d.doss[:, 0, :] = H_to_eV(d.doss[:, 0, :])
-                d.doss[:, 1:, :] = eV_to_H(d.doss[:, 1:, :])
+                dtmp.energy = H_to_eV(dtmp.energy)
+                dtmp.doss = eV_to_H(d.doss)
+                if np.all(fermi!=None):
+                    fermi = H_to_eV(fermi)
             else:
-                d.doss[:, 0, :] = eV_to_H(d.doss[:, 0, :])
-                d.doss[:, 1:, :] = H_to_eV(d.doss[:, 1:, :])
-            d.unit = unit
-    if len(doss) == 1:
-        doss = doss[0]
+                dtmp.energy = eV_to_H(dtmp.energy)
+                dtmp.doss = H_to_eV(d.doss)
+                if np.all(fermi!=None):
+                    fermi = H_to_eV(fermi)
+            dtmp.unit = unit
+        dossplt.append(dtmp)
 
-    fig, ax = plot_cry_doss(doss, color=color, fermi=fermi, overlap=overlap,
-                        labels=labels, figsize=figsize, linestl=linestl,
-                        linewidth=linewidth, title=title, beta=beta,
-                        energy_range=energy_range, dos_range=dos_range, prj=prj)
-    if is_ev == True:
-        fig.supylabel('DOS (states/eV)')
-        fig.supxlabel('Energy (eV)')
+    # prj
+    if len(prj) == 0:
+        prj = [[int(i+1) for i in range(len(j))] for j in dossplt]
     else:
-        fig.supylabel('DOS (a.u.)')
-        fig.supxlabel('Energy (a.u.)')
+        prj = [prj for j in dossplt]
+
+    # plot
+    ndoss = len(dossplt)
+    if ndoss == 1 and overlap == False:
+        fig, ax = plt.subplots(ncol=1, nrow=len(prj[0]), figsize=figsize,
+                               sharex=sharex, sharey=sharey, layout='constrained')
+        if len(prj[0]) == 1:
+            ax = plot_doss(
+                ax, dossplt[0].doss, dossplt[0].energy, beta, prj[0][0],
+                energy_range, dos_range, dos_label, dos_color, dos_linestyle, dos_linewidth,
+                fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs
+            )
+        else:
+            for i in range(len(prj[0])):
+                ax.flat[i] = plot_doss(
+                    ax.flat[i], dossplt[0].doss, dossplt[0].energy, beta, prj[0][i],
+                    energy_range, dos_range, dos_label, dos_color, dos_linestyle, dos_linewidth,
+                    fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs
+                )
+    else:
+        fig, ax = plt.subplots(ncol=1, nrow=ndoss, figsize=figsize,
+                               sharex=sharex, sharey=sharey, layout='constrained')
+        if ndoss == 1:
+            ax = plot_doss(
+                ax, dossplt[0].doss, dossplt[0].energy, beta, prj[0],
+                energy_range, dos_range, dos_label, dos_color, dos_linestyle, dos_linewidth,
+                fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs
+            )
+        else:
+            for i in range(ndoss):
+                ax.flat[i] = plot_doss(
+                    ax.flat[i], dossplt[i].doss, dossplt[i].energy, beta, prj[i],
+                    energy_range, dos_range, dos_label, dos_color, dos_linestyle, dos_linewidth,
+                    fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs
+                )
+
+    # set titles and axes
+    if is_ev == True:
+        fig.supylabel('DOS (states/eV)', fontsize=fontsize)
+        fig.supxlabel('Energy (eV)', fontsize=fontsize)
+    else:
+        fig.supylabel('DOS (a.u.)', fontsize=fontsize)
+        fig.supxlabel('Energy (a.u.)', fontsize=fontsize)
+
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
 
     return fig, ax
 

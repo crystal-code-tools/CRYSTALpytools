@@ -90,20 +90,22 @@ class ElectronBand():
 
     def plot(self, **kwargs):
         """
-        A wrapper to lot band structure of a single system using matplotlib.
+        A wrapper to plot band structure of a single system using matplotlib.
         For input arguments or plotting multiple systems, check
-        :ref:`plot.plot_electron_band() <ref-plot>`.
+        :ref:`plot.plot_electron_bands() <ref-plot>`.
 
         Args:
-            \*\*kwargs: Check documents for :ref:`plot.plot_electron_band() <ref-plot>`.
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronBand`` object). Check documents for
+                :ref:`plot.plot_electron_bands() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_electron_band
+        from CRYSTALpytools.plot import plot_electron_bands
 
         kwargs['mode'] = 'single'
-        fig, ax = plot_electron_band(self, **kwargs)
+        fig, ax = plot_electron_bands(self, **kwargs)
         return fig, ax
 
     @property
@@ -340,46 +342,23 @@ class ElectronDOS():
         return cls(spin=dosout[0], efermi=dosout[1], doss=dosout[2],
                    energy=dosout[3], unit=dosout[4])
 
-    def plot(self, unit='eV', beta='up', overlap=False, prj=None,
-             energy_range=None, dos_range=None, color='blue', labels=None,
-             linestl=None, linewidth=1, fermi='forestgreen', title=None,
-             figsize=None):
+    def plot(self, **kwargs):
         """
-        A wrapper of ``CRYSTALpytools.plot.plot_electron_dos``
-        For arguments setting up figures, colors and lines styles, please refer
-        to `matplotlib <https://matplotlib.org/>`_.
+        A wrapper to plot density of states of a single system with matplotlib.
+        For input arguments or plotting multiple systems, check
+        :ref:`plot.plot_electron_doss() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            beta (str): Plot spin-down state 'up' or 'down'
-            overlap (bool): Plotting multiple lines into the same figure
-            prj (list): Index of selected projection. Consistent with the
-                index of the 2nd dimension of ``self.doss``
-            energy_range (array): 2*1 array of energy range
-            dos_range (array): 2*1 array of DOS range
-            color (str | list[str]): Color of plot lines. *Should be
-                consistent with number of projections.*
-            labels (str | list[str]): Plot legend. *Should be consistent with
-                number of projections.*
-            linestl (str | list[str]): linestyle string. *Should be consistent
-                with number of projections.*
-            linewidth (float)
-            fermi (str): Color of Fermi level line.
-            title (str)
-            figsize (list[float])
-
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronDOS`` object). Check documents for
+                :ref:`plot.plot_electron_doss() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_electron_dos
+        from CRYSTALpytools.plot import plot_electron_doss
 
-        fig, ax = plot_electron_dos(
-            self, unit=unit, beta=beta, overlap=overlap, prj=prj,
-            energy_range=energy_range, dos_range=dos_range, color=color,
-            labels=labels, linestl=linestl, linewidth=linewidth, fermi=fermi,
-            title=title, figsize=figsize)
-
+        fig, ax = plot_electron_doss(self, **kwargs)
         return fig, ax
 
     def _set_unit(self, unit):

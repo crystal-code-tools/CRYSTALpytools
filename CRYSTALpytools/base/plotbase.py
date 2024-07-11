@@ -25,10 +25,10 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
         k_label (list[str] | None): 1\*nTick list of strings of the label for
             high symmetry points along the path. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
             experssions can also be used as in matplotlib.
-        energy_range (list | None): 1\*2 list of plotting energy range.
-        k_range (list | None): 1\*2 list of plotting k range. Can either be
-            length (float) or k label (str). Must be used with
-            ``not_scaled=False`` and the same set of ``k_label``.
+        energy_range (list): 1\*2 list of plotting energy range.
+        k_range (list): 1\*2 list of plotting k range. Can either be length
+            (float) or k label (str). Must be used with ``not_scaled=False``
+            and the same set of ``k_label``.
         band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
             spin>1 and 1\*nSystem list is used, they are marked with the same
             label.
@@ -39,12 +39,12 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
         band_linewidth (list): 1\*nSystem or nSystem\*2 (spin) width of the plot
             lines. If spin>1 and 1\*nSystem list is used, they are in the same
             width.
-        fermi (float | None): Fermi energy in eV. By default the band is aligned
-            to 0. Can be used to offset the band. None for not plotting Fermi
+        fermi (float | None): Fermi energy. By default the band is aligned to
+            0. Can be used to offset the band. None for not plotting Fermi
             level.
-        fermi_color (str | None): Color of the Fermi level.
-        fermi_linestyle (str | None): Line style of Fermi level.
-        fermi_linewidth(float | None): Width of the Fermi level.
+        fermi_color (str): Color of the Fermi level.
+        fermi_linestyle (str): Line style of Fermi level.
+        fermi_linewidth(float): Width of the Fermi level.
         \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
             when plotting bands. Applied to all bands.
 
@@ -57,15 +57,13 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
 
     nsys = len(bands)
 
-    if (not isinstance(k_label[0], str)) and (not isinstance(k_label[0], float)):
+    if (len(k_label) != 0) and (not isinstance(k_label[0], str)) and (not isinstance(k_label[0], float)):
         raise ValueError("K labels must be string or float number and only 1 set of k labels can be set for 'multi' mode.")
 
     # preprocessing, always scale k path
-    k_path, k_label, energy_range, k_range, commands, \
-    fermi_color, fermi_linestyle, fermi_linewidth = _plot_bands_preprocess(
+    k_path, k_label, energy_range, k_range, commands = _plot_bands_preprocess(
         bands, k_path, k_label, False, energy_range, k_range,
-        band_label, band_color, band_linestyle, band_linewidth,
-        fermi, fermi_color, fermi_linestyle, fermi_linewidth
+        band_label, band_color, band_linestyle, band_linewidth
     )
 
     # Start plotting
@@ -140,10 +138,10 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
              the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
              experssions can also be used  as in matplotlib.
         not_scaled (bool): Whether to scale the x-axis for different volumes.
-        energy_range (list | None): 1\*2 list of plotting energy range.
-        k_range (list | None): 1\*2 list of plotting k range. Can either be
-            length (float) or k label (str). Must be used with
-            ``not_scaled=False`` and the same set of ``k_label``.
+        energy_range (list): 1\*2 list of plotting energy range.
+        k_range (list): 1\*2 list of plotting k range. Can either be length
+            (float) or k label (str). Must be used with ``not_scaled=False``
+            and the same set of ``k_label``.
         band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
             spin>1 and 1\*nSystem list is used, they are marked with the same
             label.
@@ -155,12 +153,12 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
         band_linewidth (list|float): A linewidth number or 1\*2 linewidth list
             for spin. If nSpin>1 but a string is given, same linewidth for both
             spins.
-        fermi (list|float|None): Fermi energy in eV. By default the band is
-            aligned to 0. Can be used to offset the band. None for not plotting
-            Fermi level.
-        fermi_color (str | None): Color of the Fermi level.
-        fermi_linestyle (str | None): Line style of Fermi level.
-        fermi_linewidth(float | None): Width of the Fermi level.
+        fermi (float | None): Fermi energy. By default the band is aligned to
+            0. Can be used to offset the band. None for not plotting Fermi
+            level.
+        fermi_color (str): Color of the Fermi level.
+        fermi_linestyle (str): Line style of Fermi level.
+        fermi_linewidth(float): Width of the Fermi level.
         \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
             when plotting bands. Applied to all bands.
 
@@ -174,36 +172,12 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
     nsys = len(bands)
 
     # prepare band plot keywords
-    ## label
-    if np.all(band_label!=None):
-        if isinstance(band_label, str):
-            band_label = [[band_label, band_label] for i in range(nsys)]
-        else:
-            band_label = [[band_label[0], band_label[1]] for i in range(nsys)]
-
-    ## color. Default different from overlap plottings
-    if np.all(band_color!=None):
-         if isinstance(band_color, str):
-             band_color = [[band_color, band_color] for i in range(nsys)]
-         else:
-             band_color = [[band_color[0], band_color[1]] for i in range(nsys)]
-    else: # new default
+    ## label, use overlap plottings
+    ## color. New Default
+    if np.all(band_color==None):
          band_color = [['tab:blue', 'tab:blue'] for i in range(nsys)]
-
-    ## line style
-    if np.all(band_linestyle!=None):
-        if isinstance(band_linestyle, str):
-            band_linestyle = [[band_linestyle, band_linestyle] for i in range(nsys)]
-        else:
-            band_linestyle = [[band_linestyle[0], band_linestyle[1]] for i in range(nsys)]
-
-    ## line width
-    if np.all(band_linewidth!=None):
-        if isinstance(band_linewidth, float) or isinstance(band_linewidth, int):
-            band_linewidth = [[band_linewidth, band_linewidth] for i in range(nsys)]
-        else:
-            band_linewidth = [[band_linewidth[0], band_linewidth[1]] for i in range(nsys)]
-
+    ## line style, use overlap plottings
+    ## line width, use overlap plottings
 
     # prepare fermi level
     if np.all(fermi!=None):
@@ -214,11 +188,9 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
                 raise ValueError('Inconsistent numbers of Fermi level and systems')
 
     # preprocessing
-    k_path, k_label, energy_range, k_range, commands, \
-    fermi_color, fermi_linestyle, fermi_linewidth = _plot_bands_preprocess(
+    k_path, k_label, energy_range, k_range, commands  = _plot_bands_preprocess(
         bands, k_path, k_label, not_scaled, energy_range, k_range,
-        band_label, band_color, band_linestyle, band_linewidth,
-        fermi, fermi_color, fermi_linestyle, fermi_linewidth
+        band_label, band_color, band_linestyle, band_linewidth
     )
 
     # Start plotting
@@ -264,8 +236,7 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
 
 def _plot_bands_preprocess(
     bands, k_path, k_label, not_scaled, energy_range, k_range,
-    band_label, band_color, band_linestyle, band_linewidth,
-    fermi, fermi_color, fermi_linestyle, fermi_linewidth):
+    band_label, band_color, band_linestyle, band_linewidth):
     """
     Do the boring parameters checking jobs for band structures. For the meanings
     of parameters, refer to ``plot_overlap_band()`` (``plot_compare_bands`` has
@@ -286,7 +257,7 @@ def _plot_bands_preprocess(
              'Omega', 'Sigma_1']
 
     # Prepare k_label
-    if np.all(k_label!=None):
+    if len(k_label) != 0:
         if isinstance(k_label[0], str) or isinstance(k_label[0], float): # same definition for all k pathes
             same_klabel = True
             if len(k_label) != np.shape(k_path)[1]:
@@ -308,6 +279,8 @@ def _plot_bands_preprocess(
                         k_label[i][j] = r'$\Sigma_{1}$'
                 else:
                     k_label[i][j] = k
+    else:
+        k_label = [[str(np.round(j, 2)) for j in i] for i in k_path]
 
     # scale k path to the longest one
     if not_scaled == False:
@@ -319,12 +292,12 @@ def _plot_bands_preprocess(
             k_path[i] = k_path[i] / alllen[i] * maxlen
 
     # Prepare energy and k range
-    if np.all(energy_range!=None):
+    if len(energy_range) != 0:
         energy_range = np.array([np.min(energy_range), np.max(energy_range)], dtype=float)
     else:
         energy_range = np.array([np.min(bands), np.max(bands)], dtype=float)
 
-    if np.all(k_range!=None):
+    if len(k_range) != 0:
         k_range = k_range[0:2]
         if isinstance(k_range[0], str):
             if not_scaled == True or same_klabel != True:
@@ -358,449 +331,259 @@ def _plot_bands_preprocess(
 
     # Prepare band plot setups
     if np.all(band_label!=None):
-        if len(band_label) != nsys:
-            raise ValueError('Inconsistent system labels and number of systems.')
+        if isinstance(band_label, str):
+            band_label = [[band_label, band_label] for i in range(nsys)]
+        else:
+            if len(band_label) != nsys:
+                raise ValueError('Inconsistent system labels and number of systems.')
+            for i in range(nsys):
+                nband, nkpt, nspin = bands[i].shape
+                ## label, and default setups of band labels
+                if not isinstance(band_label[i], list):
+                    if nspin == 2:
+                        band_label[i] = [r'{} ($\alpha$)'.format(band_label[i]),
+                                         r'{} ($\beta$)'.format(band_label[i])]
+                    else:
+                        band_label[i] = [band_label[i], band_label[i]]
+                else:
+                    band_label[i] = band_label[i][0:2]
+
     else:
-        band_label = []
+        band_label = []; any_spin = False
+        for i in range(nsys):
+            nband, nkpt, nspin = bands[i].shape
+            if nspin == 2:
+                any_spin = True
+                band_label.append([r'$\alpha$', r'$\beta$'])
+            else:
+                band_label.append(['', ''])
+
+        if any_spin == False:
+            band_label = None
     ## color
     if np.all(band_color!=None):
-        if len(band_color) != nsys:
-            raise ValueError('Inconsistent band colors and number of systems.')
+        if isinstance(band_color, str):
+            band_color = [[band_color, band_color] for i in range(nsys)]
+        else:
+            if len(band_color) != nsys:
+                raise ValueError('Inconsistent band colors and number of systems.')
+            if not isinstance(band_color[0], list):
+                band_color = [[i, i] for i in band_color]
+            else:
+                band_color = [[i[0], i[1]] for i in band_color]
     else: # defalut setups of band color
         clist = list(mcolors.TABLEAU_COLORS.keys())
         band_color = [[clist[i], clist[i]] for i in range(nsys)]
     ## line style
     if np.all(band_linestyle!=None):
-        if len(band_linestyle) != nsys:
-            raise ValueError('Inconsistent band line style and number of systems.')
+        if isinstance(band_linestyle, str):
+            band_linestyle = [[band_linestyle, band_linestyle] for i in range(nsys)]
+        else:
+            if len(band_linestyle) != nsys:
+                raise ValueError('Inconsistent band line style and number of systems.')
+            if not isinstance(band_linestyle[0], list):
+                band_linestyle = [[i, i] for i in band_linestyle]
+            else:
+                band_linestyle = [[i[0], i[1]] for i in band_linestyle]
     else: # defalut setups of line style
         band_linestyle = [['-', '--'] for i in range(nsys)]
     ## linewidth
     if np.all(band_linewidth!=None):
-        if len(band_linewidth) != nsys:
-            raise ValueError('Inconsistent band line width and number of systems.')
+        if isinstance(band_linewidth, int) or isinstance(band_linewidth, float):
+            band_linewidth = [[band_linewidth, band_linewidth] for i in range(nsys)]
+        else:
+            if len(band_linewidth) != nsys:
+                raise ValueError('Inconsistent band line width and number of systems.')
+            if not isinstance(band_linewidth[0], list):
+                band_linewidth = [[i, i] for i in band_linewidth]
+            else:
+                band_linewidth = [[i[0], i[1]] for i in band_linewidth]
     else: # defalut setups of linewidth
         band_linewidth = [[1.0, 1.0] for i in range(nsys)]
 
-    for i in range(nsys):
-        nband, nkpt, nspin = bands[i].shape
-        ## label, and default setups of band labels
-        if len(band_label) != 0:
-            if not isinstance(band_label[i], list):
-                if nspin == 2:
-                    band_label[i] = [r'{} ($\alpha$)'.format(band_label[i]),
-                                     r'{} ($\beta$)'.format(band_label[i])]
-                else:
-                    band_label[i] = [band_label[i], band_label[i]]
-        else:
-            if nspin == 2:
-                band_label.append([r'$\alpha$', r'$\beta$'])
-            else:
-                band_label = []
-        ## color
-        if np.all(band_color!=None) and not isinstance(band_color[i], list):
-            band_color[i] = [band_color[i], band_color[i]]
-        ## line style
-        if np.all(band_linestyle!=None) and not isinstance(band_linestyle[i], list):
-            band_linestyle[i] = [band_linestyle[i], band_linestyle[i]]
-        ## linewidth
-        if np.all(band_linewidth!=None) and not isinstance(band_linewidth[i], list):
-            band_linewidth[i] = [band_linewidth[i], band_linewidth[i]]
-
-    if len(band_label) == 0:
-        band_label = None
     commands = [band_label, band_color, band_linestyle, band_linewidth] # ncmd\*nsys\*2(spin)
 
-    # Fermi level styles
-    if np.all(fermi!=None):
-        if np.all(fermi_color==None):
-            fermi_color = 'tab:gray'
-        if np.all(fermi_linestyle==None):
-            fermi_linestyle = 'solid'
-        if np.all(fermi_linewidth==None):
-            fermi_linewidth = 1.
-
-    return k_path, k_label, energy_range, k_range, commands, \
-           fermi_color, fermi_linestyle, fermi_linewidth
+    return k_path, k_label, energy_range, k_range, commands
 
 
-def plot_cry_doss(doss, color, fermi, overlap, labels, figsize, linestl,
-                  linewidth, title, beta, energy_range, dos_range, prj):
+def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
+              dos_label, dos_color, dos_linestyle, dos_linewidth,
+              fermi, fermi_color, fermi_linestyle, fermi_linewidth, **kwargs):
     """
-    The base function to plot electron / phonon density of states.
+    The base function to plot electron / phonon density of states on one axes.
 
     Args:
-        doss (object): The density of states object.
-        color (str or list): The color(s) of the plot(s).
-        fermi (str): The color of the Fermi level line.
-        overlap (bool): True if the projections should overlap, False otherwise.
-        labels (str or list): The label(s) for the plot(s).
-        figsize (tuple): The figure size (width, height) in inches.
-        linestl (str or list): The line style(s) for the plot(s).
-        linewidth (float): The width of the line(s) in points.
-        title (str): The title of the plot.
-        beta (str): The beta value ('up' or 'down').
-        energy_range (tuple): The energy range (xmin, xmax) for the x-axis.
-        dos_range (tuple): The density of states range (ymin, ymax) for the y-axis.
-        prj (None or list): The projection(s) to plot.
+        ax (Axes): Matplotlib Axes object.
+        doss (numpy.ndarray): nProj\*nEnergy\*nSpin array of DOS. Positive
+            values for both spin up and spin down states.
+        energy (numpy.ndarray): 1\*nEnergy array of energy.
+        beta (str): Plot settings for :math:`\beta` states ('up' or 'down').
+        prj (list): Index of selected projections, consistent with the first
+            dimension of the ``doss``, starting from 1.
+        energy_range (list): 1\*2 list of energy range.
+        dos_range (list): 1\*2 list of DOS range.
+        dos_label (list): 1\*nProj or nProj\*2 (spin) plot legend. If spin>1
+            and 1\*nProj list is used, they are marked with the same label.
+        dos_color (list): 1\*nProj or nProj\*2 (spin) plot color. If spin>1 and
+            1\*nProj list is used, they are in the same color.
+        dos_linestyle (list): 1\*nProj or nProj\*2 (spin) linestyle string. If
+            spin>1 and 1\*nProj list is used, they are in the same style.
+        dos_linewidth (list): 1\*nProj or nProj\*2 (spin) width of the plot
+            lines. If spin>1 and 1\*nSystem list is used, they are in the same
+            width.
+        fermi (float|None): Fermi energy in eV. By default the band is aligned
+            to 0. Can be used to offset the band. None for not plotting Fermi
+            level.
+        fermi_color (str|None): Color of the Fermi level.
+        fermi_linestyle (str|None): Line style of Fermi level.
+        fermi_linewidth(float|None): Width of the Fermi level.
+        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+            when plotting bands. Applied to all bands.
 
     Returns:
-        fig (Figure): Matplotlib figure object
         ax (Axes): Matplotlib axes object
     """
-    import sys
-    import warnings
-    from os import path
-
     import matplotlib.pyplot as plt
     import numpy as np
+    import warnings, copy
+    import matplotlib.colors as mcolors
 
-    # Error check on beta
-    accepted_beta = ['up', 'down']
-    if beta not in accepted_beta:
+    # Sanity check
+    ## projection
+    if len(prj) != 0:
+        if len(prj) > len(doss):
+            raise ValueError('Specified number of projects are lager than the length of data.')
+        dossplt = doss[np.array(prj, dtype=int)-1]
+    else:
+        dossplt = copy.deepcopy(doss)
+
+    nprj, nenergy,  nspin = dossplt.shape
+
+    ## energy
+    if len(energy) != nenergy:
+        raise ValueError('Inconsistent DOSS and energy dimensions.')
+
+    ## beta
+    if beta.lower() == 'up':
+        pass
+    elif beta.lower() == 'down':
+        if nspin == 2:
+            dossplt[:, :, 1] = -dossplt[:, :, 1]
+    else:
         raise ValueError("Beta can be defined only as: 'up' or 'down'.")
 
-    # Plot for overlap == True
-    if overlap == True:
-
-        # Error check on color for color in overlap == true and default list of color
-        if (not isinstance(color, list)) and (doss.n_proj > 1):
-            warnings.warn(
-                'When overlap is true color has to be a list!', stacklevel=2)
-            color = ['blue', 'indigo', 'midgrey', 'crimson']
-            if (len(color) < doss.n_proj) or (len(color) < len(prj)):
-                raise ValueError(
-                    'When overlap is true color has to be a list!')
-
-        # Error check on labels for overlap == true
-        if labels is not None:
-            if not isinstance(labels, list) and (doss.n_proj > 1):
-                raise ValueError(
-                    'When overlap is true labels has to be a list')
-
-        # Default for figsize
-        if figsize is None:
-            figsize = (12, 5)
-
-        # Error check on color, labels, and linestl
-        if (isinstance(color, list)) or (isinstance(labels, list)) or (isinstance(linestl, list)):
-            if color is not None:
-                if prj is None:
-                    if (len(color) > doss.n_proj) or (len(color) < doss.n_proj):
-                        if len(color) < doss.n_proj:
-                            raise ValueError(
-                                'The number of colors is less than the number of projections!')
-                else:
-                    if (len(color) > len(prj)) or (len(color) < len(prj)):
-                        if len(color) > len(prj):
-                            raise ValueError(
-                                'The number of colors is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of colors is less than the number of projections required!')
-
-            if labels is not None:
-                if prj is None:
-                    if (len(labels) > doss.n_proj) or (len(labels) < doss.n_proj):
-                        if len(labels) > doss.n_proj:
-                            raise ValueError(
-                                'The number of labels is greater than the number of projections!')
-                        elif len(labels) < doss.n_proj:
-                            raise ValueError(
-                                'The number of labels is less than the number of projections!')
-                else:
-                    if (len(labels) > len(prj)) or (len(labels) < len(prj)):
-                        if len(labels) > len(prj):
-                            raise ValueError(
-                                'The number of labels is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of labels is less than the number of projections required!')
-
-            if linestl is not None:
-                if prj is None:
-                    if (len(linestl) > doss.n_proj) or (len(linestl) < doss.n_proj):
-                        if len(linestl) > doss.n_proj:
-                            raise ValueError(
-                                'The number of linestl is greater than the number of projections!')
-                        elif len(linestl) < doss.n_proj:
-                            raise ValueError(
-                                'The number of linestl is less than the number of projections!')
-                else:
-                    if (len(linestl) > len(prj)) or (len(linestl) < len(prj)):
-                        if len(linestl) > len(prj):
-                            raise ValueError(
-                                'The number of linestl is greater than the number of projections required!')
-                        elif len(color) < len(prj):
-                            raise ValueError(
-                                'The number of linestl is less than the number of projections required!')
-
-        # Creation of the figure
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-        # Creation of dx for the plot
-        dx = doss.energy
-
-        # Determination of xmin, xmax, ymin, and ymax
-        xmin = np.amin(dx)
-        xmax = np.amax(dx)
-        ymin = np.amin(doss.doss[1:, :, :])
-        ymax = np.amax(doss.doss[1:, :, :])
-
-        # Plot of all projections
-        if np.all(prj==None):
-            for projection in range(doss.n_proj):
-                # for projection in range(1, 2):
-                if doss.spin == 1:
-                    if doss.n_proj > 1:
-                        if linestl is None:
-                            ax.plot(dx, doss.doss[:, projection], color=color[projection],
-                                    label=labels[projection], linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection], color=color[projection],
-                                    label=labels[projection], linestyle=linestl[projection], linewidth=linewidth)
-                    else:
-                        ax.plot(dx, doss.doss[:, projection],
-                                color=color, linewidth=linewidth)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color[projection],
-                                    label=labels[projection], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, -doss.doss[:, projection, 1], color=color[projection],
-                                    label=labels[projection], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection, 0],
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, -doss.doss[:, projection, 1],
-                                    linestyle='--', linewidth=linewidth)
-                    elif beta == accepted_beta[1]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color[projection],
-                                    label=labels[projection], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, doss.doss[:, projection, 1], color=color[projection],
-                                    label=labels[projection], linestyle='--', linewidth=linewidth)
-
-                        else:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color,
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, doss.doss[:, projection, 1], color=color,
-                                    linestyle='--', linewidth=linewidth)
-
-        # Plot of selected projections
-        else:
-            for index, projection in enumerate(prj):
-                projection = projection-1
-                if doss.spin == 1:
-                    if doss.n_proj > 1:
-                        if linestl is None:
-                            ax.plot(dx, doss.doss[:, projection], color=color[index],
-                                    label=labels[index], linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection], color=color[index],
-                                    label=labels[index], linestyle=linestl[index], linewidth=linewidth)
-                    else:
-                        ax.plot(dx, doss.doss[:, projection],
-                                color=color, linewidth=linewidth)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color[index],
-                                    label=labels[index], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, doss.doss[:, projection, 1], color=color[index],
-                                    label=labels[index], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection, 0],
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, doss.doss[:, projection, 1],
-                                    linestyle='--', linewidth=linewidth)
-                    elif beta == accepted_beta[1]:
-                        if doss.n_proj > 1:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color[index],
-                                    label=labels[index], linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, -doss.doss[:, projection, 1], color=color[index],
-                                    label=labels[index], linestyle='--', linewidth=linewidth)
-                        else:
-                            ax.plot(dx, doss.doss[:, projection, 0], color=color,
-                                    linestyle='-', linewidth=linewidth)
-                            ax.plot(dx, -doss.doss[:, projection, 1], color=color,
-                                    linestyle='--', linewidth=linewidth)
-
-        yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
-        xfermi_level = np.zeros(2)
-        if beta == accepted_beta[0]:
-            ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
-        else:
-            yfermi_level = np.linspace(ymin*1.05, ymax*1.05, 2)
-            ax.plot(xfermi_level, yfermi_level, color=fermi, linewidth=1.5)
-        y_zero = np.zeros(2)
-        x_zero = np.linspace(xmin, xmax, 2)
-        ax.plot(x_zero, y_zero, color='black', linewidth=0.4)
-        if dos_range is not None:
-            ymin = dos_range[0]
-            ymax = dos_range[1]
-            plt.ylim(ymin, ymax)
-        else:
-            if doss.spin == 1:
-                ymin = 0
-                plt.ylim(ymin, ymax*1.05)
-            elif doss.spin == 2:
-                if beta == accepted_beta[0]:
-                    ymin = 0
-                    plt.ylim(ymin, ymax*1.05)
-                elif beta == accepted_beta[1]:
-                    plt.ylim(ymin*1.05, ymax*1.05)
-
-    # Plot for overlap == False
+    # prepare energy and dos ranges
+    if len(energy_range) == 0:
+        energy_range = np.array([np.min(energy), np.max(energy)])
     else:
-        # Error checks on colors, labels, and linestl
-        if isinstance(color, list):
-            warnings.warn('When overlap is false color should be a string!',
-                          stacklevel=2)
-            color = 'blue'
+        energy_range = np.array([np.min(energy_range), np.max(energy_range)])
+    if len(dos_range) == 0:
+        dos_range = np.array([np.min(doss), np.max(doss)])
+    else:
+        dos_range = np.array([np.min(dos_range), np.max(dos_range)])
 
-        if isinstance(labels, list):
-            warnings.warn('When overlap is false labels should be a string!',
-                          stacklevel=2)
-            labels = None
-
-        if isinstance(linestl, list):
-            warnings.warn('When overlap is false color should be a string!',
-                          stacklevel=2)
-            linestl = '-'
-
-        # Creation of dx for the plot
-        dx = doss.energy
-
-        # Determination of xmin and xmax
-        xmin = np.amin(dx)
-        xmax = np.amax(dx)
-
-        # Creation xfermi, x_zero, and y_zero
-        xfermi = np.zeros(2)
-        x_zero = np.linspace(xmin, xmax, 2)
-        y_zero = np.zeros(2)
-
-        # Creation of subplots for all projections
-        if prj is None:
-            fig, ax = plt.subplots(
-                nrows=doss.n_proj, ncols=1, sharex=True, figsize=figsize)
-            # If only one projection is generated, ax is not subscriptable
-            if doss.n_proj == 1:
-                ax = [ax]
-        # Creation of subplots for selected projections
+    # Prepare line label, color style and width
+    ## label
+    if np.all(dos_label!=None):
+        if isinstance(dos_label, str):
+            dos_label = [[dos_label, dos_label] for i in range(nprj)]
         else:
-            fig, ax = plt.subplots(
-                nrows=len(prj), ncols=1, sharex=True, figsize=figsize)
-            # If only one projection is generated, ax is not subscriptable
-            if len(prj) == 1:
-                ax = [ax]
+            if len(dos_label) != nprj:
+                raise ValueError('Inconsistent system labels and number of systems.')
+            for i in range(nprj):
+                _, _, nspin = doss[i].shape
+                ## label, and default setups of dos labels
+                if not isinstance(dos_label[i], list):
+                    if nspin == 2:
+                        dos_label[i] = [r'{} ($\alpha$)'.format(dos_label[i]),
+                                        r'{} ($\beta$)'.format(dos_label[i])]
+                    else:
+                        dos_label[i] = [dos_label[i], dos_label[i]]
+                else:
+                    dos_label = dos_label[i][0:2]
 
-        # Plot for all projections
-        if prj is None:
-            for projection in range(doss.n_proj):
-                if doss.spin == 1:
-                    ymin = 0
-                    ymax = np.amax(doss.doss[:, projection])
-                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                    ax[projection].plot(dx, doss.doss[:, projection],
-                                        color=color, linestyle=linestl, linewidth=linewidth)
-                    ax[projection].plot(
-                        xfermi, yfermi, color=fermi, linewidth=1.5)
-                    if dos_range is not None:
-                        ymin = dos_range[0]
-                        ymax = dos_range[1]
-                    ax[projection].set_ylim(ymin, ymax)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        ymin = 0
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
-                        ax[projection].plot(dx, doss.doss[:, projection, 0], color=color,
-                                            linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[projection].plot(dx, doss.doss[:, projection, 1], color=color,
-                                            linestyle='--', linewidth=linewidth, label='Beta')
-                        ax[projection].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        ax[projection].set_ylim(ymin, ymax)
-                    elif beta == accepted_beta[1]:
-                        ymin = -np.amax(doss.doss[:, projection, :])
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin, ymax, 2)
-                        ax[projection].plot(dx, doss.doss[:, projection, 0], color=color,
-                                            linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[projection].plot(dx, -doss.doss[:, projection, 1], color=color,
-                                            linestyle='--', linewidth=linewidth, label='Beta')
-                        ax[projection].plot(x_zero, y_zero, linewidth=0.4)
-                        ax[projection].plot(
-                            xfermi, yfermi, color=fermi, linewidth=2.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        ax[projection].set_ylim(ymin, ymax)
+    else:
+        dos_label = []; any_spin = False
+        for i in range(nprj):
+            _, _, nspin = doss[i].shape
+            if nspin == 2:
+                any_spin = True
+                dos_label.append([r'$\alpha$', r'$\beta$'])
+            else:
+                dos_label.append(['', ''])
 
-        # Plot for selected projections
+        if any_spin == False:
+            dos_label = None
+    ## color
+    if np.all(dos_color!=None):
+        if isinstance(dos_color, str):
+            dos_color = [[dos_color, dos_color] for i in range(nprj)]
         else:
-            for index, projection in enumerate(prj):
-                projection = projection-1
-                if doss.spin == 1:
-                    ymin = 0
-                    ymax = np.amax(doss.doss[:, projection])
-                    yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                    ax[index].plot(dx, doss.doss[:, projection],
-                                   color=color, linestyle=linestl, linewidth=linewidth)
-                    ax[index].plot(xfermi, yfermi, color=fermi, linewidth=1.5)
-                    if dos_range is not None:
-                        ymin = dos_range[0]
-                        ymax = dos_range[1]
-                    ax[index].set_ylim(ymin, ymax)
-                elif doss.spin == 2:
-                    if beta == accepted_beta[0]:
-                        ymin = 0
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                        ax[index].plot(dx, doss.doss[:, projection, 0], color=color,
-                                       linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[index].plot(dx, -doss.doss[:, projection, 1], color=color,
-                                       linestyle='--', linewidth=linewidth, label='Beta')
-                        ax[index].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        ax[index].set_ylim(ymin, ymax)
-                    elif beta == accepted_beta[1]:
-                        ymin = -np.amax(doss.doss[:, projection, :])
-                        ymax = np.amax(doss.doss[:, projection, :])
-                        yfermi = np.linspace(ymin*1.05, ymax*1.05, 2)
-                        ax[index].plot(dx, doss.doss[:, projection, 0], color=color,
-                                       linestyle='-', linewidth=linewidth, label='Alpha')
-                        ax[index].plot(dx, doss.doss[:, projection, 1], color=color,
-                                       linestyle='--', linewidth=linewidth, label='Beta')
-                        ax[index].plot(x_zero, y_zero, linewidth=0.4)
-                        ax[index].plot(
-                            xfermi, yfermi, color=fermi, linewidth=1.5)
-                        if dos_range is not None:
-                            ymin = dos_range[0]
-                            ymax = dos_range[1]
-                        ax[index].set_ylim(ymin, ymax)
+            if len(dos_color) != nprj:
+                raise ValueError('Inconsistent dos colors and number of systems.')
+            if not isinstance(dos_color[0], list):
+                dos_color = [[i, i] for i in dos_color]
+            else:
+                dos_color = [[i[0], i[1]] for i in dos_color]
+    else: # defalut setups of dos color
+        clist = list(mcolors.TABLEAU_COLORS.keys())
+        dos_color = [[clist[i], clist[i]] for i in range(nprj)]
+    ## line style
+    if np.all(dos_linestyle!=None):
+        if isinstance(dos_linestyle, str):
+            dos_linestyle = [[dos_linestyle, dos_linestyle] for i in range(nprj)]
+        else:
+            if len(dos_linestyle) != nprj:
+                raise ValueError('Inconsistent dos line style and number of systems.')
+            if not isinstance(dos_linestyle[0], list):
+                dos_linestyle = [[i, i] for i in dos_linestyle]
+            else:
+                dos_linestyle = [[i[0], i[1]] for i in dos_linestyle]
+    else: # defalut setups of line style
+        dos_linestyle = [['-', '--'] for i in range(nprj)]
+    ## linewidth
+    if np.all(dos_linewidth!=None):
+        if isinstance(dos_linewidth, int) or isinstance(dos_linewidth, float):
+            dos_linewidth = [[dos_linewidth, dos_linewidth] for i in range(nprj)]
+        else:
+            if len(dos_linewidth) != nprj:
+                raise ValueError('Inconsistent dos line width and number of systems.')
+            if not isinstance(dos_linewidth[0], list):
+                dos_linewidth = [[i, i] for i in dos_linewidth]
+            else:
+                dos_linewidth = [[i[0], i[1]] for i in dos_linewidth]
+    else: # defalut setups of linewidth
+        dos_linewidth = [[1.0, 1.0] for i in range(nprj)]
 
-        if (doss.spin == 2) and (beta == accepted_beta[1]):
-            plt.legend()
+    commands = [dos_label, dos_color, dos_linestyle, dos_linewidth]
+    keywords = ['label', 'color', 'linestyle', 'linewidth']
 
-    if energy_range is not None:
-        xmin = energy_range[0]
-        xmax = energy_range[1]
-    plt.xlim(xmin, xmax)
+    # plot
+    ## Fermi level
+    if np.all(fermi!=None):
+        energy = energy + fermi
+        ax.vlines(fermi, dos_range[0], dos_range[1], color=fermi_color,
+                  linestyle=dos_linestyle, linewidth=dos_linewidth)
 
-    if title is not None:
-        fig.suptitle(title)
-    if labels is not None:
-        plt.legend()
+    ## DOS=0 line
+    if beta.lower() == 'down':
+        ax.hlines(0, energy_range[0], energy_range[1], color='k', linewidth=0.5)
 
-    return fig, ax
+    ## DOS
+    for iprj in range(nprj):
+        for ispin in range(nspin):
+            for icmd in range(4):
+                if np.all(commands[icmd]==None): # 4*nprj*2(spin)
+                    continue
+                kwargs[keywords[icmd]] = commands[icmd][isys][ispin]
+
+            ax.plot(energy, dosplt[iprj, :, ispin], **kwargs)
+
+    # a label for a plot
+    ax.legend(loc='lower right')
+    ax.set_xlim(energy_range)
+    ax.set_ylim(dos_range)
+    return ax
 
 
 def plot_cry_es(bands, doss, k_labels, color_bd, color_doss, fermi, energy_range, linestl_bd,
