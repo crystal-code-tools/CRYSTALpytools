@@ -3842,8 +3842,9 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
 
     plt.show()
 
-
+#------------------------------------------------------------------------------#
 #--------------------------------obsolute functions----------------------------#
+#------------------------------------------------------------------------------#
 
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
@@ -3866,3 +3867,143 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
         fig.savefig(choose + '{:d}'.format(nfig) + filetype,
                     dpi=dpi, transparent=transparency)
     return
+
+
+def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
+                       not_scaled=False, energy_range=None, k_range=None,
+                       color='blue', labels=None, linestl='-', linewidth=1,
+                       fermi='forestgreen', fermiwidth=1.5, fermialpha=1, 
+                       title=None, figsize=None, scheme=None, sharex=True,
+                       sharey=True, fontsize=12):
+    """
+    Obsolute. Use ``plot_electron_bands``.
+    """
+    import warnings
+
+    warnings.warn("You are calling an obsolute function. Use 'plot_electron_bands' instead.",
+                  stacklevel=2)
+    if not (isinstance(bands, list) or isinstance(bands, tuple)):
+        bands = [bands]
+
+    if np.all(energy_range==None):
+        energy_range=[]
+    if np.all(k_range==None):
+        k_range=[]
+    if np.all(figsize==None):
+        figsize=[6.4, 4.8]
+
+    fig, ax = plot_electron_bands(
+        *bands, unit=unit, k_label=k_labels, mode=mode, not_scaled=not_scaled,
+        energy_range=energy_range, k_range=k_range, band_label=labels, band_color=color,
+        band_linestyle=linestl, band_linewidth=linewidth, fermi_color=fermi,
+        fermi_linewidth=fermiwidth, title=title, figsize=figsize, layout=scheme,
+        sharex=sharex, sharey=sharey, fontsize=fontsize
+    )
+    return fig, ax
+
+
+def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=True,
+                  mode='single', linestl='-', linewidth=1, color='blue',
+                  fermi='forestgreen', k_range=[], labels=None, figsize=[6.4, 4.8],
+                  scheme=None, sharex=True, sharey=True, fermiwidth=1.5, fermialpha=1):
+    """
+    Obsolute. Use ``plot_electron_bands``.
+    """
+    import warnings
+
+    warnings.warn("You are calling an obsolute function. Use 'plot_electron_bands' instead.",
+                  stacklevel=2)
+
+    if not (isinstance(bands, list) or isinstance(bands, tuple)):
+        bands = [bands]
+
+    fig, ax = plot_electron_bands(
+        *bands, k_label=k_labels, mode=mode, not_scaled=not_scaled,
+        energy_range=energy_range, k_range=k_range, band_label=labels, band_color=color,
+        band_linestyle=linestl, band_linewidth=linewidth, fermi_color=fermi,
+        fermi_linewidth=fermiwidth, title=title, figsize=figsize, layout=scheme,
+        sharex=sharex, sharey=sharey, fontsize=fontsize
+    )
+    return fig, ax
+
+
+def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
+                      energy_range=None, dos_range=None, color='blue',
+                      labels=None, linestl=None, linewidth=1, fermi='forestgreen',
+                      title=None, figsize=None):
+    """
+    Obsolute. Use ``plot_electron_doss``.
+    """
+    import warnings
+
+    warnings.warn("You are calling an obsolute function. Use 'plot_electron_doss' instead.",
+                  stacklevel=2)
+    if not (isinstance(doss, list) or isinstance(doss, tuple)):
+        doss = [doss]
+
+    if np.all(energy_range==None):
+        energy_range=[]
+    if np.all(dos_range==None):
+        dos_range=[]
+    if np.all(prj==None):
+        prj=[]
+    if np.all(figsize==None):
+        figsize=[6.4, 4.8]
+
+    fig, ax = plot_electron_doss(
+        *doss, unit=unit, beta=beta, overlap=overlap, prj=prj,
+        energy_range=energy_range, dos_range=dos_range, dos_label=labels,
+        dos_color=color, dos_linestyle=linestl, dos_linewidth=linewidth,
+        fermi_color=fermi, title=title, figsize=figsize
+    )
+    return fig, ax
+
+
+def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False,
+                  labels=None, figsize=[6.4, 4.8], linestl=None,
+                  linewidth=1.0, title=None, beta='down', energy_range=[],
+                  dos_range=[], prj=[]):
+    """
+    Obsolute. Use ``plot_electron_doss``.
+    """
+    import warnings
+
+    warnings.warn("You are calling an obsolute function. Use 'plot_electron_doss' instead.",
+                  stacklevel=2)
+    if not (isinstance(doss, list) or isinstance(doss, tuple)):
+        doss = [doss]
+
+    fig, ax = plot_electron_doss(
+        *doss, beta=beta, overlap=overlap, prj=prj,
+        energy_range=energy_range, dos_range=dos_range, dos_label=labels,
+        dos_color=color, dos_linestyle=linestl, dos_linewidth=linewidth,
+        fermi_color=fermi, title=title, figsize=figsize
+    )
+    return fig, ax
+
+
+def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
+                fermi='forestgreen', energy_range=[], linestl_bd=None,
+                linestl_doss=None, linewidth=1.0, prj=[], figsize=[6.4, 4.8],
+                labels=None, dos_range=[], title=None, dos_beta='down'):
+    """
+    Obsolute. Use ``plot_electron_doss``.
+    """
+    import warnings
+
+    warnings.warn("You are calling an obsolute function. Use 'plot_electron_banddos' instead.",
+                  stacklevel=2)
+
+    fig, ax = plot_cry_es(
+        bands, doss, k_label=k_labels, dos_beta=dos_beta, dos_prj=prj,
+        energy_range=energy_range, dos_range=dos_range, band_color=color_bd,
+        band_linestyle=linestl_bd, band_linewidth=linewidth, dos_label=labels,
+        dos_color=color_doss, dos_linestyle=linestl_doss, dos_linewidth=linewidth,
+        fermi_color=fermi, title=title, figsize=figsize
+    )
+    return fig, ax
+
+
+
+
+

@@ -3125,6 +3125,29 @@ class Properties_output(POutBASE):
         self.echg = ChargeDensity.read_ECHG(f25_file1, f25_file2)
         return self.echg
 
+#------------------------------------------------------------------------------#
+#--------------------------------obsolute methods------------------------------#
+#------------------------------------------------------------------------------#
+    def read_cry_band(self, band_file):
+        """
+        Obsolute. Use ``read_electron_band``.
+        """
+        import warnings
+
+        warnings.warn("You are calling an obsolute function. Use 'read_electron_band' instead.",
+                      stacklevel=2)
+        return self.read_electron_band(band_file)
+
+    def read_cry_doss(self, dos_file):
+        """
+        Obsolute. Use ``read_electron_dos``.
+        """
+        import warnings
+
+        warnings.warn("You are calling an obsolute function. Use 'read_electron_dos' instead.",
+                      stacklevel=2)
+        return self.read_electron_dos(dos_file)
+
 
 
 class Crystal_gui(Crystal_gui):
