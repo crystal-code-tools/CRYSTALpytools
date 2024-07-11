@@ -3843,17 +3843,17 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
     plt.show()
 
 #------------------------------------------------------------------------------#
-#--------------------------------obsolute functions----------------------------#
+#--------------------------------obsolete functions----------------------------#
 #------------------------------------------------------------------------------#
 
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
     """
-    Obsolute. Use ``plot_elastics_3D``.
+    Obsolete. Use ``plot_elastics_3D``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_elastics_3D' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_elastics_3D' instead.",
                   stacklevel=2)
     args = [i for i in args]
     figs, axes = plot_elastics_3D(
@@ -3876,11 +3876,11 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
                        title=None, figsize=None, scheme=None, sharex=True,
                        sharey=True, fontsize=12):
     """
-    Obsolute. Use ``plot_electron_bands``.
+    Obsolete. Use ``plot_electron_bands``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_electron_bands' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_electron_bands' instead.",
                   stacklevel=2)
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
         bands = [bands]
@@ -3907,11 +3907,11 @@ def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=Tr
                   fermi='forestgreen', k_range=[], labels=None, figsize=[6.4, 4.8],
                   scheme=None, sharex=True, sharey=True, fermiwidth=1.5, fermialpha=1):
     """
-    Obsolute. Use ``plot_electron_bands``.
+    Obsolete. Use ``plot_electron_bands``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_electron_bands' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_electron_bands' instead.",
                   stacklevel=2)
 
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
@@ -3932,11 +3932,11 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
                       title=None, figsize=None):
     """
-    Obsolute. Use ``plot_electron_doss``.
+    Obsolete. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_electron_doss' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_electron_doss' instead.",
                   stacklevel=2)
     if not (isinstance(doss, list) or isinstance(doss, tuple)):
         doss = [doss]
@@ -3964,11 +3964,11 @@ def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False,
                   linewidth=1.0, title=None, beta='down', energy_range=[],
                   dos_range=[], prj=[]):
     """
-    Obsolute. Use ``plot_electron_doss``.
+    Obsolete. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_electron_doss' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_electron_doss' instead.",
                   stacklevel=2)
     if not (isinstance(doss, list) or isinstance(doss, tuple)):
         doss = [doss]
@@ -3987,11 +3987,11 @@ def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
                 linestl_doss=None, linewidth=1.0, prj=[], figsize=[6.4, 4.8],
                 labels=None, dos_range=[], title=None, dos_beta='down'):
     """
-    Obsolute. Use ``plot_electron_doss``.
+    Obsolete. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolute function. Use 'plot_electron_banddos' instead.",
+    warnings.warn("You are calling an obsolete function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
 
     fig, ax = plot_cry_es(

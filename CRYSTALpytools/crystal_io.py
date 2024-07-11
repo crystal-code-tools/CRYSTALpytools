@@ -3126,25 +3126,25 @@ class Properties_output(POutBASE):
         return self.echg
 
 #------------------------------------------------------------------------------#
-#--------------------------------obsolute methods------------------------------#
+#--------------------------------obsolete methods------------------------------#
 #------------------------------------------------------------------------------#
     def read_cry_band(self, band_file):
         """
-        Obsolute. Use ``read_electron_band``.
+        Obsolete. Use ``read_electron_band``.
         """
         import warnings
 
-        warnings.warn("You are calling an obsolute function. Use 'read_electron_band' instead.",
+        warnings.warn("You are calling an obsolete function. Use 'read_electron_band' instead.",
                       stacklevel=2)
         return self.read_electron_band(band_file)
 
     def read_cry_doss(self, dos_file):
         """
-        Obsolute. Use ``read_electron_dos``.
+        Obsolete. Use ``read_electron_dos``.
         """
         import warnings
 
-        warnings.warn("You are calling an obsolute function. Use 'read_electron_dos' instead.",
+        warnings.warn("You are calling an obsolete function. Use 'read_electron_dos' instead.",
                       stacklevel=2)
         return self.read_electron_dos(dos_file)
 
