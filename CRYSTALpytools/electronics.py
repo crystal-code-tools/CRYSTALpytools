@@ -422,20 +422,28 @@ class ElectronBandDOS():
         self.dos = dos
 
     @classmethod
-    def from_file(cls, band, dos, output=None):
+    def from_file(cls, *files, output=None):
         """
         Get ElectronBandDOS object from files
 
         Args:
-            band (str): 'fort.25' or 'BAND.DAT'
-            dos (str): 'fort.25' or 'DOSS.DAT'
+            *files (str): 2 files, the first one is for band, 'fort.25' or
+                'BAND.DAT'; the second one is for DOS, 'fort.25' or 'DOSS.DAT'.
+                Or a single 'fort.25' file with both band and DOS.
             output (str): Property output file
         Returns:
             cls (ElectronBandDOS)
         """
         from CRYSTALpytools.electronics import ElectronBand, ElectronDOS
 
-        return cls(ElectronBand.from_file(band, output), ElectronDOS.from_file(dos))
+        if len(files)==1:
+            return cls(ElectronBand.from_file(files[0], output),
+                       ElectronDOS.from_file(files[0]))
+        elif len(files)==2:
+            return cls(ElectronBand.from_file(files[0], output),
+                       ElectronDOS.from_file(files[1]))
+        else:
+            raise ValueError('Only 1 or 2 entries are permitted.')
 
     def plot(self, **kwargs):
         """

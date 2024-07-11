@@ -396,7 +396,8 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
                 band_color = [[i[0], i[1]] for i in band_color]
     else: # defalut setups of band color
         clist = list(mcolors.TABLEAU_COLORS.keys())
-        band_color = [[clist[i], clist[i]] for i in range(nsys)]
+        nclist = len(clist)
+        band_color = [[clist[i%nclist], clist[i%nclist]] for i in range(nsys)]
     ## line style
     if np.all(band_linestyle!=None):
         if isinstance(band_linestyle, str):

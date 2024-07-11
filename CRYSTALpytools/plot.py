@@ -590,8 +590,8 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
         fermi_color (str): Color of the Fermi level.
         fermi_linestyle (str): Line style of Fermi level.
         fermi_linewidth(float): Width of the Fermi level.
-        layout (list|tuple): For 'compare' mode, the layout of subplots. The
-            default is 2 cols per row.
+        layout (list|tuple): For 'compare' mode, the layout of subplots,
+            \[nrow, ncol\]. The default is 2 cols per row.
         title (str): The title of the plot.
         figsize (list): The figure size specified as \[width, height\].
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
@@ -701,7 +701,7 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
                        dos_color=None, dos_linestyle=None, dos_linewidth=None,
                        fermi_level=0., fermi_color='tab:green', fermi_linestyle='-',
                        fermi_linewidth=1.0, title=None, figsize=[6.4, 4.8],
-                       legend='lower right', sharex=True, sharey=True,
+                       legend='lower right', sharex=True, sharey=False,
                        fontsize=14, **kwargs):
     """
     Plot electron density of states.
@@ -3130,10 +3130,11 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
 
     # set colors, nTensplt*nProperty
     clist = list(mcolors.TABLEAU_COLORS.keys())
+    nclist = len(clist)
     if len(property) == 1 and len(tensplt) > 1:
-        colors = [[clist[i]] for i in range(len(tensplt))]
+        colors = [[clist[i%nclist]] for i in range(len(tensplt))]
     else:
-        colors = [[clist[i] for i in range(len(property))] for j in range(len(tensplt))]
+        colors = [[clist[i%nclist] for i in range(len(property))] for j in range(len(tensplt))]
 
     # plot
     if uniform_scale_2D == False: # Non-uniform scale

@@ -463,6 +463,7 @@ class Tensor3D():
             rmax = None
 
         pcolor = list(mcolors.TABLEAU_COLORS.keys())
+        npcolor = len(pcolor)
         for iplot, v0 in enumerate(planeplt):
             # plot 1D vectors
             if np.all(u!=None):
@@ -514,12 +515,12 @@ class Tensor3D():
 
             if len(planeplt) > 1:
                 ax.flat[iplot] = _plot2D_single(
-                        ax.flat[iplot], chi, r[iplot, :], v0, pcolor[iplot%10],
+                        ax.flat[iplot], chi, r[iplot, :], v0, pcolor[iplot%npcolor],
                         title, rmax, uplt, utextplt, platt
                 )
             else:
                 ax = _plot2D_single(
-                        ax, chi, r[iplot, :], v0, pcolor[iplot%10],
+                        ax, chi, r[iplot, :], v0, pcolor[iplot%npcolor],
                         title, rmax, uplt, utextplt, platt
                 )
 
