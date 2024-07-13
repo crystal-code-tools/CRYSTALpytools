@@ -74,7 +74,7 @@ class AtomBS():
         """
         from mendeleev import element
         import numpy as np
-        import warnings
+        import warnings, copy
         try:
             import basis_set_exchange as bse
         except ImportError:
@@ -83,42 +83,66 @@ class AtomBS():
         zreal = int(z)%100
         dic = bse.get_basis(bs, elements=[element(zreal).symbol])
 
-        # ECP basis sets, do not automatically assign charge
-        if np.all(dic['elements'][str(zreal)].get('ecp_potentials')!=None):
-            warnings.warn('ECP is used. Automatic assignment of atomic charge is disabled.', stacklevel=2)
-            shellname = 'ecp_potentials'
-            expname = 'gaussian_exponents'
-            coeffname = 'coefficients'
-            nshell = len(dic['elements'][str(zreal)][shellname])
-            obj = cls(z, nshell)
-            chg = [0. for i in range(nshell)]
-        else:
-            shellname = 'electron_shells'
-            expname = 'exponents'
-            coeffname = 'coefficients'
-            nshell = len(dic['elements'][str(zreal)][shellname])
-            obj = cls(z, nshell)
-            chg = obj._assign_charge(obj.element, dic) # Assign charge
+        try:
+            nshell = len(dic['elements'][str(zreal)]['electron_shells'])
+        except KeyError:
+            raise ValueError("Specified basis set '{}' does not have GTO definitions. Is it a pesudopotential name?".format(bs))
+        # some basis set definitions do not use 'electron_shells' entry but repeats coefficients
+        nshell = 0
+        dicold = copy.deepcopy(dic)
+        dic['elements'][str(zreal)]['electron_shells'] = []
+        for ishell, shell in enumerate(dicold['elements'][str(zreal)]['electron_shells']):
+            # Convert them into Non-repeated coefficients, 1 entry for 1 shell
+            nshell_ang = len(shell['coefficients'])
+            ## Do not covert sp orbitals or non-repeated definitions
+            if len(shell['angular_momentum']) == nshell_ang: 
+                nshell += 1
+                dic['elements'][str(zreal)]['electron_shells'].append(
+                        {
+                            'function_type'    : shell['function_type'],
+                            'region'           : shell['region'],
+                            'angular_momentum' : shell['angular_momentum'],
+                            'exponents'        : shell['exponents'],
+                            'coefficients'     : shell['coefficients']
+                        }
+                    )
+            ## Convert
+            else:
+                nshell += nshell_ang
+                for jshell in range(nshell_ang):
+                    coeff = np.array(shell['coefficients'][jshell], dtype=float)
+                    idx_real = np.where(coeff!=0.)[0]
+                    dic['elements'][str(zreal)]['electron_shells'].append(
+                        {
+                            'function_type'    : shell['function_type'],
+                            'region'           : shell['region'],
+                            'angular_momentum' : shell['angular_momentum'],
+                            'exponents'        : [shell['exponents'][int(k)] for k in idx_real],
+                            'coefficients'     : [[str(k) for k in coeff[idx_real]]]
+                        }
+                    )
+        obj = cls(z, nshell)
+        chg = obj._assign_charge(obj.element, dic) # automatically assign charge
 
         # Add GTO shell
         for ishell in range(nshell):
-            angshell = dic['elements'][str(zreal)][shellname][ishell]['angular_momentum']
-            if len(angshell) == 1: # angular momentum in CRYSTAL format
+            angshell = dic['elements'][str(zreal)]['electron_shells'][ishell]['angular_momentum']
+            if len(angshell) == 1: # s,p,d,f,g angular momentum in CRYSTAL format
                 angshell = angshell[0]
                 if angshell == 0:
                     angcrys = angshell
                 else:
                     angcrys = angshell + 1
-            else:
+            else: # sp angular momentum in CRYSTAL format
                 angcrys = 1
 
             if angcrys > 5:
                 raise ValueError('H orbital and beyond is not available.')
 
-            ngto = len(dic['elements'][str(zreal)][shellname][ishell][expname])
+            ngto = len(dic['elements'][str(zreal)]['electron_shells'][ishell]['exponents'])
             orbs = np.vstack([
-                np.array(dic['elements'][str(zreal)][shellname][ishell][expname], dtype=float),
-                np.array(dic['elements'][str(zreal)][shellname][ishell][coeffname], dtype=float)
+                np.array(dic['elements'][str(zreal)]['electron_shells'][ishell]['exponents'], dtype=float),
+                np.array(dic['elements'][str(zreal)]['electron_shells'][ishell]['coefficients'], dtype=float)
             ]).transpose()
             obj.define_a_shell(0, angcrys, ngto, chg[ishell], 1.0, orbitals=orbs)
 
@@ -144,52 +168,67 @@ class AtomBS():
         import numpy as np
 
         z = str(element.atomic_number)
-        # ECP basis sets not allowed
+
+        # Get orbitals defined in the BS
+        econf = [i for i in element.ec.conf]
+        # ECP basis sets
         if np.all(bs['elements'][z].get('ecp_potentials')!=None):
-            raise ValueError('Only all-electron basis sets are supported.')
+            orbitals = []
+            corechg = bs['elements'][z]['ecp_electrons']
+            totchg = element.atomic_number
+            for i in econf[::-1]:
+                if corechg == totchg: # all valence electron got
+                    break
+                elif corechg + element.ec.conf[i] > totchg: # filled d/f/g orbitals
+                    continue
+                corechg = corechg + element.ec.conf[i]
+                orbitals.append(i)
 
-        nshell = len(bs['elements'][z]['electron_shells'])
-        chg = []
+            orbitals = [i for i in orbitals[::-1]]
+        else: # all electron BS
+            orbitals = econf
 
-        ang = 0 # Angular momentum
-        nang = 0 # counter of same angular momentum
+        # reorder orbitals by s, p, d...
         ang_symbol = {0 : 's', 1 : 'p', 2 : 'd', 3 : 'f', 4 : 'g'}
+        re_orbitals = []
+        for i in ['s', 'p', 'd', 'f', 'g']: # s to g orbitals
+            for j in range(1, 10): # arbitrary
+                if (j, i) in orbitals:
+                    re_orbitals.append((j, i))
+
+        chg = []
+        nshell = len(bs['elements'][z]['electron_shells'])
+        iorbital = 0 # counter for orbitals
         for ishell in range(nshell):
             # Assign charges of physical shells to GTO shells
             angshell = bs['elements'][z]['electron_shells'][ishell]['angular_momentum']
             if len(angshell) == 1: # s, p, d, f, g orbitals
                 angshell = angshell[0]
-                if ang != angshell:
-                    ang = angshell
-                    nang = 1
-                else:
-                    nang += 1
-
                 try:
-                    chg.append(float(element.ec.conf[(nang+ang, ang_symbol[ang])])) # 1s, 2p, 3d ...
-                except:
+                    if ang_symbol[angshell] == re_orbitals[iorbital][1]: # same symbol, fill electrons in
+                        chg.append(float(element.ec.conf[re_orbitals[iorbital]]))
+                        iorbital += 1
+                    else: # split-valance orbitals
+                        chg.append(0.)
+                except IndexError: # polarization orbitals
                     chg.append(0.)
-
             else: # sp orbitals
-                angshell = -1
-                if ang != angshell:
-                    ang = angshell
-                    nang = 1
-                else:
-                    nang += 1
-
-                # In case that s but no p
                 try:
-                    schg = float(element.ec.conf[(nang+1, 's')]) # 2sp ...
-                except:
-                    schg = 0.
-                try:
-                    pchg = float(element.ec.conf[(nang+1, 'p')]) # 2sp ...
-                except:
-                    pchg = 0.
-
-                chg.append(schg + pchg)
-
+                    n = re_orbitals[iorbital][0]
+                    sporbs = []
+                    for i in re_orbitals:
+                        if i[0] != n:
+                            continue
+                        if i[1] == 'd': # remove d, f.. orbitals
+                            break
+                        sporbs.append(i)
+                    chgsp = 0.
+                    for i in sporbs:
+                        chgsp += float(element.ec.conf[i])
+                        re_orbitals.remove(i) # current index must corresponds to 's'. Not +1
+                    chg.append(chgsp)
+                except IndexError: # split-valance or polarization orbitals
+                    chg.append(0.)
         return chg
 
     @classmethod
@@ -283,10 +322,11 @@ class BasisSetBASE():
     can be read and saved as a list of ``AtomBS`` objects. 
     """
 
-    def __init__(self):
-        self.atoms = []
+    def __init__(self, atoms=[]):
+        self.atoms = atoms
 
-    def from_bse(self, bs, z):
+    @classmethod
+    def from_bse(cls, bs, z):
         """
         Get or append basis sets from `Basis Set Exchange(BSE) <https://www.basissetexchange.org/>`_.
 
@@ -294,7 +334,7 @@ class BasisSetBASE():
             bs (str): Name of basis set. Only one name is accepted.
             z (int | list[int]): Conventional atomic number.
         Returns:
-            self
+            cls
         """
         # from CRYSTALpytools.base.basisset import AtomBS
 
@@ -303,12 +343,10 @@ class BasisSetBASE():
         elif type(z) != list and type(z) != tuple:
             raise ValueError('Conventional atomic number must be either list or int.')
 
-        for onez in z:
-            self.atoms.append(AtomBS.read_bse(bs, onez))
+        return cls([AtomBS.read_bse(bs, onez) for onez in z])
 
-        return self
-
-    def from_string(self, bs, fmt='crystal'):
+    @classmethod
+    def from_string(cls, bs, fmt='crystal'):
         """
         Parse basis set strings.
 
@@ -319,7 +357,7 @@ class BasisSetBASE():
                 Charge of each shell will be automatically assigned to get
                 charge neutral atoms if ``fmt`` is not 'crystal'.
         Returns:
-            self
+            cls
         """
         from mendeleev import element
         import re
@@ -331,6 +369,7 @@ class BasisSetBASE():
 In this case, only 'fmt=crystal' is accepted.""")
         # from CRYSTALpytools.base.basisset import AtomBS
 
+        atoms = []
         if fmt.lower() != 'crystal':
             bs = bse.read_formatted_basis_str(bs, fmt)
             # get definitions of inidival atoms
@@ -354,7 +393,7 @@ In this case, only 'fmt=crystal' is accepted.""")
                 chg = atom._assign_charge(elementlist[i], atomlist[i])
                 for sh in range(len(atom.shells)):
                     atom.shells[sh]['charge'] = chg[sh]
-                self.atoms.append(atom)
+                atoms.append(atom)
 
         else:
             bs = bs.strip().split('\n')
@@ -363,7 +402,7 @@ In this case, only 'fmt=crystal' is accepted.""")
             for line in bs:
                 if re.match(r'^\s*[0-9]+\s+[0-9]+$', line):
                     if block != '':
-                        self.atoms.append(AtomBS.read_crystal(block))
+                        atoms.append(AtomBS.read_crystal(block))
                     data = line.strip().split()
                     if data[0] == '99' and data[1] == '0':
                         block = ''
@@ -377,11 +416,12 @@ In this case, only 'fmt=crystal' is accepted.""")
                     block += line + '\n'
             # When '99 0' is not added
             if block != '':
-                self.atoms.append(AtomBS.read_crystal(block))
+                atoms.append(AtomBS.read_crystal(block))
 
-        return self
+        return cls(atoms)
 
-    def from_file(self, bs, fmt='crystal'):
+    @classmethod
+    def from_file(cls, bs, fmt='crystal'):
         """
         Parse basis set files.
 
@@ -392,14 +432,12 @@ In this case, only 'fmt=crystal' is accepted.""")
                 Charge of each shell will be automatically assigned to get
                 charge neutral atoms.
         Returns:
-            self
+            cls
         """
         file = open(bs, 'r')
         bstr = file.read()
         file.close()
-        self.from_string(bs=bstr, fmt=fmt)
-
-        return self
+        return cls.from_string(bs=bstr, fmt=fmt)
 
     def print_crystal(self):
         """

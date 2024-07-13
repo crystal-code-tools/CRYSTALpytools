@@ -36,16 +36,17 @@ class Crystal_input(Crystal_inputBASE):
                 inp.close()
             super().analyze_text(source)
 
-    def read_file(self, source):
+    @classmethod
+    def from_file(cls, source):
         """
-        Initialize the object if not yet done.
+        Instantiate class object from file.
 
         Args:
             source (str): The name of the input file.
         Returns:
-            self (Crystal_input)
+            cls (Crystal_input)
         """
-        self.__init__(source)
+        return cls(source)
 
     def write_file(self, file):
         """
@@ -150,7 +151,7 @@ class Crystal_input(Crystal_inputBASE):
             z (list[int]): List of elements, specified by conventional atomic
                 numbers. BSE only.
             fmt (str): Format string. Consistent with `BSE python API
-                       <https://molssi-bse.github.io/basis_set_exchange/usage.html#versioning>`_.
+                       <https://molssi-bse.github.io/basis_set_exchange/bse_cli.html#list-formats>`_.
                        For string and files.
             append (bool): Whether to cover old entries. If the old entry
                 contains 'BASISSET', it will be removed anyway. Useful when
@@ -186,7 +187,7 @@ class Crystal_input(Crystal_inputBASE):
                 if found_atom == False:
                     raise Exception('Unknown z value.')
                 if len(at.shells) != len(charge[i]):
-                    raise Exception('Charge definition of element {} is inconsistent with its basis set.'.format(i))
+                    raise Exception('Charge definition of element {} is inconsistent with its basis set. {} entries required.'.format(i, len(at.shells)))
                 for ishell, chg in enumerate(charge[i]):
                     self.basisset._bs_obj.atoms[j].shells[ishell]['charge'] = chg
 
@@ -227,6 +228,17 @@ class Crystal_input(Crystal_inputBASE):
         """
         self.basisset.basisset(keyword)
         return self
+
+#-------------------------------obsolete methods-------------------------------#
+    def read_file(self, source):
+        """
+        Obsolete, not safe.
+        """
+        import warnings
+
+        warnings.warn("You are calling an obsolete method. Use the classmethod 'from_file' instead.",
+                      stacklevel=2)
+        self.__init__(source)
 
 
 class Crystal_output:
@@ -2141,16 +2153,17 @@ class Properties_input(Properties_inputBASE):
                 inp.close()
             super().analyze_text(source)
 
-    def read_file(self, source):
+    @classmethod
+    def from_file(cls, source):
         """
-        Initialize the object if not yet done.
+        Instantiate the object from a file.
 
         Args:
             source (str): The name of the input file.
         Returns:
-            self (Properties_input)
+            cls (Properties_input)
         """
-        self.__init__(source)
+        return cls(source)
 
     def write_file(self, file):
         """
@@ -2164,7 +2177,7 @@ class Properties_input(Properties_inputBASE):
         out.close()
         return self
 
-    def make_bands_block(self, k_path, n_kpoints, first_band, last_band,
+    def make_band_block(self, k_path, n_kpoints, first_band, last_band,
                          print_eig=0, print_option=1, precision=5,
                          title='BAND STRUCTURE CALCULATION'):
         """
@@ -2286,6 +2299,18 @@ class Properties_input(Properties_inputBASE):
             return self.doss(len(prj), n_points, -1, -1, plotting_option, poly, print_option, e_range, prj)
 
 
+#-------------------------------obsolete methods-------------------------------#
+    def read_file(self, source):
+        """
+        Obsolete. Not safe.
+        """
+        import warnings
+
+        warnings.warn('You are calling an obsolete method. Use the classmethod from_file() instead.',
+                      stacklevel=2)
+        self.__init__(source)
+        return self
+
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None,
                          n_points=200, band_range=None, e_range=None,
                          plotting_option=2, poly=12, print_option=1):
@@ -2306,6 +2331,18 @@ class Properties_input(Properties_inputBASE):
 
         warnings.warn('Deprecated. Use newk() method instead.', stacklevel=2)
         return self.newk(shrink1, shrink2, Fermi, print_option)
+
+    def make_bands_block(self, k_path, n_kpoints, first_band, last_band,
+                         print_eig=0, print_option=1, precision=5,
+                         title='BAND STRUCTURE CALCULATION'):
+        """
+        Deprecated. Use ``self.make_band_block()``.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use make_band_block() method instead.', stacklevel=2)
+        return self.make_band_block(k_path, n_kpoints, first_band, last_band, print_eig,
+                                    print_option, precision, title)
 
     def from_file(self, input_name):
         """
