@@ -37,7 +37,7 @@ class Crystal_input(Crystal_inputBASE):
             super().analyze_text(source)
 
     @classmethod
-    def from_file(cls, source):
+    def read_file(cls, source):
         """
         Instantiate class object from file.
 
@@ -229,67 +229,54 @@ class Crystal_input(Crystal_inputBASE):
         self.basisset.basisset(keyword)
         return self
 
-#-------------------------------obsolete methods-------------------------------#
-    def read_file(self, source):
-        """
-        Obsolete, not safe.
-        """
-        import warnings
-
-        warnings.warn("You are calling an obsolete method. Use the classmethod 'from_file' instead.",
-                      stacklevel=2)
-        self.__init__(source)
-
 
 class Crystal_output:
     """
     This class reads a CRYSTAL output and generates an object.
 
     Args:
-        output (str): Filename
+        output_name (str): Filename
     """
 
-    def __init__(self, output=None):
-        if np.all(output!=None):
-            self.read_file(output)
+    def __init__(self, output_name=None):
+        import re
 
-    def read_file(self, output_name):
+        if np.all(output_name!=None):
+            self.name = output_name
+            # Check if the file exists
+            try:
+                if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
+                    output_name = output_name+'.out'
+                file = open(output_name, 'r', errors='ignore')
+                self.data = file.readlines()
+                file.close()
+            except:
+                raise FileNotFoundError('EXITING: a .out file needs to be specified')
+
+            # Check the calculation terminated correctly
+            self.terminated = False
+
+            for i, line in enumerate(self.data[::-1]):
+                if re.match(r'^ EEEEEEEEEE TERMINATION', line):
+                    self.terminated = True
+                    # This is the end of output
+                    self.eoo = len(self.data)-1-i
+                    break
+
+            if self.terminated == False:
+                self.eoo = len(self.data)
+
+    @classmethod
+    def read_file(cls, output_name):
         """
         Reads a CRYSTAL output file.
 
         Args:
             output_name (str): Name of the output file.
         Returns:
-            self (Crystal_output)
+            cls (Crystal_output)
         """
-        import re
-
-        self.name = output_name
-
-        # Check if the file exists
-        try:
-            if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
-                output_name = output_name+'.out'
-            file = open(output_name, 'r', errors='ignore')
-            self.data = file.readlines()
-            file.close()
-        except:
-            raise FileNotFoundError('EXITING: a .out file needs to be specified')
-
-        # Check the calculation terminated correctly
-        self.terminated = False
-
-        for i, line in enumerate(self.data[::-1]):
-            if re.match(r'^ EEEEEEEEEE TERMINATION', line):
-                self.terminated = True
-                # This is the end of output
-                self.eoo = len(self.data)-1-i
-                break
-
-        if self.terminated == False:
-            self.eoo = len(self.data)
-
-        return self
+        return cls(output_name=output_name)
 
     def get_dielectric_tensor(self):
         """Extracts the dielectric tensor from the output.
@@ -2154,7 +2141,7 @@ class Properties_input(Properties_inputBASE):
             super().analyze_text(source)
 
     @classmethod
-    def from_file(cls, source):
+    def read_file(cls, source):
         """
         Instantiate the object from a file.
 
@@ -2300,17 +2287,6 @@ class Properties_input(Properties_inputBASE):
 
 
 #-------------------------------obsolete methods-------------------------------#
-    def read_file(self, source):
-        """
-        Obsolete. Not safe.
-        """
-        import warnings
-
-        warnings.warn('You are calling an obsolete method. Use the classmethod from_file() instead.',
-                      stacklevel=2)
-        self.__init__(source)
-        return self
-
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None,
                          n_points=200, band_range=None, e_range=None,
                          plotting_option=2, poly=12, print_option=1):
@@ -2380,11 +2356,26 @@ class Properties_output(POutBASE):
     """
 
     def __init__(self, properties_output=None):
-        if np.all(properties_output!=None):
-            self.read_file(properties_output)
-        else:
-            pass
+        import os
 
+        if np.all(properties_output!=None):
+            self.file_name = properties_output
+            try:
+                file = open(self.file_name, 'r')
+                self.data = file.readlines()
+                file.close()
+
+                # directory
+                dir_name = os.path.split(properties_output)[0]
+                self.abspath = os.path.join(dir_name)
+
+                # title (named "title" only to distinguish from "file_name" which means another thing)
+                self.title = os.path.split(properties_output)[1]
+
+            except:
+                raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+
+    @classmethod
     def read_file(self, properties_output):
         """
         Parse the properties output file.
@@ -2392,26 +2383,9 @@ class Properties_output(POutBASE):
         Args:
             properties_output (str): The properties output file.
         Returns:
-            Properties_output: The updated Properties_output object.
+            cls (Properties_output)
         """
-        import os
-
-        self.file_name = properties_output
-
-        try:
-            file = open(self.file_name, 'r')
-            self.data = file.readlines()
-            file.close()
-
-            # directory
-            dir_name = os.path.split(properties_output)[0]
-            self.abspath = os.path.join(dir_name)
-
-            # title (named "title" only to distinguish from "file_name" which means another thing)
-            self.title = os.path.split(properties_output)[1]
-
-        except:
-            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+        return cls(properties_output=properties_output)
 
     def read_vecfield(self, properties_output, which_prop):
         """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
