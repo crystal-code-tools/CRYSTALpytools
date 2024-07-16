@@ -2569,6 +2569,72 @@ class Properties_output(POutBASE):
 
         return self.doss
 
+    def read_topond2D(self, topond2d, type='infer'):
+        """
+        Read the 2D scalar plot files ('SURF*.DAT') written by
+        `TOPOND <https://tutorials.crystalsolutions.eu/tutorials/topond/topond_manual.pdf>`_.
+
+        Geometry information is printed in the standard ouput, whose method is
+        under developing.
+
+        .. note::
+
+            For the convenience of analysis and plotting, it is important to select
+            the correct type for your input file. By default `type='infer'` will
+            search for (case insensitive) the following strings:
+
+            ``'SURFRHOO','SURFSPDE','SURFLAPP','SURFLAPM','SURFGRHO','SURFKKIN','SURFGKIN','SURFVIRI','SURFELFB'``
+
+            For their meanings, please refer `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
+
+        Args:
+            topond2d (str): TOPOND formatted 2D plot file
+            type (str): 'infer' or specified. Otherwise warning will be given.
+
+        Returns:
+            self.topond_\* (ChargeDenstiy): Return to the ``topond_*`` with type
+                suffixed (all capital). If type is unknown, return to
+                ``topond_unknown``. All of them are ``topond.Surf`` class.
+        """
+        import warnings
+        from CRYSTALpytools.base import TOPONDParser
+        from CRYSTALpytools.topond import Surf
+
+        if not hasattr(self, 'file_name'):
+            warnings.warn('Properties output file not found: Geometry not available',
+                          stacklevel=2)
+            struc = None
+
+        typelist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+                    'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB']
+
+        foundtype = False
+        if type.lower() == 'infer':
+            for t in typelist:
+                if t in topond2d.upper():
+                    type = t
+                    foundtype = True
+                    break
+            if foundtype != True:
+                warnings.warn("File name '{}' does not contain the known type strings, unknown type.".format(topond2d),
+                              stacklevel=2)
+                type = 'unknown'
+        else:
+            for t in typelist:
+                if t == type.upper():
+                    type = type.upper()
+                    foundtype = True
+                    break
+            if foundtype != True:
+                raise ValueError("Unknown type specification: '{}'. Use 'infer' or check your input.".format(type))
+
+        _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(file)
+
+        obj = Surf(map1, np.vstack([a,b,c]), type, struc, unit)
+        obj._set_unit('Angstrom')
+        setattr(self, 'topond_{}'.format(type), obj)
+        return getattr(self, 'topond_{}'.format(type))
+
     def read_cry_contour(self, properties_output):
         """Read the CRYSTAL contour files to create the contour objects.
 

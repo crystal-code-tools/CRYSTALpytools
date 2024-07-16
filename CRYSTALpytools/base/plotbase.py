@@ -637,68 +637,80 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
     return fig, fig.axes
 
 
-def plot_2Dscalar(datamap, gridv, levels, xticks, yticks, cmap_max, cmap_min, cbar_label):
+def plot_2Dscalar(ax, data, base, levels, contourline, isovalue, colormap,
+                  xticks, yticks, cbar_label, **kwargs):
     """
     Plot 2D scalar field map.
 
     Args:
-        datamap (array): 2D map data.
-        gridv (array): 2\*3 base vectors of 2D map.
-        levels (int | array-like): Determines the number and positions of the contour lines/regions.
+        ax (Axes): Matplotlib Axes object
+        data (array): 2D map data.
+        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+            2D map. Vectors BA and BC are used.
+        levels (array|None): Contour line / color isovalues. It also defines
+            the range of data.
+        contourline (list|None): If not None, set line styles and colors of
+            every contourline. nLevel\*3 list of matplotlib plot color,
+            linestyle and linewidth.
+        isovalue (str|None): If not None, set the format of isovalues added to
+            contourlines. Useful only when ``contourline`` is not None.
+        colormap (str|None): If not None, set the colormap of color-filled
+            contour plots.
         xticks (int): Number of ticks in the x direction.
         yticks (int): Number of ticks in the y direction.
-        cmap_max (float): Maximum value used for the colormap.
-        cmap_min (float): Minimun value used for the colormap.
-        cbar_label (str): Title of colorbar (typically for quantuity and unit)
+        cbar_label (str): Title of colorbar. Useful only when ``colormap`` is
+            not None.
+        \*\*kwargs: Other arguments passed to ``axes.contour()`` function to
+            set contour lines.
 
     Returns:
-        fig (Figure): Matplotlib figure object
         ax (Axes): Matplotlib axes object
     """
-    import matplotlib.pyplot as plt
     import numpy as np
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import matplotlib.pyplot as plt
+    from matplotlib import cm, colors
 
-    vector_ab = gridv[0, :]
-    length_ab = np.norm(v1)
-    vector_cb = gridv[1, :]
-    length_cb = np.norm(v2)
-    points_ab = datamap.shape[0]
-    points_cb = datamap.shape[1]
-    cosxy = np.dot(vector_ab, vector_cb) / \
-        np.norm(vector_ab) / np.norm(vector_cb)
+    vx = base[0, :] - base[1, :] # BA
+    len_vx = np.norm(vx)
+    npt_vx = data.shape[0]
+    vy = base[2, :] - base[1, :] # BC
+    len_vy = np.norm(vy)
+    npt_vy = data.shape[1]
+    sinxy = np.linalg.norm(np.cross(vx, vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
 
-    mesh_x = np.zeros((points_ab, points_cb), dtype=float)
-    mesh_y = np.zeros((points_ab, points_cb), dtype=float)
-    for i in range(0, points_ab):
-        for j in range(0, points_cb):
-            mesh_y[i, j] = (lenght_ab / points_ab) * i * np.sqrt(1 - cosxy**2)
-            mesh_x[i, j] = (lenght_cb / points_cb) * j + \
-                (lenght_ab / points_ab) * i * cosxy
+    X, Y = np.meshgrid(np.linspace(0, len_vx, npt_vx+1),
+                       np.linspace(0, len_vy, npt_vy+1))
+    # Non-orthogonal grids
+    Y = Y * sinxy
 
-    if cmap_max is None:
-        max_data = np.amax(datamap)
-    else:
-        max_data = cmap_max
+    # plot, put colormap at the back
+    if np.all(colormap!=None):
+        ax.contourf(X, Y, data, levels, cmap=colormap, vmin=np.min(levels), vmax=np.max(levels))
+        norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
+        m = cm.ScalarMappable(cmap=colormap, norm=norm)
+        m.set_array(levels)
+        colorbar = plt.colorbar(
+            m, cax=ax, location='right', orientation='vertical', pad=0.05, shrink=0.5
+        )
+        if np.all(cbar_label!=None):
+            colorbar.set_label(cbar_label, rotation=270)
 
-    if cmap_min is None:
-        min_data = np.amin(datamap)
-    else:
-        min_data = cmap_min
+    if np.all(contourline!=None):
+        if len(contourline) != len(levels):
+            raise ValueError('Inconsistent lengthes of contour line and contour line styles')
+        clist = []; stlist = []; wlist = []
+        for i in countourline:
+            clist.append(i[0]); stlist.append(i[1]); wlist.append(i[2])
 
-    fig, ax = plt.subplots()
-    im = ax.contourf(mesh_x, mesh_y, dens, levels, cmap='gnuplot')
-    divider = make_axes_locatable(ax)
-    im.set_clim(vmin=min_data, vmax=max_data)
-    cax = divider.append_axes('right', size='5%', pad=0.05)
-    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
-    cbar.set_label(cbar_label, rotation=270)
-    ax.set_xlabel('$\AA$')
-    ax.set_xticks(np.linspace(0, lenght_cb, xticks).tolist())
-    ax.set_yticks(np.linspace(0, lenght_ab, yticks).tolist())
-    ax.set_ylabel('$\AA$')
+        L = ax.contour(X, Y, data, levels, colors=clist, linestyles=stlist,
+                       linewidths=wlist, **kwargs)
+        if np.all(isovalue!=None):
+            ax.clabel(L, inline=1, fmt=isovalue)
+
+    ax.set_xticks(np.round(np.linspace(0, len_vx, xticks), 2))
+    ax.set_yticks(np.round(np.linspace(0, len_vy, yticks), 2))
     ax.set_aspect(1.0)
-    ax.set_xlim(np.amin(mesh_x), np.amax(mesh_x))
-    ax.set_ylim(0, np.amax(mesh_y) * np.sqrt(1 - obj_echg.cosxy**2))
+    ax.set_xlim(np.min(X), np.max(X))
+    ax.set_ylim(np.min(Y), np.max(Y))
 
-    return fig, ax
+    return ax

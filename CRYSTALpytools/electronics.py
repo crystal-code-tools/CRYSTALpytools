@@ -489,7 +489,7 @@ class ChargeDensity():
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
 
-    def __init__(self, spin, gridv, chgmap, spinmap=None, struc=None, unit='Angstrom'):
+    def __init__(self, spin, gridv, chgmap, struc=None, unit='Angstrom'):
         import numpy as np
 
         self.spin = spin

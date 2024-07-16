@@ -517,3 +517,58 @@ class XmgraceParser():
             doss = thz_to_cm(doss)
 
         return spin, efermi, doss, energy, unit
+
+
+
+class TOPONDParser():
+    """
+    A collection of functions to parse TOPOND output files. Instantiation of
+    this object is not recommaneded.
+    """
+    @classmethod
+    def contour2D(cls, filename):
+        """
+        Parse TOPOND 2D scalar contour plot files (SURF*.DAT). Unit: a.u.
+        """
+        import numpy as np
+        import pandas as pd
+
+        file = open(filename, 'r')
+        tmp = file.readline()
+        tmp = file.readline()
+        npt_x, npt_y = tmp.strip().split()
+        tmp = file.readline()
+        x_min, x_max, _ = tmp.strip().split()
+        tmp = file.readline()
+        y_min, y_max, _ = tmp.strip().split()
+        file.close()
+        npt_x = int(npt_x); npt_y = int(npt_y)
+
+        # To be commensurate with CrgraParser.mapn
+        spin = 1
+        a = np.array([x_min, y_max, 0.], dtype=float)
+        b = np.array([x_min, y_min, 0.], dtype=float)
+        c = np.array([x_max, y_min, 0.], dtype=float)
+        cosxy = 0.
+        struc = None
+        map1 = np.zeros([npt_x, npt_y], dtype=float)
+        map2 = None
+
+        tabtmp = pd.read_table(filename, sep='\s+', skiprows=5, header=None)
+        tabtmp = tabtmp.to_numpy(dtype=float)
+        nline_per_x = np.ceil(npt_y/np.shape(tabtmp)[1])
+        last_line_entry = npt_y % np.shape(tabtmp)[1]
+        if last_line_entry == 0:
+            last_line_entry = np.shape(tabtmp)[1]
+
+        regular_entries = npt_y-last_line_entry
+        for i in range(npt_x):
+            tabbg = int(i * nline_per_x)
+            tabed = int((i + 1) *nline_per_x)
+            map1[i, :regular_entries] = tabtmp[tabbg:tabed-1, :].flatten()
+            map1[i, regular_entries:] = tabtmp[tabed-1, 0:last_line_entry]
+
+        return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
+
+
+
