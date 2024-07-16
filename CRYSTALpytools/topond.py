@@ -14,14 +14,14 @@ class Surf(ChargeDensity):
     Charge unit: e; Energy / field unit: eV.
 
     Args:
-        surfdata (array): 2D plot data.
-        surfbase (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D Plot data. nX\*nY
+        base (array): 3\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
-        type (list|str): Type of data. Allowed entries are listed above.
+        spin (int): Only 1. Not useful to this class.
+        dimen (int): Only 2. Not useful to this class.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
-
     @classmethod
     def from_file(cls, file, type='infer', output=None):
         """
@@ -52,7 +52,7 @@ class Surf(ChargeDensity):
         return Properties_output(output).read_topond2D(file, type)
 
     def plot(self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
-             isovalues=True, colorplot=False, colormap='jet', cbar_label=None,
+             isovalues='%.4f', colorplot=False, colormap='jet', cbar_label=None,
              x_range=[], y_range=[], x_ticks=7, y_ticks=7, add_title=True,
              figsize=[6.4, 4.8], **kwargs):
         """
@@ -67,14 +67,14 @@ class Surf(ChargeDensity):
             lineplot (bool): Plot contour lines.
             linewidth (float): Contour linewidth. Useful only if
                 ``lineplot=True``. Other properties are not editable.
-            isovalues (bool): Add isovalues to contour lines. Useful only if
-                ``lineplot=True``. 2 decimal places is used for 'SURFELFB' and
-                3 for others. 4 for difference maps.
+            isovalues (str|None): Add isovalues to contour lines and set their
+                formats. Useful only if ``lineplot=True``. None for not adding
+                isovalues.
             colorplot (bool): Plot color-filled contour plots.
             colormap (str): Matplotlib colormap option. Useful only if
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
-                ``colorplot=True``.
+                ``colorplot=True``. 'None' for default.
             xrange (list): 1\*2 list of x axis range. **Must be consistent with
                 ``unit``**.
             yrange (list): 1\*2 list of y axis range. **Must be consistent with
@@ -106,21 +106,27 @@ class Surf(ChargeDensity):
         if self.unit.lower() != unit.lower():
             self._set_unit(unit)
 
-        # level
+        # levels
         if np.all(levels=='default'):
             if self.type == 'SURFELFB':
                 levels = np.linspace(0, 1, 21)
             elif self.type in ['SURFLAPP', 'SURFLAPM', 'SURFVIRI', 'SURFKKIN']:
                 levels = np.array([-8, -4, -2, -0.8, -0.4, -0.2,
                                    -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
-                                   0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
+                                   0, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
             elif self.type in ['SURFRHOO', 'SURFGRHO', 'SURFGKIN']:
                 levels = np.array([0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8, 20], dtype=float)
+            elif self.type == 'diff': # developer only
+                levels = np.array([-8, -4, -2, -0.8, -0.4, -0.2,
+                                   -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
+                                   -0.0008, -0.0004, -0.0002, 0, 0.0002, 0.0004, 0.0008,
+                                   0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
+                                   0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
             else:
                 warnings.warn("Unknown data type: {}. A linear scale is used.".format(self.type))
-                levels = np.linspace(np.min(self.surfdata), np.max(self.surfdata), 10)
+                levels = np.linspace(np.min(self.data), np.max(self.data), 10)
         else:
             levels = np.array(levels, dtype=float)
         # contour line styles
@@ -144,21 +150,26 @@ class Surf(ChargeDensity):
                     contourline.append(['k', 'dotted', linewidth])
         else:
             contourline = None
-        # isovalues
-        if isovalues == True:
-            if self.type == 'SURFELFB':
-                isovalue = '%.2f'
-            else:
-                isovalue = '%.3f'
-        else:
-            isovalue = None
         # colormap
         if colorplot == False:
             colormap = None
-
+        # cbar_label
+        if np.all(cbar_label==None):
+            if unit.lower() == 'angstrom':
+                if self.type in ['SURFRHOO', 'SURFSPDE']: cbar_label=r'$\rho$ ($|e|/\AA^{-3}$)'
+                elif self.type in ['SURFGRHO']: cbar_label=r'$\nabla\rho$ ($|e|/\AA^{-4}$)'
+                elif self.type in ['SURFLAPP', 'SURFLAPM']: cbar_label=r'$\nabla^{2}\rho$ ($|e|/\AA^{-5}$)'
+                elif self.type in ['SURFKKIN', 'SURFGKIN', 'SURFVIRI']: cbar_label=r'$\rho$ ($eV/\AA^{-3}$)'
+                else: cbar_label=self.type
+            else:
+                if self.type in ['SURFRHOO', 'SURFSPDE']: cbar_label=r'$\rho$ ($|e|/Bohr^{-3}$)'
+                elif self.type in ['SURFGRHO']: cbar_label=r'$\nabla\rho$ ($|e|/Bohr^{-4}$)'
+                elif self.type in ['SURFLAPP', 'SURFLAPM']: cbar_label=r'$\nabla^{2}\rho$ ($|e|/Bohr^{-5}$)'
+                elif self.type in ['SURFKKIN', 'SURFGKIN', 'SURFVIRI']: cbar_label=r'$\rho$ ($Hartree/Bohr^{-3}$)'
+                else: cbar_label=self.type
         # plot
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax = plot_2Dscalar(ax, self.surfdata, self.surfbase, contourline, isovalue,
+        ax = plot_2Dscalar(ax, self.data, self.base, contourline, isovalues,
                            colormap, x_ticks, y_ticks, cbar_label, **kwargs)
         if len(x_range) != 0:
             ax.set_xlim(xrange)
@@ -212,17 +223,17 @@ class Surf(ChargeDensity):
         else:
             raise ValueError('Unknown unit.')
 
-        self.surfbase = self.surfbase * cst
+        self.base = self.base * cst
 
         if self.type.upper() in density: # Bohr^-3 <---> AA^-3
-            self.surfdata = self.surfdata / cst**3
+            self.data = self.data / cst**3
         elif self.type.upper() in gradient: # Bohr^-4 <---> AA^-4
             if unit.lower() == 'angstrom':
-            self.surfdata = self.surfdata / cst**4
+            self.data = self.data / cst**4
         elif self.type.upper() in laplacian: # Bohr^-5 <---> AA^-5
-            self.surfdata = self.surfdata / cst**5
+            self.data = self.data / cst**5
         elif self.type.upper() in e_density: # Eh.Bohr^-3 <---> eV.AA^-3
-            self.surfdata = self.surfdata / cst**5 * ecst
+            self.data = self.data / cst**5 * ecst
         elif self.type.upper() in normalized:
             pass
         else:

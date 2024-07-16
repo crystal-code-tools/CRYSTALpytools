@@ -11,81 +11,120 @@ import numpy as np
 #                                                                            #
 ##############################################################################
 
-#-------------------------------ECHG charge density----------------------------#
-
-
-def plot_dens_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None):
+#--------------------------ECHG charge and spin density----------------------#
+def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
+              linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
+              cbar_label=None, x_range=[], y_range=[], scale=True, x_ticks=7,
+              y_ticks=7, add_title=True, figsize=[6.4, 4.8], **kwargs):
     """
-    Plots the 2D ECHG density map from a fort.25 file.
+    Read multiple 2D charge density files / objects and return to a list of
+    figures and axes. The uniform plot set-ups are used for comparison.
+
+    Available options:
+
+    * 'both' : If spin polarized, plot both charge and spin densities.
+        Otherwise plot charge densities.  
+    * 'charge': Plot charge density.  
+    * 'spin': Plot spin density.  
+    * 'diff_both': Same to both. Substracting data from the first entry with
+        the following entries.
+    * 'diff_charge': Same to charge. Substracting data from the first entry with
+        the following entries.
+    * 'diff_spin': Same to spin. Substracting data from the first entry with
+        the following entries.
 
     Args:
-        obj_echg (ChargeDensity): Charge/spin density object.
-        unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}`.
-        levels (int | array-like): Number and positions of the contour lines/regions.
-        xticks (int): Number of ticks in the x direction.
-        yticks (int): Number of ticks in the y direction.
-        cmap_max(float): Maximum value used for the colormap.
-        cmap_min(float): Minimun value used for the colormap.
-
+        \*echg (ChargeDensity|str): Extendable. File names or
+            ``electronics.ChargeDensity`` objects.
+        unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
+            Bohr:math:`^{-3}`.
+        option (str): Available options see above.
+        levels (int|array): Set levels of contour plot. A number for linear
+            scaled plot colors or an array for user-defined levels, **must be
+            consistent with ``unit``**. 2\*nLevel can be defined when
+            ``option='both'``.
+        lineplot (bool): Plot contour lines.
+        linewidth (float): Contour linewidth. Useful only if ``lineplot=True``.
+            Other properties are not editable. Solid black lines for positive
+            values and 0, dotted for negative.
+        isovalues (str|None): Add isovalues to contour lines and set their
+            formats. Useful only if ``lineplot=True``. None for not adding isovalues.
+        colorplot (bool): Plot color-filled contour plots.
+        colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
+        cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
+            1\*2 list of colorbar titles can be set for spin-polarized systems.
+            'None' for default.
+        x_range (list): 1\*2 list of x axis range. **Must be consistent with ``unit``**.
+        y_range (list): 1\*2 list of y axis range. **Must be consistent with ``unit``**.
+        scale (bool): Whether to scale the plot window for systems of different sizes.
+            Base vectors of 2D plot are changed. Use with care.
+        x_ticks (int): Number of ticks on x axis.
+        y_ticks (int): Number of ticks on y axis.
+        add_title (bool): Whether to add property plotted as title.
+        figsize (list): Matplotlib figure size. Note that axes aspects are
+            fixed to be equal.
+        \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+            to set contour lines.
     Returns:
-        fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
+        figs (list|Figure): Matplotlib Figure object or a list of them.
+        axes (list|Axes): Matplotlib Axes object or a list of them.
     """
-    import copy
+    from CRYSTALpytools.electronics import ChargeDensity
+    import numpy as np
 
-    from CRYSTALpytools.base.plotbase import plot_2Dscalar
-
-    obj = copy.deepcopy(obj_echg)
-    obj._set_unit(unit)
-    if unit.lower() == 'angstrom':
-        cbarlabel = 'Charge Density ($|e|.\AA^{-3}$)'
+    obj = []
+    for i in echg:
+        if isinstance(i, str):
+            obj.append(ChargeDensity.from_file(i, method=None))
+        elif isinstance(i, ChargeDensity):
+            obj.append(i)
+        else:
+            raise TypeError("Inputs must be either string or electronics.ChargeDensity objects.")
+    # substraction
+    if 'diff' in option.lower():
+        obj[0].substract(*[i for i in obj[1:]])
+        option = option.split('_')[1]
+        obj = [obj[0]]
+    # set uniform levels
+    if isinstance(levels, float) or isinstance(levels, int):
+        spin_range = []
+        chg_range = []
+        for i in obj:
+            if i.spin == 1:
+                chg_range.append([np.min(i.data), np.max(i.data)])
+            else:
+                chg_range.append([np.min(i.data[:, :, 0]), np.max(i.data[:, :, 0])])
+                spin_range.append([np.min(i.data[:, :, 1]), np.max(i.data[:, :, 1])])
+        if spin_range == []:
+            levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)
+            levels2 = levels1
+        else:
+            levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)
+            levels2 = np.linspace(np.min(spin_range), np.max(spin_range), levels)
     else:
-        cbarlabel = 'Charge Density ($|e|.Bohr^{-3}$)'
-
-    fig, ax = plot_2Dscalar(obj.chgmap, obj.gridv, levels, xticks, yticks,
-                        cmap_max, cmap_min, cbarlabel)
-
-    plt.show()
-    return fig, ax
-
-#--------------------------------ECHG spin density-----------------------------#
-
-def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
-                   yticks=5, cmap_max=None, cmap_min=None):
-    """
-    Plots the 2D spin density map from a ECHG output file (fort.25). For charge
-    density map please refer to ``plot_dens_ECHG``.
-
-    Args:
-        obj_echg (ChargeDensity): Charge/spin density object.
-        unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\AA^{-3} or 'a.u.' for :math:`e.Bohr^{-3}`.
-        levels (int | array-like): *Optional* Determines the number and positions of the contour lines/regions. Default is 150.
-        xticks (int): *Optional* Number of ticks in the x direction. Default is 5.
-        yticks (int): *Optional* Number of ticks in the y direction. Default is 5.
-        cmap_max(float): *Optional*, Maximum value used for the colormap. Default is None.
-        cmap_min(float): *Optional* Minimun value used for the colormap. Default is None.
-
-    Returns:
-        fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
-    """
-    import copy
-
-    from CRYSTALpytools.base.plotbase import plot_2Dscalar
-
-    obj = copy.deepcopy(obj_echg)
-    obj._set_unit(unit)
-    if unit.lower() == 'angstrom':
-        cbarlabel = 'Spin Density ($|e|.\AA^{-3}$)'
-    else:
-        cbarlabel = 'Spin Density ($|e|.Bohr^{-3}$)'
-
-    fig, ax = plot_2Dscalar(obj.spinmap, obj.gridv, levels, xticks, yticks,
-                        cmap_max, cmap_min, cbarlabel)
-
-    plt.show()
-    return fig, ax
+        levels = np.array(levels)
+        if len(levels.shape) == 1:
+            levels1 = levels
+            levels2 = levels
+        else:
+            levels1 = levels[0, :]
+            levels2 = levels[1, :]
+    levels = np.vstack([levels1, levels2])
+    # set scaling
+    if scale == True:
+        for i in obj[1:]:
+            i.base = obj[0].base
+    # plot
+    figs = []; axes =[]
+    for i in obj:
+        tmp = i.plot_2D(unit, option, levels, lineplot, linewidth, isovalues,
+                        colorplot, colormap, cbar_label, x_range, y_range,
+                        x_ticks, y_ticks, add_title, figsize, **kwargs)
+        figs.append(tmp[0]); axes.append(tmp[1])
+    if len(obj) == 1:
+        figs = figs[0]
+        axes = axes[0]
+    return figs, axes
 
 #----------------------------------SPIN CURRENTS------------------------------#
 
@@ -1153,193 +1192,110 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
 
 ##############################################################################
 #                                                                            #
-#                                     QTAIM                                  #
+#                                    TOPOND                                  #
 #                                                                            #
 ##############################################################################
 
-#----------------------------------CONTOUR PLOT-------------------------------#
+#--------------------------------2D CONTOUR PLOT-----------------------------#
 
-
-def plot_cry_contour(contour_obj):
+def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
+                  levels='default', lineplot=True, linewidth=1.0, isovalues='%.4f',
+                  colorplot=False, colormap='jet', cbar_label=None,
+                  x_range=[], y_range=[], scale=True, x_ticks=7, y_ticks=7,
+                  add_title=True, figsize=[6.4, 4.8], **kwargs):
     """
-    Plot a contour plot.
+    Read multiple TOPOND 2D plot files / objects and return to a list of
+    figures and axes. The uniform plot set-ups are used for comparison.
+
+     .. note::
+
+        For the convenience of analysis and plotting, it is important to select
+        the correct type for your input file. By default `type='infer'` will
+        search for (case insensitive) the following strings:
+
+        ``'SURFRHOO','SURFSPDE','SURFLAPP','SURFLAPM','SURFGRHO','SURFKKIN','SURFGKIN','SURFVIRI','SURFELFB'``
+
+        For their meanings, please refer the `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
+
+    Available options:
+
+    * 'normal' : Literally normal.  
+    * 'diff' : Substract data from the first entry using following entries. All
+        the entries must have the same ``type``.
 
     Args:
-        contour_obj (object): Contour object representing the contour plot.
-        save_to_file (bool, optional): If True, saves the plot to a file. Default is False.
-
+        \*topond (Surf|str): Extendable. File names or ``topond.Surf`` objects.
+            Geometry information is not available if file names are used.
+        unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
+            Bohr:math:`^{-3}`.
+        type (str): 'infer' or specified. Otherwise warning will be given.
+        option (str): Available options see above.
+        levels (array): Set levels of contour plot. 'Default' for built-in,
+            property adaptive levels (``unit='Angstrom'``). Otherwise entries
+            **must be consistent with ``unit``**.
+        lineplot (bool): Plot contour lines.
+        linewidth (float): Contour linewidth. Useful only if ``lineplot=True``.
+            Other properties are not editable.
+        isovalues (str|None): Add isovalues to contour lines and set their
+            formats. Useful only if ``lineplot=True``. None for not adding isovalues.
+        colorplot (bool): Plot color-filled contour plots.
+        colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
+        cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
+            'None' for default.
+        x_range (list): 1\*2 list of x axis range. **Must be consistent with ``unit``**.
+        y_range (list): 1\*2 list of y axis range. **Must be consistent with ``unit``**.
+        scale (bool): Whether to scale the plot window for systems of different sizes.
+            Base vectors of 2D plot are changed. Use with care.
+        x_ticks (int): Number of ticks on x axis.
+        y_ticks (int): Number of ticks on y axis.
+        add_title (bool): Whether to add property plotted as title.
+        figsize (list): Matplotlib figure size. Note that axes aspects are
+            fixed to be equal.
+        \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+            to set contour lines.
     Returns:
-        None
-
-    Notes:
-        - Plots a contour plot based on the data in the contour object.
-        - Retrieves the data from the contour object and converts it to a 2D list.
-        - Sets the figure size based on x_graph_param and y_graph_param attributes of the contour object.
-        - Sets the x-axis and y-axis labels.
-        - Creates a meshgrid using the x_points and y_points attributes of the contour object.
-        - Defines contour levels, colors, linestyles, and fmt.
-        - Plots the contour plot.
-        - Saves the plot to a file named 'figure_TIPO_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
-        - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
+        figs (list|Figure): Matplotlib Figure object or a list of them.
+        axes (list|Axes): Matplotlib Axes object or a list of them.
     """
-    import os
-    import time
-
-    import matplotlib.pyplot as plt
+    from CRYSTALpytools.topond import Surf
     import numpy as np
 
-    df = contour_obj.df
-    n_punti_x = contour_obj.npx
-
-    for i in range(0, 8):
-        df[i] = df[i].astype(float)
-
-    flat_list = [item for sublist in df.values for item in sublist]
-
-    cleaned_list = [x for x in flat_list if ~np.isnan(x)]
-
-    l = [cleaned_list[x:x+n_punti_x]
-         for x in range(0, len(cleaned_list), n_punti_x)]
-
-    c = contour_obj.x_graph_param
-    d = contour_obj.y_graph_param
-
-    plt.rcParams["figure.figsize"] = [c, d]
-
-    plt.xlabel(r'$\AA$', fontsize=18)
-    plt.ylabel(r'$\AA$', fontsize=18)
-
-    X, Y = np.meshgrid(contour_obj.x_points, contour_obj.y_points)
-
-    levels = contour_obj.levels
-    colors = contour_obj.colors
-    linestyles = contour_obj.linestyles
-    fmt = contour_obj.fmt
-
-    # Change here to have or not the isovalues on the plot
-    iso = True
-    # iso = False
-
-    if (iso == True):
-        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
-                        alpha=1)
-        plt.clabel(L, inline=1, fontsize=7, fmt=fmt)
-    elif (iso == False):
-        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
-                        alpha=1)
-
-    path = os.path.join('./'+'figure_' + contour_obj.tipo +
-                        '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
-    plt.savefig(path, bbox_inches='tight', dpi=600)
-    print('\nThe image has been saved in the current directory')
-
-    # if save_to_file != False:
-    #     save_plot(save_to_file)
-
-    plt.show()
-
-
-def plot_cry_contour_differences(contour_obj, contour_obj_ref):
-    """
-    Plot the differences between two contour plots.
-
-    Args:
-        contour_obj (object): Contour object representing the original contour plot.
-        contour_obj_ref (object): Contour object representing the reference contour plot.
-        save_to_file (bool, optional): If True, saves the plot to a file. Default is False.
-
-    Returns:
-        None
-
-    Notes:
-        - Plots the differences between two contour plots.
-        - Requires the contour objects to have a tipo attribute with values 'SURFLAPP', 'SURFLAPM', 'SURFRHOO', or 'SURFELFB'.
-        - Calculates the difference between the dataframes of the two contour objects.
-        - Sets the figure size based on x_graph_param and y_graph_param attributes of the contour object.
-        - Sets the x-axis and y-axis labels.
-        - Creates a meshgrid using the x_points and y_points attributes of the contour object.
-        - Defines contour levels, colors, and linestyles.
-        - Plots the contour differences.
-        - Saves the plot to a file named 'figure_diff_TIPO_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
-        - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
-    """
-    import os
-    import sys
-    import time
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    if (contour_obj.tipo == 'SURFLAPP') or (contour_obj.tipo == 'SURFLAPM') or (contour_obj.tipo == 'SURFRHOO') or (contour_obj.tipo == 'SURFELFB'):
-        pass
+    obj = []
+    for i in topond:
+        if isinstance(i, str):
+            obj.append(Surf.from_file(i, type=type, output=None))
+        elif isinstance(i, Surf):
+            obj.append(i)
+        else:
+            raise TypeError("Inputs must be either string or topond.Surf objects.")
+    # substraction
+    if 'diff' in option.lower():
+        for i in obj[1:]:
+            if obj[0].type != i.type:
+                raise TypeError("Different properties are read for input objects / files, 'diff' option not available.")
+            obj[0].substract(i)
+        obj[0].type = 'diff'
+        obj = [obj[0]]
+    # set uniform levels
+    if np.all(levels=='default'):
+        levels = 'default'
     else:
-        sys.exit(
-            'Difference option only allowed for SURFLAPP, SURFLAPM, SURFRHOO and SURFELFB file')
-
-    n_punti_x = contour_obj.npx
-
-    df = contour_obj.df
-    for i in range(0, 8):
-        df[i] = df[i].astype(float)
-
-    df_ref = contour_obj_ref.df
-    for i in range(0, 8):
-        df_ref[i] = df_ref[i].astype(float)
-
-    df_diff = df - df_ref
-
-    flat_list = [item for sublist in df_diff.values for item in sublist]
-
-    cleaned_list = [x for x in flat_list if ~np.isnan(x)]
-
-    l = [cleaned_list[x:x+n_punti_x]
-         for x in range(0, len(cleaned_list), n_punti_x)]
-
-    c = contour_obj.x_graph_param
-    d = contour_obj.y_graph_param
-
-    plt.rcParams["figure.figsize"] = [c, d]
-
-    plt.xlabel(r'$\AA$', fontsize=18)
-    plt.ylabel(r'$\AA$', fontsize=18)
-
-    X, Y = np.meshgrid(contour_obj.x_points, contour_obj.y_points)
-
-    ctr1dif = np.array([-8, -4, -2, -0.8, -0.4, -0.2, -0.08, -0.04, -0.02, -0.008, -0.004, -0.002, -0.0008, -0.0004, -0.0002, 0,
-                       0.0002, 0.0004, 0.0008, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08, 0.2, 0.4, 0.8, 2, 4, 8])
-    colors1dif = ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'k', 'r', 'r', 'r', 'r', 'r', 'r', 'r',
-                  'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
-    ls1dif = ['--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'dotted', '-', '-', '-', '-',
-              '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-    levels = ctr1dif
-    colors = colors1dif
-    linestyles = ls1dif
-    fmt = '%1.4f'
-
-    # Change here to have or not the isovalues on the plot
-    iso = True
-    # iso = False
-
-    if (iso == True):
-        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
-                        alpha=1)
-        plt.clabel(L, inline=1, fontsize=7, fmt=fmt)
-    elif (iso == False):
-        L = plt.contour(X, Y, l, levels=levels, colors=colors, linestyles=linestyles, linewidths=0.7,
-                        alpha=1)
-
-    path = os.path.join('./'+'figure_diff_' + contour_obj.tipo +
-                        '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
-    plt.savefig(path, bbox_inches='tight', dpi=600)
-    print('\nThe image has been saved in the current directory')
-
-    # if save_to_file != False:
-    #     save_plot(save_to_file)
-
-    plt.show()
+        levels = np.array(levels, dtype=float)
+    # set scaling
+    if scale == True:
+        for i in obj[1:]:
+            i.base = obj[0].base
+    # plot
+    figs = []; axes =[]
+    for i in obj:
+        tmp = i.plot(unit, levels, lineplot, linewidth, isovalues, colorplot,
+                     colormap, cbar_label, x_range, y_range, x_ticks, y_ticks,
+                     add_title, figsize, **kwargs)
+        figs.append(tmp[0]); axes.append(tmp[1])
+    if len(obj) == 1:
+        figs = figs[0]
+        axes = axes[0]
+    return figs, axes
 
 #--------------------------------------XRD------------------------------------#
 
@@ -3850,11 +3806,11 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
                  transparency=False):
     """
-    Obsolete. Use ``plot_elastics_3D``.
+    Deprecated. Use ``plot_elastics_3D``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_elastics_3D' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_elastics_3D' instead.",
                   stacklevel=2)
     args = [i for i in args]
     figs, axes = plot_elastics_3D(
@@ -3877,11 +3833,11 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
                        title=None, figsize=None, scheme=None, sharex=True,
                        sharey=True, fontsize=12):
     """
-    Obsolete. Use ``plot_electron_bands``.
+    Deprecated. Use ``plot_electron_bands``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_electron_bands' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_bands' instead.",
                   stacklevel=2)
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
         bands = [bands]
@@ -3908,11 +3864,11 @@ def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=Tr
                   fermi='forestgreen', k_range=[], labels=None, figsize=[6.4, 4.8],
                   scheme=None, sharex=True, sharey=True, fermiwidth=1.5, fermialpha=1):
     """
-    Obsolete. Use ``plot_electron_bands``.
+    Deprecated. Use ``plot_electron_bands``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_electron_bands' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_bands' instead.",
                   stacklevel=2)
 
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
@@ -3933,11 +3889,11 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
                       labels=None, linestl=None, linewidth=1, fermi='forestgreen',
                       title=None, figsize=None):
     """
-    Obsolete. Use ``plot_electron_doss``.
+    Deprecated. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_electron_doss' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_doss' instead.",
                   stacklevel=2)
     if not (isinstance(doss, list) or isinstance(doss, tuple)):
         doss = [doss]
@@ -3965,11 +3921,11 @@ def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False,
                   linewidth=1.0, title=None, beta='down', energy_range=[],
                   dos_range=[], prj=[]):
     """
-    Obsolete. Use ``plot_electron_doss``.
+    Deprecated. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_electron_doss' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_doss' instead.",
                   stacklevel=2)
     if not (isinstance(doss, list) or isinstance(doss, tuple)):
         doss = [doss]
@@ -3988,11 +3944,11 @@ def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
                 linestl_doss=None, linewidth=1.0, prj=[], figsize=[6.4, 4.8],
                 labels=None, dos_range=[], title=None, dos_beta='down'):
     """
-    Obsolete. Use ``plot_electron_doss``.
+    Deprecated. Use ``plot_electron_doss``.
     """
     import warnings
 
-    warnings.warn("You are calling an obsolete function. Use 'plot_electron_banddos' instead.",
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
 
     fig, ax = plot_cry_es(
@@ -4004,7 +3960,63 @@ def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
     )
     return fig, ax
 
+def plot_dens_ECHG(obj_echg, unit='Angstrom',  xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None):
+    """
+    Deprecated. Use ``plot_ECHG``.
+    """
+    import warnings
+    import numpy as np
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
+                  stacklevel=2)
+    if np.all(cmap_min!=None) and np.all(cmap_max!=None)
+        levels = np.linspace(cmap_min, cmap_max, 150)
+    else:
+        levels = 150
+    fig, ax = plot_ECHG(obj_echg, unit=unit, levels=levels, option='charge',
+                        xticks=xticks, yticks=yticks)
+    return fig, ax
 
 
+def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
+                   yticks=5, cmap_max=None, cmap_min=None):
+    """
+    Deprecated. Use ``plot_ECHG``.
+    """
+    import warnings
+    import numpy as np
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
+                  stacklevel=2)
+    if np.all(cmap_min!=None) and np.all(cmap_max!=None)
+        levels = np.linspace(cmap_min, cmap_max, 150)
+    else:
+        levels = 150
+    fig, ax = plot_ECHG(obj_echg, unit=unit, levels=levels, option='spin',
+                        xticks=xticks, yticks=yticks)
+    return fig, ax
+
+
+def plot_cry_contour(contour_obj):
+    """
+    Deprecated. Use ``plot_topond2D``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_topond2D' instead.",
+                  stacklevel=2)
+    return contour_obj.plot()
+
+
+def plot_cry_contour_differences(contour_obj, contour_obj_ref):
+    """
+    Deprecated. Use ``plot_topond2D``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_topond2D' instead.",
+                  stacklevel=2)
+    return plot_topond2D(contour_obj, contour_obj_ref, option='diff')
 
 

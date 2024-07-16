@@ -478,101 +478,291 @@ class ElectronBandDOS():
 
 class ChargeDensity():
     """
-    Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`.
+    Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`. 3D plot under
+    developing.
 
     Args:
-        spin (int): 1, closed shell; 2, open shell
-        gridv (array): 2\*3 (2D) or 3\*3 (3D) base vectors of data grid
-        chgmap (array): 2D or 3D charge density map
-        spinmap (array): 2D or 3D spin density map
+        data (array): Plot data. nX\*nY\*nSpin or nX\*nY\*nZ\*nSpin
+        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+            vectors BA and BC (2D) or 3 base vectors (3D)
+        spin (int): 1 or 2.
+        dimen (int): Dimensionality of the plot.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
 
-    def __init__(self, spin, gridv, chgmap, struc=None, unit='Angstrom'):
+    def __init__(self, data, base, spin, dimen, struc=None, unit='Angstrom'):
         import numpy as np
+        import warnings
 
-        self.spin = spin
-        self.gridv = np.array(gridv)
-        self.chgmap = np.array(chgmap, dtype=float)
-        if np.all(spinmap!=None):
-            self.spinmap = np.array(spinmap, dtype=float)
-        else:
-            self.spinmap = None
+        self.data = np.array(data, dtype=float)
+        self.base = np.array(base, dtype=float)
+        self.spin = int(spin)
+        self.dimension = int(dimen)
         self.structure = struc
         self.unit = unit
+        self.type = 'ECHG' # Hidden for charge density plot. Useful for TOPOND child class
 
     @classmethod
-    def from_ECHG(cls, *args):
+    def from_file(cls, *files, method=None):
         """
-        Generate a ``ChargeDensity`` object from ECHG fort.25 file (2D map), or
-        from multiple fort.25 files by substracting values from the first entry.
+        Generate a ``ChargeDensity`` object from a single file, or from multiple
+        files by substracting values from the first entry. Can be used for
+        multiple dimensions (2D only now. 3D under development.)
+
+        Available methods are:
+
+        * 'substact': Substracting data from the first entry based on following
+            entries. Multiple entries only.  
+        * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
+            :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
+            / spin(:math:`\\alpha-\\beta`). Single entry only.
 
         Args:
-            args (str): One or multiple fort.25 file names, separated by comma.
-                The first entry is the 'reference' and data of the following
-                entries are substracted from the first one.
+            \*files (str): Path to the charge density / spin density file(s).
+                All the entries must be in the same file format.
         Returns:
             cls (ChargeDensity)
-
-        :raise Exception: If inconsistent data grid is read.
         """
-        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.crystal_io import Properties_output
 
-        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(
-            args[0])
+        file = open(files[0], 'r')
+        header = file.readline()
+        file.close()
+        if '-%-' in header: # 2D plot in fort.25
+            cls = Properties_output().read_ECHG(*files, method=method)
+        return cls
 
-        if len(args) > 1:
-            for arg in args[1:]:
-                _, a1, b1, c1, _, _, map11, map21, _ = CrgraParser.mapn(arg)
-                if np.norm(a-a1) > 1e-4 or np.norm(b-b1) > 1e-4 or np.norm(c-c1) > 1e-4 \
-                        or np.norm(map11.shape-map1.shape) > 1e-4 or np.norm(map21.shape-map2.shape) > 1e-4:
-                    raise Exception(
-                        "Inconsistent grid definition beween file '{}' and file '{}'".format(args[0], arg))
-                map1 -= map11
-                map2 -= map21
+    def substract(self, *args):
+        """
+        Substracting data of the same type from the object.
 
-        obj = cls(spin, [a-b, c-b], map1, map2, struc, unit)
-        self._set_unit('Angstrom')
-        # old definitions
-        obj.a = a
-        obj.b = b
-        obj.c = c
-        obj.cosxy = cosxy
-        obj.density_map = obj.chgmap
-        return obj
+        Args:
+            \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
+                Must be of the same type (check the attribute ``type``).
+        Returns:
+            self (ChargeDensity)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+        import numpy as np
 
-    def plot_ECHG(self, option='charge',  unit='Angstrom', levels=150,
-                  xticks=5, yticks=5, cmap_max=None, cmap_min=None, dpi=400):
+        for i in args:
+            if isinstance(i, str):
+                obj = Properties_output().read_ECHG(i, method=None)
+            elif isinstance(i, ChargeDensity):
+                obj = i
+            else:
+                raise TypeError('Inputs must be file name strings or ChargeDensity objects.')
+
+            # base vector
+            if not np.all(np.abs(self.base-obj.base)<1e-6):
+                raise ValueError('Inconsistent base vectors between input and object.')
+            # dimensionality
+            if self.dimension != obj.dimension:
+                raise ValueError('Inconsistent dimensionality between input and object.')
+            # mesh grid
+            for i in range(self.dimension):
+                if self.data.shape[i] != obj.data.shape[i]:
+                    raise ValueError('Inconsistent mesh grid between input and object.')
+            # spin
+            if self.spin != obj.spin:
+                raise ValueError('Inconsistent spin dimensionalities between input and object.')
+
+            # substract
+            self.data = self.data - obj.data
+
+        return self
+
+    def alpha_beta(self):
+        """
+        Get the :math:`\\alpha` / :math:`\\beta` state density, rather than
+        charge(:math:`\\alpha+\\beta`) / spin(:math:`\\alpha-\\beta`).
+        ``spin=2`` only.
+
+        Returns:
+            self (ChargeDensity) : The first entry of ``self.data`` is :math:`\\alpha`
+                state density and the second is :math:`\\beta` state.
+        """
+        import numpy as np
+
+        if self.spin != 2:
+            raise ValueError('Not a spin-polarized system.')
+
+        # can be used for any dimension
+        oldshape = self.data.shape
+        lenchg = 1
+        for i in oldshape[:-1]:
+            lenchg = lenchg * i
+        lenchg = int(lenchg)
+        alpha = (self.data.flatten()[:lenchg] + self.data.flatten()[lenchg:]) / 2
+        beta = (self.data.flatten()[:lenchg] - self.data.flatten()[lenchg:]) / 2
+        self.data = np.hstack([alpha, beta]).reshape(ouldshape)
+        return self
+
+    def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
+                linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
+                cbar_label=None, x_range=[], y_range=[], x_ticks=7, y_ticks=7,
+                add_title=True, figsize=[6.4, 4.8], **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
 
+        Available options:
+
+        * 'both' : If spin polarized, plot both charge and spin densities.
+            Otherwise plot charge densities.  
+        * 'charge': Plot charge density.  
+        * 'spin': Plot spin density.
+
         Args:
-            option (str): 'charge' or 'spin'
-            unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\\AA^{-3}` or 'a.u.' for :math:`e.Bohr^{-3}`.
-            levels (int | array-like): The number and positions of the contour lines/regions. Default is 150.
-            xticks (int): *Optional* Number of ticks in the x direction.
-            yticks (int): *Optional* Number of ticks in the y direction.
-            cmap_max(float): *Optional* Maximum value used for the colormap.
-            cmap_min(float): *Optional* Minimun value used for the colormap.
-            dpi (int): *Optional* Resolution (dots per inch) for the output image.
+            unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
+                Bohr:math:`^{-3}`.
+            option (str): Available options see above.
+            levels (int|array): Set levels of contour plot. A number for
+                linear scaled plot colors or an array for user-defined levels,
+                **must be consistent with ``unit``**. 2\*nLevel can be defined
+                when ``option='both'``.
+            lineplot (bool): Plot contour lines.
+            linewidth (float): Contour linewidth. Useful only if
+                ``lineplot=True``. Other properties are not editable. Solid
+                black lines for positive values and 0, dotted for negative.
+            isovalues (str|None): Add isovalues to contour lines and set their
+                formats. Useful only if ``lineplot=True``. None for not adding
+                isovalues
+            colorplot (bool): Plot color-filled contour plots.
+            colormap (str): Matplotlib colormap option. Useful only if
+                ``colorplot=True``.
+            cbar_label (str): Label of colorbar. Useful only if
+                ``colorplot=True``. 1\*2 list of colorbar titles can be set for
+                spin-polarized systems. 'None' for default.
+            x_range (list): 1\*2 list of x axis range. **Must be consistent with
+                ``unit``**.
+            y_range (list): 1\*2 list of y axis range. **Must be consistent with
+                ``unit``**.
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
+            add_title (bool): Whether to add property plotted as title.
+            figsize (list): Matplotlib figure size. Note that axes aspects are
+                fixed to be equal.
+            \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+                to set contour lines.
 
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
+        from CRYSTALpytools.base.plotbase import plot_2Dscalar
+        import numpy as np
+        import matplotlib.pyplot as plt
 
-        if option.lower() == 'charge':
-            fig, ax = plot_dens_ECHG(self, unit, levels, xticks, yticks,
-                                     cmap_max, cmap_min, dpi)
-        elif option.lower() == 'spin':
-            fig, ax = plot_spin_ECHG(self, unit, levels, xticks, yticks,
-                                     cmap_max, cmap_min, dpi)
+        # dimen
+        if self.dimension != 2:
+            raise Exception('Not a 2D charge density object.')
+
+        # unit
+        uold = self.unit
+        if self.unit.lower() != unit.lower():
+            self._set_unit(unit)
+
+        # levels
+        if isinstance(levels, int) or isinstance(levels, float):
+            if self.spin == 1:
+                levels1 = np.linspace(np.min(self.data), np.max(self.data), int(levels))
+                levels2 = levels1
+            else:
+                len_flat = 1
+                for i in self.data.shape[:-1]:
+                    len_flat = len_flat * i
+                chg = self.data.flatten()[:len_flat]
+                spin = self.data.flatten()[len_flat:]
+                levels1 = np.linspace(np.min(chg), np.max(chg), levels)
+                levels2 = np.linspace(np.min(spin), np.max(spin), levels)
+                del chg, spin
         else:
-            raise ValueError("Unknown option '{}'.".format(option))
-        return fig, ax
+            levels = np.array(levels, dtype=float)
+            if len(levels.shape) == 1:
+                levels1 = levels
+                levels2 = levels
+            else:
+                levels1 = levels[0,:]
+                levels2 = levels[1,:]
+        # contour line
+        if lineplot == True:
+            chgline = [['k', '-', linewidth] for i in levels1]
+            spinline = []
+            for j in levels2:
+                if j >= 0: spinline.append(['k', '-', linewidth])
+                else: spinline.append(['k', 'dotted', linewidth])
+        else:
+            chgline = None; spinline = None
+        # cbar_label
+        if np.all(cbar_label==None):
+            if unit.lower() == 'angstrom':
+                cbar_label1 = r'Charge Density ($|e|/\AA^{3}$)'; cbar_label2 = r'Spin Density ($|e|/\AA^{3}$)'
+            else:
+                cbar_label1 = r'Charge Density ($|e|/Bohr^{3}$)'; cbar_label2 = r'Spin Density ($|e|/Bohr^{3}$)'
+        else:
+            if isinstance(cbar_label, list):
+                cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1]; 
+            else:
+                cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)
+
+        # plot
+        if self.spin == 1 and (option.lower()=='both' or option.lower()=='spin'):
+            warnings.warn("Spin options not available to non spin-polarized cases.",
+                          stacklevel=2)
+            option = 'charge'
+        if option.lower() == 'both':
+            fig, ax = plt.subplots(1, 2, figsize=figsize,
+                                   sharex=True, sharey=True, layout='constrained')
+            ax[0] = plot_2Dscalar(ax[0], self.data[:, :, 0], self.base, chgline,
+                                  isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
+            ax[1] = plot_2Dscalar(ax[1], self.data[:, :, 1], self.base, spinline,
+                                  isovalues, colormap, x_ticks, y_ticks, cbar_label2, **kwargs)
+        elif option.lower() == 'charge':
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            if self.spin == 1:
+                ax = plot_2Dscalar(ax, self.data[:, :], self.base, chgline,
+                                   isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
+            else:
+                ax = plot_2Dscalar(ax, self.data[:, :, 0], self.base, chgline,
+                                   isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
+            ax = [ax]
+        elif option.lower() == 'spin':
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            ax = plot_2Dscalar(ax, self.data[:, :, 1], self.base, spinline,
+                               isovalues, colormap, x_ticks, y_ticks, cbar_label2, **kwargs)
+            ax = [ax]
+        else:
+            raise ValueError("Unknown option: '{}'.".format(option))
+
+        # range and labels
+        for a in ax:
+            if len(x_range) != 0:
+                a.set_xlim(xrange)
+            if len(y_range) != 0:
+                a.set_ylim(yrange)
+            if self.unit.lower() == 'angstrom':
+                a.set_xlabel(r'$\AA$')
+                a.set_ylabel(r'$\AA$')
+            else:
+                a.set_xlabel(r'$Bohr$')
+                a.set_ylabel(r'$Bohr$')
+
+        if add_title == True:
+            if option.lower() == 'both':
+                ax[0].set_title('Charge Density')
+                ax[1].set_title('Spin Density')
+            elif option.lower() == 'charge':
+                ax[0].set_title('Charge Density')
+                ax = ax[0]
+            else:
+                ax[0].set_title('Spin Density')
+                ax = ax[0]
+
+        # restore old unit
+        self._set_unit(uold)
+        return fig, fig.axes
 
     def _set_unit(self, unit):
         """
@@ -587,21 +777,15 @@ class ChargeDensity():
         if unit.lower() == self.unit.lower():
             return self
 
-        if unit.lower() == 'angstrom':  # 1/Bohr to 1/Angstrom
+        if unit.lower() == 'angstrom':
             self.unit = 'Angstrom'
-            self.chgmap = angstrom_to_au(
-                angstrom_to_au(angstrom_to_au(self.chgmap)))
-            if np.all(self.spinmap!=None):
-                self.spinmap = angstrom_to_au(
-                    angstrom_to_au(angstrom_to_au(self.spinmap)))
-        elif unit.lower() == 'a.u.':  # 1/Angstrom to 1/Bohr
+            cst = au_to_angstrom(1.)
+        elif unit.lower() == 'a.u.':
             self.unit = 'a.u.'
-            self.chgmap = au_to_angstrom(
-                au_to_angstrom(au_to_angstrom(self.chgmap)))
-            if np.all(self.spinmap!=None):
-                self.spinmap = au_to_angstrom(
-                    au_to_angstrom(au_to_angstrom(self.spinmap)))
+            cst = angstrom_to_au(1.)
         else:
             raise ValueError('Unknown unit.')
 
+        self.base = self.base * cst
+        self.data = self.data / cst**3
         return self

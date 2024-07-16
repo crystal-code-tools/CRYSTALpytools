@@ -2530,6 +2530,8 @@ class Properties_output(POutBASE):
                         s += 1
         return self
 
+#----------------------------electronic structure------------------------------#
+
     def read_electron_band(self, band_file):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file. Energy
@@ -2568,6 +2570,8 @@ class Properties_output(POutBASE):
         self.doss = ElectronDOS.from_file(dos_file)
 
         return self.doss
+
+#-----------------------------2D scalar field----------------------------------#
 
     def read_topond2D(self, topond2d, type='infer'):
         """
@@ -2630,132 +2634,67 @@ class Properties_output(POutBASE):
 
         _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(file)
 
-        obj = Surf(map1, np.vstack([a,b,c]), type, struc, unit)
+        obj = Surf(map1, np.vstack([a,b,c]), 1, struc, unit)
         obj._set_unit('Angstrom')
+        obj.type = type
         setattr(self, 'topond_{}'.format(type), obj)
         return getattr(self, 'topond_{}'.format(type))
 
-    def read_cry_contour(self, properties_output):
-        """Read the CRYSTAL contour files to create the contour objects.
+    def read_ECHG(self, *f25_files, method=None):
+        """
+        Read charge / spin density data from a file. Unit: :math:`e.\\AA^{-3}`.
+
+        Available methods are:
+
+        * 'substact': Substracting data from the first entry based on following
+            entries. Multiple entries only.  
+        * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
+            :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
+            / spin(:math:`\\alpha-\\beta`). Single entry only.
 
         Args:
-            properties_output (str): The properties output file.
+            \*f25_files (str): Path to the fort.25 file(s).
+            method (str): Data processing method. See above.
         Returns:
-            Properties_output: The updated Properties_output object.
+            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
         """
-        import re
-        import sys
-
+        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.electronics import ChargeDensity
         import numpy as np
-        import pandas as pd
+        import warnings
 
-        self.read_file(properties_output)
+        if isinstance(method, str):
+            method = method.lower()
+            if method != 'substract' and method != 'alpha_beta':
+                raise ValueError("Unknown method: '{}'.".format(method))
 
-        filename = str(properties_output)
-
-        tipo = ''
-
-        if (filename.endswith('.SURFRHOO')):
-            self.tipo = 'SURFRHOO'
-            self.path = filename
-        elif (filename.endswith('.SURFLAPP')):
-            self.tipo = 'SURFLAPP'
-            self.path = filename
-        elif (filename.endswith('.SURFLAPM')):
-            self.tipo = 'SURFLAPM'
-            self.path = filename
-        elif (filename.endswith('.SURFGRHO')):
-            self.tipo = 'SURFGRHO'
-            self.path = filename
-        elif (filename.endswith('.SURFELFB')):
-            self.tipo = 'SURFELFB'
-            self.path = filename
-        elif (filename.endswith('.SURFVIRI')):
-            self.tipo = 'SURFVIRI'
-            self.path = filename
-        elif (filename.endswith('.SURFGKIN')):
-            self.tipo = 'SURFGKIN'
-            self.path = filename
-        elif (filename.endswith('.SURFKKIN')):
-            self.tipo = 'SURFKKIN'
-            self.path = filename
+        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(f25_files[0])
+        if spin == 1:
+            self.echg = ChargeDensity(map1, np.vstack([a,b,c]), spin, 2, struc, unit)
         else:
-            sys.exit('Please choose a valid file')
+            self.echg = ChargeDensity(np.vstack[map1, map2].transpose(axis=[1, 2, 0]),
+                                      np.vstack([a,b,c]), spin, 2, struc, unit)
+        self._set_unit('Angstrom')
 
-        l_dens = self.data
+        # methods
+        if len(f25_files) > 1 and method == 'substract':
+            self.echg = self.echg.substract(*[f for f in f25_files[1:]])
+        elif len(f25_files) > 1 and method != 'substract':
+            warnings.warn("Only the 'substract' method is available to more than 1 entries. Nothing is done to other entries.",
+                          stacklevel=2)
+        elif en(f25_files) == 1 and method == 'substract':
+            warnings.warn("The 'substract' method is used only for multiple entries.",
+                          stacklevel=2)
+        # alpha-beta
+        if method == 'alpha_beta':
+            if len(f25_files) > 1:
+                warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
+                              stacklevel=2)
+            self.echg.alpha_beta()
 
-        n_punti_x = int(l_dens[1].strip().split()[0])
-        n_punti_y = int(l_dens[1].strip().split()[1])
+        return self.echg
 
-        self.npx = n_punti_x
-
-        x_min = units.au_to_angstrom(float(l_dens[2].strip().split()[0]))
-        x_max = units.au_to_angstrom(float(l_dens[2].strip().split()[1]))
-        x_step = units.au_to_angstrom(float(l_dens[2].strip().split()[2]))
-
-        y_min = units.au_to_angstrom(float(l_dens[3].strip().split()[0]))
-        y_max = units.au_to_angstrom(float(l_dens[3].strip().split()[1]))
-        y_step = units.au_to_angstrom(float(l_dens[3].strip().split()[2]))
-
-        l_dens = l_dens[5:]
-
-        m_dens = []
-        for i in l_dens:
-            m_dens.append(re.sub("\s\s+", " ", i))
-
-        n_dens = []
-        for i in m_dens:
-            n_dens.append(i.replace('\n', '').split())
-
-        self.df = pd.DataFrame(n_dens)
-
-        self.x_points = np.linspace(x_min, x_max, n_punti_x)
-        self.y_points = np.linspace(y_min, y_max, n_punti_y)
-
-        a = x_max - x_min
-        b = y_max - y_min
-        r = a/b
-
-        self.x_graph_param = 10
-        self.y_graph_param = 10 / r
-
-        ctr1 = np.array([0.002, 0.004, 0.008, 0.02, 0.04,
-                         0.08, 0.2, 0.4, 0.8, 2, 4, 8, 20])
-        colors1 = ['r', 'r', 'r', 'r', 'r', 'r',
-                   'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls1 = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        ctr2 = np.array([-8, -4, -2, -0.8, -0.4, -0.2, -0.08, -0.04, -0.02, -0.008, -0.004, -0.002, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
-                         0.2, 0.4, 0.8, 2, 4, 8])
-        colors2 = ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
-                   'b', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls2 = ['--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--',
-               '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        ctr3 = np.array([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90,
-                         0.95, 1])
-        colors3 = ['k', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
-                   'b', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls3 = ['dotted', '--', '--', '--', '--', '--', '--', '--', '--',
-               '--', '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
-            self.levels = ctr1
-            self.colors = colors1
-            self.linestyles = ls1
-            self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
-            self.levels = ctr2
-            self.colors = colors2
-            self.linestyles = ls2
-            self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFELFB'):
-            self.levels = ctr3
-            self.colors = colors3
-            self.linestyles = ls3
-            self.fmt = '%1.2f'
-
-        return self
+#-------------------------------------XRD--------------------------------------#
 
     def read_cry_xrd_spec(self, properties_output):
         """
@@ -2833,6 +2772,8 @@ class Properties_output(POutBASE):
 
         return self
 
+#--------------------------------1D line profile-------------------------------#
+
     def read_cry_rholine(self, properties_output):
         """
         Read density line data from a file.
@@ -2878,6 +2819,8 @@ class Properties_output(POutBASE):
         self.title = title[:-4]
 
         return self
+
+#-----------------------------transport properties-----------------------------#
 
     def read_cry_seebeck(self, properties_output):
         """
@@ -3171,59 +3114,58 @@ class Properties_output(POutBASE):
 
         return self
 
-    def read_cry_ECHG(self, f25_file):
-        """
-        Read density profile data from a file.
-
-        Args:
-            f25_file (str): Path to the fort.25 file.
-        Returns:
-            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
-        """
-        from CRYSTALpytools.electronics import ChargeDensity
-
-        self.echg = ChargeDensity.read_ECHG(f25_file)
-        return self.echg
-
-    def read_cry_ECHG_delta(self, f25_file1, f25_file2):
-        """
-        Read density profile data from two files and plots the difference. It
-        is important to have consistent grid definitions, otherwise error is
-        raised.
-
-        Args:
-            f25_file1 (str): Path to first fort.25 file.
-            f25_file2 (str): Path to second fort.25 file.
-        Returns:
-            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
-        """
-        from CRYSTALpytools.electronics import ChargeDensity
-
-        self.echg = ChargeDensity.read_ECHG(f25_file1, f25_file2)
-        return self.echg
-
 #------------------------------------------------------------------------------#
 #--------------------------------obsolete methods------------------------------#
 #------------------------------------------------------------------------------#
     def read_cry_band(self, band_file):
         """
-        Obsolete. Use ``read_electron_band``.
+        Deprecated. Use ``read_electron_band``.
         """
         import warnings
 
-        warnings.warn("You are calling an obsolete function. Use 'read_electron_band' instead.",
+        warnings.warn("You are calling a deprecated function. Use 'read_electron_band' instead.",
                       stacklevel=2)
         return self.read_electron_band(band_file)
 
     def read_cry_doss(self, dos_file):
         """
-        Obsolete. Use ``read_electron_dos``.
+        Deprecated. Use ``read_electron_dos``.
         """
         import warnings
 
-        warnings.warn("You are calling an obsolete function. Use 'read_electron_dos' instead.",
+        warnings.warn("You are calling a deprecated function. Use 'read_electron_dos' instead.",
                       stacklevel=2)
         return self.read_electron_dos(dos_file)
+
+    def read_cry_ECHG(self, f25_file):
+        """
+        Deprecated. Use ``read_ECHG``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
+                      stacklevel=2)
+        return self.read_ECHG(f25_file, method=None)
+
+    def read_cry_ECHG_delta(self, f25_file1, f25_file2):
+        """
+        Deprecated. Use ``read_ECHG``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
+                      stacklevel=2)
+        return self.read_ECHG(f25_file1, f25_file2, method='substract')
+
+    def read_cry_contour(self, properties_output):
+        """
+        Deprecated. Use ``read_topond2D``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_topond2D' instead.",
+                      stacklevel=2)
+        return self.read_topond2D(properties_output)
 
 
 
