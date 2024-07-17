@@ -2601,7 +2601,7 @@ class Properties_output(POutBASE):
                 ``topond_unknown``. All of them are ``topond.Surf`` class.
         """
         import warnings
-        from CRYSTALpytools.base import TOPONDParser
+        from CRYSTALpytools.base.extfmt import TOPONDParser
         from CRYSTALpytools.topond import Surf
 
         if not hasattr(self, 'file_name'):
@@ -2632,11 +2632,11 @@ class Properties_output(POutBASE):
             if foundtype != True:
                 raise ValueError("Unknown type specification: '{}'. Use 'infer' or check your input.".format(type))
 
-        _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(file)
+        _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topond2d)
 
-        obj = Surf(map1, np.vstack([a,b,c]), 1, struc, unit)
-        obj._set_unit('Angstrom')
+        obj = Surf(map1, np.vstack([a,b,c]), 1, 2, struc, unit)
         obj.type = type
+        obj._set_unit('Angstrom')
         setattr(self, 'topond_{}'.format(type), obj)
         return getattr(self, 'topond_{}'.format(type))
 

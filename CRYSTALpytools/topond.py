@@ -5,7 +5,7 @@ The module for `TOPOND <https://www.crystal.unito.it/topond.html>`_ topological
 analysis of electron density
 """
 from CRYSTALpytools import units
-from CRYSTALpytools.electronics import ElectronBandDOS
+from CRYSTALpytools.electronics import ChargeDensity
 import numpy as np
 
 class Surf(ChargeDensity):
@@ -53,8 +53,8 @@ class Surf(ChargeDensity):
 
     def plot(self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
              isovalues='%.4f', colorplot=False, colormap='jet', cbar_label=None,
-             x_range=[], y_range=[], x_ticks=7, y_ticks=7, add_title=True,
-             figsize=[6.4, 4.8], **kwargs):
+             a_range=[], b_range=[], x_ticks=5, y_ticks=5, cellplot=False,
+             add_title=True, figsize=[6.4, 4.8], **kwargs):
         """
         Plot 2D contour lines, color maps or both for the 2D data set.
 
@@ -75,12 +75,15 @@ class Surf(ChargeDensity):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for default.
-            xrange (list): 1\*2 list of x axis range. **Must be consistent with
-                ``unit``**.
-            yrange (list): 1\*2 list of y axis range. **Must be consistent with
-                ``unit``**.
-            xticks (int): Number of ticks on x axis.
-            yticks (int): Number of ticks on y axis.
+            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+                fractional coordinate.
+            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+                fractional coordinate.
+            cellplot (bool): Whether to add cell boundaries represented by the
+                original base vectors (not inflenced by a/b range or rectangle
+                options).
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
             add_title (bool): Whether to add property plotted as title.
             figsize (list): Matplotlib figure size. Note that axes aspects are
                 fixed to be equal.
@@ -92,6 +95,7 @@ class Surf(ChargeDensity):
             ax (Axes): Matplotlib Axes object
         """
         from CRYSTALpytools.base.plotbase import plot_2Dscalar
+        from CRYSTALpytools.units import au_to_angstrom, H_to_eV
         import numpy as np
         import matplotlib.pyplot as plt
         import warnings
@@ -108,6 +112,8 @@ class Surf(ChargeDensity):
 
         # levels
         if np.all(levels=='default'):
+            cst = au_to_angstrom(1.)
+            ecst = H_to_eV(1.)
             if self.type == 'SURFELFB':
                 levels = np.linspace(0, 1, 21)
             elif self.type in ['SURFLAPP', 'SURFLAPM', 'SURFVIRI', 'SURFKKIN']:
@@ -115,39 +121,59 @@ class Surf(ChargeDensity):
                                    -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
                                    0, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
+                if self.type in ['SURFLAPP', 'SURFLAPM']:
+                    levels = levels / cst**5
+                else:
+                    levels = levels / cst**3 * ecst
             elif self.type in ['SURFRHOO', 'SURFGRHO', 'SURFGKIN']:
                 levels = np.array([0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8, 20], dtype=float)
+                if self.type == 'SURFRHOO':
+                    levels = levels / cst**3
+                elif self.type == 'SURFGRHO':
+                    levels = levels / cst**4
+                else:
+                    levels = levels / cst**3 * ecst
             elif self.type == 'diff': # developer only
                 levels = np.array([-8, -4, -2, -0.8, -0.4, -0.2,
                                    -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
                                    -0.0008, -0.0004, -0.0002, 0, 0.0002, 0.0004, 0.0008,
                                    0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
+                levels = levels / cst**3
             else:
                 warnings.warn("Unknown data type: {}. A linear scale is used.".format(self.type))
                 levels = np.linspace(np.min(self.data), np.max(self.data), 10)
         else:
-            levels = np.array(levels, dtype=float)
+            if isinstance(levels, int) or isinstance(levels, float):
+                levels = np.linspace(np.min(self.data), np.max(self.data), levels)
+            else:
+                levels = np.array(levels, dtype=float)
         # contour line styles
+        if self.type != 'SURFELFB':
+            blimit = -1e-6
+            rlimit = 1e-6
+        else:
+            blimit = 0.5
+            rlimit = 0.5
         if lineplot == True and colorplot == False:
             contourline = []
             for i in levels:
-                if i < -1e-6:
+                if i < blimit:
                     contourline.append(['b', '--', linewidth])
-                elif i > 1e-6:
+                elif i > rlimit:
                     contourline.append(['r', '-', linewidth])
                 else:
-                    contourline.append(['k', 'dotted', linewidth])
+                    contourline.append(['k', '-', linewidth*1.5])
         elif lineplot == True and colorplot == True:
             contourline = []
             for i in levels:
-                if i < -1e-6:
+                if i < blimit:
                     contourline.append(['k', '--', linewidth])
-                elif i > 1e-6:
+                elif i > rlimit:
                     contourline.append(['k', '-', linewidth])
                 else:
-                    contourline.append(['k', 'dotted', linewidth])
+                    contourline.append(['k', '-', linewidth*1.5])
         else:
             contourline = None
         # colormap
@@ -169,12 +195,10 @@ class Surf(ChargeDensity):
                 else: cbar_label=self.type
         # plot
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax = plot_2Dscalar(ax, self.data, self.base, contourline, isovalues,
-                           colormap, x_ticks, y_ticks, cbar_label, **kwargs)
-        if len(x_range) != 0:
-            ax.set_xlim(xrange)
-        if len(y_range) != 0:
-            ax.set_ylim(yrange)
+        fig, ax = plot_2Dscalar(
+            fig, ax, self.data, self.base, levels, contourline, isovalues, colormap,
+            cbar_label, a_range, b_range, False, cellplot, x_ticks, y_ticks, **kwargs
+        )
         if unit.lower() == 'angstrom':
             ax.set_xlabel(r'$\AA$')
             ax.set_ylabel(r'$\AA$')
@@ -186,6 +210,33 @@ class Surf(ChargeDensity):
 
         self._set_unit(uold)
         return fig, fig.axes
+
+    def substract(self, *args, type='infer'):
+        """
+        Substracting data of the same type from the object.
+
+        Args:
+            \*args (str|Surf): File names or ``Surf`` objects. Must be of the
+                same type (check the attribute ``type``).
+            type (str): 'infer' or specified. Otherwise warning will be given.
+                Useful only when filenames are given. Check the classmethod
+                ``from_file()``.
+        Returns:
+            self (Surf) : Data difference
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        objs = []
+        for i in args:
+            if isinstance(i, str):
+                objs.append(Properties_output().read_topond2D(i, type=type))
+            elif isinstance(i, Surf):
+                objs.append(i)
+            else:
+                raise TypeError('Inputs must be file name strings or Surf objects.')
+        self = super().substract(*objs)
+        self.type = 'diff'
+        return self
 
     def _set_unit(self, unit):
         """
@@ -228,7 +279,6 @@ class Surf(ChargeDensity):
         if self.type.upper() in density: # Bohr^-3 <---> AA^-3
             self.data = self.data / cst**3
         elif self.type.upper() in gradient: # Bohr^-4 <---> AA^-4
-            if unit.lower() == 'angstrom':
             self.data = self.data / cst**4
         elif self.type.upper() in laplacian: # Bohr^-5 <---> AA^-5
             self.data = self.data / cst**5

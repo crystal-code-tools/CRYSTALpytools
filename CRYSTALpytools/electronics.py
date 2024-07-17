@@ -539,7 +539,6 @@ class ChargeDensity():
 
         Args:
             \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
-                Must be of the same type (check the attribute ``type``).
         Returns:
             self (ChargeDensity) : spin dimension, if there is, is not kept.
                 Only charge density difference is substracted.
@@ -555,6 +554,9 @@ class ChargeDensity():
             else:
                 raise TypeError('Inputs must be file name strings or ChargeDensity objects.')
 
+            # type, useful for TOPOND classes
+            if self.type != obj.type:
+                raise TypeError('Input is not the same type as object.')
             # base vector
             if not np.all(np.abs(self.base-obj.base)<1e-6):
                 raise ValueError('Inconsistent base vectors between input and object.')
