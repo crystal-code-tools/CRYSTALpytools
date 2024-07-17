@@ -541,7 +541,8 @@ class ChargeDensity():
             \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
                 Must be of the same type (check the attribute ``type``).
         Returns:
-            self (ChargeDensity)
+            self (ChargeDensity) : spin dimension, if there is, is not kept.
+                Only charge density difference is substracted.
         """
         from CRYSTALpytools.crystal_io import Properties_output
         import numpy as np
@@ -567,10 +568,19 @@ class ChargeDensity():
             # spin
             if self.spin != obj.spin:
                 raise ValueError('Inconsistent spin dimensionalities between input and object.')
-
             # substract
             self.data = self.data - obj.data
 
+        # spin difference is not kept - meaningless. (if not please remove this block)
+        if self.spin == 2:
+            oshape = self.data.shape
+            chglen = 1
+            for s in oshape[:-1]:
+                chglen = chglen * s
+            chglen = int(chglen)
+            self.data = self.data.flatten(order='F')[:chglen]
+            self.data = np.reshape(self.data, oshape[:-1])
+            self.spin = 1
         return self
 
     def alpha_beta(self):
@@ -594,15 +604,15 @@ class ChargeDensity():
         for i in oldshape[:-1]:
             lenchg = lenchg * i
         lenchg = int(lenchg)
-        alpha = (self.data.flatten()[:lenchg] + self.data.flatten()[lenchg:]) / 2
-        beta = (self.data.flatten()[:lenchg] - self.data.flatten()[lenchg:]) / 2
-        self.data = np.hstack([alpha, beta]).reshape(ouldshape)
+        alpha = (self.data.flatten(order='F')[:lenchg] + self.data.flatten(order='F')[lenchg:]) / 2
+        beta = (self.data.flatten(order='F')[:lenchg] - self.data.flatten(order='F')[lenchg:]) / 2
+        self.data = np.reshape(np.hstack([alpha, beta]), oldshape, order='F')
         return self
 
     def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
                 linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-                cbar_label=None, x_range=[], y_range=[], x_ticks=7, y_ticks=7,
-                add_title=True, figsize=[6.4, 4.8], **kwargs):
+                cbar_label=None, a_range=[], b_range=[], rectangle=False, cellplot=False,
+                x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8], **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
@@ -635,10 +645,16 @@ class ChargeDensity():
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 1\*2 list of colorbar titles can be set for
                 spin-polarized systems. 'None' for default.
-            x_range (list): 1\*2 list of x axis range. **Must be consistent with
-                ``unit``**.
-            y_range (list): 1\*2 list of y axis range. **Must be consistent with
-                ``unit``**.
+            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+                fractional coordinate.
+            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+                fractional coordinate.
+            rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
+                rectangle region and reset :math:`b`. If used together with
+                ``b_range``, that refers to the old :math:`b`.
+            cellplot (bool): Whether to add cell boundaries represented by the
+                original base vectors (not inflenced by a/b range or rectangle
+                options).
             x_ticks (int): Number of ticks on x axis.
             y_ticks (int): Number of ticks on y axis.
             add_title (bool): Whether to add property plotted as title.
@@ -673,19 +689,21 @@ class ChargeDensity():
                 len_flat = 1
                 for i in self.data.shape[:-1]:
                     len_flat = len_flat * i
-                chg = self.data.flatten()[:len_flat]
-                spin = self.data.flatten()[len_flat:]
+                chg = self.data.flatten(order='F')[:len_flat]
+                spin = self.data.flatten(order='F')[len_flat:]
                 levels1 = np.linspace(np.min(chg), np.max(chg), levels)
                 levels2 = np.linspace(np.min(spin), np.max(spin), levels)
                 del chg, spin
         else:
-            levels = np.array(levels, dtype=float)
-            if len(levels.shape) == 1:
-                levels1 = levels
-                levels2 = levels
+            if isinstance(levels[0], int) or isinstance(levels[0], float):
+                levels1 = np.array(levels, dtype=float)
+                levels2 = np.array(levels, dtype=float)
             else:
-                levels1 = levels[0,:]
-                levels2 = levels[1,:]
+                levels1 = np.array(levels[0], dtype=float)
+                levels2 = np.array(levels[1], dtype=float)
+        # color plot
+        if colorplot == False:
+            colormap = None
         # contour line
         if lineplot == True:
             chgline = [['k', '-', linewidth] for i in levels1]
@@ -708,57 +726,74 @@ class ChargeDensity():
                 cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)
 
         # plot
+        ## spin
         if self.spin == 1 and (option.lower()=='both' or option.lower()=='spin'):
             warnings.warn("Spin options not available to non spin-polarized cases.",
                           stacklevel=2)
             option = 'charge'
+
         if option.lower() == 'both':
-            fig, ax = plt.subplots(1, 2, figsize=figsize,
-                                   sharex=True, sharey=True, layout='constrained')
-            ax[0] = plot_2Dscalar(ax[0], self.data[:, :, 0], self.base, chgline,
-                                  isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
-            ax[1] = plot_2Dscalar(ax[1], self.data[:, :, 1], self.base, spinline,
-                                  isovalues, colormap, x_ticks, y_ticks, cbar_label2, **kwargs)
+            fig, ax = plt.subplots(1, 2, figsize=figsize, sharex=True,
+                                   sharey=True, layout='tight')
+            fig, ax[0] = plot_2Dscalar(
+                fig, ax[0], self.data[:, :, 0], self.base, levels1, chgline,
+                isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                cellplot, x_ticks, y_ticks, **kwargs
+            )
+            fig, ax[1] = plot_2Dscalar(
+                fig, ax[1], self.data[:, :, 1], self.base, levels2, spinline,
+                isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
+                cellplot, x_ticks, y_ticks, **kwargs
+            )
         elif option.lower() == 'charge':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
             if self.spin == 1:
-                ax = plot_2Dscalar(ax, self.data[:, :], self.base, chgline,
-                                   isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
+                fig, ax = plot_2Dscalar(
+                    fig, ax, self.data[:, :], self.base, levels1, chgline,
+                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                    cellplot, x_ticks, y_ticks, **kwargs
+                )
             else:
-                ax = plot_2Dscalar(ax, self.data[:, :, 0], self.base, chgline,
-                                   isovalues, colormap, x_ticks, y_ticks, cbar_label1, **kwargs)
-            ax = [ax]
+                fig, ax = plot_2Dscalar(
+                    fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
+                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                    cellplot, x_ticks, y_ticks,  **kwargs
+                )
         elif option.lower() == 'spin':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
-            ax = plot_2Dscalar(ax, self.data[:, :, 1], self.base, spinline,
-                               isovalues, colormap, x_ticks, y_ticks, cbar_label2, **kwargs)
-            ax = [ax]
+            fig, ax = plot_2Dscalar(
+                fig, ax, self.data[:, :, 1], self.base, levels2, spinline,
+                isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
+                cellplot, x_ticks, y_ticks,  **kwargs
+            )
         else:
             raise ValueError("Unknown option: '{}'.".format(option))
 
         # range and labels
-        for a in ax:
-            if len(x_range) != 0:
-                a.set_xlim(xrange)
-            if len(y_range) != 0:
-                a.set_ylim(yrange)
+        if option.lower() == 'both':
             if self.unit.lower() == 'angstrom':
-                a.set_xlabel(r'$\AA$')
-                a.set_ylabel(r'$\AA$')
+                ax[0].set_xlabel(r'$\AA$')
+                ax[0].set_ylabel(r'$\AA$')
+                ax[1].set_xlabel(r'$\AA$')
             else:
-                a.set_xlabel(r'$Bohr$')
-                a.set_ylabel(r'$Bohr$')
-
-        if add_title == True:
-            if option.lower() == 'both':
+                ax[0].set_xlabel('Bohr')
+                ax[0].set_ylabel('Bohr')
+                ax[1].set_xlabel('Bohr')
+            if add_title == True:
                 ax[0].set_title('Charge Density')
                 ax[1].set_title('Spin Density')
-            elif option.lower() == 'charge':
-                ax[0].set_title('Charge Density')
-                ax = ax[0]
+        else:
+            if self.unit.lower() == 'angstrom':
+                ax.set_xlabel(r'$\AA$')
+                ax.set_ylabel(r'$\AA$')
             else:
-                ax[0].set_title('Spin Density')
-                ax = ax[0]
+                ax.set_xlabel('Bohr')
+                ax.set_ylabel('Bohr')
+            if add_title == True:
+                if option.lower() == 'charge':
+                    ax.set_title('Charge Density')
+                else:
+                    ax.set_title('Spin Density')
 
         # restore old unit
         self._set_unit(uold)

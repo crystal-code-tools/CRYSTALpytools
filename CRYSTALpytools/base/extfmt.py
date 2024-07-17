@@ -287,46 +287,61 @@ class CrgraParser():
         data = file.readlines()
         file.close()
 
-        if '-%-' not in data[0] or 'MAPN' not in data[0]:
-            raise Exception(
-                "File '{}' is not a Crgra fort.25 2D isovalue map file.".format(filename))
+        if '-%-' not in data[0]:
+            raise Exception("File '{}' is not in Crgra fort.25 format.".format(filename))
+        # Multiple data might be written into the same f25 file.
+        is2d = False
+        bgline = None
+        for nline, line in enumerate(data):
+            if 'MAPN' in line:
+                is2d = True
+                bgline = nline
+                break
+            else:
+                continue
+        if is2d != True:
+            raise Exception("'*MAPN*' keyword is not found in file '{}'.".format(filename))
 
         # Spin
-        ihferm = int(data[0][3])
+        ihferm = int(data[bgline][3])
         spin = ihferm % 2 + 1
 
-        points_ab = int(data[0][8:13])
-        points_bc = int(data[0][13:18])
-        cosxy = float(data[0][42:54])
+        points_ab = int(data[bgline][8:13])
+        points_bc = int(data[bgline][13:18])
+        cosxy = float(data[bgline][42:54])
 
-        a = np.array([data[1][0:12], data[1][12:24],
-                     data[1][24:36]], dtype=float)
-        b = np.array([data[1][36:48], data[1][48:60],
-                     data[1][60:72]], dtype=float)
-        c = np.array([data[2][0:12], data[2][12:24],
-                     data[2][24:36]], dtype=float)
+        a = np.array([data[bgline+1][0:12], data[bgline+1][12:24],
+                     data[bgline+1][24:36]], dtype=float)
+        b = np.array([data[bgline+1][36:48], data[bgline+1][48:60],
+                     data[bgline+1][60:72]], dtype=float)
+        c = np.array([data[bgline+2][0:12], data[bgline+2][12:24],
+                     data[bgline+2][24:36]], dtype=float)
         pbc_dict = {3: [True, True, True],
                     2: [True, True, False],
                     1: [True, False, False],
                     0: [False, False, False]}
-        pbc = pbc_dict[int(data[2][45:])]
+        pbc = pbc_dict[int(data[bgline+2][45:])]
         npt = points_ab * points_bc
 
         countspin = 0
         countpt = 0
-        countline = 3
+        countline = bgline+3
         atom_spec = []
         atom_coord = []
         latt = []
         density_maps = [[], []]
         while countline < len(data):
             line = data[countline]
+            if re.match(r'^\-\%\-', line) and 'MAPN' not in line: # Other data
+                break
             if countpt < npt:
                 value = re.findall(r'.{12}', line)
                 density_maps[countspin].extend(value)
                 countpt += len(value)
             else:
-                if '-%-' in line:  # Spin block
+                if re.match(r'^\-\%\-.*MAPN', line):  # Spin block
+                    if spin == 1 or countspin == 1: # at most 2 mapnets
+                        break
                     countspin += 1
                     countpt = 0
                     countline += 3
@@ -338,8 +353,12 @@ class CrgraParser():
                 else:
                     latt.append([float(line[0:20]), float(
                         line[20:40]), float(line[40:])])
-
             countline += 1
+
+        if spin == 2:
+            latt = latt[0:3]
+            atom_spec = atom_spec[0:int(len(atom_spec)/2)]
+            atom_coord = atom_spec[0:int(len(atom_coord)/2)]
 
         struc = CStructure(latt, atom_spec, atom_coord,
                            coords_are_cartesian=True)
@@ -351,7 +370,6 @@ class CrgraParser():
             map2 = np.reshape(map2, [points_ab, points_bc], order='F')
         else:
             map2 = None
-
         return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
 
 

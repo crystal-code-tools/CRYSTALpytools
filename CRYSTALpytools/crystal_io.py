@@ -2672,9 +2672,9 @@ class Properties_output(POutBASE):
         if spin == 1:
             self.echg = ChargeDensity(map1, np.vstack([a,b,c]), spin, 2, struc, unit)
         else:
-            self.echg = ChargeDensity(np.vstack[map1, map2].transpose(axis=[1, 2, 0]),
-                                      np.vstack([a,b,c]), spin, 2, struc, unit)
-        self._set_unit('Angstrom')
+            self.echg = ChargeDensity(np.dstack([map1, map2]), np.vstack([a,b,c]),
+                                      spin, 2, struc, unit)
+        self.echg._set_unit('Angstrom')
 
         # methods
         if len(f25_files) > 1 and method == 'substract':
@@ -2682,7 +2682,7 @@ class Properties_output(POutBASE):
         elif len(f25_files) > 1 and method != 'substract':
             warnings.warn("Only the 'substract' method is available to more than 1 entries. Nothing is done to other entries.",
                           stacklevel=2)
-        elif en(f25_files) == 1 and method == 'substract':
+        elif len(f25_files) == 1 and method == 'substract':
             warnings.warn("The 'substract' method is used only for multiple entries.",
                           stacklevel=2)
         # alpha-beta

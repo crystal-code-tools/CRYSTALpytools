@@ -14,8 +14,9 @@ import numpy as np
 #--------------------------ECHG charge and spin density----------------------#
 def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
               linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-              cbar_label=None, x_range=[], y_range=[], scale=True, x_ticks=7,
-              y_ticks=7, add_title=True, figsize=[6.4, 4.8], **kwargs):
+              cbar_label=None, a_range=[], b_range=[], rectangle=False,
+              cellplot=False, scale=True, x_ticks=5, y_ticks=5, add_title=True,
+              figsize=[6.4, 4.8], **kwargs):
     """
     Read multiple 2D charge density files / objects and return to a list of
     figures and axes. The uniform plot set-ups are used for comparison.
@@ -26,12 +27,8 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         Otherwise plot charge densities.  
     * 'charge': Plot charge density.  
     * 'spin': Plot spin density.  
-    * 'diff_both': Same to both. Substracting data from the first entry with
-        the following entries.
-    * 'diff_charge': Same to charge. Substracting data from the first entry with
-        the following entries.
-    * 'diff_spin': Same to spin. Substracting data from the first entry with
-        the following entries.
+    * 'diff': Substracting charge data from the first entry with the following
+        entries. Return to a non spin-polarized object.  
 
     Args:
         \*echg (ChargeDensity|str): Extendable. File names or
@@ -54,10 +51,15 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
             1\*2 list of colorbar titles can be set for spin-polarized systems.
             'None' for default.
-        x_range (list): 1\*2 list of x axis range. **Must be consistent with ``unit``**.
-        y_range (list): 1\*2 list of y axis range. **Must be consistent with ``unit``**.
+        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
+        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
+            region and reset :math:`b`. If used together with ``b_range``, that
+            refers to the old :math:`b`.
         scale (bool): Whether to scale the plot window for systems of different sizes.
             Base vectors of 2D plot are changed. Use with care.
+        cellplot (bool): Whether to add cell boundaries represented by the
+            original base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
         add_title (bool): Whether to add property plotted as title.
@@ -83,7 +85,7 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
     # substraction
     if 'diff' in option.lower():
         obj[0].substract(*[i for i in obj[1:]])
-        option = option.split('_')[1]
+        option = 'charge'
         obj = [obj[0]]
     # set uniform levels
     if isinstance(levels, float) or isinstance(levels, int):
@@ -102,13 +104,12 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)
             levels2 = np.linspace(np.min(spin_range), np.max(spin_range), levels)
     else:
-        levels = np.array(levels)
-        if len(levels.shape) == 1:
-            levels1 = levels
-            levels2 = levels
+        if isinstance(levels[0], int) or isinstance(levels[0], float):
+            levels1 = np.array(levels, dtype=float)
+            levels2 = np.array(levels, dtype=float)
         else:
-            levels1 = levels[0, :]
-            levels2 = levels[1, :]
+            levels1 = np.array(levels[0], dtype=float)
+            levels2 = np.array(levels[1], dtype=float)
     levels = np.vstack([levels1, levels2])
     # set scaling
     if scale == True:
@@ -118,8 +119,9 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
     figs = []; axes =[]
     for i in obj:
         tmp = i.plot_2D(unit, option, levels, lineplot, linewidth, isovalues,
-                        colorplot, colormap, cbar_label, x_range, y_range,
-                        x_ticks, y_ticks, add_title, figsize, **kwargs)
+                        colorplot, colormap, cbar_label, a_range, b_range,
+                        rectangle, cellplot, x_ticks, y_ticks, add_title,
+                        figsize, **kwargs)
         figs.append(tmp[0]); axes.append(tmp[1])
     if len(obj) == 1:
         figs = figs[0]
@@ -3970,7 +3972,7 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom',  xticks=5,
 
     warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
-    if np.all(cmap_min!=None) and np.all(cmap_max!=None)
+    if np.all(cmap_min!=None) and np.all(cmap_max!=None):
         levels = np.linspace(cmap_min, cmap_max, 150)
     else:
         levels = 150
@@ -3989,7 +3991,7 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
 
     warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
-    if np.all(cmap_min!=None) and np.all(cmap_max!=None)
+    if np.all(cmap_min!=None) and np.all(cmap_max!=None):
         levels = np.linspace(cmap_min, cmap_max, 150)
     else:
         levels = 150

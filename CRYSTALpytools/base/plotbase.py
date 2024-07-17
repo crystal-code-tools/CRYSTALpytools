@@ -637,12 +637,13 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
     return fig, fig.axes
 
 
-def plot_2Dscalar(ax, data, base, levels, contourline, isovalue, colormap,
-                  xticks, yticks, cbar_label, **kwargs):
+def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, cbar_label,
+                  a_range, b_range, rectangle, plot_base, xticks, yticks, **kwargs):
     """
     Plot 2D scalar field map.
 
     Args:
+        fig (Figure): Matplotlib Figure object
         ax (Axes): Matplotlib Axes object
         data (array): 2D map data.
         base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
@@ -656,32 +657,139 @@ def plot_2Dscalar(ax, data, base, levels, contourline, isovalue, colormap,
             contourlines. Useful only when ``contourline`` is not None.
         colormap (str|None): If not None, set the colormap of color-filled
             contour plots.
-        xticks (int): Number of ticks in the x direction.
-        yticks (int): Number of ticks in the y direction.
         cbar_label (str): Title of colorbar. Useful only when ``colormap`` is
             not None.
+        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
+        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
+            region and reset :math:`b`. If used together with ``b_range``, that
+            refers to the old :math:`b`.
+        plot_base (bool): Whether plot the unit cell defined by base vector in figure.
+        xticks (int): Number of ticks in the x direction.
+        yticks (int): Number of ticks in the y direction.
         \*\*kwargs: Other arguments passed to ``axes.contour()`` function to
             set contour lines.
 
     Returns:
+        fig (Figure): Matplotlib Figure object
         ax (Axes): Matplotlib axes object
     """
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import cm, colors
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import copy
 
-    vx = base[0, :] - base[1, :] # BA
-    len_vx = np.norm(vx)
-    npt_vx = data.shape[0]
-    vy = base[2, :] - base[1, :] # BC
-    len_vy = np.norm(vy)
-    npt_vy = data.shape[1]
-    sinxy = np.linalg.norm(np.cross(vx, vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
+    vx = base[2, :] - base[1, :] # x, BC
+    len_vx = np.linalg.norm(vx)
+    npt_vx = data.shape[1] # a BA*BC matrix
+    vy = base[1, :] - base[0, :] # y, AB
+    len_vy = np.linalg.norm(vy)
+    npt_vy = data.shape[0]
+    cosxy = np.dot(vx, vy) / np.linalg.norm(vx) / np.linalg.norm(vy)
+    sinxy = np.linalg.norm(np.cross(vx,vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
 
-    X, Y = np.meshgrid(np.linspace(0, len_vx, npt_vx+1),
-                       np.linspace(0, len_vy, npt_vy+1))
-    # Non-orthogonal grids
-    Y = Y * sinxy
+    X, Y = np.meshgrid(np.linspace(0, len_vx, npt_vx),
+                       np.linspace(0, len_vy, npt_vy))
+    # orthogonality
+    X = np.round(cosxy, 3)*Y + X
+    Y = np.round(sinxy, 3)*Y
+
+    # periodicity
+    ## a, b ranges are in lattice base vector. Can be non-orthogonal
+    ulen_vx = len_vx / (npt_vx-1)
+    ulen_vy = len_vy / (npt_vy-1)
+    extend = False
+    if len(a_range) == 2:
+        a_range = np.array([np.min(a_range), np.max(a_range)]) * len_vx
+        nlen_vx = a_range[1] - a_range[0]
+        nnpt_vx = int(np.round(nlen_vx/ulen_vx, 0)) + 1
+        extend = True
+        if nlen_vx/len_vx - np.round(nlen_vx/len_vx,0) > 1e-3:
+            raise ValueError('Use integer supercell sizes.')
+    else:
+        a_range = np.array([0., 1.]) * len_vx
+        nlen_vx = len_vx
+        nnpt_vx = npt_vx
+    if len(b_range) == 2:
+        b_range = np.array([np.min(b_range), np.max(b_range)]) * len_vy
+        nlen_vy = b_range[1] - b_range[0]
+        nnpt_vy = int(np.round(nlen_vy/ulen_vy, 0)) + 1
+        extend = True
+        if nlen_vy/len_vy - np.round(nlen_vy/len_vy,0) > 1e-3:
+            raise ValueError('Use integer supercell sizes.')
+    else:
+        b_range = np.array([0., 1.]) * len_vy
+        nlen_vy = len_vy
+        nnpt_vy = npt_vy
+    ## grid
+    if extend == True:
+        # update base vectors
+        X, Y = np.meshgrid(np.linspace(0, nlen_vx, nnpt_vx),
+                           np.linspace(0, nlen_vy, nnpt_vy))
+        len_vx = nlen_vx
+        len_vy = nlen_vy
+        X = np.round(cosxy, 3)*Y + X
+        Y = np.round(sinxy, 3)*Y
+
+        # represent (x,y) in old (vx,vy) basis.
+        ndata = np.zeros([nnpt_vy, nnpt_vx], dtype=float)
+        for i in range(nnpt_vy):
+            for j in range(nnpt_vx):
+                idx = j
+                idy = i
+                while idx >= npt_vx: idx -= npt_vx
+                while idx < 0: idx += npt_vx
+                while idy >= npt_vy: idy -= npt_vy
+                while idy < 0: idy += npt_vy
+                ndata[i, j] = data[idy, idx]
+        del data
+        data = copy.deepcopy(ndata)
+        del ndata
+        # shift data grid's origin to a_range[0], b_range[0]
+        ncol = int(np.round(a_range[0]/ulen_vx, 0))
+        nrow = int(np.round(b_range[0]/ulen_vy, 0))
+        if ncol < 0:
+            tmp = copy.deepcopy(data[:, 0:-ncol])
+            data[:, 0:nnpt_vx+ncol] = data[:, -ncol:]
+            data[:, nnpt_vx+ncol:] = tmp
+        else:
+            tmp = copy.deepcopy(data[:, nnpt_vx-ncol:])
+            data[:, ncol:] = data[:, 0:nnpt_vx-ncol]
+            data[:, 0:ncol] = tmp
+        if nrow < 0:
+            tmp = copy.deepcopy(data[0:-nrow, :])
+            data[0:nnpt_vy+nrow, :] = data[-nrow:, :]
+            data[nnpt_vy+nrow:, :] = tmp
+        else:
+            tmp = copy.deepcopy(data[nnpt_vy-nrow:, :])
+            data[nrow:, :] = data[0:nnpt_vy-nrow, :]
+            data[0:nrow, :] = tmp
+
+    # get rectangle region
+    if rectangle == True and np.abs(cosxy) > 1e-3:
+        for i in range(nnpt_vy):
+            if cosxy < 0: # case 1, cosxy < 0
+                j = 0
+                while X[i, j] < 0:
+                    tmp = X[i, j]
+                    X[i, j:-1] = X[i, j+1:]
+                    X[i, -1] = tmp + len_vx
+                    tmpd = data[i, j]
+                    data[i, j:-1] = data[i, j+1:]
+                    data[i, -1] = tmpd
+            else: # case 2, cosxy > 0
+                j = nnpt_vx-1
+                while X[i, j] >= len_vx:
+                    tmp = X[i, j]
+                    X[i, 1:j+1] = X[i, 0:j]
+                    X[i, 0] = tmp - len_vx
+                    tmpd = data[i, j]
+                    data[i, 1:j+1] = data[i, 0:j]
+                    data[i, 0] = tmpd
+        len_vy = len_vy * sinxy
+        cosxy = 0.
+        sinxy = 1.
 
     # plot, put colormap at the back
     if np.all(colormap!=None):
@@ -689,17 +797,17 @@ def plot_2Dscalar(ax, data, base, levels, contourline, isovalue, colormap,
         norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
         m = cm.ScalarMappable(cmap=colormap, norm=norm)
         m.set_array(levels)
-        colorbar = plt.colorbar(
-            m, cax=ax, location='right', orientation='vertical', pad=0.05, shrink=0.5
-        )
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad="5%")
+        colorbar = fig.colorbar(m, cax=cax)
         if np.all(cbar_label!=None):
-            colorbar.set_label(cbar_label, rotation=270)
+            colorbar.set_label(cbar_label, rotation=270, labelpad=15)
 
     if np.all(contourline!=None):
         if len(contourline) != len(levels):
             raise ValueError('Inconsistent lengthes of contour line and contour line styles')
         clist = []; stlist = []; wlist = []
-        for i in countourline:
+        for i in contourline:
             clist.append(i[0]); stlist.append(i[1]); wlist.append(i[2])
 
         L = ax.contour(X, Y, data, levels, colors=clist, linestyles=stlist,
@@ -707,10 +815,29 @@ def plot_2Dscalar(ax, data, base, levels, contourline, isovalue, colormap,
         if np.all(isovalue!=None):
             ax.clabel(L, inline=1, fmt=isovalue)
 
-    ax.set_xticks(np.round(np.linspace(0, len_vx, xticks), 2))
-    ax.set_yticks(np.round(np.linspace(0, len_vy, yticks), 2))
-    ax.set_aspect(1.0)
-    ax.set_xlim(np.min(X), np.max(X))
-    ax.set_ylim(np.min(Y), np.max(Y))
+    # plot lattice
+    if plot_base == True:
+        ovx = base[2, :] - base[1, :]
+        olen_vx = np.linalg.norm(ovx)
+        ovy = base[1, :] - base[0, :]
+        olen_vy = np.linalg.norm(ovy)
+        ocosxy = np.dot(ovx, ovy) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
+        osinxy = np.linalg.norm(np.cross(ovx,ovy)) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
+        shiftx = (a_range[0]/olen_vx - int(a_range[0]/olen_vx)) * olen_vx
+        shifty = (b_range[0]/olen_vy - int(b_range[0]/olen_vy)) * olen_vx
+        if shiftx < 0: shiftx += olen_vx
+        if shifty < 0: shifty += olen_vy
+        xpath = np.array([0, olen_vx, olen_vx+olen_vy*ocosxy, olen_vy*ocosxy, 0]) + (shiftx+shifty*ocosxy)
+        ypath = np.array([0, 0, olen_vy*osinxy, olen_vy*osinxy, 0]) + (shifty*osinxy)
+        ax.plot(xpath, ypath,'k-', linewidth=1.0)
 
-    return ax
+    # New ranges due to changes of a b ranges in non-orthogonal axis
+    xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
+    yrange = [np.round(np.min(Y), 2), np.round(np.max(Y), 2)]
+    ax.set_xticks(np.round(np.linspace(xrange[0], xrange[1], xticks), 2))
+    ax.set_yticks(np.round(np.linspace(yrange[0], yrange[1], yticks), 2))
+    ax.set_aspect(1.0)
+    ax.set_xlim(xrange[0], xrange[1])
+    ax.set_ylim(yrange[0], yrange[1])
+
+    return fig, ax
