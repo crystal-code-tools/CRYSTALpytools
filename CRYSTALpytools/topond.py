@@ -17,13 +17,16 @@ class Surf(ChargeDensity):
         data (array): 2D Plot data. nX\*nY
         base (array): 3\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
-        spin (int): Only 1. Not useful to this class.
-        dimen (int): Only 2. Not useful to this class.
         struc (CStructure): Extended Pymatgen Structure object.
+        type (str): See the classmethod ``from_file``.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
+    def __init__(self, data, base, struc=None, type='unknown', unit='Angstrom'):
+        super().__init__(data, base, 1, 2, struc, unit)
+        self.type = type
+
     @classmethod
-    def from_file(cls, file, type='infer', output=None):
+    def from_file(cls, file, output=None, type='infer'):
         """
         Instantite the class by 2D scalar countour plot files ('SURF*.DAT').
 
@@ -32,24 +35,25 @@ class Surf(ChargeDensity):
 
             For the convenience of analysis and plotting, it is important to select
             the correct type for your input file. By default `type='infer'` will
-            search for (case insensitive) the following strings:
+            search for (case insensitive) the following strings in the filename:
 
-            ``'SURFRHOO','SURFSPDE','SURFLAPP','SURFLAPM','SURFGRHO','SURFKKIN','SURFGKIN','SURFVIRI','SURFELFB'``
+            'SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+            'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB'
 
             For their meanings, please refer the `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
 
         Args:
             file (str): TOPOND formatted 2D plot file
-            type (str): 'infer' or specified. Otherwise warning will be given.
             output (str): Standard output of Properties calculation, used to
                 get geometry.
+            type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
-            cls (ChargeDensity)
+            cls (Surf)
         """
         from CRYSTALpytools.crystal_io import Properties_output
 
-        return Properties_output(output).read_topond2D(file, type)
+        return Properties_output(output).read_topond(file, type)
 
     def plot(self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
              isovalues='%.4f', colorplot=False, colormap='jet', cbar_label=None,
@@ -92,10 +96,8 @@ class Surf(ChargeDensity):
 
         Returns:
             fig (Figure): Matplotlib Figure object
-            ax (Axes): Matplotlib Axes object
         """
         from CRYSTALpytools.base.plotbase import plot_2Dscalar
-        from CRYSTALpytools.units import au_to_angstrom, H_to_eV
         import numpy as np
         import matplotlib.pyplot as plt
         import warnings
@@ -112,35 +114,20 @@ class Surf(ChargeDensity):
 
         # levels
         if np.all(levels=='default'):
-            cst = au_to_angstrom(1.)
-            ecst = H_to_eV(1.)
             if self.type == 'SURFELFB':
                 levels = np.linspace(0, 1, 21)
             elif self.type in ['SURFLAPP', 'SURFLAPM', 'SURFVIRI', 'SURFKKIN']:
-                levels = np.array([-8, -4, -2, -0.8, -0.4, -0.2,
+                levels = np.array([-80, -40, -20, -8, -4, -2, -0.8, -0.4, -0.2,
+                                   -0.08, -0.04, -0.02, 0, 0.02, 0.04, 0.08,
+                                   0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80], dtype=float)
+            elif self.type in ['SURFRHOO', 'SURFGRHO', 'SURFGKIN']:
+                levels = np.array([0.02, 0.04, 0.08, 0.2, 0.4, 0.8,
+                                   2, 4, 8, 20, 40, 80, 200], dtype=float)
+            elif self.type == 'diff' or self.type == 'SURFSPDE': # difference
+                levels = np.array([-80, -40, -20, -8, -4, -2, -0.8, -0.4, -0.2,
                                    -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
                                    0, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
-                                   0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
-                if self.type in ['SURFLAPP', 'SURFLAPM']:
-                    levels = levels / cst**5
-                else:
-                    levels = levels / cst**3 * ecst
-            elif self.type in ['SURFRHOO', 'SURFGRHO', 'SURFGKIN']:
-                levels = np.array([0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
-                                   0.2, 0.4, 0.8, 2, 4, 8, 20], dtype=float)
-                if self.type == 'SURFRHOO':
-                    levels = levels / cst**3
-                elif self.type == 'SURFGRHO':
-                    levels = levels / cst**4
-                else:
-                    levels = levels / cst**3 * ecst
-            elif self.type == 'diff': # developer only
-                levels = np.array([-8, -4, -2, -0.8, -0.4, -0.2,
-                                   -0.08, -0.04, -0.02, -0.008, -0.004, -0.002,
-                                   -0.0008, -0.0004, -0.0002, 0, 0.0002, 0.0004, 0.0008,
-                                   0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
-                                   0.2, 0.4, 0.8, 2, 4, 8], dtype=float)
-                levels = levels / cst**3
+                                   0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80], dtype=float)
             else:
                 warnings.warn("Unknown data type: {}. A linear scale is used.".format(self.type))
                 levels = np.linspace(np.min(self.data), np.max(self.data), 10)
@@ -164,7 +151,7 @@ class Surf(ChargeDensity):
                 elif i > rlimit:
                     contourline.append(['r', '-', linewidth])
                 else:
-                    contourline.append(['k', '-', linewidth*1.5])
+                    contourline.append(['k', '-', linewidth*2])
         elif lineplot == True and colorplot == True:
             contourline = []
             for i in levels:
@@ -173,7 +160,7 @@ class Surf(ChargeDensity):
                 elif i > rlimit:
                     contourline.append(['k', '-', linewidth])
                 else:
-                    contourline.append(['k', '-', linewidth*1.5])
+                    contourline.append(['k', '-', linewidth*2])
         else:
             contourline = None
         # colormap
@@ -209,7 +196,7 @@ class Surf(ChargeDensity):
             ax.set_title(self.type)
 
         self._set_unit(uold)
-        return fig, fig.axes
+        return fig
 
     def substract(self, *args, type='infer'):
         """
@@ -291,3 +278,172 @@ class Surf(ChargeDensity):
 
         return self
 
+
+class Traj():
+    """
+    TOPOND trajectory plot class. Length unit: :math:`\\AA`.
+
+    Args:
+        wtraj (list[int]): 1\*nPath, weight of the path, int 0 to 3.
+        traj (list[array]): 1\*nPath, list of critical paths. Every array is a
+            nPoint\*3 3D ref framework coordinates of points on the path.
+        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+            vectors BA and BC.
+        struc (CStructure): Extended Pymatgen Structure object.
+        type (str): See the classmethod ``from_file``.
+        unit (str): In principle, should always be 'Angstrom' (case insensitive).
+
+    Returns:
+        self (Traj): Import attributes: ``trajectory``, nPath\*2 list of
+            trajectory and its weight; ``cpoint``, nCpoint\*3 array of critical
+            point coordinates in 3D ref framework.
+    """
+    def __init__(self, wtraj, traj, base, struc, type='unknown', unit='Angstrom'):
+        if len(wtraj) != len(traj):
+            raise ValueError('Inconsistent lengths of input trajectory and its weight.')
+
+        self.trajectory = [[int(wtraj[i]), np.array(traj[i], dtype=float)]
+                           for i in range(len(wtraj))]
+        self.base = np.array(base, dtype=float)
+        self.structure = struc
+        self.type = type
+        self.unit = unit
+        cpt = []
+        for i in self.trajectory:
+            if len(i[1]) == 1:
+                cpt.append(i[1][0])
+        self.cpoint = np.array(cpt)
+
+    @classmethod
+    def from_file(cls, file, output, type='infer'):
+        """
+        Generate a ``topond.Traj`` object from 'TRAJ*.DAT' file and standard
+        output of TOPOND.
+
+        .. note::
+
+            For the convenience of analysis and plotting, it is important to select
+            the correct type for your input file. By default `type='infer'` will
+            search for (case insensitive) the following strings in the filename:
+
+            'TRAJGRAD', 'TRAJMOLG',
+
+            For their meanings, please refer the `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
+
+        Args:
+            file (str): TOPOND formatted 2D plot file
+            output (str): Standard output of Properties calculation, used to
+                get geometry.
+            type (str): 'infer' or specified. Otherwise warning will be given.
+
+        Returns:
+            cls (ChargeDensity)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        return Properties_output(output).read_topond(file, type=type)
+
+    def plot_2D(self, unit='Angstrom', cpt_marker='o', cpt_c='k', cpt_s=10,
+                traj_color='r', traj_linestyle=':', traj_linewidth=0.5,
+                x_ticks=5, y_ticks=5, cellplot=False, add_title=True,
+                figsize=[6.4, 4.8], overlay_surf=None, **kwargs):
+        """
+        Get TOPOND trajectory in a 2D plot.
+        """
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import copy
+        from CRYSTALpytools.plotbase import _get_operation
+
+        # unit
+        uold = self.unit
+        if self.unit.lower() != unit.lower():
+            self._set_unit(unit)
+
+        # Get bottom surf figure first
+        if np.all(overlay_surf!=None) and isinstance(overlay_surf, Surf):
+            overlay_surf._set_unit(unit)
+            diff_base = np.abs(overlay_surf.base-self.base)
+            if np.any(diff_base>1e-3):
+                raise Exception("The plotting base of overlayed surface and 2D trajectory are different.")
+
+            kwargs['unit'] = unit; kwargs['figsize'] = figsize
+            kwargs['a_range'] = []; kwargs['b_range'] = [] # no periodicity
+            kwargs['x_ticks'] = x_ticks; kwargs['y_ticks'] = y_ticks
+            kwargs['cellplot'] = cellplot; kwargs['add_title'] = add_title
+            fig = overlay_surf.plot(**kwargs)
+            ax = fig.axes[0]
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+
+        # rotate the trajectory to plotting plane
+        rot, disp = _get_operation(self.base)
+        # plot TRAJ
+        baserot = rot.apply(self.base)
+        xmx = np.linalg.norm(baserot[2, :]-baserot[1, :])
+        ymx = np.linalg.norm(baserot[0, :]-baserot[1, :])
+        extra_width = {1 : 0., 2 : 0., 3 : 0.5} # extra linewidth for critical path
+        for wt, traj in self.trajectory:
+            traj = rot.apply(traj)
+            # plot CPT
+            if len(traj) == 1:
+                v = traj[0] - baserot[1]
+                if v[0]>=0 and v[0]<xmx and v[1]>=0 and v[1]<ymx and np.abs(v[2])<=1e-3:
+                    ax.scatter(v[0], v[1], marker=cpt_marker, c=cpt_c, s=cpt_s)
+            # plot TRAJ
+            else:
+                plttraj = []
+                for v in traj:
+                    v = v - baserot[1]
+                    if v[0]>=0 and v[0]<xmx and v[1]>=0 and v[1]<ymx and np.abs(v[2])<=1e-3:
+                        plttraj.append(v)
+
+                if len(plttraj) == 0:
+                    continue
+                plttraj = np.array(plttraj)
+                if wt != 0:
+                    ax.plot(plttraj[:, 0], plttraj[:, 1], color=cpt_c,
+                            linestyle='-', linewidth=traj_linewidth+extra_width[wt])
+                else:
+                    ax.plot(plttraj[:, 0], plttraj[:, 1], color=traj_color,
+                            linestyle=traj_linestyle, linewidth=traj_linewidth)
+
+        ax.set_aspect(1.0)
+        ax.set_xlim(0, xmx)
+        ax.set_ylim(0, ymx)
+        self._set_unit(uold)
+        return fig
+
+    def _set_unit(self, unit):
+        """
+        Set units of data of ``topond.Traj`` object. :math:`\\AA`' or 'Bohr'.
+
+        Args:
+            unit (str): 'Angstrom' or 'a.u.'
+        """
+        import warnings
+        from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
+
+        if unit.lower() == self.unit.lower():
+            return self
+
+        path = ['TRAJGRAD', 'TRAJMOLG']
+
+        if unit.lower() == 'angstrom':
+            cst = au_to_angstrom(1.)
+            self.unit = 'Angstrom'
+        elif unit.lower() == 'a.u.':
+            cst = angstrom_to_au(1.)
+            self.unit = 'a.u.'
+        else:
+            raise ValueError('Unknown unit.')
+
+        self.base = self.base * cst
+        if self.type.upper() in path: # Bohr <---> AA
+            for i in range(len(self.trajectory)):
+                self.trajectory[i][1] = self.trajectory[i][1] * cst
+            self.cpoint = self.cpoint * cst
+        elif self.type.lower() == 'unknown':
+            warnings.warn('Unknown data type. Using default units.', stacklevel=2)
+
+        return self

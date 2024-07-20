@@ -100,13 +100,12 @@ class ElectronBand():
                 :ref:`plot.plot_electron_bands() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_bands
 
         kwargs['mode'] = 'single'
-        fig, ax = plot_electron_bands(self, **kwargs)
-        return fig, ax
+        fig = plot_electron_bands(self, **kwargs)
+        return fig
 
     @property
     def bandgap(self):
@@ -354,12 +353,11 @@ class ElectronDOS():
                 :ref:`plot.plot_electron_doss() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_doss
 
-        fig, ax = plot_electron_doss(self, **kwargs)
-        return fig, ax
+        fig = plot_electron_doss(self, **kwargs)
+        return fig
 
     def _set_unit(self, unit):
         """
@@ -457,12 +455,11 @@ class ElectronBandDOS():
                 :ref:`plot.plot_electron_banddos() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_banddos
 
-        fig, ax = plot_electron_banddos(self, **kwargs)
-        return fig, ax
+        fig = plot_electron_banddos(self, **kwargs)
+        return fig
 
     def _set_unit(unit):
         """
@@ -613,7 +610,7 @@ class ChargeDensity():
 
     def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
                 linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-                cbar_label=None, a_range=[], b_range=[], rectangle=False, cellplot=False,
+                cbar_label=None, a_range=[], b_range=[], rectangle=False, edgeplot=False,
                 x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8], **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
@@ -654,7 +651,7 @@ class ChargeDensity():
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
                 ``b_range``, that refers to the old :math:`b`.
-            cellplot (bool): Whether to add cell boundaries represented by the
+            edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
             x_ticks (int): Number of ticks on x axis.
@@ -737,36 +734,36 @@ class ChargeDensity():
         if option.lower() == 'both':
             fig, ax = plt.subplots(1, 2, figsize=figsize, sharex=True,
                                    sharey=True, layout='tight')
-            fig, ax[0] = plot_2Dscalar(
+            fig = plot_2Dscalar(
                 fig, ax[0], self.data[:, :, 0], self.base, levels1, chgline,
                 isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                cellplot, x_ticks, y_ticks, **kwargs
+                edgeplot, x_ticks, y_ticks, **kwargs
             )
-            fig, ax[1] = plot_2Dscalar(
+            fig = plot_2Dscalar(
                 fig, ax[1], self.data[:, :, 1], self.base, levels2, spinline,
                 isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
-                cellplot, x_ticks, y_ticks, **kwargs
+                edgeplot, x_ticks, y_ticks, **kwargs
             )
         elif option.lower() == 'charge':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
             if self.spin == 1:
-                fig, ax = plot_2Dscalar(
+                fig = plot_2Dscalar(
                     fig, ax, self.data[:, :], self.base, levels1, chgline,
                     isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    cellplot, x_ticks, y_ticks, **kwargs
+                    edgeplot, x_ticks, y_ticks, **kwargs
                 )
             else:
-                fig, ax = plot_2Dscalar(
+                fig = plot_2Dscalar(
                     fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
                     isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    cellplot, x_ticks, y_ticks,  **kwargs
+                    edgeplot, x_ticks, y_ticks,  **kwargs
                 )
         elif option.lower() == 'spin':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
-            fig, ax = plot_2Dscalar(
+            fig = plot_2Dscalar(
                 fig, ax, self.data[:, :, 1], self.base, levels2, spinline,
                 isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
-                cellplot, x_ticks, y_ticks,  **kwargs
+                edgeplot, x_ticks, y_ticks,  **kwargs
             )
         else:
             raise ValueError("Unknown option: '{}'.".format(option))
@@ -799,7 +796,7 @@ class ChargeDensity():
 
         # restore old unit
         self._set_unit(uold)
-        return fig, fig.axes
+        return fig
 
     def _set_unit(self, unit):
         """

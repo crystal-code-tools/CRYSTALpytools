@@ -294,8 +294,6 @@ class Tensor3D():
 
         Returns:
             fig (Figure): Matplotlib ``Figure`` object.
-            ax (Axes): Matplotlib ``Axis`` object or a list of it if multiple
-                planes are plotted.
         """
         import matplotlib.pyplot as plt
         import matplotlib.colors as mcolors
@@ -524,7 +522,7 @@ class Tensor3D():
                         title, rmax, uplt, utextplt, platt
                 )
 
-        return fig, ax
+        return fig
 
     def plot_3D(self, property, nphi=90, ntheta=90, nchi=180,
                 scale_radius=True, range_cbar=None, range_x=None, range_y=None,
@@ -579,10 +577,10 @@ class Tensor3D():
                 keywords are suggested.
 
         Returns:
-            fig (Figure): Matplotlib or plotly ``Figure`` object.
-            ax (list[Axes] | None): 2\*1 list of matplotlib ``Axis`` object. The
-                first element is the axis of colorbar. The second is the axis of
-                3D surface. ``None`` if ``plot_lib = 'plotly'``.
+            fig (Figure): Matplotlib or plotly ``Figure`` object. It ``axes``
+                is a 2\*1 list of matplotlib ``Axis`` object. The first element
+                is the axis of colorbar. The second is the axis of 3D surface.
+                ``None`` if ``plot_lib = 'plotly'``.
 
         .. note::
 
@@ -744,13 +742,12 @@ class Tensor3D():
         # Select plot lib
         if np.all(plot_lib!=None):
             if plot_lib.lower() == 'matplotlib':
-                fig, ax = _plot3D_mplib(R, X, Y, Z, scale_radius, uplt, utext, platt,
-                                        range_cbar, range_x, range_y, range_z, **kwargs)
+                fig = _plot3D_mplib(R, X, Y, Z, scale_radius, uplt, utext, platt,
+                                    range_cbar, range_x, range_y, range_z, **kwargs)
             else:
                 fig = _plot3D_plotly(R, X, Y, Z, scale_radius, uplt, utext, platt,
                                      range_cbar, range_x, range_y, range_z, **kwargs)
-                ax = None
-            return fig, ax
+            return fig
         else: # Developer settings. return all the variables required by matplotlib.
             return R, X, Y, Z, scale_radius, uplt, utext, platt
 
@@ -1060,7 +1057,6 @@ class Tensor2D():
 
         Returns:
             fig (Figure): Matplotlib ``Figure`` object.
-            ax (Axes): Matplotlib ``Axis`` object.
         """
         import matplotlib.pyplot as plt
         import matplotlib.colors as mcolors
@@ -1179,7 +1175,7 @@ class Tensor2D():
             # Plot
             fig, ax = plt.subplots(nrows=1, ncols=1, subplot_kw={'projection' : 'polar'}, layout='tight')
             ax = _plot2D_single(ax, chi, r, v0, 'tab:blue', title, np.max(r), uplt, utextplt, platt)
-            return fig, ax
+            return fig
         else:
             return chi, r, title, uplt, utextplt, platt
 
@@ -1485,14 +1481,13 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
         range_cbar, range_x, range_y, range_z (list[float,float]): *Not
             suggested* Explicitly specifying the ranges of colorbar, x, y and z
             axes.
-        \*\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
-            position keywords are suggested.s
         Rlatt (numpy.ndarray): *Developers Only* Auxiliary data set to plot
             lattices of the same scale.
+        \*\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
+            position keywords are suggested.
 
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
     from matplotlib import animation, cm, colors
@@ -1595,10 +1590,8 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
     ax[1].set_aspect('equal')
     if len(kwargs.keys()) > 0:
         ax[1].view_init(**kwargs)
-    if np.all(fig!=None):
-        ax = fig.axes
 
-    return fig, ax
+    return fig
 
 
 def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,

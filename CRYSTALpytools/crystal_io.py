@@ -381,9 +381,7 @@ class Crystal_output:
             self.geometry (CStructure | CMolecule): A modified pymatgen Structure
                 or molecule object.
         """
-        import os
-        import re
-        import warnings
+        import os, re, warnings
         import numpy as np
         from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
@@ -436,7 +434,7 @@ class Crystal_output:
         # Write gui files
         if write_gui == True:
             # Conventional atomic numbers
-            zconv = [[i, self.atom_numbers[i]] for i in range(self.n_atoms)]
+            zconv = [[i, self.geometry.species_Z[i]] for i in range(self.geometry.num_sites)]
             if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
@@ -469,15 +467,17 @@ class Crystal_output:
         """
         Return the last optimised geometry.
         """
+        from pymatgen.core.structure import Molecule
+
         struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
-        if 'Molecule' in str(type(struc)):
+        if isinstance(struc, Molecule):
             self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
-                              self.atom_numbers,
-                              self.atom_positions_cart.tolist()]
+                              struc.species_Z,
+                              struc.cart_coords.tolist()]
         else:
             self.last_geom = [struc.lattice.matrix.tolist(),
-                              self.atom_numbers,
-                              self.atom_positions_cart.tolist()]
+                              struc.species_Z,
+                              struc.cart_coords.tolist()]
         return self.last_geom
 
     def get_lattice(self, initial=True):
@@ -599,87 +599,6 @@ class Crystal_output:
             struc = self.get_geometry(initial=True, write_gui=False)
             sg = SpacegroupAnalyzer(struc).get_space_group_symbol()
         return sg
-
-    @property
-    def n_atoms(self):
-        """
-        Number of atoms. After geometry editing.
-        """
-        struc = self.get_geometry(initial=True, write_gui=False)
-        return struc.num_sites
-
-    @property
-    def atom_symbols(self):
-        """
-        Atom symbols. After geometry editing.
-        """
-        from mendeleev import element
-
-        symbol = []
-        for i in self.atom_numbers:
-            symbol.append(element(int(i % 100)).symbol)
-
-        return symbol
-
-    @property
-    def atom_numbers(self):
-        """
-        Conventional atom numbers. After geometry editing.
-        """
-        from CRYSTALpytools.base.output import GeomBASE
-
-        _, conv_z = GeomBASE.read_conv_z(self.data, 0)
-        return conv_z
-
-    @property
-    def atom_positions(self):
-        """
-        Composite fractional / Cartesian atomic coordinates. Consistent
-        with CRYSTAL definitions. 3D: Fractional; 2D: Frac, Frac, Cart; 1D
-        Frac, Cart, Cart; 0D: Cart, Cart, Cart. After geometry editing
-        (before optimization).
-        """
-        import numpy as np
-
-        ndimen = self.get_dimensionality()
-        struc = self.get_geometry(initial=True, write_gui=False)
-
-        if ndimen == 0:
-            composite_coord = struc.cart_coords.tolist()
-        elif ndimen == 3:
-            composite_coord = struc.frac_coords.tolist()
-        else:
-            cart_coord = struc.cart_coords.tolist()
-            frac_coord = struc.frac_coords.tolist()
-            composite_coord = []
-            for i in range(struc.num_sites):
-                composite_coord.append(frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
-
-        return np.array(composite_coord, dtype=float)
-
-    @property
-    def atom_positions_cart(self):
-        """
-        Cartesian atomic coordinates. After geometry editing (before optimization).
-        """
-        struc = self.get_geometry(initial=True, write_gui=False)
-        return struc.cart_coords
-
-    @property
-    def atom_positions_frac(self):
-        """
-        Fractional atomic coordinates. After geometry editing (before optimization).
-        """
-        import warnings
-
-        ndimen = self.get_dimensionality()
-        if ndimen != 3:
-            warnings.warn("Low dimension systems. Property 'atom_positions' is called instead.",
-                          stacklevel=2)
-            return self.atom_positions
-        else:
-            struc = self.get_geometry(initial=True, write_gui=False)
-            return struc.frac_coords
 
     def get_trans_matrix(self):
         """
@@ -1356,6 +1275,7 @@ class Crystal_output:
 
         self.forces_atoms = []
         self.forces_cell = []
+        struc = self.get_geometry(initial=True, write_gui=False)
 
         if grad == True:
             self.get_opt_convergence()
@@ -1363,7 +1283,7 @@ class Crystal_output:
         if initial == True:
             for i, line in enumerate(self.data):
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(i+2, i+2+self.n_atoms):
+                    for j in range(i+2, i+2+struc.num_sites):
                         self.forces_atoms.append(self.data[j].strip().split()[2:])
                     self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
@@ -1380,7 +1300,7 @@ class Crystal_output:
                     self.forces_cell = np.array(self.forces_cell, dtype=float)
 
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
+                    for j in range(len(self.data)-i+1, len(self.data)-i+1+struc.num_sites):
                         self.forces_atoms.append(self.data[j].strip().split()[2:])
                     self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
@@ -2116,6 +2036,85 @@ class Crystal_output:
                                stacklevel=2)
         return self.tensor
 
+#------------------------------Deprecated-------------------------------------#
+    @property
+    def n_atoms(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'num_sites' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'natoms' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.num_sites
+
+    @property
+    def atom_symbols(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'species_symbol' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'species_symbol' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.species_symbol
+
+    @property
+    def atom_numbers(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'species_Z' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'species_Z' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.species_Z
+
+    @property
+    def atom_positions(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'crys_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'crys_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.crys_coords
+
+    @property
+    def atom_positions_cart(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'cart_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'cart_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.cart_coords
+
+    @property
+    def atom_positions_frac(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'crys_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'crys_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.crys_coords
+
 
 class Properties_input(Properties_inputBASE):
     """
@@ -2269,8 +2268,9 @@ class Properties_input(Properties_inputBASE):
                                       stacklevel=2)
 
                     output = Crystal_output(output_file)
+                    struc = output.get_geometry(initial=False, write_gui=False)
                     for prje in projections:
-                        index = [i+1 for i, ele in enumerate(output.atom_symbols) if prje.upper() == ele.upper()]
+                        index = [i+1 for i, ele in enumerate(struc.species_symbol) if prje.upper() == ele.upper()]
                         prj.append([-len(index),] + index)
             else:
                 if proj_type == 'atom':
@@ -2376,7 +2376,7 @@ class Properties_output(POutBASE):
                 raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
 
     @classmethod
-    def read_file(self, properties_output):
+    def read_file(cls, properties_output):
         """
         Parse the properties output file.
 
@@ -2573,13 +2573,13 @@ class Properties_output(POutBASE):
 
 #-----------------------------2D scalar field----------------------------------#
 
-    def read_topond2D(self, topond2d, type='infer'):
+    def read_topond(self, topondfile, type='infer'):
         """
-        Read the 2D scalar plot files ('SURF*.DAT') written by
-        `TOPOND <https://tutorials.crystalsolutions.eu/tutorials/topond/topond_manual.pdf>`_.
+        Read the 2D scalar plot files ('SURF*.DAT') or trajectory files
+        (TRAJ*.DAT) written by `TOPOND <https://www.crystal.unito.it/topond.html>`_.
 
-        Geometry information is printed in the standard ouput, whose method is
-        under developing.
+        Geometry information is printed in the standard ouput, which is not
+        mandatory for 'SURF*.DAT' but is mandatory for 'TRAJ*.DAT'
 
         .. note::
 
@@ -2587,12 +2587,14 @@ class Properties_output(POutBASE):
             the correct type for your input file. By default `type='infer'` will
             search for (case insensitive) the following strings:
 
-            ``'SURFRHOO','SURFSPDE','SURFLAPP','SURFLAPM','SURFGRHO','SURFKKIN','SURFGKIN','SURFVIRI','SURFELFB'``
+            'SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+            'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB', 'TRAJGRAD',
+            'TRAJMOLG'.
 
             For their meanings, please refer `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
 
         Args:
-            topond2d (str): TOPOND formatted 2D plot file
+            topondfile (str): TOPOND formatted 2D plot file
             type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
@@ -2602,41 +2604,69 @@ class Properties_output(POutBASE):
         """
         import warnings
         from CRYSTALpytools.base.extfmt import TOPONDParser
-        from CRYSTALpytools.topond import Surf
+        from CRYSTALpytools.topond import Surf, Traj
 
-        if not hasattr(self, 'file_name'):
-            warnings.warn('Properties output file not found: Geometry not available',
-                          stacklevel=2)
-            struc = None
-
-        typelist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+        surflist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
                     'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB']
+        trajlist = ['TRAJGRAD', 'TRAJMOLG']
 
-        foundtype = False
         if type.lower() == 'infer':
-            for t in typelist:
-                if t in topond2d.upper():
-                    type = t
-                    foundtype = True
-                    break
-            if foundtype != True:
-                warnings.warn("File name '{}' does not contain the known type strings, unknown type.".format(topond2d),
-                              stacklevel=2)
-                type = 'unknown'
+            type = topondfile.upper()
         else:
-            for t in typelist:
-                if t == type.upper():
-                    type = type.upper()
-                    foundtype = True
-                    break
-            if foundtype != True:
-                raise ValueError("Unknown type specification: '{}'. Use 'infer' or check your input.".format(type))
+            type = type.upper()
 
-        _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topond2d)
+        issurf = False; istraj = False
+        for t in surflist:
+            if t in type:
+                issurf = True
+                type = t
+                break
+        for t in trajlist:
+            if t in type:
+                istraj = True
+                type = t
+                break
 
-        obj = Surf(map1, np.vstack([a,b,c]), 1, 2, struc, unit)
-        obj.type = type
-        obj._set_unit('Angstrom')
+        # still need to distinguish surf and traj
+        if issurf==False and istraj==False:
+            warnings.warn("Unknown type string / filename does not contian type string.",
+                          stacklevel=2)
+            type = 'unknown'
+            file = open(topondfile, 'r')
+            header = file.readline()
+            file.close()
+            if 'DSAA' in header:
+                issurf = True
+            else:
+                istraj = True
+
+        if issurf == True:
+            _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topondfile)
+            if not hasattr(self, 'file_name'):
+                warnings.warn('Properties output file not found: Geometry not available',
+                              stacklevel=2)
+                struc = None
+                # The a, b, c by are dummy base vectors. Info in 3D space lost.
+                base = np.vstack([a, b, c])
+            else:
+                struc = super().get_geometry()
+                # no atom plot currently, though read method is given
+                _, base = super().get_topond_geometry()
+            # class instantiation
+            obj = Surf(map1, base, struc, type=type, unit=unit)
+            obj._set_unit('Angstrom')
+
+        elif istraj == True:
+            if not hasattr(self, 'file_name'):
+                raise Exception("Properties output file is mandatory for 'TRAJ' files.")
+            wtraj, traj, unit = TOPONDParser.traj(topondfile)
+            struc = super().get_geometry()
+            # no atom plot currently, though read method is given
+            _, base = super().get_topond_geometry()
+            # class instantiation
+            obj = Traj(wtraj, traj, base, struc, type=type, unit=unit)
+            obj._set_unit('Angstrom')
+
         setattr(self, 'topond_{}'.format(type), obj)
         return getattr(self, 'topond_{}'.format(type))
 
@@ -3159,13 +3189,13 @@ class Properties_output(POutBASE):
 
     def read_cry_contour(self, properties_output):
         """
-        Deprecated. Use ``read_topond2D``.
+        Deprecated. Use ``read_topond``.
         """
         import warnings
 
-        warnings.warn("You are calling a deprecated function. Use 'read_topond2D' instead.",
+        warnings.warn("You are calling a deprecated function. Use 'read_topond' instead.",
                       stacklevel=2)
-        return self.read_topond2D(properties_output)
+        return self.read_topond(properties_output)
 
 
 

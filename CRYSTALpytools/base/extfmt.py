@@ -306,8 +306,8 @@ class CrgraParser():
         ihferm = int(data[bgline][3])
         spin = ihferm % 2 + 1
 
-        points_ab = int(data[bgline][8:13])
-        points_bc = int(data[bgline][13:18])
+        points_ab = int(data[bgline][8:13]) # nrow
+        points_bc = int(data[bgline][13:18]) # ncol
         cosxy = float(data[bgline][42:54])
 
         a = np.array([data[bgline+1][0:12], data[bgline+1][12:24],
@@ -360,14 +360,15 @@ class CrgraParser():
             atom_spec = atom_spec[0:int(len(atom_spec)/2)]
             atom_coord = atom_spec[0:int(len(atom_coord)/2)]
 
-        struc = CStructure(latt, atom_spec, atom_coord,
-                           coords_are_cartesian=True)
+        struc = CStructure(latt, atom_spec, atom_coord, coords_are_cartesian=True)
         struc.lattice._pbc = pbc
         map1 = np.array(density_maps[0], dtype=float)
-        map1 = np.reshape(map1, [points_ab, points_bc], order='F')
+        map1 = np.reshape(map1, [points_ab, points_bc], order='F') # nrow*ncol
+        map1 = map1[::-1] # Use BC, BA base vectors, rather than BC, AB.
         if countspin != 0:
             map2 = np.array(density_maps[1], dtype=float)
             map2 = np.reshape(map2, [points_ab, points_bc], order='F')
+            map2 = map2[::-1] # Use BC, BA base vectors, rather than BC, AB.
         else:
             map2 = None
         return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
@@ -547,6 +548,19 @@ class TOPONDParser():
     def contour2D(cls, filename):
         """
         Parse TOPOND 2D scalar contour plot files (SURF*.DAT). Unit: a.u.
+
+        Args:
+            filename (str)
+        Returns:
+            spin (array): Always 1
+            a (array): 3D Cartesian coordinates of MAPNET point A (xmin, ymax)
+            b (array): 3D Cartesian coordinates of MAPNET point B (xmin, ymin)
+            c (array): 3D Cartesian coordinates of MAPNET point C (xmax, ymin)
+            cosxy (float): Always 0
+            struc (None): Always None
+            map1 (array): 2D scalar field map commensurate with MAPNET defined above.
+            map2 (None): Always None
+            unit (str): 'a.u.'
         """
         import numpy as np
         import pandas as pd
@@ -564,6 +578,7 @@ class TOPONDParser():
 
         # To be commensurate with CrgraParser.mapn
         spin = 1
+        # Use BC, BA base vectors
         a = np.array([x_min, y_max, 0.], dtype=float)
         b = np.array([x_min, y_min, 0.], dtype=float)
         c = np.array([x_max, y_min, 0.], dtype=float)
@@ -588,5 +603,37 @@ class TOPONDParser():
 
         return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
 
+    @classmethod
+    def traj(cls, filename):
+        """
+        Parse TOPOND trajectory plot files (TRAJ*.DAT). Unit: a.u.
+
+        Args:
+            filename (str)
+        Returns:
+            wtraj (list[int]): 1\*nPath, weight of the path
+            traj (list[array]): 1\*nPath, list of critical paths. Every array
+                is the nPoint\*3 3D ref framework coordinates of points on the
+                path.
+            unit (str): 'a.u.'
+        """
+        import numpy as np
+        import re
+        import pandas as pd
+
+        wtraj = []; traj = []
+        tab = pd.read_fwf(filename, header=None)
+        tab = tab.to_numpy(dtype=float)
+
+        countline = 0
+        while countline < len(tab):
+            # header lines
+            line = tab[countline]
+            wtraj.append(line[1])
+            npt_line = int(line[0])
+            traj.append(tab[countline+1:countline+npt_line+1, 1:])
+            countline += npt_line+1
+
+        return wtraj, traj, 'a.u.'
 
 

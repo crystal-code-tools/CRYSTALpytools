@@ -73,7 +73,7 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
     ## Fermi level
     ## Fermi check, must be None, float, int
     if np.all(fermi!=None):
-        if not isinstance(fermi, float) and isinstance(fermi, int):
+        if (not isinstance(fermi, float)) and (not isinstance(fermi, int)):
             raise ValueError('Fermi level must be None, float or int.')
         ax.hlines(fermi, k_range[0], k_range[1], color=fermi_color,
                   linestyle=fermi_linestyle, linewidth=fermi_linewidth)
@@ -189,11 +189,11 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
 
     # prepare fermi level
     if np.all(fermi!=None):
-        if isinstance(fermi, float) or isinstance(fermi, int):
-            fermi = np.array([fermi for i in range(nsys)], dtype=float)
-        else:
+        if isinstance(fermi, list) or isinstance(fermi, tuple) or isinstance(fermi, np.ndarray):
             if len(fermi) != nsys:
                 raise ValueError('Inconsistent numbers of Fermi level and systems')
+        else:
+            fermi = np.array([fermi for i in range(nsys)], dtype=float)
 
     # preprocessing
     k_path, k_label, energy_range, k_range, commands  = _plot_bands_preprocess(
@@ -582,7 +582,6 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
             axes.
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
     import numpy as np
@@ -634,11 +633,11 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
             fermi, fermi_color, fermi_linestyle, fermi_linewidth, legend, True, **kwargs
         )
 
-    return fig, fig.axes
+    return fig
 
 
 def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, cbar_label,
-                  a_range, b_range, rectangle, plot_base, xticks, yticks, **kwargs):
+                  a_range, b_range, rectangle, edgeplot, xticks, yticks, **kwargs):
     """
     Plot 2D scalar field map.
 
@@ -664,7 +663,7 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
             refers to the old :math:`b`.
-        plot_base (bool): Whether plot the unit cell defined by base vector in figure.
+        edgeplot (bool): Whether to plot plane edges
         xticks (int): Number of ticks in the x direction.
         yticks (int): Number of ticks in the y direction.
         \*\*kwargs: Other arguments passed to ``axes.contour()`` function to
@@ -672,18 +671,18 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
 
     Returns:
         fig (Figure): Matplotlib Figure object
-        ax (Axes): Matplotlib axes object
     """
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import cm, colors
     from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from pymatgen.core.lattice import Lattice
     import copy
 
     vx = base[2, :] - base[1, :] # x, BC
     len_vx = np.linalg.norm(vx)
     npt_vx = data.shape[1] # a BA*BC matrix
-    vy = base[1, :] - base[0, :] # y, AB
+    vy = base[0, :] - base[1, :] # y, AB
     len_vy = np.linalg.norm(vy)
     npt_vy = data.shape[0]
     cosxy = np.dot(vx, vy) / np.linalg.norm(vx) / np.linalg.norm(vy)
@@ -750,21 +749,21 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         ncol = int(np.round(a_range[0]/ulen_vx, 0))
         nrow = int(np.round(b_range[0]/ulen_vy, 0))
         if ncol < 0:
-            tmp = copy.deepcopy(data[:, 0:-ncol])
-            data[:, 0:nnpt_vx+ncol] = data[:, -ncol:]
-            data[:, nnpt_vx+ncol:] = tmp
+            tmp = copy.deepcopy(data[:, nnpt_vx+ncol:])
+            data[:, -ncol:] = data[:, 0:nnpt_vx+ncol]
+            data[:, 0:-ncol] = tmp
         else:
-            tmp = copy.deepcopy(data[:, nnpt_vx-ncol:])
-            data[:, ncol:] = data[:, 0:nnpt_vx-ncol]
-            data[:, 0:ncol] = tmp
+            tmp = copy.deepcopy(data[:, 0:ncol])
+            data[:, 0:nnpt_vx-ncol] = data[:, ncol:]
+            data[:, nnpt_vx-ncol:] = tmp
         if nrow < 0:
-            tmp = copy.deepcopy(data[0:-nrow, :])
-            data[0:nnpt_vy+nrow, :] = data[-nrow:, :]
-            data[nnpt_vy+nrow:, :] = tmp
+            tmp = copy.deepcopy(data[nnpt_vy+nrow:, :])
+            data[-nrow:, :] = data[0:nnpt_vy+nrow, :]
+            data[0:-nrow, :] = tmp
         else:
-            tmp = copy.deepcopy(data[nnpt_vy-nrow:, :])
-            data[nrow:, :] = data[0:nnpt_vy-nrow, :]
-            data[0:nrow, :] = tmp
+            tmp = copy.deepcopy(data[0:nrow, :])
+            data[0:nnpt_vy-nrow, :] = data[nrow:, :]
+            data[nnpt_vy-nrow:, :] = tmp
 
     # get rectangle region
     if rectangle == True and np.abs(cosxy) > 1e-3:
@@ -815,11 +814,12 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         if np.all(isovalue!=None):
             ax.clabel(L, inline=1, fmt=isovalue)
 
-    # plot lattice
-    if plot_base == True:
+    # plot plane edges
+    if edgeplot == True:
+        ## get shift: always close to the positive side of the plot
         ovx = base[2, :] - base[1, :]
         olen_vx = np.linalg.norm(ovx)
-        ovy = base[1, :] - base[0, :]
+        ovy = base[0, :] - base[1, :]
         olen_vy = np.linalg.norm(ovy)
         ocosxy = np.dot(ovx, ovy) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
         osinxy = np.linalg.norm(np.cross(ovx,ovy)) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
@@ -827,8 +827,10 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         shifty = (b_range[0]/olen_vy - int(b_range[0]/olen_vy)) * olen_vx
         if shiftx < 0: shiftx += olen_vx
         if shifty < 0: shifty += olen_vy
-        xpath = np.array([0, olen_vx, olen_vx+olen_vy*ocosxy, olen_vy*ocosxy, 0]) + (shiftx+shifty*ocosxy)
-        ypath = np.array([0, 0, olen_vy*osinxy, olen_vy*osinxy, 0]) + (shifty*osinxy)
+        shiftx = shiftx + shifty * ocosxy
+        shifty = shifty * osinxy
+        xpath = np.array([0, olen_vx, olen_vx+olen_vy*ocosxy, olen_vy*ocosxy, 0]) + shiftx
+        ypath = np.array([0, 0, olen_vy*osinxy, olen_vy*osinxy, 0]) + shifty
         ax.plot(xpath, ypath,'k-', linewidth=1.0)
 
     # New ranges due to changes of a b ranges in non-orthogonal axis
@@ -840,4 +842,34 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     ax.set_xlim(xrange[0], xrange[1])
     ax.set_ylim(yrange[0], yrange[1])
 
-    return fig, ax
+    return fig
+
+
+def _get_operation(base):
+    """
+    Get the rotation object and translational movement to align surface norm
+    (to z) and BC axis (to x) of 3D reference frame to the plotting frame. The
+    translational movement is used to move B (plot origin) to z=0. The plotting
+    referance frame is defined by the base vector BC (x) and BA (y).
+
+    Returns:
+        rot (Rotation): The Scipy rotation object.
+        disp (array): Displacement along x, y, z axes
+    """
+    from scipy.spatial.transform import Rotation
+    import numpy as np
+
+    pltx = base[2, :] - base[1, :]
+    plty = base[0, :] - base[1, :]
+    pltnorm = np.cross(pltx, plty)
+    pltynorm = np.cross(pltnorm, pltx)# Y not necessarily orthogonal to xz plane
+
+    pltx = pltx / np.linalg.norm(pltx)
+    pltynorm = pltynorm / np.linalg.norm(pltynorm)
+    pltnorm = pltnorm / np.linalg.norm(pltnorm)
+
+    oldv = np.vstack([pltx, pltynorm, pltnorm]).transpose()
+    newv = np.eye(3)
+    rot = Rotation.from_matrix(newv @ np.linalg.inv(oldv))
+    disp = -rot.apply(base[1, :])
+    return rot, disp

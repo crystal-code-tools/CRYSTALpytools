@@ -15,7 +15,7 @@ import numpy as np
 def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
               linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
               cbar_label=None, a_range=[], b_range=[], rectangle=False,
-              cellplot=False, scale=True, x_ticks=5, y_ticks=5, add_title=True,
+              edgeplot=False, scale=True, x_ticks=5, y_ticks=5, add_title=True,
               figsize=[6.4, 4.8], **kwargs):
     """
     Read multiple 2D charge density files / objects and return to a list of
@@ -58,8 +58,8 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             refers to the old :math:`b`.
         scale (bool): Whether to scale the plot window for systems of different sizes.
             Base vectors of 2D plot are changed. Use with care.
-        cellplot (bool): Whether to add cell boundaries represented by the
-            original base vectors (not inflenced by a/b range or rectangle options).
+        edgeplot (bool): Whether to add cell edges represented by the original
+            base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
         add_title (bool): Whether to add property plotted as title.
@@ -69,7 +69,6 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             to set contour lines.
     Returns:
         figs (list|Figure): Matplotlib Figure object or a list of them.
-        axes (list|Axes): Matplotlib Axes object or a list of them.
     """
     from CRYSTALpytools.electronics import ChargeDensity
     import numpy as np
@@ -116,17 +115,17 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         for i in obj[1:]:
             i.base = obj[0].base
     # plot
-    figs = []; axes =[]
+    figs = []
     for i in obj:
-        tmp = i.plot_2D(unit, option, levels, lineplot, linewidth, isovalues,
-                        colorplot, colormap, cbar_label, a_range, b_range,
-                        rectangle, cellplot, x_ticks, y_ticks, add_title,
-                        figsize, **kwargs)
-        figs.append(tmp[0]); axes.append(tmp[1])
+        figs.append(
+            i.plot_2D(unit, option, levels, lineplot, linewidth, isovalues,
+                      colorplot, colormap, cbar_label, a_range, b_range,
+                      rectangle, edgeplot, x_ticks, y_ticks, add_title,
+                      figsize, **kwargs)
+        )
     if len(obj) == 1:
         figs = figs[0]
-        axes = axes[0]
-    return figs, axes
+    return figs
 
 #----------------------------------SPIN CURRENTS------------------------------#
 
@@ -644,7 +643,6 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
 
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If the specified unit is unknown.
     """
@@ -731,7 +729,7 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
     if np.all(title!=None):
         fig.suptitle(title, fontsize=fontsize)
 
-    return fig, fig.axes
+    return fig
 
 
 #-------------------------------DENSITY OF STATES-----------------------------#
@@ -801,7 +799,6 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
 
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
     from CRYSTALpytools.base.plotbase import plot_doss, _plot_label_preprocess
@@ -906,7 +903,7 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
     if np.all(title!=None):
         fig.suptitle(title, fontsize=fontsize)
 
-    return fig, fig.axes
+    return fig
 
 
 def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
@@ -938,7 +935,6 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
 
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
     """
     import re
 
@@ -986,7 +982,7 @@ def plot_phonon_dos(doss, unit='cm-1', overlap=False, prj=None,
         fig.supylabel('DOS (states/cm$^{-1}$)')
         fig.supxlabel('Frequency (cm$^{-1}$)')
 
-    return fig, ax
+    return fig
 
 
 #-----------------------------BAND + DENSITY OF STATES------------------------#
@@ -1020,7 +1016,6 @@ def plot_electron_banddos(
             width of a DOS subplot.
     Returns:
         fig (Figure): Matplotlib figure object
-        ax (Axes): Matplotlib axes object
 
     :raise ValueError: If the unit parameter is unknown.
     """
@@ -1083,7 +1078,7 @@ def plot_electron_banddos(
     if len(dos_prj) == 0:
         dos_prj = [i+1 for i in range(len(doss.doss))]
 
-    fig, ax = plot_banddos(
+    fig = plot_banddos(
         bands, doss, k_label, dos_beta, dos_overlap, dos_prj, energy_range,
         k_range, dos_range, band_width, band_label, band_color, band_linestyle,
         band_linewidth, dos_label, dos_color, dos_linestyle, dos_linewidth,
@@ -1106,7 +1101,7 @@ def plot_electron_banddos(
     if np.all(title!=None):
         fig.suptitle(title, fontsize=fontsize)
 
-    return fig, fig.axes
+    return fig
 
 
 def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
@@ -1257,7 +1252,6 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
             to set contour lines.
     Returns:
         figs (list|Figure): Matplotlib Figure object or a list of them.
-        axes (list|Axes): Matplotlib Axes object or a list of them.
     """
     from CRYSTALpytools.topond import Surf
     import numpy as np
@@ -1288,16 +1282,16 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         for i in obj[1:]:
             i.base = obj[0].base
     # plot
-    figs = []; axes =[]
+    figs = []
     for i in obj:
-        tmp = i.plot(unit, levels, lineplot, linewidth, isovalues, colorplot,
-                     colormap, cbar_label, x_range, y_range, x_ticks, y_ticks,
-                     add_title, figsize, **kwargs)
-        figs.append(tmp[0]); axes.append(tmp[1])
+        figs.append(
+            i.plot(unit, levels, lineplot, linewidth, isovalues, colorplot,
+                   colormap, cbar_label, x_range, y_range, x_ticks, y_ticks,
+                   add_title, figsize, **kwargs)
+        )
     if len(obj) == 1:
         figs = figs[0]
-        axes = axes[0]
-    return figs, axes
+    return figs
 
 #--------------------------------------XRD------------------------------------#
 
@@ -2845,9 +2839,9 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
     """
     A wrapper function of :ref:`Tensor3D <ref-elastics>` objects to plot 3D
     crystal elastic properties. The user can plot multiple properties for
-    different systems. The function returns to lists of figure and axes objects
-    for further processing. Only matplotlib is used for plotting. Plotly is
-    not available.
+    different systems. The function returns to lists of figure objects for
+    further processing. Only matplotlib is used for plotting. Plotly is not
+    available.
 
     Properties:
 
@@ -2877,7 +2871,6 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
             object. For 1 tensor and multiple properties or multiple tensors
             and 1 property, n\*1 list of Figure objects. For multiple tensors
             and properties, nTensor\*nProperty list.
-        axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
     """
     from CRYSTALpytools.elastics import Tensor3D, _plot3D_mplib
     import numpy as np
@@ -2912,17 +2905,15 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
     # plot
     n_plot = len(tensplt) * len(property)
     figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
-    axes = [[0 for i in range(len(property))] for j in range(len(tensplt))]
 
     if uniform_scale == False: # Non-uniform scale
         for ip, p in enumerate(property):
             kwargs['property'] = p
             for it, t in enumerate(tensplt):
-                fig, ax = t.plot_3D(**kwargs)
+                fig = t.plot_3D(**kwargs)
                 if add_title == True:
-                    ax[1].set_title(p)
+                    fig.axes[1].set_title(p)
                 figs[it][ip] = fig
-                axes[it][ip] = ax
     else: # Uniform scale
         # possible camera position args
         camera_args = {}
@@ -2970,28 +2961,24 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
                 Rref = None
 
             for it, t in enumerate(tensplt):
-                fig, ax = _plot3D_mplib(
+                fig = _plot3D_mplib(
                     R_all[it], X_all[it], Y_all[it], Z_all[it], scale_radius,
                     uplt_all[it], utext_all[it], platt_all[it], range_cbar,
                     range_x, range_y, range_z, Rref, **camera_args
                 )
                 if add_title == True:
-                    ax[1].set_title(p)
+                    fig.axes[1].set_title(p)
                 figs[it][ip] = fig
-                axes[it][ip] = ax
 
     # dimensionality
     if len(tensplt) == 1 and len(property) == 1:
         figs = figs[0][0]
-        axes = axes[0][0]
     elif len(tensplt) == 1 and len(property) > 1:
         figs = figs[0]
-        axes = axes[0]
     elif len(tensplt) > 1 and len(property) == 1:
         figs = [i[0] for i in figs]
-        axes = [i[0] for i in axes]
 
-    return figs, axes
+    return figs
 
 
 #--------------------------------2D ELASTIC----------------------------------#
@@ -2999,8 +2986,8 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
     """
     A wrapper function of :ref:`Tensor3D or Tensor2D <ref-elastics>` objects to
     plot 2D crystal elastic properties. The user can plot multiple properties
-    for different systems. The function returns to lists of figure and axes
-    objects for further processing. Base units: GPa, m.
+    for different systems. The function returns to lists of figure objects for
+    further processing. Base units: GPa, m.
 
     Properties, depending on the dimensionality of systems:
 
@@ -3036,7 +3023,6 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
             and 1 property, n\*1 list of Figure objects. For multiple tensors
             and properties, nTensor\*nProperty list. If ``same_fig_2D=True``,
             return to a figure.
-        axes (Axes): Matplotlib Axes object. Same dimensionality as ``figs``.
     """
     from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file, _plot2D_single
     import numpy as np
@@ -3084,7 +3070,6 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
                                       subplot_kw={'projection' : 'polar'}, layout='tight')
     else:
         figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
-        axes = [[0 for i in range(len(property))] for j in range(len(tensplt))]
 
     # set colors, nTensplt*nProperty
     clist = list(mcolors.TABLEAU_COLORS.keys())
@@ -3100,9 +3085,8 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
             kwargs['property'] = p
             for it, t in enumerate(tensplt):
                 if same_fig_2D == False:
-                    fig, ax = t.plot_2D(**kwargs)
+                    fig = t.plot_2D(**kwargs)
                     figs[it][ip] = fig
-                    axes[it][ip] = ax
                 else:
                     iplt = int(it*len(property) + ip)
                     kwargs['return_data'] = True
@@ -3140,7 +3124,6 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
                                         colors[it][ip], title_all[it], rmax,
                                         uplt_all[it], utextplt_all[it], platt_all[it])
                     figs[it][ip] = fig
-                    axes[it][ip] = ax
                 else:
                     iplt = int(it*len(property) + ip)
                     axes.flat[iplt] = _plot2D_single(
@@ -3152,15 +3135,12 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
     if same_fig_2D == False:
         if len(tensplt) == 1 and len(property) == 1:
             figs = figs[0][0]
-            axes = axes[0][0]
         elif len(tensplt) == 1 and len(property) > 1:
             figs = figs[0]
-            axes = axes[0]
         elif len(tensplt) > 1 and len(property) == 1:
             figs = [i[0] for i in figs]
-            axes = [i[0] for i in axes]
 
-    return figs, axes
+    return figs
 
 
 ##############################################################################
@@ -3851,14 +3831,14 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
     if np.all(figsize==None):
         figsize=[6.4, 4.8]
 
-    fig, ax = plot_electron_bands(
+    fig = plot_electron_bands(
         *bands, unit=unit, k_label=k_labels, mode=mode, not_scaled=not_scaled,
         energy_range=energy_range, k_range=k_range, band_label=labels, band_color=color,
         band_linestyle=linestl, band_linewidth=linewidth, fermi_color=fermi,
         fermi_linewidth=fermiwidth, title=title, figsize=figsize, layout=scheme,
         sharex=sharex, sharey=sharey, fontsize=fontsize
     )
-    return fig, ax
+    return fig, fig.axes
 
 
 def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=True,
@@ -3876,14 +3856,14 @@ def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=Tr
     if not (isinstance(bands, list) or isinstance(bands, tuple)):
         bands = [bands]
 
-    fig, ax = plot_electron_bands(
+    fig = plot_electron_bands(
         *bands, k_label=k_labels, mode=mode, not_scaled=not_scaled,
         energy_range=energy_range, k_range=k_range, band_label=labels, band_color=color,
         band_linestyle=linestl, band_linewidth=linewidth, fermi_color=fermi,
         fermi_linewidth=fermiwidth, title=title, figsize=figsize, layout=scheme,
         sharex=sharex, sharey=sharey, fontsize=fontsize
     )
-    return fig, ax
+    return fig, fig.axes
 
 
 def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
@@ -3909,13 +3889,13 @@ def plot_electron_dos(doss, unit='eV', beta='up', overlap=False, prj=None,
     if np.all(figsize==None):
         figsize=[6.4, 4.8]
 
-    fig, ax = plot_electron_doss(
+    fig = plot_electron_doss(
         *doss, unit=unit, beta=beta, overlap=overlap, prj=prj,
         energy_range=energy_range, dos_range=dos_range, dos_label=labels,
         dos_color=color, dos_linestyle=linestl, dos_linewidth=linewidth,
         fermi_color=fermi, title=title, figsize=figsize
     )
-    return fig, ax
+    return fig, fig.axes
 
 
 def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False,
@@ -3932,13 +3912,13 @@ def plot_cry_doss(doss, color='blue', fermi='forestgreen', overlap=False,
     if not (isinstance(doss, list) or isinstance(doss, tuple)):
         doss = [doss]
 
-    fig, ax = plot_electron_doss(
+    fig = plot_electron_doss(
         *doss, beta=beta, overlap=overlap, prj=prj,
         energy_range=energy_range, dos_range=dos_range, dos_label=labels,
         dos_color=color, dos_linestyle=linestl, dos_linewidth=linewidth,
         fermi_color=fermi, title=title, figsize=figsize
     )
-    return fig, ax
+    return fig, fig.axes
 
 
 def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
@@ -3953,14 +3933,14 @@ def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
     warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
 
-    fig, ax = plot_cry_es(
+    fig = plot_cry_es(
         bands, doss, k_label=k_labels, dos_beta=dos_beta, dos_prj=prj,
         energy_range=energy_range, dos_range=dos_range, band_color=color_bd,
         band_linestyle=linestl_bd, band_linewidth=linewidth, dos_label=labels,
         dos_color=color_doss, dos_linestyle=linestl_doss, dos_linewidth=linewidth,
         fermi_color=fermi, title=title, figsize=figsize
     )
-    return fig, ax
+    return fig, fig.axes
 
 def plot_dens_ECHG(obj_echg, unit='Angstrom',  xticks=5,
                    yticks=5, cmap_max=None, cmap_min=None):
@@ -3976,9 +3956,9 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom',  xticks=5,
         levels = np.linspace(cmap_min, cmap_max, 150)
     else:
         levels = 150
-    fig, ax = plot_ECHG(obj_echg, unit=unit, levels=levels, option='charge',
-                        xticks=xticks, yticks=yticks)
-    return fig, ax
+    fig = plot_ECHG(obj_echg, unit=unit, levels=levels, option='charge',
+                    xticks=xticks, yticks=yticks)
+    return fig, fig.axes
 
 
 def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
@@ -3995,9 +3975,9 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
         levels = np.linspace(cmap_min, cmap_max, 150)
     else:
         levels = 150
-    fig, ax = plot_ECHG(obj_echg, unit=unit, levels=levels, option='spin',
-                        xticks=xticks, yticks=yticks)
-    return fig, ax
+    fig = plot_ECHG(obj_echg, unit=unit, levels=levels, option='spin',
+                    xticks=xticks, yticks=yticks)
+    return fig, fig.axes
 
 
 def plot_cry_contour(contour_obj):

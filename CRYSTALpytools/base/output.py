@@ -21,12 +21,12 @@ class GeomBASE():
 
         Returns:
             countline (int): Line number of output file.
-            struc (CStructure | CMolecule): Modified Pymatgen Structure and Molecule
+            struc (CStructure | CMolecule): Extended Pymatgen Structure and Molecule
         """
         import re
         import numpy as np
         from pymatgen.core.lattice import Lattice
-        from CRYSTALpytools.geometry import CStructure, CMolecule
+        from CRYSTALpytools.geometry import CStructure
 
         pbc = {0 : (False, False, False),
                1 : (True, False, False),
@@ -62,18 +62,20 @@ class GeomBASE():
                 species = []
                 while line != '':
                     line_data = line.split()
+                    species.append(line_data[2]) # use conventional atomic numbers
                     coords.append(line_data[-3:])
-                    species.append(line_data[3].capitalize())
                     countline += 1
                     line = data[countline].strip()
                 countline += 1
                 coords = np.array(coords, dtype=float)
+                species = [int(i) for i in species]
                 if ndimen != 0:
                     coords[:, 0:ndimen] = coords[:, 0:ndimen] @ latt_mx[0:ndimen, 0:ndimen] # to cartesian coords
                     struc = CStructure(lattice=latt, species=species,
                                        coords=coords, coords_are_cartesian=True)
                 else:
-                    struc = CMolecule(species=species, coords=coords)
+                    struc = CStructure(lattice=np.eye(3)*500, species=species,
+                                       coords=coords, coords_are_cartesian=True)
                 break
             else:
                 countline += 1
@@ -82,44 +84,6 @@ class GeomBASE():
             raise Exception('Geometry information not found.')
 
         return countline, struc
-
-    @classmethod
-    def read_conv_z(cls, data, countline):
-        """
-        Read conventional atom numbers.
-
-        Args:
-            data (list[str]): output file read by readlines()
-            countline (int): The starting line number
-
-        Returns:
-            countline (int): Line number of output file.
-            conv_z (array): Int array of conventional atom numbers
-        """
-        import re
-        import numpy as np
-
-        conv_z = []
-        while countline < len(data):
-            line = data[countline]
-            if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                countline += 3
-                line = data[countline].strip()
-                while line != '':
-                    line_data = line.split()
-                    conv_z.append(line_data[2])
-                    countline += 1
-                    line = data[countline].strip()
-                countline += 1
-                conv_z = np.array(conv_z, dtype=int)
-                break
-            else:
-                countline += 1
-
-        if len(conv_z) == 0:
-            raise Exception('Geometry information not found.')
-
-        return countline, conv_z
 
 
 class SCFBASE():
@@ -700,14 +664,14 @@ class POutBASE():
 
     def get_geometry(self):
         """
-        Get geometry from properties output calculation. A 3D geometry is
-        generated since no dimensionality information is provided.
+        Get geometry from properties output calculation.
 
         Returns:
             struc (CStructure): Modified Pymatgen structure
         """
         import re
         import numpy as np
+        from pymatgen.core.lattice import Lattice
         from CRYSTALpytools.geometry import CStructure
 
         data = self.data
@@ -715,6 +679,7 @@ class POutBASE():
         lattice = []
         cart_coord = []
         species = []
+        ndimen = 0
         while countline < len(data):
             line = data[countline]
             if re.match(r'^\s+DIRECT LATTICE VECTOR COMPONENTS', line):
@@ -723,12 +688,25 @@ class POutBASE():
                            data[countline+3].strip().split()]
                 countline += 4
                 continue
+            # get dimension, for 1-3D
+            elif re.match(r'^\s+A\s+B\s+C\s+ALPHA\s+BETA\s+GAMMA\s+VOLUME', line):
+                countline += 1
+                line = data[countline].strip().split()
+                [a, b, c, al, be, ga, vol] = [float(i) for i in line]
+                s = a * b * np.sin(ga)
+                l = a
+                if np.abs(vol-l) < 1e-4:
+                    ndimen = 1
+                elif np.abs(vol-s) < 1e-4:
+                    ndimen = 2
+                else:
+                    ndimen = 3
             elif re.match(r'^\s+ATOM N\.AT\.\s+SHELL\s+X\(A\)', line):
                 countline += 2
                 line = data[countline]
                 while not re.match(r'^\s*\*+\s*$', line):
                     line_data = line.strip().split()
-                    species.append(line_data[2].capitalize())
+                    species.append(line_data[1])
                     cart_coord.append(line_data[4:7])
                     countline += 1
                     line = data[countline]
@@ -738,11 +716,19 @@ class POutBASE():
                 countline += 1
                 continue
 
-        lattice = np.array(lattice, dtype=float)
-        cart_coord = np.array(cart_coord, dtype=float)
-        if len(lattice) == 0 or len(cart_coord) == 0:
+        if len(cart_coord) == 0:
             raise Exception('Valid geometry not found.')
 
+        pbc = {0 : (False, False, False),
+               1 : (True, False, False),
+               2 : (True, True, False),
+               3 : (True, True, True)}
+        if ndimen > 0:
+            lattice = Lattice(np.array(lattice, dtype=float), pbc=pbc[ndimen])
+        else:
+            lattice = Lattice(np.eye(3)*500., pbc=(False, False, False))
+        species = [int(i) for i in species]
+        cart_coord = np.array(cart_coord, dtype=float)
         return CStructure(lattice=lattice, species=species, coords=cart_coord,
                           coords_are_cartesian=True)
 
@@ -756,6 +742,76 @@ class POutBASE():
         """
         struc = self.get_geometry()
         return struc.lattice.matrix
+
+    def get_topond_geometry(self):
+        """
+        Get the cluster geometry and plot plane base (2D only) from TOPOND
+        calculation output.
+
+        Returns:
+            atomsplt (array): Atomic numbers and coordinates in plotting frame.
+            base (array): *Valid for 2D plots only* 3\*3 range of orthogonal
+                plotting base x and y. A: (xmin, ymax), B: (xmin, ymin), C:
+                (xmax, ymin). Unit: Bohr.
+        """
+        import re
+        import numpy as np
+        from CRYSTALpytools.units import angstrom_to_au
+        from scipy.spatial.transform import Rotation
+
+        data = self.data
+        countline = 0
+        istopond = False; atomsplt = []; rotmx = []; xyrange = [];
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s*\*\s+T O P O N D', line):
+                istopond = True
+                countline += 1
+            elif re.match(r'^\s*\*\*\* ATOMS \(POINTS\)\: AT\. N\. AND TRASFORMED COORD\.\(AU\)',
+                          line):
+                countline += 2
+                line = data[countline]
+                while line.strip() != '':
+                    atomsplt.append(line.strip().split())
+                    countline += 1
+                    line = data[countline]
+            elif re.match(r'^\s*ROTAT\. MATRIX', line):
+                for i in range(3):
+                    line = data[countline+i]
+                    rotmx.append(line[37:].strip().split()[0:3])
+                countline += 3
+            elif re.match(r'^\s*ORIGIN AT \( AU\; SYSTEM REF\. FRAME\)', line):
+                origin = line[37:].strip().split()[0:3]
+                origin = np.array(origin, dtype=float)
+                countline += 1
+            elif re.match(r'^\s*X AXIS RANGES AND INCREMENTS', line):
+                xyrange.append(line[37:].strip().split()[0:3])
+                countline += 1
+                line = data[countline]
+                xyrange.append(line[37:].strip().split()[0:3])
+                xyrange = np.array(xyrange, dtype=float)
+                if '(ANG)' in line:
+                    xyrange = angstrom_to_au(xyrange)
+                break
+            else:
+                countline += 1
+
+        if istopond == False:
+            raise Exception("TOPOND output not found. Is it a TOPOND output file?")
+
+        atomsplt = np.array(atomsplt, dtype=float)
+        # define rotation
+        rotmx = np.array(rotmx, dtype=float)
+        rot = Rotation.from_matrix(rotmx)
+        originplt = rot.apply(origin)
+        # force origin to 0
+        baseplt = np.vstack([originplt, originplt, originplt])
+        baseplt[0, 0:2] += [xyrange[0, 0], xyrange[1, 1]]
+        baseplt[1, 0:2] += [xyrange[0, 0], xyrange[1, 0]]
+        baseplt[2, 0:2] += [xyrange[0, 1], xyrange[1, 0]]
+        base = rot.inv().apply(baseplt)
+
+        return atomsplt, base
 
     def get_reciprocal_lattice(self):
         """
