@@ -1,6 +1,6 @@
 Pre-Calc Summary
 --------------------------------------------
-  date:                Wed Jul 17 23:32:40 BST 2024
+  date:                Sun Jul 21 15:19:39 BST 2024
   hostname:            IC-5CD3124HGQ
   system:              Linux IC-5CD3124HGQ 5.15.153.1-microsoft-standard-WSL2 #1 SMP Fri Mar 29 23:14:13 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
   user:                spica-vir
@@ -23,40 +23,40 @@ Job Ready to Go
   Command        : mpiexec -np 6 Pproperties >> /home/spica-vir/topond_test/urea_crys_plt.out 2>&1
   Temporary dir  : /home/spica-vir/topond_test/urea_crys_plt_tmpfile
   List of files  : total 676
--rw-r--r-- 1 spica-vir spica-vir    597 Jul 17 23:32 INPUT
--rw-r--r-- 1 spica-vir spica-vir   7554 Jul 17 23:32 Job_script_urea_crys_plt
--rw-r--r-- 1 spica-vir spica-vir 336100 Jul 17 23:32 fort.20
--rw-r--r-- 1 spica-vir spica-vir 336100 Jul 17 23:32 fort.9
+-rw-r--r-- 1 spica-vir spica-vir    163 Jul 21 15:19 INPUT
+-rw-r--r-- 1 spica-vir spica-vir   7554 Jul 21 15:19 Job_script_urea_crys_plt
+-rw-r--r-- 1 spica-vir spica-vir 336100 Jul 21 15:19 fort.20
+-rw-r--r-- 1 spica-vir spica-vir 336100 Jul 21 15:19 fort.9
   Input script   :
 TOPO
-PL2D      plot plane N-O-N origin mid-point N-N (X axis), w. sh. to put C at c.
+PL2D
 6
-0,-1,0
+0 -1 0
 5
-0,0,0
+0 0 0
 3
-0,-1,1
-3                                   ISHFT=3
-0.5                                 VMOD
-30,15.0
-1                                   ICONT=1
--4.,4.,.05
--4.,4.,.05
-1,1,1,1,1,1,1,1,1,1,1,1             IFU all set to 1
+0 -1 1
+3
+0.5
+30 15.0
+1
+-4.0 4.0 0.08
+-4.0 4.0 0.08
+1 1 1 1 1 1 1 1 1 1 1 1
 urea  
-0.55                                 SCALE=0.55
-2.,0.0,0                               TOLER=2., TR1=0.0 , IPLANE=0
-2.2,1,1,1                              THR=2.2, IL vector all set to 1
-36,0                                   NPATH=36, NEXTR=0
+0.0
+2.0 0.0 0
+2.2 1 1 1
+36 0
 END
 -------------------------------------------
 
- PROCESS            2  OF            6  WORKING
+ PROCESS            0  OF            6  WORKING
  PROCESS            3  OF            6  WORKING
+ PROCESS            4  OF            6  WORKING
  PROCESS            5  OF            6  WORKING
  PROCESS            1  OF            6  WORKING
- PROCESS            4  OF            6  WORKING
- PROCESS            0  OF            6  WORKING
+ PROCESS            2  OF            6  WORKING
 
          
  *******************************************************************************
@@ -101,7 +101,7 @@ END
  *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
  *                                                                             *
  *******************************************************************************
- EEEEEEEEEE STARTING  DATE 17 07 2024 TIME 23:32:41.6
+ EEEEEEEEEE STARTING  DATE 21 07 2024 TIME 15:19:40.4
  INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
 
  *******************************************************************************
@@ -156,7 +156,7 @@ END
 
  GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    16
  NO.OF VECTORS CREATED 6999 STARS  525 RMAX   117.81283 BOHR
- TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.85 TCPU        0.33
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.89 TCPU        0.36
 
  MATRIX SIZE: P(G)  108364, F(G)   18098, P(G) IRR   10907, F(G) IRR    4245
  MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS  81
@@ -571,9 +571,9 @@ CRYSTAL INFORMATION ON THE REFERENCE SYSTEM:
                                       1.534E+00 -3.724E+00  1.563E+00      7      0     0     0
                                       0.000E+00 -5.258E+00  5.269E+00      8  0-1 1
  ORIGIN AT ( AU; SYSTEM REF. FRAME) : 0.000E+00 -5.258E+00  1.563E+00
- X AXIS RANGES AND INCREMENTS (ANG) :-4.000E+00  4.000E+00  5.000E-02
- Y AXIS RANGES AND INCREMENTS (ANG) :-4.000E+00  4.000E+00  5.000E-02
- IPSIZE(A3=1,A4=2), SCALE(ANG/CM)   :     2          5.500E-01
+ X AXIS RANGES AND INCREMENTS (ANG) :-4.000E+00  4.000E+00  8.000E-02
+ Y AXIS RANGES AND INCREMENTS (ANG) :-4.000E+00  4.000E+00  8.000E-02
+ IPSIZE(A3=1,A4=2), SCALE(ANG/CM)   :     2          0.000E+00
  TOLERA (ANG), TR1 (ANG), IPLANE    : 2.000E+00  1.000E-04   0
  THR (ANG), IL(K),K=1,3             : 2.200E+00   1   1   1
  N. GRHO TRAJ. FROM EACH 3,-3 CP    :36
@@ -602,30 +602,30 @@ CRYSTAL INFORMATION ON THE REFERENCE SYSTEM:
                                       MOLGRAPH.DAT                    
                                       TRAJMOLG.DAT                    
  INFORM. FILE                       : P2DCRYIN.DAT                    
- TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT PL2D        TELAPSE       23.51 TCPU       22.98
- TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE       23.51 TCPU       22.98
- EEEEEEEEEE TERMINATION  DATE 17 07 2024 TIME 23:33:04.2
-NODE    0 CPU TIME =        22.983
-NODE    1 CPU TIME =        22.995
-NODE    2 CPU TIME =        22.983
-NODE    3 CPU TIME =        22.983
-NODE    4 CPU TIME =        22.985
-NODE    5 CPU TIME =        22.974
-    TOTAL CPU TIME =       137.902
-  fort.9               urea_crys_plt.f9                                      336100   Jul 17 23:32
-  SURFRHOO.DAT         urea_crys_plt.SURFRHOO                                414878   Jul 17 23:33
-  SURFSPDE.DAT         urea_crys_plt.SURFSPDE                                414878   Jul 17 23:33
-  SURFGRHO.DAT         urea_crys_plt.SURFGRHO                                414878   Jul 17 23:33
-  SURFLAPP.DAT         urea_crys_plt.SURFLAPP                                414878   Jul 17 23:33
-  SURFLAPM.DAT         urea_crys_plt.SURFLAPM                                414878   Jul 17 23:33
-  SURFKKIN.DAT         urea_crys_plt.SURFKKIN                                414878   Jul 17 23:33
-  SURFGKIN.DAT         urea_crys_plt.SURFGKIN                                414878   Jul 17 23:33
-  SURFVIRI.DAT         urea_crys_plt.SURFVIRI                                414878   Jul 17 23:33
-  SURFELFB.DAT         urea_crys_plt.SURFELFB                                414878   Jul 17 23:33
-  TRAJGRAD.DAT         urea_crys_plt.TRAJGRAD                                1766070  Jul 17 23:32
-  MOLGRAPH.DAT         urea_crys_plt.MOLGRAPH                                762174   Jul 17 23:32
-  TRAJMOLG.DAT         urea_crys_plt.TRAJMOLG                                2528244  Jul 17 23:32
-  P2DCRYIN.DAT         urea_crys_plt.P2DCRYIN                                7756     Jul 17 23:33
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT PL2D        TELAPSE       19.98 TCPU       19.46
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE       19.98 TCPU       19.46
+ EEEEEEEEEE TERMINATION  DATE 21 07 2024 TIME 15:19:59.5
+NODE    0 CPU TIME =        19.457
+NODE    1 CPU TIME =        19.469
+NODE    2 CPU TIME =        19.462
+NODE    3 CPU TIME =        19.463
+NODE    4 CPU TIME =        19.472
+NODE    5 CPU TIME =        19.459
+    TOTAL CPU TIME =       116.783
+  fort.9               urea_crys_plt.f9                                      336100   Jul 21 15:19
+  SURFRHOO.DAT         urea_crys_plt.SURFRHOO                                163358   Jul 21 15:19
+  SURFSPDE.DAT         urea_crys_plt.SURFSPDE                                163358   Jul 21 15:19
+  SURFGRHO.DAT         urea_crys_plt.SURFGRHO                                163358   Jul 21 15:19
+  SURFLAPP.DAT         urea_crys_plt.SURFLAPP                                163358   Jul 21 15:19
+  SURFLAPM.DAT         urea_crys_plt.SURFLAPM                                163358   Jul 21 15:19
+  SURFKKIN.DAT         urea_crys_plt.SURFKKIN                                163358   Jul 21 15:19
+  SURFGKIN.DAT         urea_crys_plt.SURFGKIN                                163358   Jul 21 15:19
+  SURFVIRI.DAT         urea_crys_plt.SURFVIRI                                163358   Jul 21 15:19
+  SURFELFB.DAT         urea_crys_plt.SURFELFB                                163358   Jul 21 15:19
+  TRAJGRAD.DAT         urea_crys_plt.TRAJGRAD                                1766070  Jul 21 15:19
+  MOLGRAPH.DAT         urea_crys_plt.MOLGRAPH                                762174   Jul 21 15:19
+  TRAJMOLG.DAT         urea_crys_plt.TRAJMOLG                                2528244  Jul 21 15:19
+  P2DCRYIN.DAT         urea_crys_plt.P2DCRYIN                                7756     Jul 21 15:19
 --------------------------------------------
 
 Temporary Directory Disk Info
@@ -637,7 +637,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 /dev/sdc        251G   38G  201G  16% /
 
   Usage by folders (du -m)
-16	/home/spica-vir/topond_test/urea_crys_plt_tmpfile
+14	/home/spica-vir/topond_test/urea_crys_plt_tmpfile
 
   Detailed file list (ls -l .)
     see /home/spica-vir/topond_test/urea_crys_plt.log file
