@@ -645,6 +645,49 @@ class PhononBASE():
 
         return crysout
 
+    @classmethod
+    def get_kdisp(cls, data, countline):
+        """
+        Phonon dispersion only. Get 3D fractional coordinates of high-symmetry
+        and sampled k points from output file.
+
+        Returns:
+            countline (int): Line number of output file.
+            tick_pos3d (array): ntick\*3 array of fractional coordinates of
+                high symmetry k points
+            k_pos3d(array): nkpoint\*3 fractional coordinates of k points
+        """
+        import re
+        import numpy as np
+
+        k_pos3d = []
+        while countline < len(data):
+            line = data[countline]
+            if re.match(r'^\s*DISPERSION K POINT NUMBER', line):
+                k_pos3d.append(line.strip().split()[7:10])
+                countline += 1
+            elif re.match(r'^\s*THE POSITION OF THE POINTS.+DENOMINATOR', line):
+                if len(k_tmp) == 0:
+                    continue
+                k_pos3d.append(np.array(k_tmp, dtype=float) / shrink)
+                k_tmp = []
+                shrink = int(line.strip().split()[-1])
+                countline += 1
+            else:
+                countline += 1
+
+        tick_pos3d = [k_pos3d[0][0, :], k_pos3d[0][-1, :]]
+        for ik in range(1, len(k_pos3d)):
+            if np.array_equal(k_pos3d[ik][0, :], k_pos3d[ik-1][-1, :]):
+                tick_pos3d.append(k_pos3d[ik][-1, :])
+            else:
+                tick_pos3d.append(k_pos3d[ik][0, :])
+                tick_pos3d.append(k_pos3d[ik][-1, :])
+
+        k_pos3d = np.array(k_pos3d).flatten(order='C').reshape([-1,3])
+        tick_pos3d = np.array(tick_pos3d)
+        return tick_pos3d, k_pos3d
+
 
 class POutBASE():
     """
@@ -826,8 +869,8 @@ class POutBASE():
 
     def get_3dkcoord(self):
         """
-        BANDS calculation only. Get 3D coordinates of k points and shrinking
-        factors from output file.
+        BANDS calculation only. Get 3D fractional coordinates of high-symmetry
+        and sampled k points from output file.
 
         Returns:
             tick_pos3d (array): ntick\*3 array of fractional coordinates of

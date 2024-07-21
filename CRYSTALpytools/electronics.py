@@ -445,7 +445,7 @@ class ElectronBandDOS():
 
     def plot(self, **kwargs):
         """
-        A wrapper to plot electron band structure + density of states of a]
+        A wrapper to plot electron band structure + density of states of a
         single system with matplotlib. For input arguments, check
         :ref:`plot.plot_electron_banddos() <ref-plot>`.
 
