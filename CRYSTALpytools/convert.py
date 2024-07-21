@@ -430,6 +430,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.atom_number = list(molecule.atomic_numbers)
         gui.atom_positions = molecule.cart_coords.tolist()
     else: # 1-3D
+        latt_mx = structure.lattice.matrix
         if dimensionality == 2:
             if pbc[0] == False: # X no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
@@ -501,6 +502,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
 
                 sg = SpacegroupAnalyzer(structure)
                 ops = sg.get_symmetry_operations(cartesian=True)
+                n_symmops = 0; gui.symmops = []
                 for op in ops:
                     if np.all(op.translation_vector == 0.):
                         n_symmops += 1
