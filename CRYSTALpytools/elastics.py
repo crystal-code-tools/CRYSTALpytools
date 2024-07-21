@@ -814,10 +814,10 @@ class Tensor2D():
     """
     2D elastic tensor and related properties. Periodic boundary conditions are
     consistent with CRYSTAL definitions, i.e., xy-periodic and slab vertical to
-    z.
+    z. Basic units: GPa, m
 
     Args:
-        matrix (numpy.ndarray): 3\*3 compliance or stiffness matrix. Unit: GPa:math:`^{-1}`.m:math:`^{-1}` or GPa.m.
+        matrix (numpy.ndarray): 3\*3 compliance or stiffness matrix.
         lattice (numpy.ndarray): 2\*2 lattice matrix.
         is_compliance (bool): Compliance or stiffness matrix used as input.
     """
@@ -848,14 +848,14 @@ class Tensor2D():
     @property
     def stiffness(self):
         """
-        3\*3 stiffness matrix in Voigt annotation. Unit: GPa.m.
+        3\*3 stiffness matrix in Voigt annotation. Basic units: GPa, m.
         """
         return self._C
 
     @property
     def compliance(self):
         """
-        3\*3 compliance matrix in Voigt annotation. Unit: GPa:math:`^{-1}`.m:math:`^{-1}`
+        3\*3 compliance matrix in Voigt annotation. Basic units: GPa, m.
         """
         return self._S
 

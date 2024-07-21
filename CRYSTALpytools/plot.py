@@ -15,8 +15,8 @@ import numpy as np
 def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
               linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
               cbar_label=None, a_range=[], b_range=[], rectangle=False,
-              edgeplot=False, scale=True, x_ticks=5, y_ticks=5, add_title=True,
-              figsize=[6.4, 4.8], **kwargs):
+              edgeplot=False, x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8],
+              **kwargs):
     """
     Read multiple 2D charge density files / objects and return to a list of
     figures and axes. The uniform plot set-ups are used for comparison.
@@ -56,8 +56,6 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
             refers to the old :math:`b`.
-        scale (bool): Whether to scale the plot window for systems of different sizes.
-            Base vectors of 2D plot are changed. Use with care.
         edgeplot (bool): Whether to add cell edges represented by the original
             base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
@@ -110,10 +108,7 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             levels1 = np.array(levels[0], dtype=float)
             levels2 = np.array(levels[1], dtype=float)
     levels = np.vstack([levels1, levels2])
-    # set scaling
-    if scale == True:
-        for i in obj[1:]:
-            i.base = obj[0].base
+
     # plot
     figs = []
     for i in obj:
@@ -650,6 +645,7 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
     from CRYSTALpytools.electronics import ElectronBand
     from CRYSTALpytools.base.plotbase import plot_overlap_bands, plot_compare_bands
     from CRYSTALpytools.units import H_to_eV, eV_to_H
+    import copy
 
     # unit
     if unit.lower() == 'ev':
@@ -667,7 +663,7 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
         if isinstance(b, str):
             btmp = ElectronBand.from_file(b)
         elif isinstance(b, ElectronBand):
-            btmp = b
+            btmp = copy.deepcopy(b)
         else:
             raise ValueError('Unknown input type for bands.')
 
@@ -804,6 +800,7 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
     from CRYSTALpytools.base.plotbase import plot_doss, _plot_label_preprocess
     from CRYSTALpytools.electronics import ElectronDOS
     from CRYSTALpytools.units import H_to_eV, eV_to_H
+    import copy
 
     # unit
     if unit.lower() == 'ev':
@@ -821,7 +818,7 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
         if isinstance(d, str):
             dtmp = ElectronDOS.from_file(d)
         elif isinstance(d, ElectronDOS):
-            dtmp = d
+            dtmp = copy.deepcopy(d)
         else:
             raise ValueError('Unknown input type for doss.')
 
@@ -1022,7 +1019,7 @@ def plot_electron_banddos(
     from CRYSTALpytools.electronics import ElectronBand, ElectronDOS, ElectronBandDOS
     from CRYSTALpytools.base.plotbase import plot_banddos
     from CRYSTALpytools.units import H_to_eV, eV_to_H
-    import warnings
+    import warnings, copy
 
     # unit
     if unit.lower() == 'ev':
@@ -1040,22 +1037,22 @@ def plot_electron_banddos(
             bands = ElectronBand.from_file(data[0])
             doss = ElectronDOS.from_file(data[0])
         elif isinstance(data[0], ElectronBandDOS):
-            bands = data[0].band
-            doss = data[0].dos
+            bands = copy.deepcopy(data[0].band)
+            doss = copy.deepcopy(data[0].dos)
         else:
             raise ValueError('Unknown input data type for the 1st entry.')
     elif len(data) == 2:
         if isinstance(data[0], str):
             bands = ElectronBand.from_file(data[0])
         elif isinstance(data[0], ElectronBand):
-            bands = data[0]
+            bands = copy.deepcopy(data[0])
         else:
             raise ValueError('Unknown input data type for the 1st entry.')
 
         if isinstance(data[1], str):
             doss = ElectronDOS.from_file(data[1])
         elif isinstance(data[1], ElectronDOS):
-            doss = data[1]
+            doss = copy.deepcopy(data[1])
         else:
             raise ValueError('Unknown input data type for the 2nd entry.')
     else:
@@ -1198,8 +1195,10 @@ def plot_phonon_banddos(bands, doss, unit='cm-1', k_labels=None, dos_prj=None,
 def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
                   levels='default', lineplot=True, linewidth=1.0, isovalues='%.4f',
                   colorplot=False, colormap='jet', cbar_label=None,
-                  x_range=[], y_range=[], scale=True, x_ticks=7, y_ticks=7,
-                  add_title=True, figsize=[6.4, 4.8], **kwargs):
+                  cpt_marker='o', cpt_color='k', cpt_size=10,
+                  traj_color='r', traj_linestyle=':', traj_linewidth=0.5,
+                  a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
+                  add_title=True, figsize=[6.4, 4.8]):
     """
     Read multiple TOPOND 2D plot files / objects and return to a list of
     figures and axes. The uniform plot set-ups are used for comparison.
@@ -1210,7 +1209,8 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         the correct type for your input file. By default `type='infer'` will
         search for (case insensitive) the following strings:
 
-        ``'SURFRHOO','SURFSPDE','SURFLAPP','SURFLAPM','SURFGRHO','SURFKKIN','SURFGKIN','SURFVIRI','SURFELFB'``
+        'SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO', 'SURFKKIN',
+        'SURFGKIN', 'SURFVIRI', 'SURFELFB', 'TRAJGRAD', 'TRAJMOLG'
 
         For their meanings, please refer the `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
 
@@ -1218,18 +1218,30 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
 
     * 'normal' : Literally normal.  
     * 'diff' : Substract data from the first entry using following entries. All
-        the entries must have the same ``type``.
+        the entries must have the same ``type`` and must be 'SURF*' types.  
+    * 'overlay': Overlapping a 'TRAJ*' object on the 2D 'SURF*' object. Inputs
+        must be 1\*2 lists of a ``Surf`` object and a ``Traj`` object. File
+        names are not permitted as geometry information is mandatory.
+
+    .. note::
+
+        2D periodicity (``a_range`` and ``b_range``), though available for the
+        ``Surf`` class, is not suggested as TOPOND plotting window does not
+        always commensurate with periodic boundary. The ``Traj`` class has no
+        2D periodicity so if ``option='overlay'``, ``a_range``, ``b_range`` and
+        ``edgeplot`` will be disabled.
 
     Args:
-        \*topond (Surf|str): Extendable. File names or ``topond.Surf`` objects.
-            Geometry information is not available if file names are used.
+        \*topond (Surf|Traj|str): Extendable. File names, ``topond.Surf`` or
+            ``topond.Traj`` objects. Geometry information is not available if
+            file names are used - **might lead to errors!**.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
             Bohr:math:`^{-3}`.
         type (str): 'infer' or specified. Otherwise warning will be given.
         option (str): Available options see above.
         levels (array): Set levels of contour plot. 'Default' for built-in,
-            property adaptive levels (``unit='Angstrom'``). Otherwise entries
-            **must be consistent with ``unit``**.
+                property adaptive levels (``unit='Angstrom'``). Otherwise
+                entries **must be consistent with ``unit``**.
         lineplot (bool): Plot contour lines.
         linewidth (float): Contour linewidth. Useful only if ``lineplot=True``.
             Other properties are not editable.
@@ -1239,56 +1251,91 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
         cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
             'None' for default.
-        x_range (list): 1\*2 list of x axis range. **Must be consistent with ``unit``**.
-        y_range (list): 1\*2 list of y axis range. **Must be consistent with ``unit``**.
-        scale (bool): Whether to scale the plot window for systems of different sizes.
-            Base vectors of 2D plot are changed. Use with care.
+        cpt_marker (str): Marker of critical point scatter.
+        cpt_color (str): Marker color of critical point scatter.
+        cpt_size (float|int): Marker size of critical point scatter.
+        traj_color (str): Line color of 2D trajectory plot.
+        traj_linestyl (str): Line style of 2D trajectory plot.
+        traj_linewidth (str): Line width of 2D trajectory plot.
+        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional
+            coordinate. 'Surf' plots only.
+        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional
+            coordinate. 'Surf' plots only.
+        edgeplot (bool): Whether to add cell boundaries represented by the
+            original base vectors (not inflenced by a/b range).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
         add_title (bool): Whether to add property plotted as title.
         figsize (list): Matplotlib figure size. Note that axes aspects are
             fixed to be equal.
-        \*\*kwargs : Other arguments passed to ``axes.contour()`` function
-            to set contour lines.
     Returns:
         figs (list|Figure): Matplotlib Figure object or a list of them.
     """
-    from CRYSTALpytools.topond import Surf
+    from CRYSTALpytools.topond import Surf, Traj
+    from CRYSTALpytools.crystal_io import Properties_output
     import numpy as np
+    import warnings
 
     obj = []
     for i in topond:
         if isinstance(i, str):
-            obj.append(Surf.from_file(i, type=type, output=None))
-        elif isinstance(i, Surf):
+            obj.append(Properties_output().read_topond(i, type=type))
+        elif isinstance(i, Surf) or isinstance(i, Traj):
             obj.append(i)
+        elif isinstance(i, list) or isinstance(i, tuple):
+            if len(i) != 2:
+                raise ValueError('Input lists must have 2 elements.')
+            if isinstance(i[0], Surf) and isinstance(i[1], Traj):
+                obj.append([i[0], i[1]])
+            elif isinstance(i[1], Surf) and isinstance(i[0], Traj):
+                obj.append([i[1], i[0]])
+            else:
+                raise TypeError("Input type does not follow the requirement of the 'overlay' option.")
         else:
-            raise TypeError("Inputs must be either string or topond.Surf objects.")
+            raise TypeError("Input type does not meet the requirements.")
+
     # substraction
     if 'diff' in option.lower():
+        if isinstance(obj[0], Traj):
+            raise TypeError("The 'diff' option is not applicable to 'topond.Traj' objects.")
         for i in obj[1:]:
             if obj[0].type != i.type:
                 raise TypeError("Different properties are read for input objects / files, 'diff' option not available.")
             obj[0].substract(i)
-        obj[0].type = 'diff'
         obj = [obj[0]]
     # set uniform levels
     if np.all(levels=='default'):
         levels = 'default'
     else:
         levels = np.array(levels, dtype=float)
-    # set scaling
-    if scale == True:
-        for i in obj[1:]:
-            i.base = obj[0].base
+
     # plot
     figs = []
-    for i in obj:
-        figs.append(
-            i.plot(unit, levels, lineplot, linewidth, isovalues, colorplot,
-                   colormap, cbar_label, x_range, y_range, x_ticks, y_ticks,
-                   add_title, figsize, **kwargs)
-        )
+    if 'overlay' in option.lower():
+        if a_range != [] or b_range != []:
+            warnings.warn("Periodic plotting not available for 'topond.Traj' objects. Using default ranges.",
+                          stacklevel=2)
+            a_range = []; b_range = []
+        for i in obj:
+            figs.append(i[0].plot(
+                unit, levels, lineplot, linewidth, isovalues, colorplot, colormap,
+                cbar_label, [], [], False, x_ticks, y_ticks, add_title, figsize,
+                overlay=i[1], cpt_marker=cpt_marker, cpt_color=cpt_color,
+                cpt_size=cpt_size, traj_color=traj_color,
+                traj_linestyle=traj_linestyle, traj_linewidth=traj_linewidth))
+
+    else:
+        for i in obj:
+            if isinstance(i, Surf):
+                figs.append(i.plot(
+                    unit, levels, lineplot, linewidth, isovalues, colorplot,
+                    colormap, cbar_label, a_range, b_range, edgeplot, x_ticks,
+                    y_ticks, add_title, figsize, None))
+            else:
+                figs.append(i.plot_2D(
+                    unit, cpt_marker, cpt_color, cpt_size, traj_color, traj_linestyle,
+                    traj_linewidth, x_ticks, y_ticks, add_title, figsize, None, None))
+
     if len(obj) == 1:
         figs = figs[0]
     return figs

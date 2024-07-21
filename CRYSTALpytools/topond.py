@@ -57,10 +57,19 @@ class Surf(ChargeDensity):
 
     def plot(self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
              isovalues='%.4f', colorplot=False, colormap='jet', cbar_label=None,
-             a_range=[], b_range=[], x_ticks=5, y_ticks=5, cellplot=False,
-             add_title=True, figsize=[6.4, 4.8], **kwargs):
+             a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
+             add_title=True, figsize=[6.4, 4.8], overlay=None, **kwargs):
         """
-        Plot 2D contour lines, color maps or both for the 2D data set.
+        Plot 2D contour lines, color maps or both for the 2D data set. The user
+        can also get the overlapped plot of ``Surf`` and ``Traj`` objects.
+
+        .. note::
+
+            2D periodicity (``a_range`` and ``b_range``), though available for
+            the ``Surf`` class, is not suggested as TOPOND plotting window does
+            not always commensurate with periodic boundary. The ``Traj`` class
+            has no 2D periodicity so if ``overlay`` is not None, ``a_range``
+            ``b_range`` and ``edgeplot`` will be disabled.
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA` - eV. 'a.u.' for
@@ -83,16 +92,16 @@ class Surf(ChargeDensity):
                 fractional coordinate.
             b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
                 fractional coordinate.
-            cellplot (bool): Whether to add cell boundaries represented by the
-                original base vectors (not inflenced by a/b range or rectangle
-                options).
+            edgeplot (bool): Whether to add cell boundaries represented by the
+                original base vectors (not inflenced by a/b range).
             x_ticks (int): Number of ticks on x axis.
             y_ticks (int): Number of ticks on y axis.
             add_title (bool): Whether to add property plotted as title.
             figsize (list): Matplotlib figure size. Note that axes aspects are
                 fixed to be equal.
-            \*\*kwargs : Other arguments passed to ``axes.contour()`` function
-                to set contour lines.
+            overlay (None|Traj): Overlapping a 2D plot from the ``topond.Traj``
+                object if not None.
+            \*\*kwargs : Other arguments passed to ``topond.Traj``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -180,12 +189,30 @@ class Surf(ChargeDensity):
                 elif self.type in ['SURFLAPP', 'SURFLAPM']: cbar_label=r'$\nabla^{2}\rho$ ($|e|/Bohr^{-5}$)'
                 elif self.type in ['SURFKKIN', 'SURFGKIN', 'SURFVIRI']: cbar_label=r'$\rho$ ($Hartree/Bohr^{-3}$)'
                 else: cbar_label=self.type
-        # plot
+        # overlay
+        if np.all(overlay!=None) and isinstance(overlay, Traj):
+            overlay._set_unit(unit)
+            diff_base = np.abs(overlay.base-self.base)
+            if np.any(diff_base>1e-3):
+                raise Exception("The plotting base of surface and trajectory are different.")
+            a_range = []; b_range=[] # no periodicity for Traj
+
+        # plot surf first
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        fig, ax = plot_2Dscalar(
+        fig = plot_2Dscalar(
             fig, ax, self.data, self.base, levels, contourline, isovalues, colormap,
-            cbar_label, a_range, b_range, False, cellplot, x_ticks, y_ticks, **kwargs
+            cbar_label, a_range, b_range, False, edgeplot, x_ticks, y_ticks
         )
+        title = self.type
+        # plot traj
+        if np.all(overlay!=None):
+            kwargs['unit'] = unit; kwargs['figsize'] = figsize
+            kwargs['x_ticks'] = x_ticks; kwargs['y_ticks'] = y_ticks
+            kwargs['edgeplot'] = False; kwargs['add_title'] = False
+            kwargs['fig'] = fig
+            fig = overlay.plot_2D(**kwargs)
+            title = '{} + {}'.format(self.type, overlay.type)
+
         if unit.lower() == 'angstrom':
             ax.set_xlabel(r'$\AA$')
             ax.set_ylabel(r'$\AA$')
@@ -193,7 +220,7 @@ class Surf(ChargeDensity):
             ax.set_xlabel(r'$Bohr$')
             ax.set_ylabel(r'$Bohr$')
         if add_title == True:
-            ax.set_title(self.type)
+            ax.set_title(title)
 
         self._set_unit(uold)
         return fig
@@ -216,7 +243,7 @@ class Surf(ChargeDensity):
         objs = []
         for i in args:
             if isinstance(i, str):
-                objs.append(Properties_output().read_topond2D(i, type=type))
+                objs.append(Properties_output().read_topond(i, type=type))
             elif isinstance(i, Surf):
                 objs.append(i)
             else:
@@ -326,7 +353,7 @@ class Traj():
             the correct type for your input file. By default `type='infer'` will
             search for (case insensitive) the following strings in the filename:
 
-            'TRAJGRAD', 'TRAJMOLG',
+            'TRAJGRAD', 'TRAJMOLG'
 
             For their meanings, please refer the `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
 
@@ -343,17 +370,45 @@ class Traj():
 
         return Properties_output(output).read_topond(file, type=type)
 
-    def plot_2D(self, unit='Angstrom', cpt_marker='o', cpt_c='k', cpt_s=10,
+    def plot_2D(self, unit='Angstrom', cpt_marker='o', cpt_color='k', cpt_size=10,
                 traj_color='r', traj_linestyle=':', traj_linewidth=0.5,
-                x_ticks=5, y_ticks=5, cellplot=False, add_title=True,
-                figsize=[6.4, 4.8], overlay_surf=None, **kwargs):
+                x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8],
+                fig=None, overlay=None, **kwargs):
         """
         Get TOPOND trajectory in a 2D plot.
+
+        .. note::
+
+            2D periodicity (``a_range`` and ``b_range``) is not available for
+            the ``Traj`` class. If ``overlay`` is not None, ``a_range`` and
+            ``b_range`` and ``edgeplot`` will be disabled for the ``Surf`` object.
+
+        Args:
+            unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
+                Bohr:math:`^{-3}`.
+            cpt_marker (str): Marker of critical point scatter.
+            cpt_color (str): Marker color of critical point scatter.
+            cpt_size (float|int): Marker size of critical point scatter.
+            traj_color (str): Line color of 2D trajectory plot.
+            traj_linestyl (str): Line style of 2D trajectory plot.
+            traj_linewidth (str): Line width of 2D trajectory plot.
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
+            add_title (bool): Whether to add property plotted as title.
+            figsize (list): Matplotlib figure size. Note that axes aspects are
+                fixed to be equal.
+            fig (Figure|None): *Developers only* Used only for the
+                ``Surf.plot(overlay=Traj)`` method.
+            overlay (None|Traj): Overlapping a 2D plot from the ``topond.Surf``
+                object if not None.
+            \*\*kwargs : Other arguments passed to ``topond.Surf``.
+        Returns:
+            fig (Figure): Matplotlib Figure object
         """
         import numpy as np
         import matplotlib.pyplot as plt
         import copy
-        from CRYSTALpytools.plotbase import _get_operation
+        from CRYSTALpytools.base.plotbase import _get_operation
 
         # unit
         uold = self.unit
@@ -361,20 +416,25 @@ class Traj():
             self._set_unit(unit)
 
         # Get bottom surf figure first
-        if np.all(overlay_surf!=None) and isinstance(overlay_surf, Surf):
-            overlay_surf._set_unit(unit)
-            diff_base = np.abs(overlay_surf.base-self.base)
+        if np.all(overlay!=None) and isinstance(overlay, Surf):
+            overlay._set_unit(unit)
+            diff_base = np.abs(overlay.base-self.base)
             if np.any(diff_base>1e-3):
-                raise Exception("The plotting base of overlayed surface and 2D trajectory are different.")
+                raise Exception("The plotting base of surface and trajectory are different.")
 
             kwargs['unit'] = unit; kwargs['figsize'] = figsize
             kwargs['a_range'] = []; kwargs['b_range'] = [] # no periodicity
             kwargs['x_ticks'] = x_ticks; kwargs['y_ticks'] = y_ticks
-            kwargs['cellplot'] = cellplot; kwargs['add_title'] = add_title
-            fig = overlay_surf.plot(**kwargs)
+            kwargs['edgeplot'] = False; kwargs['add_title'] = False
+            fig = overlay.plot(**kwargs)
+            ax = fig.axes[0]
+            title = '{} + {}'.format(overlay.type, self.type)
+        # Surf.plot(overlay=Traj)
+        elif np.all(fig!=None):
             ax = fig.axes[0]
         else:
             fig, ax = plt.subplots(1, 1, figsize=figsize)
+            title = self.type
 
         # rotate the trajectory to plotting plane
         rot, disp = _get_operation(self.base)
@@ -389,7 +449,7 @@ class Traj():
             if len(traj) == 1:
                 v = traj[0] - baserot[1]
                 if v[0]>=0 and v[0]<xmx and v[1]>=0 and v[1]<ymx and np.abs(v[2])<=1e-3:
-                    ax.scatter(v[0], v[1], marker=cpt_marker, c=cpt_c, s=cpt_s)
+                    ax.scatter(v[0], v[1], marker=cpt_marker, c=cpt_color, s=cpt_size)
             # plot TRAJ
             else:
                 plttraj = []
@@ -402,7 +462,7 @@ class Traj():
                     continue
                 plttraj = np.array(plttraj)
                 if wt != 0:
-                    ax.plot(plttraj[:, 0], plttraj[:, 1], color=cpt_c,
+                    ax.plot(plttraj[:, 0], plttraj[:, 1], color=cpt_color,
                             linestyle='-', linewidth=traj_linewidth+extra_width[wt])
                 else:
                     ax.plot(plttraj[:, 0], plttraj[:, 1], color=traj_color,
@@ -411,6 +471,15 @@ class Traj():
         ax.set_aspect(1.0)
         ax.set_xlim(0, xmx)
         ax.set_ylim(0, ymx)
+
+        if unit.lower() == 'angstrom':
+            ax.set_xlabel(r'$\AA$')
+            ax.set_ylabel(r'$\AA$')
+        else:
+            ax.set_xlabel(r'$Bohr$')
+            ax.set_ylabel(r'$Bohr$')
+        if add_title == True:
+            ax.set_title(title)
         self._set_unit(uold)
         return fig
 

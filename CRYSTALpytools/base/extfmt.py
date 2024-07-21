@@ -584,20 +584,20 @@ class TOPONDParser():
         c = np.array([x_max, y_min, 0.], dtype=float)
         cosxy = 0.
         struc = None
-        map1 = np.zeros([npt_x, npt_y], dtype=float)
+        map1 = np.zeros([npt_y, npt_x], dtype=float)
         map2 = None
 
         tabtmp = pd.read_table(filename, sep='\s+', skiprows=5, header=None)
         tabtmp = tabtmp.to_numpy(dtype=float)
-        nline_per_x = np.ceil(npt_y/np.shape(tabtmp)[1])
-        last_line_entry = npt_y % np.shape(tabtmp)[1]
+        nline_per_y = np.ceil(npt_x/np.shape(tabtmp)[1])
+        last_line_entry = npt_x % np.shape(tabtmp)[1]
         if last_line_entry == 0:
             last_line_entry = np.shape(tabtmp)[1]
 
-        regular_entries = npt_y-last_line_entry
-        for i in range(npt_x):
-            tabbg = int(i * nline_per_x)
-            tabed = int((i + 1) *nline_per_x)
+        regular_entries = npt_x-last_line_entry
+        for i in range(npt_y):
+            tabbg = int(i * nline_per_y)
+            tabed = int((i + 1) *nline_per_y)
             map1[i, :regular_entries] = tabtmp[tabbg:tabed-1, :].flatten()
             map1[i, regular_entries:] = tabtmp[tabed-1, 0:last_line_entry]
 
