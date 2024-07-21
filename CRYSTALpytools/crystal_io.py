@@ -10,6 +10,8 @@ from CRYSTALpytools.base.propd3 import Properties_inputBASE
 from CRYSTALpytools.base.output import POutBASE
 from CRYSTALpytools.geometry import Crystal_gui
 
+import numpy as np
+
 
 class Crystal_input(Crystal_inputBASE):
     """
@@ -34,16 +36,17 @@ class Crystal_input(Crystal_inputBASE):
                 inp.close()
             super().analyze_text(source)
 
-    def read_file(self, source):
+    @classmethod
+    def read_file(cls, source):
         """
-        Initialize the object if not yet done.
+        Instantiate class object from file.
 
         Args:
             source (str): The name of the input file.
         Returns:
-            self (Crystal_input)
+            cls (Crystal_input)
         """
-        self.__init__(source)
+        return cls(source)
 
     def write_file(self, file):
         """
@@ -118,7 +121,7 @@ class Crystal_input(Crystal_inputBASE):
                               zconv=zconv, **kwargs)
         elif keyword.upper() == 'CRYSTAL':
             struc.refine_geometry(**kwargs)
-            if zconv != None:
+            if np.all(zconv!=None):
                 z_atom_index = [i[0] for i in zconv]
                 for i in range(struc.natom_irr):
                     try:
@@ -148,7 +151,7 @@ class Crystal_input(Crystal_inputBASE):
             z (list[int]): List of elements, specified by conventional atomic
                 numbers. BSE only.
             fmt (str): Format string. Consistent with `BSE python API
-                       <https://molssi-bse.github.io/basis_set_exchange/usage.html#versioning>`_.
+                       <https://molssi-bse.github.io/basis_set_exchange/bse_cli.html#list-formats>`_.
                        For string and files.
             append (bool): Whether to cover old entries. If the old entry
                 contains 'BASISSET', it will be removed anyway. Useful when
@@ -172,7 +175,7 @@ class Crystal_input(Crystal_inputBASE):
             self.basisset.from_bse(bs_str, z, append)
 
         # set charge
-        if charge != None:
+        if np.all(charge!=None):
             for i in list(charge.keys()):
                 found_atom = False
                 for j, at in enumerate(self.basisset._bs_obj.atoms):
@@ -184,12 +187,12 @@ class Crystal_input(Crystal_inputBASE):
                 if found_atom == False:
                     raise Exception('Unknown z value.')
                 if len(at.shells) != len(charge[i]):
-                    raise Exception('Charge definition of element {} is inconsistent with its basis set.'.format(i))
+                    raise Exception('Charge definition of element {} is inconsistent with its basis set. {} entries required.'.format(i, len(at.shells)))
                 for ishell, chg in enumerate(charge[i]):
                     self.basisset._bs_obj.atoms[j].shells[ishell]['charge'] = chg
 
         # set ECP
-        if ECP != None:
+        if np.all(ECP!=None):
             for i in list(ECP.keys()):
                 found_atom = False
                 for j, at in enumerate(self.basisset._bs_obj.atoms):
@@ -202,7 +205,7 @@ class Crystal_input(Crystal_inputBASE):
                     raise Exception('Unknown z value.')
                 self.basisset._bs_obj.atoms[j].ECP = ECP[i]
 
-        if BSfile != None:
+        if np.all(BSfile!=None):
             if append == False:
                 file = open(BSfile, 'w')
             else:
@@ -232,50 +235,48 @@ class Crystal_output:
     This class reads a CRYSTAL output and generates an object.
 
     Args:
-        output (str): Filename
+        output_name (str): Filename
     """
 
-    def __init__(self, output=None):
-        if output != None:
-            self.read_file(output)
+    def __init__(self, output_name=None):
+        import re
 
-    def read_file(self, output_name):
+        if np.all(output_name!=None):
+            self.name = output_name
+            # Check if the file exists
+            try:
+                if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
+                    output_name = output_name+'.out'
+                file = open(output_name, 'r', errors='ignore')
+                self.data = file.readlines()
+                file.close()
+            except:
+                raise FileNotFoundError('EXITING: a .out file needs to be specified')
+
+            # Check the calculation terminated correctly
+            self.terminated = False
+
+            for i, line in enumerate(self.data[::-1]):
+                if re.match(r'^ EEEEEEEEEE TERMINATION', line):
+                    self.terminated = True
+                    # This is the end of output
+                    self.eoo = len(self.data)-1-i
+                    break
+
+            if self.terminated == False:
+                self.eoo = len(self.data)
+
+    @classmethod
+    def read_file(cls, output_name):
         """
         Reads a CRYSTAL output file.
 
         Args:
             output_name (str): Name of the output file.
         Returns:
-            self (Crystal_output)
+            cls (Crystal_output)
         """
-        import re
-
-        self.name = output_name
-
-        # Check if the file exists
-        try:
-            if output_name[-3:] != 'out' and output_name[-4:] != 'outp':
-                output_name = output_name+'.out'
-            file = open(output_name, 'r', errors='ignore')
-            self.data = file.readlines()
-            file.close()
-        except:
-            raise FileNotFoundError('EXITING: a .out file needs to be specified')
-
-        # Check the calculation terminated correctly
-        self.terminated = False
-
-        for i, line in enumerate(self.data[::-1]):
-            if re.match(r'^ EEEEEEEEEE TERMINATION', line):
-                self.terminated = True
-                # This is the end of output
-                self.eoo = len(self.data)-1-i
-                break
-
-        if self.terminated == False:
-            self.eoo = len(self.data)
-
-        return self
+        return cls(output_name=output_name)
 
     def get_dielectric_tensor(self):
         """Extracts the dielectric tensor from the output.
@@ -324,7 +325,7 @@ class Crystal_output:
                 self.dimensionality = int(line.split()[9])
                 break
 
-        if self.dimensionality == None:
+        if np.all(self.dimensionality==None):
             raise Exception('Invalid file. Dimension information not found.')
 
         return self.dimensionality
@@ -380,9 +381,7 @@ class Crystal_output:
             self.geometry (CStructure | CMolecule): A modified pymatgen Structure
                 or molecule object.
         """
-        import os
-        import re
-        import warnings
+        import os, re, warnings
         import numpy as np
         from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
@@ -435,14 +434,14 @@ class Crystal_output:
         # Write gui files
         if write_gui == True:
             # Conventional atomic numbers
-            zconv = [[i, self.atom_numbers[i]] for i in range(self.n_atoms)]
-            if gui_name == None:
+            zconv = [[i, self.geometry.species_Z[i]] for i in range(self.geometry.num_sites)]
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
                 gui = cry_pmg2gui(struc, gui_file=gui_name, symmetry=True, zconv=zconv, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 gui = cry_pmg2gui(struc, gui_file=gui_name,  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
                 self.get_symmops()
@@ -468,15 +467,17 @@ class Crystal_output:
         """
         Return the last optimised geometry.
         """
+        from pymatgen.core.structure import Molecule
+
         struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
-        if 'Molecule' in str(type(struc)):
+        if isinstance(struc, Molecule):
             self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
-                              self.atom_numbers,
-                              self.atom_positions_cart.tolist()]
+                              struc.species_Z,
+                              struc.cart_coords.tolist()]
         else:
             self.last_geom = [struc.lattice.matrix.tolist(),
-                              self.atom_numbers,
-                              self.atom_positions_cart.tolist()]
+                              struc.species_Z,
+                              struc.cart_coords.tolist()]
         return self.last_geom
 
     def get_lattice(self, initial=True):
@@ -599,87 +600,6 @@ class Crystal_output:
             sg = SpacegroupAnalyzer(struc).get_space_group_symbol()
         return sg
 
-    @property
-    def n_atoms(self):
-        """
-        Number of atoms. After geometry editing.
-        """
-        struc = self.get_geometry(initial=True, write_gui=False)
-        return struc.num_sites
-
-    @property
-    def atom_symbols(self):
-        """
-        Atom symbols. After geometry editing.
-        """
-        from mendeleev import element
-
-        symbol = []
-        for i in self.atom_numbers:
-            symbol.append(element(int(i % 100)).symbol)
-
-        return symbol
-
-    @property
-    def atom_numbers(self):
-        """
-        Conventional atom numbers. After geometry editing.
-        """
-        from CRYSTALpytools.base.output import GeomBASE
-
-        _, conv_z = GeomBASE.read_conv_z(self.data, 0)
-        return conv_z
-
-    @property
-    def atom_positions(self):
-        """
-        Composite fractional / Cartesian atomic coordinates. Consistent
-        with CRYSTAL definitions. 3D: Fractional; 2D: Frac, Frac, Cart; 1D
-        Frac, Cart, Cart; 0D: Cart, Cart, Cart. After geometry editing
-        (before optimization).
-        """
-        import numpy as np
-
-        ndimen = self.get_dimensionality()
-        struc = self.get_geometry(initial=True, write_gui=False)
-
-        if ndimen == 0:
-            composite_coord = struc.cart_coords.tolist()
-        elif ndimen == 3:
-            composite_coord = struc.frac_coords.tolist()
-        else:
-            cart_coord = struc.cart_coords.tolist()
-            frac_coord = struc.frac_coords.tolist()
-            composite_coord = []
-            for i in range(struc.num_sites):
-                composite_coord.append(frac_coord[i][:ndimen] + cart_coord[i][ndimen:])
-
-        return np.array(composite_coord, dtype=float)
-
-    @property
-    def atom_positions_cart(self):
-        """
-        Cartesian atomic coordinates. After geometry editing (before optimization).
-        """
-        struc = self.get_geometry(initial=True, write_gui=False)
-        return struc.cart_coords
-
-    @property
-    def atom_positions_frac(self):
-        """
-        Fractional atomic coordinates. After geometry editing (before optimization).
-        """
-        import warnings
-
-        ndimen = self.get_dimensionality()
-        if ndimen != 3:
-            warnings.warn("Low dimension systems. Property 'atom_positions' is called instead.",
-                          stacklevel=2)
-            return self.atom_positions
-        else:
-            struc = self.get_geometry(initial=True, write_gui=False)
-            return struc.frac_coords
-
     def get_trans_matrix(self):
         """
         Get cell transformation matrix
@@ -760,13 +680,13 @@ class Crystal_output:
         self.primitive_geometry = pstruc
         # Write gui files
         if write_gui == True:
-            if gui_name == None:
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
                 gui_name = '{}.gui'.format(gui_name)
 
             if symmetry == 'pymatgen':
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=True, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 gui = cry_pmg2gui(pstruc, gui_file=gui_name, symmetry=False)
             elif symmetry == 'initial':
                 self.get_symmops()
@@ -973,7 +893,7 @@ class Crystal_output:
                 is_scf = True
                 break
 
-        if self.final_energy == None:
+        if np.all(self.final_energy==None):
             warnings.warn('No final energy found in the output file. self.final_energy = None',
                           stacklevel=2)
 
@@ -1239,7 +1159,7 @@ class Crystal_output:
 
         # Converged at initial step, or wrong file
         if self.opt_cycles == 0:
-            if e0 == None:
+            if np.all(e0==None):
                 raise Exception('Valid data not found.')
             else:
                 self.opt_cycles += 1
@@ -1253,7 +1173,7 @@ class Crystal_output:
                 self.opt_rmsdisp = np.array([])
         else:
             # restarted from previous opt
-            if e0 == None:
+            if np.all(e0==None):
                 pass
             else:
                 self.opt_cycles += 1
@@ -1292,7 +1212,7 @@ class Crystal_output:
 
         # Write gui files
         if write_gui == True:
-            if gui_name == None:
+            if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
             gui_list = ['{}-opt{:0=3d}.gui'.format(gui_name, i+1) for i in range(self.opt_cycles)]
 
@@ -1300,7 +1220,7 @@ class Crystal_output:
                 for idx_s, s in enumerate(self.opt_geometry):
                     gui = cry_pmg2gui(s, gui_file=gui_list[idx_s],
                                       symmetry=True, **kwargs)
-            elif symmetry == None:
+            elif np.all(symmetry==None):
                 for idx_s, s in enumerate(self.opt_geometry):
                     gui = cry_pmg2gui(s, gui_file=gui_list[idx_s], symmetry=False)
             elif symmetry == 'initial':
@@ -1355,6 +1275,7 @@ class Crystal_output:
 
         self.forces_atoms = []
         self.forces_cell = []
+        struc = self.get_geometry(initial=True, write_gui=False)
 
         if grad == True:
             self.get_opt_convergence()
@@ -1362,7 +1283,7 @@ class Crystal_output:
         if initial == True:
             for i, line in enumerate(self.data):
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(i+2, i+2+self.n_atoms):
+                    for j in range(i+2, i+2+struc.num_sites):
                         self.forces_atoms.append(self.data[j].strip().split()[2:])
                     self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
@@ -1379,7 +1300,7 @@ class Crystal_output:
                     self.forces_cell = np.array(self.forces_cell, dtype=float)
 
                 if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+1+self.n_atoms):
+                    for j in range(len(self.data)-i+1, len(self.data)-i+1+struc.num_sites):
                         self.forces_atoms.append(self.data[j].strip().split()[2:])
                     self.forces_atoms = np.array(self.forces_atoms, dtype=float)
 
@@ -2031,50 +1952,168 @@ class Crystal_output:
 
         return self
 
-    def get_elatensor(self):
+    def get_elatensor(self, *thickness):
         """
         Extracts the elastic tensor from the data.
 
+        Args:
+            \*thickness (float): Effective thickness of low dimensional
+                 materials, in :math:`\\AA`.
         Returns:
-            list: Symmetrized elastic tensor as a 6x6 nested list.
+            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
+                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
+                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
+                if effective thickness of materials are specified. Otherwise
+                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
+                small numbers).
         """
-        startstring = " SYMMETRIZED ELASTIC"
-        stopstring = " ELASTIC MODULI"
-        self.tensor = []
-        buffer = []
-        strtensor = []
-        copy = False
+        import re, warnings
 
-        # Search for elastic tensor and save it into buffer
-        for line in self.data:
-            if line.startswith(startstring):
-                copy = True
-            elif line.startswith(stopstring):
-                copy = False
-            elif copy:
-                buffer.append(line)
+        title = ''
+        buffer = []
+        countline = 0
+        while countline < self.eoo:
+            line = self.data[countline]
+            if re.match(r'^\s*SYMMETRIZED ELASTIC CONSTANTS', line):
+                title = line
+                countline += 2
+                while self.data[countline].strip() != '':
+                    buffer.append(self.data[countline])
+                    countline += 1
+                break
+            else:
+                countline += 1
+                continue
 
         # Build tensor
-        for i in range(6):
+        if len(buffer) == 0:
+            raise Exception('Elastic tensor not found. Check your output file.')
+        else:
+            dimen = len(buffer)
+            self.tensor = np.zeros([dimen,dimen], dtype=float)
+
+        for i in range(dimen):
             # Clean buffer and copy it in strtensor
-            strtensor.append(
-                buffer[i + 1].replace(" |", " ").replace("\n", ""))
-            # Split strtensor strings and copy them in tensor
-            self.tensor.append(strtensor[i].split())
-            # Conversion str -> float
-            for j in range(6 - i):
-                self.tensor[i][j] = float(self.tensor[i][j])
-            # Add zeros
-            for k in range(i):
-                self.tensor[i].insert(0, 0)
+            self.tensor[i, i:] = np.array(
+                buffer[i].strip().split()[1:-1], dtype=float
+            )
         buffer.clear()
 
         # Symmetrize tensor
-        for i in range(6):
-            for j in range(6):
+        for i in range(dimen):
+            for j in range(i,dimen):
                 self.tensor[j][i] = self.tensor[i][j]
 
+        # Unit conversion
+        if re.search('gpa', title.lower()):
+            pass
+        elif re.search('hartree', title.lower()):
+            if dimen == 1:
+                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
+                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
+            elif dimen == 3:
+                area = np.linalg.norm(np.cross(
+                    self.get_lattice(initial=False)[0, :2],
+                    self.get_lattice(initial=False)[1, :2]
+                )) * 1e-20 # AA^2 --> m^2
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
+        else:
+            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
+                          stacklevel=2)
+
+        # Effective thickness
+        if len(thickness) > 0:
+            if dimen == 1:
+                if len(thickness) == 1:
+                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
+                else:
+                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
+            elif dimen == 3:
+                self.tensor = self.tensor / (thickness[0]*1e-10)
+        else:
+            if dimen != 6:
+                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
+                               stacklevel=2)
         return self.tensor
+
+#------------------------------Deprecated-------------------------------------#
+    @property
+    def n_atoms(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'num_sites' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'natoms' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.num_sites
+
+    @property
+    def atom_symbols(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'species_symbol' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'species_symbol' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.species_symbol
+
+    @property
+    def atom_numbers(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'species_Z' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'species_Z' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.species_Z
+
+    @property
+    def atom_positions(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'crys_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'crys_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.crys_coords
+
+    @property
+    def atom_positions_cart(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'cart_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'cart_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.cart_coords
+
+    @property
+    def atom_positions_frac(self):
+        """
+        Deprecated. Get structure object by 'get_geometry' and call the
+        'crys_coords' attribute
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry' and call the 'crys_coords' attribute of output.",
+                      stacklevel=2)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        return struc.crys_coords
 
 
 class Properties_input(Properties_inputBASE):
@@ -2100,16 +2139,17 @@ class Properties_input(Properties_inputBASE):
                 inp.close()
             super().analyze_text(source)
 
-    def read_file(self, source):
+    @classmethod
+    def read_file(cls, source):
         """
-        Initialize the object if not yet done.
+        Instantiate the object from a file.
 
         Args:
             source (str): The name of the input file.
         Returns:
-            self (Properties_input)
+            cls (Properties_input)
         """
-        self.__init__(source)
+        return cls(source)
 
     def write_file(self, file):
         """
@@ -2123,7 +2163,7 @@ class Properties_input(Properties_inputBASE):
         out.close()
         return self
 
-    def make_bands_block(self, k_path, n_kpoints, first_band, last_band,
+    def make_band_block(self, k_path, n_kpoints, first_band, last_band,
                          print_eig=0, print_option=1, precision=5,
                          title='BAND STRUCTURE CALCULATION'):
         """
@@ -2203,9 +2243,9 @@ class Properties_input(Properties_inputBASE):
             output_file (str): Output file of 'crystal' calculation.
         """
         # either band_range or e_range needs to be specified
-        if band_range == None and e_range == None:
+        if np.all(band_range==None) and np.all(e_range==None):
             raise ValueError('Either band_range or e_range should be specified. None specified.')
-        elif band_range != None and e_range != None:
+        elif np.all(band_range!=None) and np.all(e_range!=None):
             raise ValueError('Either band_range or e_range should be specified. 2 specified')
         elif type(band_range) == list and len(band_range) == 2:
             pass
@@ -2220,7 +2260,7 @@ class Properties_input(Properties_inputBASE):
                 raise ValueError("proj_type should be either be 'ao' or 'atom'")
 
             if type(projections[0]) == str:
-                if output_file == None:
+                if np.all(output_file==None):
                     raise ValueError('Outut file is needed.')
                 else:
                     if proj_type == 'ao':
@@ -2228,8 +2268,9 @@ class Properties_input(Properties_inputBASE):
                                       stacklevel=2)
 
                     output = Crystal_output(output_file)
+                    struc = output.get_geometry(initial=False, write_gui=False)
                     for prje in projections:
-                        index = [i+1 for i, ele in enumerate(output.atom_symbols) if prje.upper() == ele.upper()]
+                        index = [i+1 for i, ele in enumerate(struc.species_symbol) if prje.upper() == ele.upper()]
                         prj.append([-len(index),] + index)
             else:
                 if proj_type == 'atom':
@@ -2239,12 +2280,13 @@ class Properties_input(Properties_inputBASE):
                     for p in projections:
                         prj.append([len(p),] + list(p))
 
-        if e_range == None:
+        if np.all(e_range==None):
             return self.doss(len(prj), n_points, band_range[0], band_range[1], plotting_option, poly, print_option, prj)
         else:
             return self.doss(len(prj), n_points, -1, -1, plotting_option, poly, print_option, e_range, prj)
 
 
+#-------------------------------obsolete methods-------------------------------#
     def make_pdoss_block(self, projections, proj_type='atom', output_file=None,
                          n_points=200, band_range=None, e_range=None,
                          plotting_option=2, poly=12, print_option=1):
@@ -2265,6 +2307,18 @@ class Properties_input(Properties_inputBASE):
 
         warnings.warn('Deprecated. Use newk() method instead.', stacklevel=2)
         return self.newk(shrink1, shrink2, Fermi, print_option)
+
+    def make_bands_block(self, k_path, n_kpoints, first_band, last_band,
+                         print_eig=0, print_option=1, precision=5,
+                         title='BAND STRUCTURE CALCULATION'):
+        """
+        Deprecated. Use ``self.make_band_block()``.
+        """
+        import warnings
+
+        warnings.warn('Deprecated. Use make_band_block() method instead.', stacklevel=2)
+        return self.make_band_block(k_path, n_kpoints, first_band, last_band, print_eig,
+                                    print_option, precision, title)
 
     def from_file(self, input_name):
         """
@@ -2302,38 +2356,36 @@ class Properties_output(POutBASE):
     """
 
     def __init__(self, properties_output=None):
-        if properties_output != None:
-            self.read_file(properties_output)
-        else:
-            pass
+        import os
 
-    def read_file(self, properties_output):
+        if np.all(properties_output!=None):
+            self.file_name = properties_output
+            try:
+                file = open(self.file_name, 'r')
+                self.data = file.readlines()
+                file.close()
+
+                # directory
+                dir_name = os.path.split(properties_output)[0]
+                self.abspath = os.path.join(dir_name)
+
+                # title (named "title" only to distinguish from "file_name" which means another thing)
+                self.title = os.path.split(properties_output)[1]
+
+            except:
+                raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+
+    @classmethod
+    def read_file(cls, properties_output):
         """
         Parse the properties output file.
 
         Args:
             properties_output (str): The properties output file.
         Returns:
-            Properties_output: The updated Properties_output object.
+            cls (Properties_output)
         """
-        import os
-
-        self.file_name = properties_output
-
-        try:
-            file = open(self.file_name, 'r')
-            self.data = file.readlines()
-            file.close()
-
-            # directory
-            dir_name = os.path.split(properties_output)[0]
-            self.abspath = os.path.join(dir_name)
-
-            # title (named "title" only to distinguish from "file_name" which means another thing)
-            self.title = os.path.split(properties_output)[1]
-
-        except:
-            raise FileNotFoundError('EXITING: a CRYSTAL properties file needs to be specified')
+        return cls(properties_output=properties_output)
 
     def read_vecfield(self, properties_output, which_prop):
         """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
@@ -2478,6 +2530,8 @@ class Properties_output(POutBASE):
                         s += 1
         return self
 
+#----------------------------electronic structure------------------------------#
+
     def read_electron_band(self, band_file):
         """
         Generate bands object from CRYSTAL BAND.DAT or fort.25 file. Energy
@@ -2517,127 +2571,160 @@ class Properties_output(POutBASE):
 
         return self.doss
 
-    def read_cry_contour(self, properties_output):
-        """Read the CRYSTAL contour files to create the contour objects.
+#-----------------------------2D scalar field----------------------------------#
+
+    def read_topond(self, topondfile, type='infer'):
+        """
+        Read the 2D scalar plot files ('SURF*.DAT') or trajectory files
+        (TRAJ*.DAT) written by `TOPOND <https://www.crystal.unito.it/topond.html>`_.
+
+        Geometry information is printed in the standard ouput, which is not
+        mandatory for 'SURF*.DAT' but is mandatory for 'TRAJ*.DAT'
+
+        .. note::
+
+            For the convenience of analysis and plotting, it is important to select
+            the correct type for your input file. By default `type='infer'` will
+            search for (case insensitive) the following strings:
+
+            'SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+            'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB', 'TRAJGRAD',
+            'TRAJMOLG'.
+
+            For their meanings, please refer `TOPOND manual <https://www.crystal.unito.it/include/manuals/topond.pdf>`_.
 
         Args:
-            properties_output (str): The properties output file.
+            topondfile (str): TOPOND formatted 2D plot file
+            type (str): 'infer' or specified. Otherwise warning will be given.
+
         Returns:
-            Properties_output: The updated Properties_output object.
+            self.topond_\* (ChargeDenstiy): Return to the ``topond_*`` with type
+                suffixed (all capital). If type is unknown, return to
+                ``topond_unknown``. All of them are ``topond.Surf`` class.
         """
-        import re
-        import sys
+        import warnings
+        from CRYSTALpytools.base.extfmt import TOPONDParser
+        from CRYSTALpytools.topond import Surf, Traj
 
-        import numpy as np
-        import pandas as pd
+        surflist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
+                    'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB']
+        trajlist = ['TRAJGRAD', 'TRAJMOLG']
 
-        self.read_file(properties_output)
-
-        filename = str(properties_output)
-
-        tipo = ''
-
-        if (filename.endswith('.SURFRHOO')):
-            self.tipo = 'SURFRHOO'
-            self.path = filename
-        elif (filename.endswith('.SURFLAPP')):
-            self.tipo = 'SURFLAPP'
-            self.path = filename
-        elif (filename.endswith('.SURFLAPM')):
-            self.tipo = 'SURFLAPM'
-            self.path = filename
-        elif (filename.endswith('.SURFGRHO')):
-            self.tipo = 'SURFGRHO'
-            self.path = filename
-        elif (filename.endswith('.SURFELFB')):
-            self.tipo = 'SURFELFB'
-            self.path = filename
-        elif (filename.endswith('.SURFVIRI')):
-            self.tipo = 'SURFVIRI'
-            self.path = filename
-        elif (filename.endswith('.SURFGKIN')):
-            self.tipo = 'SURFGKIN'
-            self.path = filename
-        elif (filename.endswith('.SURFKKIN')):
-            self.tipo = 'SURFKKIN'
-            self.path = filename
+        if type.lower() == 'infer':
+            type = topondfile.upper()
         else:
-            sys.exit('Please choose a valid file')
+            type = type.upper()
 
-        l_dens = self.data
+        issurf = False; istraj = False
+        for t in surflist:
+            if t in type:
+                issurf = True
+                type = t
+                break
+        for t in trajlist:
+            if t in type:
+                istraj = True
+                type = t
+                break
 
-        n_punti_x = int(l_dens[1].strip().split()[0])
-        n_punti_y = int(l_dens[1].strip().split()[1])
+        # still need to distinguish surf and traj
+        if issurf==False and istraj==False:
+            warnings.warn("Unknown type string / filename does not contian type string.",
+                          stacklevel=2)
+            type = 'unknown'
+            file = open(topondfile, 'r')
+            header = file.readline()
+            file.close()
+            if 'DSAA' in header:
+                issurf = True
+            else:
+                istraj = True
 
-        self.npx = n_punti_x
+        if issurf == True:
+            _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topondfile)
+            if not hasattr(self, 'file_name'):
+                warnings.warn('Properties output file not found: Geometry not available',
+                              stacklevel=2)
+                struc = None
+                # The a, b, c by are dummy base vectors. Info in 3D space lost.
+                base = np.vstack([a, b, c])
+            else:
+                struc = super().get_geometry()
+                # no atom plot currently, though read method is given
+                _, base = super().get_topond_geometry()
+            # class instantiation
+            obj = Surf(map1, base, struc, type=type, unit=unit)
+            obj._set_unit('Angstrom')
 
-        x_min = units.au_to_angstrom(float(l_dens[2].strip().split()[0]))
-        x_max = units.au_to_angstrom(float(l_dens[2].strip().split()[1]))
-        x_step = units.au_to_angstrom(float(l_dens[2].strip().split()[2]))
+        elif istraj == True:
+            if not hasattr(self, 'file_name'):
+                raise Exception("Properties output file is mandatory for 'TRAJ' files.")
+            wtraj, traj, unit = TOPONDParser.traj(topondfile)
+            struc = super().get_geometry()
+            # no atom plot currently, though read method is given
+            _, base = super().get_topond_geometry()
+            # class instantiation
+            obj = Traj(wtraj, traj, base, struc, type=type, unit=unit)
+            obj._set_unit('Angstrom')
 
-        y_min = units.au_to_angstrom(float(l_dens[3].strip().split()[0]))
-        y_max = units.au_to_angstrom(float(l_dens[3].strip().split()[1]))
-        y_step = units.au_to_angstrom(float(l_dens[3].strip().split()[2]))
+        setattr(self, 'topond_{}'.format(type), obj)
+        return getattr(self, 'topond_{}'.format(type))
 
-        l_dens = l_dens[5:]
+    def read_ECHG(self, *f25_files, method=None):
+        """
+        Read charge / spin density data from a file. Unit: :math:`e.\\AA^{-3}`.
 
-        m_dens = []
-        for i in l_dens:
-            m_dens.append(re.sub("\s\s+", " ", i))
+        Available methods are:
 
-        n_dens = []
-        for i in m_dens:
-            n_dens.append(i.replace('\n', '').split())
+        * 'substact': Substracting data from the first entry based on following
+            entries. Multiple entries only.  
+        * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
+            :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
+            / spin(:math:`\\alpha-\\beta`). Single entry only.
 
-        self.df = pd.DataFrame(n_dens)
+        Args:
+            \*f25_files (str): Path to the fort.25 file(s).
+            method (str): Data processing method. See above.
+        Returns:
+            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
+        """
+        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.electronics import ChargeDensity
+        import numpy as np
+        import warnings
 
-        self.x_points = np.linspace(x_min, x_max, n_punti_x)
-        self.y_points = np.linspace(y_min, y_max, n_punti_y)
+        if isinstance(method, str):
+            method = method.lower()
+            if method != 'substract' and method != 'alpha_beta':
+                raise ValueError("Unknown method: '{}'.".format(method))
 
-        a = x_max - x_min
-        b = y_max - y_min
-        r = a/b
+        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(f25_files[0])
+        if spin == 1:
+            self.echg = ChargeDensity(map1, np.vstack([a,b,c]), spin, 2, struc, unit)
+        else:
+            self.echg = ChargeDensity(np.dstack([map1, map2]), np.vstack([a,b,c]),
+                                      spin, 2, struc, unit)
+        self.echg._set_unit('Angstrom')
 
-        self.x_graph_param = 10
-        self.y_graph_param = 10 / r
+        # methods
+        if len(f25_files) > 1 and method == 'substract':
+            self.echg = self.echg.substract(*[f for f in f25_files[1:]])
+        elif len(f25_files) > 1 and method != 'substract':
+            warnings.warn("Only the 'substract' method is available to more than 1 entries. Nothing is done to other entries.",
+                          stacklevel=2)
+        elif len(f25_files) == 1 and method == 'substract':
+            warnings.warn("The 'substract' method is used only for multiple entries.",
+                          stacklevel=2)
+        # alpha-beta
+        if method == 'alpha_beta':
+            if len(f25_files) > 1:
+                warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
+                              stacklevel=2)
+            self.echg.alpha_beta()
 
-        ctr1 = np.array([0.002, 0.004, 0.008, 0.02, 0.04,
-                         0.08, 0.2, 0.4, 0.8, 2, 4, 8, 20])
-        colors1 = ['r', 'r', 'r', 'r', 'r', 'r',
-                   'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls1 = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
+        return self.echg
 
-        ctr2 = np.array([-8, -4, -2, -0.8, -0.4, -0.2, -0.08, -0.04, -0.02, -0.008, -0.004, -0.002, 0.002, 0.004, 0.008, 0.02, 0.04, 0.08,
-                         0.2, 0.4, 0.8, 2, 4, 8])
-        colors2 = ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
-                   'b', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls2 = ['--', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--',
-               '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        ctr3 = np.array([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90,
-                         0.95, 1])
-        colors3 = ['k', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
-                   'b', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r']
-        ls3 = ['dotted', '--', '--', '--', '--', '--', '--', '--', '--',
-               '--', '--', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        if (self.tipo == 'SURFRHOO') or (self.tipo == 'SURFGRHO') or (self.tipo == 'SURFGKIN'):
-            self.levels = ctr1
-            self.colors = colors1
-            self.linestyles = ls1
-            self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFLAPP') or (self.tipo == 'SURFLAPM') or (self.tipo == 'SURFVIRI') or (self.tipo == 'SURFKKIN'):
-            self.levels = ctr2
-            self.colors = colors2
-            self.linestyles = ls2
-            self.fmt = '%1.3f'
-        elif (self.tipo == 'SURFELFB'):
-            self.levels = ctr3
-            self.colors = colors3
-            self.linestyles = ls3
-            self.fmt = '%1.2f'
-
-        return self
+#-------------------------------------XRD--------------------------------------#
 
     def read_cry_xrd_spec(self, properties_output):
         """
@@ -2715,6 +2802,8 @@ class Properties_output(POutBASE):
 
         return self
 
+#--------------------------------1D line profile-------------------------------#
+
     def read_cry_rholine(self, properties_output):
         """
         Read density line data from a file.
@@ -2760,6 +2849,8 @@ class Properties_output(POutBASE):
         self.title = title[:-4]
 
         return self
+
+#-----------------------------transport properties-----------------------------#
 
     def read_cry_seebeck(self, properties_output):
         """
@@ -3053,36 +3144,58 @@ class Properties_output(POutBASE):
 
         return self
 
+#------------------------------------------------------------------------------#
+#--------------------------------obsolete methods------------------------------#
+#------------------------------------------------------------------------------#
+    def read_cry_band(self, band_file):
+        """
+        Deprecated. Use ``read_electron_band``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_electron_band' instead.",
+                      stacklevel=2)
+        return self.read_electron_band(band_file)
+
+    def read_cry_doss(self, dos_file):
+        """
+        Deprecated. Use ``read_electron_dos``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_electron_dos' instead.",
+                      stacklevel=2)
+        return self.read_electron_dos(dos_file)
+
     def read_cry_ECHG(self, f25_file):
         """
-        Read density profile data from a file.
-
-        Args:
-            f25_file (str): Path to the fort.25 file.
-        Returns:
-            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
+        Deprecated. Use ``read_ECHG``.
         """
-        from CRYSTALpytools.electronics import ChargeDensity
+        import warnings
 
-        self.echg = ChargeDensity.read_ECHG(f25_file)
-        return self.echg
+        warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
+                      stacklevel=2)
+        return self.read_ECHG(f25_file, method=None)
 
     def read_cry_ECHG_delta(self, f25_file1, f25_file2):
         """
-        Read density profile data from two files and plots the difference. It
-        is important to have consistent grid definitions, otherwise error is
-        raised.
-
-        Args:
-            f25_file1 (str): Path to first fort.25 file.
-            f25_file2 (str): Path to second fort.25 file.
-        Returns:
-            self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
+        Deprecated. Use ``read_ECHG``.
         """
-        from CRYSTALpytools.electronics import ChargeDensity
+        import warnings
 
-        self.echg = ChargeDensity.read_ECHG(f25_file1, f25_file2)
-        return self.echg
+        warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
+                      stacklevel=2)
+        return self.read_ECHG(f25_file1, f25_file2, method='substract')
+
+    def read_cry_contour(self, properties_output):
+        """
+        Deprecated. Use ``read_topond``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_topond' instead.",
+                      stacklevel=2)
+        return self.read_topond(properties_output)
 
 
 

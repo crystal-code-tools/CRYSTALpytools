@@ -5,6 +5,8 @@ Molecule geometries and CRYSTAL gui geometries
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure import Molecule
 
+import numpy as np
+
 
 class Crystal_gui():
     """
@@ -24,13 +26,13 @@ class Crystal_gui():
         self.dimensionality = dimensionality
         self.lattice = lattice
         self.symmops = symmops
-        if symmops != None:
+        if np.all(symmops!=None):
             self.n_symmops = len(symmops)
         else:
             self.n_symmops = 0
         self.atom_number = atom_number
         self.atom_positions = atom_positions
-        if atom_number != None:
+        if np.all(atom_number!=None):
             self.n_atoms = len(atom_number)
         else:
             self.n_atoms = 0
@@ -69,7 +71,7 @@ class Crystal_gui():
             struc = CStructure(lattice=latt, species=struc.species,
                                coords=struc.cart_coords, coords_are_cartesian=True)
         # dimensionality
-        if pbc == None:
+        if np.all(pbc==None):
             pbc = struc.pbc
 
         self.dimensionality = pbc.count(True)
@@ -144,7 +146,7 @@ class Crystal_gui():
             self.atom_number = list(struc.atomic_numbers)
             self.atom_positions = struc.cart_coords
 
-        if zconv != None:
+        if np.all(zconv!=None):
             for atom in zconv:
                 self.atom_number[atom[0]] = atom[1]
 
@@ -249,18 +251,166 @@ class Crystal_gui():
 class CStructure(Structure):
     """
     Inherited from `Pymatgen Structure <https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Structure>`_
-    object with added methods. Instantiation method is the same as Pymatgen Structure.
+    object with added methods.
+
+    Arguments not listed are the same as `Pymatgen Structure <https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Structure>`_
+
+    Args:
+        species (list[int]): Same as pymatgen or a 1\*nAtom list of
+            **conventional** atomic numbers.
+        symmetry_group (int): Symmetry group number or symbol in CRYSTAL
+            convention.
+        \*\*kwargs: Other arguments passed to pymatgen Structure.
+    Returns:
+        self (CStructure): ``CStructure`` object.
     """
+    def __init__(self, lattice, species, coords, symmetry_group=1,
+                 standarize=False, **kwargs):
+        import numpy as np
+        from mendeleev import element
+
+        if isinstance(species[0], int) or isinstance(species[0], float):
+            zconv = [int(i) for i in species]
+            species = [element(int(i % 100)).symbol for i in zconv]
+        else:
+            zconv = []
+
+        kwargs['lattice'] = lattice
+        kwargs['species'] = species
+        kwargs['coords'] = coords
+        super().__init__(**kwargs)
+        self._symmetry_group = symmetry_group
+        if zconv == []:
+            self._species_Z = [i.Z for i in self.species]
+        else:
+            self._species_Z = zconv
+
     @classmethod
     def from_pmg(cls, struc):
         """
-        Get a ``CStructure`` object from Pymatgen structure.
+        Get a ``CStructure`` object from Pymatgen structure. ``symmetry_group``
+        currently not available.
         """
-        if type(struc) != Structure:
+        if not isinstance(struc, Structure):
             raise ValueError('Not a Pymatgen Structure object')
+        obj = cls(lattice=struc.lattice, species=struc.species,
+                  coords=struc.cart_coords, coords_are_cartesian=True)
+        return obj.standarize_pbc()
 
-        return cls(lattice=struc.lattice, species=struc.species,
-                   coords=struc.cart_coords, coords_are_cartesian=True)
+    @property
+    def ndimen(self):
+        """
+        Dimensionality (1~3) of the system.
+        """
+        return self.pbc.count(True)
+
+    @property
+    def species_symbol(self):
+        """
+        Atom symbols.
+        """
+        from mendeleev import element
+
+        return [element(int(i % 100)).symbol for i in self.species_Z]
+
+    @property
+    def species_Z(self):
+        """
+        Conventional atomic numbers
+        """
+        return self._species_Z
+
+    @property
+    def crys_coords(self):
+        """
+        Composite fractional / Cartesian atomic coordinates. Consistent
+        with CRYSTAL conventions.
+
+        * 3D: Fractional
+        * 2D: Frac, Frac, Cart
+        * 1D: Frac, Cart, Cart
+        * 0D: Cart, Cart, Cart
+        """
+        import numpy as np
+
+        if self.ndimen == 0:
+            crys_coords = self.cart_coords
+        elif self.ndimen == 1:
+            crys_coords = np.zeros([natoms, 3], dtype=float)
+            crys_coords[:, 0] = self.frac_coords[:, 0]
+            crys_coords[:, 1:] = self.cart_coords[:, 1:]
+        elif self.ndimen == 2:
+            crys_coords = np.zeros([natoms, 3], dtype=float)
+            crys_coords[:, :2] = self.frac_coords[:, :2]
+            crys_coords[:, 2] = self.cart_coords[:, 2]
+        else:
+            crys_coords = self.frac_coords
+        return crys_coords
+
+    def standarize_pbc(self):
+        """
+        Use the CRYSTAL standard periodic boundary for low dimensional materials.
+        """
+        import numpy as np
+        from pymatgen.core.lattice import Lattice
+
+        latt = self.lattice.matrix
+        if self.ndimen == 3:
+            return self
+        elif self.ndimen == 0:
+            cart_coords = self.cart_coords
+            self = CStructure(Lattice(latt, pbc=(False, False, False)),
+                              species=self.species, coords=cart_coords,
+                              coords_are_cartesian=True)
+            return self
+
+        def rotate(v1, v2): # A quick rotation function. v1: old, v2: new
+            from scipy.spatial.transform import Rotation
+            import numpy as np
+
+            v1 = v1 / np.linalg.norm(v1); v2 = v2 / np.linalg.norm(v2)
+            vn = np.cross(v1,v2); vn = vn / np.linalg.norm(vn)
+            ang = np.arccos(np.dot(v1,v2) / np.linalg.norm(v1) / np.linalg.norm(v2))
+            return Rotation.from_rotvec(vn*ang)
+
+        if self.ndimen == 2:
+            if self.pbc[0] == False:
+                oldv = latt[0, :]
+            elif self.pbc[1] == False:
+                oldv = latt[1, :]
+            else: # in case of tilted z
+                oldv = latt[2, :]
+
+            cart_coords = self.cart_coords
+            rot = rotate(oldv, [0, 0, 1])
+            latt = rot.apply(latt)
+            latt[0, 2] = 0
+            latt[1, 2] = 0
+            latt[2] = [0, 0, 500]
+            cart_coords = rot.apply(cart_coords)
+            self = CStructure(Lattice(latt, pbc=(True, True, False)),
+                              species=self.species, coords=cart_coords,
+                              coords_are_cartesian=True)
+        elif self.ndimen == 1:
+            if self.pbc[0] == True: # in case of tilted x
+                oldv = latt[0, :]
+            elif self.pbc[1] == True:
+                oldv = latt[1, :]
+            else:
+                oldv = latt[2, :]
+
+            cart_coords = self.cart_coords
+            latt = self.lattice.matrix
+            rot = rotate(oldv, [1, 0, 0])
+            latt = rot.apply(latt)
+            latt[0, 1:] = 0
+            latt[1] = [0, 500, 0]
+            latt[2] = [0, 0, 500]
+            cart_coords = rot.apply(cart_coords)
+            self = CStructure(Lattice(latt, pbc=(True, False, False)),
+                              species=self.species, coords=cart_coords,
+                              coords_are_cartesian=True)
+        return self
 
     def refine_geometry(self, **kwargs):
         """
@@ -384,7 +534,7 @@ class CStructure(Structure):
                 if save == True: # Same rotation, choose the one with no translation
                     self.symmops[save_id] = np.vstack([symmop.rotation_matrix, symmop.translation_vector])
                     ops_tmp[save_id] = symmop
-                elif save == None: # New rotation
+                elif np.all(save==None): # New rotation
                     self.symmops.append(np.vstack([symmop.rotation_matrix, symmop.translation_vector]))
                     ops_tmp.append(symmop)
                     self.n_symmops += 1
@@ -573,10 +723,28 @@ class CStructure(Structure):
 class CMolecule(Molecule):
     """
     Inherited from `Pymatgen Molecule <https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Molecule>`_
-    object with added methods. Instantiation method is the same as Pymatgen Molecule.
+    object with added methods.
 
-    Developing
+    Args:
+        species (list[int]): Same as pymatgen or a 1\*nAtom list of
+            **conventional** atomic numbers.
+        symmetry_group (int): Symmetry group number or symbol in CRYSTAL
+            convention.
+        \*\*kwargs: Other arguments passed to pymatgen Molecule.
+    Returns:
+        self (CMolecule): ``CMolecule`` object.
     """
+    def __init__(species, coords, symmetry_group=1, **kwargs):
+        import numpy as np
+        from mendeleev import element
+
+        if isinstance(species[0], int) or isinstance(species[0], float):
+            zconv = [int(i) for i in species]
+            species = [element(int(i % 100)).symbol for i in zconv]
+
+        self = Molecule(species=species, coords=coords, **kwargs)
+        self._symmetry_group = symmetry_group
+        self._species_Z = zconv
 
 
 

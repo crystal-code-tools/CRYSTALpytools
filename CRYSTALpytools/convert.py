@@ -112,17 +112,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
-<<<<<<< HEAD
-<<<<<<< HEAD
-        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
-        
-=======
 
->>>>>>> upstream/main
-=======
-        pseudo_atoms (list): Pseudoatom list. The number is the atom number+200
-
->>>>>>> origin/main
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
@@ -140,7 +130,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
             return Molecule(gui.atom_number, gui.atom_positions)
 
         elif molecule == False:
-            if vacuum != None:
+            if np.all(vacuum!=None):
                 pbc = (True, True, True)
 #                gui.lattice.setflags(write=1)
                 thickness_x = np.amax(np.array(gui.atom_positions)[:, 0]) - \
@@ -157,7 +147,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
                 pbc = (False, False, False)
 
     if gui.dimensionality == 1:
-        if vacuum != None:
+        if np.all(vacuum!=None):
             pbc = (True, True, True)
 #            gui.lattice.setflags(write=1)
             thickness_y = np.amax(np.array(gui.atom_positions)[:, 1]) - \
@@ -171,7 +161,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
             pbc = (True, False, False)
 
     if gui.dimensionality == 2:
-        if vacuum != None:
+        if np.all(vacuum!=None):
             pbc = (True, True, True)
 #            gui.lattice.setflags(write=1)
             thickness_z = np.amax(np.array(gui.atom_positions)[:, 2]) - \
@@ -296,7 +286,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
             return struc
 
         elif molecule == False:
-            if vacuum != None:
+            if np.all(vacuum!=None):
                 pbc = (True, True, True)
                 thickness_x = np.amax(struc.cart_coords[:, 0]) - np.amin(struc.cart_coords[:, 0])
                 thickness_y = np.amax(struc.cart_coords[:, 1]) - np.amin(struc.cart_coords[:, 1])
@@ -309,7 +299,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
                 pbc = (False, False, False)
 
     if ndimen == 1:
-        if vacuum != None:
+        if np.all(vacuum!=None):
             pbc = (True, True, True)
             thickness_y = np.amax(struc.cart_coords[:, 1]) - np.amin(struc.cart_coords[:, 1])
             thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
@@ -320,7 +310,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
             pbc = (True, False, False)
 
     if ndimen == 2:
-        if vacuum != None:
+        if np.all(vacuum!=None):
             pbc = (True, True, True)
             thickness_z = np.amax(struc.cart_coords[:, 2]) - np.amin(struc.cart_coords[:, 2])
 
@@ -385,7 +375,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     import copy
 
     # dimensionality
-    if pbc == None:
+    if np.all(pbc==None):
         if 'Molecule' in str(type(structure)):
             pbc = (False, False, False)
             structure = Molecule(structure.species,
@@ -440,6 +430,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.atom_number = list(molecule.atomic_numbers)
         gui.atom_positions = molecule.cart_coords.tolist()
     else: # 1-3D
+        latt_mx = structure.lattice.matrix
         if dimensionality == 2:
             if pbc[0] == False: # X no periodicity
                 warnings.warn('The non-periodic direction will be rotated to z axis.')
@@ -511,6 +502,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
 
                 sg = SpacegroupAnalyzer(structure)
                 ops = sg.get_symmetry_operations(cartesian=True)
+                n_symmops = 0; gui.symmops = []
                 for op in ops:
                     if np.all(op.translation_vector == 0.):
                         n_symmops += 1
@@ -532,11 +524,11 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.atom_number = list(structure.atomic_numbers)
         gui.atom_positions = structure.cart_coords
 
-    if zconv != None:
+    if np.all(zconv!=None):
         for atom in zconv:
             gui.atom_number[atom[0]] = atom[1]
 
-    if gui_file != None:
+    if np.all(gui_file!=None):
         gui.write_gui(gui_file, symm=symmetry)
 
     return gui

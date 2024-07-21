@@ -4,7 +4,7 @@
 A post-processing module for electronic properties
 """
 from CRYSTALpytools import units
-
+import numpy as np
 
 class ElectronBand():
     """
@@ -12,16 +12,16 @@ class ElectronBand():
 
     Args:
         spin (int): 1, closed shell; 2, open shell
-        tick_pos (array): n_tick\*1 array of 1D tick coordinates. Unit: Angstrom
-        tick_label (list): n_tick\*1 of default tick labels
+        tick_pos (array): 1\*nTick array of 1D tick coordinates. Unit: Angstrom
+        tick_label (list): 1\*nTick of default tick labels
         efermi (float): Fermi energy. Unit: eV.
-        bands (array): n_bands\*n_kpoints\*spin array of energy. Unit: eV
+        bands (array): nBand\*nKpoint\*nSpin array of energy. Unit: eV
         k_path (array): 1D coordinates of k points. Unit: Angstrom
         geometry (Structure): Pymatgen structure
         reciprocal_latt (array): 3\*3 array of reciprocal lattice matrix. Not
             valid if ``geometry`` is specified.
-        tick_pos3d (array): n_tick\*1 3D fractional tick coordinates
-        k_path3d (array): n_kpoints\*3 3D fractional coordinates of k points
+        tick_pos3d (array): 1\*nTick 3D fractional tick coordinates
+        k_path3d (array): nKpoints\*3 3D fractional coordinates of k points
         unit (str): In principle, should always be 'eV': eV-Angstrom.
     """
 
@@ -40,7 +40,7 @@ class ElectronBand():
         self.n_kpoints = len(k_path)
         self.k_path = np.array(k_path, dtype=float)
         self.geometry = geometry
-        if self.geometry != None:
+        if np.all(self.geometry!=None):
             self.reciprocal_latt = self.geometry.lattice.reciprocal_lattice.matrix
         else:
             self.reciprocal_latt = reciprocal_latt
@@ -75,7 +75,7 @@ class ElectronBand():
         else:
             bandout = XmgraceParser.band(band)
 
-        if output != None:
+        if np.all(output!=None):
             pout = Properties_output(output)
             struc = pout.get_geometry()
             t3d, k3d = pout.get_3dkcoord()
@@ -88,42 +88,24 @@ class ElectronBand():
                        tick_label=bandout[2], efermi=bandout[3],
                        bands=bandout[4], k_path=bandout[5], unit=bandout[6])
 
-    def plot(self, unit='eV', k_labels=None, energy_range=None, k_range=None,
-             color='blue', linestl='-', linewidth=1, fermi='forestgreen',
-             fermiwidth=1.5, fermialpha=1, title=None, figsize=None):
+    def plot(self, **kwargs):
         """
-        Plot band structure of a single system using `matplotlib <https://matplotlib.org/>`_.
-        For arguments setting up figures, colors and lines styles, please refer
-        to `matplotlib <https://matplotlib.org/>`_.
-        For multiple systems, use ``CRYSTALpytools.plot.plot_electron_band``.
+        A wrapper to plot band structure of a single system using matplotlib.
+        For input arguments or plotting multiple systems, check
+        :ref:`plot.plot_electron_bands() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            k_labels (list): A list of high-symmetric k point labels. Greek
-                letters should be, for example, 'Gamma'.
-            energy_range (array): A 2x1 array specifying the energy range.
-            k_range (array): A 2x1 array specifying the k-range.
-            color (str): Color of plot lines.
-            linestl (str): Linestyle string.
-            linewidth (float): The width of the plot lines.
-            fermi (str): The color of the Fermi level line.
-            fermiwidth (float): The width of the fermi line.
-            fermialpha (float): Opacity of the fermi level 0-1.
-            title (str): The title of the plot.
-            figsize (list): The figure size specified as [width, height].
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronBand`` object). Check documents for
+                :ref:`plot.plot_electron_bands() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_electron_band
+        from CRYSTALpytools.plot import plot_electron_bands
 
-        fig, ax = plot_electron_band(
-            self, unit=unit, k_labels=k_labels, mode='single',
-            not_scaled=False, energy_range=energy_range, k_range=k_range,
-            color=color, labels=None, linestl=linestl, linewidth=linewidth,
-            fermi=fermi, title=title, figsize=figsize, scheme=None,
-            sharex=True, sharey=True)
-        return fig, ax
+        kwargs['mode'] = 'single'
+        fig = plot_electron_bands(self, **kwargs)
+        return fig
 
     @property
     def bandgap(self):
@@ -216,7 +198,7 @@ class ElectronBand():
         rep_latt = self.reciprocal_latt
         # label dictionary
         labels_dict = {}
-        if labels == None:
+        if np.all(labels==None):
             labels = self.tick_label
         else:
             if len(labels) < self.n_tick:
@@ -280,7 +262,7 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
             self.efermi = H_to_eV(self.efermi)
             self.tick_pos = au_to_angstrom(self.tick_pos)
             self.k_path = au_to_angstrom(self.k_path)
-            if self.reciprocal_latt != None:
+            if np.all(self.reciprocal_latt!=None):
                 self.reciprocal_latt = au_to_angstrom(self.reciprocal_latt)
             for p in opt_e_props:
                 if hasattr(self, p):
@@ -296,7 +278,7 @@ The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
             self.efermi = eV_to_H(self.efermi)
             self.tick_pos = angstrom_to_au(self.tick_pos)
             self.k_path = angstrom_to_au(self.k_path)
-            if self.reciprocal_latt != None:
+            if np.all(self.reciprocal_latt!=None):
                 self.reciprocal_latt = angstrom_to_au(self.reciprocal_latt)
             for p in opt_e_props:
                 if hasattr(self, p):
@@ -330,7 +312,7 @@ class ElectronDOS():
 
         self.spin = spin
         self.efermi = efermi
-        self.n_proj = np.shape(doss)[1]-1
+        self.n_proj = np.shape(doss)[0]
         self.doss = np.array(doss, dtype=float)
         self.n_energy = len(energy)
         self.energy = np.array(energy, dtype=float)
@@ -359,47 +341,23 @@ class ElectronDOS():
         return cls(spin=dosout[0], efermi=dosout[1], doss=dosout[2],
                    energy=dosout[3], unit=dosout[4])
 
-    def plot(self, unit='eV', beta='up', overlap=False, prj=None,
-             energy_range=None, dos_range=None, color='blue', labels=None,
-             linestl=None, linewidth=1, fermi='forestgreen', title=None,
-             figsize=None):
+    def plot(self, **kwargs):
         """
-        A wrapper of ``CRYSTALpytools.plot.plot_electron_dos``
-        For arguments setting up figures, colors and lines styles, please refer
-        to `matplotlib <https://matplotlib.org/>`_.
+        A wrapper to plot density of states of a single system with matplotlib.
+        For input arguments or plotting multiple systems, check
+        :ref:`plot.plot_electron_doss() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            beta (str): Plot spin-down state 'up' or 'down'
-            overlap (bool): Plotting multiple lines into the same figure
-            prj (list): Index of selected projection. Consistent with the
-                index of the 2nd dimension of ``self.doss``
-            energy_range (array): 2*1 array of energy range
-            dos_range (array): 2*1 array of DOS range
-            color (str | list[str]): Color of plot lines. *Should be
-                consistent with number of projections.*
-            labels (str | list[str]): Plot legend. *Should be consistent with
-                number of projections.*
-            linestl (str | list[str]): linestyle string. *Should be consistent
-                with number of projections.*
-            linewidth (float)
-            fermi (str): Color of Fermi level line.
-            title (str)
-            figsize (list[float])
-
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronDOS`` object). Check documents for
+                :ref:`plot.plot_electron_doss() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_electron_dos
+        from CRYSTALpytools.plot import plot_electron_doss
 
-        fig, ax = plot_electron_dos(
-            self, unit=unit, beta=beta, overlap=overlap, prj=prj,
-            energy_range=energy_range, dos_range=dos_range, color=color,
-            labels=labels, linestl=linestl, linewidth=linewidth, fermi=fermi,
-            title=title, figsize=figsize)
-
-        return fig, ax
+        fig = plot_electron_doss(self, **kwargs)
+        return fig
 
     def _set_unit(self, unit):
         """
@@ -462,62 +420,46 @@ class ElectronBandDOS():
         self.dos = dos
 
     @classmethod
-    def from_file(cls, band, dos, output=None):
+    def from_file(cls, *files, output=None):
         """
         Get ElectronBandDOS object from files
 
         Args:
-            band (str): 'fort.25' or 'BAND.DAT'
-            dos (str): 'fort.25' or 'DOSS.DAT'
+            *files (str): 2 files, the first one is for band, 'fort.25' or
+                'BAND.DAT'; the second one is for DOS, 'fort.25' or 'DOSS.DAT'.
+                Or a single 'fort.25' file with both band and DOS.
             output (str): Property output file
         Returns:
             cls (ElectronBandDOS)
         """
         from CRYSTALpytools.electronics import ElectronBand, ElectronDOS
 
-        return cls(ElectronBand.from_file(band, output), ElectronDOS.from_file(dos))
+        if len(files)==1:
+            return cls(ElectronBand.from_file(files[0], output),
+                       ElectronDOS.from_file(files[0]))
+        elif len(files)==2:
+            return cls(ElectronBand.from_file(files[0], output),
+                       ElectronDOS.from_file(files[1]))
+        else:
+            raise ValueError('Only 1 or 2 entries are permitted.')
 
-    def plot(self, unit='eV', k_labels=None, dos_beta='down', dos_prj=None,
-             energy_range=None, dos_range=None, color_band='blue',
-             color_dos='blue', labels=None, linestl_band='-', linestl_dos=None,
-             linewidth=1, fermi='forestgreen', title=None, figsize=None):
+    def plot(self, **kwargs):
         """
-        A wrapper of ``CRYSTALpytools.plot.plot_electron_banddos``
+        A wrapper to plot electron band structure + density of states of a]
+        single system with matplotlib. For input arguments, check
+        :ref:`plot.plot_electron_banddos() <ref-plot>`.
 
         Args:
-            unit (str): The energy unit for **plotting**. 'eV' or 'a.u.'.
-            k_labels (list): A list of high-symmetric k point labels. Greek letters should be
-                represented as strings, for example, 'Gamma'.
-            dos_beta (str): Spin state to plot. Valid options are 'Up' or 'down'. If 'down', the :math:`\\beta`
-                state will be plotted on the same side as the :math:`\\alpha` state, otherwise on the other side.
-            dos_prj (list): Index of selected projection. Consistent with the index of the 2nd dimension
-                of doss.doss.
-            energy_range (list): A list of two values representing the energy range to be plotted.
-            dos_range (float): Maximum DOS range for the y-axis.
-            color_band (str): Color of the electron bands in the plot.
-            color_dos (str): Color of the density of states (DOS) in the plot.
-            labels (list): A list of labels for the plot legend.
-            linestl_band (str): Linestyle of the electron bands.
-            linestl_dos (str): Linestyle of the density of states (DOS).
-            linewidth (float): Width of the lines in the plot.
-            fermi (str): Color of the Fermi level line.
-            title (str): Title of the plot.
-            figsize (list[float]): Size of the figure in inches (width, height).
-
+            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+                ``ElectronBandDOS`` object). Check documents for
+                :ref:`plot.plot_electron_banddos() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
-            ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.plot import plot_electron_banddos
 
-        fig, ax = plot_electron_banddos(
-            self.band, self.dos, unit=unit, k_labels=k_labels,
-            dos_beta=dos_beta, dos_prj=dos_prj, energy_range=energy_range,
-            dos_range=dos_range, color_band=color_band, color_dos=color_dos,
-            labels=labels, linestl_band=linestl_band, linestl_dos=linestl_dos,
-            linewidth=linewidth, fermi=fermi, title=title, figsize=figsize,)
-
-        return fig, ax
+        fig = plot_electron_banddos(self, **kwargs)
+        return fig
 
     def _set_unit(unit):
         """
@@ -533,101 +475,328 @@ class ElectronBandDOS():
 
 class ChargeDensity():
     """
-    Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`.
+    Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`. 3D plot under
+    developing.
 
     Args:
-        spin (int): 1, closed shell; 2, open shell
-        gridv (array): 2\*3 (2D) or 3\*3 (3D) base vectors of data grid
-        chgmap (array): 2D or 3D charge density map
-        spinmap (array): 2D or 3D spin density map
+        data (array): Plot data. nX\*nY\*nSpin or nX\*nY\*nZ\*nSpin
+        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+            vectors BA and BC (2D) or 3 base vectors (3D)
+        spin (int): 1 or 2.
+        dimen (int): Dimensionality of the plot.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
     """
 
-    def __init__(self, spin, gridv, chgmap, spinmap=None, struc=None, unit='Angstrom'):
+    def __init__(self, data, base, spin, dimen, struc=None, unit='Angstrom'):
         import numpy as np
+        import warnings
 
-        self.spin = spin
-        self.gridv = np.array(gridv)
-        self.chgmap = np.array(chgmap, dtype=float)
-        if spinmap != None:
-            self.spinmap = np.array(spinmap, dtype=float)
-        else:
-            self.spinmap = None
+        self.data = np.array(data, dtype=float)
+        self.base = np.array(base, dtype=float)
+        self.spin = int(spin)
+        self.dimension = int(dimen)
         self.structure = struc
         self.unit = unit
+        self.type = 'ECHG' # Hidden for charge density plot. Useful for TOPOND child class
 
     @classmethod
-    def from_ECHG(cls, *args):
+    def from_file(cls, *files, method=None):
         """
-        Generate a ``ChargeDensity`` object from ECHG fort.25 file (2D map), or
-        from multiple fort.25 files by substracting values from the first entry.
+        Generate a ``ChargeDensity`` object from a single file, or from multiple
+        files by substracting values from the first entry. Can be used for
+        multiple dimensions (2D only now. 3D under development.)
+
+        Available methods are:
+
+        * 'substact': Substracting data from the first entry based on following
+            entries. Multiple entries only.  
+        * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
+            :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
+            / spin(:math:`\\alpha-\\beta`). Single entry only.
 
         Args:
-            args (str): One or multiple fort.25 file names, separated by comma.
-                The first entry is the 'reference' and data of the following
-                entries are substracted from the first one.
+            \*files (str): Path to the charge density / spin density file(s).
+                All the entries must be in the same file format.
         Returns:
             cls (ChargeDensity)
-
-        :raise Exception: If inconsistent data grid is read.
         """
-        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.crystal_io import Properties_output
 
-        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(
-            args[0])
+        file = open(files[0], 'r')
+        header = file.readline()
+        file.close()
+        if '-%-' in header: # 2D plot in fort.25
+            cls = Properties_output().read_ECHG(*files, method=method)
+        return cls
 
-        if len(args) > 1:
-            for arg in args[1:]:
-                _, a1, b1, c1, _, _, map11, map21, _ = CrgraParser.mapn(arg)
-                if np.norm(a-a1) > 1e-4 or np.norm(b-b1) > 1e-4 or np.norm(c-c1) > 1e-4 \
-                        or np.norm(map11.shape-map1.shape) > 1e-4 or np.norm(map21.shape-map2.shape) > 1e-4:
-                    raise Exception(
-                        "Inconsistent grid definition beween file '{}' and file '{}'".format(args[0], arg))
-                map1 -= map11
-                map2 -= map21
+    def substract(self, *args):
+        """
+        Substracting data of the same type from the object.
 
-        obj = cls(spin, [a-b, c-b], map1, map2, struc, unit)
-        self._set_unit('Angstrom')
-        # old definitions
-        obj.a = a
-        obj.b = b
-        obj.c = c
-        obj.cosxy = cosxy
-        obj.density_map = obj.chgmap
-        return obj
+        Args:
+            \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
+        Returns:
+            self (ChargeDensity) : spin dimension, if there is, is not kept.
+                Only charge density difference is substracted.
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+        import numpy as np
 
-    def plot_ECHG(self, option='charge',  unit='Angstrom', levels=150,
-                  xticks=5, yticks=5, cmap_max=None, cmap_min=None, dpi=400):
+        for i in args:
+            if isinstance(i, str):
+                obj = Properties_output().read_ECHG(i, method=None)
+            elif isinstance(i, ChargeDensity):
+                obj = i
+            else:
+                raise TypeError('Inputs must be file name strings or ChargeDensity objects.')
+
+            # type, useful for TOPOND classes
+            if self.type != obj.type:
+                raise TypeError('Input is not the same type as object.')
+            # base vector
+            if not np.all(np.abs(self.base-obj.base)<1e-6):
+                raise ValueError('Inconsistent base vectors between input and object.')
+            # dimensionality
+            if self.dimension != obj.dimension:
+                raise ValueError('Inconsistent dimensionality between input and object.')
+            # mesh grid
+            for i in range(self.dimension):
+                if self.data.shape[i] != obj.data.shape[i]:
+                    raise ValueError('Inconsistent mesh grid between input and object.')
+            # spin
+            if self.spin != obj.spin:
+                raise ValueError('Inconsistent spin dimensionalities between input and object.')
+            # substract
+            self.data = self.data - obj.data
+
+        # spin difference is not kept - meaningless. (if not please remove this block)
+        if self.spin == 2:
+            oshape = self.data.shape
+            chglen = 1
+            for s in oshape[:-1]:
+                chglen = chglen * s
+            chglen = int(chglen)
+            self.data = self.data.flatten(order='F')[:chglen]
+            self.data = np.reshape(self.data, oshape[:-1])
+            self.spin = 1
+        return self
+
+    def alpha_beta(self):
+        """
+        Get the :math:`\\alpha` / :math:`\\beta` state density, rather than
+        charge(:math:`\\alpha+\\beta`) / spin(:math:`\\alpha-\\beta`).
+        ``spin=2`` only.
+
+        Returns:
+            self (ChargeDensity) : The first entry of ``self.data`` is :math:`\\alpha`
+                state density and the second is :math:`\\beta` state.
+        """
+        import numpy as np
+
+        if self.spin != 2:
+            raise ValueError('Not a spin-polarized system.')
+
+        # can be used for any dimension
+        oldshape = self.data.shape
+        lenchg = 1
+        for i in oldshape[:-1]:
+            lenchg = lenchg * i
+        lenchg = int(lenchg)
+        alpha = (self.data.flatten(order='F')[:lenchg] + self.data.flatten(order='F')[lenchg:]) / 2
+        beta = (self.data.flatten(order='F')[:lenchg] - self.data.flatten(order='F')[lenchg:]) / 2
+        self.data = np.reshape(np.hstack([alpha, beta]), oldshape, order='F')
+        return self
+
+    def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
+                linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
+                cbar_label=None, a_range=[], b_range=[], rectangle=False, edgeplot=False,
+                x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8], **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
 
+        Available options:
+
+        * 'both' : If spin polarized, plot both charge and spin densities.
+            Otherwise plot charge densities.  
+        * 'charge': Plot charge density.  
+        * 'spin': Plot spin density.
+
         Args:
-            option (str): 'charge' or 'spin'
-            unit (str): The energy unit for **plotting**. 'Angstrom' for :math:`e.\\AA^{-3}` or 'a.u.' for :math:`e.Bohr^{-3}`.
-            levels (int | array-like): The number and positions of the contour lines/regions. Default is 150.
-            xticks (int): *Optional* Number of ticks in the x direction.
-            yticks (int): *Optional* Number of ticks in the y direction.
-            cmap_max(float): *Optional* Maximum value used for the colormap.
-            cmap_min(float): *Optional* Minimun value used for the colormap.
-            dpi (int): *Optional* Resolution (dots per inch) for the output image.
+            unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
+                Bohr:math:`^{-3}`.
+            option (str): Available options see above.
+            levels (int|array): Set levels of contour plot. A number for
+                linear scaled plot colors or an array for user-defined levels,
+                **must be consistent with ``unit``**. 2\*nLevel can be defined
+                when ``option='both'``.
+            lineplot (bool): Plot contour lines.
+            linewidth (float): Contour linewidth. Useful only if
+                ``lineplot=True``. Other properties are not editable. Solid
+                black lines for positive values and 0, dotted for negative.
+            isovalues (str|None): Add isovalues to contour lines and set their
+                formats. Useful only if ``lineplot=True``. None for not adding
+                isovalues
+            colorplot (bool): Plot color-filled contour plots.
+            colormap (str): Matplotlib colormap option. Useful only if
+                ``colorplot=True``.
+            cbar_label (str): Label of colorbar. Useful only if
+                ``colorplot=True``. 1\*2 list of colorbar titles can be set for
+                spin-polarized systems. 'None' for default.
+            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+                fractional coordinate.
+            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+                fractional coordinate.
+            rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
+                rectangle region and reset :math:`b`. If used together with
+                ``b_range``, that refers to the old :math:`b`.
+            edgeplot (bool): Whether to add cell edges represented by the
+                original base vectors (not inflenced by a/b range or rectangle
+                options).
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
+            add_title (bool): Whether to add property plotted as title.
+            figsize (list): Matplotlib figure size. Note that axes aspects are
+                fixed to be equal.
+            \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+                to set contour lines.
 
         Returns:
             fig (Figure): Matplotlib figure object
             ax (Axes): Matplotlib axes object
         """
-        from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
+        from CRYSTALpytools.base.plotbase import plot_2Dscalar
+        import numpy as np
+        import matplotlib.pyplot as plt
 
-        if option.lower() == 'charge':
-            fig, ax = plot_dens_ECHG(self, unit, levels, xticks, yticks,
-                                     cmap_max, cmap_min, dpi)
-        elif option.lower() == 'spin':
-            fig, ax = plot_spin_ECHG(self, unit, levels, xticks, yticks,
-                                     cmap_max, cmap_min, dpi)
+        # dimen
+        if self.dimension != 2:
+            raise Exception('Not a 2D charge density object.')
+
+        # unit
+        uold = self.unit
+        if self.unit.lower() != unit.lower():
+            self._set_unit(unit)
+
+        # levels
+        if isinstance(levels, int) or isinstance(levels, float):
+            if self.spin == 1:
+                levels1 = np.linspace(np.min(self.data), np.max(self.data), int(levels))
+                levels2 = levels1
+            else:
+                len_flat = 1
+                for i in self.data.shape[:-1]:
+                    len_flat = len_flat * i
+                chg = self.data.flatten(order='F')[:len_flat]
+                spin = self.data.flatten(order='F')[len_flat:]
+                levels1 = np.linspace(np.min(chg), np.max(chg), levels)
+                levels2 = np.linspace(np.min(spin), np.max(spin), levels)
+                del chg, spin
         else:
-            raise ValueError("Unknown option '{}'.".format(option))
-        return fig, ax
+            if isinstance(levels[0], int) or isinstance(levels[0], float):
+                levels1 = np.array(levels, dtype=float)
+                levels2 = np.array(levels, dtype=float)
+            else:
+                levels1 = np.array(levels[0], dtype=float)
+                levels2 = np.array(levels[1], dtype=float)
+        # color plot
+        if colorplot == False:
+            colormap = None
+        # contour line
+        if lineplot == True:
+            chgline = [['k', '-', linewidth] for i in levels1]
+            spinline = []
+            for j in levels2:
+                if j >= 0: spinline.append(['k', '-', linewidth])
+                else: spinline.append(['k', 'dotted', linewidth])
+        else:
+            chgline = None; spinline = None
+        # cbar_label
+        if np.all(cbar_label==None):
+            if unit.lower() == 'angstrom':
+                cbar_label1 = r'Charge Density ($|e|/\AA^{3}$)'; cbar_label2 = r'Spin Density ($|e|/\AA^{3}$)'
+            else:
+                cbar_label1 = r'Charge Density ($|e|/Bohr^{3}$)'; cbar_label2 = r'Spin Density ($|e|/Bohr^{3}$)'
+        else:
+            if isinstance(cbar_label, list):
+                cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1]; 
+            else:
+                cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)
+
+        # plot
+        ## spin
+        if self.spin == 1 and (option.lower()=='both' or option.lower()=='spin'):
+            warnings.warn("Spin options not available to non spin-polarized cases.",
+                          stacklevel=2)
+            option = 'charge'
+
+        if option.lower() == 'both':
+            fig, ax = plt.subplots(1, 2, figsize=figsize, sharex=True,
+                                   sharey=True, layout='tight')
+            fig = plot_2Dscalar(
+                fig, ax[0], self.data[:, :, 0], self.base, levels1, chgline,
+                isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                edgeplot, x_ticks, y_ticks, **kwargs
+            )
+            fig = plot_2Dscalar(
+                fig, ax[1], self.data[:, :, 1], self.base, levels2, spinline,
+                isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
+                edgeplot, x_ticks, y_ticks, **kwargs
+            )
+        elif option.lower() == 'charge':
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            if self.spin == 1:
+                fig = plot_2Dscalar(
+                    fig, ax, self.data[:, :], self.base, levels1, chgline,
+                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                    edgeplot, x_ticks, y_ticks, **kwargs
+                )
+            else:
+                fig = plot_2Dscalar(
+                    fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
+                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                    edgeplot, x_ticks, y_ticks,  **kwargs
+                )
+        elif option.lower() == 'spin':
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            fig = plot_2Dscalar(
+                fig, ax, self.data[:, :, 1], self.base, levels2, spinline,
+                isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
+                edgeplot, x_ticks, y_ticks,  **kwargs
+            )
+        else:
+            raise ValueError("Unknown option: '{}'.".format(option))
+
+        # range and labels
+        if option.lower() == 'both':
+            if self.unit.lower() == 'angstrom':
+                ax[0].set_xlabel(r'$\AA$')
+                ax[0].set_ylabel(r'$\AA$')
+                ax[1].set_xlabel(r'$\AA$')
+            else:
+                ax[0].set_xlabel('Bohr')
+                ax[0].set_ylabel('Bohr')
+                ax[1].set_xlabel('Bohr')
+            if add_title == True:
+                ax[0].set_title('Charge Density')
+                ax[1].set_title('Spin Density')
+        else:
+            if self.unit.lower() == 'angstrom':
+                ax.set_xlabel(r'$\AA$')
+                ax.set_ylabel(r'$\AA$')
+            else:
+                ax.set_xlabel('Bohr')
+                ax.set_ylabel('Bohr')
+            if add_title == True:
+                if option.lower() == 'charge':
+                    ax.set_title('Charge Density')
+                else:
+                    ax.set_title('Spin Density')
+
+        # restore old unit
+        self._set_unit(uold)
+        return fig
 
     def _set_unit(self, unit):
         """
@@ -642,21 +811,15 @@ class ChargeDensity():
         if unit.lower() == self.unit.lower():
             return self
 
-        if unit.lower() == 'angstrom':  # 1/Bohr to 1/Angstrom
+        if unit.lower() == 'angstrom':
             self.unit = 'Angstrom'
-            self.chgmap = angstrom_to_au(
-                angstrom_to_au(angstrom_to_au(self.chgmap)))
-            if self.spinmap != None:
-                self.spinmap = angstrom_to_au(
-                    angstrom_to_au(angstrom_to_au(self.spinmap)))
-        elif unit.lower() == 'a.u.':  # 1/Angstrom to 1/Bohr
+            cst = au_to_angstrom(1.)
+        elif unit.lower() == 'a.u.':
             self.unit = 'a.u.'
-            self.chgmap = au_to_angstrom(
-                au_to_angstrom(au_to_angstrom(self.chgmap)))
-            if self.spinmap != None:
-                self.spinmap = au_to_angstrom(
-                    au_to_angstrom(au_to_angstrom(self.spinmap)))
+            cst = angstrom_to_au(1.)
         else:
             raise ValueError('Unknown unit.')
 
+        self.base = self.base * cst
+        self.data = self.data / cst**3
         return self

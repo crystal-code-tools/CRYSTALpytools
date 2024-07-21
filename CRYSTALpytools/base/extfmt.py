@@ -287,46 +287,61 @@ class CrgraParser():
         data = file.readlines()
         file.close()
 
-        if '-%-' not in data[0] or 'MAPN' not in data[0]:
-            raise Exception(
-                "File '{}' is not a Crgra fort.25 2D isovalue map file.".format(filename))
+        if '-%-' not in data[0]:
+            raise Exception("File '{}' is not in Crgra fort.25 format.".format(filename))
+        # Multiple data might be written into the same f25 file.
+        is2d = False
+        bgline = None
+        for nline, line in enumerate(data):
+            if 'MAPN' in line:
+                is2d = True
+                bgline = nline
+                break
+            else:
+                continue
+        if is2d != True:
+            raise Exception("'*MAPN*' keyword is not found in file '{}'.".format(filename))
 
         # Spin
-        ihferm = int(data[0][3])
+        ihferm = int(data[bgline][3])
         spin = ihferm % 2 + 1
 
-        points_ab = int(data[0][8:13])
-        points_bc = int(data[0][13:18])
-        cosxy = float(data[0][42:54])
+        points_ab = int(data[bgline][8:13]) # nrow
+        points_bc = int(data[bgline][13:18]) # ncol
+        cosxy = float(data[bgline][42:54])
 
-        a = np.array([data[1][0:12], data[1][12:24],
-                     data[1][24:36]], dtype=float)
-        b = np.array([data[1][36:48], data[1][48:60],
-                     data[1][60:72]], dtype=float)
-        c = np.array([data[2][0:12], data[2][12:24],
-                     data[2][24:36]], dtype=float)
+        a = np.array([data[bgline+1][0:12], data[bgline+1][12:24],
+                     data[bgline+1][24:36]], dtype=float)
+        b = np.array([data[bgline+1][36:48], data[bgline+1][48:60],
+                     data[bgline+1][60:72]], dtype=float)
+        c = np.array([data[bgline+2][0:12], data[bgline+2][12:24],
+                     data[bgline+2][24:36]], dtype=float)
         pbc_dict = {3: [True, True, True],
                     2: [True, True, False],
                     1: [True, False, False],
                     0: [False, False, False]}
-        pbc = pbc_dict[int(data[2][45:])]
+        pbc = pbc_dict[int(data[bgline+2][45:])]
         npt = points_ab * points_bc
 
         countspin = 0
         countpt = 0
-        countline = 3
+        countline = bgline+3
         atom_spec = []
         atom_coord = []
         latt = []
         density_maps = [[], []]
         while countline < len(data):
             line = data[countline]
+            if re.match(r'^\-\%\-', line) and 'MAPN' not in line: # Other data
+                break
             if countpt < npt:
                 value = re.findall(r'.{12}', line)
                 density_maps[countspin].extend(value)
                 countpt += len(value)
             else:
-                if '-%-' in line:  # Spin block
+                if re.match(r'^\-\%\-.*MAPN', line):  # Spin block
+                    if spin == 1 or countspin == 1: # at most 2 mapnets
+                        break
                     countspin += 1
                     countpt = 0
                     countline += 3
@@ -338,20 +353,24 @@ class CrgraParser():
                 else:
                     latt.append([float(line[0:20]), float(
                         line[20:40]), float(line[40:])])
-
             countline += 1
 
-        struc = CStructure(latt, atom_spec, atom_coord,
-                           coords_are_cartesian=True)
+        if spin == 2:
+            latt = latt[0:3]
+            atom_spec = atom_spec[0:int(len(atom_spec)/2)]
+            atom_coord = atom_spec[0:int(len(atom_coord)/2)]
+
+        struc = CStructure(latt, atom_spec, atom_coord, coords_are_cartesian=True)
         struc.lattice._pbc = pbc
         map1 = np.array(density_maps[0], dtype=float)
-        map1 = np.reshape(map1, [points_ab, points_bc], order='F')
+        map1 = np.reshape(map1, [points_ab, points_bc], order='F') # nrow*ncol
+        map1 = map1[::-1] # Use BC, BA base vectors, rather than BC, AB.
         if countspin != 0:
             map2 = np.array(density_maps[1], dtype=float)
             map2 = np.reshape(map2, [points_ab, points_bc], order='F')
+            map2 = map2[::-1] # Use BC, BA base vectors, rather than BC, AB.
         else:
             map2 = None
-
         return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
 
 
@@ -494,27 +513,127 @@ class XmgraceParser():
         first_energy = 4
         # Allocate the doss as np arrays
         energy = np.zeros([n_energy,], dtype=float)
-        doss = np.zeros([n_energy, n_proj, spin], dtype=float)
+        doss = np.zeros([n_proj, n_energy, spin], dtype=float)
         # Read the doss and store them into a numpy array
         for i, line in enumerate(data[first_energy:first_energy + n_energy]):
             line_data = np.array(line.strip().split(), dtype=float)
             energy[i] = line_data[0]
-            doss[i, :, 0] = line_data[1:]
+            doss[:, i, 0] = line_data[1:]
 
         if spin == 2:
             # line where the first beta energy is. Written this way to help identify
             first_energy_beta = first_energy + n_energy + 3
             for i, line in enumerate(data[first_energy_beta:-1]):
                 line_data = np.array(line.strip().split(), dtype=float)
-                doss[i, :, 1] = -line_data[1:]
+                doss[:, i, 1] = -line_data[1:]
 
         # Convert all the energy to eV / THz
         if is_electron == True:
             energy = H_to_eV(energy)
             doss = eV_to_H(doss)  # states/Hartree to states/eV
-            # print(np.shape(doss))
         else:
             energy = cm_to_thz(energy)
             doss = thz_to_cm(doss)
 
         return spin, efermi, doss, energy, unit
+
+
+
+class TOPONDParser():
+    """
+    A collection of functions to parse TOPOND output files. Instantiation of
+    this object is not recommaneded.
+    """
+    @classmethod
+    def contour2D(cls, filename):
+        """
+        Parse TOPOND 2D scalar contour plot files (SURF*.DAT). Unit: a.u.
+
+        Args:
+            filename (str)
+        Returns:
+            spin (array): Always 1
+            a (array): 3D Cartesian coordinates of MAPNET point A (xmin, ymax)
+            b (array): 3D Cartesian coordinates of MAPNET point B (xmin, ymin)
+            c (array): 3D Cartesian coordinates of MAPNET point C (xmax, ymin)
+            cosxy (float): Always 0
+            struc (None): Always None
+            map1 (array): 2D scalar field map commensurate with MAPNET defined above.
+            map2 (None): Always None
+            unit (str): 'a.u.'
+        """
+        import numpy as np
+        import pandas as pd
+
+        file = open(filename, 'r')
+        tmp = file.readline()
+        tmp = file.readline()
+        npt_x, npt_y = tmp.strip().split()
+        tmp = file.readline()
+        x_min, x_max, _ = tmp.strip().split()
+        tmp = file.readline()
+        y_min, y_max, _ = tmp.strip().split()
+        file.close()
+        npt_x = int(npt_x); npt_y = int(npt_y)
+
+        # To be commensurate with CrgraParser.mapn
+        spin = 1
+        # Use BC, BA base vectors
+        a = np.array([x_min, y_max, 0.], dtype=float)
+        b = np.array([x_min, y_min, 0.], dtype=float)
+        c = np.array([x_max, y_min, 0.], dtype=float)
+        cosxy = 0.
+        struc = None
+        map1 = np.zeros([npt_y, npt_x], dtype=float)
+        map2 = None
+
+        tabtmp = pd.read_table(filename, sep='\s+', skiprows=5, header=None)
+        tabtmp = tabtmp.to_numpy(dtype=float)
+        nline_per_y = np.ceil(npt_x/np.shape(tabtmp)[1])
+        last_line_entry = npt_x % np.shape(tabtmp)[1]
+        if last_line_entry == 0:
+            last_line_entry = np.shape(tabtmp)[1]
+
+        regular_entries = npt_x-last_line_entry
+        for i in range(npt_y):
+            tabbg = int(i * nline_per_y)
+            tabed = int((i + 1) *nline_per_y)
+            map1[i, :regular_entries] = tabtmp[tabbg:tabed-1, :].flatten()
+            map1[i, regular_entries:] = tabtmp[tabed-1, 0:last_line_entry]
+
+        return spin, a, b, c, cosxy, struc, map1, map2, 'a.u.'
+
+    @classmethod
+    def traj(cls, filename):
+        """
+        Parse TOPOND trajectory plot files (TRAJ*.DAT). Unit: a.u.
+
+        Args:
+            filename (str)
+        Returns:
+            wtraj (list[int]): 1\*nPath, weight of the path
+            traj (list[array]): 1\*nPath, list of critical paths. Every array
+                is the nPoint\*3 3D ref framework coordinates of points on the
+                path.
+            unit (str): 'a.u.'
+        """
+        import numpy as np
+        import re
+        import pandas as pd
+
+        wtraj = []; traj = []
+        tab = pd.read_fwf(filename, header=None)
+        tab = tab.to_numpy(dtype=float)
+
+        countline = 0
+        while countline < len(tab):
+            # header lines
+            line = tab[countline]
+            wtraj.append(line[1])
+            npt_line = int(line[0])
+            traj.append(tab[countline+1:countline+npt_line+1, 1:])
+            countline += npt_line+1
+
+        return wtraj, traj, 'a.u.'
+
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on 21/12/2022
+Constants and unit conversion used in CRYSTALpytools.
 """
 
 from scipy import constants
@@ -24,9 +24,11 @@ def kjmol_to_H(energy):
     return energy/(constants.physical_constants['Hartree energy'][0] * 1e-3 * constants.Avogadro)
 
 def au_to_angstrom(length):
+    # Conversion from Bohr to Angstrom
     return length*(constants.physical_constants['atomic unit of length'][0] * 1e10)
 
 def angstrom_to_au(length):
+    # Conversion from Angstrom to Bohr
     return length/(constants.physical_constants['atomic unit of length'][0] * 1e10)
 
 def cm_to_thz(freq):
@@ -52,3 +54,12 @@ def amu_to_me(mass):
 def me_to_amu(mass):
     # Conversion from electron mass (mass unit in AU) to unified atomic mass unit
     return mass / (constants.physical_constants['unified atomic mass unit'][0] / constants.m_e)
+
+def GPa_to_au(pressure):
+    # Conversion from GPa to Hartree.Bohr^-3
+    return pressure / (1e-9 * constants.physical_constants['Hartree energy'][0] / constants.physical_constants['atomic unit of length'][0]**3)
+
+def au_to_GPa(pressure):
+    # Conversion from Hartree.Bohr^-3 to GPa
+    return pressure * 1e-9 * constants.physical_constants['Hartree energy'][0] / constants.physical_constants['atomic unit of length'][0]**3
+

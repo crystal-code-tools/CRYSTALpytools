@@ -1,5 +1,7 @@
 CRYSTALpytools.plot module
-===============================
+==========================
+
+.. _ref-plot:
 
 .. automodule:: CRYSTALpytools.plot
    :members:
