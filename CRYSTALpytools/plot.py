@@ -683,23 +683,21 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
             If spin>1 and 1\*nSystem list is used, they are marked with the
             same label. Effective for all the subplots.
         dos_color (str|list): Color of DOSS plots. If only one string is given,
-            apply it to all plots. Also 1\*2 color list for spin. When
-            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) plot color. If spin>1
-            and spin dimension is not included, spin states are in the same
-            color. 'None' for default values ('tab:blue' and other tab series).
-            Effective for all the subplots.
+            apply it to all plots. 1\*nPrj or nPrj\*2 (spin) plot color. If
+            spin>1 and spin dimension is not included, spin states are in the
+            same color. 'None' for default values ('tab:blue' and other tab
+            series for both spin-up and spin-down states). Effective for all
+            the subplots.
         dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
-            given, apply it to all plots. Also 1\*2 color list for spin. When
-            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) line styles. If spin>1
-            and spin dimension is not included, spin states are in the same
-            linestyle. 'None' for default values ('-'). Effective for all the
-            subplots.
+            given, apply it to all plots. 1\*nPrj or nPrj\*2 (spin) line
+            styles. If spin>1 and spin dimension is not included, spin states
+            are in the same linestyle. 'None' for default values ('-' for
+            spin-ups and '--' for spin-downs). Effective for all the subplots.
         dos_linewidth (str|list): Linewidth of DOSS plot. If only one number is
-            given, apply it to all plots. Also 1\*2 color list for spin. When
-            ``overlap=True``, 1\*nPrj or nPrj\*2 (spin) line widthes. If spin>1
-            and spin dimension is not included, spin states are in the same
-            linestyle. 'None' for default values (1.0). Effective for all the
-            subplots.
+            given, apply it to all plots. 1\*nPrj or nPrj\*2 (spin) line
+            widthes. If spin>1 and spin dimension is not included, spin states
+            are in the same linestyle. 'None' for default values (1.0).
+            Effective for all the subplots.
         fermi_level (float|list|None): Fermi energy in the same unit as input
             doss energy. By default the doss is aligned to 0. Can be used to
             offset the doss. None for not plotting Fermi.
@@ -761,37 +759,32 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
     # plot
     ndoss = len(dossplt)
     if ndoss == 1 and overlap == False: # Same system, projecton into different panels
+
         nprj = len(prj[0])
         fig, ax = plt.subplots(nprj, 1, figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
-        if nprj == 1:
-            ax = plot_doss(
-                ax, dossplt[0].doss, dossplt[0].energy, beta, [prj[0][0]],
-                energy_range, dos_range, dos_label, dos_color, dos_linestyle,
-                dos_linewidth, fermi_level, fermi_color, fermi_linestyle,
-                fermi_linewidth, legend, False, **kwargs
+        # prepare doss plot keywords
+        ## label, same as overlap
+        ## color, new default
+        if np.all(dos_color==None):
+            dos_color = [['tab:blue', 'tab:blue'] for i in range(nprj)]
+        # Dimeonsion issue: dos plot styles must be consistent with length of input dosss
+        dossref = [dossplt[0].doss[i-1] for i in prj[0]]
+        commands = _plot_label_preprocess(
+            dossref, dos_label, dos_color, dos_linestyle, dos_linewidth
+        )
+        for i in range(4):
+            if np.all(commands[i]==None):
+                commands[i] = [None for j in range(nprj)]
+            else:
+                commands[i] = [[commands[i][j]] for j in range(nprj)]
+        for i in range(nprj):
+            fig.axes[i] = plot_doss(
+                fig.axes[i], dossplt[0].doss, dossplt[0].energy, beta, [prj[0][i]],
+                energy_range, dos_range, commands[0][i], commands[1][i],
+                commands[2][i], commands[3][i], fermi_level, fermi_color,
+                fermi_linestyle, fermi_linewidth, legend, False, **kwargs
             )
-        else:
-            # new defaults: all lines in the same color.
-            if np.all(dos_color==None):
-                dos_color = [['tab:blue', 'tab:blue'] for i in range(nprj)]
-            # Dimeonsion issue: dos plot styles must be consistent with length of input dosss
-            dossref = [dossplt[0].doss[i-1] for i in prj[0]]
-            commands = _plot_label_preprocess(
-                dossref, dos_label, dos_color, dos_linestyle, dos_linewidth
-            )
-            for i in range(4):
-                if np.all(commands[i]==None):
-                    commands[i] = [None for j in range(nprj)]
-                else:
-                    commands[i] = [[commands[i][j]] for j in range(nprj)]
-            for i in range(nprj):
-                ax.flat[i] = plot_doss(
-                    ax.flat[i], dossplt[0].doss, dossplt[0].energy, beta, [prj[0][i]],
-                    energy_range, dos_range, commands[0][i], commands[1][i],
-                    commands[2][i], commands[3][i], fermi_level, fermi_color,
-                    fermi_linestyle, fermi_linewidth, legend, False, **kwargs
-                )
     else: # Projecton of the same system into the same panel
         fig, ax = plt.subplots(ndoss, 1, figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
@@ -4007,7 +4000,7 @@ def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
     warnings.warn("You are calling a deprecated function. Use 'plot_elastics_3D' instead.",
                   stacklevel=2)
     args = [i for i in args]
-    figs, axes = plot_elastics_3D(
+    figs = plot_elastics_3D(
         choose, *args, uniform_scale=True, add_title=False, nphi=ndeg,
         ntheta=ndeg, nchi=ndeg
     )

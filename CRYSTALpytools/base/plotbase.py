@@ -182,12 +182,30 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
     nsys = len(bands)
 
     # prepare band plot keywords
-    ## label, use overlap plottings
-    ## color. New Default
+    ## label, same as overlap
+    ## color
     if np.all(band_color==None):
-         band_color = [['tab:blue', 'tab:blue'] for i in range(nsys)]
-    ## line style, use overlap plottings
-    ## line width, use overlap plottings
+        band_color = [['tab:blue', 'tab:blue'] for i in range(nsys)]
+    else: # New Default
+        band_color = np.array(band_color, ndmin=1)
+        if band_color.shape[0] > 1:
+            band_color = [[band_color[0], band_color[1]] for i in range(nsys)]
+        else:
+            band_color = str(band_color[0])
+    ## line style
+    if np.all(band_linestyle!=None):
+        band_linestyle = np.array(band_linestyle, ndmin=1)
+        if band_linestyle.shape[0] > 1:
+            band_linestyle = [[band_linestyle[0], band_linestyle[1]] for i in range(nsys)]
+        else:
+            band_linestyle = str(band_linestyle[0])
+    ## line width
+    if np.all(band_linewidth!=None):
+        band_linewidth = np.array(band_linewidth, ndmin=1)
+        if band_linewidth.shape[0] > 1:
+            band_linewidth = [[band_linewidth[0], band_linewidth[1]] for i in range(nsys)]
+        else:
+            band_linewidth = float(band_linewidth[0])
 
     # prepare fermi level
     if np.all(fermi!=None):
@@ -358,29 +376,24 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
     import matplotlib.colors as mcolors
 
     nsys = len(bands)
-    ## label, and default setups of band labels
     if np.all(band_label!=None):
-        band_label = np.array(band_label, ndmin=2)
-        if band_label.shape[0] == 1:
-            if band_label.shape[1] == 1:
-                band_label = [[band_label[0, 0], band_label[0, 0]] for i in range(nsys)]
-            else:
-                band_label = [[band_label[0, 0], band_label[0, 1]] for i in range(nsys)]
+        if isinstance(band_label, str):
+            band_label = [[band_label, band_label] for i in range(nsys)]
         else:
-            if band_label.shape[0] != nsys:
+            if len(band_label) != nsys:
                 raise ValueError('Inconsistent system labels and number of systems(band) / projections(DOS).')
-            if band_label.shape[1] == 1:
-                band_label_new = []
-                for i in range(nsys):
-                    nspin = bands[i].shape[-1]
+            for i in range(nsys):
+                nspin = bands[i].shape[-1]
+                ## label, and default setups of band labels
+                if not isinstance(band_label[i], list):
                     if nspin == 2:
-                        band_label_new.append([r'{} ($\alpha$)'.format(band_label[0, i]),
-                                               r'{} ($\beta$)'.format(band_label[0, i])])
+                        band_label[i] = [r'{} ($\alpha$)'.format(band_label[i]),
+                                         r'{} ($\beta$)'.format(band_label[i])]
                     else:
-                        band_label_new.append([band_label[0, i], band_label[0, i]])
-                band_label = band_label_new
-            else:
-                band_label = [[i[0], i[1]] for i in band_label]
+                        band_label[i] = [band_label[i], band_label[i]]
+                else:
+                    band_label[i] = band_label[i][0:2]
+
     else:
         band_label = []; any_spin = False
         for i in range(nsys):
@@ -390,21 +403,18 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
                 band_label.append([r'$\alpha$', r'$\beta$'])
             else:
                 band_label.append(['', ''])
+
         if any_spin == False:
             band_label = None
     ## color
     if np.all(band_color!=None):
-        band_color = np.array(band_color, ndmin=2)
-        if band_color.shape[0] == 1:
-            if band_color.shape[1] == 1:
-                band_color = [[band_color[0, 0], band_color[0, 0]] for i in range(nsys)]
-            else:
-                band_color = [[band_color[0, 0], band_color[0, 1]] for i in range(nsys)]
+        if isinstance(band_color, str):
+            band_color = [[band_color, band_color] for i in range(nsys)]
         else:
-            if band_color.shape[0] != nsys:
+            if len(band_color) != nsys:
                 raise ValueError('Inconsistent band colors and number of systems(band) / projections(DOS).')
-            if band_color.shape[1] == 1:
-                band_color = [[i, i] for i in band_color[0]]
+            if not isinstance(band_color[0], list):
+                band_color = [[i, i] for i in band_color]
             else:
                 band_color = [[i[0], i[1]] for i in band_color]
     else: # defalut setups of band color
@@ -413,35 +423,26 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
         band_color = [[clist[i%nclist], clist[i%nclist]] for i in range(nsys)]
     ## line style
     if np.all(band_linestyle!=None):
-        band_linestyle = np.array(band_linestyle, ndmin=2)
-        if band_linestyle.shape[0] == 1:
-            if band_linestyle.shape[1] == 1:
-                band_linestyle = [[band_linestyle[0, 0], band_linestyle[0, 0]] for i in range(nsys)]
-            else:
-                band_linestyle = [[band_linestyle[0, 0], band_linestyle[0, 1]] for i in range(nsys)]
+        if isinstance(band_linestyle, str):
+            band_linestyle = [[band_linestyle, band_linestyle] for i in range(nsys)]
         else:
-            if band_linestyle.shape[0] != nsys:
+            if len(band_linestyle) != nsys:
                 raise ValueError('Inconsistent band line style and number of systems(band) / projections(DOS).')
-            if band_linestyle.shape[0] == 1:
-                band_linestyle = [[i, i] for i in band_linestyle[0]]
-                print(band_linestyle)
+            if not isinstance(band_linestyle[0], list):
+                band_linestyle = [[i, i] for i in band_linestyle]
             else:
                 band_linestyle = [[i[0], i[1]] for i in band_linestyle]
     else: # defalut setups of line style
         band_linestyle = [['-', '--'] for i in range(nsys)]
     ## linewidth
     if np.all(band_linewidth!=None):
-        band_linewidth = np.array(band_linewidth, ndmin=2, dtype=float)
-        if band_linewidth.shape[0] == 1:
-            if band_linewidth.shape[1] == 1:
-                band_linewidth = [[band_linewidth[0, 0], band_linewidth[0, 0]] for i in range(nsys)]
-            else:
-                band_linewidth = [[band_linewidth[0, 0], band_linewidth[0, 1]] for i in range(nsys)]
+        if isinstance(band_linewidth, int) or isinstance(band_linewidth, float):
+            band_linewidth = [[band_linewidth, band_linewidth] for i in range(nsys)]
         else:
-            if band_linewidth.shape[0] != nsys:
+            if len(band_linewidth) != nsys:
                 raise ValueError('Inconsistent band line width and number of systems(band) / projections(DOS).')
-            if band_linewidth.shape[0] == 1:
-                band_linewidth = [[i, i] for i in band_linewidth[0]]
+            if not isinstance(band_linewidth[0], list):
+                band_linewidth = [[i, i] for i in band_linewidth]
             else:
                 band_linewidth = [[i[0], i[1]] for i in band_linewidth]
     else: # defalut setups of linewidth
