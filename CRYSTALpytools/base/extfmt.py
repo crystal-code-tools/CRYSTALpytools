@@ -5,7 +5,6 @@ Classes and methods to parse multiple external output formats by 'crystal' and
 'properties' executables, such as 'BAND.DAT' and 'fort.25' formats.
 """
 
-
 class CrgraParser():
     """
     A collection of functions to parse Crgra fort.25 files. Instantiation of
@@ -538,7 +537,6 @@ class XmgraceParser():
         return spin, efermi, doss, energy, unit
 
 
-
 class TOPONDParser():
     """
     A collection of functions to parse TOPOND output files. Instantiation of
@@ -637,3 +635,109 @@ class TOPONDParser():
         return wtraj, traj, 'a.u.'
 
 
+class BOLTZTRAParaser():
+    """
+    A collection of functions to parse BOLTZTRA output files. Instantiation of
+    this object is not recommaneded.
+    """
+    @classmethod
+    def tensor(cls, filename):
+        """
+        Read properties in tensor forms, include KAPPA, SEEBECK, SIGMA, SIGMAS.
+
+        Returns:
+            spin (int): 1 for closed shell and 2 for open shell.
+            type (str): Type of tensor output.
+            v (float): Volume in cm:math:`^{3}`.
+            t (array): Temperature in K.
+            mu (array): Chemical potential in eV.
+            dc (array): nT\*nMu\*nspin array of carrier density. Unit:
+                cm:math:`^{-3}`.
+            tensor (array): nT\*nMu\*ndimen\*nspin array of tensor elements.
+            unit (str): Unit of tensor.
+        """
+        import pandas as pd
+        import numpy as np
+
+        df = pd.DataFrame(open(filename))
+        spin = int(df[0][0].strip().split()[1]) + 1
+        v = float(df[0][2].strip().split()[-1])
+        if 'in W/m/K' in df[0][0]:
+            type = 'KAPPA'; unit = 'W/m/K'
+        elif 'in V/K' in df[0][0]:
+            type = 'SEEBECK'; unit = 'V/K'
+        elif 'in 1/Ohm/m' in df[0][0]:
+            type = 'SIGMA'; unit = '1/Ohm/m'
+        elif 'in A/m/K' in df[0][0]:
+            type = 'SIGMAS'; unit = 'A/m/K'
+        else:
+            raise Exception('Unknown property. Check your input BOLTZTRA file.')
+
+        titles = df[df[0].str.contains('# ')].index
+        t = df[0][titles[2:]].map(lambda x: x.strip().split()[3])
+        t = t.to_numpy(dtype=float)
+        mu = df[0][titles[2]+1:titles[3]].map(lambda x: x.strip().split()[0])
+        mu = mu.to_numpy(dtype=float)
+        ncol = len(df[0][titles[2]+1].strip().split())
+
+        # open shell
+        if spin != 1 and type != 'SEEBECK':
+            betablock = df[df[0].str.contains('Beta')].index
+            tmp = []; newtitle = []
+            for i in titles:
+                if i < betablock or i > betablock:
+                   tmp.append(i)
+                else:
+                    newtitle.append(tmp + [betablock])
+                    tmp = [betablock]
+            newtitle.append(tmp + [len(df[0])])
+        else:
+            newtitle = [titles.tolist() + [len(df[0])]]
+
+        dc = np.zeros([spin, len(t), len(mu)], dtype=float)
+        tensor = np.zeros([spin, len(t), len(mu), ncol-3], dtype=float)
+
+        for ispin, titles in enumerate(newtitle):
+            for nt in range(2, len(titles)-1):
+                block = df[0][titles[nt]+1:titles[nt+1]].map(lambda x: x.strip().split())
+                block = np.array(block.tolist(), dtype=float)
+                dc[ispin, nt-2, :] = block[:, 2] / v # N carrier to density
+                tensor[ispin, nt-2, :, :] = block[:, 3:]
+
+        dc = np.transpose(dc, axes=[1,2,0])
+        tensor = np.transpose(tensor, axes=[1,2,3,0])
+        return spin, type, v, t, mu, dc, tensor, unit
+
+    @classmethod
+    def distribution(cls, filename):
+        """
+        Read transport distribution function.
+
+        Returns:
+            spin (int): 1 for closed shell and 2 for open shell.
+            type (str): Type. Currently only 'TDF'
+            energy (array): nEnergy\*nspin array, Energy in eV.
+            distr (array): nEnergy\*nDimen\*nspin array of distribution. Unit:
+                :math:`\\hbar^{-2}.eV.fs.\\AA^{-2}`.
+        """
+        import pandas as pd
+        import numpy as np
+
+        df = pd.DataFrame(open(filename))
+        spin = int(df[0][0].strip().split()[1]) + 1
+        if 'Transport distribution function' not in df[0][0]:
+            raise ValueError('Not a TDF file.')
+
+        # open shell
+        data = []
+        titles = df[df[0].str.contains('# ')].index
+        if spin != 1:
+            data.append(df[0][titles[1]+1:titles[2]].map(lambda x: x.strip().split()).tolist())
+            data.append(df[0][titles[3]+1:len(df[0])].map(lambda x: x.strip().split()).tolist())
+        else:
+            data.append(df[0][titles[1]+1:len(df[0])].map(lambda x: x.strip().split()).tolist())
+
+        data = np.array(data, dtype=float)
+        data = np.transpose(data, axes=[1,2,0])
+        return spin, 'TDF', data[:, 0, :], data[:, 1:, :], '1/hbar^2*eV*fs/angstrom'
+    

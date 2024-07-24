@@ -402,9 +402,7 @@ class Tensor3D():
         # Prepare 1D plot
         if np.all(u!=None):
             if not isinstance(u, str):
-                utmp0 = np.array(u, dtype=float) # cartesian u, normalised
-                if len(np.shape(utmp0)) == 1:
-                    utmp0 = np.array([utmp0])
+                utmp0 = np.array(u, dtype=float, ndmin=2) # cartesian u, normalised
 
                 if use_cartesian != True:
                     for i in range(len(utmp0)):
@@ -484,10 +482,7 @@ class Tensor3D():
                             utextplt.append(utext[iplot][ivp])
                     else:
                         if not isinstance(u, str):
-                            if len(np.shape(u)) == 1:
-                                u = np.array([u], dtype=float)
-                            else:
-                                u = np.array(u, dtype=float)
+                            u = np.array(u, ndmin=1)
                         else:
                             u = utmp[iplot]
                         utextplt.append('[{:<4.1f}{:^4.1f}{:>4.1f}]  {:.2f}'.format(

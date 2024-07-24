@@ -60,8 +60,11 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
 
     nsys = len(bands)
 
-    if (len(k_label) != 0) and (not isinstance(k_label[0], str)) and (not isinstance(k_label[0], float)):
-        raise ValueError("K labels must be string or float number and only 1 set of k labels can be set for 'multi' mode.")
+    if len(k_label) != 0:
+        k_label = np.array(k_label, ndmin=1)
+        if k_label.ndim > 1:
+            raise ValueError("K labels must be string or float number and only 1 set of k labels can be set for 'multi' mode.")
+        k_label = k_label.tolist()
 
     # preprocessing, always scale k path
     k_path, k_label, energy_range, k_range, commands = _plot_bands_preprocess(
@@ -73,8 +76,7 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
     ## Fermi level
     ## Fermi check, must be None, float, int
     if np.all(fermi!=None):
-        if (not isinstance(fermi, float)) and (not isinstance(fermi, int)):
-            raise ValueError('Fermi level must be None, float or int.')
+        fermi = np.array(fermi, ndmin=1, dtype=float)[0]
         ax.hlines(fermi, k_range[0], k_range[1], color=fermi_color,
                   linestyle=fermi_linestyle, linewidth=fermi_linewidth)
 
@@ -189,11 +191,11 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
 
     # prepare fermi level
     if np.all(fermi!=None):
-        if isinstance(fermi, list) or isinstance(fermi, tuple) or isinstance(fermi, np.ndarray):
-            if len(fermi) != nsys:
-                raise ValueError('Inconsistent numbers of Fermi level and systems')
-        else:
-            fermi = np.array([fermi for i in range(nsys)], dtype=float)
+        fermi = np.array(fermi, ndmin=1, dtype=float)
+        if len(fermi) == 1:
+            fermi = fermi.repeat(nsys)
+        if len(fermi) != nsys:
+            raise ValueError('Inconsistent numbers of Fermi level and systems')
 
     # preprocessing
     k_path, k_label, energy_range, k_range, commands  = _plot_bands_preprocess(
@@ -266,16 +268,19 @@ def _plot_bands_preprocess(
 
     # Prepare k_label
     if len(k_label) != 0:
-        if isinstance(k_label[0], str) or isinstance(k_label[0], float): # same definition for all k pathes
+        k_label = np.array(k_label)
+        if k_label.ndim == 1: # same definition for all k pathes
             same_klabel = True
-            if len(k_label) != np.shape(k_path)[1]:
-                raise ValueError('Inconsistent dimensions of k label and k path.')
-            k_label = [k_label for i in range(nsys)]
+            for i in range(nsys):
+                if len(k_label) != len(k_path[i]):
+                    raise ValueError('Inconsistent dimensions of k label and k path.')
+            k_label = [k_label.tolist() for i in range(nsys)]
         else:
             same_klabel = False
             for i in range(nsys):
                 if len(k_label[i]) != len(k_path[i]):
                     raise ValueError('Inconsistent dimensions of k label and k path.')
+            k_label = k_label.tolist()
 
         for i, listk in enumerate(k_label):
             for j, k in enumerate(listk):
@@ -353,24 +358,29 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
     import matplotlib.colors as mcolors
 
     nsys = len(bands)
+    ## label, and default setups of band labels
     if np.all(band_label!=None):
-        if isinstance(band_label, str):
-            band_label = [[band_label, band_label] for i in range(nsys)]
+        band_label = np.array(band_label, ndmin=2)
+        if band_label.shape[0] == 1:
+            if band_label.shape[1] == 1:
+                band_label = [[band_label[0, 0], band_label[0, 0]] for i in range(nsys)]
+            else:
+                band_label = [[band_label[0, 0], band_label[0, 1]] for i in range(nsys)]
         else:
-            if len(band_label) != nsys:
+            if band_label.shape[0] != nsys:
                 raise ValueError('Inconsistent system labels and number of systems(band) / projections(DOS).')
-            for i in range(nsys):
-                nspin = bands[i].shape[-1]
-                ## label, and default setups of band labels
-                if not isinstance(band_label[i], list):
+            if band_label.shape[1] == 1:
+                band_label_new = []
+                for i in range(nsys):
+                    nspin = bands[i].shape[-1]
                     if nspin == 2:
-                        band_label[i] = [r'{} ($\alpha$)'.format(band_label[i]),
-                                         r'{} ($\beta$)'.format(band_label[i])]
+                        band_label_new.append([r'{} ($\alpha$)'.format(band_label[0, i]),
+                                               r'{} ($\beta$)'.format(band_label[0, i])])
                     else:
-                        band_label[i] = [band_label[i], band_label[i]]
-                else:
-                    band_label[i] = band_label[i][0:2]
-
+                        band_label_new.append([band_label[0, i], band_label[0, i]])
+                band_label = band_label_new
+            else:
+                band_label = [[i[0], i[1]] for i in band_label]
     else:
         band_label = []; any_spin = False
         for i in range(nsys):
@@ -380,18 +390,21 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
                 band_label.append([r'$\alpha$', r'$\beta$'])
             else:
                 band_label.append(['', ''])
-
         if any_spin == False:
             band_label = None
     ## color
     if np.all(band_color!=None):
-        if isinstance(band_color, str):
-            band_color = [[band_color, band_color] for i in range(nsys)]
+        band_color = np.array(band_color, ndmin=2)
+        if band_color.shape[0] == 1:
+            if band_color.shape[1] == 1:
+                band_color = [[band_color[0, 0], band_color[0, 0]] for i in range(nsys)]
+            else:
+                band_color = [[band_color[0, 0], band_color[0, 1]] for i in range(nsys)]
         else:
-            if len(band_color) != nsys:
+            if band_color.shape[0] != nsys:
                 raise ValueError('Inconsistent band colors and number of systems(band) / projections(DOS).')
-            if not isinstance(band_color[0], list):
-                band_color = [[i, i] for i in band_color]
+            if band_color.shape[1] == 1:
+                band_color = [[i, i] for i in band_color[0]]
             else:
                 band_color = [[i[0], i[1]] for i in band_color]
     else: # defalut setups of band color
@@ -400,26 +413,35 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
         band_color = [[clist[i%nclist], clist[i%nclist]] for i in range(nsys)]
     ## line style
     if np.all(band_linestyle!=None):
-        if isinstance(band_linestyle, str):
-            band_linestyle = [[band_linestyle, band_linestyle] for i in range(nsys)]
+        band_linestyle = np.array(band_linestyle, ndmin=2)
+        if band_linestyle.shape[0] == 1:
+            if band_linestyle.shape[1] == 1:
+                band_linestyle = [[band_linestyle[0, 0], band_linestyle[0, 0]] for i in range(nsys)]
+            else:
+                band_linestyle = [[band_linestyle[0, 0], band_linestyle[0, 1]] for i in range(nsys)]
         else:
-            if len(band_linestyle) != nsys:
+            if band_linestyle.shape[0] != nsys:
                 raise ValueError('Inconsistent band line style and number of systems(band) / projections(DOS).')
-            if not isinstance(band_linestyle[0], list):
-                band_linestyle = [[i, i] for i in band_linestyle]
+            if band_linestyle.shape[0] == 1:
+                band_linestyle = [[i, i] for i in band_linestyle[0]]
+                print(band_linestyle)
             else:
                 band_linestyle = [[i[0], i[1]] for i in band_linestyle]
     else: # defalut setups of line style
         band_linestyle = [['-', '--'] for i in range(nsys)]
     ## linewidth
     if np.all(band_linewidth!=None):
-        if isinstance(band_linewidth, int) or isinstance(band_linewidth, float):
-            band_linewidth = [[band_linewidth, band_linewidth] for i in range(nsys)]
+        band_linewidth = np.array(band_linewidth, ndmin=2, dtype=float)
+        if band_linewidth.shape[0] == 1:
+            if band_linewidth.shape[1] == 1:
+                band_linewidth = [[band_linewidth[0, 0], band_linewidth[0, 0]] for i in range(nsys)]
+            else:
+                band_linewidth = [[band_linewidth[0, 0], band_linewidth[0, 1]] for i in range(nsys)]
         else:
-            if len(band_linewidth) != nsys:
+            if band_linewidth.shape[0] != nsys:
                 raise ValueError('Inconsistent band line width and number of systems(band) / projections(DOS).')
-            if not isinstance(band_linewidth[0], list):
-                band_linewidth = [[i, i] for i in band_linewidth]
+            if band_linewidth.shape[0] == 1:
+                band_linewidth = [[i, i] for i in band_linewidth[0]]
             else:
                 band_linewidth = [[i[0], i[1]] for i in band_linewidth]
     else: # defalut setups of linewidth

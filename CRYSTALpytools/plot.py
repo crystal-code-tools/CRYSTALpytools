@@ -102,12 +102,13 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)
             levels2 = np.linspace(np.min(spin_range), np.max(spin_range), levels)
     else:
-        if isinstance(levels[0], int) or isinstance(levels[0], float):
-            levels1 = np.array(levels, dtype=float)
-            levels2 = np.array(levels, dtype=float)
+        levels = np.array(levels, dtype=float, ndmin=2)
+        if levels.shape[0] == 1:
+            levels1 = levels
+            levels2 = levels
         else:
-            levels1 = np.array(levels[0], dtype=float)
-            levels2 = np.array(levels[1], dtype=float)
+            levels1 = levels[0]
+            levels2 = levels[1]
     levels = np.vstack([levels1, levels2])
 
     # plot

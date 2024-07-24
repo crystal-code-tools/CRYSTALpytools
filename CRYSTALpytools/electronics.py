@@ -694,12 +694,13 @@ class ChargeDensity():
                 levels2 = np.linspace(np.min(spin), np.max(spin), levels)
                 del chg, spin
         else:
-            if isinstance(levels[0], int) or isinstance(levels[0], float):
-                levels1 = np.array(levels, dtype=float)
-                levels2 = np.array(levels, dtype=float)
+            levels = np.array(levels, dtype=float, ndmin=2)
+            if levels.shape[0] == 1:
+                levels1 = levels
+                levels2 = levels
             else:
-                levels1 = np.array(levels[0], dtype=float)
-                levels2 = np.array(levels[1], dtype=float)
+                levels1 = levels[0]
+                levels2 = levels[1]
         # color plot
         if colorplot == False:
             colormap = None
@@ -719,7 +720,8 @@ class ChargeDensity():
             else:
                 cbar_label1 = r'Charge Density ($|e|/Bohr^{3}$)'; cbar_label2 = r'Spin Density ($|e|/Bohr^{3}$)'
         else:
-            if isinstance(cbar_label, list):
+            cbar_label = np.array(cbar_label, ndmin=1)
+            if cbar_label.shape[0] > 1:
                 cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1]; 
             else:
                 cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)

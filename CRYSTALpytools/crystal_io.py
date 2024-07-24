@@ -2598,9 +2598,9 @@ class Properties_output(POutBASE):
             type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
-            self.topond_\* (ChargeDenstiy): Return to the ``topond_*`` with type
-                suffixed (all capital). If type is unknown, return to
-                ``topond_unknown``. All of them are ``topond.Surf`` class.
+            self.\* (Surf|Traj): Return to ``topond.Surf`` or ``topond.Traj``
+                classes, depending on input file types. The attribute name is
+                upper case type names. If unknown, return to ``self.TOPOND``.
         """
         import warnings
         from CRYSTALpytools.base.extfmt import TOPONDParser
@@ -2667,8 +2667,10 @@ class Properties_output(POutBASE):
             obj = Traj(wtraj, traj, base, struc, type=type, unit=unit)
             obj._set_unit('Angstrom')
 
-        setattr(self, 'topond_{}'.format(type), obj)
-        return getattr(self, 'topond_{}'.format(type))
+        if type == 'unknown': type = 'TOPOND'
+
+        setattr(self, type, obj)
+        return getattr(self, type)
 
     def read_ECHG(self, *f25_files, method=None):
         """
@@ -2852,165 +2854,43 @@ class Properties_output(POutBASE):
 
 #-----------------------------transport properties-----------------------------#
 
-    def read_cry_seebeck(self, properties_output):
+    def read_transport(self, boltztra_out):
         """
-        Read Seebeck coefficient data from a file.
+        Read electron transport properties by the BOLTZTRA keyword, including
+        'KAPPA', 'SIGMA', 'SIGMAS', 'SEEBECK' and 'TDF'. Though currently the
+        geometry information is not required, it is saved if the standard
+        output file is given.
 
         Args:
-            properties_output (str): Path to the properties output file.
+            boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
+
         Returns:
-            self: The modified object with extracted Seebeck coefficient data.
+            self.\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
+                'SIGMA', 'SIGMAS', 'SEEBECK') or ``transport.Distribution``
+                (TDF) classes, depending on the input file. The attribute name
+                is upper case types.
         """
-        import re
-        import sys
+        from CRYSTALpytools.base.extfmt import BOLTZTRAParaser
+        from CRYSTALpytools.transport import Tensor, Distribution
 
-        import pandas as pd
+        if hasattr(self, 'file_name'):
+            struc = super().get_geometry()
+        else:
+            struc = None
 
-        self.read_file(properties_output)
+        file = open(boltztra_out)
+        header = file.readline()
+        file.close()
+        if 'Transport distribution function' in header:
+            out = BOLTZTRAParaser.distribution(boltztra_out)
+            obj = Tensor(out[3], out[4], out[5], out[6], out[1], struc, out[7])
+            setattr(self, out[1], obj)
+        else:
+            out = BOLTZTRAParaser.tensor(boltztra_out)
+            obj = Tensor(out[2], out[3], out[1], struc, out[4])
+            setattr(self, out[1], obj)
+        return getattr(self, out[1])
 
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        spectrum = re.compile('Npoints', re.DOTALL)
-
-        match = []
-
-        for line in data:
-            if spectrum.search(line):
-                match.append('RIGHT LINE:' + line)
-            else:
-                match.append('WRONG LINE:' + line)
-
-        df = pd.DataFrame(match)
-        indx = list(df[df[0].str.contains("RIGHT")].index)
-
-        lin = []
-        for i in indx:
-            lin.append(i+1)
-
-        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
-
-        length = diffs[0] - 1
-
-        lif = []
-        for i in lin:
-            lif.append(i+length)
-
-        c = []
-        for i in range(len(lin)):
-            c.append(lin[i])
-            c.append(lif[i])
-
-        d = [c[i:i + 2] for i in range(0, len(c), 2)]
-
-        l = []
-        for i in range(0, len(d)):
-            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
-
-        right = df[df[0].str.contains("RIGHT")]
-        right = right.reset_index().drop('index', axis=1)
-
-        self.temp = []
-
-        for i in range(0, len(right)):
-            self.temp.append(float(str(right[0][i])[20:24]))
-
-        ll = []
-        for k in range(0, len(l)):
-            ll.append(l[k].reset_index().drop('index', axis=1))
-
-        self.all_data = []
-        for k in range(0, len(ll)):
-            for i in ll[k]:
-                self.all_data.append(ll[k][i].apply(
-                    lambda x: x.replace('WRONG LINE:', '')))
-
-        self.volume = (float(str(match[2:3])[-13:-4]))
-
-        self.title = title
-
-        return self
-
-    def read_cry_sigma(self, properties_output):
-        """
-        Read electrical conductivity data from a file.
-
-        Args:
-            properties_output (str): Path to the properties output file.
-        Returns:
-            self: The modified object with extracted electrical conductivity data.
-        """
-        import re
-        import sys
-
-        import pandas as pd
-
-        self.read_file(properties_output)
-
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        spectrum = re.compile('Npoints', re.DOTALL)
-
-        match = []
-
-        for line in data:
-            if spectrum.search(line):
-                match.append('RIGHT LINE:' + line)
-            else:
-                match.append('WRONG LINE:' + line)
-
-        df = pd.DataFrame(match)
-        indx = list(df[df[0].str.contains("RIGHT")].index)
-
-        lin = []
-        for i in indx:
-            lin.append(i+1)
-
-        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
-
-        length = diffs[0] - 1
-
-        lif = []
-        for i in lin:
-            lif.append(i+length)
-
-        c = []
-        for i in range(len(lin)):
-            c.append(lin[i])
-            c.append(lif[i])
-
-        d = [c[i:i + 2] for i in range(0, len(c), 2)]
-
-        l = []
-        for i in range(0, len(d)):
-            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
-
-        right = df[df[0].str.contains("RIGHT")]
-        right = right.reset_index().drop('index', axis=1)
-
-        self.temp = []
-
-        for i in range(0, len(right)):
-            self.temp.append(float(str(right[0][i])[20:24]))
-
-        ll = []
-        for k in range(0, len(l)):
-            ll.append(l[k].reset_index().drop('index', axis=1))
-
-        self.all_data = []
-        for k in range(0, len(ll)):
-            for i in ll[k]:
-                self.all_data.append(ll[k][i].apply(
-                    lambda x: x.replace('WRONG LINE:', '')))
-
-        self.volume = (float(str(match[2:3])[-13:-4]))
-
-        self.title = title
-
-        return self
 
     def read_cry_lapl_profile(self, properties_output):
         """
@@ -3196,6 +3076,32 @@ class Properties_output(POutBASE):
         warnings.warn("You are calling a deprecated function. Use 'read_topond' instead.",
                       stacklevel=2)
         return self.read_topond(properties_output)
+
+    def read_cry_seebeck(self, properties_output):
+        """
+        Deprecated. Use ``read_transport``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_transport' instead.",
+                      stacklevel=2)
+        obj = self.read_transport(properties_output)
+        if obj.type != 'SEEBECK':
+            raise Exception('Input is not a SEBECK coefficient file.')
+        return obj
+
+    def read_cry_sigma(self, properties_output):
+        """
+        Deprecated. Use ``read_transport``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_transport' instead.",
+                      stacklevel=2)
+        obj = self.read_transport(properties_output)
+        if obj.type != 'SIGMA':
+            raise Exception('Input is not a conductivity file.')
+        return obj
 
 
 
