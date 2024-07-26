@@ -2883,11 +2883,11 @@ class Properties_output(POutBASE):
         file.close()
         if 'Transport distribution function' in header:
             out = BOLTZTRAParaser.distribution(boltztra_out)
-            obj = Tensor(out[3], out[4], out[5], out[6], out[1], struc, out[7])
+            obj = Distribution(out[2], out[3], struc, out[1], out[4])
             setattr(self, out[1], obj)
         else:
             out = BOLTZTRAParaser.tensor(boltztra_out)
-            obj = Tensor(out[2], out[3], out[1], struc, out[4])
+            obj = Tensor(out[3], out[4], out[5], out[6], struc, out[1], out[7])
             setattr(self, out[1], obj)
         return getattr(self, out[1])
 

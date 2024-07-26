@@ -706,6 +706,11 @@ class BOLTZTRAParaser():
 
         dc = np.transpose(dc, axes=[1,2,0])
         tensor = np.transpose(tensor, axes=[1,2,3,0])
+        if type == 'SEEBECK': # SEEBECK output is not symmetrized
+            if tensor.shape[2] == 9: # 3D
+                tensor = tensor[:, :, [0,1,2,4,5,8], :]
+            elif tensor.shape[2] == 4: # 2D
+                tensor = tensor[:, :, [0,1,3], :]
         return spin, type, v, t, mu, dc, tensor, unit
 
     @classmethod

@@ -72,7 +72,6 @@ class Tensor():
             cls (Tensor)
         """
         from CRYSTALpytools.crystal_io import Properties_output
-        import copy
         import numpy as np
 
         if method.lower() == 'normal':
@@ -119,7 +118,8 @@ class Tensor():
         Returns:
             cls (Tensor): 'POWERFACTOR' type of object, in 'W/m/K^2'.
         """
-        if obj1.shape != obj2.shape:
+        if obj1.data.shape != obj2.data.shape:
+            print(obj1.data.shape, obj2.data.shape)
             raise Exception("Inconsistent shapes for input objects.")
 
         if obj1.type == 'SEEBECK' and obj2.type == 'SIGMA':
@@ -163,11 +163,12 @@ class Tensor():
             cls (Tensor): 'ZT' type of object, in 'dimensionless'.
         """
         import numpy as np
+        import copy
 
         objs = [obj1, obj2, obj3]
         types = np.array([obj1.type, obj2.type, obj3.type])
-        if (obj1.shape != obj2.shape) or (obj1.shape != obj3.shape) \
-        or (obj2.shape != obj3.shape):
+        if (obj1.data.shape != obj2.data.shape) or (obj1.data.shape != obj3.data.shape) \
+        or (obj2.data.shape != obj3.data.shape):
             raise Exception("Inconsistent shapes for input objects.")
 
         if len(np.where(types=='KAPPA')[0]) != 1:
@@ -183,21 +184,23 @@ class Tensor():
         tensnew = tensnew / objk.data
         # S^2 \sigma T / \kappa
         for irow in range(len(tensnew)):
-            tensnew[i] = tensnew[i] * objk.T[i]
+            tensnew[irow] = tensnew[irow] * objk.T[irow]
         return cls(objk.T, objk.mu, objk.carrier, tensnew, objk.struc, 'ZT', 'dimensionless')
 
     def plot(self, x_axis='potential', x_range=[], direction='xx', spin='sum',
              plot_series=[], plot_label=None, plot_color=None, plot_linestyle=None,
              plot_linewidth=None, zero_color='tab:gray', zero_linestyle='-',
              zero_linewidth=1., layout=None, add_title=True, figsize=[6.4, 4.8],
-             legend='upper left', sharex=True, sharey=True, fontsize=14,
-             fig=None, **kwargs):
+             legend='upper left', sharey=True, fontsize=14, **kwargs):
         """
         Plot tensor-like transport properties in multiple ways:
 
         1. X_axis: Chemical potential :math:`\\mu`; Plot series: Temperature :math:`T`.  
         2. X_axis: Carrier density :math:`\\rho(\\mu; T)`; Plot series: Temperature :math:`T`.  
         3. X_axis: Temperature :math:`T`; Plot series: Chemical potential :math:`\\mu`.
+
+        For comparison of multiple systems, please refer to the
+        :ref:`plot.plot_transport_tensor() <ref-plot>` method.
 
         Args:
             x_axis (str): X axis options, 'potential', 'carrier' or
@@ -232,11 +235,9 @@ class Tensor():
             add_title (bool): Whether to add the plotted property as title.
             figsize (list): Figure size.
             legend (str|None): Location of legend. None for not adding legend.
-            sharex (bool): Share x axis for multiple subplots.
-            sharey (bool): Share y axis for multiple subplots.
+            sharey (bool): Share y axis for multiple subplots. Share x is enforced.
             fontsize (float|int): Font size of the title, subplot capations
                 (direction), x and y axis capations.
-            fig (Figure): *Developer Only*
             \*\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
                 method. Applied to all the plots.
         Returns:
@@ -285,13 +286,15 @@ class Tensor():
 
         # directions (number of subplots)
         if self.data.shape[2] == 9:
-            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx' : 3, 'yy' : 4, 'yz' : 5,
-                       'zx' : 6, 'zy' : 7, 'zz' : 8}
+            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yy' : 3, 'yz' : 4, 'zz' : 5}
         else:
-            indices = {'xx' : 0, 'xy' : 1, 'yx' : 2, 'yy' : 3}
+            indices = {'xx' : 0, 'xy' : 1, 'yy' : 2}
 
         direction = np.array(direction, ndmin=1)
-        dir = [indices[i] for i in direction]
+        try:
+            dir = [indices[i.lower()] for i in direction]
+        except KeyError:
+            raise Exception('Input direction not found. Check your input value and system dimensionality.')
         nplt = len(dir)
 
         # plot setups
@@ -303,7 +306,7 @@ class Tensor():
         if np.all(plot_label==None):
             plot_label = dflabel
         elif isinstance(plot_label, str):
-            plot_label = ['{} {}'.format(plot_label, i) for i in deflabel]
+            plot_label = ['{} {}'.format(plot_label, i) for i in dflabel]
         elif isinstance(plot_label, list) or isinstance(plot_label, array):
             nlabel = len(plot_label)
             plot_label = [plot_label[i%nlabel] for i in range(nprj)]
@@ -315,18 +318,12 @@ class Tensor():
                                           plot_linestyle, plot_linewidth)
 
         # plotting
-        if np.all(fig==None):
-            added_plot = False
-            if np.all(layout==None):
-                fig, ax = plt.subplots(len(direction), 1, sharex=sharex,
-                                       sharey=sharey, figsize=figsize,
-                                       layout='constrained')
-            else:
-                fig, ax = plt.subplots(layout[0], layout[1], sharex=sharex,
-                                       sharey=sharey, figsize=figsize,
-                                       layout='constrained')
+        if np.all(layout==None):
+            fig, ax = plt.subplots(len(direction), 1, sharex=True, sharey=sharey,
+                                   figsize=figsize, layout='constrained')
         else:
-            added_plot = True
+            fig, ax = plt.subplots(layout[0], layout[1], sharex=True, sharey=sharey,
+                                   figsize=figsize, layout='constrained')
 
         y_range = []
         for idir, ax in enumerate(fig.axes):
@@ -352,6 +349,8 @@ class Tensor():
                 for p in range(nprj):
                     idx_p = np.where(carrier[p]>=0)[0]
                     idx_n = np.where(carrier[p]<0)[0]
+                    if len(idx_p) == 0 and len(idx_n) == 0:
+                        raise ValueError('Empty data in the specified x range. Check your input.')
                     if len(idx_p) > 0:
                         ax.plot(x[idx_p], y[p, idx_p].flatten(), label=commands[0][p][0],
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
@@ -393,6 +392,8 @@ class Tensor():
                     ## divide the plot by p and n type carriers and plot
                     idx_p = np.where(newcarrier>=0)[0]
                     idx_n = np.where(newcarrier<0)[0]
+                    if len(idx_p) == 0 and len(idx_n) == 0:
+                        raise ValueError('Empty data in the specified x range. Check your input.')
                     if len(idx_p) > 0:
                         ax.plot(newx[idx_p], newy[idx_p], label=commands[0][p][0],
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
@@ -421,6 +422,8 @@ class Tensor():
                 for p in range(nprj):
                     idx_p = np.where(carrier[:, p]>=0)[0]
                     idx_n = np.where(carrier[:, p]<0)[0]
+                    if len(idx_p) == 0 and len(idx_n) == 0:
+                        raise ValueError('Empty data in the specified x range. Check your input.')
                     if len(idx_p) > 0:
                         ax.plot(x[idx_p], y[idx_p, p].flatten(), label=commands[0][p][0],
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
@@ -447,17 +450,16 @@ class Tensor():
                         horizontalalignment='right', verticalalignment='top')
                 ax.set_ylim(y_range)
 
-        if added_plot == False:
-            fig.supylabel('{} ({})'.format(self.type.capitalize(), self.unit),
-                          fontsize=fontsize)
-            if x_axis == 'potential':
-                fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
-            elif x_axis == 'carrier':
-                fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
-            else:
-                fig.supxlabel('Temperature (K)', fontsize=fontsize)
-            if add_title == True:
-                fig.suptitle(self.type)
+        fig.supylabel('{} ({})'.format(self.type.capitalize(), self.unit),
+                      fontsize=fontsize)
+        if x_axis == 'potential':
+            fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
+        elif x_axis == 'carrier':
+            fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
+        else:
+            fig.supxlabel('Temperature (K)', fontsize=fontsize)
+        if add_title == True:
+            fig.suptitle(self.type, fontsize=fontsize)
 
         return fig
 
@@ -508,5 +510,5 @@ class Distribution():
         """
         from CRYSTALpytools.crystal_io import Properties_output
 
-        return Properties_output(output).read_transport(file)
+        return Properties_output(output).read_transport(boltztra_out)
 
