@@ -1278,6 +1278,12 @@ def plot_transport_tensor(
         comparison. In this case ``direction`` does not accept list variables,
         and entries of ``plot_series`` will be plotted into subplots.
 
+    .. note::
+
+        Make sure all the entries are from the same calculation when using
+        'power factor' or 'zt' options. The code only checks the
+        dimensionalities of tensors.
+
     X-axis options:
 
     1. X_axis: Chemical potential :math:`\\mu`; Plot series: Temperature :math:`T`.  
@@ -1398,6 +1404,7 @@ def plot_transport_tensor(
         if plot_series == []:
             series = series_tot
         else:
+            plot_series = np.array(plot_series, ndmin=1)
             series = []
             for p in plot_series:
                 if len(np.where(series_tot==p)[0]) == 0:
@@ -1422,9 +1429,10 @@ def plot_transport_tensor(
 
         # direction
         if objs[0].data.shape[2] == 9:
-            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yy' : 3, 'yz' : 4, 'zz' : 5}
+            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx': 1, 'yy' : 3, 'yz' : 4,
+                       'zx' : 2, 'zy' : 4, 'zz' : 5}
         else:
-            indices = {'xx' : 0, 'xy' : 1, 'yy' : 2}
+            indices = {'xx' : 0, 'xy' : 1, 'yx' : 1, 'yy' : 2}
 
         for o in objs:
             if objs[0].data.shape[2] != o.data.shape[2]:
@@ -2998,7 +3006,8 @@ def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
 def plot_cry_band(bands, k_labels=[], energy_range=[], title=None, not_scaled=True,
                   mode='single', linestl='-', linewidth=1, color='blue',
                   fermi='forestgreen', k_range=[], labels=None, figsize=[6.4, 4.8],
-                  scheme=None, sharex=True, sharey=True, fermiwidth=1.5, fermialpha=1):
+                  scheme=None, sharex=True, sharey=True, fermiwidth=1.5, fermialpha=1,
+                  fontsize=12):
     """
     Deprecated. Use ``plot_electron_bands``.
     """
@@ -3087,7 +3096,7 @@ def plot_cry_es(bands, doss, k_labels=[], color_bd='blue', color_doss='blue',
     warnings.warn("You are calling a deprecated function. Use 'plot_electron_banddos' instead.",
                   stacklevel=2)
 
-    fig = plot_cry_es(
+    fig = plot_electron_banddos(
         bands, doss, k_label=k_labels, dos_beta=dos_beta, dos_prj=prj,
         energy_range=energy_range, dos_range=dos_range, band_color=color_bd,
         band_linestyle=linestl_bd, band_linewidth=linewidth, dos_label=labels,
@@ -3111,7 +3120,7 @@ def plot_dens_ECHG(obj_echg, unit='Angstrom',  xticks=5,
     else:
         levels = 150
     fig = plot_ECHG(obj_echg, unit=unit, levels=levels, option='charge',
-                    xticks=xticks, yticks=yticks)
+                    x_ticks=xticks, y_ticks=yticks)
     return fig, fig.axes
 
 
@@ -3130,7 +3139,7 @@ def plot_spin_ECHG(obj_echg, unit='Angstrom', levels=150, xticks=5,
     else:
         levels = 150
     fig = plot_ECHG(obj_echg, unit=unit, levels=levels, option='spin',
-                    xticks=xticks, yticks=yticks)
+                    x_ticks=xticks, y_ticks=yticks)
     return fig, fig.axes
 
 
@@ -3154,5 +3163,193 @@ def plot_cry_contour_differences(contour_obj, contour_obj_ref):
     warnings.warn("You are calling a deprecated function. Use 'plot_topond2D' instead.",
                   stacklevel=2)
     return plot_topond2D(contour_obj, contour_obj_ref, option='diff')
+
+
+def plot_cry_seebeck_potential(seebeck_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+    if seebeck_obj.type != 'SEEBECK':
+        raise TypeError('Not a SEEBECK object.')
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(seebeck_obj, x_axis='potential', direction=dir)
+    return fig
+
+
+def plot_cry_seebeck_carrier(seebeck_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+    if seebeck_obj.type != 'SEEBECK':
+        raise TypeError('Not a SEEBECK object.')
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(seebeck_obj, x_axis='carrier', direction=dir)
+    return fig
+
+
+def plot_cry_multiseebeck(*seebeck):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz\n')
+    dir = dir[-2:].lower()
+
+    objs = []
+    for s in seebeck:
+        if s.type == 'SEEBECK':
+            objs.append(s)
+        else:
+            raise TypeError("Input not a SEEBECK object.")
+
+    fig = plot_transport_tensor(*objs, option='multi', x_range=[minpot, maxpot],
+                                direction=dir, plot_series=objs[0].T[k])
+    return fig
+
+
+def plot_cry_sigma_potential(sigma_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    if sigma_obj.type != 'SIGMA':
+        raise TypeError('Not a SIGMA object.')
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(sigma_obj, x_axis='potential', direction=dir)
+    return fig
+
+
+def plot_cry_sigma_carrier(sigma_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    if sigma_obj.type != 'SIGMA':
+        raise TypeError('Not a SIGMA object.')
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(sigma_obj, x_axis='carrier', direction=dir)
+
+
+def plot_cry_multisigma(*sigma):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    k = int(input('Insert the index of temperature you want to plot \n(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2])'))
+    minpot = float(input('Insert the lower value of chemical potential you want to plot in eV'))
+    maxpot = float(input('Inser the higher value of chemical potential you want to plot in eV'))
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    objs = []
+    for s in sigma:
+        if s.type == 'SIGMA':
+            objs.append(s)
+        else:
+            raise TypeError("Input not a SIGMA object.")
+
+    fig = plot_transport_tensor(*objs, option='multi', x_range=[minpot, maxpot],
+                                direction=dir, plot_series=objs[0].T[k])
+    return fig
+
+
+def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor', direction=dir)
+    return fig
+
+
+def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor',
+                                direction=dir, x_axis='carrier')
+    return fig
+
+def plot_cry_zt(seebeck_obj, sigma_obj):
+    """
+    Deprecated. Use ``plot_transport_tensor``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_transport_tensor' instead.",
+                  stacklevel=2)
+    warnings.warn("The y axis captions will be displayed in Power Factor. The plot is divided by Kappa.")
+
+    ktot = float(input('Please insert the value of ktot in WK-1m-1'))
+    dir = input('Please, choose the direction you want to plot. \nYou can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz\n')
+    dir = dir[-2:].lower()
+    print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
+
+    for irow in range(len(sigma_obj.T)):
+        sigma_obj.data[irow] = sigma_obj.data[irow] * sigma_obj.T[irow]
+    sigma_obj.data = sigma_obj.data / ktot
+    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor', direction=dir)
+    return fig
 
 

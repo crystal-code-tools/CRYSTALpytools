@@ -62,6 +62,13 @@ class Tensor():
             Make sure all the entries are from the same calculation. The code
             only checks the dimensionalities of tensors.
 
+        .. note::
+
+            For 'SEEBECK', all the 9 elements of the tensor was printed. As far
+            as the developers have been aware of, it is symmetrized. Therefore
+            the redundant 'yx', 'zx' and 'zy' dimensions are removed to keep
+            consistent with other outputs.
+
         Args:
             file (str): 'DAT' files by CRYSTAL BOLTZTRA keyword. Extendable
                 only when ``method='power factor'`` or ``method='zt'``.
@@ -119,7 +126,6 @@ class Tensor():
             cls (Tensor): 'POWERFACTOR' type of object, in 'W/m/K^2'.
         """
         if obj1.data.shape != obj2.data.shape:
-            print(obj1.data.shape, obj2.data.shape)
             raise Exception("Inconsistent shapes for input objects.")
 
         if obj1.type == 'SEEBECK' and obj2.type == 'SIGMA':
@@ -286,9 +292,10 @@ class Tensor():
 
         # directions (number of subplots)
         if self.data.shape[2] == 9:
-            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yy' : 3, 'yz' : 4, 'zz' : 5}
+            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx': 1, 'yy' : 3, 'yz' : 4,
+                       'zx' : 2, 'zy' : 4, 'zz' : 5}
         else:
-            indices = {'xx' : 0, 'xy' : 1, 'yy' : 2}
+            indices = {'xx' : 0, 'xy' : 1, 'yx' : 1, 'yy' : 2}
 
         direction = np.array(direction, ndmin=1)
         try:

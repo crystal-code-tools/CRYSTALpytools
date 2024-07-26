@@ -2861,6 +2861,13 @@ class Properties_output(POutBASE):
         geometry information is not required, it is saved if the standard
         output file is given.
 
+        .. note::
+
+            For 'SEEBECK', all the 9 elements of the tensor was printed. As far
+            as the developers have been aware of, it is symmetrized. Therefore
+            the redundant 'yx', 'zx' and 'zy' dimensions are removed to keep
+            consistent with other outputs.
+
         Args:
             boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
 
