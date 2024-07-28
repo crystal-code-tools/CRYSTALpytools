@@ -200,7 +200,7 @@ class Surf(ChargeDensity):
         # plot surf first
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         fig = plot_2Dscalar(
-            fig, ax, self.data, self.base, levels, contourline, isovalues, colormap,
+            fig, ax, self.data[:,:,0], self.base, levels, contourline, isovalues, colormap,
             cbar_label, a_range, b_range, False, edgeplot, x_ticks, y_ticks
         )
         title = self.type

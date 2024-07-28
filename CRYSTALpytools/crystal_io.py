@@ -2641,7 +2641,7 @@ class Properties_output(POutBASE):
                 istraj = True
 
         if issurf == True:
-            _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topondfile)
+            _, a, b, c, _, _, map, unit = TOPONDParser.contour2D(topondfile)
             if not hasattr(self, 'file_name'):
                 warnings.warn('Properties output file not found: Geometry not available',
                               stacklevel=2)
@@ -2653,7 +2653,7 @@ class Properties_output(POutBASE):
                 # no atom plot currently, though read method is given
                 _, base = super().get_topond_geometry()
             # class instantiation
-            obj = Surf(map1, base, struc, type=type, unit=unit)
+            obj = Surf(map, base, struc, type=type, unit=unit)
             obj._set_unit('Angstrom')
 
         elif istraj == True:
@@ -2672,17 +2672,28 @@ class Properties_output(POutBASE):
         setattr(self, type, obj)
         return getattr(self, type)
 
-    def read_ECHG(self, *f25_files, method=None):
+    def read_ECHG(self, *f25_files, method='normal'):
         """
         Read charge / spin density data from a file. Unit: :math:`e.\\AA^{-3}`.
 
         Available methods are:
 
+        * 'normal': Normal 1-file reading.  
         * 'substact': Substracting data from the first entry based on following
-            entries. Multiple entries only.  
+            entries. Multiple entries or 1 entry with 'PATO' keyword enabled.
+            For multiple entries, make sure the charge map is in the first (and
+            ideally the only) 'MAPN' data block, otherwise the code won't get
+            the correct data. For 1 entry with 'PATO', data will be substracted
+            from the 'normal' system.  
         * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
             :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
             / spin(:math:`\\alpha-\\beta`). Single entry only.
+
+        .. note::
+
+            The standard screen output is required to identify the indices of
+            corresponding 2D data maps. Otherwise the code only reads the
+            first 2D data map for spin =1 and first 2 maps for spin=2.
 
         Args:
             \*f25_files (str): Path to the fort.25 file(s).
@@ -2693,36 +2704,102 @@ class Properties_output(POutBASE):
         from CRYSTALpytools.base.extfmt import CrgraParser
         from CRYSTALpytools.electronics import ChargeDensity
         import numpy as np
+        import pandas as pd
         import warnings
 
         if isinstance(method, str):
             method = method.lower()
-            if method != 'substract' and method != 'alpha_beta':
+            if method != 'substract' and method != 'alpha_beta' and method != 'normal':
                 raise ValueError("Unknown method: '{}'.".format(method))
 
-        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(f25_files[0])
-        if spin == 1:
-            self.echg = ChargeDensity(map1, np.vstack([a,b,c]), spin, 2, struc, unit)
+        pato = [] # used for method check
+        if not hasattr(self, 'file_name'):
+            warnings.warn('Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).',
+                          stacklevel=2)
+            index = None
         else:
-            self.echg = ChargeDensity(np.dstack([map1, map2]), np.vstack([a,b,c]),
-                                      spin, 2, struc, unit)
-        self.echg._set_unit('Angstrom')
+            df = pd.DataFrame(self.data)
+            headers = df[df[0].str.contains(r'^\s*-%-[0-4]MAPN')].index.to_numpy(dtype=int)
+            chg = df[df[0].str.contains(r'^\s*ALPHA\+BETA ELECTRONS DENSITY')].index.to_numpy(dtype=int)
+            spin = df[df[0].str.contains(r'^\s*ALPHA\-BETA ELECTRONS DENSITY')].index.to_numpy(dtype=int)
+            pato = df[df[0].str.contains(r'^\s*DENSITY MATRIX AS SUPERPOSITION')].index.to_numpy(dtype=int)
 
+            if len(chg) == 0:
+                raise Exception('Charge density calculation not found in the output file.')
+            elif len(chg) == 1:
+                if len(spin) == 1: # find the header closest to keywords
+                    index = np.array([np.where(headers>chg[0])[0][0], np.where(headers>spin[0])[0][0]],
+                                     dtype=int)
+                    index = np.sort(index)
+                else:
+                    index = np.where(headers>chg[0])[0][0]
+            else:
+                if method == 'substract' and len(pato) == 1 and len(chg) == 2:
+                    ipato = np.where(headers>pato[0])[0][0]
+                    if chg[0] < pato[0]: # density before pato
+                        use_idx = 0
+                    else: # density after pato
+                        use_idx = 1
+                    ichg = np.where(headers>chg[use_idx])[0][0]
+                    if len(spin) != 0:
+                        ispin = np.where(headers>spin[use_idx][0][0])
+                        index = np.array([ipato, ichg, ispin], dtype=int)
+                    else:
+                        index = np.array([ipato, ichg], dtype=int)
+                    index = np.sort(index)
+                else:
+                    warnings.warn(
+                        'Multiple charge densities exist in the calculation. Only the first density map will be read.',
+                        stacklevel=2
+                    )
+                    index = 0
+
+        # read file 0
+        spin, a, b, c, cosxy, struc, map, unit = CrgraParser.mapn(f25_files[0], index)
         # methods
-        if len(f25_files) > 1 and method == 'substract':
-            self.echg = self.echg.substract(*[f for f in f25_files[1:]])
-        elif len(f25_files) > 1 and method != 'substract':
-            warnings.warn("Only the 'substract' method is available to more than 1 entries. Nothing is done to other entries.",
-                          stacklevel=2)
-        elif len(f25_files) == 1 and method == 'substract':
-            warnings.warn("The 'substract' method is used only for multiple entries.",
-                          stacklevel=2)
-        # alpha-beta
-        if method == 'alpha_beta':
-            if len(f25_files) > 1:
-                warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
-                              stacklevel=2)
-            self.echg.alpha_beta()
+        if len(f25_files) == 1 and len(pato) == 1 and method == 'substract': # PATO in the same file
+            if ichg < ipato:
+                if spin == 1:
+                    self.echg = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    self.echg = self.echg.substract(obj)
+                else:
+                    self.echg = ChargeDensity(np.dstack([map[0], map[1]], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit))
+                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    self.echg = self.echg.substract(obj)
+            else:
+                if spin == 1:
+                    self.echg = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    self.echg = self.echg.substract(obj)
+                else:
+                    self.echg = ChargeDensity(np.dstack([map[1], map[2]], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit))
+                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    self.echg = self.echg.substract(obj)
+            self.echg._set_unit('Angstrom')
+            self.echg.data = self.echg.data[::-1] # base vector use BA rather than AB
+        else: # others
+            if spin == 1:
+                self.echg = ChargeDensity(map, np.vstack([a,b,c]), 1, 2, struc, unit)
+            else:
+                if isinstance(cosxy, float):
+                    raise Exception('Broken file: charge / spin density missing for spin polarized systems.')
+                self.echg = ChargeDensity(np.dstack([map[0], map[1]]), np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+            self.echg._set_unit('Angstrom')
+            self.echg.data = self.echg.data[::-1] # base vector use BA rather than AB
+            if method == 'alpha_beta':
+                if len(f25_files) > 1:
+                    warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
+                                  stacklevel=2)
+                elif spin != 2:
+                    warnings.warn("Not a spin-polarized system, do nothing", stacklevel=2)
+                else:
+                    self.echg.alpha_beta()
+            elif method == 'substract':
+                if len(f25_files) > 1:
+                    self.echg = self.echg.substract(*[f for f in f25_files[1:]])
+                else:
+                    warnings.warn("Nothing to substract.", stacklevel=2)
 
         return self.echg
 

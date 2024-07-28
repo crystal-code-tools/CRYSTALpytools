@@ -260,22 +260,33 @@ class CStructure(Structure):
             **conventional** atomic numbers.
         symmetry_group (int): Symmetry group number or symbol in CRYSTAL
             convention.
+        pbc (list|tuple): Periodicity.
+        standarize (bool): Whether to use the CRYSTAL convention of periodic
+            boundaries for low dimensional materials. It calls the
+            ``standarize_pbc()`` method.
         \*\*kwargs: Other arguments passed to pymatgen Structure.
     Returns:
         self (CStructure): ``CStructure`` object.
     """
     def __init__(self, lattice, species, coords, symmetry_group=1,
-                 standarize=False, **kwargs):
+                 pbc=(True, True, True), standarize=False, **kwargs):
         import numpy as np
         from mendeleev import element
+        from pymatgen.core.lattice import Lattice
 
+        # conventional atomic number
         if isinstance(species[0], int) or isinstance(species[0], float):
             zconv = [int(i) for i in species]
             species = [element(int(i % 100)).symbol for i in zconv]
         else:
             zconv = []
-
-        kwargs['lattice'] = lattice
+        # PBC
+        if isinstance(lattice, Lattice):
+            latt = Lattice(lattice.matrix, pbc=pbc)
+        else:
+            latt = Lattice(lattice, pbc=pbc)
+        # structure
+        kwargs['lattice'] = latt
         kwargs['species'] = species
         kwargs['coords'] = coords
         super().__init__(**kwargs)
@@ -284,6 +295,9 @@ class CStructure(Structure):
             self._species_Z = [i.Z for i in self.species]
         else:
             self._species_Z = zconv
+        # standarization
+        if standarize == True:
+            self.standarize_pbc()
 
     @classmethod
     def from_pmg(cls, struc):

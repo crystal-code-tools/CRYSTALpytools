@@ -31,6 +31,11 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
     * 'diff': Substracting charge data from the first entry with the following
         entries. Return to a non spin-polarized object.  
 
+    .. note::
+
+        If file names are given, the code only reads the first 2D data map in
+        fort.25 files.
+
     Args:
         \*echg (ChargeDensity|str): Extendable. File names or
             ``electronics.ChargeDensity`` objects.
@@ -90,10 +95,8 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         spin_range = []
         chg_range = []
         for i in obj:
-            if i.spin == 1:
-                chg_range.append([np.min(i.data), np.max(i.data)])
-            else:
-                chg_range.append([np.min(i.data[:, :, 0]), np.max(i.data[:, :, 0])])
+            chg_range.append([np.min(i.data[:, :, 0]), np.max(i.data[:, :, 0])])
+            if i.spin == 2:
                 spin_range.append([np.min(i.data[:, :, 1]), np.max(i.data[:, :, 1])])
         if spin_range == []:
             levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)

@@ -479,7 +479,7 @@ class ChargeDensity():
     developing.
 
     Args:
-        data (array): Plot data. nX\*nY\*nSpin or nX\*nY\*nZ\*nSpin
+        data (array): Plot data. nY\*nX\*nSpin (2D).
         base (array): 3\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC (2D) or 3 base vectors (3D)
         spin (int): 1 or 2.
@@ -501,11 +501,17 @@ class ChargeDensity():
         self.type = 'ECHG' # Hidden for charge density plot. Useful for TOPOND child class
 
     @classmethod
-    def from_file(cls, *files, method=None):
+    def from_file(cls, *files, output=None, method='normal'):
         """
         Generate a ``ChargeDensity`` object from a single file, or from multiple
         files by substracting values from the first entry. Can be used for
         multiple dimensions (2D only now. 3D under development.)
+
+        .. note::
+
+            The standard screen output is required to identify the indices of
+            corresponding 2D data maps. Otherwise the code only reads the
+            first 2D data map.
 
         Available methods are:
 
@@ -527,7 +533,7 @@ class ChargeDensity():
         header = file.readline()
         file.close()
         if '-%-' in header: # 2D plot in fort.25
-            cls = Properties_output().read_ECHG(*files, method=method)
+            cls = Properties_output(output).read_ECHG(*files, method=method)
         return cls
 
     def substract(self, *args):
@@ -545,7 +551,7 @@ class ChargeDensity():
 
         for i in args:
             if isinstance(i, str):
-                obj = Properties_output().read_ECHG(i, method=None)
+                obj = Properties_output().read_ECHG(i, method='normal')
             elif isinstance(i, ChargeDensity):
                 obj = i
             else:
@@ -561,9 +567,8 @@ class ChargeDensity():
             if self.dimension != obj.dimension:
                 raise ValueError('Inconsistent dimensionality between input and object.')
             # mesh grid
-            for i in range(self.dimension):
-                if self.data.shape[i] != obj.data.shape[i]:
-                    raise ValueError('Inconsistent mesh grid between input and object.')
+            if self.data.shape != obj.data.shape:
+                raise ValueError('Inconsistent mesh grid between input and object.')
             # spin
             if self.spin != obj.spin:
                 raise ValueError('Inconsistent spin dimensionalities between input and object.')
@@ -578,7 +583,9 @@ class ChargeDensity():
                 chglen = chglen * s
             chglen = int(chglen)
             self.data = self.data.flatten(order='F')[:chglen]
-            self.data = np.reshape(self.data, oshape[:-1])
+            nshape = [i for i in oshape[:-1]]
+            nshape.append(1)
+            self.data = np.reshape(self.data, nshape, order='F')
             self.spin = 1
         return self
 
@@ -669,6 +676,7 @@ class ChargeDensity():
         from CRYSTALpytools.base.plotbase import plot_2Dscalar
         import numpy as np
         import matplotlib.pyplot as plt
+        import warnings
 
         # dimen
         if self.dimension != 2:
@@ -685,14 +693,10 @@ class ChargeDensity():
                 levels1 = np.linspace(np.min(self.data), np.max(self.data), int(levels))
                 levels2 = levels1
             else:
-                len_flat = 1
-                for i in self.data.shape[:-1]:
-                    len_flat = len_flat * i
-                chg = self.data.flatten(order='F')[:len_flat]
-                spin = self.data.flatten(order='F')[len_flat:]
-                levels1 = np.linspace(np.min(chg), np.max(chg), levels)
-                levels2 = np.linspace(np.min(spin), np.max(spin), levels)
-                del chg, spin
+                levels1 = np.linspace(np.min(self.data[:,:,0]),
+                                      np.max(self.data[:,:,0]), levels)
+                levels2 = np.linspace(np.min(self.data[:,:,1]),
+                                      np.max(self.data[:,:,1]), levels)
         else:
             levels = np.array(levels, dtype=float, ndmin=2)
             if levels.shape[0] == 1:
@@ -722,9 +726,9 @@ class ChargeDensity():
         else:
             cbar_label = np.array(cbar_label, ndmin=1)
             if cbar_label.shape[0] > 1:
-                cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1]; 
+                cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1];
             else:
-                cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)
+                cbar_label1 = str(cbar_label[0]); cbar_label2 = str(cbar_label[0])
 
         # plot
         ## spin
@@ -748,18 +752,11 @@ class ChargeDensity():
             )
         elif option.lower() == 'charge':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
-            if self.spin == 1:
-                fig = plot_2Dscalar(
-                    fig, ax, self.data[:, :], self.base, levels1, chgline,
-                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    edgeplot, x_ticks, y_ticks, **kwargs
-                )
-            else:
-                fig = plot_2Dscalar(
-                    fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
-                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    edgeplot, x_ticks, y_ticks,  **kwargs
-                )
+            fig = plot_2Dscalar(
+                fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
+                isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                edgeplot, x_ticks, y_ticks,  **kwargs
+            )
         elif option.lower() == 'spin':
             fig, ax = plt.subplots(1, 1, figsize=figsize)
             fig = plot_2Dscalar(
