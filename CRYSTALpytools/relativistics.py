@@ -57,7 +57,7 @@ class VectorField():
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
-                ``b_range``, that refers to the old :math:`b`.
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
             edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
@@ -69,6 +69,9 @@ class VectorField():
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
             \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
+
+        Returns:
+            fig (Figure): Matplotlib Figure class.
         """
         from CRYSTALpytools.base.plotbase import plot_2Dscalar, plot_2Dvector
         import numpy as np
@@ -90,11 +93,12 @@ class VectorField():
 
         # plot
         if np.all(fig==None):
-            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            fig, ax = plt.subplots(1, 1, figsize=figsize, layout='constrained')
             axes = fig.axes
         else:
             if np.all(ax_index==None):
                 raise ValueError("Indices of axes must be set when 'fig' is not None.")
+            ax_index = np.array(ax_index, dtype=int, ndmin=1)
             axes = [fig.axes[i] for i in ax_index]
 
         for ax in axes:
@@ -148,6 +152,22 @@ class Magnetization(VectorField):
         self.unit = unit
         self.type = 'MAGNETIZ'
 
+    @classmethod
+    def from_file(cls, file, output):
+        """
+        Generate a ``Magentization`` object from CRYSTAL formatted output unit
+        and standard screen output (mandatory).
+
+        Args:
+            file (str): File name of fort.25 or CUBE (in development) files.
+            output (str): Screen output of 'properties' calculation.
+        Returns:
+            cls (Magnetization)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        return Properties_output(output).read_relativistics(file, type='MAGNETIZ')
+
     def plot_2D(self, unit='SI', levels=100, quiverplot=True, quiverscale=1.0,
                 colorplot=True, colormap='jet', cbar_label='default', a_range=[],
                 b_range=[], rectangle=False, edgeplot=False, x_ticks=5,
@@ -185,7 +205,7 @@ class Magnetization(VectorField):
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
-                ``b_range``, that refers to the old :math:`b`.
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
             edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
@@ -199,6 +219,9 @@ class Magnetization(VectorField):
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
             \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
+
+        Returns:
+            fig (Figure): Matplotlib Figure class.
         """
         # unit
         uold = self.unit
@@ -227,13 +250,18 @@ class Magnetization(VectorField):
                 y_ticks, figsize, **kwargs
             )
             ax_index = [0]
-        # title
-        if isinstance(title, str):
-            if title.lower() == 'default':
-                title = 'Magnetization'
-            for iax in ax_index:
+        # title and axis labels
+        for iax in ax_index:
+            if self.unit.lower() == 'si':
+                fig.axes[iax].set_xlabel(r'$\AA$')
+                fig.axes[iax].set_ylabel(r'$\AA$')
+            else:
+                fig.axes[iax].set_xlabel('Bohr')
+                fig.axes[iax].set_ylabel('Bohr')
+            if isinstance(title, str):
+                if title.lower() == 'default':
+                    title = 'Magnetization'
                 fig.axes[iax].set_title(title)
-
         # restore old unit
         self._set_unit(uold)
         return fig
@@ -293,6 +321,120 @@ class OrbitalCurrentDensity(VectorField):
         self.structure = struc
         self.unit = unit
         self.type = 'ORBCURDENS'
+
+    @classmethod
+    def from_file(cls, file, output):
+        """
+        Generate a ``OrbitalCurrentDensity`` object from CRYSTAL formatted
+        output unit and standard screen output (mandatory).
+
+        Args:
+            file (str): File name of fort.25 or CUBE (in development) files.
+            output (str): Screen output of 'properties' calculation.
+        Returns:
+            cls (OrbitalCurrentDensity)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        return Properties_output(output).read_relativistics(file, type='ORBCURDENS')
+
+    def plot_2D(self, unit='SI', levels=100, quiverplot=True, quiverscale=1.0,
+                colorplot=True, colormap='jet', cbar_label='default', a_range=[],
+                b_range=[], rectangle=False, edgeplot=False, x_ticks=5,
+                y_ticks=5, title='default', figsize=[6.4, 4.8],
+                fig=None, ax_index=None, **kwargs):
+        """
+        Plot 2D orbital current density field.
+
+        3 styles are available:
+
+        1. ``quiverplot=True`` and ``colorplot=True``: The color-filled contour
+            illustrates the norm of vectors. The black arrows indicates both
+            the directions and norms of in-plane prjections.  
+        2. ``quiverplot=True`` and ``colorplot=False``: The arrows are colored
+            to indicate the directions and norms of in-plane prjections.  
+        3. ``quiverplot=False`` and ``colorplot=True``: The color-filled contour
+            illustrates the norm of vectors, similar to the 2D scalar map.
+
+        Args:
+            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m:math:`^{2}`.
+                'a.u.' for Bohr and a.u. current density.
+            levels (int|array): Set levels of colored contour/quiver plot. A
+                number for linear scaled plot colors or an array for
+                user-defined levels. 1D.
+            quiverplot (bool): Plot 2D field of arrows.
+            quiverscale (float): Tune the length of arrows. Useful only if
+                ``quiverplot=True``.
+            colorplot (bool): Plot color-filled contour plots.
+            colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
+            cbar_label (str|None): Label of colorbar. 'default' for unit.
+                'None' for no label. Useful only if ``colorplot=True``.
+            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+                fractional coordinate.
+            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+                fractional coordinate.
+            rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
+                rectangle region and reset :math:`b`. If used together with
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
+            edgeplot (bool): Whether to add cell edges represented by the
+                original base vectors (not inflenced by a/b range or rectangle
+                options).
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
+            title (str|None): Plot title. 'default' for proeprty plotted.
+                'None' for no title.
+            figsize (list): Matplotlib figure size. Note that axes aspects are
+                fixed to be equal.
+            fig (Figure): *Developer Only*, matplotlib Figure class.
+            ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
+            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+                to set arrow styles.
+
+        Returns:
+            fig (Figure): Matplotlib Figure class.
+        """
+        # unit
+        uold = self.unit
+        if self.unit.lower() != unit.lower():
+            self._set_unit(unit)
+        # cbar_label
+        if isinstance(cbar_label, str):
+            if cbar_label.lower() == 'default':
+                if self.unit.lower() == 'si':
+                    cbar_label = r'Unit: A/m$^{2}$'
+                else:
+                    cbar_label = 'Unit: a.u.'
+        else:
+            cbar_label = None
+        # figure
+        if np.all(fig!=None):
+            fig = super().plot_2D(
+                levels, quiverplot, quiverscale, colorplot, colormap,
+                cbar_label, a_range, b_range, rectangle, edgeplot, x_ticks,
+                y_ticks, figsize, fig, ax_index, **kwargs
+            )
+        else:
+            fig = super().plot_2D(
+                levels, quiverplot, quiverscale, colorplot, colormap,
+                cbar_label, a_range, b_range, rectangle, edgeplot, x_ticks,
+                y_ticks, figsize, **kwargs
+            )
+            ax_index = [0]
+        # title and axis labels
+        for iax in ax_index:
+            if self.unit.lower() == 'si':
+                fig.axes[iax].set_xlabel(r'$\AA$')
+                fig.axes[iax].set_ylabel(r'$\AA$')
+            else:
+                fig.axes[iax].set_xlabel('Bohr')
+                fig.axes[iax].set_ylabel('Bohr')
+            if isinstance(title, str):
+                if title.lower() == 'default':
+                    title = 'Orbital Current Density'
+                fig.axes[iax].set_title(title)
+        # restore old unit
+        self._set_unit(uold)
+        return fig
 
     def _set_unit(self, unit):
         """
@@ -355,6 +497,140 @@ class SpinCurrentDensity(VectorField):
         self.structure = struc
         self.unit = unit
         self.type = 'SPICURDENS'
+
+    @classmethod
+    def from_file(cls, file, output):
+        """
+        Generate a ``SpinCurrentDensity`` object from CRYSTAL formatted output
+        unit and standard screen output (mandatory).
+
+        Args:
+            file (str): File name of fort.25 or CUBE (in development) files.
+            output (str): Screen output of 'properties' calculation.
+        Returns:
+            cls (SpinCurrentDensity)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        return Properties_output(output).read_relativistics(file, type='SPICURDENS')
+
+    def plot_2D(self, unit='SI', direction=['x','y','z'], levels=100,
+                quiverplot=True, quiverscale=1.0, colorplot=True, colormap='jet',
+                cbar_label='default', a_range=[], b_range=[], rectangle=False,
+                edgeplot=False, x_ticks=5, y_ticks=5, title='default',
+                figsize=[6.4, 4.8], fig=None, ax_index=None, **kwargs):
+        """
+        Plot 2D orbital current density field.
+
+        3 styles are available:
+
+        1. ``quiverplot=True`` and ``colorplot=True``: The color-filled contour
+            illustrates the norm of vectors. The black arrows indicates both
+            the directions and norms of in-plane prjections.  
+        2. ``quiverplot=True`` and ``colorplot=False``: The arrows are colored
+            to indicate the directions and norms of in-plane prjections.  
+        3. ``quiverplot=False`` and ``colorplot=True``: The color-filled contour
+            illustrates the norm of vectors, similar to the 2D scalar map.
+
+        Args:
+            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m:math:`^{2}`.
+                'a.u.' for Bohr and a.u. current density.
+            direction (str|list): Direction of spin-current to plot, in 'x', 'y' or 'z'.
+            levels (int|array): Set levels of colored contour/quiver plot. A
+                number for linear scaled plot colors or an array for
+                user-defined levels. 1D.
+            quiverplot (bool): Plot 2D field of arrows.
+            quiverscale (float): Tune the length of arrows. Useful only if
+                ``quiverplot=True``.
+            colorplot (bool): Plot color-filled contour plots.
+            colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
+            cbar_label (str|None): Label of colorbar. 'default' for unit.
+                'None' for no label. Useful only if ``colorplot=True``.
+            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+                fractional coordinate.
+            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+                fractional coordinate.
+            rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
+                rectangle region and reset :math:`b`. If used together with
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
+            edgeplot (bool): Whether to add cell edges represented by the
+                original base vectors (not inflenced by a/b range or rectangle
+                options).
+            x_ticks (int): Number of ticks on x axis.
+            y_ticks (int): Number of ticks on y axis.
+            title (str|None): Plot title. 'default' for proeprty plotted.
+                'None' for no title.
+            figsize (list): Matplotlib figure size. Note that axes aspects are
+                fixed to be equal.
+            fig (Figure): *Developer Only*, matplotlib Figure class.
+            ax_index (list[int]): *Developer Only*, indices of axes in
+                ``fig.axes``. Must be consistent with length of ``direction``.
+            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+                to set arrow styles.
+
+        Returns:
+            fig (Figure): Matplotlib Figure class.
+        """
+        import matplotlib.pyplot as plt
+
+        # unit
+        uold = self.unit
+        if self.unit.lower() != unit.lower():
+            self._set_unit(unit)
+        # cbar_label
+        if isinstance(cbar_label, str):
+            if cbar_label.lower() == 'default':
+                if self.unit.lower() == 'si':
+                    cbar_label = r'Unit: A/m$^{2}$'
+                else:
+                    cbar_label = 'Unit: a.u.'
+        else:
+            cbar_label = None
+        # direction
+        props = {'x' : 'data_x', 'y' : 'data_y', 'z' : 'data_z'}
+        direction = np.array(direction, ndmin=1)
+        if len(direction) > 3:
+            raise ValueError("At maximum a 1*3 list of string should be specified.")
+        for id in range(len(direction)):
+            direction[id] = direction[id].lower()
+            if direction[id] not in ['x', 'y', 'z']:
+                raise ValueError("Unknown direction entry: '{}'.".format(direction[id]))
+        # figure
+        if np.all(fig!=None):
+            ax_index = np.array(ax_index, dtype=int, ndmin=1)
+            if len(ax_index) != len(direction):
+                raise ValueError("Inconsistent lengthes of 'direction 'and 'ax_index'.")
+        else:
+            fig, ax = plt.subplots(1, len(direction), figsize=figsize,
+                                   sharex=True, sharey=True, layout='constrained')
+            ax_index = [i for i in range(len(direction))]
+
+        for id, d in enumerate(direction):
+            setattr(self, 'data', getattr(self, props[d])) # add data_x/y/z as 'data' attr
+            fig = super().plot_2D(
+                levels, quiverplot, quiverscale, colorplot, colormap, cbar_label,
+                a_range, b_range, rectangle, edgeplot, x_ticks, y_ticks, figsize,
+                fig, ax_index[id], **kwargs)
+            delattr(self, 'data')
+
+        # title and axis labels
+        for iax, ax in enumerate(ax_index):
+            if self.unit.lower() == 'si':
+                fig.axes[ax].set_xlabel(r'$\AA$')
+                fig.axes[ax].set_ylabel(r'$\AA$')
+            else:
+                fig.axes[ax].set_xlabel('Bohr')
+                fig.axes[ax].set_ylabel('Bohr')
+            if isinstance(title, str):
+                if title.lower() == 'default':
+                    ntitle = 'Spin Current Density J{}'.format(direction[iax])
+                else:
+                    ntitle = title
+                fig.axes[ax].set_title(ntitle)
+
+        # restore old unit
+        self._set_unit(uold)
+        return fig
 
     def _set_unit(self, unit):
         """

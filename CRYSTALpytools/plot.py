@@ -61,7 +61,7 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
-            refers to the old :math:`b`.
+            refers to the old :math:`b`(i.e., expansion first).
         edgeplot (bool): Whether to add cell edges represented by the original
             base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
@@ -128,6 +128,167 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
     return figs
 
 #----------------------------------SPIN CURRENTS------------------------------#
+
+def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','y','z'],
+                         levels=100, quiverplot=True, quiverscale=1.0,
+                         colorplot=True, colormap='jet', cbar_label='default',
+                         a_range=[], b_range=[], rectangle=False, edgeplot=False,
+                         x_ticks=5, y_ticks=5, layout=None, title=None,
+                         figsize=[6.4, 4.8], sharex=True, sharey=True, **kwargs):
+    """
+    Plot 2D vector field properties from relativistics (2c-SCF) calculations.
+
+    3 styles are available:
+
+    1. ``quiverplot=True`` and ``colorplot=True``: The color-filled contour
+        illustrates the norm of vectors. The black arrows indicates both the
+        directions and norms of in-plane prjections.  
+    2. ``quiverplot=True`` and ``colorplot=False``: The arrows are colored to
+        indicate the directions and norms of in-plane prjections.  
+    3. ``quiverplot=False`` and ``colorplot=True``: The color-filled contour
+        illustrates the norm of vectors, similar to the 2D scalar map.
+
+    .. note::
+
+        Not for charge density (``relativistics.ChargeDensity``). To visualize
+        it, use ``plot_ECHG``.
+
+    Args:
+        \*relat (str|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity|):
+            extendable input of vector field classes, or input files.
+        unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m (A/m:math:`^{2}`).
+            'a.u.' for Bohr and a.u. magnetization / current density.
+        type (str|list[str]): Properties to plot. Either as a string or a list
+            of strings consistent with input filenames. If a list of types and
+            a single file is given, read all the types from the input file. In
+            other cases error would be given.
+        output (str|list[str]): Output files corresponding to the input data
+            file. String for the same output of all the files and list for
+            every input file.
+        direction (list[str]|str): Only for ``SpinCurrentDensity`` classes.
+            Direction of spin-current to plot, in 'x', 'y' or 'z'. Applied to
+            all the ``SpinCurrentDensity`` objects.
+        levels (int|array): Set levels of colored contour/quiver plot. A number
+            for linear scaled plot colors or an array for user-defined levels. 1D.
+        quiverplot (bool): Plot 2D field of arrows.
+        quiverscale (float): Tune the length of arrows. Useful only if ``quiverplot=True``.
+        colorplot (bool): Plot color-filled contour plots.
+        colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
+        cbar_label (str|None): Label of colorbar. 'default' for unit. 'None'
+            for no label. Useful only if ``colorplot=True``.
+        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
+        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
+            region and reset :math:`b`. If used together with ``b_range``, that
+            refers to the old :math:`b` (i.e., expansion first).
+        edgeplot (bool): Whether to add cell edges represented by the original
+            base vectors (not inflenced by a/b range or rectangle options).
+        x_ticks (int): Number of ticks on x axis.
+        y_ticks (int): Number of ticks on y axis.
+        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
+            2 cols per row.
+        title (str|None): The title of the plot. 'None' for no title. The
+            default subplot titles are used.
+        figsize (list): Matplotlib figure size. Note that axes aspects are
+            fixed to be equal.
+        sharex (bool): Whether to share the x-axis among subplots.
+        sharey (bool): Whether to share the y-axis among subplots.
+        fontsize (int): Fontsize of the heightest level of title.
+        \*\*kwargs : Other arguments passed to ``axes.quiver()`` function to
+            set arrow styles. Applied to all the subplots.
+
+        Returns:
+            fig (Figure): Matplotlib Figure class.
+    """
+    from CRYSTALpytools.relativistics import ChargeDensity, Magnetization, \
+                                             OrbitalCurrentDensity,SpinCurrentDensity
+    import numpy as np
+    from CRYSTALpytools.crystal_io import Properties_output
+    import matplotlib.pyplot as plt
+    import warnings
+
+    type = np.array(type, ndmin=1)
+    if len(type) == 1: # same type for all the inputs
+        type = np.repeat(type, len(relat))
+    output = np.array(output, ndmin=1)
+    if len(output) == 1: # same output for all the inputs
+        output = np.repeat(output, len(relat))
+
+    objs = []
+    if len(relat) == 1: # single input, allow for multiple types.
+        if isinstance(relat[0], str):
+            if len(output) == 0:
+                raise ValueError("Outputs must be set for input files. Otherwise use input objects.")
+            for t in type:
+                objs.append(Properties_output(output[0]).read_relativistics(relat[0], t))
+        elif isinstance(relat[0], Magnetization) \
+        or isinstance(relat[0], OrbitalCurrentDensity) \
+        or isinstance(relat[0], SpinCurrentDensity):
+            objs = [relat[0]]
+        elif isinstance(relat[0], ChargeDensity):
+            raise TypeError("Use 'plot_ECHG' for charge densities from 2c-SCF calulations.")
+        else:
+            raise TypeError('Unknown input type.')
+    else: # multiple inputs.
+        countstr = 0
+        for r in relat:
+            if isinstance(r, str):
+                if len(output) == 0:
+                    raise ValueError("Indices must be set for input files. Otherwise use input objects.")
+                if countstr >= len(type) or countstr >= len(output):
+                    raise ValueError("Inconsistent length of input file name and output / type.")
+                objs.append(
+                    Properties_output(output[countstr]).read_relativistics(r, type=type[countstr])
+                )
+                countstr += 1
+            elif isinstance(r, Magnetization) \
+            or isinstance(r, OrbitalCurrentDensity) \
+            or isinstance(r, SpinCurrentDensity):
+                objs.append(r)
+            elif isinstance(r, ChargeDensity):
+                raise TypeError("Use 'plot_ECHG' for charge densities from 2c-SCF calulations.")
+            else:
+                raise TypeError('Unknown input type.')
+
+    # layout of plots
+    nplt = 0; direction = np.array(direction, ndmin=1)
+    for o in objs:
+        if isinstance(o, SpinCurrentDensity):
+            nplt += len(direction)
+        else:
+            nplt += 1
+
+    if np.all(layout!=None):
+        if layout[0]*layout[1] < nplt:
+            warnings.warn('Layout size smaller than the number of plots. Using default layout.',
+                          stacklevel=2)
+            layout = None
+    if np.all(layout==None):
+        layout = [int(np.ceil(nplt/2)), 2]
+
+    fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
+                           sharex=sharex, sharey=sharey, layout='constrained')
+    # plot
+    ax_index = 0
+    for o in objs:
+        if isinstance(o, SpinCurrentDensity):
+            iax = [ax_index+i for i in range(len(direction))]
+            fig = o.plot_2D(unit, direction, levels, quiverplot, quiverscale,
+                            colorplot, colormap, cbar_label, a_range, b_range,
+                            rectangle, edgeplot, x_ticks, y_ticks, 'default',
+                            figsize, fig, iax, **kwargs)
+            ax_index += len(direction)
+        else:
+            fig = o.plot_2D(unit, levels, quiverplot, quiverscale, colorplot,
+                            colormap, cbar_label, a_range, b_range, rectangle,
+                            edgeplot, x_ticks, y_ticks, 'default', figsize,
+                            fig, [ax_index], **kwargs)
+            ax_index += 1
+    # title
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
+    return fig
+
 
 def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """

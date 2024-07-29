@@ -657,7 +657,7 @@ class ChargeDensity():
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
-                ``b_range``, that refers to the old :math:`b`.
+                ``b_range``, that refers to the old :math:`b`(i.e., expansion first).
             edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
