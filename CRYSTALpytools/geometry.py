@@ -275,7 +275,8 @@ class CStructure(Structure):
         from pymatgen.core.lattice import Lattice
 
         # conventional atomic number
-        if isinstance(species[0], int) or isinstance(species[0], float):
+        if isinstance(species[0], int) or isinstance(species[0], float) \
+        or isinstance(species[0], np.int64) or isinstance(species[0], np.float64):
             zconv = [int(i) for i in species]
             species = [element(int(i % 100)).symbol for i in zconv]
         else:

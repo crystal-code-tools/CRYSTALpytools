@@ -713,6 +713,157 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     from pymatgen.core.lattice import Lattice
     import copy
 
+    # expand and rectangle
+    X, Y, data, a_range, b_range = _manipulate_2D_grid(data, base, a_range, b_range, rectangle)
+
+    # plot, put colormap at the back
+    if np.all(colormap!=None):
+        ax.contourf(X, Y, data, levels, cmap=colormap, vmin=np.min(levels), vmax=np.max(levels))
+        norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
+        m = cm.ScalarMappable(cmap=colormap, norm=norm)
+        m.set_array(levels)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad="5%")
+        colorbar = fig.colorbar(m, cax=cax)
+        if np.all(cbar_label!=None):
+            colorbar.set_label(cbar_label, rotation=270, labelpad=15)
+
+    if np.all(contourline!=None):
+        if len(contourline) != len(levels):
+            raise ValueError('Inconsistent lengthes of contour line and contour line styles')
+        clist = []; stlist = []; wlist = []
+        for i in contourline:
+            clist.append(i[0]); stlist.append(i[1]); wlist.append(i[2])
+
+        L = ax.contour(X, Y, data, levels, colors=clist, linestyles=stlist,
+                       linewidths=wlist, **kwargs)
+        if np.all(isovalue!=None):
+            ax.clabel(L, inline=1, fmt=isovalue)
+
+    # plot plane edges
+    if edgeplot == True:
+        ## get shift: always close to the positive side of the plot
+        xpath, ypath = _get_2D_base_frame(base, a_range, b_range)
+        ax.plot(xpath, ypath,'k-', linewidth=1.0)
+
+    # New ranges due to changes of a b ranges in non-orthogonal axis
+    xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
+    yrange = [np.round(np.min(Y), 2), np.round(np.max(Y), 2)]
+    ax.set_xticks(np.round(np.linspace(xrange[0], xrange[1], xticks), 2))
+    ax.set_yticks(np.round(np.linspace(yrange[0], yrange[1], yticks), 2))
+    ax.set_aspect(1.0)
+    ax.set_xlim(xrange[0], xrange[1])
+    ax.set_ylim(yrange[0], yrange[1])
+    return fig
+
+
+def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cbar_label,
+                  a_range, b_range, rectangle, edgeplot, xticks, yticks, **kwargs):
+    """
+    Plot 2D vector field map.
+
+    Args:
+        fig (Figure): Matplotlib Figure object
+        ax (Axes): Matplotlib Axes object
+        data (array): 2D vector map data, in nY\*nX\*3.
+        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+            2D map. Vectors BA and BC are used.
+        scale (float): Tune the length of arrows.
+        colorquiver (str): Specify the color of arrows or 'colored' for color-
+            coded quiver plots.
+        levels (array): Contour color isovalues. It also defines the range of
+            data. Useful only if ``colorquiver='colored'``.
+        colormap (str|None): Set the colormap of color-filled contour plots.
+            Useful only if ``colorquiver='colored'``.
+        cbar_label (str): Title of colorbar. Useful only if
+            ``colorquiver='colored'``.
+        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
+        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
+            region and reset :math:`b`. If used together with ``b_range``, that
+            refers to the old :math:`b`.
+        edgeplot (bool): Whether to plot plane edges
+        xticks (int): Number of ticks in the x direction.
+        yticks (int): Number of ticks in the y direction.
+        \*\*kwargs: Other arguments passed to ``axes.quiver()`` function to
+            set contour lines.
+
+    Returns:
+        fig (Figure): Matplotlib Figure object
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib import cm, colors
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from pymatgen.core.lattice import Lattice
+    import copy
+
+    # expand and rectangle
+    X, Y, data, a_range, b_range = _manipulate_2D_grid(data, base, a_range, b_range, rectangle)
+
+    # get projection and norm of the arrows
+    rot, _ = _get_operation(base)
+    x3d = rot.inv().apply([1, 0, 0]) # x axis in 3D reference framework
+    y3d = rot.inv().apply([0, 1, 0]) # y axis in 3D reference framework
+    dataprj = np.dstack([data@x3d, data@y3d])
+    ## get norm
+    vnorm = np.linalg.norm(data, axis=2)
+    del data
+
+    # plot
+    if colorquiver == 'colored': # plot colored arrows
+        ax.quiver(X, Y, dataprj[:,:,0], dataprj[:,:,1], vnorm)
+        norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
+        m = cm.ScalarMappable(cmap=colormap, norm=norm)
+        m.set_array(levels)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad="5%")
+        colorbar = fig.colorbar(m, cax=cax)
+        if np.all(cbar_label!=None):
+            colorbar.set_label(cbar_label, rotation=270, labelpad=15)
+    else: # plot same-color arrows
+        ax.quiver(X, Y, dataprj[:,:,0], dataprj[:,:,1], color=colorquiver)
+
+    # plot plane edges
+    if edgeplot == True:
+        ## get shift: always close to the positive side of the plot
+        xpath, ypath = _get_2D_base_frame(base, a_range, b_range)
+        ax.plot(xpath, ypath,'k-', linewidth=1.0)
+    # New ranges due to changes of a b ranges in non-orthogonal axis
+    xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
+    yrange = [np.round(np.min(Y), 2), np.round(np.max(Y), 2)]
+    ax.set_xticks(np.round(np.linspace(xrange[0], xrange[1], xticks), 2))
+    ax.set_yticks(np.round(np.linspace(yrange[0], yrange[1], yticks), 2))
+    ax.set_aspect(1.0)
+    ax.set_xlim(xrange[0], xrange[1])
+    ax.set_ylim(yrange[0], yrange[1])
+    return fig
+
+
+def _manipulate_2D_grid(data, base, a_range, b_range, rectangle):
+    """
+    Repeat 2D grid data and get rectangle region
+
+    Args:
+        data (array): 2D map data.
+        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+            2D map. Vectors BA and BC are used.
+        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
+        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
+            region and reset :math:`b`. If used together with ``b_range``, that
+            refers to the old :math:`b`.
+
+    Returns:
+        X (array): nY\*nX mesh grid.
+        Y (array): nY\*nX mesh grid.
+        data (array): nY\*nX mesh grid data.
+        a_range (array): 1\*2 fractional coordinate of plot range along vector BC.
+        b_range (array): 1\*2 fractional coordinate of plot range along vector BA.
+    """
+    import numpy as np
+    import copy
+
     vx = base[2, :] - base[1, :] # x, BC
     len_vx = np.linalg.norm(vx)
     npt_vx = data.shape[1] # a BA*BC matrix
@@ -766,7 +917,10 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         Y = np.round(sinxy, 3)*Y
 
         # represent (x,y) in old (vx,vy) basis.
-        ndata = np.zeros([nnpt_vy, nnpt_vx], dtype=float)
+        shapedata = list(data.shape) # also usable for nY*nX*3 vector data
+        shapedata[0] = nnpt_vy
+        shapedata[1] = nnpt_vx
+        ndata = np.zeros(shapedata, dtype=float)
         for i in range(nnpt_vy):
             for j in range(nnpt_vx):
                 idx = j
@@ -824,59 +978,42 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         cosxy = 0.
         sinxy = 1.
 
-    # plot, put colormap at the back
-    if np.all(colormap!=None):
-        ax.contourf(X, Y, data, levels, cmap=colormap, vmin=np.min(levels), vmax=np.max(levels))
-        norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
-        m = cm.ScalarMappable(cmap=colormap, norm=norm)
-        m.set_array(levels)
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad="5%")
-        colorbar = fig.colorbar(m, cax=cax)
-        if np.all(cbar_label!=None):
-            colorbar.set_label(cbar_label, rotation=270, labelpad=15)
+    return X, Y, data, a_range, b_range
 
-    if np.all(contourline!=None):
-        if len(contourline) != len(levels):
-            raise ValueError('Inconsistent lengthes of contour line and contour line styles')
-        clist = []; stlist = []; wlist = []
-        for i in contourline:
-            clist.append(i[0]); stlist.append(i[1]); wlist.append(i[2])
 
-        L = ax.contour(X, Y, data, levels, colors=clist, linestyles=stlist,
-                       linewidths=wlist, **kwargs)
-        if np.all(isovalue!=None):
-            ax.clabel(L, inline=1, fmt=isovalue)
+def _get_2D_base_frame(base, a_range, b_range):
+    """
+    Get the 2D parallelogram plot boundary. Useful when the plot is extended.
+    The frame is always shifted to the origin, or positive side of the plot and
+    close to the origin.
 
-    # plot plane edges
-    if edgeplot == True:
-        ## get shift: always close to the positive side of the plot
-        ovx = base[2, :] - base[1, :]
-        olen_vx = np.linalg.norm(ovx)
-        ovy = base[0, :] - base[1, :]
-        olen_vy = np.linalg.norm(ovy)
-        ocosxy = np.dot(ovx, ovy) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
-        osinxy = np.linalg.norm(np.cross(ovx,ovy)) / np.linalg.norm(ovx) / np.linalg.norm(ovy)
-        shiftx = (a_range[0]/olen_vx - int(a_range[0]/olen_vx)) * olen_vx
-        shifty = (b_range[0]/olen_vy - int(b_range[0]/olen_vy)) * olen_vx
-        if shiftx < 0: shiftx += olen_vx
-        if shifty < 0: shifty += olen_vy
-        shiftx = shiftx + shifty * ocosxy
-        shifty = shifty * osinxy
-        xpath = np.array([0, olen_vx, olen_vx+olen_vy*ocosxy, olen_vy*ocosxy, 0]) + shiftx
-        ypath = np.array([0, 0, olen_vy*osinxy, olen_vy*osinxy, 0]) + shifty
-        ax.plot(xpath, ypath,'k-', linewidth=1.0)
+    Args:
+        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+            2D map. Vectors BA and BC are used.
+        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
 
-    # New ranges due to changes of a b ranges in non-orthogonal axis
-    xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
-    yrange = [np.round(np.min(Y), 2), np.round(np.max(Y), 2)]
-    ax.set_xticks(np.round(np.linspace(xrange[0], xrange[1], xticks), 2))
-    ax.set_yticks(np.round(np.linspace(yrange[0], yrange[1], yticks), 2))
-    ax.set_aspect(1.0)
-    ax.set_xlim(xrange[0], xrange[1])
-    ax.set_ylim(yrange[0], yrange[1])
+    Returns:
+        xpath (array): 1\*3 array of x coordinates of parallelogram plot boundary.
+        ypath (array): 1\*3 array of y coordinates of parallelogram plot boundary.
+    """
+    import numpy as np
 
-    return fig
+    vx = base[2, :] - base[1, :]
+    len_vx = np.linalg.norm(vx)
+    vy = base[0, :] - base[1, :]
+    len_vy = np.linalg.norm(vy)
+    cosxy = np.dot(vx, vy) / np.linalg.norm(vx) / np.linalg.norm(vy)
+    sinxy = np.linalg.norm(np.cross(vx,vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
+    shiftx = (a_range[0]/len_vx - int(a_range[0]/len_vx)) * len_vx
+    shifty = (b_range[0]/len_vy - int(b_range[0]/len_vy)) * len_vx
+    if shiftx < 0: shiftx += len_vx
+    if shifty < 0: shifty += len_vy
+    shiftx = shiftx + shifty * cosxy
+    shifty = shifty * sinxy
+    xpath = np.array([0, len_vx, len_vx+len_vy*cosxy, len_vy*cosxy, 0]) + shiftx
+    ypath = np.array([0, 0, len_vy*sinxy, len_vy*sinxy, 0]) + shifty
+    return xpath, ypath
 
 
 def _get_operation(base):

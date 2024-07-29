@@ -2387,149 +2387,6 @@ class Properties_output(POutBASE):
         """
         return cls(properties_output=properties_output)
 
-    def read_vecfield(self, properties_output, which_prop):
-        """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
-
-        Args:
-            properties_output (str): The properties output file.
-            which_prop (str): The density property selected by the user.
-            'm' (magnetization), 'j' (spin current), 'J' (spin current density)
-        Returns:
-            Properties_output (str): The fort.25 output file.
-        """
-
-        import numpy as np
-
-        self.read_file(properties_output)
-
-        data = self.data
-
-        # Reads the header information
-        nrow = int(data[0].split()[1])
-        ncol = int(data[0].split()[2])
-        stepx = float(data[0].split()[3])
-        stepy = float(data[0].split()[4])
-        cosxy = float(data[0].split()[5])
-
-        A = np.array([float(data[1].split()[0]), float(
-            data[1].split()[1]), float(data[1].split()[2])])
-        B = np.array([float(data[1].split()[3]), float(
-            data[1].split()[4]), float(data[1].split()[5])])
-
-        C = np.array([float(data[2].split()[0]), float(
-            data[2].split()[1]), float(data[2].split()[2])])
-        naf = int(data[2].split()[3])
-        ldim = int(data[2].split()[4])
-
-        self.header = (nrow, ncol, stepx, stepy, cosxy, A, B, C, naf, ldim)
-
-        # Elaborates the header data
-        skip = 6 + naf
-
-        for i in range(2, 20):
-            if (nrow % i) == 0:
-                nrow_split = int(nrow/i)
-
-        for i in range(2, 20):
-            if (ncol % i) == 0:
-                ncol_split = int(ncol/i)
-
-        bline = (nrow*ncol)/6
-        if (bline % 6) == 0:
-            bline = int(bline)
-        else:
-            bline = int(bline) + 1
-
-        # Reads the types of density properties requested by the user and initializes the data arrays
-        check = np.zeros(3, dtype=int)
-        if 'm' in which_prop:
-            check[0] = 1
-            self.dens_m = np.zeros((nrow, ncol, 3), dtype=float)
-        if 'j' in which_prop:
-            check[1] = 1
-            self.dens_j = np.zeros((nrow, ncol, 3), dtype=float)
-        if 'J' in which_prop:
-            check[2] = 1
-            self.dens_JX = np.zeros((nrow, ncol, 3), dtype=float)
-            self.dens_JY = np.zeros((nrow, ncol, 3), dtype=float)
-            self.dens_JZ = np.zeros((nrow, ncol, 3), dtype=float)
-        if (not check[0]) and (not check[1]) and (not check[2]):
-            print('Error: Invalid Entry. Only the m, j, and J characters are supported')
-            sys.exit(1)
-
-        # Gathers the data
-        iamhere = 0
-
-        if check[0]:
-            iamhere = 3
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_m[r, s, 1] = data[i +
-                                                iamhere+bline+skip].split()[j]
-                    self.dens_m[r, s, 2] = data[i+iamhere +
-                                                (2*bline)+(2*skip)].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-            iamhere = iamhere + 3*bline + 2*skip
-        if check[1]:
-            if iamhere == 0:
-                iamhere = 3
-            else:
-                iamhere = iamhere + skip
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_j[r, s, 1] = data[i +
-                                                iamhere+bline+skip].split()[j]
-                    self.dens_j[r, s, 2] = data[i +
-                                                iamhere+2*bline+2*skip].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-            iamhere = iamhere + 3*bline + 2*skip
-        if check[2]:
-            if iamhere == 0:
-                iamhere = 3
-            else:
-                iamhere = iamhere + skip
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_JX[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_JX[r, s, 1] = data[i +
-                                                 iamhere+bline+skip].split()[j]
-                    self.dens_JX[r, s, 2] = data[i+iamhere +
-                                                 (2*bline)+(2*skip)].split()[j]
-                    self.dens_JY[r, s, 0] = data[i+iamhere +
-                                                 (3*bline)+(3*skip)].split()[j]
-                    self.dens_JY[r, s, 1] = data[i+iamhere +
-                                                 (4*bline)+(4*skip)].split()[j]
-                    self.dens_JY[r, s, 2] = data[i+iamhere +
-                                                 (5*bline)+(5*skip)].split()[j]
-                    self.dens_JZ[r, s, 0] = data[i+iamhere +
-                                                 (6*bline)+(6*skip)].split()[j]
-                    self.dens_JZ[r, s, 1] = data[i+iamhere +
-                                                 (7*bline)+(7*skip)].split()[j]
-                    self.dens_JZ[r, s, 2] = data[i+iamhere +
-                                                 (8*bline)+(8*skip)].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-        return self
-
 #----------------------------electronic structure------------------------------#
 
     def read_electron_band(self, band_file):
@@ -2672,7 +2529,7 @@ class Properties_output(POutBASE):
         setattr(self, type, obj)
         return getattr(self, type)
 
-    def read_ECHG(self, *f25_files, method='normal'):
+    def read_ECHG(self, *f25_files, method='normal', index=None):
         """
         Read charge / spin density data from a file. Unit: :math:`e.\\AA^{-3}`.
 
@@ -2691,13 +2548,17 @@ class Properties_output(POutBASE):
 
         .. note::
 
-            The standard screen output is required to identify the indices of
-            corresponding 2D data maps. Otherwise the code only reads the
-            first 2D data map for spin =1 and first 2 maps for spin=2.
+            The standard screen output is highly recommended to add, which
+            identifies the indices of corresponding 2D data maps. Otherwise the
+            ``index`` input can be specified. Otherwise, the code only reads
+            the first 2D data map for spin =1 and first 2 maps for spin=2.
 
         Args:
             \*f25_files (str): Path to the fort.25 file(s).
             method (str): Data processing method. See above.
+            index (int|list): Sequence number of headers with the '-%-MAPN'
+                pattern. Useful only if the standard screen output is not
+                available. Starting from 0.
         Returns:
             self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
         """
@@ -2707,16 +2568,18 @@ class Properties_output(POutBASE):
         import pandas as pd
         import warnings
 
-        if isinstance(method, str):
-            method = method.lower()
-            if method != 'substract' and method != 'alpha_beta' and method != 'normal':
-                raise ValueError("Unknown method: '{}'.".format(method))
+        method = method.lower()
+        if method != 'substract' and method != 'alpha_beta' and method != 'normal':
+            raise ValueError("Unknown method: '{}'.".format(method))
 
         pato = [] # used for method check
         if not hasattr(self, 'file_name'):
-            warnings.warn('Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).',
-                          stacklevel=2)
-            index = None
+            if np.all(index==None):
+                warnings.warn('Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).',
+                              stacklevel=2)
+                index = None
+            else:
+                index = np.array(index, dtype=int, ndmin=1)
         else:
             df = pd.DataFrame(self.data)
             headers = df[df[0].str.contains(r'^\s*-%-[0-4]MAPN')].index.to_numpy(dtype=int)
@@ -2728,30 +2591,32 @@ class Properties_output(POutBASE):
                 raise Exception('Charge density calculation not found in the output file.')
             elif len(chg) == 1:
                 if len(spin) == 1: # find the header closest to keywords
-                    index = np.array([np.where(headers>chg[0])[0][0], np.where(headers>spin[0])[0][0]],
-                                     dtype=int)
+                    index = np.array([np.where(headers>chg[0])[0][0],
+                                      np.where(headers>spin[0])[0][0]], dtype=int)
                     index = np.sort(index)
                 else:
                     index = np.where(headers>chg[0])[0][0]
             else:
-                if method == 'substract' and len(pato) == 1 and len(chg) == 2:
+                if len(pato) == 1 and len(chg) == 2:
+                    if chg[0] < pato[0]: use_idx = 0 # density before pato
+                    else: use_idx = 1 # density after pato
                     ipato = np.where(headers>pato[0])[0][0]
-                    if chg[0] < pato[0]: # density before pato
-                        use_idx = 0
-                    else: # density after pato
-                        use_idx = 1
                     ichg = np.where(headers>chg[use_idx])[0][0]
                     if len(spin) != 0:
                         ispin = np.where(headers>spin[use_idx][0][0])
-                        index = np.array([ipato, ichg, ispin], dtype=int)
+                        if method == 'substract': # pato substract
+                            index = np.array([ipato, ichg, ispin], dtype=int)
+                        else: # normal
+                            index = np.array([ichg, ispin], dtype=int)
                     else:
-                        index = np.array([ipato, ichg], dtype=int)
+                        if method == 'substract': # pato substract
+                            index = np.array([ipato, ichg], dtype=int)
+                        else: # normal
+                            index = np.array([ichg], dtype=int)
                     index = np.sort(index)
                 else:
-                    warnings.warn(
-                        'Multiple charge densities exist in the calculation. Only the first density map will be read.',
-                        stacklevel=2
-                    )
+                    warnings.warn('Multiple charge densities exist in the calculation. Only the first density map will be read.',
+                                  stacklevel=2)
                     index = 0
 
         # read file 0
@@ -2802,6 +2667,126 @@ class Properties_output(POutBASE):
                     warnings.warn("Nothing to substract.", stacklevel=2)
 
         return self.echg
+
+#-----------------------------2D vector field----------------------------------#
+
+    def read_relativistics(self, f25_file, type):
+        """
+        Read 2D scalar / vector fields from 2c-SCF calculations, generated by
+        the 'PROPS2COMP' keyword.
+
+        .. note ::
+
+            The standard screen output is highly recommended to add, which
+            identifies the indices of corresponding 2D data maps. Otherwise the
+            ``type`` input must be specified by integer or list of integers.
+
+        Args:
+            f25_file (str): File name of the fort.25 file.
+            type (str|int|list): Property to calculate, 'DENSITY', 'MAGNETIZ',
+                'ORBCURDENS', or 'SPICURDENS'. Alternatively, used as the
+                ``index`` input of the ``read_ECHG()`` method.
+
+        Returns:
+            self.\* (ChargeDensity|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity):
+                Return to classes defined in the ``relativisitcs`` module,
+                depending on ``type``. The attribute name is upper case type
+                names. Unit: charge densities, :math:`\\AA^{-3}`; magnetization,
+                A/m; Orbital/spin densities, A/m:math:`^{2}`.
+        """
+        import numpy as np
+        import pandas as pd
+        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.relativistics import (ChargeDensity, Magnetization,
+            OrbitalCurrentDensity, SpinCurrentDensity)
+
+        if isinstance(type, str):
+            type_avail = ['DENSITY', 'MAGNETIZ', 'ORBCURDENS', 'SPICURDENS']
+            type = type.upper()
+            if type not in type_avail:
+                raise ValueError("Unknown type: '{}'.".format(type))
+            if not hasattr(self, 'file_name'):
+                raise Exception("Properties output file is mandatory here.")
+        else:
+            index = np.array(type, dtype=int, ndmin=1)
+
+        if hasattr(self, 'file_name'):
+            struc = super().get_geometry()
+            # get corresponding MPNET entries from output file
+            df = pd.DataFrame(self.data)
+            headers = df[df[0].str.contains(r'^\s*-%-[0-4]MAPN')].index.to_numpy(dtype=int)
+            dens = df[df[0].str.contains(r'^\s+PARTICLE\-NUMBER DENSITY')].index.to_numpy(dtype=int)
+            mag = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP MAGNETIZATION')].index.to_numpy(dtype=int)
+            orbt = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP ORB\-CURR DENS')].index.to_numpy(dtype=int)
+            spinc = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP [X,Y,Z] S\-CURR DENS')].index.to_numpy(dtype=int)
+
+            indices = np.concatenate([dens, mag, orbt, spinc])
+            indices = np.sort(indices)
+            if len(indices) == 0:
+                raise Exception('2c-SCF calculation not found in the output file.')
+            headers_2c = headers[np.where(headers>indices[-1])] # headers for 2c scf block
+            if type == 'DENSITY':
+                if len(dens) != 1:
+                    raise Exception('Charge density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.where(indices==dens[0])[0]
+            elif type == 'MAGNETIZ':
+                if len(mag) != 3:
+                    raise Exception('Magnetization not found, or found more than once, in the calculation.')
+                 # index in headers_2c
+                idx = np.array([np.where(indices==mag[0])[0],
+                                np.where(indices==mag[1])[0],
+                                np.where(indices==mag[2])[0]], dtype=int)
+            elif type == 'ORBCURDENS':
+                if len(orbt) != 3:
+                    raise Exception('Orbital-current density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.array([np.where(indices==orbt[0])[0],
+                                np.where(indices==orbt[1])[0],
+                                np.where(indices==orbt[2])[0]], dtype=int)
+            elif type == 'SPICURDENS':
+                if len(spinc) != 9:
+                    raise Exception('Spin-current density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.concatenate([
+                    np.where(indices==spinc[0])[0], np.where(indices==spinc[1])[0],
+                    np.where(indices==spinc[2])[0], np.where(indices==spinc[3])[0],
+                    np.where(indices==spinc[4])[0], np.where(indices==spinc[5])[0],
+                    np.where(indices==spinc[6])[0], np.where(indices==spinc[7])[0],
+                    np.where(indices==spinc[8])[0]
+                ], dtype=int)
+            # index in the full fort.25 file.
+            index = [np.where(headers==headers_2c[i])[0][0] for i in idx]
+
+        # read file
+        spin, a, b, c, cosxy, struc, map, unit = CrgraParser.mapn(f25_file, index)
+
+        if type == 'DENSITY':
+            obj = ChargeDensity(map, np.vstack([a,b,c]), 1, 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('Angstrom')
+        elif type == 'MAGNETIZ':
+            obj = Magnetization(np.dstack([map[0], map[1], map[2]]),
+                                np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
+        elif type == 'ORBCURDENS':
+            obj = OrbitalCurrentDensity(np.dstack([map[0], map[1], map[2]]),
+                                        np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
+        elif type == 'SPICURDENS':
+            obj = SpinCurrentDensity(np.dstack([map[0], map[1], map[2]]),
+                                     np.dstack([map[3], map[4], map[5]]),
+                                     np.dstack([map[6], map[7], map[8]]),
+                                     np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data_x = obj.data_x[::-1] # base vector use BA rather than AB
+            obj.data_y = obj.data_y[::-1] # base vector use BA rather than AB
+            obj.data_z = obj.data_z[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
+
+        setattr(self, type, obj)
+        return getattr(self, type)
 
 #-------------------------------------XRD--------------------------------------#
 
@@ -3186,6 +3171,26 @@ class Properties_output(POutBASE):
         if obj.type != 'SIGMA':
             raise Exception('Input is not a conductivity file.')
         return obj
+
+    def read_vecfield(self, properties_output, which_prop):
+        """
+        Deprecated. Use ``read_relativistics``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_relativistics' instead.",
+                      stacklevel=2)
+        index = [0]
+        for i in which_prop:
+            if 'm' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+            if 'j' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+            if 'J' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3,
+                              index[-1]+4, index[-1]+5, index[-1]+6,
+                              index[-1]+7, index[-1]+8, index[-1]+9])
+        return self.read_relativistics(properties_output, index[1:])
 
 
 

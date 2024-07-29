@@ -355,11 +355,11 @@ class CrgraParser():
             all_map.append(map.reshape([points_ab, points_bc, 1], order='F'))
             # struc
             if io + 1 >= len(index):
-                next_o = io + 1
+                next_o = index[io] + 1
             else:
                 next_o = index[io+1]
             atoms = df[0][mapn_lines[o][1]:mapn_lines[next_o][0]-3].map(
-                lambda x: x.strip().split())
+                lambda x: x.strip().split()).tolist()
             species = np.array([i[0] for i in atoms], dtype=int)
             coords = np.array([i[2:] for i in atoms], dtype=float)
             latt = df[0][mapn_lines[next_o][0]-3:mapn_lines[next_o][0]].map(

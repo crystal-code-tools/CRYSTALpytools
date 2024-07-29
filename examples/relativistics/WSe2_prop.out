@@ -1,0 +1,552 @@
+Running Job Report
+--------------------------------------------
+DATE START : Sat 27 Jul 20:43:38 BST 2024
+
+Pre-Calc Summary
+--------------------------------------------
+  date:                Sat 27 Jul 20:43:38 BST 2024
+  hostname:            hx1-c08-2-1
+  system:              Linux hx1-c08-2-1 4.18.0-372.32.1.el8_6.x86_64 #1 SMP Fri Oct 7 12:35:10 EDT 2022 x86_64 x86_64 x86_64 GNU/Linux
+  user:                hz1420
+  input:               /gpfs/home/hz1420/wse2/WSe2_prop.d3
+  output:              /gpfs/home/hz1420/wse2/WSe2_prop.out
+  temporary directory: /gpfs/home/hz1420/tmp/WSe2_prop_95696
+  executable script:   /gpfs/home/hz1420/GitHub/HPC-job-submission/Imperial-HPC-Job-Submission/run_exec
+  executable dir:      /gpfs/home/hz1420/app/CRYSTAL23__foss2023a/bin
+  mpi + exe command:    mpiexec -np 64 Pproperties
+-------------------------------------------
+
+Find input data: /gpfs/home/hz1420/wse2/WSe2_prop.d3
+Find input reference: /gpfs/home/hz1420/wse2/WSe2.f9
+Find input reference: /gpfs/home/hz1420/wse2/WSe2.f9
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : WSe2_prop
+  ID             : 95696.pbs-6
+  Command        : mpiexec -np 64 Pproperties >> /gpfs/home/hz1420/wse2/WSe2_prop.out 2>&1
+  Temporary dir  : /gpfs/home/hz1420/tmp/WSe2_prop_95696
+  List of files  : total 1
+-rw-r--r-- 1 hz1420 hpc-nmh 25028436 Jul 27 20:43 fort.20
+-rw-r--r-- 1 hz1420 hpc-nmh 25028436 Jul 27 20:43 fort.9
+-rw-r--r-- 1 hz1420 hpc-nmh      217 Jul 27 20:43 INPUT
+-rw-r--r-- 1 hz1420 hpc-nmh     7915 Jul 27 20:43 Job_script_95696
+  Input script   :
+NEWK
+24 24
+ 1  0
+PROPS2COMP
+DENSITY
+MAGNETIZ
+ORBCURDENS
+SPICURDENS
+END
+ECHG
+0
+200
+COORDINA
+0.00000  3.26209  0.00000
+0.00000  0.00000  0.00000
+2.82505 -1.63104  0.00000
+MARGINS
+1.41252 1.41253 1.63104 1.63105
+END
+END
+-------------------------------------------
+
+          64 PROCESSORS WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 27 07 2024 TIME 20:43:41.9
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ WSe2 test                                                                       
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  UNRESTRICTED OPEN SHELL
+ *******************************************************************************
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(PERDEW-BURKE-ERNZERHOF)[PERDEW-BURKE-ERNZERHOF]
+
+
+ HYBRID EXCHANGE - PERCENTAGE OF FOCK EXCHANGE    25.0000
+
+ SPIN POLARIZED DFT SELECTED
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+         2.82505   -1.63104    0.00000
+         0.00000    3.26209    0.00000
+         0.00000    0.00000  500.00000
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+    3.26209    3.26209  500.00000     90.0000   90.0000  120.0000       9.21555
+ *******************************************************************************
+ N. OF ATOMS PER CELL         3 COULOMB OVERLAP TOL          (T1) 10**   -8
+ NUMBER OF SHELLS            32 COULOMB PENETRATION TOL      (T2) 10**   -8
+ NUMBER OF AO                94 EXCHANGE OVERLAP TOL         (T3) 10**   -8
+ N. OF ELECTRONS PER CELL    62 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   -8
+ CORE ELECTRONS PER CELL      0 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**  -30
+ N. OF SYMMETRY OPERATORS     1 POLE ORDER IN MONO ZONE                   4
+ CORE  PSEUDO POTENTIAL         TOL. ON PSEUDO              (TP) 10**- 6
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1  274 W    14     0.942    -1.631     0.000   3.000E-01      13.849
+    2  234 SE    9    -0.942     1.631     1.673   3.656E-01      24.075
+    3  234 SE    9    -0.942     1.631    -1.673   3.656E-01      24.075
+ *******************************************************************************
+ DE(K)                   0.000E+00  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -8.1396915507131E+02  CONVERGENCE ON ENER       -7.303E-09
+ KIN. ENERGY   0.0000000000000E+00  VIR. COEFF.           0.00000000E+00
+ N. OF SCF CYCLES               40  FERMI ENERGY              -0.199E+00
+ WEIGHT OF F(I) IN F(I+1)      80
+ SHRINK. FACT.(MONKH.)    24 24  1  SHRINKING FACTOR(GILAT NET)       24
+ NUMBER OF K POINTS IN THE IBZ 576  CELL VOLUME (A.U.)         32.909341
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    83    83     0
+ NO.OF VECTORS CREATED 6999 STARS  503 RMAX   271.02553 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        3.05 TCPU        1.27
+
+ MATRIX SIZE: P(G)  443734, F(G)   56005, P(G) IRR  230514, F(G) IRR   57582
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 151
+
+
+ CAPPA:IS1 24;IS2 24;IS3  1; K PTS MONK NET 576; SYMMOPS:K SPACE   1;G SPACE   1
+
+
+ DENSITY MATRIX FROM A TWO-COMPONENT SCF
+
+
+ CAPPA:IS1 24;IS2 24;IS3  1; K PTS MONK NET 576; SYMMOPS:K SPACE   1;G SPACE   1
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                 576 POINTS(GILAT NET)               576
+ SHRINK FACTORS(MONK.)        24 24  1 SHRINK FACTOR(GILAT)             24
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 24)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C( -1  0  0)   4-C(  2  0  0)
+   5-C( -2  0  0)   6-C(  3  0  0)   7-C( -3  0  0)   8-C(  4  0  0)
+   9-C( -4  0  0)  10-C(  5  0  0)  11-C( -5  0  0)  12-C(  6  0  0)
+  13-C( -6  0  0)  14-C(  7  0  0)  15-C( -7  0  0)  16-C(  8  0  0)
+  17-C( -8  0  0)  18-C(  9  0  0)  19-C( -9  0  0)  20-C( 10  0  0)
+  21-C(-10  0  0)  22-C( 11  0  0)  23-C(-11  0  0)  24-R( 12  0  0)
+  25-C(  0  1  0)  26-C(  0 -1  0)  27-C(  1  1  0)  28-C( -1 -1  0)
+  29-C(  2  1  0)  30-C( -2 -1  0)  31-C(  3  1  0)  32-C( -3 -1  0)
+  33-C(  4  1  0)  34-C( -4 -1  0)  35-C(  5  1  0)  36-C( -5 -1  0)
+  37-C(  6  1  0)  38-C( -6 -1  0)  39-C(  7  1  0)  40-C( -7 -1  0)
+  41-C(  8  1  0)  42-C( -8 -1  0)  43-C(  9  1  0)  44-C( -9 -1  0)
+  45-C( 10  1  0)  46-C(-10 -1  0)  47-C( 11  1  0)  48-C(-11 -1  0)
+  49-C( 12  1  0)  50-C(-12 -1  0)  51-C( 13  1  0)  52-C(-13 -1  0)
+  53-C( 14  1  0)  54-C(-14 -1  0)  55-C( 15  1  0)  56-C(-15 -1  0)
+  57-C( 16  1  0)  58-C(-16 -1  0)  59-C( 17  1  0)  60-C(-17 -1  0)
+  61-C( 18  1  0)  62-C(-18 -1  0)  63-C( 19  1  0)  64-C(-19 -1  0)
+  65-C( 20  1  0)  66-C(-20 -1  0)  67-C( 21  1  0)  68-C(-21 -1  0)
+  69-C( 22  1  0)  70-C(-22 -1  0)  71-C( 23  1  0)  72-C(-23 -1  0)
+  73-C(  0  2  0)  74-C(  0 -2  0)  75-C(  1  2  0)  76-C( -1 -2  0)
+  77-C(  2  2  0)  78-C( -2 -2  0)  79-C(  3  2  0)  80-C( -3 -2  0)
+  81-C(  4  2  0)  82-C( -4 -2  0)  83-C(  5  2  0)  84-C( -5 -2  0)
+  85-C(  6  2  0)  86-C( -6 -2  0)  87-C(  7  2  0)  88-C( -7 -2  0)
+  89-C(  8  2  0)  90-C( -8 -2  0)  91-C(  9  2  0)  92-C( -9 -2  0)
+  93-C( 10  2  0)  94-C(-10 -2  0)  95-C( 11  2  0)  96-C(-11 -2  0)
+  97-C( 12  2  0)  98-C(-12 -2  0)  99-C( 13  2  0) 100-C(-13 -2  0)
+ 101-C( 14  2  0) 102-C(-14 -2  0) 103-C( 15  2  0) 104-C(-15 -2  0)
+ 105-C( 16  2  0) 106-C(-16 -2  0) 107-C( 17  2  0) 108-C(-17 -2  0)
+ 109-C( 18  2  0) 110-C(-18 -2  0) 111-C( 19  2  0) 112-C(-19 -2  0)
+ 113-C( 20  2  0) 114-C(-20 -2  0) 115-C( 21  2  0) 116-C(-21 -2  0)
+ 117-C( 22  2  0) 118-C(-22 -2  0) 119-C( 23  2  0) 120-C(-23 -2  0)
+ 121-C(  0  3  0) 122-C(  0 -3  0) 123-C(  1  3  0) 124-C( -1 -3  0)
+ 125-C(  2  3  0) 126-C( -2 -3  0) 127-C(  3  3  0) 128-C( -3 -3  0)
+ 129-C(  4  3  0) 130-C( -4 -3  0) 131-C(  5  3  0) 132-C( -5 -3  0)
+ 133-C(  6  3  0) 134-C( -6 -3  0) 135-C(  7  3  0) 136-C( -7 -3  0)
+ 137-C(  8  3  0) 138-C( -8 -3  0) 139-C(  9  3  0) 140-C( -9 -3  0)
+ 141-C( 10  3  0) 142-C(-10 -3  0) 143-C( 11  3  0) 144-C(-11 -3  0)
+ 145-C( 12  3  0) 146-C(-12 -3  0) 147-C( 13  3  0) 148-C(-13 -3  0)
+ 149-C( 14  3  0) 150-C(-14 -3  0) 151-C( 15  3  0) 152-C(-15 -3  0)
+ 153-C( 16  3  0) 154-C(-16 -3  0) 155-C( 17  3  0) 156-C(-17 -3  0)
+ 157-C( 18  3  0) 158-C(-18 -3  0) 159-C( 19  3  0) 160-C(-19 -3  0)
+ 161-C( 20  3  0) 162-C(-20 -3  0) 163-C( 21  3  0) 164-C(-21 -3  0)
+ 165-C( 22  3  0) 166-C(-22 -3  0) 167-C( 23  3  0) 168-C(-23 -3  0)
+ 169-C(  0  4  0) 170-C(  0 -4  0) 171-C(  1  4  0) 172-C( -1 -4  0)
+ 173-C(  2  4  0) 174-C( -2 -4  0) 175-C(  3  4  0) 176-C( -3 -4  0)
+ 177-C(  4  4  0) 178-C( -4 -4  0) 179-C(  5  4  0) 180-C( -5 -4  0)
+ 181-C(  6  4  0) 182-C( -6 -4  0) 183-C(  7  4  0) 184-C( -7 -4  0)
+ 185-C(  8  4  0) 186-C( -8 -4  0) 187-C(  9  4  0) 188-C( -9 -4  0)
+ 189-C( 10  4  0) 190-C(-10 -4  0) 191-C( 11  4  0) 192-C(-11 -4  0)
+ 193-C( 12  4  0) 194-C(-12 -4  0) 195-C( 13  4  0) 196-C(-13 -4  0)
+ 197-C( 14  4  0) 198-C(-14 -4  0) 199-C( 15  4  0) 200-C(-15 -4  0)
+ 201-C( 16  4  0) 202-C(-16 -4  0) 203-C( 17  4  0) 204-C(-17 -4  0)
+ 205-C( 18  4  0) 206-C(-18 -4  0) 207-C( 19  4  0) 208-C(-19 -4  0)
+ 209-C( 20  4  0) 210-C(-20 -4  0) 211-C( 21  4  0) 212-C(-21 -4  0)
+ 213-C( 22  4  0) 214-C(-22 -4  0) 215-C( 23  4  0) 216-C(-23 -4  0)
+ 217-C(  0  5  0) 218-C(  0 -5  0) 219-C(  1  5  0) 220-C( -1 -5  0)
+ 221-C(  2  5  0) 222-C( -2 -5  0) 223-C(  3  5  0) 224-C( -3 -5  0)
+ 225-C(  4  5  0) 226-C( -4 -5  0) 227-C(  5  5  0) 228-C( -5 -5  0)
+ 229-C(  6  5  0) 230-C( -6 -5  0) 231-C(  7  5  0) 232-C( -7 -5  0)
+ 233-C(  8  5  0) 234-C( -8 -5  0) 235-C(  9  5  0) 236-C( -9 -5  0)
+ 237-C( 10  5  0) 238-C(-10 -5  0) 239-C( 11  5  0) 240-C(-11 -5  0)
+ 241-C( 12  5  0) 242-C(-12 -5  0) 243-C( 13  5  0) 244-C(-13 -5  0)
+ 245-C( 14  5  0) 246-C(-14 -5  0) 247-C( 15  5  0) 248-C(-15 -5  0)
+ 249-C( 16  5  0) 250-C(-16 -5  0) 251-C( 17  5  0) 252-C(-17 -5  0)
+ 253-C( 18  5  0) 254-C(-18 -5  0) 255-C( 19  5  0) 256-C(-19 -5  0)
+ 257-C( 20  5  0) 258-C(-20 -5  0) 259-C( 21  5  0) 260-C(-21 -5  0)
+ 261-C( 22  5  0) 262-C(-22 -5  0) 263-C( 23  5  0) 264-C(-23 -5  0)
+ 265-C(  0  6  0) 266-C(  0 -6  0) 267-C(  1  6  0) 268-C( -1 -6  0)
+ 269-C(  2  6  0) 270-C( -2 -6  0) 271-C(  3  6  0) 272-C( -3 -6  0)
+ 273-C(  4  6  0) 274-C( -4 -6  0) 275-C(  5  6  0) 276-C( -5 -6  0)
+ 277-C(  6  6  0) 278-C( -6 -6  0) 279-C(  7  6  0) 280-C( -7 -6  0)
+ 281-C(  8  6  0) 282-C( -8 -6  0) 283-C(  9  6  0) 284-C( -9 -6  0)
+ 285-C( 10  6  0) 286-C(-10 -6  0) 287-C( 11  6  0) 288-C(-11 -6  0)
+ 289-C( 12  6  0) 290-C(-12 -6  0) 291-C( 13  6  0) 292-C(-13 -6  0)
+ 293-C( 14  6  0) 294-C(-14 -6  0) 295-C( 15  6  0) 296-C(-15 -6  0)
+ 297-C( 16  6  0) 298-C(-16 -6  0) 299-C( 17  6  0) 300-C(-17 -6  0)
+ 301-C( 18  6  0) 302-C(-18 -6  0) 303-C( 19  6  0) 304-C(-19 -6  0)
+ 305-C( 20  6  0) 306-C(-20 -6  0) 307-C( 21  6  0) 308-C(-21 -6  0)
+ 309-C( 22  6  0) 310-C(-22 -6  0) 311-C( 23  6  0) 312-C(-23 -6  0)
+ 313-C(  0  7  0) 314-C(  0 -7  0) 315-C(  1  7  0) 316-C( -1 -7  0)
+ 317-C(  2  7  0) 318-C( -2 -7  0) 319-C(  3  7  0) 320-C( -3 -7  0)
+ 321-C(  4  7  0) 322-C( -4 -7  0) 323-C(  5  7  0) 324-C( -5 -7  0)
+ 325-C(  6  7  0) 326-C( -6 -7  0) 327-C(  7  7  0) 328-C( -7 -7  0)
+ 329-C(  8  7  0) 330-C( -8 -7  0) 331-C(  9  7  0) 332-C( -9 -7  0)
+ 333-C( 10  7  0) 334-C(-10 -7  0) 335-C( 11  7  0) 336-C(-11 -7  0)
+ 337-C( 12  7  0) 338-C(-12 -7  0) 339-C( 13  7  0) 340-C(-13 -7  0)
+ 341-C( 14  7  0) 342-C(-14 -7  0) 343-C( 15  7  0) 344-C(-15 -7  0)
+ 345-C( 16  7  0) 346-C(-16 -7  0) 347-C( 17  7  0) 348-C(-17 -7  0)
+ 349-C( 18  7  0) 350-C(-18 -7  0) 351-C( 19  7  0) 352-C(-19 -7  0)
+ 353-C( 20  7  0) 354-C(-20 -7  0) 355-C( 21  7  0) 356-C(-21 -7  0)
+ 357-C( 22  7  0) 358-C(-22 -7  0) 359-C( 23  7  0) 360-C(-23 -7  0)
+ 361-C(  0  8  0) 362-C(  0 -8  0) 363-C(  1  8  0) 364-C( -1 -8  0)
+ 365-C(  2  8  0) 366-C( -2 -8  0) 367-C(  3  8  0) 368-C( -3 -8  0)
+ 369-C(  4  8  0) 370-C( -4 -8  0) 371-C(  5  8  0) 372-C( -5 -8  0)
+ 373-C(  6  8  0) 374-C( -6 -8  0) 375-C(  7  8  0) 376-C( -7 -8  0)
+ 377-C(  8  8  0) 378-C( -8 -8  0) 379-C(  9  8  0) 380-C( -9 -8  0)
+ 381-C( 10  8  0) 382-C(-10 -8  0) 383-C( 11  8  0) 384-C(-11 -8  0)
+ 385-C( 12  8  0) 386-C(-12 -8  0) 387-C( 13  8  0) 388-C(-13 -8  0)
+ 389-C( 14  8  0) 390-C(-14 -8  0) 391-C( 15  8  0) 392-C(-15 -8  0)
+ 393-C( 16  8  0) 394-C(-16 -8  0) 395-C( 17  8  0) 396-C(-17 -8  0)
+ 397-C( 18  8  0) 398-C(-18 -8  0) 399-C( 19  8  0) 400-C(-19 -8  0)
+ 401-C( 20  8  0) 402-C(-20 -8  0) 403-C( 21  8  0) 404-C(-21 -8  0)
+ 405-C( 22  8  0) 406-C(-22 -8  0) 407-C( 23  8  0) 408-C(-23 -8  0)
+ 409-C(  0  9  0) 410-C(  0 -9  0) 411-C(  1  9  0) 412-C( -1 -9  0)
+ 413-C(  2  9  0) 414-C( -2 -9  0) 415-C(  3  9  0) 416-C( -3 -9  0)
+ 417-C(  4  9  0) 418-C( -4 -9  0) 419-C(  5  9  0) 420-C( -5 -9  0)
+ 421-C(  6  9  0) 422-C( -6 -9  0) 423-C(  7  9  0) 424-C( -7 -9  0)
+ 425-C(  8  9  0) 426-C( -8 -9  0) 427-C(  9  9  0) 428-C( -9 -9  0)
+ 429-C( 10  9  0) 430-C(-10 -9  0) 431-C( 11  9  0) 432-C(-11 -9  0)
+ 433-C( 12  9  0) 434-C(-12 -9  0) 435-C( 13  9  0) 436-C(-13 -9  0)
+ 437-C( 14  9  0) 438-C(-14 -9  0) 439-C( 15  9  0) 440-C(-15 -9  0)
+ 441-C( 16  9  0) 442-C(-16 -9  0) 443-C( 17  9  0) 444-C(-17 -9  0)
+ 445-C( 18  9  0) 446-C(-18 -9  0) 447-C( 19  9  0) 448-C(-19 -9  0)
+ 449-C( 20  9  0) 450-C(-20 -9  0) 451-C( 21  9  0) 452-C(-21 -9  0)
+ 453-C( 22  9  0) 454-C(-22 -9  0) 455-C( 23  9  0) 456-C(-23 -9  0)
+ 457-C(  0 10  0) 458-C(  0-10  0) 459-C(  1 10  0) 460-C( -1-10  0)
+ 461-C(  2 10  0) 462-C( -2-10  0) 463-C(  3 10  0) 464-C( -3-10  0)
+ 465-C(  4 10  0) 466-C( -4-10  0) 467-C(  5 10  0) 468-C( -5-10  0)
+ 469-C(  6 10  0) 470-C( -6-10  0) 471-C(  7 10  0) 472-C( -7-10  0)
+ 473-C(  8 10  0) 474-C( -8-10  0) 475-C(  9 10  0) 476-C( -9-10  0)
+ 477-C( 10 10  0) 478-C(-10-10  0) 479-C( 11 10  0) 480-C(-11-10  0)
+ 481-C( 12 10  0) 482-C(-12-10  0) 483-C( 13 10  0) 484-C(-13-10  0)
+ 485-C( 14 10  0) 486-C(-14-10  0) 487-C( 15 10  0) 488-C(-15-10  0)
+ 489-C( 16 10  0) 490-C(-16-10  0) 491-C( 17 10  0) 492-C(-17-10  0)
+ 493-C( 18 10  0) 494-C(-18-10  0) 495-C( 19 10  0) 496-C(-19-10  0)
+ 497-C( 20 10  0) 498-C(-20-10  0) 499-C( 21 10  0) 500-C(-21-10  0)
+ 501-C( 22 10  0) 502-C(-22-10  0) 503-C( 23 10  0) 504-C(-23-10  0)
+ 505-C(  0 11  0) 506-C(  0-11  0) 507-C(  1 11  0) 508-C( -1-11  0)
+ 509-C(  2 11  0) 510-C( -2-11  0) 511-C(  3 11  0) 512-C( -3-11  0)
+ 513-C(  4 11  0) 514-C( -4-11  0) 515-C(  5 11  0) 516-C( -5-11  0)
+ 517-C(  6 11  0) 518-C( -6-11  0) 519-C(  7 11  0) 520-C( -7-11  0)
+ 521-C(  8 11  0) 522-C( -8-11  0) 523-C(  9 11  0) 524-C( -9-11  0)
+ 525-C( 10 11  0) 526-C(-10-11  0) 527-C( 11 11  0) 528-C(-11-11  0)
+ 529-C( 12 11  0) 530-C(-12-11  0) 531-C( 13 11  0) 532-C(-13-11  0)
+ 533-C( 14 11  0) 534-C(-14-11  0) 535-C( 15 11  0) 536-C(-15-11  0)
+ 537-C( 16 11  0) 538-C(-16-11  0) 539-C( 17 11  0) 540-C(-17-11  0)
+ 541-C( 18 11  0) 542-C(-18-11  0) 543-C( 19 11  0) 544-C(-19-11  0)
+ 545-C( 20 11  0) 546-C(-20-11  0) 547-C( 21 11  0) 548-C(-21-11  0)
+ 549-C( 22 11  0) 550-C(-22-11  0) 551-C( 23 11  0) 552-C(-23-11  0)
+ 553-R(  0 12  0) 554-C(  1 12  0) 555-C( -1-12  0) 556-C(  2 12  0)
+ 557-C( -2-12  0) 558-C(  3 12  0) 559-C( -3-12  0) 560-C(  4 12  0)
+ 561-C( -4-12  0) 562-C(  5 12  0) 563-C( -5-12  0) 564-C(  6 12  0)
+ 565-C( -6-12  0) 566-C(  7 12  0) 567-C( -7-12  0) 568-C(  8 12  0)
+ 569-C( -8-12  0) 570-C(  9 12  0) 571-C( -9-12  0) 572-C( 10 12  0)
+ 573-C(-10-12  0) 574-C( 11 12  0) 575-C(-11-12  0) 576-R( 12 12  0)
+
+ FERMI ENERGY AND DENSITY MATRIX CALCULATION ON COMPUTED EIGENVECTORS
+ DENSITY MATRIX AT SCF CYCLE ( 40+1)
+
+ INSULATING STATE
+ TOP OF VALENCE BANDS -    BAND     62; K  378; EIG -1.9865510E-01 AU
+ TOP OF VALENCE BANDS -    BAND     62; K    1; EIG -2.2520540E-01 AU
+ BOTTOM OF VIRTUAL BANDS - BAND     63; K  378; EIG -1.1338360E-01 AU
+ DIRECT ENERGY BAND GAP:   2.3204 eV
+ BOTTOM OF VIRTUAL BANDS - BAND     63; K    1; EIG -5.6279504E-02 AU
+ - NUMBER OF FULLY OCCUPIED/TOTAL SPINORS -    62 /    188
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE        5.96 TCPU        4.03
+ INFORMATION **** F90MAIN3 **** CALCULATION OF PARTICLE-NUMBER DENSITY ON A GRID OF POINTS
+ INFORMATION **** F90MAIN3 **** CALCULATION OF MAGNETIZATION DENSITY ON A GRID OF POINTS
+ INFORMATION **** F90MAIN3 **** CALCULATION OF ORBITAL-CURRENT DENSITY ON A GRID OF POINTS
+ INFORMATION **** F90MAIN3 **** CALCULATION OF SPIN-CURRENT DENSITY ON A GRID OF POINTS
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE        5.96 TCPU        4.03
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ ELECTRON CHARGE (AND SPIN) DENSITY - DERIVATIVES UP TO ORDER 0
+
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ CO-ORDINATES IN ANGSTROM
+ REDEFINITION OF THE WINDOW AS A RECTANGULAR WINDOW
+ MARGINS (BOHR):   2.6693   2.6693 ALONG B-C,   3.0822   3.0822 ALONG A-B
+
+                        COORDINATES OF THE 3 POINTS (BOHR):
+              A)   -2.312   10.581    0.000 POINT INDICES (  1,  1)
+              B)   -2.312   -1.748    0.000 POINT INDICES (NPY,  1)
+              C)    7.650   -7.499    0.000 POINT INDICES (NPY,NPX)
+
+ N. OF POINTS ALONG THE A-B SEGMENT (NPY)  200
+ N. OF POINTS ALONG THE B-C SEGMENT (NPX)  187
+ N. OF POINTS IN THE GRID :              37400
+ COSINE OF THE ANGLE A-B-C             -0.5000
+ N. OF ELEMENTS IN THE SYMMETRY SUB-GROUP    1
+ N. OF POINTS IN THE IRREDUCIBLE ZONE :  37400
+
+
+         PARTICLE-NUMBER DENSITY - VALMIN  1.4419E-04 VALMAX  9.3374E-01
+
+
+
+    X-COMP MAGNETIZATION     m_x - VALMIN -4.7069E-17 VALMAX  9.3102E-17
+
+
+
+    Y-COMP MAGNETIZATION     m_y - VALMIN -1.0328E-16 VALMAX  6.2174E-17
+
+
+
+    Z-COMP MAGNETIZATION     m_z - VALMIN -5.4672E-16 VALMAX  2.2051E-16
+
+
+
+    X-COMP ORB-CURR DENS     j_x - VALMIN -1.9098E-15 VALMAX  1.9187E-15
+
+
+
+    Y-COMP ORB-CURR DENS     j_y - VALMIN -1.3683E-15 VALMAX  1.9187E-15
+
+
+
+    Z-COMP ORB-CURR DENS     j_z - VALMIN -7.7020E-16 VALMAX  1.9187E-15
+
+
+
+    X-COMP X S-CURR DENS   J^x_x - VALMIN -7.0669E-03 VALMAX  1.5496E-03
+
+
+
+    Y-COMP X S-CURR DENS   J^x_y - VALMIN -7.0669E-03 VALMAX  1.5496E-03
+
+
+
+    Z-COMP X S-CURR DENS   J^x_z - VALMIN -3.0977E-02 VALMAX  3.0963E-02
+
+
+
+    X-COMP Y S-CURR DENS   J^y_x - VALMIN -2.8701E-03 VALMAX  2.7636E-10
+
+
+
+    Y-COMP Y S-CURR DENS   J^y_y - VALMIN -2.8701E-03 VALMAX  1.1229E-10
+
+
+
+    Z-COMP Y S-CURR DENS   J^y_z - VALMIN -3.0556E-02 VALMAX  3.1282E-02
+
+
+
+    X-COMP Z S-CURR DENS   J^z_x - VALMIN -3.2775E-02 VALMAX  3.2770E-02
+
+
+
+    Y-COMP Z S-CURR DENS   J^z_y - VALMIN -3.2615E-02 VALMAX  3.2821E-02
+
+
+
+    Z-COMP Z S-CURR DENS   J^z_z - VALMIN -2.2858E-03 VALMAX  6.5283E-03
+
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+37400 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN  200  187 0.61954E-01 0.61844E-01-0.50000E+00
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECHG        TELAPSE       37.75 TCPU       35.60
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE       37.75 TCPU       35.60
+ EEEEEEEEEE TERMINATION  DATE 27 07 2024 TIME 20:44:16.8
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+
+DATE END   : Sat 27 Jul 20:44:17 BST 2024
+Script run_exec done.
+============================================
+
+============================================
+Post Processing Report
+--------------------------------------------
+Begining of post processing : Sat 27 Jul 20:44:17 BST 2024
+List of saved files from Node 0
+  TEMPORARY            SAVED
+  fort.9               WSe2_prop.f9                                          25028436 Jul 27 20:43
+  fort.25              WSe2_prop.f25                                         7289568  Jul 27 20:44
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /gpfs/home/hz1420/tmp/WSe2_prop_95696
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+gpfs            2.1P  125T  2.0P   6% /gpfs
+
+  Usage by folders (du -m)
+6199	/gpfs/home/hz1420/tmp/WSe2_prop_95696
+
+  Detailed file list of Node 0(ls -l .)
+    see /gpfs/home/hz1420/wse2/WSe2_prop.log file
+--------------------------------------------
+
+End of post processing : Sat 27 Jul 20:44:18 BST 2024
+Script post_proc done.
+===========================================
