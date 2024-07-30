@@ -2455,13 +2455,17 @@ class Properties_output(POutBASE):
             type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
-            self.\* (Surf|Traj): Return to ``topond.Surf`` or ``topond.Traj``
-                classes, depending on input file types. The attribute name is
-                upper case type names. If unknown, return to ``self.TOPOND``.
+            self.\* (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph):
+                Return to ``topond`` property classes, depending on input file types. The
+                attribute name is upper case type names. If unknown, return to
+                ``self.TOPOND``. A ``topond.ChargeDensity`` or
+                ``topond.GradientTraj`` class is generated.
         """
         import warnings
         from CRYSTALpytools.base.extfmt import TOPONDParser
-        from CRYSTALpytools.topond import Surf, Traj
+        from CRYSTALpytools.topond import \
+            ChargeDensity, SpinDensity, Gradient, Laplacian, HamiltonianKE, \
+            LagrangianKE, VirialField, ELF, GradientTraj, ChemicalGraph
 
         surflist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
                     'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB']
@@ -2474,15 +2478,9 @@ class Properties_output(POutBASE):
 
         issurf = False; istraj = False
         for t in surflist:
-            if t in type:
-                issurf = True
-                type = t
-                break
+            if t in type: issurf = True; type = t; break
         for t in trajlist:
-            if t in type:
-                istraj = True
-                type = t
-                break
+            if t in type: istraj = True; type = t; break
 
         # still need to distinguish surf and traj
         if issurf==False and istraj==False:
@@ -2492,10 +2490,8 @@ class Properties_output(POutBASE):
             file = open(topondfile, 'r')
             header = file.readline()
             file.close()
-            if 'DSAA' in header:
-                issurf = True
-            else:
-                istraj = True
+            if 'DSAA' in header: issurf = True
+            else: istraj = True
 
         if issurf == True:
             _, a, b, c, _, _, map, unit = TOPONDParser.contour2D(topondfile)
@@ -2510,7 +2506,25 @@ class Properties_output(POutBASE):
                 # no atom plot currently, though read method is given
                 _, base = super().get_topond_geometry()
             # class instantiation
-            obj = Surf(map, base, struc, type=type, unit=unit)
+            if type == 'SURFRHOO' or type == 'unknown':
+            # map from base method has spin dimension
+                obj = ChargeDensity(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFSPDE':
+                obj = SpinDensity(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFLAPP':
+                obj = Laplacian(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFLAPM':
+                obj = Laplacian(-map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFGRHO':
+                obj = Gradient(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFKKIN':
+                obj = HamiltonianKE(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFGKIN':
+                obj = LagrangianKE(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFVIRI':
+                obj = VirialField(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFELFB':
+                obj = ELF(map[:,:,0], base, 2, struc, unit)
             obj._set_unit('Angstrom')
 
         elif istraj == True:
@@ -2521,7 +2535,10 @@ class Properties_output(POutBASE):
             # no atom plot currently, though read method is given
             _, base = super().get_topond_geometry()
             # class instantiation
-            obj = Traj(wtraj, traj, base, struc, type=type, unit=unit)
+            if type == 'TRAJGRAD' or type == 'unknown':
+                obj = GradientTraj(wtraj, traj, base, struc, unit)
+            elif type == 'TRAJMOLG':
+                obj = ChemicalGraph(wtraj, traj, base, struc, unit)
             obj._set_unit('Angstrom')
 
         if type == 'unknown': type = 'TOPOND'

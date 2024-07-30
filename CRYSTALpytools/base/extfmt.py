@@ -597,8 +597,8 @@ class TOPONDParser():
         for i in range(npt_y):
             tabbg = int(i * nline_per_y)
             tabed = int((i + 1) *nline_per_y)
-            map[i, :regular_entries, :] = tabtmp[tabbg:tabed-1, :].flatten()
-            map[i, regular_entries:, :] = tabtmp[tabed-1, 0:last_line_entry]
+            map[i, :regular_entries, :] = tabtmp[tabbg:tabed-1, :].flatten().reshape([-1,1])
+            map[i, regular_entries:, :] = tabtmp[tabed-1, 0:last_line_entry].flatten().reshape([-1,1])
 
         return spin, a, b, c, cosxy, struc, map, 'a.u.'
 

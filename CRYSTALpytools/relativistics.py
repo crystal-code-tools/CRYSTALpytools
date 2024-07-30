@@ -22,7 +22,8 @@ class ChargeDensity(ChgDens):
 class VectorField():
     """
     The basic vector field object, containing a nY\*nX\*3 (nZ\*nY\*nX\*3) data
-    array for 2D (3D) fields. **3D methods under development**.
+    array for 2D (3D) fields. Call the property-specific child classes below in
+    use. **3D methods under development**.
     """
     def plot_2D(self, levels=100, quiverplot=True, quiverscale=1.0,
                 colorplot=True, colormap='jet', cbar_label=None, a_range=[],
@@ -80,20 +81,19 @@ class VectorField():
 
         # dimen
         if self.dimension != 2:
-            raise Exception('Not a 2D charge density object.')
+            raise Exception('Not a 2D vector field object.')
 
         # levels
         ## get norm
         vnorm = np.linalg.norm(self.data, axis=2)
-        if isinstance(levels, int) or isinstance(levels, float):
-            levels = np.linspace(np.min(vnorm), np.max(vnorm), int(levels))
-        else:
-            levels = np.array(levels, dtype=float)
-            if levels.ndim > 1: raise ValueError('Levels must be a 1D array.')
+        levels = np.array(levels, ndmin=1, dtype=float)
+        if levels.shape[0] == 1:
+            levels = np.linspace(np.min(vnorm), np.max(vnorm), int(levels[0]))
+        if levels.ndim > 1: raise ValueError('Levels must be a 1D array.')
 
         # plot
         if np.all(fig==None):
-            fig, ax = plt.subplots(1, 1, figsize=figsize, layout='constrained')
+            fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
             axes = fig.axes
         else:
             if np.all(ax_index==None):
@@ -602,7 +602,7 @@ class SpinCurrentDensity(VectorField):
                 raise ValueError("Inconsistent lengthes of 'direction 'and 'ax_index'.")
         else:
             fig, ax = plt.subplots(1, len(direction), figsize=figsize,
-                                   sharex=True, sharey=True, layout='constrained')
+                                   sharex=True, sharey=True, layout='tight')
             ax_index = [i for i in range(len(direction))]
 
         for id, d in enumerate(direction):

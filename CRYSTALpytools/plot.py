@@ -13,14 +13,25 @@ import numpy as np
 
 #--------------------------ECHG charge and spin density----------------------#
 
-def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
-              linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-              cbar_label=None, a_range=[], b_range=[], rectangle=False,
-              edgeplot=False, x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8],
-              **kwargs):
+def plot_ECHG(
+    *echg, unit='Angstrom', output=[], option='both', levels=150,
+    lineplot=False, linewidth=1.0, isovalues=None, colorplot=True,
+    colormap='jet', cbar_label='default', a_range=[], b_range=[], rectangle=False,
+    edgeplot=False, x_ticks=5, y_ticks=5, layout=None, title=None,
+    figsize=[6.4, 4.8], sharex=True, sharey=True, fontsize=14, **kwargs):
     """
-    Read multiple 2D charge density files / objects and return to a list of
-    figures and axes. The uniform plot set-ups are used for comparison.
+    Read and plot multiple 2D charge density files / objects. The uniform plot
+    set-ups are used for comparison.
+
+    3 styles are available:
+
+    1. ``lineplot=True`` and ``colorplot=True``: The color-filled contour map
+        with black contour lines. Dotted lines for negative values and solid
+        lines for positive values. The solid line twice in width for 0.  
+    2. ``lineplot=False`` and ``colorplot=True``: The color-filled contour map.  
+    3. ``lineplot=True`` and ``colorplot=False``: The color coded contour line
+        map. Blue dotted line for negative values and red solid lines for
+        positive values. The balck solid line twice in width for 0.
 
     Available options:
 
@@ -31,16 +42,15 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
     * 'diff': Substracting charge data from the first entry with the following
         entries. Return to a non spin-polarized object.  
 
-    .. note::
-
-        If file names are given, the code only reads the first 2D data map in
-        fort.25 files.
-
     Args:
         \*echg (ChargeDensity|str): Extendable. File names or
             ``electronics.ChargeDensity`` objects.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
             Bohr:math:`^{-3}`.
+        output (str|list[str]): Output files corresponding to the input data
+            file. String for the same output of all the files and list for
+            every input file. If not given, read the first 1(2) MAPNET data of
+            systems without (with) spin.
         option (str): Available options see above.
         levels (int|array): Set levels of contour plot. A number for linear
             scaled plot colors or an array for user-defined levels, **must be
@@ -61,30 +71,48 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
-            refers to the old :math:`b`(i.e., expansion first).
+            refers to the old :math:`b`.
         edgeplot (bool): Whether to add cell edges represented by the original
             base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
-        add_title (bool): Whether to add property plotted as title.
+        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
+            2 cols per row.
+        title (str|None): The title of the plot. 'None' for no title. The
+            default subplot titles are used either way.
         figsize (list): Matplotlib figure size. Note that axes aspects are
             fixed to be equal.
-        \*\*kwargs : Other arguments passed to ``axes.contour()`` function
-            to set contour lines.
+        sharex (bool): Whether to share the x-axis among subplots.
+        sharey (bool): Whether to share the y-axis among subplots.
+        fontsize (int): Fontsize of the heightest level of title.
+        \*\*kwargs : Other arguments passed to ``axes.contour()`` function to
+            set contour lines. Applied to all the subplots.
+
     Returns:
         figs (list|Figure): Matplotlib Figure object or a list of them.
     """
     from CRYSTALpytools.electronics import ChargeDensity
     import numpy as np
+    import matplotlib.pyplot as plt
 
-    obj = []
+    # output
+    output = np.array(output, ndmin=1)
+    if len(output) == 1: # same output for all the inputs
+        output = np.repeat(output, len(echg))
+    elif len(output) == 0: # no output
+        output = [None for i in range(len(echg))]
+    # get objects
+    obj = []; countstr = 0
     for i in echg:
         if isinstance(i, str):
-            obj.append(ChargeDensity.from_file(i, method=None))
+            if countstr >= len(output):
+                raise ValueError("Inconsistent length of input file name and output.")
+            obj.append(ChargeDensity.from_file(i, output=output[countstr]))
         elif isinstance(i, ChargeDensity):
             obj.append(i)
         else:
             raise TypeError("Inputs must be either string or electronics.ChargeDensity objects.")
+
     # substraction
     if 'diff' in option.lower():
         obj[0].substract(*[i for i in obj[1:]])
@@ -95,8 +123,10 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
         spin_range = []
         chg_range = []
         for i in obj:
-            chg_range.append([np.min(i.data[:, :, 0]), np.max(i.data[:, :, 0])])
-            if i.spin == 2:
+            if i.spin == 1:
+                chg_range.append([np.min(i.data), np.max(i.data)])
+            else:
+                chg_range.append([np.min(i.data[:, :, 0]), np.max(i.data[:, :, 0])])
                 spin_range.append([np.min(i.data[:, :, 1]), np.max(i.data[:, :, 1])])
         if spin_range == []:
             levels1 = np.linspace(np.min(chg_range), np.max(chg_range), levels)
@@ -114,27 +144,56 @@ def plot_ECHG(*echg, unit='Angstrom', option='both', levels=150, lineplot=False,
             levels2 = levels[1]
     levels = np.vstack([levels1, levels2])
 
+    # layout of plots
+    if option.lower() == 'both':
+        nplt = int(len(obj) * 2)
+    else:
+        nplt = len(obj)
+
+    if np.all(layout!=None):
+        if layout[0]*layout[1] < nplt:
+            warnings.warn('Layout size smaller than the number of plots. Using default layout.',
+                          stacklevel=2)
+            layout = None
+    if np.all(layout==None):
+        if nplt == 1:
+            layout = [1, 1]
+        else:
+            layout = [int(np.ceil(nplt/2)), 2]
+
+    fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
+                           sharex=sharex, sharey=sharey, layout='tight')
+
     # plot
-    figs = []
-    for i in obj:
-        figs.append(
-            i.plot_2D(unit, option, levels, lineplot, linewidth, isovalues,
-                      colorplot, colormap, cbar_label, a_range, b_range,
-                      rectangle, edgeplot, x_ticks, y_ticks, add_title,
-                      figsize, **kwargs)
-        )
-    if len(obj) == 1:
-        figs = figs[0]
-    return figs
+    ax_index = 0
+    for o in obj:
+        if option.lower() == 'both':
+            iax = [ax_index, ax_index+1]
+            fig = o.plot_2D(unit, 'both', levels, lineplot, linewidth, isovalues,
+                            colorplot, colormap, cbar_label, a_range, b_range,
+                            rectangle, edgeplot, x_ticks, y_ticks, 'default',
+                            figsize, fig, iax, **kwargs)
+            ax_index += 2
+        else:
+            fig = o.plot_2D(unit, option.lower(), levels, lineplot, linewidth,
+                            isovalues, colorplot, colormap, cbar_label, a_range,
+                            b_range, rectangle, edgeplot, x_ticks, y_ticks,
+                            'default', figsize, fig, [ax_index], **kwargs)
+            ax_index += 1
+    # title
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
+    return fig
 
-#----------------------------------SPIN CURRENTS------------------------------#
 
-def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','y','z'],
-                         levels=100, quiverplot=True, quiverscale=1.0,
-                         colorplot=True, colormap='jet', cbar_label='default',
-                         a_range=[], b_range=[], rectangle=False, edgeplot=False,
-                         x_ticks=5, y_ticks=5, layout=None, title=None,
-                         figsize=[6.4, 4.8], sharex=True, sharey=True, **kwargs):
+#------------------------------2c-SCF vector field----------------------------#
+
+def plot_relativistics2D(
+    *relat, unit='SI', type=[], output=[], direction=['x','y','z'], levels=100,
+    quiverplot=True, quiverscale=1.0, colorplot=True, colormap='jet',
+    cbar_label='default', a_range=[], b_range=[], rectangle=False, edgeplot=False,
+    x_ticks=5, y_ticks=5, layout=None, title=None, figsize=[6.4, 4.8],
+    sharex=True, sharey=True, fontsize=14, **kwargs):
     """
     Plot 2D vector field properties from relativistics (2c-SCF) calculations.
 
@@ -188,7 +247,7 @@ def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','
         layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
             2 cols per row.
         title (str|None): The title of the plot. 'None' for no title. The
-            default subplot titles are used.
+            default subplot titles are used either way.
         figsize (list): Matplotlib figure size. Note that axes aspects are
             fixed to be equal.
         sharex (bool): Whether to share the x-axis among subplots.
@@ -234,7 +293,7 @@ def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','
         for r in relat:
             if isinstance(r, str):
                 if len(output) == 0:
-                    raise ValueError("Indices must be set for input files. Otherwise use input objects.")
+                    raise ValueError("Outputs must be set for input files. Otherwise use input objects.")
                 if countstr >= len(type) or countstr >= len(output):
                     raise ValueError("Inconsistent length of input file name and output / type.")
                 objs.append(
@@ -267,7 +326,7 @@ def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','
         layout = [int(np.ceil(nplt/2)), 2]
 
     fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
-                           sharex=sharex, sharey=sharey, layout='constrained')
+                           sharex=sharex, sharey=sharey, layout='tight')
     # plot
     ax_index = 0
     for o in objs:
@@ -288,372 +347,6 @@ def plot_relativistics2D(*relat, unit='SI', type=[], output=[], direction=['x','
     if np.all(title!=None):
         fig.suptitle(title, fontsize=fontsize)
     return fig
-
-
-def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
-    """
-    Plots the 2D magnetization vector field.
-
-    Args:
-        header (list): List containing information about the fort.25 header.
-        dens (numpy.ndarray): Array containing the vector field data.
-        quivscale (float): Scale factor for the quiver plot.
-        name (str, optional):  Name used for saving the plots.
-        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
-        dpi (int, optional): DPI (dots per inch) for the output image. Default is 400.
-
-    Returns:
-        None
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    for i in range(2, 20):
-        if (header[0] % i) == 0:
-            nrow_split = int(header[0]/i)
-
-    for i in range(2, 20):
-        if (header[1] % i) == 0:
-            ncol_split = int(header[1]/i)
-
-    # initializes the arrays
-    projx_m = np.zeros((nrow_split, ncol_split), dtype=float)
-    projy_m = np.zeros((nrow_split, ncol_split), dtype=float)
-    mod_m = np.zeros((header[0], header[1]), dtype=float)
-
-    # Generates the meshgrid
-    mesh_x = np.zeros((header[0], header[1]), dtype=float)
-    mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
-    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
-
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
-                  [header[4]*header[2], header[3]]])  # Change of basis matrix
-
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
-            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
-
-    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
-    mesh_y = mesh_y * 0.529177249
-
-    r = 0
-    s = 0
-    step_nrow = int(header[0]/nrow_split)
-    step_ncol = int(header[1]/ncol_split)
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            mesh_projx[i, j] = mesh_x[r, s]
-            mesh_projy[i, j] = mesh_y[r, s]
-            s += step_ncol
-        s = 0
-        r += step_nrow
-
-    # Creates the orthogonal vectorial basis for the projections
-    CB = header[7] - header[6]
-    BA = header[6] - header[5]
-    if header[4] == 0:
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-    else:
-        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-
-    # Calculates the modulus of the vectorial field
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mod_m[i, j] = np.sqrt((dens[i, j, 0]**2) +
-                                  (dens[i, j, 1]**2)+(dens[i, j, 2]**2))
-
-    # Calculates the projections of the vectors in the ABC plane
-    ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 +
-                         ABC_normal[1]**2 + ABC_normal[2]**2)
-
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            projx_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
-                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_m[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol, 0)], dens[int(i*step_nrow), int(j*step_ncol), 1],
-                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-
-    # Plotting
-
-    m = plt.figure()
-    m = plt.contourf(mesh_x, mesh_y, mod_m, levels, cmap='cool')
-    m = plt.colorbar(mappable=m)
-    m = plt.quiver(mesh_projx, mesh_projy, projx_m, projy_m, scale=quivscale)
-    m = plt.xlabel('$\AA$')
-    m = plt.ylabel('$\AA$')
-    m = plt.savefig(name, dpi=dpi)
-
-    plt.show()
-
-
-def plot_vecfield2D_j(header, dens, quivscale, name='SC', levels=150, dpi=400):
-    """
-    Plots the 2D vector field of the spin current.
-
-    Args:
-        header (list): List containing information about the fort.25 header.
-        dens (numpy.ndarray): Array representing the vector field.
-        quivscale (float): Scale factor for the quiver plot.
-        name (str, optional):  Name used for saving the plots.
-        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
-        dpi (int, optional): DPI (dots per inch) for the output image. Defaults to 400.
-
-    Returns:
-        None
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    for i in range(2, 20):
-        if (header[0] % i) == 0:
-            nrow_split = int(header[0]/i)
-
-    for i in range(2, 20):
-        if (header[1] % i) == 0:
-            ncol_split = int(header[1]/i)
-
-    # initializes the arrays
-    projx_j = np.zeros((nrow_split, ncol_split), dtype=float)
-    projy_j = np.zeros((nrow_split, ncol_split), dtype=float)
-    mod_j = np.zeros((header[0], header[1]), dtype=float)
-
-    # Generates the meshgrid
-    mesh_x = np.zeros((header[0], header[1]), dtype=float)
-    mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
-    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
-
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
-                  [header[4]*header[2], header[3]]])  # Change of basis matrix
-
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
-            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
-
-    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
-    mesh_y = mesh_y * 0.529177249
-
-    r = 0
-    s = 0
-    step_nrow = int(header[0]/nrow_split)
-    step_ncol = int(header[1]/ncol_split)
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            mesh_projx[i, j] = mesh_x[r, s]
-            mesh_projy[i, j] = mesh_y[r, s]
-            s += step_ncol
-        s = 0
-        r += step_nrow
-
-    # Creates the orthogonal vectorial basis for the projections
-    CB = header[7] - header[6]
-    BA = header[6] - header[5]
-    if header[4] == 0:
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-    else:
-        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-
-    # Calculates the modulus of the vectorial field
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mod_j[i, j] = np.sqrt((dens[i, j, 0]**2) +
-                                  (dens[i, j, 1]**2)+(dens[i, j, 2]**2))
-
-    # Calculates the projections of the vectors in the ABC plane
-    ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 +
-                         ABC_normal[1]**2 + ABC_normal[2]**2)
-
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            projx_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
-                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_j[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                                                np.cross(np.array([dens[int(i*step_nrow), int(j*step_ncol), 0], dens[int(i*step_nrow), int(j*step_ncol), 1],
-                                                                                   dens[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-
-    j = plt.figure()
-    j = plt.contourf(mesh_x, mesh_y, mod_j, levels, cmap='winter')
-    j = plt.colorbar(mappable=j)
-    j = plt.quiver(mesh_projx, mesh_projy, projx_j, projy_j, scale=quivscale)
-    j = plt.xlabel('$\AA$')
-    j = plt.ylabel('$\AA$')
-    j = plt.savefig(name, dpi=dpi)
-
-    plt.show()
-
-
-def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', levels=150, dpi=400):
-    """
-    Plots the 2D spin current density vector fields.
-
-    Args:
-        header (list): List containing information about the fort.25 header.
-        dens_JX (numpy.ndarray): Array representing the X-component of the spin current density.
-        dens_JY (numpy.ndarray): Array representing the Y-component of the spin current density.
-        dens_JZ (numpy.ndarray): Array representing the Z-component of the spin current density.
-        quivscale: Scale factor for the quiver plot.
-        name (str, optional): Name used for saving the plots.
-        levels (int or array-like, optional): Determines the number and positions of the contour lines/regions.
-        dpi (int, optional): DPI (Dots per inch) for saving the plots. Defaults to 400.
-
-    Returns:
-        None
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    for i in range(2, 20):
-        if (header[0] % i) == 0:
-            nrow_split = int(header[0]/i)
-
-    for i in range(2, 20):
-        if (header[1] % i) == 0:
-            ncol_split = int(header[1]/i)
-
-    # initializes the arrays
-    projx_JX = np.zeros((nrow_split, ncol_split), dtype=float)
-    projy_JX = np.zeros((nrow_split, ncol_split), dtype=float)
-    mod_JX = np.zeros((header[0], header[1]), dtype=float)
-    projx_JY = np.zeros((nrow_split, ncol_split), dtype=float)
-    projy_JY = np.zeros((nrow_split, ncol_split), dtype=float)
-    mod_JY = np.zeros((header[0], header[1]), dtype=float)
-    projx_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
-    projy_JZ = np.zeros((nrow_split, ncol_split), dtype=float)
-    mod_JZ = np.zeros((header[0], header[1]), dtype=float)
-
-    # Generates the meshgrid
-    mesh_x = np.zeros((header[0], header[1]), dtype=float)
-    mesh_y = np.zeros((header[0], header[1]), dtype=float)
-    mesh_projx = np.zeros((nrow_split, ncol_split), dtype=float)
-    mesh_projy = np.zeros((nrow_split, ncol_split), dtype=float)
-
-    T = np.array([[np.sqrt(1 - header[4]**2)*header[2], 0],
-                  [header[4]*header[2], header[3]]])  # Change of basis matrix
-
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mesh_x[i, j] = np.dot(T, np.array([i, j]))[0]
-            mesh_y[i, j] = np.dot(T, np.array([i, j]))[1]
-
-    mesh_x = mesh_x * 0.529177249  # Bohr to Angstrom conversion
-    mesh_y = mesh_y * 0.529177249
-
-    r = 0
-    s = 0
-    step_nrow = int(header[0]/nrow_split)
-    step_ncol = int(header[1]/ncol_split)
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            mesh_projx[i, j] = mesh_x[r, s]
-            mesh_projy[i, j] = mesh_y[r, s]
-            s += step_ncol
-        s = 0
-        r += step_nrow
-
-    # Creates the orthogonal vectorial basis for the projections
-    CB = header[7] - header[6]
-    BA = header[6] - header[5]
-    if header[4] == 0:
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-    else:
-        BA = BA - ((np.dot(BA, CB))/(np.dot(BA, BA)))*CB
-        mod_BA = np.sqrt(BA[0]**2 + BA[1]**2 + BA[2]**2)
-        mod_CB = np.sqrt(CB[0]**2 + CB[1]**2 + CB[2]**2)
-        v1 = BA/mod_BA
-        v2 = CB/mod_CB
-
-    # Calculates the modulus of the vectorial field
-    for i in range(0, header[0]):
-        for j in range(0, header[1]):
-            mod_JX[i, j] = np.sqrt(
-                (dens_JX[i, j, 0]**2)+(dens_JX[i, j, 1]**2)+(dens_JX[i, j, 2]**2))
-            mod_JY[i, j] = np.sqrt(
-                (dens_JY[i, j, 0]**2)+(dens_JY[i, j, 1]**2)+(dens_JY[i, j, 2]**2))
-            mod_JZ[i, j] = np.sqrt(
-                (dens_JZ[i, j, 0]**2)+(dens_JZ[i, j, 1]**2)+(dens_JZ[i, j, 2]**2))
-
-    # Calculates the projections of the vectors in the ABC plane
-    ABC_normal = np.cross(BA, CB)
-    mod_normal = np.sqrt(ABC_normal[0]**2 +
-                         ABC_normal[1]**2 + ABC_normal[2]**2)
-
-    for i in range(0, nrow_split):
-        for j in range(0, ncol_split):
-            projx_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JX[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JX[int(i*step_nrow), int(j*step_ncol), 0], dens_JX[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JX[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-            projx_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JY[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JY[int(i*step_nrow), int(j*step_ncol), 0], dens_JY[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JY[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-            projx_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v2)
-            projy_JZ[i, j] = np.dot((1/(mod_normal**2))*np.cross(ABC_normal,
-                                    np.cross(np.array([dens_JZ[int(i*step_nrow), int(j*step_ncol), 0], dens_JZ[int(i*step_nrow), int(j*step_ncol), 1],
-                                                       dens_JZ[int(i*step_nrow), int(j*step_ncol), 2]]), ABC_normal)), v1)
-
-    # Plotting
-
-    JX = plt.figure()
-    JX = plt.contourf(mesh_x, mesh_y, mod_JX, levels, cmap='summer')
-    JX = plt.colorbar(mappable=JX)
-    JX = plt.quiver(mesh_projx, mesh_projy, projx_JX,
-                    projy_JX, scale=quivscale)
-    JX = plt.xlabel('$\AA$')
-    JX = plt.ylabel('$\AA$')
-    JX = plt.savefig(name+'_JX', dpi=dpi)
-
-    JY = plt.figure()
-    JY = plt.contourf(mesh_x, mesh_y, mod_JY, levels, cmap='summer')
-    JY = plt.colorbar(mappable=JY)
-    JY = plt.quiver(mesh_projx, mesh_projy, projx_JY,
-                    projy_JY, scale=quivscale)
-    JY = plt.xlabel('$\AA$')
-    JY = plt.ylabel('$\AA$')
-    JY = plt.savefig(name+'_JY', dpi=dpi)
-
-    JZ = plt.figure()
-    JZ = plt.contourf(mesh_x, mesh_y, mod_JZ, levels, cmap='summer')
-    JZ = plt.colorbar(mappable=JZ)
-    JZ = plt.quiver(mesh_projx, mesh_projy, projx_JZ,
-                    projy_JZ, scale=quivscale)
-    JZ = plt.xlabel('$\AA$')
-    JZ = plt.ylabel('$\AA$')
-    JZ = plt.savefig(name+'_JZ', dpi=dpi)
-
-    plt.show()
-
 
 #--------------------------------BAND STRUCTURES------------------------------#
 
@@ -1110,14 +803,14 @@ def plot_electron_banddos(
 
 def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
                   levels='default', lineplot=True, linewidth=1.0, isovalues='%.4f',
-                  colorplot=False, colormap='jet', cbar_label=None,
-                  cpt_marker='o', cpt_color='k', cpt_size=10,
-                  traj_color='r', traj_linestyle=':', traj_linewidth=0.5,
-                  a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-                  add_title=True, figsize=[6.4, 4.8]):
+                  colorplot=False, colormap='jet', cbar_label='default',
+                  cpt_marker='o', cpt_color='k', cpt_size=10, traj_color='r',
+                  traj_linestyle=':', traj_linewidth=0.5, a_range=[], b_range=[],
+                  edgeplot=False, x_ticks=5, y_ticks=5, layout=None, title=None,
+                  figsize=[6.4, 4.8], sharex=True, sharey=True, fontsize=14):
     """
-    Read multiple TOPOND 2D plot files / objects and return to a list of
-    figures and axes. The uniform plot set-ups are used for comparison.
+    Read and plot multiple TOPOND 2D plot files / objects. The uniform plot
+    set-ups are used for comparison.
 
      .. note::
 
@@ -1142,22 +835,30 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
     .. note::
 
         2D periodicity (``a_range`` and ``b_range``), though available for the
-        ``Surf`` class, is not suggested as TOPOND plotting window does not
-        always commensurate with periodic boundary. The ``Traj`` class has no
-        2D periodicity so if ``option='overlay'``, ``a_range``, ``b_range`` and
-        ``edgeplot`` will be disabled.
+        child classes of the ``topond.ScalarField`` class, is not suggested as
+        TOPOND plotting window does not always commensurate with periodic
+        boundary. The ``topond.Trajectory`` class has no 2D periodicity so if
+        ``option='overlay'``, ``a_range``, ``b_range`` and ``edgeplot`` will be
+        disabled.
+
+    .. note::
+
+        The ``plot_lapm`` option is not available for ``Laplacian`` class. Use
+        ``Laplacian().plot_2D()``.
 
     Args:
-        \*topond (Surf|Traj|str): Extendable. File names, ``topond.Surf`` or
-            ``topond.Traj`` objects. Geometry information is not available if
-            file names are used - **might lead to errors!**.
+        \*topond (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph|list|str):
+            Extendable. File names, ``topond`` objects or 1\*2 list for
+            ``option='overlay'``. Geometry information is not available if file
+            names are used - **might lead to errors!**.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
             Bohr:math:`^{-3}`.
         type (str): 'infer' or specified. Otherwise warning will be given.
         option (str): Available options see above.
-        levels (array): Set levels of contour plot. 'Default' for built-in,
-                property adaptive levels (``unit='Angstrom'``). Otherwise
-                entries **must be consistent with ``unit``**.
+        levels (array|int): Set levels of contour plot. 'Default' for built-in,
+                property adaptive levels (``unit='Angstrom'``). Otherwise as
+                array or int for linear scales. Entries **must be consistent
+                with ``unit``**.
         lineplot (bool): Plot contour lines.
         linewidth (float): Contour linewidth. Useful only if ``lineplot=True``.
             Other properties are not editable.
@@ -1181,14 +882,20 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
             original base vectors (not inflenced by a/b range).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
-        add_title (bool): Whether to add property plotted as title.
+        title (str|None): The title of the plot. 'None' for no title. The
+            default subplot titles are used either way.
         figsize (list): Matplotlib figure size. Note that axes aspects are
             fixed to be equal.
+        sharex (bool): Whether to share the x-axis among subplots.
+        sharey (bool): Whether to share the y-axis among subplots.
+        fontsize (int): Fontsize of the heightest level of title.
+
     Returns:
-        figs (list|Figure): Matplotlib Figure object or a list of them.
+        fig (Figure): Matplotlib Figure object.
     """
-    from CRYSTALpytools.topond import Surf, Traj
+    from CRYSTALpytools.topond import ScalarField, Trajectory
     from CRYSTALpytools.crystal_io import Properties_output
+    import matplotlib.pyplot as plt
     import numpy as np
     import warnings
 
@@ -1196,14 +903,14 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
     for i in topond:
         if isinstance(i, str):
             obj.append(Properties_output().read_topond(i, type=type))
-        elif isinstance(i, Surf) or isinstance(i, Traj):
+        elif isinstance(i, ScalarField) or isinstance(i, Trajectory):
             obj.append(i)
         elif isinstance(i, list) or isinstance(i, tuple):
             if len(i) != 2:
                 raise ValueError('Input lists must have 2 elements.')
-            if isinstance(i[0], Surf) and isinstance(i[1], Traj):
+            if isinstance(i[0], ScalarField) and isinstance(i[1], Trajectory):
                 obj.append([i[0], i[1]])
-            elif isinstance(i[1], Surf) and isinstance(i[0], Traj):
+            elif isinstance(i[1], ScalarField) and isinstance(i[0], Trajectory):
                 obj.append([i[1], i[0]])
             else:
                 raise TypeError("Input type does not follow the requirement of the 'overlay' option.")
@@ -1212,49 +919,82 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
 
     # substraction
     if 'diff' in option.lower():
-        if isinstance(obj[0], Traj):
-            raise TypeError("The 'diff' option is not applicable to 'topond.Traj' objects.")
+        if isinstance(obj[0], Trajectory):
+            raise TypeError("The 'diff' option is not applicable to 'topond.Trajectory' objects.")
         for i in obj[1:]:
+            if isinstance(i, Trajectory): continue
             if obj[0].type != i.type:
                 raise TypeError("Different properties are read for input objects / files, 'diff' option not available.")
             obj[0].substract(i)
         obj = [obj[0]]
+
     # set uniform levels
     if np.all(levels=='default'):
         levels = 'default'
     else:
-        levels = np.array(levels, dtype=float)
+        levels = np.array(levels, ndmin=1, dtype=float)
+        if levels.shape[0] == 1:
+            ranges = []
+            for i in obj:
+                if isinstance(i, Trajectory): continue
+                ranges.append([np.min(i.data), np.max(i.data)])
+            levels = np.linspace(np.min(ranges), np.max(ranges), int(levels[0]))
+        else:
+            if levels.ndim > 1: raise ValueError('Input levels must be a 1D array.')
+
+    # layout of plots
+    nplt = len(obj)
+
+    if np.all(layout!=None):
+        if layout[0]*layout[1] < nplt:
+            warnings.warn('Layout size smaller than the number of plots. Using default layout.',
+                          stacklevel=2)
+            layout = None
+    if np.all(layout==None):
+        if nplt == 1:
+            layout = [1, 1]
+        else:
+            layout = [int(np.ceil(nplt/2)), 2]
+
+    fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
+                           sharex=sharex, sharey=sharey, layout='tight')
 
     # plot
-    figs = []
-    if 'overlay' in option.lower():
-        if a_range != [] or b_range != []:
-            warnings.warn("Periodic plotting not available for 'topond.Traj' objects. Using default ranges.",
-                          stacklevel=2)
-            a_range = []; b_range = []
-        for i in obj:
-            figs.append(i[0].plot(
-                unit, levels, lineplot, linewidth, isovalues, colorplot, colormap,
-                cbar_label, [], [], False, x_ticks, y_ticks, add_title, figsize,
-                overlay=i[1], cpt_marker=cpt_marker, cpt_color=cpt_color,
-                cpt_size=cpt_size, traj_color=traj_color,
-                traj_linestyle=traj_linestyle, traj_linewidth=traj_linewidth))
+    ax_index = 0
+    for o in obj:
+        if isinstance(o, ScalarField):
+            fig = o.plot_2D( # name the keywords for compatibility with Laplacian.plot_2D
+                unit=unit, levels=levels, lineplot=lineplot, linewidth=linewidth,
+                isovalues=isovalues, colorplot=colorplot, colormap=colormap,
+                cbar_label=cbar_label, a_range=a_range, b_range=b_range,
+                edgeplot=edgeplot, x_ticks=x_ticks, y_ticks=y_ticks,
+                title='default', figsize=figsize, overlay=None, fig=fig,
+                ax_index=ax_index)
+        elif isinstance(o, Trajectory):
+            fig = o.plot_2D(
+                unit, cpt_marker, cpt_color, cpt_size, traj_color, traj_linestyle,
+                traj_linewidth, x_ticks, y_ticks, 'default', figsize, None, fig,
+                ax_index)
+        else: # overlay plot
+            if a_range != [] or b_range != []:
+                warnings.warn("Periodic plotting not available for trajectory objects. Using default ranges.",
+                              stacklevel=2)
+                a_range_tmp = []; b_range_tmp = []
+            fig = o[0].plot_2D( # name the keywords for compatibility with Laplacian.plot_2D
+                unit=unit, levels=levels, lineplot=lineplot, linewidth=linewidth,
+                isovalues=isovalues, colorplot=colorplot, colormap=colormap,
+                cbar_label=cbar_label, a_range=a_range, b_range=b_range,
+                edgeplot=edgeplot, x_ticks=x_ticks, y_ticks=y_ticks,
+                title='default', figsize=figsize, overlay=o[1], fig=fig,
+                ax_index=ax_index, cpt_marker=cpt_marker, cpt_color=cpt_color,
+                cpt_size=cpt_size, traj_color=traj_color, traj_linestyle=traj_linestyle,
+                traj_linewidth=traj_linewidth)
+        ax_index += 1
 
-    else:
-        for i in obj:
-            if isinstance(i, Surf):
-                figs.append(i.plot(
-                    unit, levels, lineplot, linewidth, isovalues, colorplot,
-                    colormap, cbar_label, a_range, b_range, edgeplot, x_ticks,
-                    y_ticks, add_title, figsize, None))
-            else:
-                figs.append(i.plot_2D(
-                    unit, cpt_marker, cpt_color, cpt_size, traj_color, traj_linestyle,
-                    traj_linewidth, x_ticks, y_ticks, add_title, figsize, None, None))
-
-    if len(obj) == 1:
-        figs = figs[0]
-    return figs
+    # title
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
+    return fig
 
 #--------------------------------------XRD------------------------------------#
 
@@ -3111,27 +2851,25 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
 #--------------------------------obsolete functions----------------------------#
 #------------------------------------------------------------------------------#
 
-def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png",
-                 transparency=False):
+def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """
-    Deprecated. Use ``plot_elastics_3D``.
+    Deprecated and incompatible with new functions. Give error.
     """
-    import warnings
+    raise DeprecationWarning("The called method is deprecated and incompatible with the new one. Call 'plot_relativistics2D()' instead.")
 
-    warnings.warn("You are calling a deprecated function. Use 'plot_elastics_3D' instead.",
-                  stacklevel=2)
-    args = [i for i in args]
-    figs = plot_elastics_3D(
-        choose, *args, uniform_scale=True, add_title=False, nphi=ndeg,
-        ntheta=ndeg, nchi=ndeg
-    )
 
-    if not isinstance(figs, list):
-        figs = [figs]
-    for nfig, fig in enumerate(figs):
-        fig.savefig(choose + '{:d}'.format(nfig) + filetype,
-                    dpi=dpi, transparent=transparency)
-    return
+def plot_vecfield2D_j(header, dens, quivscale, name='SC', levels=150, dpi=400):
+    """
+    Deprecated and incompatible with new functions. Give error.
+    """
+    raise DeprecationWarning("The called method is deprecated and incompatible with the new one. Call 'plot_relativistics2D()' instead.")
+
+
+def plot_vecfield2D_J(header, dens_JX, dens_JY, dens_JZ, quivscale, name='SCD', levels=150, dpi=400):
+    """
+    Deprecated and incompatible with new functions. Give error.
+    """
+    raise DeprecationWarning("The called method is deprecated and incompatible with the new one. Call 'plot_relativistics2D()' instead.")
 
 
 def plot_electron_band(bands, unit='eV', k_labels=None, mode='single',
