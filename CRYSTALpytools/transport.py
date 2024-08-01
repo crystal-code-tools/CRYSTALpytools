@@ -49,7 +49,7 @@ class Tensor():
         geometry information is not required, it is saved if the standard
         output file is given.
 
-        Also allow for generating the following properites not printed by
+        Also allow for generating the following properties not printed by
         CRYSTAL:
 
         * Power Factor: :math:`S^{2}\\sigma`. Any 2 from 'SEEBECK', 'SIGMA' and
@@ -92,7 +92,7 @@ class Tensor():
             obj = cls.get_power_factor(obj1, obj2)
         elif method.lower() == 'zt':
             if len(file) != 3:
-                raise Exception("To get power factor you need 3 files.")
+                raise Exception("To get ZT you need 3 files.")
 
             obj1 = Properties_output(output).read_transport(file[0])
             obj2 = Properties_output(output).read_transport(file[1])
@@ -123,7 +123,7 @@ class Tensor():
             obj1 (Tensor): Tensor object 1 of 'SEEBECK', 'SIGMA' or 'SIGMAS' types.
             obj2 (Tensor): Tensor object 2 of 'SEEBECK', 'SIGMA' or 'SIGMAS' types.
         Returns:
-            cls (Tensor): 'POWERFACTOR' type of object, in 'W/m/K^2'.
+            cls (PowerFactor): 'POWERFACTOR' type of object, in 'W/m/K^2'.
         """
         if obj1.data.shape != obj2.data.shape:
             raise Exception("Inconsistent shapes for input objects.")
@@ -143,7 +143,7 @@ class Tensor():
         else:
             TypeError("For power factor you need 2 from 'SEEBECK', 'SIGMA' or 'SIGMAS'.")
 
-        return cls(obj1.T, obj1.mu, obj1.carrier, tensnew, obj1.struc, 'POWERFACTOR', 'W/m/K^2')
+        return PowerFactor(obj1.T, obj1.mu, obj1.carrier, tensnew, obj1.struc)
 
     @classmethod
     def get_zt(cls, obj1, obj2, obj3):
@@ -166,7 +166,7 @@ class Tensor():
             obj2 (Tensor): Tensor object 2 of 'KAPPA', 'SEEBECK', 'SIGMA' or 'SIGMAS' types.
             obj3 (Tensor): Tensor object 3 of 'KAPPA', 'SEEBECK', 'SIGMA' or 'SIGMAS' types.
         Returns:
-            cls (Tensor): 'ZT' type of object, in 'dimensionless'.
+            cls (ZT): 'ZT' type of object, in 'dimensionless'.
         """
         import numpy as np
         import copy
@@ -191,7 +191,7 @@ class Tensor():
         # S^2 \sigma T / \kappa
         for irow in range(len(tensnew)):
             tensnew[irow] = tensnew[irow] * objk.T[irow]
-        return cls(objk.T, objk.mu, objk.carrier, tensnew, objk.struc, 'ZT', 'dimensionless')
+        return ZT(objk.T, objk.mu, objk.carrier, tensnew, objk.struc)
 
     def plot(self, x_axis='potential', x_range=[], direction='xx', spin='sum',
              plot_series=[], plot_label=None, plot_color=None, plot_linestyle=None,
@@ -571,6 +571,24 @@ class Kappa(Tensor):
         super().__init__(temperature, potential, carrier_density, tensor, struc,
                          'KAPPA', 'W/m/K')
 
+    @classmethod
+    def from_file(cls, file, output=None):
+        """
+        Read the 'KAPPA.DAT' file. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        Args:
+            file (str): 'KAPPA.DAT' file.
+            output (str): Properties output file.
+        Returns:
+            cls (Kappa)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        obj = Properties_output(output).read_transport(file)
+        if obj.type.upper() != 'KAPPA': raise TypeError('Not a KAPPA.DAT file.')
+        return obj
+
 
 class Sigma(Tensor):
     """
@@ -593,6 +611,24 @@ class Sigma(Tensor):
     def __init__(self, temperature, potential, carrier_density, tensor, struc):
         super().__init__(temperature, potential, carrier_density, tensor, struc,
                          'SIGMA', '1/Ohm/m')
+
+    @classmethod
+    def from_file(cls, file, output=None):
+        """
+        Read the 'SIGMA.DAT' file. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        Args:
+            file (str): 'SIGMA.DAT' file.
+            output (str): Properties output file.
+        Returns:
+            cls (Sigma)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        obj = Properties_output(output).read_transport(file)
+        if obj.type.upper() != 'SIGMA': raise TypeError('Not a SIGMA.DAT file.')
+        return obj
 
 
 class Seebeck(Tensor):
@@ -621,6 +657,24 @@ class Seebeck(Tensor):
         super().__init__(temperature, potential, carrier_density, tensor, struc,
                          'SEEBECK', 'V/K')
 
+    @classmethod
+    def from_file(cls, file, output=None):
+        """
+        Read the 'SEEBECK.DAT' file. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        Args:
+            file (str): 'SEEBECK.DAT' file.
+            output (str): Properties output file.
+        Returns:
+            cls (Seebeck)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        obj = Properties_output(output).read_transport(file)
+        if obj.type.upper() != 'SEEBECK': raise TypeError('Not a SEEBECK.DAT file.')
+        return obj
+
 
 class SigmaS(Tensor):
     """
@@ -644,6 +698,116 @@ class SigmaS(Tensor):
         super().__init__(temperature, potential, carrier_density, tensor, struc,
                          'SIGMAS', 'A/m/K')
 
+    @classmethod
+    def from_file(cls, file, output=None):
+        """
+        Read the 'SIGMAS.DAT' file. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        Args:
+            file (str): 'SIGMAS.DAT' file.
+            output (str): Properties output file.
+        Returns:
+            cls (SigmaS)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        obj = Properties_output(output).read_transport(file)
+        if obj.type.upper() != 'SIGMAS': raise TypeError('Not a SIGMAS.DAT file.')
+        return obj
+
+
+class PowerFactor(Tensor):
+    """
+    Thermoelectrical power factor :math:`S^{2}\\sigma`. Inherited
+    ``transport.Tensor``. Unit: W/m/K^2.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+            elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (PowerFactor): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'POWERFACTOR', 'W/m/K^2')
+
+    @classmethod
+    def from_file(cls, file1, file2, output=None):
+        """
+        Get thermoelectric power factor object from any 2 files of 'SEEBECK',
+        'SIGMA' or 'SIGMAS' types. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        .. note::
+
+            Make sure all the entries are from the same calculation. The code
+            only checks the dimensionalities of tensors. The geometry follows
+            the first entry.
+
+        Args:
+            file1 (str): File 1 in 'SEEBECK' 'SIGMA' or 'SIGMAS' types.
+            file2 (str): File 2 in 'SEEBECK' 'SIGMA' or 'SIGMAS' types.
+            output (str): Properties output file.
+        Returns:
+            cls (PowerFactor)
+        """
+        return Tensor.from_file(file1, file2, output=output, method='power factor')
+
+
+class ZT(Tensor):
+    """
+    Thermoelectric dimensionless figure of merit (ZT)
+    :math:`\\frac{S^{r}\\sigma T}{\\kappa}`. Inherited ``transport.Tensor``.
+    Unit: dimensionless.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+            elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (ZT): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'ZT', 'dimensionless')
+
+    @classmethod
+    def from_file(cls, file1, file2, file3, output=None):
+        """
+        Get ZT object from a 'KAPPA' file and any 2 files of 'SEEBECK', 'SIGMA'
+        and 'SIGMAS'. Though currently the geometry information is not required,
+        it is saved if the standard output file is given.
+
+        .. note::
+
+            Make sure all the entries are from the same calculation. The code
+            only checks the dimensionalities of tensors. The geometry follows
+            the first entry.
+
+        Args:
+            file1 (str): File 1 in 'KAPPA', 'SEEBECK' 'SIGMA' or 'SIGMAS' types.
+            file2 (str): File 2 in 'KAPPA', 'SEEBECK' 'SIGMA' or 'SIGMAS' types.
+            file3 (str): File 3 in 'KAPPA', 'SEEBECK' 'SIGMA' or 'SIGMAS' types.
+            output (str): Properties output file.
+        Returns:
+            cls (PowerFactor)
+        """
+        return Tensor.from_file(file1, file2, file3, output=output, method='zt')
+
 
 class TDF(Distribution):
     """
@@ -663,4 +827,22 @@ class TDF(Distribution):
     """
     def __init__(self, energy, distr, struc):
         super().__init__(energy, distr, struc, 'TDF', '1/hbar^2*eV*fs/angstrom')
+
+    @classmethod
+    def from_file(cls, file, output=None):
+        """
+        Read the 'TDF.DAT' file. Though currently the geometry information is
+        not required, it is saved if the standard output file is given.
+
+        Args:
+            file (str): 'TDF.DAT' file.
+            output (str): Properties output file.
+        Returns:
+            cls (SigmaS)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+
+        obj = Properties_output(output).read_transport(file)
+        if obj.type.upper() != 'TDF': raise TypeError('Not a TDF.DAT file.')
+        return obj
 

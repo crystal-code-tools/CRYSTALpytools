@@ -701,7 +701,7 @@ class ChargeDensity():
 
         # levels
         levels = np.array(levels, dtype=float, ndmin=2)
-        if levels.shape[1] == 1
+        if levels.shape[1] == 1:
             if self.spin == 1:
                 levels1 = np.linspace(np.min(self.data), np.max(self.data),
                                       int(levels[0, 0]))

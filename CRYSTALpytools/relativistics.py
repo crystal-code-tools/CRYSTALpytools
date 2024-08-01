@@ -17,6 +17,20 @@ class ChargeDensity(ChgDens):
         Its ``type`` attribute is 'ECHG' rather than 'DENSITY'
 
     """
+    @classmethod
+    def from_file(cls, file, output):
+        """
+        Generate a ``ChargeDensity`` object from CRYSTAL formatted output unit
+        and standard screen output (mandatory).
+
+        Args:
+            file (str): File name of fort.25 or CUBE (in development) files.
+            output (str): Screen output of 'properties' calculation.
+        Returns:
+            cls (ChargeDensity)
+        """
+        from CRYSTALpytools.crystal_io import Properties_output
+        return Properties_output(output).read_relativistics(file, type='DENSITY')
 
 
 class VectorField():

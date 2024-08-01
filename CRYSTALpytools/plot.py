@@ -1287,7 +1287,7 @@ def plot_transport_tensor(
 
     direction = np.array(direction, ndmin=1)
     if option.lower() == 'multi':
-        if len(option) != 1:
+        if len(direction) != 1:
             raise ValueError("For 'multi' option, only one direction in string should be given.")
         direction = str(direction[0])
         for i in range(1, len(objs)):
@@ -1357,18 +1357,21 @@ def plot_transport_tensor(
         x_tot = np.array([[np.min(i.T), np.max(i.T)] for i in objs])
     else:
         raise ValueError("Unknown x axis value: '{}'.".format(x_axis))
-        ## plot series values
-        if plot_series == []: series = series_tot
-        else: plot_series = np.array(plot_series, ndmin=1)
 
+    ## plot series values
+    if plot_series == []:
+        series = series_tot
+    else:
+        plot_series = np.array(plot_series, ndmin=1)
         series = []
         for p in plot_series:
             if len(np.where(series_tot==p)[0]) == 0:
                 warnings.warn("The specified plot series value '{:6.2f}' does not appear in all the materials. It will be removed.".format(p),
-                                stacklevel=2)
+                              stacklevel=2)
                 continue
             else:
                 series.append(p)
+
     nplt = len(series)
     if nplt == 0: raise Exception('Cannot find common plot series.')
     ## captions

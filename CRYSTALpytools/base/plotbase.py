@@ -812,8 +812,9 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
 
     # plot
     if colorquiver == 'colored': # plot colored arrows
-        ax.quiver(X, Y, dataprj[:,:,0], dataprj[:,:,1], vnorm)
         norm = colors.Normalize(vmin=np.min(levels), vmax=np.max(levels), clip=False)
+        cmap = plt.get_cmap(colormap)
+        ax.quiver(X, Y, dataprj[:,:,0], dataprj[:,:,1], color=cmap(norm(vnorm.flatten())))
         m = cm.ScalarMappable(cmap=colormap, norm=norm)
         m.set_array(levels)
         divider = make_axes_locatable(ax)

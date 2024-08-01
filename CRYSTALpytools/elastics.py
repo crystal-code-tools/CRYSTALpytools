@@ -669,9 +669,9 @@ class Tensor3D():
         if np.all(title!=None):
             if title.lower() == 'default':
                 if 'comp' in property or 'poisson' in property:
-                    title = '{} (GPa)'.format(property)
-                else:
                     title = property
+                else:
+                    title = '{} (GPa)'.format(property)
 
         # Select plot lib
         if np.all(plot_lib!=None):
@@ -1067,11 +1067,14 @@ class Tensor2D():
         else:
             self.lattice_plot = self.lattice.matrix
 
-        if isinstance(u, str):
-            ureal = u
+        if np.all(u!=None):
+            if isinstance(u, str):
+                ureal = u
+            else:
+                u = np.array(u, ndmin=2)
+                ureal = [[i[0], i[1], 0.] for i in u]
         else:
-            u = np.array(u, ndmin=2)
-            ureal = [[i[0], i[1], 0.] for i in u]
+            ureal = u
 
         self.norm = np.array([[0, 0, 1]], dtype=float)
         if get_data == True:
@@ -1865,7 +1868,7 @@ def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
                     uchi = np.array([tensor.chi[ithetami]])
                     # u text
                     if np.all(utext!=None):
-                        utextplt = np.array(utextplt, ndmin=1)
+                        utextplt = np.array(utext, ndmin=1)
                         if len(utextplt) != 1:
                             warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
                                            stacklevel=2)
@@ -1877,7 +1880,7 @@ def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
                     uchi = np.array([tensor.chi[ithetami], tensor.chi[ithetammx]])
                     # u text
                     if np.all(utext!=None):
-                        utexpltt = np.array(utextplt, ndmin=1)
+                        utexpltt = np.array(utext, ndmin=1)
                         if len(utextplt) != 2:
                             warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
                                            stacklevel=2)
@@ -1890,16 +1893,6 @@ def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
 
                 else:
                     raise ValueError("Unknown u value: '{}'.".format(u))
-
-                # convert u into polar angles
-                uchi = []
-                for v in uplt:
-                    cossin_chi = np.matmul(
-                        np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
-                                                [np.sin(phi)*np.cos(theta), np.cos(phi)]])),
-                        [v[0], v[1]]
-                    )
-                    uchi.append(np.arctan2(cossin_chi[1], cossin_chi[0]))
 
             # plot
             for v, vlabel in zip(uchi, utextplt):
