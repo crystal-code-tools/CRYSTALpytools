@@ -2808,81 +2808,37 @@ class Properties_output(POutBASE):
 
 #-------------------------------------XRD--------------------------------------#
 
-    def read_cry_xrd_spec(self, properties_output):
+    def read_XRDspec(self, option='LP'):
         """
-        Read XRD spectrum data from a file.
+        Read XRD spectra from standard screen output of properties calculation.
+        It is envoked by keyword 'XRDSPEC'.
 
         Args:
-            properties_output (str): Path to the properties output file.
+            option (str): 'NC' for no correction (The 'INTENS' col); 'LP' for
+                Lorentz and polarization effects ('INTENS-LP') and 'DW' for LP
+                with Debye-Waller thermal factors ('INTENS-LP-DW').
         Returns:
-            self: The modified object with extracted XRD spectrum data.
+            self.XRDspec (XRD): The ``spectra.XRD`` object with spectra
+                information.
         """
-        import re
-        import sys
+        import numpy as np
+        from CRYSTALpytools.spectra import XRD
 
-        import pandas as pd
+        if not hasattr(self, 'file_name'):
+            raise Exception("The screen output file is not defined. Use the 'from_file()' method to add it.")
 
-        self.read_file(properties_output)
+        spec = super().get_XRDSPEC()
 
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        if filename.endswith('.outp'):
-            pass
+        option = option.upper()
+        if option == 'NC':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 1])
+        elif option == 'LP':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 2])
+        elif option == 'DW':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 3])
         else:
-            sys.exit('please, choose a valid file or rename it properly')
-
-        spectrum = re.compile(
-            '2THETA    INTENS  INTENS-LP INTENS-LP-DW', re.DOTALL)
-
-        match = []
-
-        a = 0
-
-        for line in data:
-            if spectrum.search(line):
-                match.append('WRITE LINE:' + line)
-                a = 1
-            else:
-                match.append('WRONG LINE:' + line)
-
-        if (a == 0):
-            sys.exit('please, choose a valid file or rename it properly')
-
-        df = pd.DataFrame(match)
-
-        num_riga = (df[df[0].str.contains(u'WRITE')].index.values)
-
-        num_riga = num_riga[0]
-
-        match = match[num_riga:]
-
-        pattern = re.compile(
-            '\s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+\n', re.DOTALL)
-
-        match_2 = []
-
-        for line in match:
-            if pattern.search(line):
-                # pulisco dalle scritte di prima
-                line = line.replace('WRONG LINE:', '')
-                match_2.append(line)
-
-        df = pd.DataFrame([i.strip().split() for i in match_2])
-
-        for i in range(0, 4):
-            df[i] = df[i].astype(float)
-
-        df = df.rename(columns={0: '2THETA', 1: 'INTENS',
-                                2: 'INTENS-LP', 3: 'INTENS-LP-DW'})
-
-        self.x = df['2THETA']
-        self.y = df['INTENS-LP']
-
-        self.title = title[:-1]
-
-        return self
+            raise ValueError("Unknown XRD spectra read option: '{}'.".format(option))
+        return self.XRDspec
 
 #--------------------------------1D line profile-------------------------------#
 
@@ -2931,62 +2887,6 @@ class Properties_output(POutBASE):
         self.title = title[:-4]
 
         return self
-
-#-----------------------------transport properties-----------------------------#
-
-    def read_transport(self, boltztra_out):
-        """
-        Read electron transport properties by the BOLTZTRA keyword, including
-        'KAPPA', 'SIGMA', 'SIGMAS', 'SEEBECK' and 'TDF'. Though currently the
-        geometry information is not required, it is saved if the standard
-        output file is given.
-
-        .. note::
-
-            For 'SEEBECK', all the 9 elements of the tensor was printed. As far
-            as the developers have been aware of, it is symmetrized. Therefore
-            the redundant 'yx', 'zx' and 'zy' dimensions are removed to keep
-            consistent with other outputs.
-
-        Args:
-            boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
-
-        Returns:
-            self.\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
-                'SIGMA', 'SIGMAS', 'SEEBECK') or ``transport.Distribution``
-                (TDF) classes, depending on the input file. The attribute name
-                is upper case types.
-        """
-        from CRYSTALpytools.base.extfmt import BOLTZTRAParaser
-        from CRYSTALpytools.transport import Kappa, Sigma, Seebeck, SigmaS, TDF
-
-        if hasattr(self, 'file_name'):
-            struc = super().get_geometry()
-        else:
-            struc = None
-
-        file = open(boltztra_out)
-        header = file.readline()
-        file.close()
-        if 'Transport distribution function' in header:
-            out = BOLTZTRAParaser.distribution(boltztra_out)
-            if out[1] == 'TDF':
-                obj = TDF(out[2], out[3], struc)
-            else:
-                raise TypeError("Unknown distribution function. Please contact the developers for updates.")
-        else:
-            out = BOLTZTRAParaser.tensor(boltztra_out)
-            if out[1] == 'KAPPA':
-                obj = Kappa(out[3], out[4], out[5], out[6], struc)
-            elif out[1] == 'SIGMA':
-                obj = Sigma(out[3], out[4], out[5], out[6], struc)
-            elif out[1] == 'SIGMAS':
-                obj = SigmaS(out[3], out[4], out[5], out[6], struc)
-            elif out[1] == 'SEEBECK':
-                obj = Seebeck(out[3], out[4], out[5], out[6], struc)
-
-        setattr(self, out[1], obj)
-        return getattr(self, out[1])
 
     def read_cry_lapl_profile(self, properties_output):
         """
@@ -3120,6 +3020,62 @@ class Properties_output(POutBASE):
 
         return self
 
+#-----------------------------transport properties-----------------------------#
+
+    def read_transport(self, boltztra_out):
+        """
+        Read electron transport properties by the BOLTZTRA keyword, including
+        'KAPPA', 'SIGMA', 'SIGMAS', 'SEEBECK' and 'TDF'. Though currently the
+        geometry information is not required, it is saved if the standard
+        output file is given.
+
+        .. note::
+
+            For 'SEEBECK', all the 9 elements of the tensor was printed. As far
+            as the developers have been aware of, it is symmetrized. Therefore
+            the redundant 'yx', 'zx' and 'zy' dimensions are removed to keep
+            consistent with other outputs.
+
+        Args:
+            boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
+
+        Returns:
+            self.\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
+                'SIGMA', 'SIGMAS', 'SEEBECK') or ``transport.Distribution``
+                (TDF) classes, depending on the input file. The attribute name
+                is upper case types.
+        """
+        from CRYSTALpytools.base.extfmt import BOLTZTRAParaser
+        from CRYSTALpytools.transport import Kappa, Sigma, Seebeck, SigmaS, TDF
+
+        if hasattr(self, 'file_name'):
+            struc = super().get_geometry()
+        else:
+            struc = None
+
+        file = open(boltztra_out)
+        header = file.readline()
+        file.close()
+        if 'Transport distribution function' in header:
+            out = BOLTZTRAParaser.distribution(boltztra_out)
+            if out[1] == 'TDF':
+                obj = TDF(out[2], out[3], struc)
+            else:
+                raise TypeError("Unknown distribution function. Please contact the developers for updates.")
+        else:
+            out = BOLTZTRAParaser.tensor(boltztra_out)
+            if out[1] == 'KAPPA':
+                obj = Kappa(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMA':
+                obj = Sigma(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMAS':
+                obj = SigmaS(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SEEBECK':
+                obj = Seebeck(out[3], out[4], out[5], out[6], struc)
+
+        setattr(self, out[1], obj)
+        return getattr(self, out[1])
+
 #------------------------------------------------------------------------------#
 #--------------------------------obsolete methods------------------------------#
 #------------------------------------------------------------------------------#
@@ -3151,7 +3107,7 @@ class Properties_output(POutBASE):
 
         warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
                       stacklevel=2)
-        return self.read_ECHG(f25_file, method=None)
+        return self.read_ECHG(f25_file, method='normal')
 
     def read_cry_ECHG_delta(self, f25_file1, f25_file2):
         """
@@ -3211,13 +3167,28 @@ class Properties_output(POutBASE):
         for i in which_prop:
             if 'm' in which_prop:
                 index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+                type = 'MAGNETIZ'
             if 'j' in which_prop:
                 index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+                type = 'ORBCURDENS'
             if 'J' in which_prop:
                 index.extend([index[-1]+1, index[-1]+2, index[-1]+3,
                               index[-1]+4, index[-1]+5, index[-1]+6,
                               index[-1]+7, index[-1]+8, index[-1]+9])
-        return self.read_relativistics(properties_output, index[1:])
+                type = 'SPICURDENS'
+        return self.read_relativistics(properties_output, type, index[1:])
+
+    def read_cry_xrd_spec(self, properties_output):
+        """
+        Deprecated. Use ``read_XRDspec``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_XRDspec' instead.",
+                      stacklevel=2)
+        if not hasattr(self, 'file_name'): self = Properties_output(properties_output)
+        self.read_XRDspec()
+        return self.XRDspec
 
 
 

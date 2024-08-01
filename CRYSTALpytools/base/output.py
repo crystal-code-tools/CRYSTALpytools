@@ -917,3 +917,23 @@ class POutBASE():
         k_pos3d = k_pos3d[1:, :]
 
         return tick_pos3d, k_pos3d
+
+    def get_XRDSPEC(self):
+        """
+        The keyword 'XRDSPEC' only. Get calculated XRD spectra.
+        """
+        import pandas as pd
+        import numpy as np
+
+        df = pd.DataFrame(self.data)
+        title = df[df[0].str.contains(r'^\s+XRD SPECTRUM\s+$')].index
+        if len(title) == 0: raise Exception("XRD spectra not found in file.")
+
+        end = df[df[0].str.contains(r'^\s*T+ XRDSPEC\s+TELAPSE')].index
+        if len(end) == 0: raise Exception("Abnormal termination. XRD spectra output broken.")
+
+        spec = df[0][title[0]+7 : end[0]].map(lambda x: x.strip().split()).tolist()
+        spec = np.array(spec, dtype=float)
+        return spec
+
+

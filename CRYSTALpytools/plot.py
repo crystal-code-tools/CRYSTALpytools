@@ -348,6 +348,101 @@ def plot_relativistics2D(
         fig.suptitle(title, fontsize=fontsize)
     return fig
 
+#--------------------------------------XRD------------------------------------#
+
+def plot_XRD(*xrd, option='LP', shift=10, label=None, color=None,
+             linestyle=None, linewidth=None, theta_range=[], title=None,
+             figsize=[6.4, 4.8], legend='upper left', fontsize=14, **kwargs):
+    """
+    Plot the XRD spectra.
+
+    .. note::
+
+        The highest intensity is normalized to 100.
+
+    Args:
+        xrd (str|XRD): File name or ``spectra.XRD`` objects. Extendable.
+        option (str): *File name inputs only* 'NC' for no correction (The
+            'INTENS' col); 'LD' for Lorentz and polarization effects
+            ('INTENS-LP') and 'DW' for LD with Debye-Waller thermal factors
+            ('INTENS-LP-DW').
+        shift (float): If multiple spectra are plotted, shifting them up by the
+            given value.
+        label (list|str|None): List of plot labels. 'None' for the default
+            values ('# <number>') and string for prefix the string before
+            number. Otherwise should be a 1\*nXRD list.
+        color (list|str|None): If str, use the same color for all the plot
+            lines. If 1\*nXRD, use the color defined for every plot line.
+            'None' for default values (matplotlib Tableau Palette).
+        linestyle (list|str|None): See explanations of ``color``.
+        linewidth (list|float|None): See explanations of ``color``.
+        theta_range (list): 1\*2 list of theta range in degree.
+        title (str|None): The title of the plot. 'None' for no title.
+        figsize (list): Matplotlib figure size.
+        legend (str|None): Location of legend. None for not adding legend.
+        fontsize (int): Fontsize of the axis label and title.
+        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+
+    Returns:
+        fig (Figure): Matplotlib figure.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from CRYSTALpytools.spectra import XRD
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
+    import warnings, copy
+
+    objs = []
+    for o in xrd:
+        if isinstance(o, str):
+            objs.append(XRD.from_file(o, option=option))
+        elif isinstance(o, XRD):
+            objs.append(o)
+        else:
+            raise TypeError('Input must be either file name or spectra.XRD class.')
+    nplot = len(objs)
+
+    # normalization
+    maxintens = [np.max(o.spectra) for o in objs]
+    maxintens = np.max(maxintens)
+
+    # labels and other plot settings.
+    if np.all(label==None):
+        label = ['# {:d}'.format(i+1) for i in range(nplot)]
+    else:
+        if isinstance(label, str):
+            label = ['{} {:d}'.format(label, i+1) for i in range(nplot)]
+        else:
+            if len(label) != nplot:
+                warnings.warn("Inconsistent lengths of number of plots and plot labels. Using default labels.",
+                              stacklevel=2)
+                label = ['# {:d}'.format(i+1) for i in range(nplot)]
+
+    commands = _plot_label_preprocess(
+        np.zeros([nplot, 1, 1]), label, color, linestyle, linewidth) # dummy doss
+
+    # plot
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    for ispec, o in enumerate(objs):
+        spectra = copy.deepcopy(o.spectra)
+        spectra = spectra / maxintens * 100 + shift * ispec
+        ax.plot(o.theta, spectra, label=commands[0][ispec][0],
+                color=commands[1][ispec][0], linestyle=commands[2][ispec][0],
+                linewidth=commands[3][ispec][0], **kwargs)
+
+    # plot setups
+    if len(theta_range) != 0:
+        ax.set_xlim([np.min(theta_range), np.max(theta_range)])
+    ax.set_xlabel(r'2$\theta^{\circ}$', fontsize=fontsize)
+    ax.set_ylabel(r'Intensity (arb. u.)', fontsize=fontsize)
+    ax.set_ylim([0, 100 + shift*(nplot-1)])
+    _ = ax.get_yaxis().set_ticks([])
+    if np.all(title!=None):
+        ax.set_title(title, fontsize=fontsize)
+    if np.all(legend!=None):
+        ax.legend(loc=legend)
+    return fig
+
 #--------------------------------BAND STRUCTURES------------------------------#
 
 def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
@@ -996,49 +1091,6 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         fig.suptitle(title, fontsize=fontsize)
     return fig
 
-#--------------------------------------XRD------------------------------------#
-
-
-def plot_cry_xrd(xrd_obj):
-    """
-    Plot the X-ray diffraction pattern.
-
-    Args:
-        xrd_obj (object): XRD object containing the data for the X-ray diffraction pattern.
-        save_to_file (bool, optional): If True, saves the plot to a file. Default is False.
-
-    Returns:
-        None
-
-    Notes:
-        - Plots the X-ray diffraction pattern.
-        - Sets the figure size to [16, 9].
-        - Sets the x-axis limit to (0, 30).
-        - Saves the plot to a file named 'figure_XRD_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
-        - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
-
-    """
-    import os
-    import time
-
-    import matplotlib.pyplot as plt
-
-    plt.rcParams["figure.figsize"] = [16, 9]
-
-    plt.plot(xrd_obj.x, xrd_obj.y)
-
-    plt.xlim((0, 30))
-
-    path = os.path.join('./'+'figure_'+'XRD_' +
-                        time.strftime("%Y-%m-%d_%H%M%S") + '.jpg')
-    plt.title(xrd_obj.title, fontsize=20)
-    plt.savefig(path, bbox_inches='tight', dpi=600)
-
-    # if save_to_file != False:
-    #     save_plot(save_to_file)
-
-    plt.show()
-
 #-------------------------------------RHOLINE---------------------------------#
 
 
@@ -1224,8 +1276,8 @@ def plot_transport_tensor(
             for every plot line.
         plot_color (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
             If str, use the same color for all the plot lines. If
-            1\*nPlotSeries(nPlot_series), use the same color for every plot line.
-            If 2\*nPlotSeries(nPlot_series), use different colors for p-type and
+            1\*nPlotSeries(nBoltztra), use the same color for every plot line.
+            If 2\*nPlotSeries(nBoltztra), use different colors for p-type and
             n-type carrier properties.
         plot_linestyle (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
             See explanations of ``plot_color``.
@@ -1519,8 +1571,8 @@ def plot_transport_tensor(
 
     # plot setups
     for iplt, ax in enumerate(fig.axes):
-        if np.all(legend!=None) and np.all(commands[0]!=None):
-            ax.legend(loc=legend)
+        if np.all(legend!=None) and np.all(commands[0]!=None) and iplt==0:
+            ax.legend(loc=legend) # add legend to the first plot only
         ax.set_xlim(x_range)
         if sharey == False:
             ax.text(x_range[1], y_range[iplt][1], captions[iplt], fontsize=fontsize,
@@ -1645,9 +1697,10 @@ def plot_elastics3D(
 
     # plot layout
     n_plot = len(tensplt) * len(property)
-    if layout[0]*layout[1] < n_plot :
-        warnings.warn('Insufficient layout. Using default values.', stacklevel=2)
-        layout = None
+    if np.all(layout!=None):
+        if layout[0]*layout[1] < n_plot :
+            warnings.warn('Insufficient layout. Using default values.', stacklevel=2)
+            layout = None
     if np.all(layout==None):
         if len(property) == 1: layout = [1, len(tensplt)]
         else: layout = [len(tensplt), len(property)]
@@ -3018,6 +3071,32 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
 #--------------------------------obsolete functions----------------------------#
 #------------------------------------------------------------------------------#
 
+def plot_cry_xrd(xrd_obj):
+    """
+    Deprecated. Use ``plot_XRD``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_XRD' instead.",
+                  stacklevel=2)
+    return plot_XRD(xrd_obj)
+
+def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png", transparency=False):
+    """
+    Deprecated. Use ``plot_elastics3D``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_elastics3D' instead.",
+                  stacklevel=2)
+
+    for nfig, i in enumerate(args):
+        fig = plot_elastics3D(i, property=choose, uniform_scale=True, nphi=ndeg,
+                              ntheta=ndeg, nchi=ndeg)
+        fig.savefig(choose + '{:d}'.format(nfig) + filetype,
+                    dpi=dpi, transparent=transparency)
+    return
+
 def plot_vecfield2D_m(header, dens, quivscale, name='MAG', levels=150, dpi=400):
     """
     Deprecated and incompatible with new functions. Give error.
@@ -3220,7 +3299,7 @@ def plot_cry_contour(contour_obj):
 
     warnings.warn("You are calling a deprecated function. Use 'plot_topond2D' instead.",
                   stacklevel=2)
-    return contour_obj.plot()
+    return contour_obj.plot_2D()
 
 
 def plot_cry_contour_differences(contour_obj, contour_obj_ref):
@@ -3379,7 +3458,7 @@ def plot_cry_powerfactor_potential(seebeck_obj, sigma_obj):
     dir = dir[-2:].lower()
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
 
-    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor', direction=dir)
+    fig = plot_transport_tensor([seebeck_obj, sigma_obj], option='normal', direction=dir)
     return fig
 
 
@@ -3396,7 +3475,7 @@ def plot_cry_powerfactor_carrier(seebeck_obj, sigma_obj):
     dir = dir[-2:].lower()
     print('To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.')
 
-    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor',
+    fig = plot_transport_tensor([seebeck_obj, sigma_obj], option='normal',
                                 direction=dir, x_axis='carrier')
     return fig
 
@@ -3418,7 +3497,7 @@ def plot_cry_zt(seebeck_obj, sigma_obj):
     for irow in range(len(sigma_obj.T)):
         sigma_obj.data[irow] = sigma_obj.data[irow] * sigma_obj.T[irow]
     sigma_obj.data = sigma_obj.data / ktot
-    fig = plot_transport_tensor(seebeck_obj, sigma_obj, option='power factor', direction=dir)
+    fig = plot_transport_tensor([seebeck_obj, sigma_obj], option='normal', direction=dir)
     return fig
 
 
