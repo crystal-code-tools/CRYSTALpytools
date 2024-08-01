@@ -5,9 +5,9 @@ The module for electron transport property analysis.
 """
 class Tensor():
     """
-    The class for electron transport properties described by tensors, including
-    'KAPPA', 'SIGMA', 'SIGMAS' and 'SEEBECK'. Units must be consistent with the
-    output files.
+    The basic class for electron transport properties described by tensors,
+    including 'KAPPA', 'SIGMA', 'SIGMAS' and 'SEEBECK'. Units must be consistent
+    with the output files.
 
     Args:
         temperature (array): Temperature in K
@@ -196,8 +196,9 @@ class Tensor():
     def plot(self, x_axis='potential', x_range=[], direction='xx', spin='sum',
              plot_series=[], plot_label=None, plot_color=None, plot_linestyle=None,
              plot_linewidth=None, zero_color='tab:gray', zero_linestyle='-',
-             zero_linewidth=1., layout=None, add_title=True, figsize=[6.4, 4.8],
-             legend='upper left', sharey=True, fontsize=14, **kwargs):
+             zero_linewidth=1., layout=None, title='default', figsize=[6.4, 4.8],
+             legend='upper left', sharey=True, fontsize=14, fig=None, ax_index=None,
+             **kwargs):
         """
         Plot tensor-like transport properties in multiple ways:
 
@@ -238,17 +239,21 @@ class Tensor():
             zero_linewidth (float): Linewidth of the 0 value line.
             layout (list[int]): Layout of subplots. By default it is nDirection\*1
                 gird of figures.
-            add_title (bool): Whether to add the plotted property as title.
+            title (str|None): Plot title. 'default' for the property plotted.
+                'None' for no title.
             figsize (list): Figure size.
             legend (str|None): Location of legend. None for not adding legend.
             sharey (bool): Share y axis for multiple subplots. Share x is enforced.
             fontsize (float|int): Font size of the title, subplot capations
                 (direction), x and y axis capations.
+            fig (Figure): *Developer Only*, matplotlib Figure class.
+            ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
             \*\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
                 method. Applied to all the plots.
         Returns:
             fig (Figure): Matplotlib Figure object.
         """
+        import warnings
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.colors as mcolors
@@ -291,7 +296,7 @@ class Tensor():
         nprj = len(prj)
 
         # directions (number of subplots)
-        if self.data.shape[2] == 9:
+        if self.data.shape[2] == 6:
             indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx': 1, 'yy' : 3, 'yz' : 4,
                        'zx' : 2, 'zy' : 4, 'zz' : 5}
         else:
@@ -314,7 +319,7 @@ class Tensor():
             plot_label = dflabel
         elif isinstance(plot_label, str):
             plot_label = ['{} {}'.format(plot_label, i) for i in dflabel]
-        elif isinstance(plot_label, list) or isinstance(plot_label, array):
+        elif isinstance(plot_label, list) or isinstance(plot_label, np.ndarray):
             nlabel = len(plot_label)
             plot_label = [plot_label[i%nlabel] for i in range(nprj)]
         else:
@@ -325,15 +330,28 @@ class Tensor():
                                           plot_linestyle, plot_linewidth)
 
         # plotting
-        if np.all(layout==None):
-            fig, ax = plt.subplots(len(direction), 1, sharex=True, sharey=sharey,
-                                   figsize=figsize, layout='constrained')
+        ## plot layout
+        if np.all(layout!=None):
+            if layout[0]*layout[1] < len(direction):
+                warnings.warn("The specified layout is not sufficient to accommodate subplots. The default value is used.",
+                              stacklevel=2)
+                layout = None
+        if np.all(layout==None): layout = [len(direction), 1]
+
+        if np.all(fig==None):
+            subplt = False
+            fig, ax = plt.subplots(layout[0], layout[1], sharex=True,
+                                   sharey=sharey, figsize=figsize, layout='tight')
+            ax_index = [i for i in range(len(fig.axes))]
         else:
-            fig, ax = plt.subplots(layout[0], layout[1], sharex=True, sharey=sharey,
-                                   figsize=figsize, layout='constrained')
+            subplt = True
+            if np.all(ax_index==None):
+                raise ValueError("Axes indices must be set for subplots.")
+            ax_index = np.array(ax_index, dtype=int, ndmin=1)
 
         y_range = []
-        for idir, ax in enumerate(fig.axes):
+        for idir, iax in enumerate(ax_index):
+            ax = fig.axes[iax]
             ax.hlines(0, x_range[0], x_range[1], colors=zero_color,
                       linestyle=zero_linestyle, linewidth=zero_linewidth)
             ## spins
@@ -443,7 +461,8 @@ class Tensor():
             y_range.append([np.min(y), np.max(y)])
 
         # plot setups
-        for idir, ax in enumerate(fig.axes):
+        for idir, iax in enumerate(ax_index):
+            ax = fig.axes[iax]
             if np.all(legend!=None) and np.all(commands[0]!=None):
                 ax.legend(loc=legend)
             ax.set_xlim(x_range)
@@ -457,17 +476,27 @@ class Tensor():
                         horizontalalignment='right', verticalalignment='top')
                 ax.set_ylim(y_range)
 
-        fig.supylabel('{} ({})'.format(self.type.capitalize(), self.unit),
-                      fontsize=fontsize)
-        if x_axis == 'potential':
-            fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
-        elif x_axis == 'carrier':
-            fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
+        if subplt == False:
+            fig.supylabel('{} ({})'.format(self.type.capitalize(), self.unit),
+                          fontsize=fontsize)
+            if x_axis == 'potential':
+                fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
+            elif x_axis == 'carrier':
+                fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
+            else:
+                fig.supxlabel('Temperature (K)', fontsize=fontsize)
+            if np.all(title!=None):
+                if title.lower() == 'default': title = self.type
+                fig.suptitle(title, fontsize=fontsize)
         else:
-            fig.supxlabel('Temperature (K)', fontsize=fontsize)
-        if add_title == True:
-            fig.suptitle(self.type, fontsize=fontsize)
-
+            fig.axes[ax_index[0]].set_title(
+                '{} ({})'.format(self.type.capitalize(), self.unit), fontsize=fontsize)
+            if x_axis == 'potential':
+                fig.axes[ax_index[-1]].set_xlabel('Chemical Potential (eV)', fontsize=fontsize)
+            elif x_axis == 'carrier':
+                fig.axes[ax_index[-1]].set_xlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
+            else:
+                fig.axes[ax_index[-1]].set_xlabel('Temperature (K)', fontsize=fontsize)
         return fig
 
 
@@ -518,4 +547,120 @@ class Distribution():
         from CRYSTALpytools.crystal_io import Properties_output
 
         return Properties_output(output).read_transport(boltztra_out)
+
+
+class Kappa(Tensor):
+    """
+    Themal conductivity :math:`\\kappa`. Inherited from ``transport.Tensor``.
+    Unit: W/m/K.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+            elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (Kappa): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'KAPPA', 'W/m/K')
+
+
+class Sigma(Tensor):
+    """
+    Electrical conductivity :math:`\\sigma`. Inherited ``transport.Tensor``.
+    Unit: 1/Ohm/m.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+            elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (Sigma): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'SIGMA', '1/Ohm/m')
+
+
+class Seebeck(Tensor):
+    """
+    Seebeck coefficient :math:`S`. Inherited ``transport.Tensor``. Unit: V/K.
+
+    .. note::
+
+        For ``Seebeck``, spin is always 1 but its dimension is kept to be
+        commensurate with other classes.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*1 array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*1 array of flattened tensor elements.
+            nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (Seebeck): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'SEEBECK', 'V/K')
+
+
+class SigmaS(Tensor):
+    """
+    Electrical conductivity times Seebeck coefficient :math:`\\sigma S`.
+    Inherited ``transport.Tensor``. Unit: A/m/K.
+
+    Args:
+        temperature (array): Temperature in K
+        potential (array): Chemical potential in eV.
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`.
+        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+            elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (SigmaS): Attributes: 'T', 'mu', 'carrier', 'data', 'type',
+            'struc', 'unit' and 'spin'
+    """
+    def __init__(self, temperature, potential, carrier_density, tensor, struc):
+        super().__init__(temperature, potential, carrier_density, tensor, struc,
+                         'SIGMAS', 'A/m/K')
+
+
+class TDF(Distribution):
+    """
+    Themal distribution function. Inherited from ``transport.Distribution``.
+    Unit: eV and 1/hbar^2*eV*fs/angstrom.
+
+    Args:
+        energy (array): Energy in eV.
+        distr (array): nEnergy\*nDimen\*nSpin Distribution function
+        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+            cm:math:`^{-3}`. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
+        struc (CStructure): Extended Pymatgen Structure object.
+
+    Returns:
+        self (Distribution): Attributes: 'energy', 'function', 'type', 'struc',
+            'unit' and 'spin'
+    """
+    def __init__(self, energy, distr, struc):
+        super().__init__(energy, distr, struc, 'TDF', '1/hbar^2*eV*fs/angstrom')
 

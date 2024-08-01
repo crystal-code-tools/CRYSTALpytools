@@ -66,7 +66,7 @@ def plot_ECHG(
         colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
         cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
             1\*2 list of colorbar titles can be set for spin-polarized systems.
-            'None' for default.
+            'None' for no labels and 'default' for default label.
         a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
         b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
@@ -542,8 +542,8 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
         dos_color (str|list): Color of DOSS plots. If only one string is given,
             apply it to all plots. 1\*nPrj or nPrj\*2 (spin) plot color. If
             spin>1 and spin dimension is not included, spin states are in the
-            same color. 'None' for default values ('tab:blue' and other tab
-            series for both spin-up and spin-down states). Effective for all
+            same color. 'None' for default values (matplotlib Tableau Palette
+            for both spin-up and spin-down states). Effective for all
             the subplots.
         dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
             given, apply it to all plots. 1\*nPrj or nPrj\*2 (spin) line
@@ -1172,15 +1172,21 @@ def plot_transport_tensor(
     """
     Plot tensor-like transport properties in multiple ways:
 
-    1. Normal: Same as ``transport.Tensor.plot()``. Only 1 entry permitted.  
-    2. Power Factor: Power factor :math:`S^{2}\\sigma`. Limited to 2 entries in
-        'SIGMA', 'SIGMAS' and 'SEEBECK'.  
-    3. ZT: Dimensionless figure of merit :math:`\\frac{S^{r}\\sigma T}{\\kappa}`.
-        Limited to 3 entries, 1 of 'KAPPA' and 2 in 'SIGMA', 'SIGMAS' and
-        'SEEBECK'.  
-    4. Multi: Plot transport properties of different systems together for
+    1. Normal: For 1 entry, same as ``transport.Tensor.plot()``. Otherwise plot
+        different transport properties of the same system. A massive plot in
+        nRow\*nCol is plotted and each subplot consists of nDir\*1 subplots. The
+        ``layout`` option only specifies the layout of property blocks, and the
+        ``sharey`` option fixes the y axis scale of 'sub-subplots'.  
+    2. Multi: Plot transport properties of different systems together for
         comparison. In this case ``direction`` does not accept list variables,
         and entries of ``plot_series`` will be plotted into subplots.
+
+    With list inputs the user can get thermoelectric power factor
+    (:math:`S^{2}\\sigma`) or dimensionless figure of merit
+    (:math:`ZT = \\frac{S^{r}\\sigma T}{\\kappa}`).
+
+    * Power Factor: 1\*2 list of any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.  
+    * ZT: 1\*3 list of 1 'KAPPA' and any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.
 
     .. note::
 
@@ -1214,7 +1220,7 @@ def plot_transport_tensor(
         plot_label (list|str|None): None for default values: ``plot_series``
             and its unit, or sequence number of materials for ``option='multi'``.
             If str, prefixing that entry in front of the default value. If list,
-            it should be 1\*nPlotSeries, or 1\*nPlot_series for ``option='multi'``,
+            it should be 1\*nPlotSeries, or 1\*nBoltztra for ``option='multi'``,
             for every plot line.
         plot_color (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
             If str, use the same color for all the plot lines. If
@@ -1248,243 +1254,291 @@ def plot_transport_tensor(
     from CRYSTALpytools.base.plotbase import _plot_label_preprocess
     import warnings
 
+    def check_list(b): # check elements of list entry
+        for ib in range(len(b)):
+            if isinstance(b[ib], str):
+                b[ib] = Tensor.from_file(b[ib])
+            elif isinstance(b[ib], Tensor):
+                pass
+            else:
+                raise TypeError("List elements must be filename or classes from the 'transport.Tensor' class.")
+        return b
+
     objs = []
     for b in boltztra:
         if isinstance(b, str):
             objs.append(Tensor.from_file(b))
         elif isinstance(b, Tensor):
             objs.append(b)
+        elif isinstance(b, list) or isinstance(b, np.ndarray):
+            if len(b) == 2:
+                b = check_list(b)
+                objs.append(Tensor.get_power_factor(b[0], b[1]))
+            elif len(b) == 3:
+                b = check_list(b)
+                objs.append(Tensor.get_zt(b[0], b[1], b[2]))
+            else:
+                raise ValueError('For list entries, they must be 1D list of either 2 elements for power factor or 3 elements for ZT.')
         else:
-            raise TypeError("Inputs must be filename or 'transport.Tensor' object.")
-    # options
-    if option.lower() == 'normal':
-        if len(objs) != 1:
-            raise ValueError("For 'normal' option, Only 1 entry is needed.")
-    elif option.lower() == 'power factor':
-        if len(objs) != 2:
-            raise ValueError("For 'power factor' option, 2 entries are needed.")
-        objs = [Tensor.get_power_factor(objs[0], objs[1])]
-    elif option.lower() == 'zt':
-        if len(objs) != 3:
-            raise ValueError("For 'zt' option, 3 entries are needed.")
-        objs = [Tensor.get_zt(objs[0], objs[1], objs[2])]
-    elif option.lower() == 'multi':
-        if not isinstance(direction, str):
+            raise TypeError("Inputs must be filename, list or classes from the 'transport.Tensor' class.")
+
+    if option.lower() != 'normal' and option.lower() != 'multi':
+        raise ValueError("Unknown options: '{}'.".format(option))
+
+    direction = np.array(direction, ndmin=1)
+    if option.lower() == 'multi':
+        if len(option) != 1:
             raise ValueError("For 'multi' option, only one direction in string should be given.")
+        direction = str(direction[0])
         for i in range(1, len(objs)):
             if objs[i].type != objs[0].type:
                 raise TypeError("For 'multi' option, input entries must have the same type.")
-    else:
-        raise ValueError("Unknown options: '{}'.".format(option))
 
-    if option.lower() != 'multi':
-        fig = objs[0].plot(x_axis, x_range, direction, spin, plot_series,
-                           plot_label, plot_color, plot_linestyle, plot_linewidth,
-                           zero_color, zero_linestyle, zero_linewidth, layout, False,
-                           figsize, legend, sharey, fontsize, **kwargs)
-        if np.all(title!=None):
-            fig.suptitle(title, fontsize=fontsize)
-    else:
-        # subplots (plot_series)
-        ## get common plot series, x range
-        def find_common_row_elements(list2d):
-            common_elements = list2d[0]
-            for i in range(1, len(list2d)):
-                common_elements = np.intersect1d(common_elements, list2d[i])
-            return common_elements
+    # normal options
+    if option.lower() == 'normal':
+        if len(objs) == 1: # use class method
+            fig = objs[0].plot(
+                x_axis, x_range, direction, spin, plot_series, plot_label,
+                plot_color, plot_linestyle, plot_linewidth, zero_color,
+                zero_linestyle, zero_linewidth, layout, title, figsize, legend,
+                sharey, fontsize, None, None, **kwargs)
+            return fig
 
-        if x_axis == 'potential':
-            series_tot = find_common_row_elements([i.T for i in objs])
-            x_tot = np.array([[np.min(i.mu), np.max(i.mu)] for i in objs])
-        elif x_axis == 'carrier':
-            series_tot = find_common_row_elements([i.T for i in objs])
-            x_tot = np.array([[np.min(np.abs(i.carrier)), np.max(np.abs(i.carrier))] for i in objs])
-        elif x_axis == 'temperature':
-            series_tot = find_common_row_elements([i.mu for i in objs])
-            x_tot = np.array([[np.min(i.T), np.max(i.T)] for i in objs])
-        else:
-            raise ValueError("Unknown x axis value: '{}'.".format(x_axis))
-        ## plot series values
-        if plot_series == []:
-            series = series_tot
-        else:
-            plot_series = np.array(plot_series, ndmin=1)
-            series = []
-            for p in plot_series:
-                if len(np.where(series_tot==p)[0]) == 0:
-                    warnings.warn("The specified plot series value '{:6.2f}' does not appear in all the materials. It will be removed.".format(p),
-                                  stacklevel=2)
-                    continue
-                else:
-                    series.append(p)
-        nplt = len(series)
-        if nplt == 0:
-            raise Exception('Cannot find common plot series.')
-        ## captions
-        if x_axis == 'potential' or x_axis == 'carrier':
-            captions = ['{:>5.0f} K'.format(i) for i in series]
-        else:
-            captions = ['{:>6.2f} eV'.format(i) for i in series]
-        ## x range
-        if x_range == []:
-            x_range = [np.min(x_tot[:, 0]), np.max(x_tot[:, 1])]
-        else:
-            x_range = [np.min(x_range), np.max(x_range)]
-
-        # direction
-        if objs[0].data.shape[2] == 9:
-            indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx': 1, 'yy' : 3, 'yz' : 4,
-                       'zx' : 2, 'zy' : 4, 'zz' : 5}
-        else:
-            indices = {'xx' : 0, 'xy' : 1, 'yx' : 1, 'yy' : 2}
-
-        for o in objs:
-            if objs[0].data.shape[2] != o.data.shape[2]:
-                raise ValueError('Inconsistent dimensionalities of input materials. They must be all in 3D, 2D or 1D.')
-        dir = indices[direction]
-
-        # projections in the same plot
-        nprj = len(objs)
-        ## plot commands
-        if np.all(plot_label==None):
-            plot_label = ['# {:d}'.format(i) for i in range(nprj)]
-        elif isinstance(plot_label, str):
-            plot_label = ['{} {:d}'.format(plot_label, i) for i in range(nprj)]
-        elif isinstance(plot_label, list) or isinstance(plot_label, array):
-            nlabel = len(plot_label)
-            plot_label = [plot_label[i%nlabel] for i in range(nprj)]
-        else:
-            raise TypeError('Unknown type of plot label.')
-        ## get a pseudo band input
-        bands = np.zeros([nprj, 1, 1, 1], dtype=float)
-        commands = _plot_label_preprocess(bands, plot_label, plot_color,
-                                          plot_linestyle, plot_linewidth)
-
-        # plot layout
+        # multi properties
+        ## layout
+        nobjs = len(objs); ndir = len(direction)
+        if np.all(layout!=None):
+            if layout[0]*layout[1] < nobjs:
+                warnings.warn("The specified layout is not sufficient to accommodate subplots. The default value is used.",
+                              stacklevel=2)
+                layout = None
         if np.all(layout==None):
-            fig, ax = plt.subplots(nplt, 1, sharex=True, sharey=sharey,
-                                   figsize=figsize, layout='constrained')
-        else:
-            fig, ax = plt.subplots(layout[0], layout[1], sharex=True,
-                                   sharey=sharey, figsize=figsize, layout='constrained')
+            layout = [int(np.ceil(nobjs/2)), 2]
 
-        # plot every subplot
-        y_range = []
-        for iplt, ax in enumerate(fig.axes):
-            y_range_plt = []
-            ax.hlines(0, x_range[0], x_range[1], colors=zero_color,
-                      linestyle=zero_linestyle, linewidth=zero_linewidth)
-            # plot every material
-            for iprj, obj in enumerate(objs):
-                if x_axis == 'potential':
-                    ## get indices of projection
-                    iseries = np.where(obj.T==series[iplt])[0][0]
-                    if obj.spin == 1 or obj.lower() == 'up':
-                        y = obj.data[iseries, :, dir, 0]
-                        carrier = obj.carrier[iseries, :, 0]
-                    elif obj.spin == 2 and obj.lower() == 'sum':
-                        y = np.sum(obj.data[iseries, :, dir, :], axis=1)
-                        carrier = np.sum(obj.carrier[iseries, :, :], axis=1)
-                    else:
-                        y = obj.data[iseries, :, dir, 1]
-                        carrier = obj.carrier[iseries, :, 1]
-                    ## limit plot range
-                    idx_x = np.where((obj.mu>=x_range[0])&(obj.mu<=x_range[1]))[0]
-                    x = obj.mu[idx_x]
-                    y = y[idx_x]
-                    carrier = carrier[idx_x]
-                elif x_axis == 'carrier':
-                    ax.set_xscale('log')
-                    ## get indices of projection
-                    iseries = np.where(obj.T==series[iplt])[0][0]
-                    if obj.spin == 1 or obj.lower() == 'up':
-                        x = np.abs(obj.carrier[iseries, :, 0])
-                        y = obj.data[iseries, :, dir, 0]
-                        carrier = obj.carrier[iseries, :, 0]
-                    elif obj.spin == 2 and obj.lower() == 'sum':
-                        x = np.abs(np.sum(obj.carrier[iseries, :, :], axis=1))
-                        y = np.sum(obj.data[iseries, :, dir, :], axis=1)
-                        carrier = np.sum(obj.carrier[iseries, :, :], axis=1)
-                    else:
-                        x = np.abs(obj.carrier[iseries, :, 1])
-                        y = obj.data[iseries, :, dir, 1]
-                        carrier = obj.carrier[iseries, :, 1]
-                    ## limit plot range
-                    idx_x = np.where((x>=x_range[0])&(x<=x_range[1]))[0]
-                    x = x[idx_x]
-                    y = y[idx_x]
-                    carrier = carrier[idx_x]
-                else:
-                    ## get indices of projection
-                    iseries = np.where(obj.mu==series[iplt])[0][0]
-                    if obj.spin == 1 or obj.lower() == 'up':
-                        y = obj.data[:, iseries, dir, 0]
-                        carrier = obj.carrier[:, iseries, 0]
-                    elif obj.spin == 2 and obj.lower() == 'sum':
-                        y = np.sum(obj.data[:, iseries, dir, :], axis=1)
-                        carrier = np.sum(obj.carrier[:, iseries, :], axis=1)
-                    else:
-                        y = obj.data[:, iseries, dir, 1]
-                        carrier = obj.carrier[:, iseries, 1]
-                    ## limit plot range
-                    idx_x = np.where((obj.T>=x_range[0])&(obj.T<=x_range[1]))[0]
-                    x = obj.T[idx_x]
-                    y = y[idx_x]
-                    carrier = carrier[idx_x]
+        layoutreal = [int(layout[0]*ndir), layout[1]]
+        fig, ax = plt.subplots(layoutreal[0], layoutreal[1], sharex=True,
+                               sharey=False, figsize=figsize, layout='tight')
+        ## plot
+        for iobj in range(nobjs):
+            obj = objs[iobj]
+            objcol = iobj % layout[1]; objrow = iobj // layout[1]
+            ax_index = []
+            for i in range(ndir):
+                ax_index.append(
+                    int(objrow * ndir * layout[1] + i * layout[1] + objcol)
+                )
+            fig = obj.plot(
+                x_axis, x_range, direction, spin, plot_series, plot_label,
+                plot_color, plot_linestyle, plot_linewidth, zero_color,
+                zero_linestyle, zero_linewidth, None, 'default', figsize, legend,
+                sharey, fontsize, fig, ax_index, **kwargs)
 
-                ## divide the plot by p and n type carriers and plot
-                idx_p = np.where(carrier>=0)[0]
-                idx_n = np.where(carrier<0)[0]
-                if len(idx_p) == 0 and len(idx_n) == 0:
-                    raise ValueError('Empty data in the specified x range. Check your input.')
-                if len(idx_p) > 0:
-                    ax.plot(x[idx_p], y[idx_p], label=commands[0][iprj][0],
-                            color=commands[1][iprj][0], linestyle=commands[2][iprj][0],
-                            linewidth=commands[3][iprj][0], **kwargs)
-                if len(idx_n) > 0:
-                    ax.plot(x[idx_n], y[idx_n], color=commands[1][iprj][1],
-                            linestyle=commands[2][iprj][1], linewidth=commands[3][iprj][1],
-                            **kwargs)
-                ## linearly interpolate the gap, noticed when x_axis = 'potential' only
-                if len(idx_p) > 0 and len(idx_n) > 0 and x_axis == 'potential':
-                    lastppt = [x[idx_p[-1]], y[idx_p[-1]]]
-                    firstnpt = [x[idx_n[0]], y[idx_n[0]]]
-                    midpt = [(lastppt[0] + firstnpt[0]) / 2, (lastppt[1] + firstnpt[1]) / 2]
-                    ax.plot([lastppt[0], midpt[0]], [lastppt[1], midpt[1]],
-                            color=commands[1][iprj][0], linestyle=commands[2][iprj][0],
-                            linewidth=commands[3][iprj][0], **kwargs)
-                    ax.plot([midpt[0], firstnpt[0]], [midpt[1], firstnpt[1]],
-                            color=commands[1][iprj][1], linestyle=commands[2][iprj][1],
-                            linewidth=commands[3][iprj][1], **kwargs)
-
-                y_range_plt.append([np.min(y), np.max(y)])
-            y_range.append([np.min(y_range_plt), np.max(y_range_plt)])
-
-        # plot setups
-        for iplt, ax in enumerate(fig.axes):
-            if np.all(legend!=None) and np.all(commands[0]!=None):
-                ax.legend(loc=legend)
-            ax.set_xlim(x_range)
-            if sharey == False:
-                ax.text(x_range[1], y_range[iplt][1], captions[iplt], fontsize=fontsize,
-                        horizontalalignment='right', verticalalignment='top')
-                ax.set_ylim(y_range[iplt])
-            else:
-                y_range = [np.min(y_range), np.max(y_range)]
-                ax.text(x_range[1], y_range[1], captions[iplt], fontsize=fontsize,
-                        horizontalalignment='right', verticalalignment='top')
-                ax.set_ylim(y_range)
-
-        fig.supylabel('{} ({})'.format(objs[0].type.capitalize(), objs[0].unit),
-                      fontsize=fontsize)
-        if x_axis == 'potential':
-            fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
-        elif x_axis == 'carrier':
-            fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
-        else:
-            fig.supxlabel('Temperature (K)', fontsize=fontsize)
         if np.all(title!=None):
             fig.suptitle(title, fontsize=fontsize)
+        return fig
+
+    # option multi
+    # subplots (plot_series)
+    ## get common plot series, x range
+    def find_common_row_elements(list2d):
+        common_elements = list2d[0]
+        for i in range(1, len(list2d)):
+            common_elements = np.intersect1d(common_elements, list2d[i])
+        return common_elements
+
+    if x_axis == 'potential':
+        series_tot = find_common_row_elements([i.T for i in objs])
+        x_tot = np.array([[np.min(i.mu), np.max(i.mu)] for i in objs])
+    elif x_axis == 'carrier':
+        series_tot = find_common_row_elements([i.T for i in objs])
+        x_tot = np.array([[np.min(np.abs(i.carrier)), np.max(np.abs(i.carrier))] for i in objs])
+    elif x_axis == 'temperature':
+        series_tot = find_common_row_elements([i.mu for i in objs])
+        x_tot = np.array([[np.min(i.T), np.max(i.T)] for i in objs])
+    else:
+        raise ValueError("Unknown x axis value: '{}'.".format(x_axis))
+        ## plot series values
+        if plot_series == []: series = series_tot
+        else: plot_series = np.array(plot_series, ndmin=1)
+
+        series = []
+        for p in plot_series:
+            if len(np.where(series_tot==p)[0]) == 0:
+                warnings.warn("The specified plot series value '{:6.2f}' does not appear in all the materials. It will be removed.".format(p),
+                                stacklevel=2)
+                continue
+            else:
+                series.append(p)
+    nplt = len(series)
+    if nplt == 0: raise Exception('Cannot find common plot series.')
+    ## captions
+    if x_axis == 'potential' or x_axis == 'carrier':
+        captions = ['{:>5.0f} K'.format(i) for i in series]
+    else:
+        captions = ['{:>6.2f} eV'.format(i) for i in series]
+    ## x range
+    if x_range == []:
+        x_range = [np.min(x_tot[:, 0]), np.max(x_tot[:, 1])]
+    else:
+        x_range = [np.min(x_range), np.max(x_range)]
+
+    # direction
+    if objs[0].data.shape[2] == 6:
+        indices = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx': 1, 'yy' : 3, 'yz' : 4,
+                   'zx' : 2, 'zy' : 4, 'zz' : 5}
+    else:
+        indices = {'xx' : 0, 'xy' : 1, 'yx' : 1, 'yy' : 2}
+
+    for o in objs:
+        if objs[0].data.shape[2] != o.data.shape[2]:
+            raise ValueError('Inconsistent dimensionalities of input materials. They must be all in 3D, 2D or 1D.')
+    dir = indices[direction]
+
+    # projections in the same plot
+    nprj = len(objs)
+    ## plot commands
+    if np.all(plot_label==None):
+        plot_label = ['# {:d}'.format(i+1) for i in range(nprj)]
+    elif isinstance(plot_label, str):
+        plot_label = ['{} {:d}'.format(plot_label, i+1) for i in range(nprj)]
+    elif isinstance(plot_label, list) or isinstance(plot_label, np.ndarray):
+        nlabel = len(plot_label)
+        plot_label = [plot_label[i%nlabel] for i in range(nprj)]
+    else:
+        raise TypeError('Unknown type of plot label.')
+    ## get a pseudo band input
+    bands = np.zeros([nprj, 1, 1, 1], dtype=float)
+    commands = _plot_label_preprocess(bands, plot_label, plot_color, plot_linestyle, plot_linewidth)
+
+    # plot layout
+    if np.all(layout!=None):
+        if layout[0]*layout[1] < nplt:
+            warnings.warn("The specified layout is not sufficient to accommodate subplots. The default value is used.",
+                          stacklevel=2)
+            layout = None
+    if np.all(layout==None):
+        layout = [nplt, 1]
+
+    fig, ax = plt.subplots(layout[0], layout[1], sharex=True, sharey=sharey,
+                           figsize=figsize, layout='tight')
+
+    # plot every subplot
+    y_range = []
+    for iplt, ax in enumerate(fig.axes):
+        y_range_plt = []
+        ax.hlines(0, x_range[0], x_range[1], colors=zero_color, linestyle=zero_linestyle,
+                  linewidth=zero_linewidth)
+        # plot every material
+        for iprj, obj in enumerate(objs):
+            if x_axis == 'potential':
+                ## get indices of projection
+                iseries = np.where(obj.T==series[iplt])[0][0]
+                if obj.spin == 1 or obj.lower() == 'up':
+                    y = obj.data[iseries, :, dir, 0]
+                    carrier = obj.carrier[iseries, :, 0]
+                elif obj.spin == 2 and obj.lower() == 'sum':
+                    y = np.sum(obj.data[iseries, :, dir, :], axis=1)
+                    carrier = np.sum(obj.carrier[iseries, :, :], axis=1)
+                else:
+                    y = obj.data[iseries, :, dir, 1]
+                    carrier = obj.carrier[iseries, :, 1]
+                ## limit plot range
+                idx_x = np.where((obj.mu>=x_range[0])&(obj.mu<=x_range[1]))[0]
+                x = obj.mu[idx_x]
+                y = y[idx_x]
+                carrier = carrier[idx_x]
+            elif x_axis == 'carrier':
+                ax.set_xscale('log')
+                ## get indices of projection
+                iseries = np.where(obj.T==series[iplt])[0][0]
+                if obj.spin == 1 or obj.lower() == 'up':
+                    x = np.abs(obj.carrier[iseries, :, 0])
+                    y = obj.data[iseries, :, dir, 0]
+                    carrier = obj.carrier[iseries, :, 0]
+                elif obj.spin == 2 and obj.lower() == 'sum':
+                    x = np.abs(np.sum(obj.carrier[iseries, :, :], axis=1))
+                    y = np.sum(obj.data[iseries, :, dir, :], axis=1)
+                    carrier = np.sum(obj.carrier[iseries, :, :], axis=1)
+                else:
+                    x = np.abs(obj.carrier[iseries, :, 1])
+                    y = obj.data[iseries, :, dir, 1]
+                    carrier = obj.carrier[iseries, :, 1]
+                ## limit plot range
+                idx_x = np.where((x>=x_range[0])&(x<=x_range[1]))[0]
+                x = x[idx_x]
+                y = y[idx_x]
+                carrier = carrier[idx_x]
+            else:
+                ## get indices of projection
+                iseries = np.where(obj.mu==series[iplt])[0][0]
+                if obj.spin == 1 or obj.lower() == 'up':
+                    y = obj.data[:, iseries, dir, 0]
+                    carrier = obj.carrier[:, iseries, 0]
+                elif obj.spin == 2 and obj.lower() == 'sum':
+                    y = np.sum(obj.data[:, iseries, dir, :], axis=1)
+                    carrier = np.sum(obj.carrier[:, iseries, :], axis=1)
+                else:
+                    y = obj.data[:, iseries, dir, 1]
+                    carrier = obj.carrier[:, iseries, 1]
+                ## limit plot range
+                idx_x = np.where((obj.T>=x_range[0])&(obj.T<=x_range[1]))[0]
+                x = obj.T[idx_x]
+                y = y[idx_x]
+                carrier = carrier[idx_x]
+
+            ## divide the plot by p and n type carriers and plot
+            idx_p = np.where(carrier>=0)[0]
+            idx_n = np.where(carrier<0)[0]
+            if len(idx_p) == 0 and len(idx_n) == 0:
+                raise ValueError('Empty data in the specified x range. Check your input.')
+            if len(idx_p) > 0:
+                ax.plot(x[idx_p], y[idx_p], label=commands[0][iprj][0],
+                        color=commands[1][iprj][0], linestyle=commands[2][iprj][0],
+                        linewidth=commands[3][iprj][0], **kwargs)
+            if len(idx_n) > 0:
+                 ax.plot(x[idx_n], y[idx_n], color=commands[1][iprj][1],
+                        linestyle=commands[2][iprj][1], linewidth=commands[3][iprj][1],
+                        **kwargs)
+            ## linearly interpolate the gap, noticed when x_axis = 'potential' only
+            if len(idx_p) > 0 and len(idx_n) > 0 and x_axis == 'potential':
+                lastppt = [x[idx_p[-1]], y[idx_p[-1]]]
+                firstnpt = [x[idx_n[0]], y[idx_n[0]]]
+                midpt = [(lastppt[0] + firstnpt[0]) / 2, (lastppt[1] + firstnpt[1]) / 2]
+                ax.plot([lastppt[0], midpt[0]], [lastppt[1], midpt[1]],
+                        color=commands[1][iprj][0], linestyle=commands[2][iprj][0],
+                        linewidth=commands[3][iprj][0], **kwargs)
+                ax.plot([midpt[0], firstnpt[0]], [midpt[1], firstnpt[1]],
+                        color=commands[1][iprj][1], linestyle=commands[2][iprj][1],
+                        linewidth=commands[3][iprj][1], **kwargs)
+
+            y_range_plt.append([np.min(y), np.max(y)])
+        y_range.append([np.min(y_range_plt), np.max(y_range_plt)])
+
+    # plot setups
+    for iplt, ax in enumerate(fig.axes):
+        if np.all(legend!=None) and np.all(commands[0]!=None):
+            ax.legend(loc=legend)
+        ax.set_xlim(x_range)
+        if sharey == False:
+            ax.text(x_range[1], y_range[iplt][1], captions[iplt], fontsize=fontsize,
+                    horizontalalignment='right', verticalalignment='top')
+            ax.set_ylim(y_range[iplt])
+        else:
+            y_range = [np.min(y_range), np.max(y_range)]
+            ax.text(x_range[1], y_range[1], captions[iplt], fontsize=fontsize,
+                    horizontalalignment='right', verticalalignment='top')
+            ax.set_ylim(y_range)
+
+    fig.supylabel('{} ({})'.format(objs[0].type.capitalize(), objs[0].unit),
+                  fontsize=fontsize)
+    if x_axis == 'potential':
+        fig.supxlabel('Chemical Potential (eV)', fontsize=fontsize)
+    elif x_axis == 'carrier':
+        fig.supxlabel('Carrier Density (cm$^{-3}$)', fontsize=fontsize)
+    else:
+        fig.supxlabel('Temperature (K)', fontsize=fontsize)
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
 
     return fig
 
@@ -1494,14 +1548,17 @@ def plot_transport_tensor(
 #                                                                            #
 ##############################################################################
 #--------------------------------3D ELASTIC----------------------------------#
-def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
-                     **kwargs):
+def plot_elastics3D(
+    *tensor, property, uniform_scale=True, nphi=90, ntheta=90, nchi=180,
+    scale_radius=True, range_cbar=None, range_x=None, range_y=None, range_z=None,
+    u=None, utext=None, use_cartesian=True, plot_lattice=False, colormap='jet',
+    layout=None, title=None, figsize=[6.4, 4.8], fontsize=14, **kwargs):
     """
     A wrapper function of :ref:`Tensor3D <ref-elastics>` objects to plot 3D
     crystal elastic properties. The user can plot multiple properties for
-    different systems. The function returns to lists of figure objects for
-    further processing. Only matplotlib is used for plotting. Plotly is not
-    available.
+    different systems. The function returns to a matplotlib figure object for
+    further processing. The uniform plot set-ups are used for comparison. Only
+    matplotlib is used for plotting. Plotly is not available.
 
     Properties:
 
@@ -1515,24 +1572,52 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
     * "poisson max": Maximum Poisson ratio.
 
     Args:
-        property (str | list[str]): The properties to plot. See above.
         \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
             Can be CRYSTAL output files, ``Tensor3D`` objects and 6\*6
             **elastic** matrices in Voigt notation, GPa. For files,
             ``conventional_lattice=True``.
+        property (str | list[str]): The properties to plot. See above.
         uniform_scale (bool): Use the same color scale for all plots of the
             same property.
-        add_title (bool): Add properties as titles of subplots.
-        \*\*kwargs : Plot settings. The settings will be used for all plots.
-            Check :ref:`Tensor3D.plot_3D <ref-elastics>`
+        nphi (int): Resolution of azimuth angle :math:`\\phi` on xy plane, in
+            radian :math:`[0, 2\\pi)`.
+        ntheta (int): Resolution of polar angle :math:`\\theta` in radian
+            :math:`[0, 2\\pi)`. In practice only half of the points defined in
+            :math:`[0, \\pi)` are used.
+        nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
+            :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
+        scale_radius (bool): To scale the radius by values of the elastic
+            property, or plot a sphere with radius = 1.
+        range_cbar, range_x, range_y, range_z (list[float,float]): *Not
+            suggested* Explicitly specifying the ranges of colorbar, x, y and z
+            axes.
+        u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into the
+            figure. A line segment with doubled radius is plotted to indicate
+            the vector. Or 'max' / 'min' / 'bothends', plot vectors
+            corresponding to the max and min of elastic properties. For
+            'bothends', min first.
+        utext (list[str] | str): A string or a list of string. Used to mark the
+            vector. If ``None``, the input ``u`` and the corresponding value is
+            annotated. If 'value', the value is annotated.
+        use_cartesian (bool): Vector is defined as cartesian or fractional
+            coordinates. (*Only when lattice information is available*.)
+        plot_lattice (bool): Draw the lattice box around the 3D surface.
+        colormap (str): Colormap name.
+        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
+            nTensor\*nProperty or 1\*nTensor.
+        title (str|None): The title of the plot. 'None' for no title. The
+            default subplot titles (property) are added either way.
+        figsize (list): Matplotlib figure size.
+        fontsize (int): Fontsize of the heightest level of title.
+        \*\*kwargs: Parameters passed to ``Axes3D.view_init``. Only camera
+            position keywords are suggested.
 
     Returns:
-        figs (Figure): For 1 tensor, 1 property, return to a matplotlib Figure
-            object. For 1 tensor and multiple properties or multiple tensors
-            and 1 property, n\*1 list of Figure objects. For multiple tensors
-            and properties, nTensor\*nProperty list.
+        fig (Figure): Matplotlib figure object.
     """
     from CRYSTALpytools.elastics import Tensor3D, _plot3D_mplib
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D, axes3d
     import numpy as np
     import warnings
 
@@ -1549,146 +1634,177 @@ def plot_elastics_3D(property, *tensor, uniform_scale=True, add_title=True,
                 raise ValueError('Input tensor is not a 6x6 matrix in Voigt notation.')
             tensplt.append(Tensor3D(matrix=ttmp, lattice=None, is_compliance=False))
 
-    if isinstance(property, str):
-        property = [property]
-
+    property = np.array(property, ndmin=1)
     if len(tensplt) == 1 and len(property) > 1 and uniform_scale == True:
         warnings.warn("'uniform_scale' cannot be used for multiple proeprties of the same system. Using 'uniform_scale = False'.",
                       stacklevel=2)
         uniform_scale = False
 
-    if 'plot_lib' in kwargs.keys():
-        if kwargs['plot_lib'] == 'plotly':
-            warnings.warn("Only matplotlib is available.", stacklevel=2)
-    kwargs['plot_lib'] = 'matplotlib'
-
-    # plot
+    # plot layout
     n_plot = len(tensplt) * len(property)
-    figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
+    if layout[0]*layout[1] < n_plot :
+        warnings.warn('Insufficient layout. Using default values.', stacklevel=2)
+        layout = None
+    if np.all(layout==None):
+        if len(property) == 1: layout = [1, len(tensplt)]
+        else: layout = [len(tensplt), len(property)]
+
+    fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
+                           layout='tight', subplot_kw={'projection' : '3d'})
 
     if uniform_scale == False: # Non-uniform scale
+        ax_index = 0
         for ip, p in enumerate(property):
-            kwargs['property'] = p
             for it, t in enumerate(tensplt):
-                fig = t.plot_3D(**kwargs)
-                if add_title == True:
-                    fig.axes[1].set_title(p)
-                figs[it][ip] = fig
-    else: # Uniform scale
-        # possible camera position args
-        camera_args = {}
-        for i in ['elev', 'azim', 'roll', 'vertical_axis', 'share']:
-            try:
-                camera_args[i] = kwargs[i]
-            except KeyError:
-                pass
-
-        for ip, p in enumerate(property):
-            R_all = []
-            X_all = []
-            Y_all = []
-            Z_all = []
-            uplt_all =[]
-            utext_all = []
-            platt_all = []
-            kwargs['property'] = p
-            kwargs['plot_lib'] = None
-            # Get data first
-            for it, t in enumerate(tensplt):
-                R, X, Y, Z, scale_radius, uplt, utext, platt = t.plot_3D(**kwargs)
-                R_all.append(R)
-                X_all.append(X)
-                Y_all.append(Y)
-                Z_all.append(Z)
-                uplt_all.append(uplt)
-                utext_all.append(utext)
-                platt_all.append(platt)
-            # plot
-            try: range_cbar = kwargs['range_cbar']
-            except KeyError: range_cbar = [np.min(R_all), np.max(R_all)]
-            try: range_x = kwargs['range_x']
-            except KeyError: range_x = None
-            try: range_y = kwargs['range_y']
-            except KeyError: range_y = None
-            try: range_z = kwargs['range_z']
-            except KeyError: range_z = None
-            if np.all(platt_all[0]!=None):
-                Rref = R_all[
-                    np.argmax(np.array(R_all).flatten()) // \
-                    (np.shape(R_all[0])[0]* np.shape(R_all[0])[1])
-                ]
-            else:
-                Rref = None
-
-            for it, t in enumerate(tensplt):
-                fig = _plot3D_mplib(
-                    R_all[it], X_all[it], Y_all[it], Z_all[it], scale_radius,
-                    uplt_all[it], utext_all[it], platt_all[it], range_cbar,
-                    range_x, range_y, range_z, Rref, **camera_args
+                t.plot_3D(
+                    p, nphi, ntheta, nchi, scale_radius, range_cbar, range_x,
+                    range_y, range_z, u, utext, use_cartesian, plot_lattice,
+                    colormap, None, [6.4, 4.8], None
                 )
-                if add_title == True:
-                    fig.axes[1].set_title(p)
-                figs[it][ip] = fig
+                fig = _plot3D_mplib(
+                    t, range_cbar, range_x, range_y, range_z, colormap,
+                    figsize, fig, ax_index, None, **kwargs
+                )
+                if 'comp' not in p.lower() and 'poisson' not in p.lower():
+                    fig.axes[ax_index].set_title('{} (GPa)'.format(p))
+                else:
+                    fig.axes[ax_index].set_title(p)
+                ax_index += 1
+    else: # Uniform scale
+        ax_index = 0
+        for ip, p in enumerate(property):
+            tens_all = []; Rrange_all = []
+            # get data first
+            for it, t in enumerate(tensplt):
+                tens_all.append(t.plot_3D(
+                    p, nphi, ntheta, nchi, scale_radius, range_cbar, range_x,
+                    range_y, range_z, u, utext, use_cartesian, plot_lattice,
+                    colormap, None, [6.4, 4.8], None
+                ))
+                Rrange_all.append([np.min(tens_all[it].R),
+                                   np.max(tens_all[it].R)])
+            # plot
+            Rmax = np.max(Rrange_all); Rmin = np.min(Rrange_all)
+            if np.all(range_cbar==None):
+                range_cbar = [Rmin, Rmax]
+            for it, t in enumerate(tens_all):
+                fig = _plot3D_mplib(
+                    t, range_cbar, range_x, range_y, range_z, colormap,
+                    figsize, fig, ax_index, Rmax, **kwargs
+                )
+                if 'comp' in p.lower() or 'poisson' in p.lower():
+                    fig.axes[ax_index].set_title(p)
+                else:
+                    fig.axes[ax_index].set_title('{} (GPa)'.format(p))
+                ax_index += 1
 
-    # dimensionality
-    if len(tensplt) == 1 and len(property) == 1:
-        figs = figs[0][0]
-    elif len(tensplt) == 1 and len(property) > 1:
-        figs = figs[0]
-    elif len(tensplt) > 1 and len(property) == 1:
-        figs = [i[0] for i in figs]
-
-    return figs
+    if np.all(title!=None):
+        fig.suptitle_title(title)
+    return fig
 
 
 #--------------------------------2D ELASTIC----------------------------------#
-def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True, **kwargs):
+def plot_elastics2D(
+    *tensor, property, plane=[], ntheta=90, nchi=180, plane_definition='miller',
+    u=None, utext=None, use_cartesian=True, plot_lattice=True, loop_label=None,
+    loop_color=None, loop_linestyle=None, loop_linewidth=None, layout=None,
+    title=None, figsize=[6.4, 4.8], legend='upper left', fontsize=14, **kwargs):
     """
     A wrapper function of :ref:`Tensor3D or Tensor2D <ref-elastics>` objects to
-    plot 2D crystal elastic properties. The user can plot multiple properties
-    for different systems. The function returns to lists of figure objects for
-    further processing. Base units: GPa, m.
+    plot 2D crystal elastic properties. The user can plot multiple properties on
+    multiple crystal planes (3D only) for multiple systems. The function returns
+    to a matplotlib figure object for further processing. The uniform plot
+    set-ups (radius) are used for comparison. Base units: GPa, m.
 
     Properties, depending on the dimensionality of systems:
 
-    * "young": Young's modulus.
-    * "comp": Compressibility.
-    * "shear": Shear modulus between vectors in plane and plane norm (3D) or in-plane vectors (2D).
-    * "shear avg": Average shear modulus (3D).
-    * "shear min": Minimum shear modulus (3D).
-    * "shear max": Maximum shear modulus (3D).
-    * "poisson": Poisson ratio between vectors in plane and plane norm or in-plane vectors (2D).
-    * "poisson avg": Average Poisson ratio (3D).
-    * "poisson min": Minimum Poisson ratio (3D).
+    * "young": Young's modulus.  
+    * "comp": Compressibility.  
+    * "shear": Shear modulus between vectors in plane and plane norm (3D) or in-plane vectors (2D).  
+    * "shear avg": Average shear modulus (3D).  
+    * "shear min": Minimum shear modulus (3D).  
+    * "shear max": Maximum shear modulus (3D).  
+    * "poisson": Poisson ratio between vectors in plane and plane norm or in-plane vectors (2D).  
+    * "poisson avg": Average Poisson ratio (3D).  
+    * "poisson min": Minimum Poisson ratio (3D).  
     * "poisson max": Maximum Poisson ratio (3D).
 
+    For 3D systems, the plotting planes have to be defined with any of the
+    following methods:
+
+    * 'miller': Miller indices.  
+    * 'cartesian': The plane normal vector in Cartesian coordinates.  
+    * 'fractional': The plane normal vector in fractional coordinates.
+
+    The default layout is either 1\*nProp or nProp\*nPlane. For multi-system
+    plottings, the properties on the same plane are plotted into the same axis
+    for comparison. The radius is 'uniform' for the same property, i.e., same
+    raidus for plots on various materials and planes.
+
+    .. note::
+
+        For multi-system plotting, the ``loop_*`` inputs do not change with
+        the plotting planes, but with systems in order to distinguish them.
+        Therefore they should be defined by 1\*nTensor list. In this case,
+        ``loop_label`` is used. Otherwise it is not called.
+
+        For multi-system plotting, ``u`` and ``utext`` options are disabled.
+
     Args:
-        property (str | list[str]): The properties to plot. See above.
-        \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
-            Can be CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects
-            and 6\*6 / 3\*3 **elastic** matrices in Voigt notation, GPa. But
+        \*tensor (str|Tensor3D|numpy.ndarray): Elastic tensor definition. Can be
+            CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects and 6\*6 /
+            3\*3 **elastic** matrices in Voigt notation, GPa. But
             dimensionalities of systems must be consistent. For 3D files,
             ``conventional_lattice=True``.
-        same_fig_2D (bool): *Valid only for 2D systems*. Plot all the pole
-            chart into the same figure. Same dimension as the ``figs`` list.
-        uniform_scale_2D (bool): *Valid only for 2D systems*. Use the same
-            radial scale for all plots of the same property.  ``uniform_scale``
-            can be enabled for different planes of the same system in 3D cases.
-        \*\*kwargs : Plot settings. The settings will be used for all plots.
-            Check :ref:`Tensor3D.plot_2D and Tensor2D.plot_2D <ref-elastics>`.
+        property (str | list[str]): The properties to plot. See above.
+        plane (numpy.ndarray): *3D only* 3\*1 or nplane\*3 array of planes.
+        ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane, in
+            radian :math:`[0, 2\\pi)`.
+        nchi (int): *3D only* Resolution of auxiliary angle  :math:`\\chi`, in
+            radian :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
+        plane_definition (str): *3D only* The method used to define the plane.
+            See options above.
+        u (numpy.ndarray): nDimen\*1 or nu\*nDimen array of vectors to be added
+            into the figure. A line segment with doubled radius is plotted to
+            indicate the vector. Or 'max' / 'min' / 'bothends', plot vectors
+            corresponding to the max and min of elastic properties. For
+            'bothends', min first.
+        utext (list[str] | str): A string or a list of string. Used to mark
+            The vector. If ``None`` or 'value', the value is annotated.
+        use_cartesian (bool): Vector is defined as cartesian or fractional
+            coordinates. (*Only when lattice information is available*.)
+        plot_lattice (bool): Draw lattice base vectors to indicate orientation
+            of the plane.
+        loop_label (str|list): *Multi-tensor only* Label of loops. None for
+            default values: sequence number of materials If str, prefixing that
+            entry in front of the default value. If list, it should be in
+            1\*nTensor.
+        loop_color (str|list): Color of 2D loops. If only one string is given,
+            apply it to all loops. 'None' for default values (matplotlib
+            Tableau Palette).
+        loop_linestyle (str|list): Linestyle of 2D loops. If only one string is
+            given, apply it to all plots. 'None' for default values ('-').
+        loop_linewidth (str|list): Linewidth of band structure. If only one
+            number is given, apply it to all plots. For the 'multi' mode,
+            1\*nSystem list of linewidth numbers. 'None' for default values (1.0).
+        layout (list|tuple): *2D only* 2\*1 list. The layout of subplots. The
+            first element is nrows, the second is ncolumns. By default, 1\*nProp.
+        title (str): Title
+        figsize (list): The figure size specified as \[width, height\].
+        legend (str|None): *Multi-tensor only* Location of legend. None for not
+            adding legend.
+        fontsize (float|int): Font size of the title.
+        \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
+            loops. Applied to all the loops.
 
     Returns:
-        figs (Figure): For 1 tensor, 1 property, return to a matplotlib Figure
-            object. For 1 tensor and multiple properties or multiple tensors
-            and 1 property, n\*1 list of Figure objects. For multiple tensors
-            and properties, nTensor\*nProperty list. If ``same_fig_2D=True``,
-            return to a figure.
+        fig (Figure): Matplotlib figure object.
     """
-    from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file, _plot2D_single
+    from CRYSTALpytools.elastics import Tensor3D, Tensor2D, tensor_from_file, _plot2D
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
     import numpy as np
     import warnings
     import matplotlib.pyplot as plt
-    import matplotlib.colors as mcolors
 
     # sanity check and preparation
     tensplt = []
@@ -1706,101 +1822,149 @@ def plot_elastics_2D(property, *tensor, same_fig_2D=True, uniform_scale_2D=True,
             else:
                 raise ValueError('Input tensor is not a 6x6 or 3x3 matrix in Voigt notation.')
 
-    if isinstance(property, str):
-        property = [property]
+    if isinstance(tensplt[0], Tensor2D):
+        ndim = 2
+    else:
+        ndim = 3
+        if plane == []: raise ValueError("For 3D systems, plot plane must be befined.")
 
-    if len(tensplt) == 1 and len(property) > 1 and uniform_scale_2D == True:
-        warnings.warn("'uniform_scale_2D' cannot be used for multiple proeprties of the same system. Using 'uniform_scale_2D = False'.",
-                      stacklevel=2)
-        uniform_scale = False
+    for t in tensplt:
+        if (ndim == 2 and isinstance(t, Tensor3D)) \
+        or (ndim == 3 and isinstance(t, Tensor2D)):
+            raise TypeError('The dimensionalities of input tensors must be consistent.')
+    ntensor = len(tensplt)
 
+    property_list_2D = ['young', 'comp', 'shear', 'poisson']
+    property_list_3D = ['young', 'comp', 'shear', 'shear avg', 'shear min',
+                        'shear max', 'poisson', 'poisson avg', 'poisson min',
+                        'poisson max']
+    property = np.array(property, ndmin=1)
+    nprop = len(property)
+    for ip in range(nprop):
+        property[ip] = property[ip].lower()
+        if (ndim == 2 and property[ip] not in property_list_2D) \
+        or (ndim == 3 and property[ip] not in property_list_3D):
+                raise ValueError("Unknown property input: '{}'.".format(property[ip]))
 
-    n_plot = len(tensplt) * len(property)
-    if isinstance(tensplt[0], Tensor3D) or n_plot == 1.:
-        same_fig_2D = False
-        uniform_scale_2D = False
-
-    # set subfigures
-    if same_fig_2D == True:
-        if len(property) == 1 and len(tensplt) > 1:
-            figs, axes = plt.subplots(nrows=1, ncols=len(tensplt),
-                                      subplot_kw={'projection' : 'polar'}, layout='tight')
+    # Single system, use class methods
+    if ntensor == 1:
+        if ndim == 2:
+            fig = tensplt[0].plot_2D(
+                property, ntheta, u, utext, use_cartesian, plot_lattice,
+                loop_color, loop_linestyle, loop_linewidth, layout, figsize ,
+                False, **kwargs)
         else:
-            figs, axes = plt.subplots(nrows=len(tensplt), ncols=len(property),
-                                      subplot_kw={'projection' : 'polar'}, layout='tight')
+            fig = tensplt[0].plot_2D(
+                property, plane, ntheta, nchi, plane_definition, u, utext,
+                use_cartesian, plot_lattice, loop_color, loop_linestyle,
+                loop_linewidth, figsize, False, **kwargs)
+
+        if np.all(title!=None):
+            fig.suptitle(title, fontsize=fontsize)
+        return fig
+
+    # Multi-system
+    if ndim == 2:
+        nplane = 1
     else:
-        figs = [[0 for i in range(len(property))] for j in range(len(tensplt))]
+        plane = np.array(plane, ndmin=2)
+        nplane = plane.shape[0]
 
-    # set colors, nTensplt*nProperty
-    clist = list(mcolors.TABLEAU_COLORS.keys())
-    nclist = len(clist)
-    if len(property) == 1 and len(tensplt) > 1:
-        colors = [[clist[i%nclist]] for i in range(len(tensplt))]
+    if np.all(u!=None) or np.all(utext!=None):
+        warnings.warn("For multi-system plottings, 'u' and 'utext' options are disabled.",
+                      stacklevel=2)
+    u = None; utext = None
+    ## calculate data
+    for it, t in enumerate(tensplt):
+        if ndim == 2:
+            tensplt[it] = t.plot_2D(
+                property, ntheta, u, utext, use_cartesian, plot_lattice,
+                loop_color, loop_linestyle, loop_linewidth, layout, figsize ,
+                True, **kwargs)
+        else:
+            tensplt[it] = t.plot_2D(
+                property, plane, ntheta, nchi, plane_definition, u, utext,
+                use_cartesian, plot_lattice, loop_color, loop_linestyle,
+                loop_linewidth, figsize, True, **kwargs)
+
+    ## scale of properties
+    rmax = np.zeros([nprop, ntensor], dtype=float)
+    for it, t in enumerate(tensplt):
+        for ip in range(nprop):
+            rmax[ip, it] = np.max(t.r[ip])
+    rmax = np.max(rmax, axis=1)
+
+    ## plot setups
+    if np.all(loop_label==None):
+        loop_label = ['# {:d}'.format(i+1) for i in range(ntensor)]
+    elif isinstance(loop_label, str):
+        loop_label = ['{} {:d}'.format(i+1) for i in range(ntensor)]
+    elif isinstance(loop_label, list) or isinstance(loop_label, np.ndarray):
+        nlabel = len(loop_label)
+        loop_label = [loop_label[i%nlabel] for i in range(ntensor)]
     else:
-        colors = [[clist[i%nclist] for i in range(len(property))] for j in range(len(tensplt))]
+        raise TypeError('Unknown type of plot label.')
 
-    # plot
-    if uniform_scale_2D == False: # Non-uniform scale
-        for ip, p in enumerate(property):
-            kwargs['property'] = p
-            for it, t in enumerate(tensplt):
-                if same_fig_2D == False:
-                    fig = t.plot_2D(**kwargs)
-                    figs[it][ip] = fig
-                else:
-                    iplt = int(it*len(property) + ip)
-                    kwargs['return_data'] = True
-                    chi, r, title, uplt, utextplt, platt = t.plot_2D(**kwargs)
-                    axes.flat[iplt] = _plot2D_single(
-                        axes.flat[iplt], chi, r, np.array([0, 0, 1], dtype=float),
-                        colors[it][ip], title, np.max(r), uplt, utextplt, platt
-                    )
-    else: # Uniform scale
-        for ip, p in enumerate(property):
-            chi_all = []
-            r_all = []
-            title_all = []
-            uplt_all =[]
-            utext_all = []
-            platt_all = []
-            kwargs['property'] = p
-            kwargs['return_data'] = True
-            # Get data first
-            for it, t in enumerate(tensplt):
-                chi, r, title, uplt, utextplt, platt = t.plot_2D(**kwargs)
-                chi_all.append(chi)
-                r_all.append(r)
-                title_all.append(title)
-                uplt_all.append(uplt)
-                utext_all.append(utextplt)
-                platt_all.append(platt)
-            # plot
-            rmax = np.max(r_all)
-            for it, t in enumerate(tensplt):
-                if same_fig_2D == False:
-                    fig, ax = plt.subplots(nrows=1, ncols=1,
-                                           subplot_kw={'projection' : 'polar'}, layout='tight')
-                    ax = _plot2D_single(ax, chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
-                                        colors[it][ip], title_all[it], rmax,
-                                        uplt_all[it], utextplt_all[it], platt_all[it])
-                    figs[it][ip] = fig
-                else:
-                    iplt = int(it*len(property) + ip)
-                    axes.flat[iplt] = _plot2D_single(
-                        axes.flat[iplt], chi_all[it], r_all[it], np.array([0, 0, 1], dtype=float),
-                        colors[it][ip], title_all[it], rmax, uplt_all[it], utext_all[it], platt_all[it]
-                    )
+    ## dummy doss obj
+    doss = np.zeros([ntensor, 1, 1])
+    commands = _plot_label_preprocess(doss, loop_label, loop_color,
+                                      loop_linestyle, loop_linewidth)
 
-    # dimensionality
-    if same_fig_2D == False:
-        if len(tensplt) == 1 and len(property) == 1:
-            figs = figs[0][0]
-        elif len(tensplt) == 1 and len(property) > 1:
-            figs = figs[0]
-        elif len(tensplt) > 1 and len(property) == 1:
-            figs = [i[0] for i in figs]
+    ## plot system 1
+    fig = _plot2D(
+        tensplt[0], rmax, use_cartesian, u, utext, commands[0][0][0],
+        commands[1][0][0], commands[2][0][0], commands[3][0][0], layout, figsize,
+        None, None, **kwargs)
+    ## other systems, no lattice
+    ax_index = [i for i in range(len(fig.axes))]
+    for it, t in enumerate(tensplt[1:]):
+        t.lattice_plot = None
+        fig = _plot2D(
+            t, rmax, use_cartesian, u, utext, commands[0][it+1][0],
+            commands[1][it+1][0], commands[2][it+1][0], commands[3][it+1][0],
+            layout, figsize, fig, ax_index, **kwargs
+        )
+    ## legend
+    if np.all(legend!=None): fig.axes[0].legend(loc=legend)
 
-    return figs
+    ## titles
+    if nplane == 1 and nprop > 1:
+        for ip, p in enumerate(tensplt[0].property):
+            if 'shear' in p or 'young' in p: ptitle = '{} (GPa)'.format(p)
+            else: ptitle = p
+            fig.axes[ip].set_title(ptitle, y=1.05)
+
+        if ndim == 3:
+            if plane_definition == 'miller':
+                axtitle = '({:<3d}{:^3d}{:>3d})'.format(plane[0,0], plane[0,1], plane[0,2])
+            else:
+                axtitle = '({:<4.1f}{:^4.1f}{:>4.1f})'.format(plane[0,0], plane[0,1], plane[0,2])
+
+            fig.axes[0].text(
+                -0.1, 0.5, axtitle, rotation='vertical', horizontalalignment='right',
+                verticalalignment='center', transform=fig.axes[0].transAxes,
+                fontsize=fig.axes[0].title._fontproperties._size
+            )
+    else: # 3D only
+        for inorm, norm in enumerate(plane):
+            if plane_definition == 'miller':
+                axtitle = '({:<3d}{:^3d}{:>3d})'.format(norm[0], norm[1], norm[2])
+            else:
+                axtitle = '({:<4.1f}{:^4.1f}{:>4.1f})'.format(norm[0], norm[1], norm[2])
+            fig.axes[inorm].set_title(axtitle, y=1.05)
+
+        for ip, p in enumerate(tensplt[0].property):
+            if 'shear' in p or 'young' in p: ptitle = '{} (GPa)'.format(p)
+            else: ptitle = p
+            fig.axes[int(ip*nplane)].text(
+                -0.1, 0.5, ptitle, rotation='vertical', horizontalalignment='right',
+                verticalalignment='center', transform=fig.axes[int(ip*nplane)].transAxes,
+                fontsize=fig.axes[0].title._fontproperties._size
+            )
+
+    if np.all(title!=None):
+        fig.suptitle(title, fontsize=fontsize)
+    return fig
 
 
 ##############################################################################
@@ -1839,8 +2003,8 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
             it to all plots. 1\*nSystem plot legend otherwise.
         band_color (str|list): Color of band structure. If only one string is
             given, apply it to all plots. For the 'multi' mode, 1\*nSystem list
-            of plot colors. 'None' for default values ('tab:blue' and other tab
-            series).
+            of plot colors. 'None' for default values (matplotlib Tableau
+            Palette).
         band_linestyle (str|list): Linestyle of band structure. If only one
             string is given, apply it to all plots. For the 'multi' mode,
             1\*nSystem list of linestyle strings. 'None' for default values
@@ -1979,7 +2143,7 @@ def plot_phonon_doss(
             the subplots.
         dos_color (str|list): Color of DOSS plots. If only one string is given,
             apply it to all plots. When ``overlap=True``, 1\*nPrj list of plot
-            color. 'None' for default values ('tab:blue' and other tab series).
+            color. 'None' for default values (matplotlib Tableau Palette).
             Effective for all the subplots.
         dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
             given, apply it to all plots. When ``overlap=True``, 1\*nPrj list

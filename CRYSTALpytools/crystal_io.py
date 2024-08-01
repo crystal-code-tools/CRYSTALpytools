@@ -2958,7 +2958,7 @@ class Properties_output(POutBASE):
                 is upper case types.
         """
         from CRYSTALpytools.base.extfmt import BOLTZTRAParaser
-        from CRYSTALpytools.transport import Tensor, Distribution
+        from CRYSTALpytools.transport import Kappa, Sigma, Seebeck, SigmaS, TDF
 
         if hasattr(self, 'file_name'):
             struc = super().get_geometry()
@@ -2970,14 +2970,23 @@ class Properties_output(POutBASE):
         file.close()
         if 'Transport distribution function' in header:
             out = BOLTZTRAParaser.distribution(boltztra_out)
-            obj = Distribution(out[2], out[3], struc, out[1], out[4])
-            setattr(self, out[1], obj)
+            if out[1] == 'TDF':
+                obj = TDF(out[2], out[3], struc)
+            else:
+                raise TypeError("Unknown distribution function. Please contact the developers for updates.")
         else:
             out = BOLTZTRAParaser.tensor(boltztra_out)
-            obj = Tensor(out[3], out[4], out[5], out[6], struc, out[1], out[7])
-            setattr(self, out[1], obj)
-        return getattr(self, out[1])
+            if out[1] == 'KAPPA':
+                obj = Kappa(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMA':
+                obj = Sigma(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMAS':
+                obj = SigmaS(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SEEBECK':
+                obj = Seebeck(out[3], out[4], out[5], out[6], struc)
 
+        setattr(self, out[1], obj)
+        return getattr(self, out[1])
 
     def read_cry_lapl_profile(self, properties_output):
         """
