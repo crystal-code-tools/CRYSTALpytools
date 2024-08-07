@@ -557,18 +557,19 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
     if mode.lower() == 'single':
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ax = plot_compare_bands(
-            [ax], [bandsplt[0].bands], [bandsplt[0].tick_pos],
+            [ax], [bandsplt[0].bands], [bandsplt[0].k_path], [bandsplt[0].tick_pos],
             k_label, False, energy_range, k_range, band_label, band_color,
             band_linestyle, band_linewidth, fermi_level, fermi_color,
             fermi_linestyle, fermi_linewidth, legend, **kwargs
         )
     elif mode.lower() == 'multi':
         fig, ax = plt.subplots(1, 1, figsize=figsize)
+        k_xax = [i.k_path for i in bandsplt]
         ax = plot_overlap_bands(
-            ax, [b.bands for b in bandsplt], [b.tick_pos for b in bandsplt],
-            k_label, energy_range, k_range, band_label, band_color,
-            band_linestyle, band_linewidth, fermi_level, fermi_color,
-            fermi_linestyle, fermi_linewidth, legend, **kwargs
+            ax, [b.bands for b in bandsplt], k_xax, [b.tick_pos for b in bandsplt],
+            k_label, energy_range, k_range, band_label, band_color, band_linestyle,
+            band_linewidth, fermi_level, fermi_color, fermi_linestyle,
+            fermi_linewidth, legend, **kwargs
         )
     elif mode.lower() == 'compare':
         if np.all(layout==None):
@@ -576,8 +577,9 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
 
         fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
+        k_xax = [i.k_path for i in bandsplt]
         _ = plot_compare_bands(
-            ax.flat, [b.bands for b in bandsplt], [b.tick_pos for b in bandsplt],
+            ax.flat, [b.bands for b in bandsplt], k_xax, [b.tick_pos for b in bandsplt],
             k_label, not_scaled, energy_range, k_range, band_label, band_color,
             band_linestyle, band_linewidth, fermi_level, fermi_color,
             fermi_linestyle, fermi_linewidth, legend, **kwargs
@@ -703,6 +705,8 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
         dossplt.append(dtmp)
 
     # prj
+    prj = np.array(prj, ndmin=1)
+    if prj.ndim > 1: raise ValueError('Projections must be 1D.')
     if len(prj) == 0:
         prj = [[int(i+1) for i in range(len(j.doss))] for j in dossplt]
     else:
@@ -740,21 +744,13 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
     else: # Projecton of the same system into the same panel
         fig, ax = plt.subplots(ndoss, 1, figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
-        if ndoss == 1:
-            ax = plot_doss(
-                ax, dossplt[0].doss, dossplt[0].energy, beta, prj[0],
+        for i in range(ndoss):
+            fig.axes[i] = plot_doss(
+                fig.axes[i], dossplt[i].doss, dossplt[i].energy, beta, prj[i],
                 energy_range, dos_range, dos_label, dos_color, dos_linestyle,
                 dos_linewidth, fermi_level, fermi_color, fermi_linestyle,
                 fermi_linewidth, legend, False, **kwargs
             )
-        else:
-            for i in range(ndoss):
-                ax.flat[i] = plot_doss(
-                    ax.flat[i], dossplt[i].doss, dossplt[i].energy, beta, prj[i],
-                    energy_range, dos_range, dos_label, dos_color, dos_linestyle,
-                    dos_linewidth, fermi_level, fermi_color, fermi_linestyle,
-                    fermi_linewidth, legend, False, **kwargs
-                )
 
     # set titles and axes
     if is_ev == True:
@@ -2031,21 +2027,23 @@ def plot_elastics2D(
 
 #-----------------------------PHONON BAND AND DOS----------------------------#
 
-def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
-                      not_scaled=False, frequency_range=[], k_range=[],
-                      band_label=None, band_color=None, band_linestyle=None,
-                      band_linewidth=None, plot_freq0=True, freq0_color='tab:gray',
-                      freq0_linestyle='-', freq0_linewidth=1.0, layout=None,
-                      title=None, figsize=[6.4, 4.8], legend='lower right',
-                      sharex=True, sharey=True, fontsize=14, **kwargs):
+def plot_phonon_bands(*bands, unit='cm-1', q_overlap_tol=1e-4,
+                      k_label=None, mode='single', not_scaled=False,
+                      frequency_range=[], k_range=[], band_label=None,
+                      band_color=None, band_linestyle=None, band_linewidth=None,
+                      plot_freq0=True, freq0_color='tab:gray', freq0_linestyle='-',
+                      freq0_linewidth=1.0, layout=None, title=None,
+                      figsize=[6.4, 4.8], legend='lower right', sharex=True,
+                      sharey=True, fontsize=14, **kwargs):
     """
     Plot phonon band structures.
 
     Args:
-        \*bands (PhononBand|str): ``phonons.PhononBand`` object or band
-            structure files of CRYSTAL. Note that lattice information is not
-            available if file names are specified.
+        \*bands (PhononBand|str): ``phonons.PhononBand`` object or the standard
+            screen output (.out) files of CRYSTAL.
         unit (str): The unit of frequency. Can be 'cm-1' or 'THz'.
+        q_overlap_tol (float): The threshold for overlapped k points. Only used
+             for getting tick positions. *For filename input only.*
         k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
              for high symmetry points along the path. If a 1D list is given,
              the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
@@ -2108,7 +2106,7 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
     bandsplt = []
     for ib, b in enumerate(bands):
         if isinstance(b, str):
-            btmp = PhononBand.from_file(b)
+            btmp = PhononBand.from_file(b, q_overlap_tol=q_overlap_tol)
         elif isinstance(b, PhononBand):
             btmp = copy.deepcopy(b)
         else:
@@ -2123,7 +2121,7 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
         k_label = [b.tick_label for b in bandsplt]
 
     # frequency = 0
-    if plot_freq0 == True:
+    if plot_freq0 != True:
         freq0 = None
     else:
         freq0 = 0.
@@ -2132,15 +2130,16 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
     if mode.lower() == 'single':
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ax = plot_compare_bands(
-            [ax], [bandsplt[0].bands], [bandsplt[0].tick_pos],
+            [ax], [bandsplt[0].bands], [bandsplt[0].k_path], [bandsplt[0].tick_pos],
             k_label, False, frequency_range, k_range, band_label, band_color,
             band_linestyle, band_linewidth, freq0, freq0_color, freq0_linestyle,
             freq0_linewidth, legend, **kwargs
         )
     elif mode.lower() == 'multi':
         fig, ax = plt.subplots(1, 1, figsize=figsize)
+        k_xax = [i.k_path for i in bandsplt]
         ax = plot_overlap_bands(
-            ax, [b.bands for b in bandsplt], [b.tick_pos for b in bandsplt],
+            ax, [b.bands for b in bandsplt], k_xax, [b.tick_pos for b in bandsplt],
             k_label, frequency_range, k_range, band_label, band_color,
             band_linestyle, band_linewidth, freq0, freq0_color, freq0_linestyle,
             freq0_linewidth, legend, **kwargs
@@ -2151,8 +2150,9 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
 
         fig, ax = plt.subplots(layout[0], layout[1], figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
+        k_xax = [i.k_path for i in bandsplt]
         _ = plot_compare_bands(
-            ax.flat, [b.bands for b in bandsplt], [b.tick_pos for b in bandsplt],
+            ax.flat, [b.bands for b in bandsplt], k_xax, [b.tick_pos for b in bandsplt],
             k_label, not_scaled, frequency_range, k_range, band_label, band_color,
             band_linestyle, band_linewidth, freq0, freq0_color, freq0_linestyle,
             freq0_linewidth, legend, **kwargs
@@ -2172,7 +2172,8 @@ def plot_phonon_bands(*bands, unit='cm-1', k_label=None, mode='single',
 
 
 def plot_phonon_doss(
-    *doss, unit='cm-1', overlap=False, prj=[], frequency_range=[], dos_range=[],
+    *doss, unit='cm-1', read_INS=False, atom_prj=[], element_prj=[],
+    overlap=False, prj=[], gauss=0.0, frequency_range=[], dos_range=[],
     dos_label=None, dos_color=None, dos_linestyle=None, dos_linewidth=None,
     plot_freq0=True, freq0_color='tab:gray', freq0_linestyle='-',
     freq0_linewidth=1.0, title=None, figsize=[6.4, 4.8], legend='lower right',
@@ -2181,10 +2182,15 @@ def plot_phonon_doss(
     Plot phonon density of states.
 
     Args:
-        \*doss (PhononDOS|str): ``phonon.PhononDOS`` object or PHONODOSS files
-            of CRYSTAL. Note that lattice information is not available if file
-            names are specified.
+        \*doss (PhononDOS|str): ``phonon.PhononDOS`` object or the standard
+            screen output (.out) files of CRYSTAL.
         unit (str): The unit of frequency. Can be 'cm-1' or 'THz'.
+        read_INS (bool): Read the inelastic neutron scattering spectra. *For
+            filename input only.*
+        atom_prj (list): Read the projections of atoms with specified labels.
+            *For filename input only.*
+        element_prj (list): Read projections of elements with specified
+            conventional atomic numbers. *For filename input only.*
         overlap (bool): Plotting multiple projections into the same figure.
             Useful only if a single entry of ``doss`` is plotted. Otherwise
             projections from the same entry will be overlapped into the same
@@ -2192,6 +2198,10 @@ def plot_phonon_doss(
         prj (list): Index of selected projections, consistent with the first
             dimension of the ``doss``, starting from 1. Effective for all the
             subplots.
+        gauss (float): The standard deviation of Gaussian broadening, i.e. the
+            :math:`\\sigma` of :math:`a\\exp{\\frac{(x-b)^{2}}{2\\sigma^{2}}}`.
+            '0' for no Gaussian broadening. The length of data will be tripled.
+            Valid only for data on the plot. Data saved in object is unchanged.
         frequency_range (list): 1\*2 list of frequency range
         dos_range (list): 1\*2 list of DOS range
         dos_label (str|list): Plot legend. If only one string is given, apply
@@ -2228,7 +2238,7 @@ def plot_phonon_doss(
     import matplotlib.pyplot as plt
     from CRYSTALpytools.base.plotbase import plot_doss, _plot_label_preprocess
     from CRYSTALpytools.phonons import PhononDOS
-    import copy
+    import copy, warnings
 
     # unit
     if unit.lower() == 'cm-1':
@@ -2244,7 +2254,8 @@ def plot_phonon_doss(
     dossplt = []
     for id, d in enumerate(doss):
         if isinstance(d, str):
-            dtmp = PhononDOS.from_file(d)
+            dtmp = PhononDOS.from_file(d, read_INS=read_INS, atom_prj=atom_prj,
+                                       element_prj=element_prj)
         elif isinstance(d, PhononDOS):
             dtmp = copy.deepcopy(d)
         else:
@@ -2255,19 +2266,39 @@ def plot_phonon_doss(
         dossplt.append(dtmp)
 
     # prj
+    prj = np.array(prj, ndmin=1)
+    if prj.ndim > 1: raise ValueError('Projections must be 1D.')
     if len(prj) == 0:
         prj = [[int(i+1) for i in range(len(j.doss))] for j in dossplt]
     else:
         prj = [prj for j in dossplt]
 
     # frequency = 0
-    if plot_freq0 == True:
+    if plot_freq0 != True:
         freq0 = None
     else:
         freq0 = 0.
 
-    # plot
+    # Gaussian broadening
     ndoss = len(dossplt)
+    if gauss != 0:
+        if gauss < 0:
+            warnings.warn("Negative gaussian broadening width! Using its absolute value.", stacklevel=2)
+            gauss = -gauss
+        for i in range(ndoss):
+            new_nfreq = int(len(dossplt[i].frequency) * 3)
+            new_freq = np.linspace(dossplt[i].frequency[0],
+                                   dossplt[i].frequency[-1], new_nfreq)
+            new_dos = np.zeros([len(dossplt[i].doss), new_nfreq, 1])
+            for ifreq, freq in enumerate(new_freq):
+                for id, d in enumerate(dossplt[i].doss):
+                    new_dos[id, ifreq, 0] = np.sum(
+                        d[:, 0] * np.exp(-(freq - dossplt[i].frequency)**2 / gauss**2 / 2)
+                    )
+            dossplt[i].frequency = copy.deepcopy(new_freq)
+            dossplt[i].doss = copy.deepcopy(new_dos)
+
+    # plot
     if ndoss == 1 and overlap == False: # Same system, projecton into different panels
         nprj = len(prj[0])
         fig, ax = plt.subplots(nprj, 1, figsize=figsize,
@@ -2294,8 +2325,8 @@ def plot_phonon_doss(
                 else:
                     commands[i] = [[commands[i][j]] for j in range(nprj)]
             for i in range(nprj):
-                ax.flat[i] = plot_doss(
-                    ax.flat[i], dossplt[0].doss, dossplt[0].frequency, 'up',
+                fig.axes[i] = plot_doss(
+                    fig.axes[i], dossplt[0].doss, dossplt[0].frequency, 'up',
                     [prj[0][i]], frequency_range, dos_range, commands[0][i],
                     commands[1][i], commands[2][i], commands[3][i], freq0,
                     freq0_color, freq0_linestyle, freq0_linewidth, legend,
@@ -2304,21 +2335,13 @@ def plot_phonon_doss(
     else: # Projecton of the same system into the same panel
         fig, ax = plt.subplots(ndoss, 1, figsize=figsize,
                                sharex=sharex, sharey=sharey, layout='constrained')
-        if ndoss == 1:
-            ax = plot_doss(
-                ax, dossplt[0].doss, dossplt[0].frequency, 'up', prj[0],
+        for i in range(ndoss):
+            fig.axes[i] = plot_doss(
+                fig.axes[i], dossplt[i].doss, dossplt[i].frequency, 'up', prj[i],
                 frequency_range, dos_range, dos_label, dos_color, dos_linestyle,
                 dos_linewidth, freq0, freq0_color, freq0_linestyle, freq0_linewidth,
                 legend, False, **kwargs
             )
-        else:
-            for i in range(ndoss):
-                ax.flat[i] = plot_doss(
-                    ax.flat[i], dossplt[i].doss, dossplt[i].frequency, 'up', prj[i],
-                    frequency_range, dos_range, dos_label, dos_color, dos_linestyle,
-                    dos_linewidth, freq0, freq0_color, freq0_linestyle,
-                    freq0_linewidth, legend, False, **kwargs
-                )
 
     # set titles and axes
     if is_thz == True:
@@ -2334,12 +2357,13 @@ def plot_phonon_doss(
 
 
 def plot_phonon_banddos(
-    *data, unit='cm-1', k_label=[], dos_overlap=True, dos_prj=[], frequency_range=[],
-    k_range=[], dos_range=[], band_width=2, band_label=None, band_color=None,
-    band_linestyle=None, band_linewidth=None, dos_label=None, dos_color=None,
-    dos_linestyle=None, dos_linewidth=None, plot_freq0=True, freq0_color='tab:green',
-    freq0_linestyle='-', freq0_linewidth=1.0, title=None, figsize=[6.4, 4.8],
-    legend='lower right', fontsize=14, **kwargs):
+    *data, unit='cm-1', q_overlap_tol=1e-4, read_INS=False, atom_prj=[],
+    element_prj=[], k_label=[], dos_overlap=True, dos_prj=[], dos_gauss=0.0,
+    frequency_range=[], k_range=[], dos_range=[], band_width=2, band_label=None,
+    band_color=None, band_linestyle=None, band_linewidth=None, dos_label=None,
+    dos_color=None, dos_linestyle=None, dos_linewidth=None, plot_freq0=True,
+    freq0_color='tab:green', freq0_linestyle='-', freq0_linewidth=1.0, title=None,
+    figsize=[6.4, 4.8], legend='lower right', fontsize=14, **kwargs):
     """
     Plot phonon band structure + dos for a **single** system, i.e., the
     ``bands`` and ``doss`` variables are not extendable.
@@ -2348,14 +2372,15 @@ def plot_phonon_banddos(
     and ``plot_phonon_bands``.
 
     Args:
-        \*data: Either 1 or 2 entries. For one enetry, it is fort.25 containing
-            both band and DOS, or ``PhononBandDOS`` object. For 2 entries, the
-            first entry is ``bands`` of ``plot_phonon_bands`` and the second is
-            ``doss`` of ``plot_phonon_doss``.
+        \*data: Either 1 or 2 entries. For one enetry, it is the standard
+            screen output (.out) file with both band and DOS, or ``PhononBandDOS``
+            object. For 2 entries, the first entry is ``bands`` of
+            ``plot_phonon_bands`` and the second is ``doss`` of ``plot_phonon_doss``.
         dos_overlap (bool): ``overlap`` of ``plot_phonon_doss``. The user can
             either plot projections into the same subplot or into separate
             subplots.
         dos_prj (list): ``prj`` of ``plot_phonon_doss``.
+        dos_gauss (float): ``gauss`` of ``plot_phonon_doss``.
         band_width (int|float): Relative width of band structure, times of the
             width of a DOS subplot.
     Returns:
@@ -2380,8 +2405,9 @@ def plot_phonon_banddos(
     # instantiation and unit
     if len(data) == 1:
         if isinstance(data[0], str):
-            bands = PhononBand.from_file(data[0])
-            doss = PhononDOS.from_file(data[0])
+            bands = PhononBand.from_file(data[0], q_overlap_tol=q_overlap_tol)
+            doss = PhononDOS.from_file(data[0], read_INS=read_INS,
+                                       atom_prj=atom_prj, element_prj=element_prj)
         elif isinstance(data[0], PhononBandDOS):
             bands = copy.deepcopy(data[0].band)
             doss = copy.deepcopy(data[0].dos)
@@ -2389,14 +2415,15 @@ def plot_phonon_banddos(
             raise ValueError('Unknown input data type for the 1st entry.')
     elif len(data) == 2:
         if isinstance(data[0], str):
-            bands = PhononBand.from_file(data[0])
+            bands = PhononBand.from_file(data[0], q_overlap_tol=q_overlap_tol)
         elif isinstance(data[0], PhononBand):
             bands = copy.deepcopy(data[0])
         else:
             raise ValueError('Unknown input data type for the 1st entry.')
 
         if isinstance(data[1], str):
-            doss = PhononDOS.from_file(data[1])
+            doss = PhononDOS.from_file(data[1], read_INS=read_INS,
+                                       atom_prj=atom_prj, element_prj=element_prj)
         elif isinstance(data[1], PhononDOS):
             doss = copy.deepcopy(data[1])
         else:
@@ -2414,10 +2441,26 @@ def plot_phonon_banddos(
         dos_prj = [i+1 for i in range(len(doss.doss))]
 
     # frequency = 0
-    if plot_freq0 == True:
+    if plot_freq0 != True:
         freq0 = None
     else:
         freq0 = 0.
+
+    # Gaussian broadening
+    if dos_gauss != 0:
+        if dos_gauss < 0:
+            warnings.warn("Negative gaussian broadening width! Using its absolute value.", stacklevel=2)
+            dos_gauss = -dos_gauss
+        new_nfreq = int(len(doss.frequency) * 3)
+        new_freq = np.linspace(doss.frequency[0], doss.frequency[-1], new_nfreq)
+        new_dos = np.zeros([len(doss.doss), new_nfreq, 1])
+        for ifreq, freq in enumerate(new_freq):
+            for id, d in enumerate(doss.doss):
+                new_dos[id, ifreq, 0] = np.sum(
+                    d[:, 0] * np.exp(-(freq - doss.frequency)**2 / dos_gauss**2 / 2)
+                )
+        doss.frequency = copy.deepcopy(new_freq)
+        doss.doss = copy.deepcopy(new_dos)
 
     fig = plot_banddos(
         bands, doss, k_label, 'up', dos_overlap, dos_prj, frequency_range,

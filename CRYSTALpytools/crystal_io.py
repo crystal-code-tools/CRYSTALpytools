@@ -240,6 +240,7 @@ class Crystal_output:
 
     def __init__(self, output_name=None):
         import re
+        import pandas as pd
 
         if np.all(output_name!=None):
             self.name = output_name
@@ -254,17 +255,15 @@ class Crystal_output:
                 raise FileNotFoundError('EXITING: a .out file needs to be specified')
 
             # Check the calculation terminated correctly
-            self.terminated = False
+            self.df = pd.DataFrame(self.data)
+            idx_end = self.df[self.df[0].str.contains(r'^ EEEEEEEEEE TERMINATION')].index
 
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ EEEEEEEEEE TERMINATION', line):
-                    self.terminated = True
-                    # This is the end of output
-                    self.eoo = len(self.data)-1-i
-                    break
-
-            if self.terminated == False:
+            if len(idx_end) == 0:
+                self.terminated = False
                 self.eoo = len(self.data)
+            else:
+                self.terminated = True
+                self.eoo = len(self.data)-1-idx_end[0]
 
     @classmethod
     def read_file(cls, output_name):
@@ -317,17 +316,17 @@ class Crystal_output:
         Returns:
             self.dimensionality (int): Dimensionality of the system.
         """
-        import re
+        import pandas as pd
 
-        self.dimensionality = None
-        for line in self.data:
-            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line):
-                self.dimensionality = int(line.split()[9])
-                break
+        dimen_line = self.df[self.df[0].str.contains(
+            r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM'
+        )].index
 
-        if np.all(self.dimensionality==None):
+        if len(dimen_line) == 0:
             raise Exception('Invalid file. Dimension information not found.')
 
+        ndimen = self.df[0][dimen_line].map(lambda x: x.strip().split()).tolist()
+        self.dimensionality = int(ndimen[0][9])
         return self.dimensionality
 
     def get_symmops(self):
@@ -381,50 +380,35 @@ class Crystal_output:
             self.geometry (CStructure | CMolecule): A modified pymatgen Structure
                 or molecule object.
         """
-        import os, re, warnings
+        import os, warnings
+        import pandas as pd
         import numpy as np
         from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
 
         # Get geometry
-        bg_line = -1
-        if initial == True:
-            for nline, line in enumerate(self.data[:self.eoo]):
-                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
-                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = nline - 4
-                    break
-        else:
-            for nline, line in enumerate(self.data[self.eoo::-1]):
-                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
-                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = len(self.data[:self.eoo]) - nline - 4
-                    break
-
-        if bg_line < 0:
+        # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
+        coord_lines = self.df[self.df[0].str.contains(r'^\s*ATOMS IN THE ASYMMETRIC UNIT')].index
+        if len(coord_lines) == 0:
             raise Exception('Geometry information not found.')
 
-        output = GeomBASE.read_geom(self.data, bg_line)
-        struc = output[1]
+        if initial == True:
+            bg_line = coord_lines[0] - 4
+        else:
+            bg_line = coord_lines[-1] - 4
+
+        struc = GeomBASE.read_geom(self.df[0][bg_line:])
 
         # Get the last lattice matrix: structure obtained by GeomBASE might be rotated.
         ndimen = self.get_dimensionality()
-        lattice_line = -1
-        if ndimen != 0:
-            if initial == True:
-                for nline, line in enumerate(self.data[:self.eoo]):
-                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                        lattice_line = nline
-                        break
-            else:
-                for nline, line in enumerate(self.data[self.eoo::-1]):
-                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                        lattice_line = len(self.data[:self.eoo]) - nline
-                        break
 
-        if lattice_line != -1:
-            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
+        if ndimen != 0:
+            lattice_line = self.df[self.df[0].str.contains(r'^ DIRECT LATTICE VECTORS CARTESIAN')].index
+            if initial == True: lattice_line = lattice_line[0]
+            else: lattice_line = lattice_line[-1]
+
+            a_crys = np.array(self.df[0][lattice_line+2].strip().split(), dtype=float)
             a_pmg = struc.lattice.matrix[0, :]
             # Rotate the geometry back
             struc = struc.rot_cel(a_pmg, a_crys)
@@ -608,21 +592,17 @@ class Crystal_output:
             self.trans_matrix (np.ndarray): 3\*3 array of supercell
                 expansion matrix
         """
-        import re
+        import pandas as pd
         import numpy as np
 
         ndimen = self.get_dimensionality()
         self.trans_matrix = np.eye(3, dtype=float)
-        for i, line in enumerate(self.data[:self.eoo]):
-            if re.match(r'^\s+EXPANSION MATRIX OF PRIMITIVE CELL', line):
-                mx = np.array([
-                    self.data[i + 1].strip().split()[1:],
-                    self.data[i + 2].strip().split()[1:],
-                    self.data[i + 3].strip().split()[1:],
-                ], dtype=float)
-                self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
-                break
 
+        mx_line = self.df[self.df[0].str.contains(r'^\s+EXPANSION MATRIX OF PRIMITIVE CELL')].index
+        mx = self.df[0][mx_line[0]+1:mx_line[0]+4].map(lambda x: x.strip().split()).tolist()
+        mx = np.array([i[1:] for i in mx], dtype=float)
+
+        self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
         return self.trans_matrix
 
     def get_primitive_geometry(self, initial=True, write_gui=False, gui_name=None,
@@ -1323,10 +1303,11 @@ class Crystal_output:
             imaginary_tol (float): *``rm_imaginary`` = True only* The threshold
                 of negative frequencies.
             q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
-                overlapping points, defined as the 2nd norm of the difference
+                overlapping q points, defined as the 2nd norm of the difference
                 of fractional q vectors
             eigvt_amplitude (float|str): Normalize the eigenvector to a certian
-                amplitude. Either a number or 'classical' (classical amplitude).
+                amplitude. Either a number or 'classical' (**classical
+                amplitude in Bohr**).
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1347,7 +1328,7 @@ class Crystal_output:
             self.Raman (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is Raman active
             self.eigenvector (array[complex]): *``read_eigvt = True only``*
-                nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
+                nqpoint\*nmode\*natom\*3 array of eigenvectors.
 
         .. note::
 
@@ -1357,6 +1338,7 @@ class Crystal_output:
         """
         import re
         import numpy as np
+        import pandas as pd
         from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
@@ -1372,111 +1354,77 @@ class Crystal_output:
         self.Raman = []
         self.eigenvector = []
 
-        countline = 0
-        while countline < self.eoo:
-            line = self.data[countline]
-            # Whether is a frequency file
-            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
-                is_freq = True
-                countline += 1
-                continue
-            # E_0 with empirical corrections
-            elif re.match(r'^\s+CENTRAL POINT', line):
-                self.edft.append(float(line.strip().split()[2]))
-                countline += 1
-                continue
-            # Q point info + frequency
-            ## Dispersion
-            elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
-                shrink = int(line.strip().split()[-1])
-                countline += 1
-                continue
-            elif re.match(r'\s+DISPERSION K POINT NUMBER', line):
-                coord = np.array(line.strip().split()[7:10], dtype=float)
-                weight = float(line.strip().split()[-1])
-                self.qpoint.append([coord / shrink, weight])
-                self.nqpoint += 1
-                countline += 2
-                # Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Gamma point
-            elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
-                countline += 2
-                # Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Phonon eigenvector
-            ### Gamma point: real numbers. Imaginary = 0
-            elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt[0]
-                self.eigenvector.append(eigvt[1] + 0.j)
-            ### Dispersion: complex numbers
-            elif re.match(r'^\s+MODES IN PHASE', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                if found_anti == False:  # Real k point
-                    self.eigenvector.append(tmp_eigvt)
-                countline += 2
-                found_anti = False
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt[0]
-                tmp_eigvt = eigvt[1] + 0.j
-            elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                countline += 2
-                found_anti = True
-                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt_anti[0]
-                self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
-            # Other data
-            else:
-                countline += 1
-                continue
+        # Whether is a frequency file
+        title = self.df[self.df[0].str.contains(
+            r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+')].index
+        if len(title) == 0: raise Exception('Not a frequency calculation.')
 
-        if is_freq == False:
-            raise Exception('Not a frequency calculation.')
-        if found_anti == False and read_eigvt == True:  # The last real k point
-            self.eigenvector.append(tmp_eigvt)
+        # E_0 with empirical corrections
+        edft_idx = self.df[self.df[0].str.contains(r'^\s+CENTRAL POINT')].index
+        self.edft = [
+            i[2] for i in self.df[0][edft_idx].map(lambda x: x.strip().split()).tolist()
+        ]
+        self.edft = H_to_kjmol(np.array(self.edft, dtype=float))
 
-        # Format data
-        # HA/QHA Gamma point calculation
-        if self.nqpoint == 0:
-            self.nqpoint = len(self.edft)
-            self.qpoint = [[np.zeros([3,]), 1.] for i in range(self.nqpoint)]
-            if len(self.edft) == 1:
-                self.edft = [self.edft[0] for i in range(self.nqpoint)]
-        # Dispersion
+        # Q point info + frequency
+        band_title = self.df[self.df[0].str.contains(r'^\s*\*\s+PHONON BANDS\s+\*\s*$')].index
+        empty_line = self.df[self.df[0].map(lambda x: x.strip() == '')].index.to_numpy(dtype=int)
+        if len(band_title) == 1:
+            ## Dispersion q point info
+            kheader = self.df[self.df[0].str.contains(r'^\s*\*\s+K\s+WEIGHT\s+COORD\s+\*\s*$')].index[0]
+            kend = self.df[self.df[0].str.contains(r'^\s*\*\s+WITH SHRINKING FACTORS: IS1 =\s+[0-9]+')].index[0]
+            self.nqpoint = int(kend - kheader - 1)
+            qpoint = np.array(self.df[0][kheader+1:kend].map(lambda x: x.strip().split()[1:-1]).tolist(),
+                              dtype=float)
+            is1 = float(self.df[0][kend].strip().split()[6])
+            is2 = float(self.df[0][kend].strip().split()[9])
+            is3 = float(self.df[0][kend].strip().split()[12])
+            self.qpoint = [[np.array([i[2]/is1, i[3]/is2, i[4]/is3]), i[1]] for i in qpoint]
+            del qpoint
+            freq_header = self.df[self.df[0].str.contains(r'\s+DISPERSION K POINT NUMBER')].index
         else:
-            self.qpoint = [[i[0], i[1] / self.nqpoint] for i in self.qpoint]
-            self.edft = [self.edft[0] for i in range(self.nqpoint)]
+            ## Gamma point / QHA
+            self.nqpoint = len(self.edft)
+            self.qpoint = [[np.zeros([3,], dtype=float), 1.0] for i in range(self.nqpoint)]
+            ## frequency
+            freq_header = self.df[self.df[0].str.contains(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+')].index
+
+        # Frequency
+        for bg in freq_header:
+            ed = empty_line[np.where(empty_line>=bg+2)[0][0]]
+            dfmini = self.df[0][bg:ed]
+            block_info = dfmini[dfmini.str.contains(r'^\s*[0-9]+\-\s+')]
+            phonon = PhononBASE.readmode_basic(block_info)
+            self.frequency.append(phonon[0])
+            self.nmode.append(len(phonon[0]))
+            if len(phonon[1]) != 0: self.intens.append(phonon[1])
+            if len(phonon[2]) != 0: self.IR.append(phonon[2])
+            if len(phonon[3]) != 0: self.Raman.append(phonon[3])
+
+        ## eigenvector
+        if read_eigvt == True:
+            if len(band_title) == 1:
+                eigvt_end = freq_header.tolist()[1:]
+                eigvt_end.append(
+                    self.df[self.df[0].str.contains(r'^\s+\-\%\-[0-9]BAND')].index[-1])
+            else:
+                eigvt_end = self.df[self.df[0].str.contains(r'^\s+VIBRATIONAL TEMPERATURES \(K')].index
+
+            countblock = 0
+            for bg, ed in zip(freq_end, eigvt_end):
+                dfmini = self.df[0][bg:ed]
+                self.eigenvector.append(
+                    PhononBASE.readmode_eigenvector(dfmini, self.nmode[countblock])
+                )
+                countblock += 1
 
         self.edft = H_to_kjmol(np.array(self.edft))
 
         self.frequency = np.array(self.frequency)
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
-        if self.intens[0] == []:
-            self.intens = []
-            self.IR = []
-            self.Raman = []
-        else:
-            self.intens = np.array(self.intens)
+        self.nmode = np.array(self.nmode, dtype=int)
+        if len(self.intens) != 0: self.intens = np.array(self.intens, dtype=float)
+        if len(self.IR) != 0: self.IR = np.array(self.IR, dtype=bool)
+        if len(self.Raman) != 0: self.Raman = np.array(self.Raman, dtype=bool)
 
         if self.eigenvector != []:
             self.eigenvector = np.array(self.eigenvector)
@@ -1501,6 +1449,141 @@ class Crystal_output:
             self = PhononBASE.clean_q_overlap(self, threshold=q_overlap_tol)
 
         return self
+
+    def get_phonon_band(self, q_overlap_tol=1e-4):
+        """
+        Read phonon bands from CRYSTAL output file.
+
+        Args:
+            q_overlap_tol (float): The threshold for overlapped k points. Only
+                used for getting tick positions.
+
+        Returns:
+            self.pband (PhononBand): ``phonons.PhononBand`` object.
+        """
+        from CRYSTALpytools.phonons import PhononBand
+        import pandas as pd
+        import numpy as np
+
+        band_title = self.df[self.df[0].str.contains(r'^\s*\*\s+PHONON BANDS\s+\*\s*$')].index
+        if len(band_title) == 0:
+            raise Exception('Not a phonon dispersion file')
+
+        self.get_phonon(read_eigvt=False, rm_imaginary=False, rm_overlap=False)
+        struc = self.get_primitive_geometry(initial=False)
+        k_path3d = np.vstack([i[0] for i in self.qpoint])
+        bands = np.reshape(self.frequency.transpose(), [self.nmode[0], self.nqpoint, 1])
+        recp_latt = struc.lattice.reciprocal_lattice.matrix
+
+        # get labels and 1D k path
+        headline = self.df[self.df[0].str.contains(r'\s*FROM K\s+\(.*WITH DENOMINATOR')].index
+        headline = self.df[0][headline].map(lambda x: x.strip().split()).tolist()
+
+        steps = self.df[self.df[0].str.contains(r'\s*PHONONS ALONG PATH\:\s+[0-9]+\s+NUMBER OF K POINTS\:\s+[0-9]+')].index
+        steps = self.df[0][steps].map(lambda x: x.strip().split()[-1]).to_numpy(dtype=int)
+
+        k_path = np.array([], dtype=float); tick_pos = []; tick_label = []
+        tick_pos3d = []; totlen = 0.
+        for iline, line in enumerate(headline):
+            pt1 = np.array(line[3:6], dtype=int)
+            pt2 = np.array(line[10:13], dtype=int)
+            denominator = int(line[-1])
+            seglen = np.linalg.norm((pt2-pt1) @ recp_latt)
+            tick_pos3d.append(pt1 / denominator)
+            tick_pos3d.append(pt2 / denominator)
+            tick_label.append('({:d} {:d} {:d})/{:d}'.format(pt1[0], pt1[1], pt1[2], denominator))
+            tick_label.append('({:d} {:d} {:d})/{:d}'.format(pt2[0], pt2[1], pt2[2], denominator))
+            k_path = np.hstack([k_path, np.linspace(totlen, totlen+seglen, steps[iline])])
+            tick_pos.append(totlen)
+            tick_pos.append(totlen+seglen)
+            totlen += seglen
+
+        # overlapped points
+        for i in range(len(tick_label)-1, 1, -1):
+            dist = tick_pos[i]-tick_pos[i-1]
+            if dist <= q_overlap_tol:
+                del tick_pos[i], tick_label[i], tick_pos3d[i]
+
+        # instantiation
+        self.pband = PhononBand(tick_pos, tick_label, bands, k_path, struc,
+                                tick_pos3d=tick_pos3d, k_path3d=k_path3d)
+        return self.pband
+
+    def get_phonon_dos(self, read_INS=False, atom_prj=[], element_prj=[]):
+        """
+        Read phonon density of states from CRYSTAL output file.
+
+        Args:
+            read_INS (bool): Read the inelastic neutron scattering spectra.
+            atom_prj (list): Read the projections of atoms with specified labels.
+            element_prj (list): Read projections of elements with specified
+                conventional atomic numbers.
+
+        Returns:
+            self.pdos (PhononDOS): ``phonons.PhononDOS`` object.
+        """
+        import pandas as pd
+        import numpy as np
+        from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+        from CRYSTALpytools.phonons import PhononDOS
+
+        # read from .out file
+        if read_INS == False:
+            header = self.df[self.df[0].str.contains(r'^\s*FREQUENCY \(CM\*\*\-1\)    TOTAL PDOS')].index
+        else:
+            header = self.df[self.df[0].str.contains(r'^\s*FREQUENCY \(CM\*\*\-1\)    TOTAL NW\-PDOS')].index
+            if len(header) == 0:
+                raise Exception('File does not have INS phonon DOS.')
+
+        empty_line = self.df[self.df[0].map(lambda x: x.strip() == '')].index.tolist()
+        empty_line = np.array(empty_line, dtype=int)
+        # total prj
+        totprj = []
+        for h in header:
+            end = empty_line[np.where(empty_line>h+2)[0][0]]
+            totprj.append(np.array(
+                self.df[0][h+2:end].map(lambda x: x.strip().split()).tolist(),
+                dtype=float
+            ))
+        totprj = np.array(totprj, dtype=float)
+
+        ## projections
+        atom_prj = np.array(atom_prj, ndmin=1)
+        element_prj = np.array(element_prj, ndmin=1)
+        nprj = len(atom_prj) + len(element_prj) + 1
+        doss = np.zeros([nprj, totprj.shape[1], 1], dtype=float)
+        freq = cm_to_thz(totprj[0, :, 0])
+        doss[0, :, 0] = np.sum(totprj[:, :, 1], axis=0)
+
+        ## atomic
+        if len(atom_prj) > 0:
+            for ia, a in enumerate(atom_prj):
+                header = self.df[self.df[0].str.contains(r'^\s\s\sATOM\s+{:d}$'.format(a))].index
+                if len(header) == 0:
+                    raise ValueError("The specified atom label: '{:d}' is not found.".format(a))
+                for h in header:
+                    end = empty_line[np.where(empty_line>h+4)[0][0]]
+                    doss[ia+1, :, 0] += np.array(
+                        self.df[0][h+4:end].map(lambda x: x.strip().split()).tolist(),
+                        dtype=float
+                    )[:, 1]
+        ## species
+        if len(element_prj) > 0:
+            for ie, e in enumerate(element_prj):
+                header = self.df[self.df[0].str.contains(r'^\s\s\sATOMIC NUMBER\s+{:d}$'.format(e))].index
+                if len(header) == 0:
+                    raise ValueError("The specified atomic number: '{:d}' is not found.".format(e))
+                for h in header:
+                    end = empty_line[np.where(empty_line>h+4)[0][0]]
+                    doss[ie+len(atom_prj)+1, :, 0] += np.array(
+                        self.df[0][h+4:end].map(lambda x: x.strip().split()).tolist(),
+                        dtype=float
+                    )[:, 1]
+
+        doss = thz_to_cm(doss)
+        self.pdos = PhononDOS(doss, freq, unit='THz')
+        return self.pdos
+
 
     def get_anh_spectra(self):
         """
@@ -1969,49 +2052,40 @@ class Crystal_output:
         """
         import re, warnings
 
-        title = ''
-        buffer = []
-        countline = 0
-        while countline < self.eoo:
-            line = self.data[countline]
-            if re.match(r'^\s*SYMMETRIZED ELASTIC CONSTANTS', line):
-                title = line
-                countline += 2
-                while self.data[countline].strip() != '':
-                    buffer.append(self.data[countline])
-                    countline += 1
-                break
-            else:
-                countline += 1
-                continue
+        etitle = self.df[
+            self.df[0].str.contains(r'^\s*SYMMETRIZED ELASTIC CONSTANTS')
+        ].index.to_numpy(dtype=int)
 
-        # Build tensor
-        if len(buffer) == 0:
+        empty_line = self.df[
+            self.df[0].map(lambda x: x.strip() == '')
+        ].index.to_numpy(dtype=int)
+
+        if len(etitle) == 0:
             raise Exception('Elastic tensor not found. Check your output file.')
-        else:
-            dimen = len(buffer)
-            self.tensor = np.zeros([dimen,dimen], dtype=float)
 
-        for i in range(dimen):
-            # Clean buffer and copy it in strtensor
-            self.tensor[i, i:] = np.array(
-                buffer[i].strip().split()[1:-1], dtype=float
-            )
-        buffer.clear()
+        bg = etitle[0] + 2
+        ed = empty_line[np.where(empty_line>bg)[0][0]]
 
+        tens = self.df[0].loc[bg:ed-1].map(lambda x: x.strip().split()).tolist()
+        # print(self.df[0].loc[bg:ed-1])
+        ndimen = len(tens)
+        self.tensor = np.zeros([ndimen,ndimen], dtype=float)
+        for i in range(ndimen):
+            self.tensor[i, i:] = np.array(tens[i][1:-1], dtype=float)
         # Symmetrize tensor
-        for i in range(dimen):
-            for j in range(i,dimen):
+        for i in range(ndimen):
+            for j in range(i,ndimen):
                 self.tensor[j][i] = self.tensor[i][j]
 
         # Unit conversion
-        if re.search('gpa', title.lower()):
+        title = self.df[0][etitle[0]].lower()
+        if re.search('gpa', title):
             pass
-        elif re.search('hartree', title.lower()):
-            if dimen == 1:
+        elif re.search('hartree', title):
+            if ndimen == 1:
                 length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
-                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
-            elif dimen == 3:
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
+            elif ndimen == 3:
                 area = np.linalg.norm(np.cross(
                     self.get_lattice(initial=False)[0, :2],
                     self.get_lattice(initial=False)[1, :2]
@@ -2023,15 +2097,15 @@ class Crystal_output:
 
         # Effective thickness
         if len(thickness) > 0:
-            if dimen == 1:
+            if ndimen == 1:
                 if len(thickness) == 1:
                     self.tensor = self.tensor / (thickness[0]*1e-10)**2
                 else:
                     self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
-            elif dimen == 3:
+            elif ndimen == 3:
                 self.tensor = self.tensor / (thickness[0]*1e-10)
         else:
-            if dimen != 6:
+            if ndimen != 6:
                 warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
                                stacklevel=2)
         return self.tensor

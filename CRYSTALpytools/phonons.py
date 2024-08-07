@@ -48,54 +48,25 @@ class PhononBand():
         self.unit = unit
 
     @classmethod
-    def from_file(cls, band, output=None):
+    def from_file(cls, output, q_overlap_tol=1e-4):
         """
-        Generate an ``PhononBand`` object from fort.25 or PHONBANDS.DAT file.
-        Optional 3D space data is read from the output file of 'properties'.
+        Generate an ``PhononBand`` object from the output file of CRYSTAL.
 
         .. note::
 
-            As far as the developers have been aware of, the 'PHONBANDS.DAT'
-            output function of CRYSTAL might have been broken, which leads to
-            false data. Using 'fort.25' is suggested.
+            Currently only the screen output ('.out') file is supported.
 
         Args:
-            band (str): 'fort.25' or 'PHONBANDS.DAT'
             output (str): CRYSTAL output file
+            q_overlap_tol (float): The threshold for overlapped k points. Only
+                used for getting tick positions.
         Returns:
             cls (PhononBand)
         """
-        from CRYSTALpytools.base.extfmt import CrgraParser, XmgraceParser
-        from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.crystal_io import Crystal_output
-        import re
 
-        file = open(band)
-        flag = file.readline()
-        file.close()
-        if '-%-' in flag:  # fort.25 file format
-            bandout = CrgraParser.band(band)
-        else:
-            bandout = XmgraceParser.band(band)
-
-        if np.all(output!=None):
-            pout = Crystal_output(output)
-            struc = pout.get_geometry(initial=False)
-            is_disp = False
-            for countline, line in enumerate(pout.data):
-                if re.match(r'^\s*\*\s+PHONON BANDS\s+\*$', line):
-                    is_disp = True; break
-            if is_disp == True:
-                t3d, k3d = PhononBASE.get_kdisp(pout.dat, countline)
-            else:
-                raise Exception("Phonon dispersion info not found in output: 'output'.")
-
-            return cls(tick_pos=bandout[1], tick_label=bandout[2], bands=bandout[4],
-                       k_path=bandout[5], geometry=struc, tick_pos3d=t3d, k_path3d=k3d,
-                       unit=bandout[6])
-        else:
-            return cls(tick_pos=bandout[1], tick_label=bandout[2], bands=bandout[4],
-                       k_path=bandout[5], unit=bandout[6])
+        out = Crystal_output(output).get_phonon_band(q_overlap_tol=q_overlap_tol)
+        return out
 
     def plot(self, **kwargs):
         """
@@ -156,11 +127,11 @@ class PhononDOS():
 
         Even though this class is not directly inherited from the
         ``electronics.ElectronDOS`` class, its ``doss`` attribute still has the
-        same, nProj\*nEnergy\*nSpin dimentionalities for using the shared
+        same, nProj\*nFrequency\*nSpin dimentionalities for using the shared
         plotting functions. nSpin is always 1 here.
 
     Args:
-        doss (array): nProj\*nEnergy\*1 array of DOS.
+        doss (array): nProj\*nFrequency\*1 array of DOS.
         frequency (array): Positions of DOS peaks (x axis)
         unit (str): In principle, should always be 'THz': THz-Angstrom.
     """
@@ -173,26 +144,30 @@ class PhononDOS():
         self.unit = unit
 
     @classmethod
-    def from_file(cls, dos):
+    def from_file(cls, output, read_INS=False, atom_prj=[], element_prj=[]):
         """
-        Generate an ``PhononDOS`` object from fort.25 / DOSS.DAT file.
+        Generate an ``PhononDOS`` object from the output file of CRYSTAL.
+
+        .. note::
+
+            Currently only the screen output ('.out') file is supported.
 
         Args:
-            band (str): 'fort.25' or 'PHONDOS.DAT'
+            output (str): CRYSTAL output file
+            read_INS (bool): Read the inelastic neutron scattering spectra.
+            atom_prj (list): Read the projections of atoms with specified labels.
+            element_prj (list): Read projections of elements with specified
+                conventional atomic numbers.
+
         Returns:
             cls (PhononDOS)
         """
-        from CRYSTALpytools.base.extfmt import CrgraParser, XmgraceParser
+        from CRYSTALpytools.crystal_io import Crystal_output
 
-        file = open(dos)
-        flag = file.readline()
-        file.close()
-        if '-%-' in flag:  # fort.25 file format
-            dosout = CrgraParser.dos(dos)
-        else:
-            dosout = XmgraceParser.dos(dos)
-
-        return cls(doss=dosout[2], energy=dosout[3], unit=dosout[4])
+        out = Crystal_output(output).get_phonon_dos(read_INS=read_INS,
+                                                    atom_prj=atom_prj,
+                                                    element_prj=element_prj)
+        return out
 
     def plot(self, **kwargs):
         """
@@ -268,25 +243,30 @@ class PhononBandDOS():
         self.dos = dos
 
     @classmethod
-    def from_file(cls, *files, output=None):
+    def from_file(cls, *output, q_overlap_tol=1e-4,
+                  read_INS=False, atom_prj=[], element_prj=[]):
         """
         Get PhononBandDOS object from files
 
         Args:
-            *files (str): 2 files, the first one is for band, 'fort.25' or
-                'PHONBANDS.DAT'; the second one is for DOS, 'fort.25' or
-                'PHONDOS.DAT'. Or a single 'fort.25' file with both band and
-                DOS.
-            output (str): CRYSTAL output file
+            *output (str): CRYSTAL screen output file. 2 files, the first one
+                is for band the second one is for DOS. Or a single output file
+                file with both band and DOS.
+            q_overlap_tol (float): The threshold for overlapped k points. Only
+                used for getting tick positions.
+            read_INS (bool): Read the inelastic neutron scattering spectra.
+            atom_prj (list): Read the projections of atoms with specified labels.
+            element_prj (list): Read projections of elements with specified
+                conventional atomic numbers.
         Returns:
             cls (PhononBandDOS)
         """
-        if len(files)==1:
-            return cls(PhononBand.from_file(files[0], output),
-                       PhononDOS.from_file(files[0]))
-        elif len(files)==2:
-            return cls(PhononBand.from_file(files[0], output),
-                       PhononDOS.from_file(files[1]))
+        if len(output)==1:
+            return cls(PhononBand.from_file(output[0], q_overlap_tol),
+                       PhononDOS.from_file(output[0], read_INS, atom_prj, element_prj))
+        elif len(output)==2:
+            return cls(PhononBand.from_file(output[0], q_overlap_tol),
+                       PhononDOS.from_file(output[1], read_INS, atom_prj, element_prj))
         else:
             raise ValueError('Only 1 or 2 entries are permitted.')
 

@@ -4,7 +4,7 @@
 Base functions for plotting 2D and 3D figures
 """
 
-def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
+def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
                        band_label, band_color, band_linestyle, band_linewidth,
                        fermi, fermi_color, fermi_linestyle, fermi_linewidth,
                        legend,**kwargs):
@@ -21,6 +21,7 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
         ax (Axes): Matplotlib Axes object. To be passed from wrapper functions.
         bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
             numpy arrays.
+        k_xax (list): Coordinates of x axis. 1\*nSystem list.
         k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
             of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
         k_label (list[str] | None): 1\*nTick list of strings of the label for
@@ -81,14 +82,13 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
                   linestyle=fermi_linestyle, linewidth=fermi_linewidth)
 
     ## high symmetry lines
-    for k in k_path[0]:
-        ax.vlines(k, energy_range[0], energy_range[1], color='k', linewidth=0.5)
+    ax.vlines(k_path[0], energy_range[0], energy_range[1], color='k', linewidth=0.5)
 
     ## bands
     keywords = ['label', 'color', 'linestyle', 'linewidth']
-
-    ilabel = []
-    countlabel = 0
+    ilabel = []; countlabel = 0
+    idx = np.argmax([i[-1] for i in k_xax])
+    k_xax_max = k_xax[idx]
     for isys in range(nsys):
         bandsplt = copy.deepcopy(bands[isys])
         if np.all(fermi!=None):
@@ -96,7 +96,8 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
             energy_range = energy_range + fermi
 
         nband, nkpt, nspin = bandsplt.shape
-        k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
+        k_pathplt = k_xax[isys] / k_xax[isys][-1] * k_xax_max[-1]
+        # k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
         for ispin in range(nspin):
             for icmd in range(4):
                 if np.all(commands[icmd]==None):
@@ -121,10 +122,10 @@ def plot_overlap_bands(ax, bands, k_path, k_label, energy_range, k_range,
     return ax
 
 
-def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_range,
-                       band_label, band_color, band_linestyle, band_linewidth,
-                       fermi, fermi_color, fermi_linestyle, fermi_linewidth,
-                       legend, **kwargs):
+def plot_compare_bands(
+    ax, bands, k_xax, k_path, k_label, not_scaled, energy_range, k_range,
+    band_label, band_color, band_linestyle, band_linewidth, fermi, fermi_color,
+    fermi_linestyle, fermi_linewidth, legend, **kwargs):
     """
     The plotting function for band structures of electron or phonon in different
     panels.
@@ -139,6 +140,7 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
             passed from wrapper functions.
         bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
             numpy arrays.
+        k_xax (list): Coordinates of x axis. 1\*nSystem list.
         k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
             of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
         k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
@@ -225,6 +227,13 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
     keywords = ['label', 'color', 'linestyle', 'linewidth']
     bandsplt = copy.deepcopy(bands)
 
+    # uniform x scale along the longest x axis
+    if not_scaled != True:
+        idx = np.argmax([i[-1] for i in k_xax])
+        k_xax_max = k_xax[idx]
+        for i in range(len(k_xax)):
+            k_xax[i] = k_xax[i] / k_xax[i][-1] * k_xax_max[-1]
+
     for isys in range(nsys):
         bandsplt = copy.deepcopy(bands[isys])
         nband, nkpt, nspin = bandsplt.shape
@@ -239,7 +248,8 @@ def plot_compare_bands(ax, bands, k_path, k_label, not_scaled, energy_range, k_r
             ax[isys].vlines(k, energy_range[0], energy_range[1], color='k', linewidth=0.5)
 
         ## bands
-        k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
+        k_pathplt = k_xax[isys]
+        # k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
         for ispin in range(nspin):
             for icmd in range(4):
                 if np.all(commands[icmd]==None): # 4*nsys*2(spin)
@@ -267,7 +277,7 @@ def _plot_bands_preprocess(
     band_label, band_color, band_linestyle, band_linewidth):
     """
     Do the boring parameters checking jobs for band structures. For the meanings
-    of parameters, refer to ``plot_overlap_band()`` (``plot_compare_bands`` has
+    of parameters, refer to ``plot_overlap_bands()`` (``plot_compare_bands`` has
     less strict requirements).
 
     ``not_scaled`` is a flag to set whether to set the same length of k pathes
@@ -619,6 +629,8 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
     """
     import matplotlib.pyplot as plt
     import numpy as np
+    from CRYSTALpytools.electronics import ElectronDOS
+    from CRYSTALpytools.phonons import PhononDOS
 
     # Definition and creation of the figure and the axes
     if overlap == False:
@@ -633,12 +645,18 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
 
     # plot band structure
     ax[0] = plot_compare_bands(
-        [ax[0]], [bands.bands], [bands.tick_pos], k_label, False, energy_range,
-        k_range, band_label, band_color, band_linestyle, band_linewidth,
-        fermi, fermi_color, fermi_linestyle, fermi_linewidth, legend, **kwargs
+        [ax[0]], [bands.bands], [bands.k_path], [bands.tick_pos], k_label,
+        False, energy_range, k_range, band_label, band_color, band_linestyle,
+        band_linewidth, fermi, fermi_color, fermi_linestyle, fermi_linewidth,
+        legend, **kwargs
     )
 
     # plot DOS
+    if isinstance(doss, ElectronDOS):
+        xaxis = doss.energy
+    else:
+        xaxis = doss.frequency
+
     if overlap == False:
         # new defaults: all lines in the same color.
         if np.all(dos_color==None):
@@ -656,13 +674,13 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
         # subplots
         for i in range(ncol-1):
             ax.flat[i+1] = plot_doss(
-                ax.flat[i+1], doss.doss, doss.energy, beta, [prj[i]], energy_range,
+                ax.flat[i+1], doss.doss, xaxis, beta, [prj[i]], energy_range,
                 dos_range, commands[0][i], commands[1][i], commands[2][i], commands[3][i],
                 fermi, fermi_color, fermi_linestyle, fermi_linewidth, legend, True, **kwargs
             )
     else:
         ax[1] = plot_doss(
-            ax[1], doss.doss, doss.energy, beta, prj, energy_range, dos_range,
+            ax[1], doss.doss, xaxis, beta, prj, energy_range, dos_range,
             dos_label, dos_color, dos_linestyle, dos_linewidth,
             fermi, fermi_color, fermi_linestyle, fermi_linewidth, legend, True, **kwargs
         )

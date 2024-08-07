@@ -9,22 +9,21 @@ class GeomBASE():
     A container of basic methods for SCF geometry.
     """
     @classmethod
-    def read_geom(cls, data, countline):
+    def read_geom(cls, data):
         """
         Read lattice from 'A B C ALPHA BETA GAMMA' block, periodic boundary
         condition and atom positions from 'ATOMS IN THE ASYMMETRIC UNIT'
         block. It terminates at the first empty line after that block.
 
         Args:
-            data (list[str]): output file read by readlines()
-            countline (int): The starting line number
+            data (DataFrame): Pandas DataFrame of the output
 
         Returns:
-            countline (int): Line number of output file.
             struc (CStructure | CMolecule): Extended Pymatgen Structure and Molecule
         """
-        import re
+        import pandas as pd
         import numpy as np
+        import re
         from pymatgen.core.lattice import Lattice
         from CRYSTALpytools.geometry import CStructure
 
@@ -36,54 +35,43 @@ class GeomBASE():
         species = []
         coords = []
         latt_mx = np.eye(3)
-        while countline < len(data):
-            line = data[countline]
-            if re.match(r'^\s+A\s+B\s+C\s+ALPHA\s+BETA\s+GAMMA\s+$', line):
-                countline += 1
-                line_data = data[countline].strip().split()
-                ndimen = 3 - len(re.findall('\(ANGSTROM\)', data[countline+3]))
-                latt = Lattice.from_parameters(
-                    a=float(line_data[0]), b=float(line_data[1]),
-                    c=float(line_data[2]), alpha=float(line_data[3]),
-                    beta=float(line_data[4]), gamma=float(line_data[5]),
-                    pbc=pbc[ndimen]
-                )
-                latt_mx = latt.matrix
-                countline += 1
-            # Atom coordinates
-            if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                countline += 1
-                # For molecules - no PRIMITIVE CELL line
-                ndimen = 3 - len(re.findall('\(ANGSTROM\)', data[countline]))
 
-                countline += 2
-                line = data[countline].strip()
-                coords = []
-                species = []
-                while line != '':
-                    line_data = line.split()
-                    species.append(line_data[2]) # use conventional atomic numbers
-                    coords.append(line_data[-3:])
-                    countline += 1
-                    line = data[countline].strip()
-                countline += 1
-                coords = np.array(coords, dtype=float)
-                species = [int(i) for i in species]
-                if ndimen != 0:
-                    coords[:, 0:ndimen] = coords[:, 0:ndimen] @ latt_mx[0:ndimen, 0:ndimen] # to cartesian coords
-                    struc = CStructure(lattice=latt, species=species,
-                                       coords=coords, coords_are_cartesian=True)
-                else:
-                    struc = CStructure(lattice=np.eye(3)*500, species=species,
-                                       coords=coords, coords_are_cartesian=True)
-                break
-            else:
-                countline += 1
+        empty_line = data[data.map(lambda x: x.strip() == '')].index.to_numpy(dtype=int)
+        title_line = data[
+            data.str.contains(r'^\s+A\s+B\s+C\s+ALPHA\s+BETA\s+GAMMA\s+$')
+        ].index.to_numpy(dtype=int)
 
-        if len(species) == 0 or len(coords) == 0:
-            raise Exception('Geometry information not found.')
+        # lattice
+        latt_line = np.array(data.loc[title_line[0]+1].strip().split(), dtype=float)
+        ndimen = 3 - len(re.findall('\(ANGSTROM\)', data[title_line[0]+4]))
+        latt = Lattice.from_parameters(a=latt_line[0], b=latt_line[1],
+                                       c=latt_line[2], alpha=latt_line[3],
+                                       beta=latt_line[4], gamma=latt_line[5],
+                                       pbc=pbc[ndimen])
+        latt_mx = latt.matrix
 
-        return countline, struc
+        # Atom coordinates
+        atom_line = data[
+            data.str.contains(r'^\s*ATOMS IN THE ASYMMETRIC UNIT')
+        ].index.to_numpy(dtype=int)
+
+        bg = atom_line[0]
+        ed = empty_line[np.where(empty_line>bg)[0][0]]
+
+        coord_list = data.loc[bg+3:ed-1].map(lambda x: x.strip().split()).tolist()
+        if len(coord_list) == 0: raise Exception('Geometry information not found.')
+
+        species = [i[2] for i in coord_list] # use conventional atomic numbers
+        coords = [i[4:7] for i in coord_list]
+        species = np.array(species, dtype=int)
+        coords = np.array(coords, dtype=float)
+
+        if ndimen != 0: # to cartesian coords
+            coords[:, 0:ndimen] = coords[:, 0:ndimen] @ latt_mx[0:ndimen, 0:ndimen]
+
+        struc = CStructure(lattice=latt, species=species, coords=coords,
+                           coords_are_cartesian=True)
+        return struc
 
 
 class SCFBASE():
@@ -394,108 +382,104 @@ class PhononBASE():
     A container of basic methods for phonon information.
     """
     @classmethod
-    def readmode_basic(cls, data, countline):
+    def readmode_basic(cls, data):
         """
         Read basic frequency information.
 
+        Args:
+            data (Series): Pandas series. The block containing frequency info.
+
         Returns:
-            countline (int): Line number of output file.
             frequency (array[float]): nmode \* 1
             intens (array[float]): nmode \* 1
             IR (array[bool]): nmode \* 1
             Raman (array[bool]): nmode \* 1
         """
-        import re
+        import pandas as pd
         import numpy as np
+        from CRYSTALpytools.units import cm_to_thz
 
-        frequency = []
-        intens = []
-        IR = []
-        Raman = []
-
-        has_spec = False
-        while countline < len(data):
-            line = data[countline]
-            if re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line):
-                countline += 2
-                continue
-            elif re.match(r'^\s+\(HARTREE\*\*2\)\s+\(CM\*\*\-1\)', line):
-                countline += 1
-                continue
-            elif line.strip() == '':
-                countline += 1
-                break
-            line_data = line.split()
-            nm_a = int(line_data[0].strip('-'))
-            nm_b = int(line_data[1])
-            freq = float(line_data[4])
-            # IR/Raman analysis, closed by default in dispersion calcs
-            if 'A' in line or 'I' in line:
-                has_spec = True
-                intensity = float(line_data[-2].strip(')')) / (nm_b - nm_a + 1)
-                ir = line_data[-4] == 'A'
-                ram = line_data[-1] == 'A'
-
-            for mode in range(nm_a, nm_b + 1):
+        mode1 = data.map(lambda x: x[0:5]).to_numpy(dtype=int)
+        mode2 = data.map(lambda x: x[6:10]).to_numpy(dtype=int)
+        # in cm-1 for more decimal places
+        freq_tmp = data.map(lambda x: x[24:36]).to_numpy(dtype=float)
+        if 'I' in data[data.index[0]] or 'A' in data[data.index[0]]: # Raman and IR
+            intens_tmp = data.map(lambda x: x[59:68]).to_numpy(dtype=float)
+            IR_tmp = data.map(lambda x: x[56]=='A').to_numpy(dtype=bool)
+            Raman_tmp = data.map(lambda x: x[73]=='A').to_numpy(dtype=bool)
+        else:
+            intens_tmp = []; IR_tmp = []; Raman_tmp = []
+        # repeat
+        frequency = []; intens = []; IR = []; Raman = []
+        if len(intens_tmp) == 0:
+            for m1, m2, freq in zip(mode1, mode2, freq_tmp):
                 frequency.append(freq)
-                if has_spec:
-                    intens.append(intensity)
+                for i in range(m1, m2):
+                    frequency.append(freq)
+        else:
+            for m1, m2, freq, inten, ir, raman in zip(
+                mode1, mode2, freq_tmp, intens_tmp, IR_tmp, Raman_tmp):
+                frequency.append(freq)
+                intens.append(inten)
+                IR.append(ir)
+                Raman.append(raman)
+                for i in range(m1, m2):
+                    frequency.append(freq)
+                    intens.append(inten)
                     IR.append(ir)
-                    Raman.append(ram)
-            countline += 1
-
-        return countline, frequency, intens, IR, Raman
+                    Raman.append(raman)
+        # cm to thz
+        frequency = cm_to_thz(np.array(frequency, dtype=float))
+        if len(intens) != 0:
+            intens = np.array(intens, dtype=float)
+            IR = np.array(IR, dtype=bool)
+            Raman = np.array(Raman, dtype=bool)
+        return frequency, intens, IR, Raman
 
     @classmethod
-    def readmode_eigenvector(cls, data, countline):
+    def readmode_eigenvector(cls, data, nmode):
         """
         Get mode eigenvectors.
 
         Returns:
-            countline (int): Line number of output file.
             eigvt (array[float]): nmode\*natom\*3 array.
         """
+        import pandas as pd
         import numpy as np
-        import re
 
-        # Read the eigenvector region as its original shape
-        total_data = []
-        nmode = 0
-        while countline < len(data):
-            line = data[countline]
-            # Found a block
-            if re.match(r'^\s+FREQ\(CM\*\*\-1\)', line):
-                countline += 2
-                block_data = []
-                while data[countline].strip() != '':
-                    # Trim annotation part (12 characters)
-                    line_data = re.findall(r'\-*[\d\.]+[E\d\-\+]*',
-                                           data[countline][13:])
-                    if line_data:
-                        block_data.append(line_data)
-                    countline += 1
+        img = data[data.str.contains(r'MODES IN ANTI\-PHASE')].index
+        data = data[data.str.contains(r'[X,Y,Z]\s+\-*[0-9]\.')]
+        nlines = len(data)
 
-                nmode += len(line_data)
-                total_data.append(block_data)
-                countline += 1
-                continue
-            # Empty lines
-            elif line.strip() == '':
-                countline += 1
-                continue
-            # Other lines
-            else:
-                break
+        if len(img) == 1: # complex
+            rvt = data[0:int(nlines/2)].map(lambda x: x[13:].strip().split()).tolist()
+            ivt = data[int(nlines/2):].map(lambda x: x[13:].strip().split()).tolist()
+        else: # real
+            rvt = data.map(lambda x: x[13:].strip().split()).tolist()
+            ivt = []
 
-        eigvt = np.hstack([i for i in total_data]) # (3*natom) * nmode
-        eigvt = np.array(eigvt, dtype=float)
-        # 1st dimension, nmode
-        eigvt = np.transpose(eigvt) # nmode * (3*natom)
-        # 2nd dimension, natom
-        natom = int(nmode / 3)
-        eigvt = np.reshape(eigvt, [nmode, natom, 3], order='C')
+        nblock = int(np.ceil(nmode / 6))
+        nline = int(len(rvt) / nblock)
 
-        return countline, eigvt
+        rvttmp = np.array(rvt[0:nline], dtype=float)
+        for i in range(1, nblock):
+            rvttmp = np.hstack(
+                [rvttmp, np.array(rvt[int(nline*i):int(nline*(i+1))], dtype=float)]
+            )
+        rvttmp = np.reshape(rvttmp.transpose(), [nmode, int(nline/3), 3])
+
+        if len(ivt) != 0:
+            ivttmp = np.array(ivt[0:nline], dtype=float)
+            for i in range(1, nblock):
+                ivttmp = np.hstack(
+                    [ivttmp, np.array(ivt[int(nline*i):int(nline*(i+1))], dtype=float)]
+                )
+            ivttmp = np.reshape(ivttmp.transpose(), [nmode, int(nline/3), 3])
+            eigvt = rvttmp + ivttmp * 1j
+        else:
+            eigvt = rvttmp
+
+        return eigvt
 
     @classmethod
     def classical_amplitude(cls, struc, freq):
@@ -585,28 +569,37 @@ class PhononBASE():
 
         overlap = np.array(overlap, dtype=int)
         weight = np.array([i[1] for i in crysout.qpoint])
-        for idx_q in range(crysout.nqpoint, 1, -1):
-            if len(overlap) == 0: # No overlap
-                break
-            for idx_o in np.where(overlap[:, 1] == idx_q)[0]:
-                crysout.nqpoint -= 1
-                del crysout.qpoint[overlap[idx_o, 1]]
-                weight = np.delete(weight, overlap[idx_o, 1])
-                crysout.nmode = np.delete(crysout.nmode, overlap[idx_o, 1])
-                crysout.frequency  = np.delete(crysout.frequency, overlap[idx_o, 1], axis=0)
+        if len(overlap) != 0: # overlap
+            qp_cord = []; qp_weight = []; nmode = []; frequency = [];
+            intens = []; IR = []; Raman = []; eigenvector = []
+            for idx_q in range(crysout.nqpoint):
+                if idx_q in overlap[:, 1]: continue
+                qp_cord.append(crysout.qpoint[idx_q][0])
+                qp_weight.append(crysout.qpoint[idx_q][1])
+                nmode.append(crysout.nmode[idx_q])
+                frequency.append(crysout.frequency[idx_q])
                 if len(crysout.intens) != 0:
-                    crysout.intens = np.delete(crysout.intens, overlap[idx_o, 1], axis=0)
-                    crysout.IR = np.delete(crysout.IR, overlap[idx_o, 1], axis=0)
-                    crysout.Raman = np.delete(crysout.Raman, overlap[idx_o, 1], axis=0)
+                    intens.append(crysout.intens[idx_q])
+                if len(crysout.IR) != 0:
+                    IR.append(crysout.IR[idx_q])
+                if len(crysout.Raman) != 0:
+                    Raman.append(crysout.Raman[idx_q])
                 if len(crysout.eigenvector) != 0:
-                    crysout.eigenvector = np.delete(crysout.eigenvector, overlap[idx_o, 1], axis=0)
-                break # Avoid repeatly deleting
+                    eigenvector.append(crysout.eigenvector[idx_q])
 
-        # Update weight
-        weight = weight * 1 / np.sum(weight)
-        for i in range(crysout.nqpoint):
-            crysout.qpoint[i][1] = weight[i]
-
+        # Update attributes
+        crysout.nqpoint = len(qp_cord)
+        crysout.qpoint = [[qp_cord[i], qp_weight[i]] for i in range(crysout.nqpoint)]
+        crysout.nmode = np.array(nmode, dtype=int)
+        crysout.frequency = np.array(frequency, dtype=float)
+        if len(crysout.intens) != 0:
+            crysout.intens = np.array(intens, dtype=float)
+        if len(crysout.IR) != 0:
+            crysout.IR = np.array(IR, dtype=bool)
+        if len(crysout.Raman) != 0:
+            crysout.Raman = np.array(Raman, dtype=bool)
+        if len(crysout.eigenvector) != 0:
+            crysout.eigenvector = np.array(eigenvector, dtype=float)
         return crysout
 
     @classmethod
@@ -637,56 +630,11 @@ class PhononBASE():
                 nan_eigvt = np.full([natom, 3], np.nan)
                 crysout.eigenvector[q, neg_rank] = nan_eigvt
 
-            if len(crysout.intens) != 0:
-                crysout.intens[q, neg_rank] = np.nan
-                for n in neg_rank:
-                    crysout.IR[q][n] = False
-                    crysout.Raman[q][n] = False
+            if len(crysout.intens) != 0: crysout.intens[q, neg_rank] = np.nan
+            if len(crysout.IR) != 0: crysout.IR[q, neg_rank] = False
+            if len(crysout.Raman) != 0: crysout.Raman[q, neg_rank] = False
 
         return crysout
-
-    @classmethod
-    def get_kdisp(cls, data, countline):
-        """
-        Phonon dispersion only. Get 3D fractional coordinates of high-symmetry
-        and sampled k points from output file.
-
-        Returns:
-            countline (int): Line number of output file.
-            tick_pos3d (array): ntick\*3 array of fractional coordinates of
-                high symmetry k points
-            k_pos3d(array): nkpoint\*3 fractional coordinates of k points
-        """
-        import re
-        import numpy as np
-
-        k_pos3d = []
-        while countline < len(data):
-            line = data[countline]
-            if re.match(r'^\s*DISPERSION K POINT NUMBER', line):
-                k_pos3d.append(line.strip().split()[7:10])
-                countline += 1
-            elif re.match(r'^\s*THE POSITION OF THE POINTS.+DENOMINATOR', line):
-                if len(k_tmp) == 0:
-                    continue
-                k_pos3d.append(np.array(k_tmp, dtype=float) / shrink)
-                k_tmp = []
-                shrink = int(line.strip().split()[-1])
-                countline += 1
-            else:
-                countline += 1
-
-        tick_pos3d = [k_pos3d[0][0, :], k_pos3d[0][-1, :]]
-        for ik in range(1, len(k_pos3d)):
-            if np.array_equal(k_pos3d[ik][0, :], k_pos3d[ik-1][-1, :]):
-                tick_pos3d.append(k_pos3d[ik][-1, :])
-            else:
-                tick_pos3d.append(k_pos3d[ik][0, :])
-                tick_pos3d.append(k_pos3d[ik][-1, :])
-
-        k_pos3d = np.array(k_pos3d).flatten(order='C').reshape([-1,3])
-        tick_pos3d = np.array(tick_pos3d)
-        return tick_pos3d, k_pos3d
 
 
 class POutBASE():
