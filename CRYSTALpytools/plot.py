@@ -348,101 +348,6 @@ def plot_relativistics2D(
         fig.suptitle(title, fontsize=fontsize)
     return fig
 
-#--------------------------------------XRD------------------------------------#
-
-def plot_XRD(*xrd, option='LP', shift=10, label=None, color=None,
-             linestyle=None, linewidth=None, theta_range=[], title=None,
-             figsize=[6.4, 4.8], legend='upper left', fontsize=14, **kwargs):
-    """
-    Plot the XRD spectra.
-
-    .. note::
-
-        The highest intensity is normalized to 100.
-
-    Args:
-        xrd (str|XRD): File name or ``spectra.XRD`` objects. Extendable.
-        option (str): *File name inputs only* 'NC' for no correction (The
-            'INTENS' col); 'LD' for Lorentz and polarization effects
-            ('INTENS-LP') and 'DW' for LD with Debye-Waller thermal factors
-            ('INTENS-LP-DW').
-        shift (float): If multiple spectra are plotted, shifting them up by the
-            given value.
-        label (list|str|None): List of plot labels. 'None' for the default
-            values ('# <number>') and string for prefix the string before
-            number. Otherwise should be a 1\*nXRD list.
-        color (list|str|None): If str, use the same color for all the plot
-            lines. If 1\*nXRD, use the color defined for every plot line.
-            'None' for default values (matplotlib Tableau Palette).
-        linestyle (list|str|None): See explanations of ``color``.
-        linewidth (list|float|None): See explanations of ``color``.
-        theta_range (list): 1\*2 list of theta range in degree.
-        title (str|None): The title of the plot. 'None' for no title.
-        figsize (list): Matplotlib figure size.
-        legend (str|None): Location of legend. None for not adding legend.
-        fontsize (int): Fontsize of the axis label and title.
-        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
-
-    Returns:
-        fig (Figure): Matplotlib figure.
-    """
-    import matplotlib.pyplot as plt
-    import numpy as np
-    from CRYSTALpytools.spectra import XRD
-    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
-    import warnings, copy
-
-    objs = []
-    for o in xrd:
-        if isinstance(o, str):
-            objs.append(XRD.from_file(o, option=option))
-        elif isinstance(o, XRD):
-            objs.append(o)
-        else:
-            raise TypeError('Input must be either file name or spectra.XRD class.')
-    nplot = len(objs)
-
-    # normalization
-    maxintens = [np.max(o.spectra) for o in objs]
-    maxintens = np.max(maxintens)
-
-    # labels and other plot settings.
-    if np.all(label==None):
-        label = ['# {:d}'.format(i+1) for i in range(nplot)]
-    else:
-        if isinstance(label, str):
-            label = ['{} {:d}'.format(label, i+1) for i in range(nplot)]
-        else:
-            if len(label) != nplot:
-                warnings.warn("Inconsistent lengths of number of plots and plot labels. Using default labels.",
-                              stacklevel=2)
-                label = ['# {:d}'.format(i+1) for i in range(nplot)]
-
-    commands = _plot_label_preprocess(
-        np.zeros([nplot, 1, 1]), label, color, linestyle, linewidth) # dummy doss
-
-    # plot
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
-    for ispec, o in enumerate(objs):
-        spectra = copy.deepcopy(o.spectra)
-        spectra = spectra / maxintens * 100 + shift * ispec
-        ax.plot(o.theta, spectra, label=commands[0][ispec][0],
-                color=commands[1][ispec][0], linestyle=commands[2][ispec][0],
-                linewidth=commands[3][ispec][0], **kwargs)
-
-    # plot setups
-    if len(theta_range) != 0:
-        ax.set_xlim([np.min(theta_range), np.max(theta_range)])
-    ax.set_xlabel(r'2$\theta^{\circ}$', fontsize=fontsize)
-    ax.set_ylabel(r'Intensity (arb. u.)', fontsize=fontsize)
-    ax.set_ylim([0, 100 + shift*(nplot-1)])
-    _ = ax.get_yaxis().set_ticks([])
-    if np.all(title!=None):
-        ax.set_title(title, fontsize=fontsize)
-    if np.all(legend!=None):
-        ax.legend(loc=legend)
-    return fig
-
 #--------------------------------BAND STRUCTURES------------------------------#
 
 def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
@@ -1087,6 +992,13 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         fig.suptitle(title, fontsize=fontsize)
     return fig
 
+
+##############################################################################
+#                                                                            #
+#                                 RHOLINE (1D)                               #
+#                                                                            #
+##############################################################################
+
 #-------------------------------------RHOLINE---------------------------------#
 
 
@@ -1567,7 +1479,7 @@ def plot_transport_tensor(
 
     # plot setups
     for iplt, ax in enumerate(fig.axes):
-        if np.all(legend!=None) and np.all(commands[0]!=None) and iplt==0:
+        if np.all(legend!=None) and np.all(commands[0][0][0]!=None) and iplt==0:
             ax.legend(loc=legend) # add legend to the first plot only
         ax.set_xlim(x_range)
         if sharey == False:
@@ -2477,354 +2389,402 @@ def plot_phonon_banddos(
 
     return fig
 
+##############################################################################
+#                                                                            #
+#                                    SPECTRA                                 #
+#                                                                            #
+##############################################################################
 
-#------------------------------------SPECTRA----------------------------------#
+#--------------------------------------XRD------------------------------------#
 
-def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-',
-                    linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                    label=None):
-    """Generates the IR spectra for the IRSPEC.DAT file produced by an IRSPEC calculation
+def plot_XRD(*xrd, option='LP', shift=10, label=None, color=None,
+             linestyle=None, linewidth=None, theta_range=[], title=None,
+             figsize=[6.4, 4.8], legend='upper left', fontsize=14, **kwargs):
+    """
+    Plot the XRD spectra of multiple systems into the same plot axes.
+
+    .. note::
+
+        The highest intensity is normalized to 100.
 
     Args:
-        irspec (External_unit object): Object generated by the read_cry_irspec function necessary for the plot
-        x_unit (str, optional): Unit measure of the x axes. Avalilable: 'cm-1' and 'nm'. Defaults to 'cm-1'.
-        y_mode (str, optional): Peak broadening modality in absorbance and reflectance. 
-                                Available: 'LG'(Lorentzian-Gaussian broadening), 'V' (Voight broadening), 'RS' (Rayleigh spherical particles), 'RE' (Rayleigh with elipsoid particles), 'REFL' (Reflectance)
-                                Defaults to 'LG'.
-        figsize (tuple, optional): Image dimensions correspondig to matplotlib figsize. Defaults to None.
-        linestyle (str/list[str], optional): linestyle corresponding to the matplotlib one it can be a list for a multiplot. Defaults to '-'.
-        linewidth (float/list[float], optional): linewidth corresponding to the matplotlib one it can be a list for a multiplot. Defaults to 1.5.
-        color (str/list[str], optional): Color of the spectra it can accept all matplotlib colors it can be a list for multiplots. Defaults to 'tab:blue'.
-        freq_range (list, optional): Two element list [min, max], that allows to visualize the spectra in a given frequency window. Defaults to None.
-        int_range (list, optional): Two element list [min, max], that allows to visualize the spectra in a given intensity window. Defaults to None.
-        label (list[str], optional): List of labels for the legend of a multiplot. Defaults to None.
-        save_to_file (str, optional): Filename of the spectra to be saved. Defaults to None.
-        dpi (int, optional): Resolution of the saved file. Defaults to 300.
-        transparency (bool, optional): Enables the transparency of the saved file background. Defaults to False.
+        xrd (str|XRD): File name or ``spectra.XRD`` objects. Extendable.
+        option (str): *File name inputs only* 'NC' for no correction (The
+            'INTENS' col); 'LD' for Lorentz and polarization effects
+            ('INTENS-LP') and 'DW' for LD with Debye-Waller thermal factors
+            ('INTENS-LP-DW').
+        shift (float): If multiple spectra are plotted, shifting them up by the
+            given value. Shift length is the value after normalization.
+        label (list|str|None): List of plot labels. 'None' for the default
+            values ('# \<number\>') and string for prefix the string before
+            number. Otherwise should be a 1\*nXRD list.
+        color (list|str|None): If str, use the same color for all the plot
+            lines. If 1\*nXRD, use the color defined for every plot line.
+            'None' for default values (matplotlib Tableau Palette).
+        linestyle (list|str|None): See explanations of ``color``.
+        linewidth (list|float|None): See explanations of ``color``.
+        theta_range (list): 1\*2 list of theta range in degree.
+        title (str|None): The title of the plot. 'None' for no title.
+        figsize (list): Matplotlib figure size.
+        legend (str|None): Location of legend. None for not adding legend.
+        fontsize (int): Fontsize of the axis label and title.
+        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
 
-    :raise ValueError: The function raises an error when the object to be plotted does not have the required y_mode  
+    Returns:
+        fig (Figure): Matplotlib figure.
     """
-
-    import sys
-    import warnings
-
     import matplotlib.pyplot as plt
     import numpy as np
+    from CRYSTALpytools.spectra import XRD
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
+    import warnings, copy
 
-    modes = ['single', 'multi']
-    accepted_y = ['LG', 'V', 'RS', 'RE', 'REFL']
+    objs = []
+    for o in xrd:
+        if isinstance(o, str):
+            objs.append(XRD.from_file(o, option=option))
+        elif isinstance(o, XRD):
+            objs.append(o)
+        else:
+            raise TypeError('Input must be either file name or spectra.XRD class.')
+    nplot = len(objs)
 
-    if isinstance(irspec, list):
-        mode = modes[1]
+    # normalization
+    maxintens = [np.max(o.spectra) for o in objs]
+    maxintens = np.max(maxintens)
 
-        if not isinstance(linestyle, list):
-            style = linestyle
-            linestyle = []
-            for i in enumerate(irspec):
-                linestyle.append(style)
-
-        if not isinstance(linewidth, list):
-            width = linewidth
-            linewidth = []
-            for i in enumerate(irspec):
-                linewidth.append(width)
-
-        if not isinstance(color, list):
-            color = ['dimgrey', 'blue', 'indigo', 'slateblue',
-                     'thistle', 'purple', 'orchid', 'crimson']
-
-        for file in irspec:
-            if (file.calculation == 'molecule') and (y_mode != accepted_y[0]):
-                raise ValueError(
-                    'This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
-
+    # labels and other plot settings.
+    if np.all(label==None):
+        label = ['# {:d}'.format(i+1) for i in range(nplot)]
     else:
-        mode = modes[0]
+        if isinstance(label, str):
+            label = ['{} {:d}'.format(label, i+1) for i in range(nplot)]
+        else:
+            if len(label) != nplot:
+                warnings.warn("Inconsistent lengths of number of plots and plot labels. Using default labels.",
+                              stacklevel=2)
+                label = ['# {:d}'.format(i+1) for i in range(nplot)]
 
-        if (irspec.calculation == 'molecule') and (y_mode != accepted_y[0]):
-            raise ValueError(
-                'This spectra does not contain the y_mode requested: available y_mode'+accepted_y[0])
+    commands = _plot_label_preprocess(
+        np.zeros([nplot, 1, 1]), label, color, linestyle, linewidth) # dummy doss
 
-    if figsize is not None:
-        fig, ax = plt.subplots(figsize=figsize)
+    # plot
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    for ispec, o in enumerate(objs):
+        spectra = copy.deepcopy(o.spectra)
+        spectra = spectra / maxintens * 100 + shift * ispec
+        ax.plot(o.theta, spectra, label=commands[0][ispec][0],
+                color=commands[1][ispec][0], linestyle=commands[2][ispec][0],
+                linewidth=commands[3][ispec][0], **kwargs)
 
-    if mode == modes[0]:
+    # plot setups
+    if len(theta_range) != 0:
+        ax.set_xlim([np.min(theta_range), np.max(theta_range)])
+    ax.set_xlabel(r'2$\theta^{\circ}$', fontsize=fontsize)
+    ax.set_ylabel(r'Intensity (arb. u.)', fontsize=fontsize)
+    ax.set_ylim([0, 100 + shift*(nplot-1)])
+    _ = ax.get_yaxis().set_ticks([])
+    if np.all(title!=None):
+        ax.set_title(title, fontsize=fontsize)
+    if np.all(legend!=None):
+        ax.legend(loc=legend)
+    return fig
 
-        # selection of the x axis unit
-        if x_unit == 'cm-1':
-            x = irspec.irspec[:, 0]
+#--------------------------------------IR-------------------------------------#
 
-        elif x_unit == 'nm':
-            x = irspec.irspec[:, 1]
+def plot_IR(*ir, unit='cm-1', option='LG', shift=0, label=None, color=None,
+            linestyle=None, linewidth=None, x_range=[], title=None, figsize=[6.4, 4.8],
+            legend='upper left', sharey=True, fontsize=14, **kwargs):
+    """
+    Plot the IR spectra of multiple systems into the same plot axes. For
+    reflectance spectra, nDirection\*1 plots are generated. All the input files
+    must have the same symmetry.
 
-        # selection of the intensities mode
-        if y_mode == accepted_y[0]:
-            y = irspec.irspec[:, 2]
+    .. note::
 
-        elif y_mode == accepted_y[1]:
-            y = irspec.irspec[:, 5]
-
-        elif y_mode == accepted_y[2]:
-            y = irspec.irspec[:, 6]
-
-        elif y_mode == accepted_y[3]:
-            y = irspec.irspec[:, 7]
-
-        elif y_mode == accepted_y[4]:
-            y = irspec.irspec[:, 8]
-
-        print(x, y)
-
-        xmin = min(x)
-        xmax = max(x)
-        ymin = min(y)-1
-        ymax = max(y)+10
-
-        plt.plot(x, y, linestyle=linestyle, linewidth=linewidth, color=color)
-
-    if mode == modes[1]:
-
-        xmin = []
-        xmax = []
-        ymin = []
-        ymax = []
-
-        for index, file in enumerate(irspec):
-            # selection of the x axis unit
-            if x_unit == 'cm-1':
-                x = file.irspec[:, 0]
-
-            elif x_unit == 'nm':
-                x = file.irspec[:, 1]
-
-            # selection of the intensities mode
-            if y_mode == accepted_y[0]:
-                y = file.irspec[:, 2]
-
-            elif y_mode == accepted_y[1]:
-                y = file.irspec[:, 5]
-
-            elif y_mode == accepted_y[2]:
-                y = file.irspec[:, 6]
-
-            elif y_mode == accepted_y[3]:
-                y = file.irspec[:, 7]
-
-            elif y_mode == accepted_y[4]:
-                y = file.irspec[:, 8]
-
-            xmin.append(min(x))
-            xmax.append(max(x))
-            ymin.append(min(y)-1)
-            ymax.append(max(y)+10)
-
-            if label is not None:
-                ax.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
-                               color=color[index], label=label[index])
-                ax.legend()
-            else:
-                ax.plot(
-                    x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
-
-        xmin = min(xmin)
-        xmax = max(xmax)
-        ymin = min(ymin)
-        ymax = max(ymax)
-
-    if freq_range is not None:
-        xmin = freq_range[0]
-        xmax = freq_range[1]
-
-    if int_range is not None:
-        ymin = int_range[0]
-        ymax = int_range[1]
-
-    plt.xlim(xmin, xmax)
-    plt.ylim(ymin, ymax)
-
-    if x_unit == 'cm-1':
-        plt.xlabel('Wavenumber (cm$^{-1}$)')
-    elif x_unit == 'nm':
-        plt.xlabel('Wavelength (nm)')
-
-    if y_mode != accepted_y[4]:
-        plt.ylabel('Absorbance (A.U.)')
-    else:
-        plt.ylabel('Reflectance (A.U.)')
-
-    return fig, ax
-
-
-def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
-                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
-                     label=None):
-    """Generates the RAMAN spectra for the RAMSPEC.DAT file produced by an RAMSPEC calculation
+        The highest intensity is normalized to 100.
 
     Args:
-        irspec (External_unit object): Object generated by the read_cry_ramspec function necessary for the plot
-        y_mode (str, optional): Polarization of the spectra for the simulated compound
-                                Available: 'total', 'parallel', 'perpendicular' (for powders), 'xx', 'xy', 'xz', 'yy', 'yz', 'zz' (for single crystals)
-                                Defaults to 'LG'.
-        figsize (tuple, optional): Image dimensions correspondig to matplotlib figsize. Defaults to None.
-        linestyle (str/list[str], optional): linestyle corresponding to the matplotlib one it can be a list for a multiplot. Defaults to '-'.
-        linewidth (float/list[float], optional): linewidth corresponding to the matplotlib one it can be a list for a multiplot. Defaults to 1.5.
-        color (str/list[str], optional): Color of the spectra it can accept all matplotlib colors it can be a list for multiplots. Defaults to 'tab:blue'.
-        freq_range (list, optional): Two element list [min, max], that allows to visualize the spectra in a given frequency window. Defaults to None.
-        int_range (list, optional): Two element list [min, max], that allows to visualize the spectra in a given intensity window. Defaults to None.
-        label (list[str], optional): List of labels for the legend of a multiplot. Defaults to None.
-        save_to_file (str, optional): Filename of the spectra to be saved. Defaults to None.
-        dpi (int, optional): Resolution of the saved file. Defaults to 300.
-        transparency (bool, optional): Enables the transparency of the saved file background. Defaults to False.
+        ir (str|IR): IRSPEC.DAT file name or ``spectra.IR`` objects. Extendable.
+        option (str): Broadening method. 'LG' for Lorentzian-Gaussian, 'V' for
+            Voigt, 'RS' for Rayleigh spherical particles, 'RE' for Rayleigh with
+            elipsoid particles, 'REFL' for reflectance spectra with 'LG'.
+            *Periodic systems only*.
+        shift (float): If multiple spectra are plotted, shifting them up by the
+            given value. Shift length is the value after normalization.
+        label (list|str|None): List of plot labels. 'None' for the default
+            values ('# \<number\>') and string for prefix the string before
+            number. Otherwise should be a 1\*nIR list.
+        color (list|str|None): If str, use the same color for all the plot
+            lines. If 1\*nIR, use the color defined for every plot line. 'None'
+            for default values (matplotlib Tableau Palette).
+        linestyle (list|str|None): See explanations of ``color``.
+        linewidth (list|float|None): See explanations of ``color``.
+        x_range (list): 1\*2 list of x axis range.
+        title (str|None): The title of the plot. 'None' for no title.
+        figsize (list): Matplotlib figure size.
+        legend (str|None): Location of legend. None for not adding legend.
+        sharey (bool): Whether to share the y-axis among subplots. Share x is
+            enforced.
+        fontsize (int): Fontsize of the axis label and title.
+        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+
+    Returns:
+        fig (Figure): Matplotlib figure.
     """
-
-    import sys
-    import warnings
-
     import matplotlib.pyplot as plt
     import numpy as np
+    from CRYSTALpytools.spectra import IR
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
+    import warnings, copy
 
-    modes = ['single', 'multi']
-    accepted_y = ['total', 'parallel', 'perpendicular',
-                  'xx', 'xy', 'xz', 'yy', 'yz', 'zz']
+    objs = []
+    for o in ir:
+        if isinstance(o, str):
+            objs.append(IR.from_file(o))
+        elif isinstance(o, IR):
+            objs.append(copy.deepcopy(o))
+        else:
+            raise TypeError('Input must be either file name or spectra.IR class.')
 
-    if isinstance(ramspec, list):
-        mode = modes[1]
-        if not isinstance(linestyle, list):
-            style = linestyle
-            linestyle = []
-            for i in enumerate(ramspec):
-                linestyle.append(style)
+    nsystem = len(objs)
+    for o in objs:
+        if o.type == 'molecule': option='LG'
 
-        if not isinstance(linewidth, list):
-            width = linewidth
-            linewidth = []
-            for i in enumerate(ramspec):
-                linewidth.append(width)
+    valid_option = ['LG', 'V', 'RS', 'RE', 'REFL']
+    if option.upper() not in valid_option:
+        raise ValueError("Unknown option: '{}'.".format(option))
+    option = option.upper()
 
-        if not isinstance(color, list):
-            color = ['dimgrey', 'blue', 'indigo', 'slateblue',
-                     'thistle', 'purple', 'orchid', 'crimson']
+    # single system
+    if nsystem == 1:
+        return objs[0].plot(unit, option, True, False, shift, label, color,
+                            linestyle, linewidth, x_range, title, figsize,
+                            legend, sharey, fontsize, None, **kwargs)
 
+    # plot commands
+    if np.all(label==None):
+        label = ['# {:d}'.format(i+1) for i in range(nsystem)]
     else:
-        mode = modes[0]
+        if isinstance(label, str):
+            label = ['{} {:d}'.format(label, i+1) for i in range(nsystem)]
+        else:
+            if len(label) != nsystem:
+                warnings.warn(
+                    "Inconsistent lengths of number of materials and plot labels. Using default labels.",
+                    stacklevel=2)
+                label = ['# {:d}'.format(i+1) for i in range(nsystem)]
 
-    if figsize is not None:
-        fig, ax = plt.subplots(figsize=figsize)
-
-    if mode == modes[0]:
-
-        x = ramspec.ramspec[:, 0]
-
-        # selection of the intensities mode
-        if y_mode == accepted_y[0]:
-            y = ramspec.ramspec[:, 1]
-
-        elif y_mode == accepted_y[1]:
-            y = ramspec.ramspec[:, 2]
-
-        elif y_mode == accepted_y[2]:
-            y = ramspec.ramspec[:, 3]
-
-        elif y_mode == accepted_y[3]:
-            y = ramspec.ramspec[:, 4]
-
-        elif y_mode == accepted_y[4]:
-            y = ramspec.ramspec[:, 5]
-
-        elif y_mode == accepted_y[5]:
-            y = ramspec.ramspec[:, 6]
-
-        elif y_mode == accepted_y[6]:
-            y = ramspec.ramspec[:, 7]
-
-        elif y_mode == accepted_y[7]:
-            y = ramspec.ramspec[:, 8]
-
-        elif y_mode == accepted_y[8]:
-            y = ramspec.ramspec[:, 9]
-
-        xmin = min(x)
-        xmax = max(x)
-        ymin = min(y)-1
-        ymax = max(y)+10
-
-        fig = plt.plot(x, y, linestyle=linestyle,
-                       linewidth=linewidth, color=color)
-
-    if mode == modes[1]:
-        xmin = []
-        xmax = []
-        ymin = []
-        ymax = []
-
-        for index, file in enumerate(ramspec):
-            x = file.ramspec[:, 0]
-
-            # selection of the intensities mode
-            if y_mode == accepted_y[0]:
-                y = file.ramspec[:, 1]
-
-            elif y_mode == accepted_y[1]:
-                y = file.ramspec[:, 2]
-
-            elif y_mode == accepted_y[2]:
-                y = file.ramspec[:, 3]
-
-            elif y_mode == accepted_y[3]:
-                y = file.ramspec[:, 4]
-
-            elif y_mode == accepted_y[4]:
-                y = file.ramspec[:, 5]
-
-            elif y_mode == accepted_y[5]:
-                y = file.ramspec[:, 6]
-
-            elif y_mode == accepted_y[6]:
-                y = file.ramspec[:, 7]
-
-            elif y_mode == accepted_y[7]:
-                y = file.ramspec[:, 8]
-
-            elif y_mode == accepted_y[8]:
-                y = file.ramspec[:, 9]
-
-            xmin.append(min(x))
-            xmax.append(max(x))
-            ymin.append(min(y)-1)
-            ymax.append(max(y)+10)
-
-            if label is not None:
-                ax.plot(x, y, linestyle=linestyle[index], linewidth=linewidth[index],
-                               color=color[index], label=label[index])
-                plt.legend()
-            else:
-                ax.plot(
-                    x, y, linestyle=linestyle[index], linewidth=linewidth[index], color=color[index])
-
-        xmin = min(xmin)
-        xmax = max(xmax)
-        ymin = min(ymin)
-        ymax = max(ymax)
-
-    if freq_range is not None:
-        xmin = freq_range[0]
-        xmax = freq_range[1]
-
-    if int_range is not None:
-        ymin = int_range[0]
-        ymax = int_range[1]
-
-    plt.xlim(xmin, xmax)
-    plt.ylim(ymin, ymax)
-
-    plt.xlabel('Wavenumber (cm$^{-1}$)')
-
-    if y_mode != accepted_y[4]:
-        plt.ylabel('Absorbance (A.U.)')
+    doss = np.zeros([nsystem, 1, 1]) # pseudo doss
+    commands = _plot_label_preprocess(doss, label, color, linestyle, linewidth)
+    # repeat labels to walk around default label settings of class plot
+    # now commends[0] is a nSystem\*nDir list. Should be called via commands[0][isystem]
+    if option != 'REFL':
+        commands[0] = [[i[0]] for i in commands[0]]
     else:
-        plt.ylabel('Reflectance (A.U.)')
+        ndir = len(objs[0].reflectance)
+        for o in objs:
+            if len(o.reflectance) != ndir: raise Exception('Inconsistent symmetry of the entries.')
+        commands[0] = [[i[0] for j in range(ndir)] for i in commands[0]]
 
-    return fig, ax
+    # normalize data
+    vmax = []
+    if option != 'REFL':
+        if option == 'LG':
+            for io in range(nsystem): vmax.append(np.max(objs[io].absorbance[0]))
+        elif option == 'V':
+            for io in range(nsystem): vmax.append(np.max(objs[io].absorbance[1]))
+        elif option == 'RS':
+            for io in range(nsystem): vmax.append(np.max(objs[io].absorbance[2]))
+        elif option == 'RE':
+            for io in range(nsystem): vmax.append(np.max(objs[io].absorbance[3]))
+
+        vmax = np.max(vmax)
+        for io in range(nsystem):
+            objs[io].absorbance = objs[io].absorbance / vmax * 100 + shift*io
+    else:
+        for io in range(nsystem): vmax.append(np.max(objs[io].reflectance))
+        vmax = np.max(vmax)
+        for io in range(nsystem):
+            objs[io].reflectance = objs[io].reflectance / vmax * 100 + shift*io
+
+    # plot first entry
+    fig = objs[0].plot(unit, option, False, False, 0, commands[0][0],
+                       commands[1][0][0], commands[2][0][0], commands[3][0][0],
+                       x_range, title, figsize, legend, sharey, fontsize, None,
+                       **kwargs)
+    for io in range(1, nsystem):
+        fig = objs[io].plot(unit, option, False, False, 0, commands[0][io],
+                            commands[1][io][0], commands[2][io][0], commands[3][io][0],
+                            x_range, title, figsize, legend, sharey, fontsize, fig,
+                            **kwargs)
+    # modify legend and annotations
+    if np.all(legend!=None) and np.all(label!=None):
+        fig.axes[0].legend(loc=legend)
+
+    for iax in range(len(fig.axes)):
+        if iax > 0: fig.axes[iax].get_legend().remove()
+        if option == 'REFL':
+            xpos = fig.axes[iax].get_xlim()[1]
+            ypos = fig.axes[iax].get_ylim()[1]
+            fig.axes[iax].text(xpos,ypos, 'direction {:d}'.format(iax+1), fontsize=fontsize,
+                               horizontalalignment='right', verticalalignment='top')
+    return fig
+
+#-------------------------------------Raman-----------------------------------#
+
+def plot_Raman(*raman, option='poly', overlap=True,
+               direction=['xx', 'xy', 'xz', 'yy', 'yz', 'zz'], shift=0,
+               label=None, color=None, linestyle=None, linewidth=None, x_range=[],
+               title=None, figsize=[6.4, 4.8],legend='upper left', sharey=True,
+               fontsize=14, **kwargs):
+    """
+    Plot the Raman spectra of multiple systems into the same plot axes.
+
+    Available options:
+
+    * 'tot': Plot total raman spectra only. Plots with a single panel is generated.  
+    * 'poly': Plot total, parallel and perpendicular spectra into 3 subplots.  
+    * 'single': Plot single crystal spectra of specified directions into subplots.
+
+    .. note::
+
+        The highest intensity is normalized to 100.
+
+    Args:
+        raman (str|Raman): RAMSPEC.DAT file name or ``spectra.Raman`` objects.
+            Extendable.
+        option (str): 'tot', 'poly' or 'single', see above.
+        overlap (bool): If more than 1 inequivalent directions exists, whether
+            to plot spectra into the same plot or into subplots.
+        direction (list|str): *``option='single'`` only* Specify the directions
+            of single crystal spectra to plot.
+        shift (float): If multiple spectra are plotted, shifting them up by the
+            given value. Shift length is the value after normalization.
+        label (list|str|None): List of plot labels. 'None' for the default
+            values ('# \<number\>') and string for prefix the string before
+            number. Otherwise should be a 1\*nRaman list.
+        color (list|str|None): If str, use the same color for all the plot
+            lines. If 1\*nRaman, use the color defined for every plot line.
+            'None' for default values (matplotlib Tableau Palette).
+        linestyle (list|str|None): See explanations of ``color``.
+        linewidth (list|float|None): See explanations of ``color``.
+        x_range (list): 1\*2 list of x axis range.
+        title (str|None): The title of the plot. 'None' for no title.
+        figsize (list): Matplotlib figure size.
+        legend (str|None): Location of legend. None for not adding legend.
+        sharey (bool): Whether to share the y-axis among subplots. Share x is
+            enforced.
+        fontsize (int): Fontsize of the axis label and title.
+        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+
+    Returns:
+        fig (Figure): Matplotlib figure.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from CRYSTALpytools.spectra import Raman
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
+    import warnings, copy
+
+    objs = []
+    for o in raman:
+        if isinstance(o, str):
+            objs.append(Raman.from_file(o))
+        elif isinstance(o, Raman):
+            objs.append(copy.deepcopy(o))
+        else:
+            raise TypeError('Input must be either file name or spectra.Raman class.')
+
+    nsystem = len(objs)
+
+    valid_option = ['tot', 'single', 'poly']
+    if option.lower() not in valid_option:
+        raise ValueError("Unknown option: '{}'.".format(option))
+    option = option.lower()
+
+    # single system
+    if nsystem == 1:
+        return objs[0].plot(option, True, False, direction, shift, label, color,
+                            linestyle, linewidth, x_range, title, figsize, legend,
+                            sharey, fontsize, None, **kwargs)
+
+    # plot commands
+    if np.all(label==None):
+        label = ['# {:d}'.format(i+1) for i in range(nsystem)]
+    else:
+        if isinstance(label, str):
+            label = ['{} {:d}'.format(label, i+1) for i in range(nsystem)]
+        else:
+            if len(label) != nsystem:
+                warnings.warn(
+                    "Inconsistent lengths of number of materials and plot labels. Using default labels.",
+                    stacklevel=2)
+                label = ['# {:d}'.format(i+1) for i in range(nsystem)]
+
+    doss = np.zeros([nsystem, 1, 1]) # pseudo doss
+    commands = _plot_label_preprocess(doss, label, color, linestyle, linewidth)
+    # repeat labels to walk around default label settings of class plot
+    # now commends[0] is a nSystem\*nDir list. Should be called via commands[0][isystem]
+    if option == 'poly':
+        commands[0] = [[i[0] for j in range(3)] for i in commands[0]]
+    elif option == 'single':
+        direction = np.array(direction, ndmin=1).tolist()
+        commands[0] = [[i[0] for j in range(len(direction))] for i in commands[0]]
+    elif option == 'tot':
+        commands[0] = [[i[0]] for i in commands[0]]
+
+    # normalize data
+    vmax = []
+    dirs = {'xx' : 0, 'xy' : 1, 'xz' : 2, 'yx' : 1, 'yy' : 3, 'yz' : 4, 'zx' : 2, 'zy' : 4, 'zz' : 5,}
+    if option == 'tot':
+        for io in range(nsystem): vmax.append(np.max(objs[io].poly[0]))
+        vmax = np.max(vmax)
+        for io in range(nsystem):
+            objs[io].poly = objs[io].poly / vmax * 100 + shift*io
+    elif option == 'poly':
+        for io in range(nsystem): vmax.append(np.max(objs[io].poly))
+        vmax = np.max(vmax)
+        for io in range(nsystem):
+            objs[io].poly = objs[io].poly / vmax * 100 + shift*io
+    elif option == 'single':
+        try: idxdir = [dirs[i.lower()] for i in direction]
+        except KeyError:
+            raise ValueError("Unknown direction name: '{}'.".format(i))
+        for io in range(nsystem): vmax.append(np.max(objs[io].single[idxdir]))
+        vmax = np.max(vmax)
+        for io in range(nsystem):
+            objs[io].single = objs[io].single / vmax * 100 + shift*io
+
+    # plot first entry
+    fig = objs[0].plot(option, False, False, direction, 0, commands[0][0],
+                       commands[1][0][0], commands[2][0][0], commands[3][0][0],
+                       x_range, title, figsize, legend, sharey, fontsize, None,
+                       **kwargs)
+    # others
+    for io in range(1, nsystem):
+        fig = objs[io].plot(option, False, False, direction, 0, commands[0][io],
+                            commands[1][io][0], commands[2][io][0], commands[3][io][0],
+                            x_range, title, figsize, legend, sharey, fontsize, fig,
+                            **kwargs)
+    # modify legend and annotations
+    if np.all(legend!=None) and np.all(label!=None):
+        fig.axes[0].legend(loc=legend)
+
+    poly_text = ['Total', 'Parallel', 'Perpendicular']
+    single_text = direction
+    for iax in range(len(fig.axes)):
+        if iax > 0: fig.axes[iax].get_legend().remove()
+        xpos = fig.axes[iax].get_xlim()[1]
+        ypos = fig.axes[iax].get_ylim()[1]
+        if option == 'poly':
+            fig.axes[iax].text(xpos,ypos, poly_text[iax], fontsize=fontsize,
+                               horizontalalignment='right', verticalalignment='top')
+        elif option == 'single':
+            fig.axes[iax].text(xpos,ypos, single_text[iax], fontsize=fontsize,
+                               horizontalalignment='right', verticalalignment='top')
+    return fig
+
 
 
 #-----------------------------------ANHARMONIC--------------------------------#
@@ -2837,6 +2797,10 @@ def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0
                   fontsize=12, style=None, compstyle=None, nopadding=False,
                   figsize=(16, 6)):
     """
+    .. note::
+
+        **This is not for the released feature of CRYSTAL23 v1.0.1**
+
     This function enables the simulation of vibrational spectra based on a 2D 
     NumPy array containing a list of transition frequencies and the 
     corresponding intensities. The code allows users to model spectral
@@ -2884,13 +2848,16 @@ def plot_cry_spec(transitions, typeS, components=False, bwidth=5, stdev=3, eta=0
         None
     """
 
-    import math
+    import math, warnings
     import time
     from copy import deepcopy
 
     import matplotlib.pyplot as plt
     import numpy as np
     from numpy import genfromtxt
+
+    warnings.warn('This is not a released feature of CRYSTAL23 v1.0.1, make sure that you know what you are doing.',
+                  stacklevel=2)
 
     if (show):
         plt.figure(figsize=figsize)
@@ -3038,6 +3005,10 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
                         fontsize=12, style=None, nopadding=False,
                         figsize=(16, 6)):
     """
+    .. note::
+
+        **This is not for the released feature of CRYSTAL23 v1.0.1**
+
     This function is a wrapper for `plot_spec` function, enablng the simulation 
     of many vibrational spectra coming from a list of NumPy array.  
 
@@ -3075,9 +3046,12 @@ def plot_cry_spec_multi(files, typeS, components=False, bwidth=5, stdev=3,
         None
     """
 
-    import time
+    import time, warnings
 
     import matplotlib.pyplot as plt
+
+    warnings.warn('This is not a released feature of CRYSTAL23 v1.0.1, make sure that you know what you are doing.',
+                  stacklevel=2)
 
     plt.figure(figsize=figsize)
     plt.xlabel(xlabel, fontsize=fontsize)
@@ -3123,6 +3097,50 @@ def plot_cry_xrd(xrd_obj):
     warnings.warn("You are calling a deprecated function. Use 'plot_XRD' instead.",
                   stacklevel=2)
     return plot_XRD(xrd_obj)
+
+def plot_cry_irspec(irspec, x_unit='cm-1', y_mode='LG', figsize=None, linestyle='-',
+                    linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                    label=None):
+    """
+    Deprecated. Use ``plot_IR``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_IR' instead.",
+                  stacklevel=2)
+    if np.all(figsize==None): figsize = [6.4, 4.8]
+    if np.all(freq_range==None): freq_range = []
+
+    fig = plot_IR(irspec, unit=x_unit, option=y_mode, label=label, linewidth=linewidth,
+                  color=color, linestyle=linestyle, x_range=freq_range, figsize=figsize)
+    ax = fig.axes[0]
+    return fig, ax
+
+def plot_cry_ramspec(ramspec,  y_mode='total', figsize=None, linestyle='-',
+                     linewidth=1.5, color='tab:blue', freq_range=None, int_range=None,
+                     label=None):
+    """
+    Deprecated. Use ``plot_Raman``.
+    """
+    import warnings
+
+    warnings.warn("You are calling a deprecated function. Use 'plot_Raman' instead.",
+                  stacklevel=2)
+    if np.all(figsize==None): figsize = [6.4, 4.8]
+    if np.all(freq_range==None): freq_range = []
+
+    if y_mode.lower() == 'total':
+        y_mode = 'tot'
+    elif y_mode.lower() in ['parallel', 'perpendicular']:
+        y_mode = 'poly'
+    elif y_mode.lower() in ['xx', 'xy', 'xz', 'yy', 'yz', 'zz']:
+        dirs = y_mode.lower()
+        y_mode = 'single'
+
+    fig = plot_Raman(ramspec, option=y_mode, direction=dirs, label=label, linewidth=linewidth,
+                     color=color, linestyle=linestyle, x_range=freq_range, figsize=figsize)
+    ax = fig.axes[0]
+    return fig, ax
 
 def plot_cry_ela(choose, ndeg, *args, dpi=200, filetype=".png", transparency=False):
     """

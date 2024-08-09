@@ -1584,9 +1584,162 @@ class Crystal_output:
         self.pdos = PhononDOS(doss, freq, unit='THz')
         return self.pdos
 
+    def get_spectra(self, specfile, type='infer'):
+        """
+        Read spectra from IRSPEC.DAT / RAMSPEC.DAT files.
+
+        .. note::
+
+            In principle, the code cannot tell the type of the files. It is
+            important to assign the appropriate type to the ``type`` keyword.
+            Currently the available options are 'IRSPEC' and 'RAMSPEC'.
+
+        Args:
+            specfile (str): File name of spectra data.
+            type (str): Type of the file. See above. If 'infer', type is
+                inferred from input file name.
+
+        Returns:
+            self.\* (IR|Raman): Dependending on the ``type`` keyword, return to
+                ``spectra.IR`` or ``spectra.Raman`` objects. Attribute names
+                same as ``type`` are set.
+        """
+        import numpy as np
+        from CRYSTALpytools.spectra import IR, Raman
+        import warnings
+
+        # sanity check
+        accepted_types = ['IRSPEC', 'RAMSPEC']
+        if type.lower() == 'infer':
+            name = specfile.upper()
+            for a in accepted_types:
+                if a in name: type = a; break
+            if type.lower() == 'infer':
+                raise Exception("Type of file cannot be inferred from input file name: '{}'.".format(specfile))
+
+        if type.upper() not in accepted_types:
+            raise ValueError("The specified type: '{}' is not vaild.".format(type))
+        type = type.upper()
+
+        if not hasattr(self, 'df'):
+            warnings.warn('Output file not available. Geometry information missing.',
+                          stacklevel=2)
+        else:
+            if type == 'IRSPEC':
+                title = self.df[self.df[0].str.contains(
+                    r'^\s*\*\s+CALCULATION OF INFRARED ABSORBANCE \/ REFLECTANCE SPECTRA'
+                )].index
+                if len(title) == 0:
+                    warnings.warn(
+                        'IR spectra block is not found in the screen output. Are files from the same calculation?',
+                         stacklevel=2
+                    )
+            elif type == 'RAMSPEC':
+                # mute pandas warning
+                warnings.filterwarnings("ignore", 'This pattern is interpreted as a regular expression, and has match groups.')
+                title = self.df[self.df[0].str.contains(
+                    r'^\s*(\<RAMAN\>){11}'
+                )].index
+                if len(title) == 0:
+                    warnings.warn(
+                        'Raman spectra block is not found in the screen output. Are files from the same calculation?',
+                        stacklevel=2
+                    )
+        # read file and instantiation
+        data = np.loadtxt(specfile)
+        if type == 'IRSPEC':
+            if data.shape[1] > 3: # crystal IR
+                obj = IR(freq=data[:, 0].T, absorb=data[:, 2:6].T, reflec=data[:, 6:].T, type='crystal')
+            else: # molecule IR
+                obj = IR(freq=data[:, 0].T, absorb=data[2].T, reflec=[], type='molecule')
+        elif type == 'RAMSPEC':
+            obj = Raman(freq=data[:, 0].T, poly=data[:, 1:4].T, single=data[:, 4:].T)
+
+        setattr(self, type, obj)
+        return getattr(self, type)
+
+    def get_elatensor(self, *thickness):
+        """
+        Extracts the elastic tensor from the data.
+
+        Args:
+            \*thickness (float): Effective thickness of low dimensional
+                 materials, in :math:`\\AA`.
+        Returns:
+            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
+                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
+                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
+                if effective thickness of materials are specified. Otherwise
+                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
+                small numbers).
+        """
+        import re, warnings
+
+        etitle = self.df[
+            self.df[0].str.contains(r'^\s*SYMMETRIZED ELASTIC CONSTANTS')
+        ].index.to_numpy(dtype=int)
+
+        empty_line = self.df[
+            self.df[0].map(lambda x: x.strip() == '')
+        ].index.to_numpy(dtype=int)
+
+        if len(etitle) == 0:
+            raise Exception('Elastic tensor not found. Check your output file.')
+
+        bg = etitle[0] + 2
+        ed = empty_line[np.where(empty_line>bg)[0][0]]
+
+        tens = self.df[0].loc[bg:ed-1].map(lambda x: x.strip().split()).tolist()
+        # print(self.df[0].loc[bg:ed-1])
+        ndimen = len(tens)
+        self.tensor = np.zeros([ndimen,ndimen], dtype=float)
+        for i in range(ndimen):
+            self.tensor[i, i:] = np.array(tens[i][1:-1], dtype=float)
+        # Symmetrize tensor
+        for i in range(ndimen):
+            for j in range(i,ndimen):
+                self.tensor[j][i] = self.tensor[i][j]
+
+        # Unit conversion
+        title = self.df[0][etitle[0]].lower()
+        if re.search('gpa', title):
+            pass
+        elif re.search('hartree', title):
+            if ndimen == 1:
+                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
+            elif ndimen == 3:
+                area = np.linalg.norm(np.cross(
+                    self.get_lattice(initial=False)[0, :2],
+                    self.get_lattice(initial=False)[1, :2]
+                )) * 1e-20 # AA^2 --> m^2
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
+        else:
+            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
+                          stacklevel=2)
+
+        # Effective thickness
+        if len(thickness) > 0:
+            if ndimen == 1:
+                if len(thickness) == 1:
+                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
+                else:
+                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
+            elif ndimen == 3:
+                self.tensor = self.tensor / (thickness[0]*1e-10)
+        else:
+            if ndimen != 6:
+                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
+                               stacklevel=2)
+        return self.tensor
+
 
     def get_anh_spectra(self):
         """
+        .. note::
+
+            **This is not for the released feature of CRYSTAL23 v1.0.1**
+
         This method reads data from a CRYSTAL output file and processes it to 
         extract anharmonic (VSCF and VCI) IR and Raman spectra.
 
@@ -1674,8 +1827,11 @@ class Crystal_output:
             attributes have been listed here, but the yy, zz, xy, xz, yz components
             are available as well.  
         """
-        import re
+        import re, warnings
         import numpy as np
+
+        warnings.warn('This is not a released feature of CRYSTAL23 v1.0.1, make sure that you know what you are doing.',
+                      stacklevel=2)
 
         # Initialize some logical variables
         save = False
@@ -2034,81 +2190,6 @@ class Crystal_output:
             self.Ram_VCI_T_comp_zz = Ram_VCI_T_comp[:, 0:7:6]
 
         return self
-
-    def get_elatensor(self, *thickness):
-        """
-        Extracts the elastic tensor from the data.
-
-        Args:
-            \*thickness (float): Effective thickness of low dimensional
-                 materials, in :math:`\\AA`.
-        Returns:
-            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
-                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
-                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
-                if effective thickness of materials are specified. Otherwise
-                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
-                small numbers).
-        """
-        import re, warnings
-
-        etitle = self.df[
-            self.df[0].str.contains(r'^\s*SYMMETRIZED ELASTIC CONSTANTS')
-        ].index.to_numpy(dtype=int)
-
-        empty_line = self.df[
-            self.df[0].map(lambda x: x.strip() == '')
-        ].index.to_numpy(dtype=int)
-
-        if len(etitle) == 0:
-            raise Exception('Elastic tensor not found. Check your output file.')
-
-        bg = etitle[0] + 2
-        ed = empty_line[np.where(empty_line>bg)[0][0]]
-
-        tens = self.df[0].loc[bg:ed-1].map(lambda x: x.strip().split()).tolist()
-        # print(self.df[0].loc[bg:ed-1])
-        ndimen = len(tens)
-        self.tensor = np.zeros([ndimen,ndimen], dtype=float)
-        for i in range(ndimen):
-            self.tensor[i, i:] = np.array(tens[i][1:-1], dtype=float)
-        # Symmetrize tensor
-        for i in range(ndimen):
-            for j in range(i,ndimen):
-                self.tensor[j][i] = self.tensor[i][j]
-
-        # Unit conversion
-        title = self.df[0][etitle[0]].lower()
-        if re.search('gpa', title):
-            pass
-        elif re.search('hartree', title):
-            if ndimen == 1:
-                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
-                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
-            elif ndimen == 3:
-                area = np.linalg.norm(np.cross(
-                    self.get_lattice(initial=False)[0, :2],
-                    self.get_lattice(initial=False)[1, :2]
-                )) * 1e-20 # AA^2 --> m^2
-                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
-        else:
-            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
-                          stacklevel=2)
-
-        # Effective thickness
-        if len(thickness) > 0:
-            if ndimen == 1:
-                if len(thickness) == 1:
-                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
-                else:
-                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
-            elif ndimen == 3:
-                self.tensor = self.tensor / (thickness[0]*1e-10)
-        else:
-            if ndimen != 6:
-                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
-                               stacklevel=2)
-        return self.tensor
 
 #------------------------------Deprecated-------------------------------------#
     @property
@@ -3706,83 +3787,3 @@ def write_cry_density(fort98_name, new_p, new_fort98):
         for line in final_fort98:
             file.writelines(line)
 
-
-class External_unit:
-    # WORK IN PROGRESS
-    # This class will generate an object from the CRYSTAL external units like: IRSPEC.DAT
-    # RAMSPEC.DAT tha can be plotted through the corresponding function in plot.py
-
-    def __init__(self):
-
-        pass
-
-    def read_external_unit(self, external_unit):
-        import os
-
-        self.file_name = external_unit
-        try:
-            file = open(external_unit, 'r')
-            self.data = file.readlines()
-            file.close()
-
-            # directory
-            dir_name = os.path.split(external_unit)[0]
-            self.abspath = os.path.join(dir_name)
-
-            # title (named "title" only to distinguish from "file_name" which means another thing)
-            self.title = os.path.split(external_unit)[1]
-
-        except:
-            raise FileNotFoundError(
-                'EXITING: a CRYSTAL generated .DAT unit file needs to be specified')
-
-    def read_cry_irspec(self, external_unit):
-        import numpy as np
-
-        self.read_external_unit(external_unit)
-
-        data = self.data
-
-        for index, line in enumerate(data):
-            data[index] = line.split()
-
-        columns = len(data[0])
-        no_points = len(data)
-
-        if columns > 3:
-            self.calculation = 'solid'
-        else:
-            self.calculation = 'molecule'
-
-        irspec = np.zeros((no_points, columns))
-
-        for i, line in enumerate(data):
-            for j, element in enumerate(line):
-                irspec[i, j] = float(element)
-
-        self.irspec = irspec
-
-        return self
-
-    def read_cry_ramspec(self, external_unit):
-        import numpy as np
-
-        self.read_external_unit(external_unit)
-
-        data = self.data
-
-        for index, line in enumerate(data):
-            data[index] = line.split()
-
-        columns = len(data[0])
-        no_points = len(data)
-
-        ramspec = np.zeros((no_points, columns))
-
-        for i, line in enumerate(data):
-            for j, element in enumerate(line):
-                ramspec[i, j] = float(element)
-
-        self.ramspec = ramspec
-
-        return self

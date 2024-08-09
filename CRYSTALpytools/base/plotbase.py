@@ -100,17 +100,14 @@ def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
         # k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
         for ispin in range(nspin):
             for icmd in range(4):
-                if np.all(commands[icmd]==None):
-                    continue
                 kwargs[keywords[icmd]] = commands[icmd][isys][ispin]
-
             ax.plot(k_pathplt, bandsplt[:, :, ispin].transpose(), **kwargs)
             # a label for a set of bands, dimension of bandsplt array might vary
             countlabel = countlabel + nband
         ilabel.append(countlabel-1)
 
     # a label for a set of bands, dimension of bandsplt array might vary
-    if np.all(commands[0]!=None) and np.all(legend!=None):
+    if np.all(commands[0][0][0]!=None) and np.all(legend!=None):
         handles, labels = ax.get_legend_handles_labels()
         ax.legend([handles[i] for i in ilabel],
                   [labels[i] for i in ilabel],
@@ -251,15 +248,12 @@ def plot_compare_bands(
         k_pathplt = k_xax[isys]
         # k_pathplt = np.linspace(np.min(k_path[isys]), np.max(k_path[isys]), nkpt)
         for ispin in range(nspin):
-            for icmd in range(4):
-                if np.all(commands[icmd]==None): # 4*nsys*2(spin)
-                    continue
+            for icmd in range(4): # 4*nsys*2(spin)
                 kwargs[keywords[icmd]] = commands[icmd][isys][ispin]
-
             ax[isys].plot(k_pathplt, bandsplt[:, :, ispin].transpose(), **kwargs)
 
         # a label for a set of bands
-        if np.all(commands[0]!=None) and np.all(legend!=None):
+        if np.all(commands[0][0][0]!=None) and np.all(legend!=None):
             handles, labels = ax[isys].get_legend_handles_labels()
             ilabel = [int(i*nband) for i in range(nspin)]
             ax[isys].legend([handles[i] for i in ilabel],
@@ -421,9 +415,8 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
                 band_label.append([r'$\alpha$', r'$\beta$'])
             else:
                 band_label.append(['', ''])
-
         if any_spin == False:
-            band_label = None
+            band_label = [[None, None] for i in range(nsys)]
     ## color
     if np.all(band_color!=None):
         if isinstance(band_color, str):
@@ -582,18 +575,15 @@ def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
     ## DOS
     for iprj in range(nprj):
         for ispin in range(nspin):
-            for icmd in range(4):
-                if np.all(commands[icmd]==None): # 4*nprj*2(spin)
-                    continue
+            for icmd in range(4): # 4*nprj*2(spin)
                 kwargs[keywords[icmd]] = commands[icmd][iprj][ispin]
-
             if plot_vertical == False:
                 ax.plot(energy, dossplt[iprj, :, ispin], **kwargs)
             else:
                 ax.plot(dossplt[iprj, :, ispin], energy, **kwargs)
 
     # a label for a plot
-    if np.all(commands[0]!=None) and np.all(legend!=None):
+    if np.all(commands[0][0][0]!=None) and np.all(legend!=None):
         ax.legend(loc=legend)
 
     if plot_vertical == False:
@@ -667,10 +657,7 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
             dossref, dos_label, dos_color, dos_linestyle, dos_linewidth
         )
         for i in range(4):
-            if np.all(commands[i]==None):
-                commands[i] = [None for j in range(ncol-1)]
-            else:
-                commands[i] = [[commands[i][j]] for j in range(ncol-1)]
+            commands[i] = [[commands[i][j]] for j in range(ncol-1)]
         # subplots
         for i in range(ncol-1):
             ax.flat[i+1] = plot_doss(

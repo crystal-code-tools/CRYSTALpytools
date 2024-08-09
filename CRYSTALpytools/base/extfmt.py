@@ -746,3 +746,4 @@ class BOLTZTRAParaser():
         data = np.array(data, dtype=float)
         data = np.transpose(data, axes=[1,2,0])
         return spin, 'TDF', data[:, 0, :], data[:, 1:, :], '1/hbar^2*eV*fs/angstrom'
+

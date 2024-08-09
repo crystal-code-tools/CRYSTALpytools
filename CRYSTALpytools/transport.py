@@ -463,7 +463,7 @@ class Tensor():
         # plot setups
         for idir, iax in enumerate(ax_index):
             ax = fig.axes[iax]
-            if np.all(legend!=None) and np.all(commands[0]!=None) and idir==0:
+            if np.all(legend!=None) and np.all(commands[0][0][0]!=None) and idir==0:
                 ax.legend(loc=legend) # add legend to the first plot only
             ax.set_xlim(x_range)
             if sharey == False:
