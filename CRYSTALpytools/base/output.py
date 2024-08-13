@@ -382,27 +382,38 @@ class PhononBASE():
     A container of basic methods for phonon information.
     """
     @classmethod
-    def readmode_basic(cls, data):
+    def readmode_basic(cls, data, IRREP):
         """
         Read basic frequency information.
 
         Args:
             data (Series): Pandas series. The block containing frequency info.
+            IRREP (list[str]): Irreducible representations in Mulliken symbols.
+                Used for phonon dispersion only.
 
         Returns:
             frequency (array[float]): nmode \* 1
+            mode_symm (array): nmode \* 1
             intens (array[float]): nmode \* 1
             IR (array[bool]): nmode \* 1
             Raman (array[bool]): nmode \* 1
         """
         import pandas as pd
         import numpy as np
+        import re
         from CRYSTALpytools.units import cm_to_thz
 
         mode1 = data.map(lambda x: x[0:5]).to_numpy(dtype=int)
         mode2 = data.map(lambda x: x[6:10]).to_numpy(dtype=int)
         # in cm-1 for more decimal places
         freq_tmp = data.map(lambda x: x[24:36]).to_numpy(dtype=float)
+        symm_tmp = data.map(lambda x: x[49:52].strip()).tolist()
+        # for phonon dispersions, convert indices into symbols
+        if len(re.findall(r'[A-Z,a-z]', symm_tmp[0])) == 0:
+            if len(IRREP) == 0: symm_tmp = []
+            symm_tmp = [IRREP[int(i)-1] for i in symm_tmp]
+
+        # Raman and IR
         if 'I' in data[data.index[0]] or 'A' in data[data.index[0]]: # Raman and IR
             intens_tmp = data.map(lambda x: x[59:68]).to_numpy(dtype=float)
             IR_tmp = data.map(lambda x: x[56]=='A').to_numpy(dtype=bool)
@@ -410,31 +421,29 @@ class PhononBASE():
         else:
             intens_tmp = []; IR_tmp = []; Raman_tmp = []
         # repeat
-        frequency = []; intens = []; IR = []; Raman = []
-        if len(intens_tmp) == 0:
-            for m1, m2, freq in zip(mode1, mode2, freq_tmp):
-                frequency.append(freq)
-                for i in range(m1, m2):
-                    frequency.append(freq)
-        else:
-            for m1, m2, freq, inten, ir, raman in zip(
-                mode1, mode2, freq_tmp, intens_tmp, IR_tmp, Raman_tmp):
-                frequency.append(freq)
-                intens.append(inten)
-                IR.append(ir)
-                Raman.append(raman)
-                for i in range(m1, m2):
-                    frequency.append(freq)
-                    intens.append(inten)
-                    IR.append(ir)
-                    Raman.append(raman)
+        frequency = []; mode_symm=[]; intens = []; IR = []; Raman = []
+        count = 0
+        for m1, m2 in zip(mode1, mode2):
+            frequency.append(freq_tmp[count])
+            for i in range(m1, m2): frequency.append(freq_tmp[count])
+            ## symmetry
+            if len(symm_tmp) > 0:
+                mode_symm.append(symm_tmp[count])
+                for i in range(m1, m2): mode_symm.append(symm_tmp[count])
+            ## Raman and IR
+            if len(intens_tmp) > 0:
+                intens.append(intens_tmp[count]); IR.append(IR_tmp[count]); Raman.append(Raman_tmp[count])
+                for i in range(m1, m2): intens.append(intens_tmp[count]); IR.append(IR_tmp[count]); Raman.append(Raman_tmp[count])
+            count += 1
+
         # cm to thz
         frequency = cm_to_thz(np.array(frequency, dtype=float))
+        mode_symm = np.array([i for i in mode_symm])
         if len(intens) != 0:
             intens = np.array(intens, dtype=float)
             IR = np.array(IR, dtype=bool)
             Raman = np.array(Raman, dtype=bool)
-        return frequency, intens, IR, Raman
+        return frequency, mode_symm, intens, IR, Raman
 
     @classmethod
     def readmode_eigenvector(cls, data, nmode):
@@ -484,7 +493,7 @@ class PhononBASE():
     @classmethod
     def classical_amplitude(cls, struc, freq):
         """
-        Get classical amplitude of phonon modes
+        Get classical amplitude of phonon modes *Under Testing*
 
         .. math::
             x = \sqrt{\frac{\hbar}{\mu\omega}}
@@ -571,13 +580,15 @@ class PhononBASE():
         weight = np.array([i[1] for i in crysout.qpoint])
         if len(overlap) != 0: # overlap
             qp_cord = []; qp_weight = []; nmode = []; frequency = [];
-            intens = []; IR = []; Raman = []; eigenvector = []
+            mode_symm = []; intens = []; IR = []; Raman = []; eigenvector = []
             for idx_q in range(crysout.nqpoint):
                 if idx_q in overlap[:, 1]: continue
                 qp_cord.append(crysout.qpoint[idx_q][0])
                 qp_weight.append(crysout.qpoint[idx_q][1])
                 nmode.append(crysout.nmode[idx_q])
                 frequency.append(crysout.frequency[idx_q])
+                if len(crysout.mode_symm) != 0:
+                    mode_symm.append(crysout.mode_symm[idx_q])
                 if len(crysout.intens) != 0:
                     intens.append(crysout.intens[idx_q])
                 if len(crysout.IR) != 0:
@@ -586,27 +597,28 @@ class PhononBASE():
                     Raman.append(crysout.Raman[idx_q])
                 if len(crysout.eigenvector) != 0:
                     eigenvector.append(crysout.eigenvector[idx_q])
-
-        # Update attributes
-        crysout.nqpoint = len(qp_cord)
-        crysout.qpoint = [[qp_cord[i], qp_weight[i]] for i in range(crysout.nqpoint)]
-        crysout.nmode = np.array(nmode, dtype=int)
-        crysout.frequency = np.array(frequency, dtype=float)
-        if len(crysout.intens) != 0:
-            crysout.intens = np.array(intens, dtype=float)
-        if len(crysout.IR) != 0:
-            crysout.IR = np.array(IR, dtype=bool)
-        if len(crysout.Raman) != 0:
-            crysout.Raman = np.array(Raman, dtype=bool)
-        if len(crysout.eigenvector) != 0:
-            crysout.eigenvector = np.array(eigenvector, dtype=float)
+            # Update attributes
+            crysout.nqpoint = len(qp_cord)
+            crysout.qpoint = [[qp_cord[i], qp_weight[i]] for i in range(crysout.nqpoint)]
+            crysout.nmode = np.array(nmode, dtype=int)
+            crysout.frequency = np.array(frequency, dtype=float)
+            if len(crysout.mode_symm) != 0:
+                crysout.mode_symm = np.array(mode_symm, dtype=float)
+            if len(crysout.intens) != 0:
+                crysout.intens = np.array(intens, dtype=float)
+            if len(crysout.IR) != 0:
+                crysout.IR = np.array(IR, dtype=bool)
+            if len(crysout.Raman) != 0:
+                crysout.Raman = np.array(Raman, dtype=bool)
+            if len(crysout.eigenvector) != 0:
+                crysout.eigenvector = np.array(eigenvector, dtype=float)
         return crysout
 
     @classmethod
     def clean_imaginary(cls, crysout, threshold):
         """
-        Substitute imaginary modes and corresponding eigenvectors with numpy
-        NaN format and print warning message.
+        Set negative frequenceies and related properteis to 0 and print warning
+        message. Eigenvectors are kept.
 
         Args:
             crysout (Crystal_output): :code:`CRYSTALpytools.crystal_io.Crystal_output` object
@@ -616,21 +628,19 @@ class PhononBASE():
         import warnings
 
         for q, freq in enumerate(crysout.frequency):
-            if np.isnan(freq[0]) or freq[0] > threshold:
-                continue
-
-            warnings.warn('Negative frequencies detected.\n  Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by NaN.',
+            neg_rank = np.where(freq <= threshold)[0]
+            if len(neg_rank) == 0: continue
+            warnings.warn('Negative frequencies detected.\n  Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by 0.',
                           stacklevel=2)
 
-            neg_rank = np.where(freq <= threshold)[0]
-            crysout.frequency[q, neg_rank] = np.nan
+            if len(neg_rank) > 3:
+                warnings.warn('MORE THAN 3 IMAGINARY MODES! The structure is highly probable to be unstable.', stacklevel=2)
 
-            if len(crysout.eigenvector) != 0:
-                natom = int(crysout.nmode[q] / 3)
-                nan_eigvt = np.full([natom, 3], np.nan)
-                crysout.eigenvector[q, neg_rank] = nan_eigvt
+            crysout.frequency[q, neg_rank] = 0.
 
-            if len(crysout.intens) != 0: crysout.intens[q, neg_rank] = np.nan
+            # Eigenvectors are kept.
+            if len(crysout.mode_symm) != 0: crysout.mode_symm[q, neg_rank] = ''
+            if len(crysout.intens) != 0: crysout.intens[q, neg_rank] = 0.
             if len(crysout.IR) != 0: crysout.IR[q, neg_rank] = False
             if len(crysout.Raman) != 0: crysout.Raman[q, neg_rank] = False
 

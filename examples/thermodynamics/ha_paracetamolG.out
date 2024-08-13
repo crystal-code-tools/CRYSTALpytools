@@ -501,7 +501,7 @@ external geometry input found in /rds/general/user/hz1420/home/PhD1-DFT-Paraceta
  Loading internal basis set: DEF2-MSVP           
 
  Please cite in your publication:
- Fully Optimized Contracted Gaussian Basis Sets for Atoms Li to Kr. A. Schaefer, H. Horn and R. Ahlrichs; J. Chem. Phys. 97, 2571 (1992).                                                                                                                         
+ Fully Optimized Contracted Gaussian Basis Sets for Atoms Li to Kr. A. Schfer, H. Horn and R. Ahlrichs; J. Chem. Phys. 97, 2571 (1992).                                                                                                                         
  S. Grimme, J. G. Brandenburg, C. Bannwarth, and A. Hansen, J. Chem. Phys., 143, 054107 (2015).                                                                                                                                                                  
 
  *******************************************************************************
