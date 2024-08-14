@@ -376,7 +376,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
 
     # dimensionality
     if np.all(pbc==None):
-        if 'Molecule' in str(type(structure)):
+        if isinstance(structure, Molecule):
             pbc = (False, False, False)
             structure = Molecule(structure.species,
                                  [i.coords for i in structure.sites])
@@ -386,17 +386,17 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     gui = Crystal_gui()
     dimensionality = pbc.count(True)
 
-    if dimensionality == 0 and 'Molecule' in str(type(structure)):
+    if dimensionality == 0 and isinstance(structure, Molecule):
         molecule = structure
         is_molecule = True # 0D object called as molecule
-    elif dimensionality > 0:
+    elif dimensionality > 0 or isinstance(structure, CStructure):
         is_molecule = False # >0D object called as structure
-    elif dimensionality == 0 and 'Molecule' not in str(type(structure)):
+    elif dimensionality == 0 and not isinstance(structure, Molecule) and not isinstance(structure, CStructure):
         warnings.warn('Dimensionality is set to 0, but the structure is not a molecule. Periodicity will be removed.')
         molecule = Molecule(structure.species,
                             [i.coords for i in structure.sites])
         is_molecule = True # 0D object called as molecule
-    elif dimensionality > 0 and 'Molecule' in str(type(structure)):
+    elif dimensionality > 0 and isinstance(structure, Molecule):
         warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
         structure = structure.get_boxed_structure(500., 500., 500.)
         is_molecule = False # >0D object called as structure

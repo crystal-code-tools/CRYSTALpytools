@@ -329,30 +329,36 @@ class Crystal_output:
         self.dimensionality = int(ndimen[0][9])
         return self.dimensionality
 
-    def get_symmops(self):
+    def get_symmops(self, initial=True):
         """
         Return the symmetry operators
+
+        Args:
+            initial (bool): *Optimization Only* Read symmetry operators of the
+                initial or the final geometry.
 
         Returns:
             self.symmops (numpy.ndarray): Symmetry operators
         """
-        import re
         import numpy as np
 
         self.n_symmops = 0
         self.symmops = np.array([])
 
         symmops = []
-        for i, line in enumerate(self.data):
-            if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
-                self.n_symmops = int(line.split()[1])
-                for j in range(0, self.n_symmops):
-                    symmops.append(self.data[i+3+j].split()[2:])
-                break
+        symmtitle = self.df[self.df[0].str.contains(
+            r'^ \*\*\*\*\s+[0-9]+\s*SYMMOPS \- TRANSLATORS IN FRACTIONAL UNITS')].index
+        if initial == True: titleidx = symmtitle[0]
+        else: titleidx = symmtitle[-1]
 
+        self.n_symmops = int(self.df[0][titleidx].strip().split()[1])
         if self.n_symmops > 0:
-            self.symmops = np.reshape(np.array(symmops, dtype=float), [self.n_symmops, 4, 3])
-
+            block = self.df[0].loc[titleidx+3:titleidx+3+self.n_symmops-1].map(
+                lambda x: x.strip().split()[2:]
+            ).tolist()
+            self.symmops = np.array(block, dtype=float).reshape([self.n_symmops, 4, 3])
+        else:
+            self.symmops = []
         return self.symmops
 
     def get_geometry(self, initial=True, write_gui=False,
@@ -407,9 +413,8 @@ class Crystal_output:
 
         if ndimen != 0:
             lattice_line = self.df[self.df[0].str.contains(r'^ DIRECT LATTICE VECTORS CARTESIAN')].index
-            if initial == True: lattice_line = lattice_line[0]
-            else: lattice_line = lattice_line[-1]
-
+            # always use the last one. Lattice vector is only used to indicate the direction.
+            lattice_line = lattice_line[-1]
             a_crys = np.array(self.df[0][lattice_line+2].strip().split(), dtype=float)
             a_pmg = struc.lattice.matrix[0, :]
             # Rotate the geometry back
@@ -430,7 +435,7 @@ class Crystal_output:
             elif np.all(symmetry==None):
                 gui = cry_pmg2gui(struc, gui_file=gui_name,  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
-                self.get_symmops()
+                self.get_symmops(initial=True)
                 gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
@@ -446,25 +451,7 @@ class Crystal_output:
                 gui.n_symmops = gui_ref.n_symmops
                 gui.space_group = gui_ref.space_group
                 gui.write_gui(gui_list[idx_s], symm=True)
-
         return self.geometry
-
-    def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
-        """
-        Return the last optimised geometry.
-        """
-        from pymatgen.core.structure import Molecule
-
-        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
-        if isinstance(struc, Molecule):
-            self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
-                              struc.species_Z,
-                              struc.cart_coords.tolist()]
-        else:
-            self.last_geom = [struc.lattice.matrix.tolist(),
-                              struc.species_Z,
-                              struc.cart_coords.tolist()]
-        return self.last_geom
 
     def get_lattice(self, initial=True):
         """
@@ -823,7 +810,7 @@ class Crystal_output:
 
     def get_convergence(self, history=False):
         """
-        The upper level of ``get_scf_convergence`` and ``get_opt_convergence``.
+        The wrapper of ``get_scf_convergence`` and ``get_opt_convergence``.
         For analysing the geometry and energy convergence.
 
         .. note::
@@ -831,60 +818,29 @@ class Crystal_output:
             It might not work well with SCF / OPT cycles of multiple systems
             such as PREOPTGEOM + EOS calculations
 
+        .. note::
+
+            For optimizations, it only returns to optimization convergence. SCF
+            convergence is not available. Call ``get_opt_convergence()`` if needed.
+
         Args:
-            history (bool): If true, the convergence history of optimisation
-                (energy,gradient, displacement) / SCF is returned.
+            history (bool): Deprecated. Always return to history.
 
         Returns:
             self (Crystal_output): New attributes listed below
-            self.final_energy (float) The converged energy of SCF / Opt. Unit: eV
+            self.final_energy (float) The converged SCF / Opt energy. Unit: eV
 
-        For other attributes, see ``get_scf_convergence`` and
-        ``get_opt_convergence`` methods on the same page.
+        For other attributes, see ``get_scf_convergence()`` and
+        ``get_opt_convergence()`` methods on the same page.
         """
         import re
         import warnings
 
-        self.final_energy = None
-        for line in self.data[self.eoo::-1]:
-            if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                data = line.strip().split()
-                self.final_energy = units.H_to_eV(float(data[7]))
-                self.opt_cycles = int(data[-2])
-                if re.search('CONVERGED', line):
-                    self.opt_status = 'converged'
-                elif re.search('FAILED', line):
-                    self.opt_status = 'failed'
-                else:
-                    warnings.warn('Unknown termination.', stacklevel=2)
-                    self.opt_status = 'unknown'
-                is_scf = False
-                break
-
-            elif re.match(r'^ == SCF ENDED', line) != None:
-                data = line.strip().split()
-                self.final_energy = units.H_to_eV(float(data[8]))
-                self.scf_cycles = int(data[-1])
-                if re.search('CONVERGENCE', line):
-                    self.scf_status = 'converged'
-                elif re.search('TOO MANY CYCLES', line):
-                    self.scf_status = 'too many cycles'
-                else:
-                    warnings.warn('Unknown termination.', stacklevel=2)
-                    self.scf_status = 'unknown'
-                is_scf = True
-                break
-
-        if np.all(self.final_energy==None):
-            warnings.warn('No final energy found in the output file. self.final_energy = None',
-                          stacklevel=2)
-
-        if history == True:
-            if is_scf == True:
-                self.get_scf_convergence(all_cycles=False)
-            else:
-                self.get_opt_convergence()
-
+        opttitle = self.df[self.df[0].str.contains(r'^\s*[A-Z]+ OPTIMIZATION - POINT')].index
+        if len(opttitle) == 0: # SCF only
+            self.get_scf_convergence(scflog=None)
+        else:
+            self.get_opt_convergence(scf_history=False, scflog=None)
         return self
 
     def get_final_energy(self):
@@ -892,105 +848,203 @@ class Crystal_output:
         Get the final energy of the system. A wrapper of ``self.get_convergence``.
 
         Returns:
-            self.final_energy (float): The final energy of the system.
+            self.final_energy (float): The final energy of the system in eV.
         """
-        self.get_convergence(history=False)
-
+        self.get_convergence()
         return self.final_energy
 
     #### SCF ####
 
-    def get_scf_convergence(self, all_cycles=False):
+    def get_scf_convergence(self, all_cycles=False, scflog=None):
         """
-        Returns the scf convergence energy and energy difference. A wrapper of
-        ``CRYSTALpytools.base.SCFBASE.read_convergence``.
+        Returns the scf convergence energy and energy difference.
+
+        .. note::
+
+            With empirical corrections (DFT-D or gCP), the ``scf_energy`` refers
+            to DFT energy only. The ``final_energy`` attribute includes
+            corrections at the final step. ``final_energy`` is valid only if
+            ``scf_status='converged'``.
+
+        .. note::
+
+            For optimizations, using ``get_opt_convergence()`` with
+            ``scf_history=True`` is suggested.
 
         Args:
-            all_cycles (bool, optional): Return all SCF steps for a geometry
-                opt. The 'ONELOG' CRYSTAL keyword is needed.
+            all_cycles (bool): Deprecated.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial SCF convergence or every SCF step
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
             self (Crystal_output): New attributes listed below
-            self.scf_cycles (int | array): Number of cycles. Array if
-                ``all_cycles=True``.
-            self.scf_status (str | list): 'terminated', 'converged',
-                'too many cycles' and 'unknown'. List if ``all_cycles=True``.
-            self.scf_energy (array): SCF energy convergence. Unit: eV
-            self.scf_deltae (array): Energy difference. Unit: eV
+            self.scf_cycles (int|list): Number of cycles. Array if
+                multiple SCF cycles are read.
+            self.scf_status (str|list): 'terminated', 'converged',
+                'too many cycles' and 'unknown'. List if multiple SCF cycles are read.
+            self.scf_energy (array|list): SCF energy convergence. Unit: eV
+            self.scf_deltae (array|list): Energy difference. Unit: eV
+            self.final_energy (float): Last step energy with corrections. Unit: eV
         """
         import numpy as np
+        import pandas as pd
+        import copy
         from CRYSTALpytools.base.output import SCFBASE
+        from CRYSTALpytools.units import H_to_eV
 
-        if all_cycles == True:
-            self.scf_cycles = []
-            self.scf_status = []
-            self.scf_energy = []
-            self.scf_deltae = []
+        self.scf_cycles = []
+        self.scf_status = []
+        self.scf_energy = []
+        self.scf_deltae = []
 
-        countline = 0
-        while countline < self.eoo:
-            output = SCFBASE.read_convergence(self.data[:self.eoo], countline)
-            if all_cycles == False:
-                self.scf_cycles = output[1]
-                self.scf_status = output[2]
-                self.scf_energy = output[3]
-                self.scf_deltae = output[4]
-                break
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        for i in SCFrange:
+            output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+            self.scf_cycles.append(output[0])
+            self.scf_status.append(output[1])
+            self.scf_energy.append(output[2])
+            self.scf_deltae.append(output[3])
+
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            for i in SCFrangelog:
+                output = SCFBASE.read_convergence(df[0].loc[i[0]:i[1]])
+                self.scf_cycles.append(output[0])
+                self.scf_status.append(output[1])
+                self.scf_energy.append(output[2])
+                self.scf_deltae.append(output[3])
+
+        if nSCF == 1:
+            self.scf_cycles = int(self.scf_cycles[-1])
+            self.scf_status = str(self.scf_status[-1])
+            self.scf_energy = self.scf_energy[-1]
+            self.scf_deltae = self.scf_deltae[-1]
+        # final energy, with corrections
+        status = copy.deepcopy(self.scf_status)
+        status = np.array(status, ndmin=1)
+        if status[-1] == 'converged':
+            finalline = self.df[self.df[0].str.contains(r'^\s*TOTAL ENERGY \+ ')].index
+            optline = self.df[self.df[0].str.contains(r'^\s*\* OPT END')].index
+            if len(optline) == 0 and len(finalline) == 0:
+                self.final_energy = self.scf_energy[-1]
+            elif len(optline) == 0:
+                self.final_energy = H_to_eV(float(self.df[0][finalline[-1]].strip().split()[-1]))
             else:
-                countline = output[0]
-                self.scf_cycles.append(output[1])
-                self.scf_status.append(output[2])
-                self.scf_energy.append(output[3])
-                self.scf_deltae.append(output[4])
-                countline += 1
-
-        if all_cycles == True:
-            self.scf_cycles = np.array(self.scf_cycles, dtype=int)
-            self.scf_energy = np.array(self.scf_energy)
-            self.scf_deltae = np.array(self.scf_deltae)
-
+                self.final_energy = H_to_eV(float(self.df[0][optline[-1]].strip().split()[-4]))
+        else:
+            self.final_energy = 0.
         return self
 
-    def get_fermi_energy(self, history=False):
+    def get_fermi_energy(self, history=False, scflog=None):
         """
-        Returns the system Fermi energy.
+        Returns the system Fermi energy / valance band maximum (insulators).
+        For ``history=True``, Fermi energy at step 0 is always 0 as no Fermi
+        energy is solved. Similary, steps with SPINLOCK or level shifting also
+        return to 0 Fermi energy.
 
         Args:
             history (bool): Whether to read the convergence history of Fermi energy.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial Fermi energy or energies of every SCF
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
-            self.fermi_energy (float | array): Fermi energy of the system. For
-                spin-polarized insulating systems, ``self.fermi_energy`` would
-                be either a 2\*1 array (``history=False``) or a nCYC\*2 array
-                (``history=True``).
+            self.fermi_energy (float|array): Fermi energy of the system. For
+                spin-polarized insulators, the highest VBM is returned.
+            self.spin_pol (bool): *Not returned but defined* Whether the
+                calculation is spin-polarized.
         """
         from CRYSTALpytools.base.output import SCFBASE
+        import numpy as np
 
-        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
-        self.spin_pol = output[1]
-        self.fermi_energy = output[2]
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        if history == True:
+            self.fermi_energy = []
+            for i in SCFrange:
+                output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+                self.fermi_energy.append(output[5])
+            self.spin_pol = output[4]
+        else:
+            output = SCFBASE.read_convergence(self.df[0].loc[SCFrange[-1,0] : SCFrange[-1,1]])
+            self.spin_pol = output[4]
+            self.fermi_energy = output[5][-1]
 
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            if history == True:
+                for i in SCFrangelog:
+                    output = SCFBASE.read_convergence(df.loc[i[0]:i[1]])
+                    self.fermi_energy.append(output[5])
+                self.spin_pol = output[4]
+            else:
+                output = SCFBASE.read_convergence(df.loc[SCFrangelog[-1,0] : SCFrangelog[-1,1]])
+                self.spin_pol = output[4]
+                self.fermi_energy = output[5][-1]
+
+        if history == True:
+            self.fermi_energy = np.array(self.fermi_energy)
+            if nSCF == 1: self.fermi_energy = self.fermi_energy[0]
         return self.fermi_energy
 
-    def get_band_gap(self, history=False):
+    def get_band_gap(self, history=False, scflog=None):
         """
-        Returns the system band gap.
+        Returns the system band gap. For ``history=True``, gap at step 0 is
+        always 0 as no energy gap is solved. Similary, steps with SPINLOCK or
+        level shifting also return to 0 gap.
 
         Args:
             history (bool): Whether to read the convergence history of band gap.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial band gap or gaps of every SCF if
+                'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
-            self.band_gap (float | array): Band gap of the system. For
-                spin-polarized systems, ``self.band_gap`` would be either a
-                2\*1 array (``history=False``) or a nCYC\*2 array
-                (``history=True``).
+            self.band_gap (float|array): Band gap of the system. For
+                spin-polarized systems, ``self.band_gap`` would be either a 2\*1
+                array (``history=False``) or a nCYC\*2 array (``history=True``).
+            self.spin_pol (bool): *Not returned but defined* Whether the
+                calculation is spin-polarized.
         """
         from CRYSTALpytools.base.output import SCFBASE
+        import numpy as np
 
-        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
-        self.spin_pol = output[1]
-        self.band_gap = output[2]
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        if history == True:
+            self.band_gap = []
+            for i in SCFrange:
+                output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+                self.band_gap.append(output[6])
+            self.spin_pol = output[4]
+        else:
+            output = SCFBASE.read_convergence(self.df[0].loc[SCFrange[-1,0] : SCFrange[-1,1]])
+            self.spin_pol = output[4]
+            self.band_gap = output[6][-1]
 
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            if history == True:
+                for i in SCFrangelog:
+                    output = SCFBASE.read_convergence(df.loc[i[0]:i[1]])
+                    self.band_gap.append(output[6])
+                self.spin_pol = output[4]
+            else:
+                output = SCFBASE.read_convergence(df.loc[SCFrangelog[-1,0] : SCFrangelog[-1,1]])
+                self.spin_pol = output[4]
+                self.band_gap = output[6][-1]
+
+        if history == True:
+            self.band_gap = np.array(self.band_gap)
+            if nSCF == 1: self.band_gap = self.band_gap[0]
         return self.band_gap
 
     def get_mulliken_charges(self):
@@ -1035,38 +1089,38 @@ class Crystal_output:
         else:
             apb = np.array(mulliken[0], dtype=float)
             amb = np.array(mulliken[1], dtype=float)
-            self.mulliken_charges = np.array([apb, (apb + amb) / 2, (apb - amb) / 2])
+            self.mulliken_charges = np.vstack([apb, (apb+amb)/2, (apb-amb)/2]).transpose()
             self.spin_pol = True
-
         return self.mulliken_charges
 
     #### Optimization ####
 
-    def get_opt_convergence(self, primitive=False, scf_history=False,
-                            write_gui=False, gui_name=None,
-                            symmetry='pymatgen', **kwargs):
+    def get_opt_convergence(self, primitive=False, scf_history=False, scflog=None,
+                            write_gui=False, gui_name=None, symmetry='pymatgen',
+                            **kwargs):
         """
-        Returns optimisation convergence. A wrapper of
-        ``CRYSTALpytools.base.OptBASE.read_convergence``.
+        Returns optimisation convergence.
 
         Args:
-            primitive (bool): Restore the primitive cell (multiply by the
-                cell transform matrix inversed)
-            scf_history (bool): Read SCF history of each optimisation step.
-                Keyword 'ONELOG' is needed. Please refer to
-                ``self.get_scf_convergence(all_cycles=True)`` method.
+            primitive (bool): Deprecated. Use ``get_primitive_geometry()`` for
+                initial and last geometries. The method here always returns to
+                the actual structure optimized.
+            scf_history (bool): Read SCF history of each optimisation step. Also
+                refer to the ``get_scf_convergence()`` method.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial SCF convergence or every SCF step
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
             write_gui (bool): If True, write .gui file of each step
-            gui_name (str): Valid only if ``write_gui = True``. Gui file
-                is named as 'gui_name-optxxx.gui'. If None, use
-                'basename-optxxx.gui'. The basename is the same as output.
-            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
-                to use symmetry info from a pymatgen SpacegroupAnalyzer;
-                'initial' to use symmstry information on output file. If
-                None, no symmstry. Otherwise it is taken from the existing
-                gui file.
-            **kwargs: Valid only if ``write_gui = True`` and
-                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
-                SpacegroupAnalyzer object.
+            gui_name (str): Valid only if ``write_gui = True``. Gui file is
+                named as 'gui_name-optxxx.gui'. If None, use 'basename-optxxx.gui'.
+                The basename is the same as output.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen' to
+                use symmetry info from a pymatgen SpacegroupAnalyzer; 'initial'
+                to use symmstry information on output file. If None, no symmstry.
+                Otherwise it is taken from the existing gui file.
+            **kwargs: Valid only if ``write_gui = True`` and ``symmetry = 'pymatgen'``.
+                Passed to Pymatgen SpacegroupAnalyzer object.
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1079,120 +1133,65 @@ class Crystal_output:
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
             self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
             self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
+            self.final_energy (float): Last step energy with corrections. Unit: eV
         """
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.base.output import OptBASE
-        from pymatgen.core.lattice import Lattice
+        from CRYSTALpytools.base.output import OptBASE, GeomBASE
         import numpy as np
-        import re
-        import os
-
-        ndimen = self.get_dimensionality()
-        countline = 0
+        import warnings
 
         # Initial geometry
+        ndimen = self.get_dimensionality()
         struc0 = self.get_geometry(initial=True, write_gui=False)
 
-        # Initial SCF energy. No SCF when optimisation is restarted
-        e0 = None
-        self.opt_cycles = 0
-        lattice_line = -1
-        while countline < self.eoo:
-            line = self.data[countline]
-            # Initial step SCF
-            if re.match(r'^\s*== SCF ENDED', line):
-                line_data = line.strip().split()
-                e0 = float(line_data[8])
-                countline += 1
-            # Initial step SCF empirical corrections
-            elif re.match(r'^\s*TOTAL ENERGY \+', line):
-                line_data = line.strip().split()
-                e0 = float(line_data[-1])
-                countline += 1
-            # Initial Gradient
-            elif re.match(r'^\s+MAX GRADIENT', line):
-                line_data = line.strip().split()
-                maxg0 = float(line_data[2])
-                countline += 1
-            elif re.match(r'^\s+RMS GRADIENT', line):
-                line_data = line.strip().split()
-                rmsg0 = float(line_data[2])
-                countline += 1
-            # Enter the Opt block
-            elif re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
-                output = OptBASE.read_optblock(self.data[:self.eoo], countline)
-                self.opt_cycles = output[1]
-                self.opt_status = output[2]
-                self.opt_energy = output[3]
-                self.opt_deltae = output[4]
-                self.opt_geometry = output[5]
-                self.opt_maxgrad = output[6]
-                self.opt_rmsgrad = output[7]
-                self.opt_maxdisp = output[8]
-                self.opt_rmsdisp = output[9]
-                break
-            # Lattice matrix rotation issue
-            elif re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                lattice_line = countline
-                countline += 1
-            else:
-                countline += 1
+        # steps
+        self.opt_cycles, OPTrange, self.opt_status = OptBASE.get_opt_block(self.df[0])
+        self.opt_energy = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_deltae = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_geometry = [struc0,]
+        self.opt_maxgrad = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_rmsgrad = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_maxdisp = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_rmsdisp = np.zeros([self.opt_cycles,], dtype=float)
 
-        # Converged at initial step, or wrong file
-        if self.opt_cycles == 0:
-            if np.all(e0==None):
-                raise Exception('Valid data not found.')
-            else:
-                self.opt_cycles += 1
-                self.opt_status = 'converged at initial step'
-                self.opt_energy = np.array([e0,])
-                self.opt_deltae = np.array([e0,])
-                self.opt_geometry = [struc0,]
-                self.opt_maxgrad = np.array([maxg0,])
-                self.opt_rmsgrad = np.array([rmsg0,])
-                self.opt_maxdisp = np.array([])
-                self.opt_rmsdisp = np.array([])
-        else:
-            # restarted from previous opt
-            if np.all(e0==None):
-                pass
-            else:
-                self.opt_cycles += 1
-                self.opt_energy = np.concatenate([[e0,], self.opt_energy])
-                self.opt_deltae = np.concatenate([[e0,], self.opt_deltae])
-                self.opt_geometry = [struc0,] + self.opt_geometry
-                self.opt_maxgrad = np.concatenate([[maxg0,], self.opt_maxgrad])
-                self.opt_rmsgrad = np.concatenate([[rmsg0,], self.opt_rmsgrad])
-                self.opt_maxdisp = np.concatenate([[0.,], self.opt_maxdisp])
-                self.opt_rmsdisp = np.concatenate([[0.,], self.opt_rmsdisp])
+        for i in range(self.opt_cycles):
+            bg = OPTrange[i, 0]; ed = OPTrange[i, 1]
+            try:
+                output = OptBASE.read_opt_block(self.df[0].loc[bg:ed])
+            except IndexError: # Unfinished Opt step
+                warnings.warn('Hit the unfinished step. Properties except geometry are set to 0.',
+                              stacklevel=2)
+                self.opt_geometry.append(GeomBASE.read_geom(self.df[0].loc[bg:ed]))
+                continue
 
-        # Lattice matrix rotation issue
-        if ndimen != 0 and lattice_line != -1:
-            # Reference lattice vector a
-            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
-            # Pmg lattice vector a
-            a_pmg = struc0.lattice.matrix[0, :]
-            # Rotate lattice: CStructure.rot_cel
-            for idx_s, s in enumerate(self.opt_geometry):
-                self.opt_geometry[idx_s] = s.rot_cel(a_crys, a_pmg)
-
-        # Get primitive cell
-        if primitive == True:
-            ndimen = self.get_dimensionality()
-            if ndimen == 0:
-                warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
-            else:
-                self.get_trans_matrix()
-                shrink_mx = np.linalg.inv(self.trans_matrix)
-                for idx_s, s in enumerate(self.opt_geometry):
-                    self.opt_geometry[idx_s] = s.get_pcel(self.trans_matrix)
+            self.opt_energy[i] = output[0]
+            self.opt_deltae[i] = output[1]
+            if i > 0: self.opt_geometry.append(output[2])
+            self.opt_maxgrad[i] = output[3]
+            self.opt_rmsgrad[i] = output[4]
+            self.opt_maxdisp[i] = output[5]
+            self.opt_rmsdisp[i] = output[6]
 
         # SCF history
-        if scf_history == True:
-            self.get_scf_convergence(all_cycles=True)
+        if np.all(scflog!=None): scf_history = True
+        if scf_history == True: self.get_scf_convergence(scflog=scflog)
 
-        # Write gui files
+        # final energy
+        self.final_energy = self.opt_energy[-1]
+
+        # Geometry
+        ## Lattice matrix rotation issue
+        if ndimen != 0:
+            lattice_line = self.df[self.df[0].str.contains(r'^ DIRECT LATTICE VECTORS CARTESIAN')].index
+            # always use the last one. Lattice vector is only used to indicate the direction.
+            lattice_line = lattice_line[-1]
+            a_crys = np.array(self.df[0][lattice_line+2].strip().split(), dtype=float)
+            a_pmg = struc0.lattice.matrix[0, :]
+            # Rotate the geometry back
+            for idx_s, s in enumerate(self.opt_geometry):
+                self.opt_geometry[idx_s] = s.rot_cel(a_crys, a_pmg)
+        ## Write gui files
         if write_gui == True:
             if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
@@ -1227,17 +1226,23 @@ class Crystal_output:
 
         return self
 
-    def get_forces(self, initial=True, grad=False):
+    def get_forces(self, initial=True, grad=False, scflog=None):
         """
         Read forces.
 
+        .. note::
+
+            To get forces of the last optimization step, 'SCFOUT.LOG' file or
+            the 'ONELOG' keyword are needed.
+
         Args:
-            initial (bool): Return forces from the initial calculation. If
-                ``initial=False``, return to the last forces, which is valid
-                only for geometry optimizations and the keyword 'ONELOG' is
-                needed in d12 file.
+            initial (bool): Deprecated.
             grad (bool): Return gradient convergence history. For optimizations
                 only.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns forces from the initial SCF convergence or forces of
+                every SCF step if 'ONELOG' keyword is enabled. This option helps
+                to get forces of every step from 'SCFOUT.LOG' file.
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1248,44 +1253,64 @@ class Crystal_output:
         """
         import warnings, re
         import numpy as np
+        import pandas as pd
 
+        title = self.df[self.df[0].str.contains(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT')].index
         if initial == False or grad == True:
-            if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
+            if len(title) == 0:
                 warnings.warn('Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
-                initial = True
-                grad = False
-
-        self.forces_atoms = []
-        self.forces_cell = []
-        struc = self.get_geometry(initial=True, write_gui=False)
+                initial = True; grad = False
 
         if grad == True:
             self.get_opt_convergence()
 
-        if initial == True:
-            for i, line in enumerate(self.data):
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(i+2, i+2+struc.num_sites):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+        forcetitle = self.df[self.df[0].str.contains(r'^\s*\*\s+FORCE CALCULATION')].index
+        if len(forcetitle) == 0: raise Exception('Force calculation not found.')
 
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(i+4, i+7):
-                        self.forces_cell.append(self.data[j].strip().split())
-                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+        # dimensionalities
+        atomtitle = self.df[self.df[0].str.contains(
+            r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)')].index.to_numpy(dtype=int)
+        celltitle = self.df[self.df[0].str.contains(
+            r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR')].index.to_numpy(dtype=int)
+        natomf = len(atomtitle)
+        ncellf = len(celltitle)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        natom = struc.num_sites
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog))
+            atomtitleLOG = df[df[0].str.contains(
+                r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)')].index.to_numpy(dtype=int)
+            celltitleLOG = df[df[0].str.contains(
+                r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR')].index.to_numpy(dtype=int)
+            natomf += len(atomtitleLOG)
+            ncellf += len(celltitleLOG)
 
+        if natomf != 0:
+            self.forces_atoms = np.zeros([natomf, natom, 3])
+            for i in range(len(atomtitle)):
+                atomf = self.df[0].loc[atomtitle[i]+2 : atomtitle[i]+1+natom].map(lambda x: x.strip().split()).tolist()
+                self.forces_atoms[i, :, :] = np.array([j[2:] for j in atomf], dtype=float)
+            if np.all(scflog!=None):
+                for i in range(natomf-len(atomtitle)):
+                    atomf = df[0].loc[atomtitleLOG[i]+2 : atomtitleLOG[i]+1+natom].map(lambda x: x.strip().split()).tolist()
+                    self.forces_atoms[i+len(atomtitle), :, :] = np.array([j[2:] for j in atomf], dtype=float)
         else:
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(len(self.data)-i+3, len(self.data)-i+6):
-                        self.forces_cell.append(self.data[j].strip().split())
-                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+            self.forces_atoms = []
 
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+1+struc.num_sites):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+        if ncellf != 0:
+            self.forces_cell = np.zeros([ncellf, 3, 3])
+            for i in range(len(celltitle)):
+                cellf = self.df[0].loc[celltitle[i]+4 : celltitle[i]+6].map(lambda x: x.strip().split()).tolist()
+                self.forces_cell[i, :, :] = np.array(cellf, dtype=float)
+            if np.all(scflog!=None):
+                for i in range(ncellf-len(celltitle)):
+                    cellf = df[0].loc[celltitleLOG[i]+4 : celltitleLOG[i]+6].map(lambda x: x.strip().split()).tolist()
+                    self.forces_cell[i+len(celltitle), :, :] = np.array(cellf, dtype=float)
+        else:
+            self.forces_cell = []
 
+        if natomf == 1: self.forces_atoms = self.forces_atoms[0]
+        if ncellf == 1: self.forces_cell = self.forces_cell[0]
         return self
 
     #### Lattice Dynamics ####
@@ -2310,6 +2335,19 @@ class Crystal_output:
                       stacklevel=2)
         struc = self.get_geometry(initial=True, write_gui=False)
         return struc.crys_coords
+
+    def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
+        """
+        Deprecated. Use ``get_geometry(initial=False)``. 
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry(initial=False)'.",
+                      stacklevel=2)
+
+        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
+        self.last_geom = [struc.lattice.matrix.tolist(), struc.species_Z, struc.cart_coords.tolist()]
+        return self.last_geom
 
 
 class Properties_input(Properties_inputBASE):

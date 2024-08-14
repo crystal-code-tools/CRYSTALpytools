@@ -290,8 +290,8 @@ class CStructure(Structure):
     Returns:
         self (CStructure): ``CStructure`` object.
     """
-    def __init__(self, lattice, species, coords, symmetry_group=1,
-                 pbc=(True, True, True), standarize=False, **kwargs):
+    def __init__(self, lattice, species, coords, symmetry_group=1, pbc=None,
+                 standarize=False, **kwargs):
         import numpy as np
         from pymatgen.core.lattice import Lattice
 
@@ -304,8 +304,10 @@ class CStructure(Structure):
             zconv = []
         # PBC
         if isinstance(lattice, Lattice):
+            if np.all(pbc==None): pbc = lattice.pbc
             latt = Lattice(lattice.matrix, pbc=pbc)
         else:
+            if np.all(pbc==None): pbc = (True, True, True)
             latt = Lattice(lattice, pbc=pbc)
         # structure
         kwargs['lattice'] = latt
