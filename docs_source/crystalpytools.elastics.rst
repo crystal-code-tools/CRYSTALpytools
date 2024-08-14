@@ -1,5 +1,5 @@
 CRYSTALpytools.elastics module
-================================
+==============================
 
 .. _ref-elastics:
 

@@ -4,11 +4,14 @@
 
    introduction
    installation
-   examples_and_tutorials
-   usage
+   examples
+   tutorials
    Module-specific Docs<crystalpytools>
+   cite
 
 .. include:: introduction.rst
 .. include:: installation.rst
-.. include:: examples_and_tutorials.rst
+.. include:: examples.rst
+.. include:: tutorials.rst
 .. include:: usage.rst
+.. include:: cite.rst
