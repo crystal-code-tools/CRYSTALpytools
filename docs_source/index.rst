@@ -4,7 +4,7 @@
    :caption: Contents
    :glob:
 
-   .. introduction
+   introduction
    installation
    examples
    tutorials

@@ -11,6 +11,10 @@ The CRYSTALpytools module aims at providing the user a python interface to the C
 ![crystal_object](docs_source/_static/crystal_object.png)
 
 
+## Documentation
+
+The **[documentation site](https://crystal-code-tools.github.io/CRYSTALpytools/)** of CRYSTALpytoosl explains the usage of submodules and classes. The latest released version of CRYSTALpytools is available via [PyPI](https://pypi.org/project/CRYSTALpytools/#history).
+
 ## Installation
 
 ### Create a conda/anaconda environment
@@ -66,26 +70,15 @@ If you intend to run CRYSTAL on the machine where you are running the CRYSTALpyt
 >>> set_runprop_path('path_to_your_runcry')
 ```
 
-## Documentation
+### Testing
 
-The **[documentation site](https://crystal-code-tools.github.io/CRYSTALpytools/)** of CRYSTALpytoosl explains the usage of submodules and classes. The latest released version of CRYSTALpytools is available via [PyPI](https://pypi.org/project/CRYSTALpytools/#history).
+To test the CRYSTALpytools please run the example notebooks in the [example folder](examples/).
 
 ## Examples and Test Cases
 
-Each function is documented in Jupyter Notebooks that can be found in the  [example folder](examples/). There is one notebook per function file (e.g. the functions contained in crystal_io.py are explained in the example/crystal_io.ipynb notebook).
+Notebooks in the [example folder](examples/). are the testing examples used during the development of CRYSTALpytools. They are designed to be self-explanatory and can be used as (basic) tutorials.
 
 ## Tutorials
-Tutorials can be found in the [tutorial folder](tutorial/)
 
+Tutorials designed as workflows can be found in the [tutorial folder](tutorial/). *IN developing*
 
-## Testing
-To test the CRYSTALpytools please run the test notebook that can be found in the [unit_test folder](unit_test/). Alternatively, please run the following command:
-
-``` python
-from CRYSTALpytools.unit_test import *
-
-test_all('./data_test/')
-```
-where './data_test/' is the path to the test folder.
-
-All values should return True if the test is passed.
