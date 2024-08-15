@@ -1,0 +1,317 @@
+Pre-Calc Summary
+--------------------------------------------
+  date:                Sun Jul 28 12:03:05 BST 2024
+  hostname:            IC-5CD3124HGQ
+  system:              Linux IC-5CD3124HGQ 5.15.153.1-microsoft-standard-WSL2 #1 SMP Fri Mar 29 23:14:13 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+  user:                spica-vir
+  input:               /mnt/c/Users/hz1420/Desktop/charge/echg.d3
+  output:              /mnt/c/Users/hz1420/Desktop/charge/echg.out
+  temporary directory: /mnt/c/Users/hz1420/Desktop/charge/echg_tmpfile
+  executable script:   /mnt/c/Users/hz1420/Documents/GitHub/Spica-Vir/HPC-job-submission/PC-Job-Submission/run_job
+  executable dir:      module load CRYSTAL/23v1.0.1-intel
+  mpi + exe command:   mpiexec -np 4 Pproperties
+-------------------------------------------
+
+Find input data: /mnt/c/Users/hz1420/Desktop/charge/echg.d3
+Find input reference: /mnt/c/Users/hz1420/Desktop/charge/mgo.f9
+Find input reference: /mnt/c/Users/hz1420/Desktop/charge/mgo.f9
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : echg
+  Command        : mpiexec -np 4 Pproperties >> /mnt/c/Users/hz1420/Desktop/charge/echg.out 2>&1
+  Temporary dir  : /mnt/c/Users/hz1420/Desktop/charge/echg_tmpfile
+  List of files  : total 232
+-rwxrwxrwx 1 spica-vir spica-vir    192 Jul 28 12:03 INPUT
+-rwxrwxrwx 1 spica-vir spica-vir   7554 Jul 28 12:03 Job_script_echg
+-rwxrwxrwx 1 spica-vir spica-vir 111828 Jul 28 12:03 fort.20
+-rwxrwxrwx 1 spica-vir spica-vir 111828 Jul 28 12:03 fort.9
+  Input script   :
+NEWK
+6 6
+1 0
+ECHG
+0
+65
+COORDINA
+-4. -4. 0.0
+ 4. -4. 0.0
+ 4.  4. 0.0
+MARGINS
+1.5 1.5 1.5 1.5
+END
+PATO
+0 0
+ECHG
+0
+65
+COORDINA
+-4. -4. 0.0
+ 4. -4. 0.0
+ 4.  4. 0.0
+MARGINS
+1.5 1.5 1.5 1.5
+END
+END
+-------------------------------------------
+
+ PROCESS            0  OF            4  WORKING
+ PROCESS            3  OF            4  WORKING
+ PROCESS            1  OF            4  WORKING
+ PROCESS            2  OF            4  WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 28 07 2024 TIME 12:03:06.2
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ TEST11 - MGO BULK                                                               
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  RESTRICTED CLOSED SHELL
+ *******************************************************************************
+ HARTREE-FOCK HAMILTONIAN
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+         0.00000    2.10500    2.10500
+         2.10500    0.00000    2.10500
+         2.10500    2.10500    0.00000
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+    2.97692    2.97692    2.97692     60.0000   60.0000   60.0000      18.65462
+ *******************************************************************************
+ N. OF ATOMS PER CELL         2 COULOMB OVERLAP TOL          (T1) 10**   -6
+ NUMBER OF SHELLS             6 COULOMB PENETRATION TOL      (T2) 10**   -6
+ NUMBER OF AO                18 EXCHANGE OVERLAP TOL         (T3) 10**   -6
+ N. OF ELECTRONS PER CELL    20 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   -6
+ CORE ELECTRONS PER CELL     12 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**  -12
+ N. OF SYMMETRY OPERATORS    48 POLE ORDER IN MONO ZONE                   4
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1   12 MG    3     0.000     0.000     0.000   4.000E-01      10.021
+    2    8 O     3     2.105     2.105     2.105   2.100E-01       9.979
+ *******************************************************************************
+ DE(K)                   0.000E+00  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -2.7466419186177E+02  CONVERGENCE ON ENER       -5.155E-08
+ KIN. ENERGY   2.7465610944057E+02  VIR. COEFF.           9.99985287E-01
+ N. OF SCF CYCLES                5  FERMI ENERGY              -0.310E+00
+ WEIGHT OF F(I) IN F(I+1)      30
+ SHRINK. FACT.(MONKH.)     8  8  8  SHRINKING FACTOR(GILAT NET)        8
+ NUMBER OF K POINTS IN THE IBZ  29  CELL VOLUME (A.U.)        125.887585
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  105 RMAX    59.53536 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.93 TCPU        0.35
+
+ MATRIX SIZE: P(G)   17290, F(G)    3362, P(G) IRR     864, F(G) IRR     470
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 247
+
+
+ CAPPA:IS1  8;IS2  8;IS3  8; K PTS MONK NET  29; SYMMOPS:K SPACE  48;G SPACE  48
+
+
+ CAPPA:IS1  6;IS2  6;IS3  6; K PTS MONK NET  16; SYMMOPS:K SPACE  48;G SPACE  48
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                  16 POINTS(GILAT NET)                16
+ SHRINK FACTORS(MONK.)         6  6  6 SHRINK FACTOR(GILAT)              6
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS =  6)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-R(  3  0  0)
+   5-C(  1  1  0)   6-C(  2  1  0)   7-C(  3  1  0)   8-C(  4  1  0)
+   9-C(  5  1  0)  10-C(  2  2  0)  11-C(  3  2  0)  12-C(  4  2  0)
+  13-R(  3  3  0)  14-C(  3  2  1)  15-C(  4  2  1)  16-C(  4  3  1)
+
+ FERMI ENERGY AND DENSITY MATRIX CALCULATION ON COMPUTED EIGENVECTORS
+ DENSITY MATRIX AT SCF CYCLE (  5+1)
+
+ INSULATING STATE
+ TOP OF VALENCE BANDS -    BAND     10; K    1; EIG -3.1004648E-01 AU
+ BOTTOM OF VIRTUAL BANDS - BAND     11; K    1; EIG  4.2011763E-01 AU
+ DIRECT ENERGY BAND GAP:  19.8688 eV
+
+ CORE DENSITY MATRIX CALCULATION
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE        0.99 TCPU        0.37
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ ELECTRON CHARGE (AND SPIN) DENSITY - DERIVATIVES UP TO ORDER 0
+
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ CO-ORDINATES IN ANGSTROM
+ REDEFINITION OF THE WINDOW AS A RECTANGULAR WINDOW
+ MARGINS (BOHR):   2.8346   2.8346 ALONG B-C,   2.8346   2.8346 ALONG A-B
+
+                        COORDINATES OF THE 3 POINTS (BOHR):
+              A)  -10.393  -10.393    0.000 POINT INDICES (  1,  1)
+              B)   10.393  -10.393    0.000 POINT INDICES (NPY,  1)
+              C)   10.393   10.393    0.000 POINT INDICES (NPY,NPX)
+
+ N. OF POINTS ALONG THE A-B SEGMENT (NPY)   65
+ N. OF POINTS ALONG THE B-C SEGMENT (NPX)   65
+ N. OF POINTS IN THE GRID :               4225
+ COSINE OF THE ANGLE A-B-C              0.0000
+ N. OF ELEMENTS IN THE SYMMETRY SUB-GROUP   16
+ N. OF POINTS IN THE IRREDUCIBLE ZONE :   4225
+
+
+    ALPHA+BETA ELECTRONS DENSITY - VALMIN  1.4996E-02 VALMAX  1.0636E+03
+
+ 4225 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-0MAPN   65   65 0.32480E+00 0.32480E+00 0.00000E+00
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECHG        TELAPSE        1.29 TCPU        0.60
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         ATOMIC WAVEFUNCTION(S)
+
+
+ NUCLEAR CHARGE 12.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS   10.0  NUMBER OF PRIMITIVE GTOS   15    7
+                      NUMBER OF CONTRACTED GTOS   3    2
+                      NUMBER OF CLOSED SHELLS     2    1
+                      OPEN SHELL OCCUPATION       0    0
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+  12.0     6    -1.988200719E+02  1.987325169E+02 -2.000440567E+00  1.3E-06
+
+ NUCLEAR CHARGE  8.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS   10.0  NUMBER OF PRIMITIVE GTOS   14    6
+                      NUMBER OF CONTRACTED GTOS   3    2
+                      NUMBER OF CLOSED SHELLS     2    1
+                      OPEN SHELL OCCUPATION       0    0
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+   8.0    37    -7.429054355E+01  7.468454787E+01 -1.994724420E+00  4.5E-06
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         ATOMIC WAVEFUNCTION(S)
+
+
+ NUCLEAR CHARGE 12.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS   10.0  NUMBER OF PRIMITIVE GTOS   15    7
+                      NUMBER OF CONTRACTED GTOS   3    2
+                      NUMBER OF CLOSED SHELLS     2    1
+                      OPEN SHELL OCCUPATION       0    0
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+  12.0     6    -1.988200719E+02  1.987325169E+02 -2.000440567E+00  1.3E-06
+
+ NUCLEAR CHARGE  8.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS   10.0  NUMBER OF PRIMITIVE GTOS   14    6
+                      NUMBER OF CONTRACTED GTOS   3    2
+                      NUMBER OF CLOSED SHELLS     2    1
+                      OPEN SHELL OCCUPATION       0    0
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+   8.0    37    -7.429054355E+01  7.468454787E+01 -1.994724420E+00  4.5E-06
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+ *******************************************************************************
+ DENSITY MATRIX AS SUPERPOSITION OF ATOMIC DENSITIES
+ *******************************************************************************
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT PATO        TELAPSE        1.30 TCPU        0.60
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ ELECTRON CHARGE (AND SPIN) DENSITY - DERIVATIVES UP TO ORDER 0
+
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ CO-ORDINATES IN ANGSTROM
+ REDEFINITION OF THE WINDOW AS A RECTANGULAR WINDOW
+ MARGINS (BOHR):   2.8346   2.8346 ALONG B-C,   2.8346   2.8346 ALONG A-B
+
+                        COORDINATES OF THE 3 POINTS (BOHR):
+              A)  -10.393  -10.393    0.000 POINT INDICES (  1,  1)
+              B)   10.393  -10.393    0.000 POINT INDICES (NPY,  1)
+              C)   10.393   10.393    0.000 POINT INDICES (NPY,NPX)
+
+ N. OF POINTS ALONG THE A-B SEGMENT (NPY)   65
+ N. OF POINTS ALONG THE B-C SEGMENT (NPX)   65
+ N. OF POINTS IN THE GRID :               4225
+ COSINE OF THE ANGLE A-B-C              0.0000
+ N. OF ELEMENTS IN THE SYMMETRY SUB-GROUP   16
+ N. OF POINTS IN THE IRREDUCIBLE ZONE :   4225
+
+
+    ALPHA+BETA ELECTRONS DENSITY - VALMIN  1.6745E-02 VALMAX  1.0630E+03
+
+ 4225 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-0MAPN   65   65 0.32480E+00 0.32480E+00 0.00000E+00
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECHG        TELAPSE        1.60 TCPU        0.85
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE        1.60 TCPU        0.85
+ EEEEEEEEEE TERMINATION  DATE 28 07 2024 TIME 12:03:06.9
+NODE    0 CPU TIME =         0.852
+NODE    1 CPU TIME =         0.975
+NODE    2 CPU TIME =         0.974
+NODE    3 CPU TIME =         0.981
+    TOTAL CPU TIME =         3.782
+  fort.9               echg.f9                                               111828   Jul 28 12:03
+  fort.25              echg.f25                                              103802   Jul 28 12:03
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /mnt/c/Users/hz1420/Desktop/charge/echg_tmpfile
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+C:\             953G  324G  630G  34% /mnt/c
+
+  Usage by folders (du -m)
+3	/mnt/c/Users/hz1420/Desktop/charge/echg_tmpfile
+
+  Detailed file list (ls -l .)
+    see /mnt/c/Users/hz1420/Desktop/charge/echg.log file
+--------------------------------------------
+

@@ -445,7 +445,7 @@ class ElectronBandDOS():
 
     def plot(self, **kwargs):
         """
-        A wrapper to plot electron band structure + density of states of a]
+        A wrapper to plot electron band structure + density of states of a
         single system with matplotlib. For input arguments, check
         :ref:`plot.plot_electron_banddos() <ref-plot>`.
 
@@ -479,7 +479,7 @@ class ChargeDensity():
     developing.
 
     Args:
-        data (array): Plot data. nX\*nY\*nSpin or nX\*nY\*nZ\*nSpin
+        data (array): Plot data. nY\*nX\*nSpin (2D).
         base (array): 3\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC (2D) or 3 base vectors (3D)
         spin (int): 1 or 2.
@@ -498,14 +498,19 @@ class ChargeDensity():
         self.dimension = int(dimen)
         self.structure = struc
         self.unit = unit
-        self.type = 'ECHG' # Hidden for charge density plot. Useful for TOPOND child class
 
     @classmethod
-    def from_file(cls, *files, method=None):
+    def from_file(cls, *files, output=None, method='normal'):
         """
         Generate a ``ChargeDensity`` object from a single file, or from multiple
         files by substracting values from the first entry. Can be used for
         multiple dimensions (2D only now. 3D under development.)
+
+        .. note::
+
+            The standard screen output is required to identify the indices of
+            corresponding 2D data maps. Otherwise the code only reads the
+            first 2D data map.
 
         Available methods are:
 
@@ -527,7 +532,7 @@ class ChargeDensity():
         header = file.readline()
         file.close()
         if '-%-' in header: # 2D plot in fort.25
-            cls = Properties_output().read_ECHG(*files, method=method)
+            cls = Properties_output(output).read_ECHG(*files, method=method)
         return cls
 
     def substract(self, *args):
@@ -545,15 +550,12 @@ class ChargeDensity():
 
         for i in args:
             if isinstance(i, str):
-                obj = Properties_output().read_ECHG(i, method=None)
+                obj = Properties_output().read_ECHG(i, method='normal')
             elif isinstance(i, ChargeDensity):
                 obj = i
             else:
                 raise TypeError('Inputs must be file name strings or ChargeDensity objects.')
 
-            # type, useful for TOPOND classes
-            if self.type != obj.type:
-                raise TypeError('Input is not the same type as object.')
             # base vector
             if not np.all(np.abs(self.base-obj.base)<1e-6):
                 raise ValueError('Inconsistent base vectors between input and object.')
@@ -561,9 +563,8 @@ class ChargeDensity():
             if self.dimension != obj.dimension:
                 raise ValueError('Inconsistent dimensionality between input and object.')
             # mesh grid
-            for i in range(self.dimension):
-                if self.data.shape[i] != obj.data.shape[i]:
-                    raise ValueError('Inconsistent mesh grid between input and object.')
+            if self.data.shape != obj.data.shape:
+                raise ValueError('Inconsistent mesh grid between input and object.')
             # spin
             if self.spin != obj.spin:
                 raise ValueError('Inconsistent spin dimensionalities between input and object.')
@@ -578,7 +579,9 @@ class ChargeDensity():
                 chglen = chglen * s
             chglen = int(chglen)
             self.data = self.data.flatten(order='F')[:chglen]
-            self.data = np.reshape(self.data, oshape[:-1])
+            nshape = [i for i in oshape[:-1]]
+            nshape.append(1)
+            self.data = np.reshape(self.data, nshape, order='F')
             self.spin = 1
         return self
 
@@ -610,11 +613,23 @@ class ChargeDensity():
 
     def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
                 linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-                cbar_label=None, a_range=[], b_range=[], rectangle=False, edgeplot=False,
-                x_ticks=5, y_ticks=5, add_title=True, figsize=[6.4, 4.8], **kwargs):
+                cbar_label='default', a_range=[], b_range=[], rectangle=False, edgeplot=False,
+                x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8],
+                fig=None, ax_index=None, **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
+
+        3 styles are available:
+
+        1. ``lineplot=True`` and ``colorplot=True``: The color-filled contour
+            map with black contour lines. Dotted lines for negative values and
+            solid lines for positive values. The solid line twice in width for 0.  
+        2. ``lineplot=False`` and ``colorplot=True``: The color-filled contour
+            map.  
+        3. ``lineplot=True`` and ``colorplot=False``: The color coded contour
+            line map. Blue dotted line for negative values and red solid lines
+            for positive values. The balck solid line twice in width for 0.
 
         Available options:
 
@@ -625,7 +640,7 @@ class ChargeDensity():
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             option (str): Available options see above.
             levels (int|array): Set levels of contour plot. A number for
                 linear scaled plot colors or an array for user-defined levels,
@@ -643,23 +658,27 @@ class ChargeDensity():
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 1\*2 list of colorbar titles can be set for
-                spin-polarized systems. 'None' for default.
+                spin-polarized systems. 'default' for unit and symbol. 'None'
+                for no labels.
             a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
             b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
-                ``b_range``, that refers to the old :math:`b`.
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
             edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
             x_ticks (int): Number of ticks on x axis.
             y_ticks (int): Number of ticks on y axis.
-            add_title (bool): Whether to add property plotted as title.
+            title (str|None): Titles for both charge and spin densities.
+                'default' for default values and 'None' for no title.
             figsize (list): Matplotlib figure size. Note that axes aspects are
                 fixed to be equal.
-            \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+            fig (Figure): *Developer Only*, matplotlib Figure class.
+            ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
+            \*\*kwargs: Other arguments passed to ``axes.contour()`` function
                 to set contour lines.
 
         Returns:
@@ -669,6 +688,7 @@ class ChargeDensity():
         from CRYSTALpytools.base.plotbase import plot_2Dscalar
         import numpy as np
         import matplotlib.pyplot as plt
+        import warnings
 
         # dimen
         if self.dimension != 2:
@@ -680,49 +700,69 @@ class ChargeDensity():
             self._set_unit(unit)
 
         # levels
-        if isinstance(levels, int) or isinstance(levels, float):
+        levels = np.array(levels, dtype=float, ndmin=2)
+        if levels.shape[1] == 1:
             if self.spin == 1:
-                levels1 = np.linspace(np.min(self.data), np.max(self.data), int(levels))
+                levels1 = np.linspace(np.min(self.data), np.max(self.data),
+                                      int(levels[0, 0]))
                 levels2 = levels1
             else:
-                len_flat = 1
-                for i in self.data.shape[:-1]:
-                    len_flat = len_flat * i
-                chg = self.data.flatten(order='F')[:len_flat]
-                spin = self.data.flatten(order='F')[len_flat:]
-                levels1 = np.linspace(np.min(chg), np.max(chg), levels)
-                levels2 = np.linspace(np.min(spin), np.max(spin), levels)
-                del chg, spin
+                levels1 = np.linspace(np.min(self.data[:,:,0]),
+                                      np.max(self.data[:,:,0]), int(levels[0, 0]))
+                levels2 = np.linspace(np.min(self.data[:,:,1]),
+                                      np.max(self.data[:,:,1]), int(levels[0, 0]))
         else:
-            if isinstance(levels[0], int) or isinstance(levels[0], float):
-                levels1 = np.array(levels, dtype=float)
-                levels2 = np.array(levels, dtype=float)
+            if levels.shape[0] == 1:
+                levels1 = levels; levels2 = levels
             else:
-                levels1 = np.array(levels[0], dtype=float)
-                levels2 = np.array(levels[1], dtype=float)
+                levels1 = levels[0]; levels2 = levels[1]
+
         # color plot
         if colorplot == False:
             colormap = None
+
         # contour line
         if lineplot == True:
-            chgline = [['k', '-', linewidth] for i in levels1]
-            spinline = []
-            for j in levels2:
-                if j >= 0: spinline.append(['k', '-', linewidth])
-                else: spinline.append(['k', 'dotted', linewidth])
+            if colorplot == False: # colored contour lines
+                chgline = []
+                for j in levels1:
+                    if j > 1e-6: chgline.append(['r', '-', linewidth])
+                    else: chgline.append(['k', '-', linewidth*2])
+                spinline = []
+                for j in levels2:
+                    if j > 1e-6: spinline.append(['r', '-', linewidth])
+                    elif -j > 1e-6: spinline.append(['b', 'dotted', linewidth])
+                    else: spinline.append(['k', '-', linewidth*2])
+            else: # black contour lines
+                chgline = []
+                for j in levels1:
+                    if j > 1e-6: chgline.append(['k', '-', linewidth])
+                    else: chgline.append(['k', '-', linewidth*2])
+                spinline = []
+                for j in levels2:
+                    if j > 1e-6: spinline.append(['k', '-', linewidth])
+                    elif -j > 1e-6: spinline.append(['k', 'dotted', linewidth])
+                    else: spinline.append(['k', '-', linewidth*2])
         else:
             chgline = None; spinline = None
+
         # cbar_label
         if np.all(cbar_label==None):
-            if unit.lower() == 'angstrom':
-                cbar_label1 = r'Charge Density ($|e|/\AA^{3}$)'; cbar_label2 = r'Spin Density ($|e|/\AA^{3}$)'
-            else:
-                cbar_label1 = r'Charge Density ($|e|/Bohr^{3}$)'; cbar_label2 = r'Spin Density ($|e|/Bohr^{3}$)'
+            cbar_label1 = None; cbar_label2 = None
         else:
-            if isinstance(cbar_label, list):
-                cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1]; 
+            cbar_label = np.array(cbar_label, ndmin=1)
+            if cbar_label[0].lower() == 'default':
+                if unit.lower() == 'angstrom':
+                    cbar_label1 = r'$\rho_{\alpha}+\rho_{\beta}$ ($|e|/\AA^{3}$)'
+                    cbar_label2 = r'$\rho_{\alpha}-\rho_{\beta}$ ($|e|/\AA^{3}$)'
+                else:
+                    cbar_label1 = r'$\rho_{\alpha}+\rho_{\beta}$ ($|e|/Bohr^{3}$)'
+                    cbar_label2 = r'$\rho_{\alpha}-\rho_{\beta}$ ($|e|/Bohr^{3}$)'
             else:
-                cbar_label1 = str(cbar_label); cbar_label2 = str(cbar_label)
+                if cbar_label.shape[0] > 1:
+                    cbar_label1 = cbar_label[0]; cbar_label2 = cbar_label[1];
+                else:
+                    cbar_label1 = str(cbar_label[0]); cbar_label2 = str(cbar_label[0])
 
         # plot
         ## spin
@@ -731,9 +771,26 @@ class ChargeDensity():
                           stacklevel=2)
             option = 'charge'
 
+        ## get the correct axes
+        if np.all(fig!=None):
+            if np.all(ax_index==None):
+                raise ValueError("Indices of axes must be set when 'fig' is not None.")
+            ax_index = np.array(ax_index, dtype=int, ndmin=1)
+            if option.lower() == 'both' and len(ax_index) != 2:
+                raise ValueError("2 axes needed when option='both'.")
+        else:
+            if option.lower() == 'both':
+                fig, ax = plt.subplots(1, 2, figsize=figsize, sharex=True,
+                                       sharey=True, layout='tight')
+                ax_index = [0, 1]
+            else:
+                fig, ax = plt.subplots(1, 1, figsize=figsize, sharex=True,
+                                       sharey=True, layout='tight')
+                ax_index = [0]
+
+        ax = [fig.axes[i] for i in ax_index]
+        ## plot maps
         if option.lower() == 'both':
-            fig, ax = plt.subplots(1, 2, figsize=figsize, sharex=True,
-                                   sharey=True, layout='tight')
             fig = plot_2Dscalar(
                 fig, ax[0], self.data[:, :, 0], self.base, levels1, chgline,
                 isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
@@ -745,54 +802,39 @@ class ChargeDensity():
                 edgeplot, x_ticks, y_ticks, **kwargs
             )
         elif option.lower() == 'charge':
-            fig, ax = plt.subplots(1, 1, figsize=figsize)
-            if self.spin == 1:
-                fig = plot_2Dscalar(
-                    fig, ax, self.data[:, :], self.base, levels1, chgline,
-                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    edgeplot, x_ticks, y_ticks, **kwargs
-                )
-            else:
-                fig = plot_2Dscalar(
-                    fig, ax, self.data[:, :, 0], self.base, levels1, chgline,
-                    isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
-                    edgeplot, x_ticks, y_ticks,  **kwargs
-                )
-        elif option.lower() == 'spin':
-            fig, ax = plt.subplots(1, 1, figsize=figsize)
             fig = plot_2Dscalar(
-                fig, ax, self.data[:, :, 1], self.base, levels2, spinline,
+                fig, ax[0], self.data[:, :, 0], self.base, levels1, chgline,
+                isovalues, colormap, cbar_label1, a_range, b_range, rectangle,
+                edgeplot, x_ticks, y_ticks,  **kwargs
+            )
+        elif option.lower() == 'spin':
+            fig = plot_2Dscalar(
+                fig, ax[0], self.data[:, :, 1], self.base, levels2, spinline,
                 isovalues, colormap, cbar_label2, a_range, b_range, rectangle,
                 edgeplot, x_ticks, y_ticks,  **kwargs
             )
         else:
             raise ValueError("Unknown option: '{}'.".format(option))
 
-        # range and labels
-        if option.lower() == 'both':
+        # title and labels
+        for a in ax:
             if self.unit.lower() == 'angstrom':
-                ax[0].set_xlabel(r'$\AA$')
-                ax[0].set_ylabel(r'$\AA$')
-                ax[1].set_xlabel(r'$\AA$')
+                a.set_xlabel(r'$\AA$'); a.set_ylabel(r'$\AA$')
             else:
-                ax[0].set_xlabel('Bohr')
-                ax[0].set_ylabel('Bohr')
-                ax[1].set_xlabel('Bohr')
-            if add_title == True:
-                ax[0].set_title('Charge Density')
-                ax[1].set_title('Spin Density')
-        else:
-            if self.unit.lower() == 'angstrom':
-                ax.set_xlabel(r'$\AA$')
-                ax.set_ylabel(r'$\AA$')
-            else:
-                ax.set_xlabel('Bohr')
-                ax.set_ylabel('Bohr')
-            if add_title == True:
-                if option.lower() == 'charge':
-                    ax.set_title('Charge Density')
+                a.set_xlabel('Bohr'); a.set_ylabel('Bohr')
+
+        if np.all(title!=None):
+            if title.lower() == 'default':
+                if option.lower() == 'both':
+                    ax[0].set_title('Charge Density')
+                    ax[1].set_title('Spin Density')
+                elif option.lower() == 'charge':
+                    ax[0].set_title('Charge Density')
                 else:
-                    ax.set_title('Spin Density')
+                    ax[0].set_title('Spin Density')
+            else:
+                for a in ax:
+                    a.set_title(title)
 
         # restore old unit
         self._set_unit(uold)
@@ -812,14 +854,20 @@ class ChargeDensity():
             return self
 
         if unit.lower() == 'angstrom':
-            self.unit = 'Angstrom'
             cst = au_to_angstrom(1.)
+            self.unit = 'Angstrom'
         elif unit.lower() == 'a.u.':
-            self.unit = 'a.u.'
             cst = angstrom_to_au(1.)
+            self.unit = 'a.u.'
         else:
             raise ValueError('Unknown unit.')
 
-        self.base = self.base * cst
-        self.data = self.data / cst**3
+        lprops = ['base'] # length units
+        dprops = ['data'] # density units
+        for l in lprops:
+            newattr = getattr(self, l) * cst
+            setattr(self, l, newattr)
+        for d in dprops:
+            newattr = getattr(self, d) / cst**3
+            setattr(self, d, newattr)
         return self

@@ -1,10 +1,11 @@
 #CRYSTAL specific
-*.f*
-*.hessopt
-*.optinfo
-*.SCFLOG
-*.xyz
-*.prop3d
+#commented to sync examples/ folder properly.
+# *.f*
+# *.hessopt
+# *.optinfo
+# *.SCFLOG
+# *.xyz
+# *.prop3d
 
 #OsX stuff
 *.DS_Store

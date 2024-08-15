@@ -16,7 +16,7 @@ class Tensor3D():
     3D elastic tensor and related properties.
 
     Args:
-        matrix (numpy.ndarray): 6\*6 compliance or stiffness matrix. Unit: GPa:math:`^{-1}` or GPa.
+        matrix (numpy.ndarray): 6\*6 compliance or stiffness matrix. Unit: GPa :math:`^{-1}` or GPa.
         lattice (numpy.ndarray): lattice matrix.
         is_compliance (bool): Compliance or stiffness matrix used as input.
     """
@@ -52,7 +52,7 @@ class Tensor3D():
     @property
     def compliance(self):
         """
-        6\*6 compliance matrix in Voigt annotation. Unit: GPa:math:`^{-1}`.
+        6\*6 compliance matrix in Voigt annotation. Unit: GPa :math:`^{-1}`.
         """
         return self._S
 
@@ -106,7 +106,7 @@ class Tensor3D():
         Args:
             property (str): Property to compute. See options above.
             u (numpy.ndarray): 3\*1 or nu\*3 array of vectors.
-            nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
+            nchi (int): Resolution of auxiliary angle :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
@@ -124,9 +124,7 @@ class Tensor3D():
         if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
-        u = np.array(u, dtype=float)
-        if len(np.shape(u)) == 1:
-            u = np.array([u])
+        u = np.array(u, dtype=float, ndmin=2)
 
         if use_cartesian != True:
             for i in range(len(u)):
@@ -202,12 +200,9 @@ class Tensor3D():
         if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
-        u = np.array(u, dtype=float)
-        v = np.array(v, dtype=float)
-        if len(np.shape(u)) == 1:
-            u = np.array([u])
-            v = np.array([v])
-        if np.shape(u)[0] != np.shape(v)[0]:
+        u = np.array(u, dtype=float, ndmin=2)
+        v = np.array(v, dtype=float, ndmin=2)
+        if u.shape[0] != v.shape[0]:
             raise ValueError("Inconsistent length of u and v.")
 
         if use_cartesian != True:
@@ -238,59 +233,71 @@ class Tensor3D():
             e = e[:, 0]
         return e
 
-    def plot_2D(self, property, plane, ntheta=90, nchi=180,
-                plane_definition='miller', u=None, utext=None,
-                use_cartesian=True, layout=None, add_title=True,
-                uniform_scale=True, rmax=None, plot_lattice=True):
+    def plot_2D(
+        self, property, plane, ntheta=90, nchi=180, plane_definition='miller',
+        u=None, utext=None, use_cartesian=True, plot_lattice=True,
+        loop_color=None, loop_linestyle=None, loop_linewidth=None,
+        figsize=[6.4, 4.8], get_data=False, **kwargs):
         """
         Plot 2D crystal elastic properties across the given plane. The plane is
         defined by any of the following methods:
 
-        * 'miller': Miller indices.
-        * 'cartesian': The plane normal vector in Cartesian coordinates.
+        * 'miller': Miller indices.  
+        * 'cartesian': The plane normal vector in Cartesian coordinates.  
         * 'fractional': The plane normal vector in fractional coordinates.
 
         Options:
 
-        * "young": Young's modulus in GPa.
-        * "comp": Linear compressibility.
-        * "shear": Shear modulus in the plane, in GPa.
-        * "shear avg": Averaged shear modulus of vectors in the plane, in GPa.
-        * "shear min": Minimum shear modulus of vectors in the plane, in GPa.
-        * "shear max": Maximum shear modulus of vectors in the plane, in GPa.
-        * "poisson": Poisson ratio in the plane.
-        * "poisson avg": Averaged Poisson ratio of vectors in the plane.
-        * "poisson min": Minimum Poisson ratio of vectors in the plane.
+        * "young": Young's modulus in GPa.  
+        * "comp": Linear compressibility.  
+        * "shear": Shear modulus in the plane, in GPa.  
+        * "shear avg": Averaged shear modulus of vectors in the plane, in GPa.  
+        * "shear min": Minimum shear modulus of vectors in the plane, in GPa.  
+        * "shear max": Maximum shear modulus of vectors in the plane, in GPa.  
+        * "poisson": Poisson ratio in the plane.  
+        * "poisson avg": Averaged Poisson ratio of vectors in the plane.  
+        * "poisson min": Minimum Poisson ratio of vectors in the plane.  
         * "poisson max": Maximum Poisson ratio of vectors in the plane.
 
+        This method can be used for multi-plane, multi-property plots. The same
+        scale is enforced for subplots of the same property. Subplot titles are
+        added automatically. The layout of subplots is, by default,
+        nProp\*nPlane or 1\*nProp, which is not editable.
+
         Args:
-            property (str): Property to compute. See options above.
+            property (str|list): Property(ies) to compute. See options above.
             plane (numpy.ndarray): 3\*1 or nplane\*3 array of planes.
-            ntheta (int): Resolution of polar angle :math:`\\theta` on plane,
+            ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane,
                 in radian :math:`[0, 2\\pi)`.
             nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             plane_definition (str): The method used to define the plane. See
                 options above.
             u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into
-                the figure. When the given u is in the plane, a line segment to
-                the limit of axis is plotted to indicate the vector.
+                the figure. A line segment with doubled radius is plotted to
+                indicate the vector. Or 'max' / 'min' / 'bothends', plot
+                vectors corresponding to the max and min of elastic properties.
+                For 'bothends', min first.
             utext (list[str] | str): A string or a list of string. Used to mark
-                The vector. If ``None``, the input ``u`` and the corresponding
-                value is annotated. If 'value', the value is annotated.
+                The vector. If ``None`` or 'value', the value is annotated.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
-            layout (list|tuple): 2\*1 list. The layout of subplots. The first
-                element is nrows, the second is ncolumns. By default, at most 3
-                subplots per row is used.
-            add_title (bool): Add title to subplot. Only entries of ``plane``
-                can be used.
-            uniform_scale (bool): Use the same radial scale (elastic properties)
-                for all the plots. The max r among all plots will be used.
-            rmax (float): Explicitly set the radius ``rmax`` for all plots.
-                Valid only if ``uniform_scale=True``.
             plot_lattice (bool): Draw lattice base vectors to indicate
                 orientation of the plane.
+            loop_color (str|list): Color of 2D loops. If only one string is
+                given, apply it to all loops. 'None' for default values
+                (matplotlib Tableau Palette).
+            loop_linestyle (str|list): Linestyle of 2D loops. If only one
+                string is given, apply it to all plots. 'None' for default
+                values ('-').
+            loop_linewidth (str|list): Linewidth of band structure. If only one
+                number is given, apply it to all plots. For the 'multi' mode,
+                1\*nSystem list of linewidth numbers. 'None' for default values
+                (1.0).
+            figsize (list): The figure size specified as \[width, height\].
+            get_data (bool): *Developer only* Return data or figure.
+            \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
+                the loops. Applied to all the loops.
 
         Returns:
             fig (Figure): Matplotlib ``Figure`` object.
@@ -303,9 +310,12 @@ class Tensor3D():
         property_list = ['young', 'comp', 'shear', 'shear avg', 'shear min',
                          'shear max', 'poisson', 'poisson avg', 'poisson min',
                          'poisson max']
-        property = property.lower()
-        if property not in property_list:
-            raise ValueError("Unknown property input: '{}'".format(property))
+        self.property = np.array(property, ndmin=1)
+        nprop = len(self.property)
+        for i in range(nprop):
+            if self.property[i].lower() not in property_list:
+                raise ValueError("Unknown property input: '{}'".format(self.property[i]))
+            self.property[i] = self.property[i].lower()
 
         planedef_list = ['miller', 'cartesian', 'fractional']
         plane_definition = plane_definition.lower()
@@ -317,217 +327,124 @@ class Tensor3D():
                 raise Exception('Lattice matrix not available.')
 
         # plane definition: use normalised cartesian for plot
-        planeplt = np.array(plane, dtype=float)
-        if len(np.shape(plane)) == 1:
-            plane = [plane]
-            planeplt = np.array([planeplt])
-
+        plane = np.array(plane, ndmin=2); self.norm = np.array(plane, dtype=float)
         if plane_definition == 'miller':
-            for i in range(len(planeplt)):
-                planeplt[i, :] = self.lattice.reciprocal_lattice_crystallographic.get_cartesian_coords(planeplt[i, :])
-                planeplt[i, :] = planeplt[i, :] / np.linalg.norm(planeplt[i, :])
+            for i in range(len(self.norm)):
+                self.norm[i, :] = self.lattice.reciprocal_lattice_crystallographic.get_cartesian_coords(self.norm[i, :])
+                self.norm[i, :] = self.norm[i, :] / np.linalg.norm(self.norm[i, :])
         elif plane_definition == 'fractional':
-            for i in range(len(planeplt)):
-                planeplt[i, :] = self.lattice.get_cartesian_coords(planeplt[i, :])
-                planeplt[i, :] = planeplt[i, :] / np.linalg.norm(planeplt[i, :])
+            for i in range(len(self.norm)):
+                self.norm[i, :] = self.lattice.get_cartesian_coords(self.norm[i, :])
+                self.norm[i, :] = self.norm[i, :] / np.linalg.norm(self.norm[i, :])
         else:
-            for i in range(len(planeplt)):
-                planeplt[i, :] = planeplt[i, :] / np.linalg.norm(planeplt[i, :])
+            for i in range(len(self.norm)):
+                self.norm[i, :] = self.norm[i, :] / np.linalg.norm(self.norm[i, :])
+
+        nplane = len(self.norm)
 
         # Compute each 2D plane separately
-        r = np.zeros([len(planeplt), ntheta+1], dtype=float)
-        v1 = np.zeros([len(planeplt), ntheta+1, 3], dtype=float)
-        for iplot, v0 in enumerate(planeplt):
-            # get pole angles and 3D vectors. use (v0) v1
+        self.r = np.zeros([nprop, nplane, ntheta+1], dtype=float)
+        chi = np.linspace(0, 2*np.pi, ntheta+1) # pole angle is actually chi.
+        self.chi = chi
+
+        for iplot, v0 in enumerate(self.norm):
+            # get pole angles and 3D vectors. use (v0) v1. Data is always associated with v1
             theta = np.arccos(v0[2])
             phi = np.arctan2(v0[1], v0[0])
-            chi = np.linspace(0, 2*np.pi, ntheta+1) # pole angle is actually chi.
-            v1[iplot, :, :] = np.vstack([
+            v1 = np.vstack([
                 np.cos(phi) * np.cos(theta) * np.cos(chi) - np.sin(phi) * np.sin(chi),
                 np.sin(phi) * np.cos(theta) * np.cos(chi) + np.cos(phi) * np.sin(chi),
                 -np.sin(theta) * np.cos(chi)
             ]).transpose()
-
-            # get pole angles and 3D vectors. use v1, v2
-            if 'avg' in property or 'min' in property or 'max' in property:
-                v2 = np.zeros([ntheta+1, nchi+1, 3], dtype=float) # another chi.
-                chi2 = np.linspace(0, 2*np.pi, nchi+1)
-                for i in range(ntheta+1):
-                    theta2 = np.arccos(v1[iplot, i, 2])
-                    phi2 = np.arctan2(v1[iplot, i, 1], v1[iplot, i, 0])
-                    v2[i, :, :] = np.vstack([
-                        np.cos(phi2) * np.cos(theta2) * np.cos(chi2) - np.sin(phi2) * np.sin(chi2),
-                        np.sin(phi2) * np.cos(theta2) * np.cos(chi2) + np.cos(phi2) * np.sin(chi2),
-                        -np.sin(theta2) * np.cos(chi2)
-                    ]).transpose()
-
-            # compute
-            if property == 'young':
-                r[iplot, :] = young(self._Scart, v1[iplot], 3)
-            elif property == 'comp':
-                r[iplot, :] = comp(self._Scart, v1[iplot], 3)
-            elif property == 'shear':
-                r[iplot, :] = shear(self._Scart, [v0], [v1[iplot]], 3)
-            elif property == 'shear avg':
-                r[iplot, :] = np.average(shear(self._Scart, v1[iplot], v2, 3), axis=1)
-            elif property == 'shear min':
-                r[iplot, :] = np.min(shear(self._Scart, v1[iplot], v2, 3), axis=1)
-            elif property == 'shear max':
-                r[iplot, :] = np.max(shear(self._Scart, v1[iplot], v2, 3), axis=1)
-            elif property == 'poisson':
-                r[iplot, :] = poisson(self._Scart, [v0], [v1[iplot]], 3)
-            elif property == 'poisson avg':
-                r[iplot, :] = np.average(poisson(self._Scart, v1[iplot], v2, 3), axis=1)
-            elif property == 'poisson min':
-                r[iplot, :] = np.min(poisson(self._Scart, v1[iplot], v2, 3), axis=1)
-            elif property == 'poisson max':
-                r[iplot, :] = np.max(poisson(self._Scart, v1[iplot], v2, 3), axis=1)
+            for ip, p in enumerate(self.property):
+                # get pole angles and 3D vectors. use v1, v2. Data is always associated with v1
+                if 'avg' in p or 'min' in p or 'max' in p:
+                    v2 = np.zeros([ntheta+1, nchi+1, 3], dtype=float) # another chi.
+                    chi2 = np.linspace(0, 2*np.pi, nchi+1)
+                    for i in range(ntheta+1):
+                        theta2 = np.arccos(v1[i, 2])
+                        phi2 = np.arctan2(v1[i, 1], v1[i, 0])
+                        v2[i, :, :] = np.vstack([
+                            np.cos(phi2) * np.cos(theta2) * np.cos(chi2) - np.sin(phi2) * np.sin(chi2),
+                            np.sin(phi2) * np.cos(theta2) * np.cos(chi2) + np.cos(phi2) * np.sin(chi2),
+                            -np.sin(theta2) * np.cos(chi2)
+                        ]).transpose()
+                # compute
+                if p == 'young':
+                    self.r[ip, iplot, :] = young(self._Scart, v1, 3)
+                elif p == 'comp':
+                    self.r[ip, iplot, :] = comp(self._Scart, v1, 3)
+                elif p == 'shear':
+                    self.r[ip, iplot, :] = shear(self._Scart, [v0], [v1], 3)
+                elif p == 'shear avg':
+                    self.r[ip, iplot, :] = np.average(shear(self._Scart, v1, v2, 3), axis=1)
+                elif p == 'shear min':
+                    self.r[ip, iplot, :] = np.min(shear(self._Scart, v1, v2, 3), axis=1)
+                elif p == 'shear max':
+                    self.r[ip, iplot, :] = np.max(shear(self._Scart, v1, v2, 3), axis=1)
+                elif p == 'poisson':
+                    self.r[ip, iplot, :] = poisson(self._Scart, [v0], [v1], 3)
+                elif p == 'poisson avg':
+                    self.r[ip, iplot, :] = np.average(poisson(self._Scart, v1, v2, 3), axis=1)
+                elif p == 'poisson min':
+                    self.r[ip, iplot, :] = np.min(poisson(self._Scart, v1, v2, 3), axis=1)
+                elif p == 'poisson max':
+                    self.r[ip, iplot, :] = np.max(poisson(self._Scart, v1, v2, 3), axis=1)
 
         # Plot
-        # Set plot framework
-        if np.all(layout!=None):
-            if layout[0] * layout[1] < len(planeplt):
-                warnings.warn('Inconsistent plane number and figure layout. Default layout is used.',
-                              stacklevel=2)
-                layout = None
-        if np.all(layout==None):
-            layout = [len(planeplt)//3+1, 0]
-            if len(planeplt) < 3:
-                layout[1] = len(planeplt)
-            else:
-                layout[1] = 3
-
-        fig, ax = plt.subplots(nrows=layout[0], ncols=layout[1],
-                               subplot_kw={'projection' : 'polar'}, layout='tight')
-        # Prepare 1D plot
-        if np.all(u!=None):
-            if not isinstance(u, str):
-                utmp0 = np.array(u, dtype=float) # cartesian u, normalised
-                if len(np.shape(utmp0)) == 1:
-                    utmp0 = np.array([utmp0])
-
-                if use_cartesian != True:
-                    for i in range(len(utmp0)):
-                        utmp0[i, :] = self.lattice.get_cartesian_coords(utmp0[i, :])
-                        utmp0[i, :] = utmp0[i, :] / np.linalg.norm(utmp0[i, :])
-                else:
-                    for i in range(len(utmp0)):
-                        utmp0[i, :] = utmp0[i, :] / np.linalg.norm(utmp0[i, :])
-
-                # nplt*nu array
-                utmp = np.zeros([len(planeplt), len(utmp0), 3], dtype=float)
-                for i in range(len(planeplt)):
-                    utmp[i, :, :] = utmp0
-            else:
-                use_cartesian = True
-                if u.lower() == 'bothends':
-                    utmp = np.zeros([len(planeplt), 2, 3], dtype=float)
-                else:
-                    utmp = np.zeros([len(planeplt), 1, 3], dtype=float)
-                for iplot in range(len(planeplt)):
-                    if u.lower() == 'max':
-                        utmp[iplot, 0, :] = v1[iplot, np.argmax(r[iplot, :]), :] / np.linalg.norm(v1[iplot, np.argmax(r[iplot, :]), :])
-                    elif u.lower() == 'min':
-                        utmp[iplot, 0, :] = v1[iplot, np.argmin(r[iplot, :]), :] / np.linalg.norm(v1[iplot, np.argmin(r[iplot, :]), :])
-                    elif u.lower() == 'bothends':
-                        utmp[iplot, 0, :] = v1[iplot, np.argmax(r[iplot, :]), :] / np.linalg.norm(v1[iplot, np.argmax(r[iplot, :]), :])
-                        utmp[iplot, 1, :] = v1[iplot, np.argmin(r[iplot, :]), :] / np.linalg.norm(v1[iplot, np.argmin(r[iplot, :]), :])
-                    else:
-                        raise ValueError("Unknown u value: '{}'.".format(u))
-
-            if np.all(utext!=None):
-                if isinstance(utext, str):
-                    if utext.lower() == 'value':
-                        utext = [['value' for i in range(np.shape(utmp)[1])] for j in range(np.shape(utmp)[0])]
-                    else:
-                        utext = [[utext for i in range(np.shape(utmp)[1])] for j in range(np.shape(utmp)[0])]
-                else:
-                    utext = [utext for j in range(np.shape(utmp)[0])]
-                    if len(utext) != np.shape(utmp)[1]:
-                        warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
-                                      stacklevel=2)
-                        utext = None
-
-        # Prepare lattice
         if plot_lattice == False:
-            platt = None
+            self.lattice_plot = None
         else:
-            platt = self.lattice.matrix
+            self.lattice_plot = self.lattice.matrix
 
-        # Set max radius
-        if np.all(rmax==None):
-            rmax = np.max(r)
-        if uniform_scale == False:
-            rmax = None
+        if get_data == True:
+            return self
+        else:
+            fig = _plot2D(
+                self, None, use_cartesian, u, utext, None, loop_color,
+                loop_linestyle, loop_linewidth, None, figsize, None, None,
+                **kwargs
+            )
+            # set title
+            if nplane == 1 and nprop > 1:
+                for ip, p in enumerate(self.property):
+                    if 'shear' in p or 'young' in p: ptitle = '{} (GPa)'.format(p)
+                    else: ptitle = p
+                    fig.axes[ip].set_title(ptitle, y=1.05)
 
-        pcolor = list(mcolors.TABLEAU_COLORS.keys())
-        npcolor = len(pcolor)
-        for iplot, v0 in enumerate(planeplt):
-            # plot 1D vectors
-            if np.all(u!=None):
-                uplt = []
-                utextplt = []
-                ru = []
-                for ivp, vp in enumerate(utmp[iplot]):
-                    if np.abs(np.dot(vp, v0)) > 1e-6: # non-orthogonal
-                        continue
-                    uplt.append(vp)
-                    if property == 'shear' or property == 'poisson':
-                        ru.append(self.get_pair(property, v0, vp, use_cartesian=True))
-                    else:
-                        ru.append(self.get_1D(property, vp, nchi, use_cartesian=True))
-
-                    if np.all(utext!=None):
-                        if utext[iplot][ivp].lower() == 'value':
-                            utextplt.append('{:.2f}'.format(ru[-1]))
-                        else:
-                            utextplt.append(utext[iplot][ivp])
-                    else:
-                        if not isinstance(u, str):
-                            if len(np.shape(u)) == 1:
-                                u = np.array([u], dtype=float)
-                            else:
-                                u = np.array(u, dtype=float)
-                        else:
-                            u = utmp[iplot]
-                        utextplt.append('[{:<4.1f}{:^4.1f}{:>4.1f}]  {:.2f}'.format(
-                            u[ivp, 0], u[ivp, 1], u[ivp, 2], ru[-1]
-                        ))
-                uplt = np.array(uplt, dtype=float)
-            else:
-                uplt=None; utextplt=[]
-
-            # plot figures
-            if add_title == True:
                 if plane_definition == 'miller':
-                    title = '{}\n({:<2d} {:^2d} {:>2d})'.format(
-                        property, plane[iplot][0], plane[iplot][1], plane[iplot][2])
-                elif plane_definition == 'cartesian':
-                    title = '{}\nCartesian Norm: ({:<4.1f} {:^4.1f} {:>4.1f})'.format(
-                        property, plane[iplot][0], plane[iplot][1], plane[iplot][2])
+                    title = '({:<3d}{:^3d}{:>3d})'.format(plane[0,0], plane[0,1], plane[0,2])
                 else:
-                    title = '{}\nFractional Norm: ({:<4.1f} {:^4.1f} {:>4.1f})'.format(
-                        property, plane[iplot][0], plane[iplot][1], plane[iplot][2])
-            else:
-                title = ''
+                    title = '({:<4.1f}{:^4.1f}{:>4.1f})'.format(plane[0,0], plane[0,1], plane[0,2])
 
-            if len(planeplt) > 1:
-                ax.flat[iplot] = _plot2D_single(
-                        ax.flat[iplot], chi, r[iplot, :], v0, pcolor[iplot%npcolor],
-                        title, rmax, uplt, utextplt, platt
+                fig.axes[0].text(
+                    -0.1, 0.5, title, rotation='vertical', horizontalalignment='right',
+                    verticalalignment='center', transform=fig.axes[0].transAxes,
+                    fontsize=fig.axes[0].title._fontproperties._size
                 )
             else:
-                ax = _plot2D_single(
-                        ax, chi, r[iplot, :], v0, pcolor[iplot%npcolor],
-                        title, rmax, uplt, utextplt, platt
-                )
+                for inorm, norm in enumerate(plane):
+                    if plane_definition == 'miller':
+                        title = '({:<3d}{:^3d}{:>3d})'.format(norm[0], norm[1], norm[2])
+                    else:
+                        title = '({:<4.1f}{:^4.1f}{:>4.1f})'.format(norm[0], norm[1], norm[2])
+                    fig.axes[inorm].set_title(title, y=1.05)
 
-        return fig
+                for ip, p in enumerate(self.property):
+                    if 'shear' in p or 'young' in p: ptitle = '{} (GPa)'.format(p)
+                    else: ptitle = p
+                    fig.axes[int(ip*nplane)].text(
+                        -0.1, 0.5, ptitle, rotation='vertical', horizontalalignment='right',
+                        verticalalignment='center', transform=fig.axes[int(ip*nplane)].transAxes,
+                        fontsize=fig.axes[0].title._fontproperties._size
+                    )
+            return fig
 
     def plot_3D(self, property, nphi=90, ntheta=90, nchi=180,
                 scale_radius=True, range_cbar=None, range_x=None, range_y=None,
                 range_z=None, u=None, utext=None, use_cartesian=True,
-                plot_lattice=False, plot_lib='matplotlib', **kwargs):
+                plot_lattice=False,  colormap='jet', title='default',
+                figsize=[6.4, 4.8], plot_lib='matplotlib', **kwargs):
         """
         Plot 3D crystal elastic properties on the basis of the elastic tensor.
         The 3D surface is colored by the elastic property.
@@ -561,13 +478,18 @@ class Tensor3D():
                 the figure. A line segment with doubled radius is plotted to
                 indicate the vector. Or 'max' / 'min' / 'bothends', plot
                 vectors corresponding to the max and min of elastic properties.
-                For 'bothends', max first.
+                For 'bothends', min first.
             utext (list[str] | str): A string or a list of string. Used to mark
-                The vector. If ``None``, the input ``u`` and the corresponding
+                the vector. If ``None``, the input ``u`` and the corresponding
                 value is annotated. If 'value', the value is annotated.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
             plot_lattice (bool): Draw the lattice box around the 3D surface.
+            colormap (str): Colormap name.
+            title (str|None): Plot title. 'default' for default values and
+                'None' for no title.
+            figsize (list): Figure size in inches. For plotly, 300 ppi is
+                assumed.
             plot_lib (bool): 'matplotlib' or 'plotly'. By default use
                 `matplotlib <https://matplotlib.org/>`_. Alternatively use
                 `plotly <https://plotly.com/>`_ to enable interactive
@@ -609,12 +531,12 @@ class Tensor3D():
         # Generate mesh in polar coordinate
         phi = np.linspace(0, 2*np.pi, nphi+1)
         theta = np.linspace(0, np.pi, ntheta//2+1)
-        X = np.cos([phi]).transpose() @ np.sin([theta])
-        Y = np.sin([phi]).transpose() @ np.sin([theta])
-        Z = (np.zeros([nphi+1,1])+1) @ np.cos([theta])
+        self.X = np.cos([phi]).transpose() @ np.sin([theta])
+        self.Y = np.sin([phi]).transpose() @ np.sin([theta])
+        self.Z = (np.zeros([nphi+1,1])+1) @ np.cos([theta])
         # Get 3D plot
-        v0 = np.vstack([X.flatten(), Y.flatten(), Z.flatten()]).transpose()
-        R = np.zeros([len(v0),], dtype=float)
+        v0 = np.vstack([self.X.flatten(), self.Y.flatten(), self.Z.flatten()]).transpose()
+        self.R = np.zeros([len(v0),], dtype=float)
         if 'shear' in property or 'poisson' in property:
             v1 = np.zeros([len(v0), nchi+1, 3], dtype=float)
             chi = np.linspace(0, 2*np.pi, nchi+1)
@@ -637,52 +559,53 @@ class Tensor3D():
             v1 = None; chi = None
 
         if property == 'young':
-            R = young(self._Scart, v0, 3)
+            self.R = young(self._Scart, v0, 3)
         elif property == 'comp':
-            R = comp(self._Scart, v0, 3)
+            self.R = comp(self._Scart, v0, 3)
         elif property == 'shear avg':
-            R = np.average(shear(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.average(shear(self._Scart, v0, v1, 3), axis=1)
         elif property == 'shear min':
-            R = np.min(shear(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.min(shear(self._Scart, v0, v1, 3), axis=1)
         elif property == 'shear max':
-            R = np.max(shear(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.max(shear(self._Scart, v0, v1, 3), axis=1)
         elif property == 'poisson avg':
-            R = np.average(poisson(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.average(poisson(self._Scart, v0, v1, 3), axis=1)
         elif property == 'poisson min':
-            R = np.min(poisson(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.min(poisson(self._Scart, v0, v1, 3), axis=1)
         elif property == 'poisson max':
-            R = np.max(poisson(self._Scart, v0, v1, 3), axis=1)
+            self.R = np.max(poisson(self._Scart, v0, v1, 3), axis=1)
 
         del v0, v1, phi, theta, chi # save memory
-        R = np.reshape(R, X.shape)
+        self.R = np.reshape(self.R, self.X.shape)
         if scale_radius == True:
-            X = R * X
-            Y = R * Y
-            Z = R * Z
+            self.X = self.R * self.X
+            self.Y = self.R * self.Y
+            self.Z = self.R * self.Z
+        self.scale_radius = scale_radius
 
         # Get 1D plot
         if np.all(u!=None):
             if isinstance(u, str):
                 if u.lower() == 'max':
-                    irow = np.argmax(R)//np.shape(R)[1]
-                    icol = np.argmax(R)%np.shape(R)[1]
+                    irow = np.argmax(self.R)//np.shape(self.R)[1]
+                    icol = np.argmax(self.R)%np.shape(self.R)[1]
                     uplt = np.array([
-                        X[irow, icol], Y[irow, icol], Z[irow, icol],
+                        self.X[irow, icol], self.Y[irow, icol], self.Z[irow, icol],
                     ], dtype=float)
                 elif u.lower() == 'min':
-                    irow = np.argmin(R)//np.shape(R)[1]
-                    icol = np.argmin(R)%np.shape(R)[1]
+                    irow = np.argmin(self.R)//np.shape(self.R)[1]
+                    icol = np.argmin(self.R)%np.shape(self.R)[1]
                     uplt = np.array([
-                        X[irow, icol], Y[irow, icol], Z[irow, icol],
+                        self.X[irow, icol], self.Y[irow, icol], self.Z[irow, icol],
                     ], dtype=float)
                 elif u.lower() == 'bothends':
-                    irow1 = np.argmax(R)//np.shape(R)[1]
-                    icol1 = np.argmax(R)%np.shape(R)[1]
-                    irow2 = np.argmin(R)//np.shape(R)[1]
-                    icol2 = np.argmin(R)%np.shape(R)[1]
+                    irow1 = np.argmin(self.R)//np.shape(self.R)[1]
+                    icol1 = np.argmin(self.R)%np.shape(self.R)[1]
+                    irow2 = np.argmax(self.R)//np.shape(self.R)[1]
+                    icol2 = np.argmax(self.R)%np.shape(self.R)[1]
                     uplt = np.array([
-                        [X[irow1, icol1], Y[irow1, icol1], Z[irow1, icol1]],
-                        [X[irow2, icol2], Y[irow2, icol2], Z[irow2, icol2]],
+                        [self.X[irow1, icol1], self.Y[irow1, icol1], self.Z[irow1, icol1]],
+                        [self.X[irow2, icol2], self.Y[irow2, icol2], self.Z[irow2, icol2]],
                     ], dtype=float)
                 else:
                     raise ValueError("Unknown u value: '{}'".format(u))
@@ -733,23 +656,39 @@ class Tensor3D():
         else:
             uplt = None; utext=[]
 
+        self.u = uplt
+        self.utext = utext
+
         # Get lattice plot
         if plot_lattice == False:
-            platt = None
+            self.lattice_plot = None
         else:
-            platt = self.lattice.matrix
+            self.lattice_plot = self.lattice.matrix
+
+        # set title
+        if np.all(title!=None):
+            if title.lower() == 'default':
+                if 'comp' in property or 'poisson' in property:
+                    title = property
+                else:
+                    title = '{} (GPa)'.format(property)
 
         # Select plot lib
         if np.all(plot_lib!=None):
             if plot_lib.lower() == 'matplotlib':
-                fig = _plot3D_mplib(R, X, Y, Z, scale_radius, uplt, utext, platt,
-                                    range_cbar, range_x, range_y, range_z, **kwargs)
+                fig = _plot3D_mplib(self, range_cbar, range_x, range_y, range_z,
+                                    colormap, figsize, fig=None, ax_index=None,
+                                    Rmax=None, **kwargs)
+                if np.all(title!=None):
+                    fig.axes[0].set_title(title)
             else:
-                fig = _plot3D_plotly(R, X, Y, Z, scale_radius, uplt, utext, platt,
-                                     range_cbar, range_x, range_y, range_z, **kwargs)
+                fig = _plot3D_plotly(self, range_cbar, range_x, range_y, range_z,
+                                     colormap, figsize, **kwargs)
+                if np.all(title!=None):
+                    fig.update_layout(title=title)
             return fig
         else: # Developer settings. return all the variables required by matplotlib.
-            return R, X, Y, Z, scale_radius, uplt, utext, platt
+            return self
 
     def transform(self, new_lattice):
         """
@@ -914,9 +853,7 @@ class Tensor2D():
         if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
-        u = np.array(u, dtype=float)
-        if len(np.shape(u)) == 1:
-            u = np.array([u])
+        u = np.array(u, dtype=float, ndmin=2)
         u3d = np.hstack([u[:, 0:2], [[0] for i in range(len(u))]])
 
         if use_cartesian != True:
@@ -980,12 +917,9 @@ class Tensor2D():
         if use_cartesian != True and np.all(self.lattice==None):
             raise Exception('Lattice matrix not available.')
 
-        u = np.array(u, dtype=float)
-        v = np.array(v, dtype=float)
-        if len(np.shape(u)) == 1:
-            u = np.array([u])
-            v = np.array([v])
-        if np.shape(u)[0] != np.shape(v)[0]:
+        u = np.array(u, dtype=float, ndmin=2)
+        v = np.array(v, dtype=float, ndmin=2)
+        if u.shape[0] != v.shape[0]:
             raise ValueError("Inconsistent length of u and v.")
         u3d = np.hstack([u[:, 0:2], [[0] for i in range(len(u))]])
         v3d = np.hstack([v[:, 0:2], [[0] for i in range(len(v))]])
@@ -1018,42 +952,63 @@ class Tensor2D():
             e = e[:, 0]
         return e
 
-    def plot_2D(self, property, ntheta=90, u=None, utext=None, use_cartesian=True,
-                add_title=True, plot_lattice=True, return_data=False):
+    def plot_2D(self, property, ntheta=90, u=None, utext=None,
+                use_cartesian=True, plot_lattice=True, loop_color=None,
+                loop_linestyle=None, loop_linewidth=None, layout=None,
+                figsize=[6.4, 4.8], get_data=False, **kwargs):
         """
         Plot 2D crystal elastic properties of the system.
-
-        .. note::
-
-            To keep consistency with ``Tensor3D``, this method only plots a
-            single pole chart. To plot multiple properties of the same system,
-            use ``CRYSTALpytools.plot.plot_elastics_2D``.
 
         Options:
 
         * "young": Young's modulus in GPa.
         * "comp": Linear compressibility.
-        * "shear": Shear modulus between 2 vectors in the plane, in GPa.
-        * "poisson": Poisson ratio between 2 vectors in the plane.
+        * "shear": In-plane shear modulus between 2 vectors in the plane, in GPa.
+        * "poisson": In-plane Poisson ratio between 2 vectors in the plane.
+
+        This method can be used for multi-property plots. Subplot titles are
+        added automatically. The layout of subplots is, by default, 1\*nProp.
+
+        .. note::
+
+            ``u`` is defined by 2D vectors.
 
         Args:
-            property (str): Property to compute. See options above.
-            ntheta (int): Resolution of polar angle :math:`\\theta` on plane,
+            property (str|list): Property(ies) to compute. See options above.
+            plane (numpy.ndarray): 3\*1 or nplane\*3 array of planes.
+            ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane,
                 in radian :math:`[0, 2\\pi)`.
+            nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
+                :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
+            plane_definition (str): The method used to define the plane. See
+                options above.
             u (numpy.ndarray): 2\*1 or nu\*2 array of vectors to be added into
-                the figure. A line segment to the limit of axis is plotted to
-                indicate the vector.
+                the figure. A line segment with doubled radius is plotted to
+                indicate the vector. Or 'max' / 'min' / 'bothends', plot
+                vectors corresponding to the max and min of elastic properties.
+                For 'bothends', min first.
             utext (list[str] | str): A string or a list of string. Used to mark
-                The vector. If ``None``, the input ``u`` and the corresponding
-                value is annotated. If 'value', the value is annotated.
+                The vector. If ``None`` or 'value', the value is annotated.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
-            add_title (bool): Add title to subplot. Only entries of ``plane``
-                can be used.
             plot_lattice (bool): Draw lattice base vectors to indicate
                 orientation of the plane.
-            return_data (bool): *Developers Only*: Return to data instead of
-                plots. Called by ``CRYSTALpytools.plot.plot_elastics_2D`` only.
+            loop_color (str|list): Color of 2D loops. If only one string is
+                given, apply it to all loops. 'None' for default values
+                (matplotlib Tableau Palette).
+            loop_linestyle (str|list): Linestyle of 2D loops. If only one
+                string is given, apply it to all plots. 'None' for default
+                values ('-').
+            loop_linewidth (str|list): Linewidth of band structure. If only one
+                number is given, apply it to all plots. For the 'multi' mode,
+                1\*nSystem list of linewidth numbers. 'None' for default values
+                (1.0).
+            layout (list|tuple): 2\*1 list. The layout of subplots. The first
+                element is nrows, the second is ncolumns. By default, 1\*nProp.
+            figsize (list): The figure size specified as \[width, height\].
+            get_data (bool): *Developer only* Return data or figure.
+            \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
+                the loops. Applied to all the loops.
 
         Returns:
             fig (Figure): Matplotlib ``Figure`` object.
@@ -1064,120 +1019,78 @@ class Tensor2D():
 
         # sanity check
         property_list = ['young', 'comp', 'shear', 'poisson']
-        property = property.lower()
-        if property not in property_list:
-            raise ValueError("Unknown property input: '{}'".format(property))
+        self.property = np.array(property, ndmin=1)
+        nprop = len(self.property)
+        for i in range(nprop):
+            if self.property[i].lower() not in property_list:
+                raise ValueError("Unknown property input: '{}'".format(self.property[i]))
+            self.property[i] = self.property[i].lower()
 
         if np.all(self.lattice==None):
             if use_cartesian != True or plot_lattice == True:
                 raise Exception('Lattice matrix not available.')
 
-
-        r = np.zeros([ntheta+1, ], dtype=float)
+        # get properties
+        self.r = np.zeros([nprop, 1, ntheta+1], dtype=float) # to be commensurate with 3D cases
+        chi = np.linspace(0, 2*np.pi, ntheta+1) # pole angle is actually chi.
+        self.chi = chi
         v0 = np.array([0, 0, 1], dtype=float)
-        v1 = np.zeros([ntheta+1, 2], dtype=float)
-        # get pole angles and 2D vectors. use v1
         theta = 0.
         phi = 0.
-        chi = np.linspace(0, 2*np.pi, ntheta+1) # pole angle is actually chi.
-        v1 = np.vstack([
-            np.cos(phi) * np.cos(theta) * np.cos(chi) - np.sin(phi) * np.sin(chi),
-            np.sin(phi) * np.cos(theta) * np.cos(chi) + np.cos(phi) * np.sin(chi)
-        ]).transpose()
+        for ip, p in enumerate(self.property):
+            # get pole angles and 2D vectors. use v1
+            v1 = np.vstack([
+                np.cos(phi) * np.cos(theta) * np.cos(chi) - np.sin(phi) * np.sin(chi),
+                np.sin(phi) * np.cos(theta) * np.cos(chi) + np.cos(phi) * np.sin(chi)
+            ]).transpose()
+            # get pole angles and 2D vectors. use v1, v2
+            if p == 'shear' or p == 'poisson':
+                # v2 is just an in-plane norm of v1
+                v2 = np.zeros([ntheta+1, 1, 2], dtype=float) # another chi.
+                for i in range(ntheta+1):
+                    v2[i, 0, :] = np.cross([v1[i, 0], v1[i, 1], 0],
+                                           [0, 0, 1])[0:2]
+                    v2[i, 0, :] = v2[i, 0, :] / np.linalg.norm(v2[i, 0, :])
+            # compute
+            if p == 'young':
+                self.r[ip, 0, :] = young(self._Scart, v1, 2)
+            elif p == 'comp':
+                self.r[ip, 0, :] = comp(self._Scart, v1, 2)
+            elif p == 'shear':
+                self.r[ip, 0, :] = shear(self._Scart, v1, v2, 2)[:, 0]
+            elif p == 'poisson':
+                self.r[ip, 0, :] = poisson(self._Scart, v1, v2, 2)[:, 0]
 
-        # get pole angles and 2D vectors. use v1, v2
-        if property == 'shear' or property == 'poisson':
-            v2 = np.zeros([ntheta+1, 1, 2], dtype=float) # another chi.
-            for i in range(ntheta+1):
-                v2[i, 0, :] = np.cross([v1[i, 0], v1[i, 1], 0],
-                                       [0, 0, 1])[0:2]
-                v2[i, 0, :] = v2[i, 0, :] / np.linalg.norm(v2[i, 0, :])
-
-        # compute
-        if property == 'young':
-            r = young(self._Scart, v1, 2)
-        elif property == 'comp':
-            r = comp(self._Scart, v1, 2)
-        elif property == 'shear':
-            r = shear(self._Scart, v1, v2, 2)
-        elif property == 'poisson':
-            r = poisson(self._Scart, v1, v2, 2)
-
-        # Prepare lattice
+        # Plot
         if plot_lattice == False:
-            platt = None
+            self.lattice_plot = None
         else:
-            platt = self.lattice.matrix
+            self.lattice_plot = self.lattice.matrix
 
-        # Prepare 1D plot. U must be defined as 3D vectors
         if np.all(u!=None):
-            if not isinstance(u, str):
-                uplt = np.array(u, dtype=float) # cartesian u, normalised
-                if len(np.shape(uplt)) == 1:
-                    uplt = np.array([uplt])
-                uplt = np.hstack([uplt[:, 0:2], [[0] for i in range(len(uplt))]])
-                if use_cartesian != True:
-                    for i in range(len(uplt)):
-                        uplt[i, :] = self.lattice.get_cartesian_coords(uplt[i])
-                        uplt[i, :] = uplt[i, :] / np.linalg.norm(uplt[i, :])
-                else:
-                    for i in range(len(uplt)):
-                        uplt[i, :] = uplt[i, :] / np.linalg.norm(uplt[i, :])
+            if isinstance(u, str):
+                ureal = u
             else:
-                use_cartesian = True
-                if u.lower() == 'max':
-                    uplt = np.zeros([1, 3])
-                    uplt[0, 0:2] = v1[np.argmax(r), :] / np.linalg.norm(v1[np.argmax(r), :])
-                elif u.lower() == 'min':
-                    uplt = np.zeros([1, 3])
-                    uplt[0, 0:2] = v1[np.argmin(r), :] / np.linalg.norm(v1[np.argmin(r), :])
-                elif u.lower() == 'bothends':
-                    uplt = np.zeros([2, 3])
-                    uplt[0, 0:2] = v1[np.argmax(r), :] / np.linalg.norm(v1[np.argmax(r), :])
-                    uplt[1, 0:2] = v1[np.argmin(r), :] / np.linalg.norm(v1[np.argmin(r), :])
-                else:
-                    raise ValueError("Unknown u value: '{}'.".format(u))
-
-            ru = self.get_1D(property, uplt[:,0:2], use_cartesian=True)
-            if len(uplt) == 1:
-                ru = [ru]
-                u = [u]
-            if np.all(utext!=None):
-                if isinstance(utext, str):
-                    if utext.lower() == 'value':
-                        utextplt = ['{:.2f}'.format(i) for i in ru]
-                    else:
-                        utextplt = [utext for i in range(len(ru))]
-                else:
-                    utextplt = utext
-                    if len(utext) != np.shape(uplt)[0]:
-                        warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
-                                      stacklevel=2)
-                        utext = None
-
-            if np.all(utext==None):
-                if not isinstance(u, str): # max min bothends
-                    u = np.array(u, dtype=float)
-                else:
-                    u = uplt
-                utextplt = ['[{:<4.1f}{:>4.1f}]  {:.2f}'.format(u[i, 0], u[i, 1], ru[i])
-                            for i in range(len(ru))]
+                u = np.array(u, ndmin=2)
+                ureal = [[i[0], i[1], 0.] for i in u]
         else:
-            uplt=None; utextplt=[]
+            ureal = u
 
-        # plot figures
-        if add_title == True:
-            title = property
+        self.norm = np.array([[0, 0, 1]], dtype=float)
+        if get_data == True:
+            return self
         else:
-            title = ''
-
-        if return_data == False:
-            # Plot
-            fig, ax = plt.subplots(nrows=1, ncols=1, subplot_kw={'projection' : 'polar'}, layout='tight')
-            ax = _plot2D_single(ax, chi, r, v0, 'tab:blue', title, np.max(r), uplt, utextplt, platt)
+            fig = _plot2D(
+                self, None, use_cartesian, ureal, utext, None, loop_color,
+                loop_linestyle, loop_linewidth, layout, figsize, None, None,
+                **kwargs
+            )
+            # set title
+            for ip, p in enumerate(self.property):
+                if 'shear' in p or 'young' in p: ptitle = '{} (GPa)'.format(p)
+                else: ptitle = p
+                fig.axes[ip].set_title(ptitle, y=1.05)
             return fig
-        else:
-            return chi, r, title, uplt, utextplt, platt
 
     def transform(self, new_lattice):
         """
@@ -1461,28 +1374,25 @@ def cart2voigt(C):
 # ----
 # Tensor plot functions. Private.
 # ----
-def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
-                  range_x, range_y, range_z, Rlatt=None, **kwargs):
+def _plot3D_mplib(tensor, range_cbar, range_x, range_y, range_z, colormap,
+                  figsize, fig, ax_index, Rmax, **kwargs):
     """
     Get 3D plot using matplotlib. Private.
 
     Args:
-        R (numpy.ndarray): Computed elastic proeprties.
-        X (numpy.ndarray): X coordinate mesh.
-        Y (numpy.ndarray): Y coordinate mesh.
-        Z (numpy.ndarray): Z coordinate mesh.
-        scale_radius (bool): Whether to scale the spherical radius by R.
-        u (numpy.ndarray): If not None, plot properties along specified vectors.
-            nu\*3 array in the Cartesian coordinate.
-        utext (list): nvu\*1 list of strings. Legends of vectors.
-        lattice (numpy.ndarray): Lattice matrix. If not None, plot lattice
-            around the 3D plot. The length of lattice vectors are arbitrary and
-            no intersection with plot is ensured.
+        tensor3d (Tensor3D): 3D tensor object modified by the ``plot_3D``
+            method. Must has 'R', 'X', 'Y', 'Z', 'scale_radius', 'u', 'utext'
+            and 'lattice_plot' attributes.
         range_cbar, range_x, range_y, range_z (list[float,float]): *Not
             suggested* Explicitly specifying the ranges of colorbar, x, y and z
             axes.
-        Rlatt (numpy.ndarray): *Developers Only* Auxiliary data set to plot
-            lattices of the same scale.
+        colormap (str): Colormap name.
+        figsize (list): Figure size in inches.
+        fig (Figure): *Developer Only*, matplotlib Figure class.
+        ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
+        Rmax (numpy.ndarray): *Developers Only* Auxiliary data to plot lattices
+            of the same scale. The length of lattice vectors are arbitrary and
+            no intersection with plot is ensured.
         \*\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
             position keywords are suggested.
 
@@ -1490,57 +1400,62 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
         fig (Figure): Matplotlib figure object
     """
     import matplotlib.pyplot as plt
-    from matplotlib import animation, cm, colors
+    from matplotlib import colormaps, colors, cm
     from mpl_toolkits.mplot3d import Axes3D, axes3d
 
-    fig = plt.figure(figsize=[5.5, 5], layout='tight')
-    grid = plt.GridSpec(1, 12) # 5 for plot, 0.5 for colorbar, 0.5 for gap
-    ax = [fig.add_subplot(grid[0]), fig.add_subplot(grid[2:], projection='3d')]
+    if np.all(fig==None):
+        fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight',
+                               subplot_kw={'projection' : '3d'})
+    else:
+        if np.all(ax_index==None):
+            raise ValueError('For subplots, the axes index must be set.')
+        ax = fig.axes[int(ax_index)]
 
     if np.all(range_cbar==None):
-        rmin = np.min(R)
-        rmax = np.max(R)
+        rmin = np.min(tensor.R)
+        rmax = np.max(tensor.R)
     else:
         rmin = np.min(range_cbar[0])
         rmax = np.max(range_cbar[1])
     norm = colors.Normalize(vmin=rmin, vmax=rmax, clip=False)
 
-    ax[1].plot_surface(
-        X,
-        Y,
-        Z,
+    ax.plot_surface(
+        tensor.X,
+        tensor.Y,
+        tensor.Z,
         rstride=1,
         cstride=1,
-        facecolors=cm.jet(norm(R)),
+        facecolors=colormaps[colormap](norm(tensor.R)),
         antialiased=True,
         alpha=0.75,
     )
 
-    m = cm.ScalarMappable(cmap=cm.jet, norm=norm)
+    m = cm.ScalarMappable(cmap=colormaps[colormap], norm=norm)
     m.set_array(np.linspace(rmin, rmax, 100))
-    colorbar = plt.colorbar(m, cax=ax[0], shrink=0.5, location="left")
+    colorbar = fig.colorbar(m, ax=ax, location="right", shrink=0.45, pad=0.1)
     # colorbar.set_ticks(np.linspace(rmin, rmax, 5))
 
     # Plot 1D vectors
+    u = tensor.u; utext = tensor.utext
     if np.all(u!=None):
         for v, text in zip(u, utext):
-            ax[1].plot([0, v[0]], [0, v[1]], [0, v[2]], color='k', linewidth=1)
-            ax[1].text(v[0], v[1], v[2], text)
+            ax.plot([0, v[0]], [0, v[1]], [0, v[2]], color='k', linewidth=1)
+            ax.text(v[0], v[1], v[2], text)
     else:
         u = np.zeros([1, 3])
 
     # Plot lattice
-    if np.all(lattice!=None):
-        if scale_radius == True:
-            if np.all(Rlatt==None):
-                r = np.max(np.abs(R))
+    if np.all(tensor.lattice_plot!=None):
+        if tensor.scale_radius == True:
+            if np.all(Rmax==None):
+                r = np.max(np.abs(tensor.R))
             else:
-                r = np.max(np.abs(Rlatt))
+                r = Rmax
         else:
             r = 1
-        lens = [np.linalg.norm(i) for i in lattice]
+        lens = [np.linalg.norm(i) for i in tensor.lattice_plot]
         shrink = 2*r / np.min(lens)
-        plot_latt = lattice * shrink
+        plot_latt = tensor.lattice_plot * shrink
         points = np.array([[-0.5, -0.5, -0.5], [0.5, -0.5, -0.5],
                            [0.5, 0.5, -0.5], [-0.5, 0.5, -0.5],
                            [-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5],
@@ -1550,20 +1465,20 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
                            [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
                            [-0.5, 0.5, 0.5], [-0.5, 0.5, -0.5]])
         points = points @ plot_latt
-        ax[1].plot(points[:, 0], points[:, 1], points[:, 2], color='tab:gray', linewidth=1)
+        ax.plot(points[:, 0], points[:, 1], points[:, 2], color='tab:gray', linewidth=1)
     else:
         points = np.zeros([1,3])
 
     # Make the planes transparent
-    ax[1].xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax[1].yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax[1].zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
     # Make the grid lines transparent
     # ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     # ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
     # Fixing limits
-    if scale_radius == True:
+    if tensor.scale_radius == True:
         xmx = np.max(np.abs(np.concatenate([points[:, 0], [rmax], u[:, 0]])))
         ymx = np.max(np.abs(np.concatenate([points[:, 1], [rmax], u[:, 1]])))
         zmx = np.max(np.abs(np.concatenate([points[:, 2], [rmax], u[:, 2]])))
@@ -1578,42 +1493,36 @@ def _plot3D_mplib(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
     if np.all(range_z==None):
         range_z = [-zmx, zmx]
 
-    ax[1].set_xlim(np.min(range_x), np.max(range_x))
-    ax[1].set_ylim(np.min(range_y), np.max(range_y))
-    ax[1].set_zlim3d(np.min(range_z), np.max(range_z))
+    ax.set_xlim(np.min(range_x), np.max(range_x))
+    ax.set_ylim(np.min(range_y), np.max(range_y))
+    ax.set_zlim3d(np.min(range_z), np.max(range_z))
 
-    ax[1].locator_params(nbins=5)  # tight=True,
-    ax[1].set_xlabel("X")
-    ax[1].set_ylabel("Y")
-    ax[1].set_zlabel("Z")
+    ax.locator_params(nbins=5)  # tight=True,
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
     # Fix aspect ratio
-    ax[1].set_aspect('equal')
+    ax.set_aspect('equal')
     if len(kwargs.keys()) > 0:
-        ax[1].view_init(**kwargs)
+        ax.view_init(**kwargs)
 
     return fig
 
 
-def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
-                   range_x, range_y, range_z, **kwargs):
+def _plot3D_plotly(tensor, range_cbar, range_x, range_y, range_z, colormap,
+                   figsize, **kwargs):
     """
     Get 3D plot using plotly. Private.
 
     Args:
-        R (numpy.ndarray): Computed elastic proeprties.
-        X (numpy.ndarray): X coordinate mesh.
-        Y (numpy.ndarray): Y coordinate mesh.
-        Z (numpy.ndarray): Z coordinate mesh.
-        scale_radius (bool): Whether to scale the spherical radius by R.
-        u (numpy.ndarray): If not None, plot properties along specified vectors.
-            nu\*3 array in the Cartesian coordinate.
-        utext (list): nvu\*1 list of strings. Legends of vectors.
-        lattice (numpy.ndarray): Lattice matrix. If not None, plot lattice
-            around the 3D plot. The length of lattice vectors are arbitrary and
-            no intersection with plot is ensured.
+        tensor3d (Tensor3D): 3D tensor object modified by the ``plot_3D``
+            method. Must has 'R', 'X', 'Y', 'Z', 'scale_radius', 'u', 'utext'
+            and 'lattice_plot' attributes.
         range_cbar, range_x, range_y, range_z (list[float,float]): *Not
             suggested* Explicitly specifying the ranges of colorbar, x, y and z
             axes.
+        colormap (str): Colormap name.
+        figsize (list): Figure size in inches. For plotly, 300 ppi is assumed.
         \*\*kwargs: Parameters passed to ``fig.update_layout()`` Only camera
             position keywords are suggested.
 
@@ -1623,20 +1532,21 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
     import plotly.graph_objects as go
 
     if np.all(range_cbar==None):
-        rmin = np.min(R)
-        rmax = np.max(R)
+        rmin = np.min(tensor.R)
+        rmax = np.max(tensor.R)
     else:
         rmin = np.min(range_cbar[0])
         rmax = np.max(range_cbar[1])
 
-    surface = go.Surface(x=X, y=Y, z=Z, surfacecolor=R, colorscale='Jet',
-                         cmin=rmin,cmax=rmax)
+    surface = go.Surface(x=tensor.X, y=tensor.Y, z=tensor.Z, surfacecolor=tensor.R,
+                         colorscale=colormap, cmin=rmin,cmax=rmax)
     layout = go.Layout(
         title=''
     )
     fig = go.Figure(data=[surface], layout=layout)
 
     # Plot 1D vectors
+    u = tensor.u; utext = tensor.utext
     if np.all(u!=None):
         for v, vlabel in zip(u, utext):
             fig.add_trace(
@@ -1656,14 +1566,14 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
         u = np.zeros([1, 3])
 
     # Plot lattice
-    if np.all(lattice!=None):
-        if scale_radius == True:
-            r = np.max(np.abs(R))
+    if np.all(tensor.lattice_plot!=None):
+        if tensor.scale_radius == True:
+            r = np.max(np.abs(tensor.R))
         else:
             r = 1
-        lens = [np.linalg.norm(i) for i in lattice]
+        lens = [np.linalg.norm(i) for i in tensor.lattice_plot]
         shrink = 2*r / np.min(lens)
-        plot_latt = lattice * shrink
+        plot_latt = tensor.lattice_plot * shrink
         points = np.array([[-0.5, -0.5, -0.5], [0.5, -0.5, -0.5],
                            [0.5, 0.5, -0.5], [-0.5, 0.5, -0.5],
                            [-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5],
@@ -1688,7 +1598,7 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
         points = np.zeros([1,3])
 
     # Fixing limits. Fix text display issue
-    if scale_radius == True:
+    if tensor.scale_radius == True:
         xmx = np.max(np.abs(np.concatenate([points[:, 0], [rmax], u[:, 0]])))
         ymx = np.max(np.abs(np.concatenate([points[:, 1], [rmax], u[:, 1]])))
         zmx = np.max(np.abs(np.concatenate([points[:, 2], [rmax], u[:, 2]])))
@@ -1704,8 +1614,8 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
         range_z = [-zmx, zmx]
 
     fig.update_layout(
-        width=720,
-        height=720,
+        width=int(figsize[0]*300),
+        height=int(figsize[1]*300),
         scene=dict(
             xaxis=dict(
                 showbackground=True,
@@ -1738,87 +1648,263 @@ def _plot3D_plotly(R, X, Y, Z, scale_radius, u, utext, lattice, range_cbar,
     return fig
 
 
-def _plot2D_single(ax, theta, r, norm, color, title, rmax, u, utext, lattice):
+def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
+            loop_linestyle, loop_linewidth, layout, figsize, fig, ax_index,
+            **kwargs):
     """
-    Get a single 2D plot using matplotlib. Private.
+    Get 2D plots of properties with matplotlib. Private.
 
     Args:
-        ax (Axes): Matplotlib axes object.
-        theta (numpy.ndarray): ntheta\*1 polar angles.
-        r (numpy.ndarray): ntheta\*1 values.
-        norm (numpy.ndarray): 3\*1 array of normalised Cartesian surface norm
-            vector.
-        color (str): Color of the loop.
-        title (str): Subplot title.
-        rmax (float): Maximum radius. 
-        u (numpy.ndarray): If not None, plot properties along specified vectors.
-            nu\*3 **normalized** array in the Cartesian coordinate.
-        utext (list): nvu\*1 list of strings. Legends of vectors.
-        lattice (numpy.ndarray): Lattice matrix. If not None, indicate the
-            orientations of lattice base vectors in the 2D plot.
+        tensor (Tensor3D|Tensor2D): Tensor classes with data, attribute 'r',
+            shape: nProp\*nPlane\*nTheta. 'norm', norm vectors, shape nPlane\*3.
+            'theta', pole angle. 'lattice', lattice.
+        rmax (list|None): 1\*nProp list. Explicitly set the plot radius of
+            every property.
+        use_cartesian (bool): Vector is defined as cartesian or fractional
+            coordinates. (*Only when lattice information is available*.)
+        u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into the
+            figure. A line segment with doubled radius is plotted to indicate
+            the vector. Or 'max' / 'min' / 'bothends', plot vectors
+            corresponding to the max and min of elastic properties. For
+            'bothends', min first.
+        utext (list[str] | str): A string or a list of string. Used to mark the
+            vector. If ``None`` or 'value', the value is annotated.
+        loop_label (str|list): Label of 2D loops. Used only for multi-system
+            plots.
+        loop_color (str|list): Color of 2D loops. If only one string is given,
+            apply it to all loops. 'None' for default values (matplotlib
+            Tableau Palette).
+        loop_linestyle (str|list): Linestyle of 2D loops. If only one string is
+            given, apply it to all plots. 'None' for default values ('-').
+        loop_linewidth (str|list): Linewidth of band structure. If only one
+            number is given, apply it to all plots. For the 'multi' mode,
+            1\*nSystem list of linewidth numbers. 'None' for default values (1.0).
+        layout (list|tuple): 2\*1 list. The layout of subplots. The first element
+            is nrows, the second is ncolumns. By default, 1\*nProp or
+            nProp\*nPlane.
+        figsize (list): The figure size specified as \[width, height\].
+        fig (Figure): *Developer Only*, matplotlib Figure class.
+        ax_index (list[int]): *Developer Only*, 1D list of indices of axes in
+            ``fig.axes``.
+        \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
+            loops. Applied to all the loops.
 
     Returns:
-        ax (Axes): Matplotlib axes object
+        fig (Figure): Matplotlib figure object
     """
-    ax.plot(theta, r, color=color, linewidth=2)
+    import warnings
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from CRYSTALpytools.base.plotbase import _plot_label_preprocess
+
+    nprop = tensor.r.shape[0]
+    nplane = tensor.r.shape[1]
+    ntheta = tensor.r.shape[2]
+
+    # plot radius
+    if np.all(rmax!=None):
+        rmax = np.array(rmax, ndmin=1, dtype=float)
+        if len(rmax) != nprop:
+            warnings.warn('The specified plot radius must have the same length as plot properties.',
+                          stacklevel=2)
+            rmax = None
     if np.all(rmax==None):
-        rmax = np.max(r)
+        rmax = []
+        for value in tensor.r: rmax.append(np.max(value))
+        rmax = np.array(rmax, dtype=float)
 
-    # plot lattice vectors
-    theta = np.arccos(norm[2])
-    phi = np.arctan2(norm[1], norm[0])
-    if np.all(lattice!=None):
-        a = lattice[0, :] / np.linalg.norm(lattice[0, :])
-        b = lattice[1, :] / np.linalg.norm(lattice[1, :])
-        c = lattice[2, :] / np.linalg.norm(lattice[2, :])
-        rmarker = rmax/20
-        for v, vlabel in zip([a,b,c], ['a','b','c']):
-            if np.abs(np.abs(np.dot(v, norm)) - 1) < 1e-6: # parallel
-                if np.linalg.norm(v+norm) > 1e-6: # same direction, dot
-                    ax.scatter(0, 0, c='tab:gray', marker='o')
-                else: # opposite direction, cross
-                    ax.scatter(0, 0, c='tab:gray', marker='x')
-                ax.text(0, rmarker, vlabel, color='tab:gray',
-                        fontstyle='italic', ha='center', va='center')
+    # plot layout
+    if np.all(layout!=None):
+        if layout[0] * layout[1] < nprop * nplane:
+            warnings.warn('Inconsistent plane number and figure layout. Default layout is used.',
+                          stacklevel=2)
+            layout = None
+        nstyle = layout[1] # nstyle is ncols
+    if np.all(layout==None):
+        if nplane == 1:
+            nstyle = nprop
+            layout = [1, nstyle]
+        else:
+            nstyle = nplane
+            layout = [nprop, nstyle]
+
+    if np.all(fig==None):
+        fig, ax = plt.subplots(nrows=layout[0], ncols=layout[1], figsize=figsize,
+                               subplot_kw={'projection' : 'polar'}, layout='tight')
+        ax_index = [i for i in range(len(fig.axes))]
+    else:
+        if np.all(ax_index==None):
+            raise ValueError("Indices of axes must be set for subplots.")
+        ax_index = np.array(ax_index, ndmin=1)
+
+    # plot styles
+    doss = np.zeros([nstyle, 1, 1]) # a dummy doss input
+    commands = _plot_label_preprocess(doss, loop_label, loop_color, loop_linestyle, loop_linewidth)
+    keywords = ['label', 'color', 'linestyle', 'linewidth']
+
+    # plot and deal with 1D vectors
+    for iax in ax_index:
+        ax = fig.axes[iax]
+        irow = iax // nstyle; icol = iax % nstyle
+        iprop = iax // nplane; iplane = iax % nplane
+        rplt = rmax[iprop]
+        theta = np.arccos(tensor.norm[iplane,2]) # polar angle of surface norm
+        phi = np.arctan2(tensor.norm[iplane,1], tensor.norm[iplane,0]) # azimuth angle of surface norm
+        # plot lattice vectors
+        if np.all(tensor.lattice_plot!=None):
+            a = tensor.lattice_plot[0, :] / np.linalg.norm(tensor.lattice_plot[0, :])
+            b = tensor.lattice_plot[1, :] / np.linalg.norm(tensor.lattice_plot[1, :])
+            c = tensor.lattice_plot[2, :] / np.linalg.norm(tensor.lattice_plot[2, :])
+            rmarker = rplt / 20
+            for v, vlabel in zip([a,b,c], ['a','b','c']):
+                if np.abs(np.abs(np.dot(v, tensor.norm[iplane])) - 1) < 1e-6: # parallel
+                    if np.linalg.norm(v+tensor.norm[iplane]) > 1e-6: # same direction, dot
+                        ax.scatter(0, 0, c='tab:gray', marker='o')
+                    else: # opposite direction, cross
+                        ax.scatter(0, 0, c='tab:gray', marker='x')
+                    ax.text(0, rmarker, vlabel, color='tab:gray',
+                            fontstyle='italic', ha='center', va='center')
+                else:
+                    # get the projection of base vector on plane
+                    proj = np.cross(tensor.norm[iplane], np.cross(v, tensor.norm[iplane]))
+                    proj = proj / np.linalg.norm(proj)
+                    cossin_chi = np.matmul(
+                        np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
+                                                [np.sin(phi)*np.cos(theta), np.cos(phi)]])),
+                        [proj[0], proj[1]]
+                    )
+                    chi = np.arctan2(cossin_chi[1], cossin_chi[0])
+                    ax.vlines(chi, 0, rplt, colors='tab:gray', linewidth=1.5)
+                    ax.text(chi, rplt+rmarker, vlabel, color='tab:gray',
+                            fontstyle='italic', ha='center', va='center')
+
+        # plot loop
+        for icmd in range(4):
+            if np.all(commands[icmd]==None): continue
+            kwargs[keywords[icmd]] = commands[icmd][icol][0]
+        ax.plot(tensor.chi, tensor.r[iprop, iplane], **kwargs)
+
+        # deal with 1D vectors and plot
+        if np.all(u!=None):
+            # get cartesian u vectors
+            if not isinstance(u, str):
+                utmp = np.array(u, dtype=float, ndmin=2) # cartesian u, normalised
+                if use_cartesian != True:
+                    for i in range(len(utmp)):
+                        utmp[i, :] = tensor.lattice.get_cartesian_coords(utmp[i, :])
+                # normalize
+                for i in range(len(utmp)):
+                    utmp[i, :] = utmp[i, :] / np.linalg.norm(utmp[i, :])
+
+                ## text
+                if np.all(utext!=None):
+                    utext = np.array(utext, ndmin=1)
+                    if len(utext)!=len(utmp) and len(utext)!=1:
+                        warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
+                                      stacklevel=2)
+                        utext = ['value' for i in range(len(utmp))]
+                    elif len(utext)==1 and isinstance(utext[0], str): # text or 'values'
+                        if utext[0].lower() == 'value':
+                            utext = ['value' for i in range(len(utmp))]
+                        else:
+                            utext = [utext[0] for i in range(len(utmp))]
+                else:
+                    utext = ['value' for i in range(len(utmp))]
+
+                # orthogonality
+                uplt = []; utextplt = []; ru = []
+                for iv, v in enumerate(utmp):
+                    if np.abs(np.dot(v, tensor.norm[iplane])) > 1e-6: # non-orthogonal
+                        continue
+                    uplt.append(v)
+                    # 2D system
+                    if tensor.compliance.shape[0] == 3:
+                        vreal = v[:2]
+                    else:
+                        vreal = v
+                    ## values
+                    if (tensor.property[iprop] == 'shear' or tensor.property[iprop] == 'poisson') \
+                    and tensor.compliance.shape[0] == 6: # 2D system only compute in-plane props
+                        ru.append(tensor.get_pair(
+                            tensor.property[iprop], vreal, nreal, use_cartesian=True
+                        ))
+                    else:
+                        ru.append(tensor.get_1D(
+                            tensor.property[iprop], vreal, use_cartesian=True
+                        ))
+                    if utext[iv] == 'value':
+                        utextplt.append('{:.2f}'.format(ru[-1]))
+                    else:
+                        utextplt.append(utext[iv])
+
+                uplt = np.array(uplt, dtype=float)
+
+                # convert u into polar angles
+                uchi = []
+                for v in uplt:
+                    cossin_chi = np.matmul(
+                        np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
+                                                [np.sin(phi)*np.cos(theta), np.cos(phi)]])),
+                        [v[0], v[1]]
+                    )
+                    uchi.append(np.arctan2(cossin_chi[1], cossin_chi[0]))
+            # text u
             else:
-                # get the projection of base vector on plane
-                proj = np.cross(norm, np.cross(v, norm))
-                proj = proj / np.linalg.norm(proj)
-                cossin_chi = np.matmul(
-                    np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
-                                            [np.sin(phi)*np.cos(theta), np.cos(phi)]])),
-                    [proj[0], proj[1]]
-                )
-                chi = np.arctan2(cossin_chi[1], cossin_chi[0])
-                ax.vlines(chi, 0, rmax, colors='tab:gray', linewidth=1.5)
-                ax.text(chi, rmax+rmarker, vlabel, color='tab:gray',
-                        fontstyle='italic', ha='center', va='center')
+                ithetamx = np.argmax(tensor.r[iprop, iplane])
+                ithetami = np.argmin(tensor.r[iprop, iplane])
+                if u.lower() == 'max':
+                    uchi = np.array([tensor.chi[ithetamx]])
+                    # u text
+                    if np.all(utext!=None):
+                        utextplt = np.array(utext, ndmin=1)
+                        if len(utextplt) != 1:
+                            warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
+                                           stacklevel=2)
+                            utextplt[0] = 'value'
+                        if utextplt[0].lower() == 'value':
+                            utextplt[0] = '{:.2f}'.format(tensor.r[iprop, iplane, ithetamx])
 
-    # plot 1D vectors
-    if np.all(u!=None):
-        for v, vlabel in zip(u, utext):
-            if np.abs(np.dot(v, norm)) > 1e-6: # non-orthogonal
-                continue
-            cossin_chi = np.matmul(
-                np.linalg.inv(np.array([[np.cos(phi)*np.cos(theta), -np.sin(phi)],
-                                        [np.sin(phi)*np.cos(theta), np.cos(phi)]])),
-                [v[0], v[1]]
-            )
-            chi = np.arctan2(cossin_chi[1], cossin_chi[0])
-            ax.vlines(chi, 0, rmax, colors='k', linewidth=2)
-            ax.text(chi, rmax*1.1, vlabel, color='k', ha='center', va='center')
+                elif u.lower() == 'min':
+                    uchi = np.array([tensor.chi[ithetami]])
+                    # u text
+                    if np.all(utext!=None):
+                        utextplt = np.array(utext, ndmin=1)
+                        if len(utextplt) != 1:
+                            warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
+                                           stacklevel=2)
+                            utextplt[0] = 'value'
+                        if utextplt[0].lower() == 'value':
+                            utextplt[0] = '{:.2f}'.format(tensor.r[iprop, iplane, ithetami])
 
-    ax.set_rmax(rmax)
-    ax.set_theta_zero_location('E')
-    ax.set_rlabel_position(0.0)
-    ax.grid(True)
-    ax.set_xticklabels([])
-    ax.set_yticks(np.round(np.linspace(0, rmax, 4), 2))
-    ax.tick_params(axis='y', labelrotation=-45)
-    ax.set_title(title, y=1.05)
-    return ax
+                elif u.lower() == 'bothends':
+                    uchi = np.array([tensor.chi[ithetami], tensor.chi[ithetammx]])
+                    # u text
+                    if np.all(utext!=None):
+                        utexpltt = np.array(utext, ndmin=1)
+                        if len(utextplt) != 2:
+                            warnings.warn('Length of vector annotations should be equal to length of vectors. Default annotations are used',
+                                           stacklevel=2)
+                            utextplt[0] = 'value'
+                            utextplt[1] = 'value'
+                        if utextplt[0].lower() == 'value':
+                            utextplt[0] = '{:.2f}'.format(tensor.r[iprop, iplane, ithetami])
+                        if utextplt[1].lower() == 'value':
+                            utextplt[1] = '{:.2f}'.format(tensor.r[iprop, iplane, ithetamx])
 
+                else:
+                    raise ValueError("Unknown u value: '{}'.".format(u))
 
+            # plot
+            for v, vlabel in zip(uchi, utextplt):
+                ax.vlines(v, 0, rplt, colors='k', linewidth=1)
+                ax.text(v, rplt*1.1, vlabel, color='k', ha='center', va='center')
 
-
-
+        # axis and title
+        ax.set_rmax(rplt)
+        ax.set_theta_zero_location('E')
+        ax.set_rlabel_position(0.0)
+        ax.grid(True)
+        ax.set_xticklabels([])
+        ax.set_yticks(np.round(np.linspace(0, rplt, 4), 2))
+        ax.tick_params(axis='y', labelrotation=-45)
+    return fig

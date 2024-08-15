@@ -240,6 +240,7 @@ class Crystal_output:
 
     def __init__(self, output_name=None):
         import re
+        import pandas as pd
 
         if np.all(output_name!=None):
             self.name = output_name
@@ -254,17 +255,15 @@ class Crystal_output:
                 raise FileNotFoundError('EXITING: a .out file needs to be specified')
 
             # Check the calculation terminated correctly
-            self.terminated = False
+            self.df = pd.DataFrame(self.data)
+            idx_end = self.df[self.df[0].str.contains(r'^ EEEEEEEEEE TERMINATION')].index
 
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ EEEEEEEEEE TERMINATION', line):
-                    self.terminated = True
-                    # This is the end of output
-                    self.eoo = len(self.data)-1-i
-                    break
-
-            if self.terminated == False:
+            if len(idx_end) == 0:
+                self.terminated = False
                 self.eoo = len(self.data)
+            else:
+                self.terminated = True
+                self.eoo = idx_end[0]
 
     @classmethod
     def read_file(cls, output_name):
@@ -317,43 +316,49 @@ class Crystal_output:
         Returns:
             self.dimensionality (int): Dimensionality of the system.
         """
-        import re
+        import pandas as pd
 
-        self.dimensionality = None
-        for line in self.data:
-            if re.match(r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM', line):
-                self.dimensionality = int(line.split()[9])
-                break
+        dimen_line = self.df[self.df[0].str.contains(
+            r'\sGEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM'
+        )].index
 
-        if np.all(self.dimensionality==None):
+        if len(dimen_line) == 0:
             raise Exception('Invalid file. Dimension information not found.')
 
+        ndimen = self.df[0][dimen_line].map(lambda x: x.strip().split()).tolist()
+        self.dimensionality = int(ndimen[0][9])
         return self.dimensionality
 
-    def get_symmops(self):
+    def get_symmops(self, initial=True):
         """
         Return the symmetry operators
+
+        Args:
+            initial (bool): *Optimization Only* Read symmetry operators of the
+                initial or the final geometry.
 
         Returns:
             self.symmops (numpy.ndarray): Symmetry operators
         """
-        import re
         import numpy as np
 
         self.n_symmops = 0
         self.symmops = np.array([])
 
         symmops = []
-        for i, line in enumerate(self.data):
-            if re.match(r'^ \*\*\*\*   \d+ SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS', line):
-                self.n_symmops = int(line.split()[1])
-                for j in range(0, self.n_symmops):
-                    symmops.append(self.data[i+3+j].split()[2:])
-                break
+        symmtitle = self.df[self.df[0].str.contains(
+            r'^ \*\*\*\*\s+[0-9]+\s*SYMMOPS \- TRANSLATORS IN FRACTIONAL UNITS')].index
+        if initial == True: titleidx = symmtitle[0]
+        else: titleidx = symmtitle[-1]
 
+        self.n_symmops = int(self.df[0][titleidx].strip().split()[1])
         if self.n_symmops > 0:
-            self.symmops = np.reshape(np.array(symmops, dtype=float), [self.n_symmops, 4, 3])
-
+            block = self.df[0].loc[titleidx+3:titleidx+3+self.n_symmops-1].map(
+                lambda x: x.strip().split()[2:]
+            ).tolist()
+            self.symmops = np.array(block, dtype=float).reshape([self.n_symmops, 4, 3])
+        else:
+            self.symmops = []
         return self.symmops
 
     def get_geometry(self, initial=True, write_gui=False,
@@ -381,50 +386,36 @@ class Crystal_output:
             self.geometry (CStructure | CMolecule): A modified pymatgen Structure
                 or molecule object.
         """
-        import os, re, warnings
+        import os, warnings
+        import pandas as pd
         import numpy as np
         from CRYSTALpytools.base.output import GeomBASE
         from CRYSTALpytools.convert import cry_pmg2gui
         from CRYSTALpytools.crystal_io import Crystal_gui
 
         # Get geometry
-        bg_line = -1
-        if initial == True:
-            for nline, line in enumerate(self.data[:self.eoo]):
-                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
-                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = nline - 4
-                    break
-        else:
-            for nline, line in enumerate(self.data[self.eoo::-1]):
-                # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
-                if re.match(r'^\s*ATOMS IN THE ASYMMETRIC UNIT', line):
-                    bg_line = len(self.data[:self.eoo]) - nline - 4
-                    break
-
-        if bg_line < 0:
+        # Use atom coords to read molecule geometries. Go 4 lines up for periodic systems
+        coord_lines = self.df[self.df[0].str.contains(r'^\s*ATOMS IN THE ASYMMETRIC UNIT')].index
+        if len(coord_lines) == 0:
             raise Exception('Geometry information not found.')
 
-        output = GeomBASE.read_geom(self.data, bg_line)
-        struc = output[1]
+        ## only for developers. If initial is an integer, read the i th geometry from output
+        if isinstance(initial, bool):
+            if initial == True: bg_line = coord_lines[0] - 4
+            else: bg_line = coord_lines[-1] - 4
+        else:
+            bg_line = coord_lines[int(initial)] - 4
+
+        struc = GeomBASE.read_geom(self.df[0][bg_line:])
 
         # Get the last lattice matrix: structure obtained by GeomBASE might be rotated.
         ndimen = self.get_dimensionality()
-        lattice_line = -1
-        if ndimen != 0:
-            if initial == True:
-                for nline, line in enumerate(self.data[:self.eoo]):
-                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                        lattice_line = nline
-                        break
-            else:
-                for nline, line in enumerate(self.data[self.eoo::-1]):
-                    if re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                        lattice_line = len(self.data[:self.eoo]) - nline
-                        break
 
-        if lattice_line != -1:
-            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
+        if ndimen != 0:
+            lattice_line = self.df[self.df[0].str.contains(r'^ DIRECT LATTICE VECTORS CARTESIAN')].index
+            # always use the last one. Lattice vector is only used to indicate the direction.
+            lattice_line = lattice_line[-1]
+            a_crys = np.array(self.df[0][lattice_line+2].strip().split(), dtype=float)
             a_pmg = struc.lattice.matrix[0, :]
             # Rotate the geometry back
             struc = struc.rot_cel(a_pmg, a_crys)
@@ -444,7 +435,7 @@ class Crystal_output:
             elif np.all(symmetry==None):
                 gui = cry_pmg2gui(struc, gui_file=gui_name,  symmetry=False, zconv=zconv)
             elif symmetry == 'initial':
-                self.get_symmops()
+                self.get_symmops(initial=True)
                 gui = cry_pmg2gui(struc, gui_file=None, symmetry=False, zconv=zconv)
                 gui.symmops = self.symmops
                 gui.n_symmops = self.n_symmops
@@ -460,25 +451,7 @@ class Crystal_output:
                 gui.n_symmops = gui_ref.n_symmops
                 gui.space_group = gui_ref.space_group
                 gui.write_gui(gui_list[idx_s], symm=True)
-
         return self.geometry
-
-    def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
-        """
-        Return the last optimised geometry.
-        """
-        from pymatgen.core.structure import Molecule
-
-        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
-        if isinstance(struc, Molecule):
-            self.last_geom = [[[500., 0., 0.], [0., 500., 0.], [0., 0., 500.]],
-                              struc.species_Z,
-                              struc.cart_coords.tolist()]
-        else:
-            self.last_geom = [struc.lattice.matrix.tolist(),
-                              struc.species_Z,
-                              struc.cart_coords.tolist()]
-        return self.last_geom
 
     def get_lattice(self, initial=True):
         """
@@ -608,21 +581,17 @@ class Crystal_output:
             self.trans_matrix (np.ndarray): 3\*3 array of supercell
                 expansion matrix
         """
-        import re
+        import pandas as pd
         import numpy as np
 
         ndimen = self.get_dimensionality()
         self.trans_matrix = np.eye(3, dtype=float)
-        for i, line in enumerate(self.data[:self.eoo]):
-            if re.match(r'^\s+EXPANSION MATRIX OF PRIMITIVE CELL', line):
-                mx = np.array([
-                    self.data[i + 1].strip().split()[1:],
-                    self.data[i + 2].strip().split()[1:],
-                    self.data[i + 3].strip().split()[1:],
-                ], dtype=float)
-                self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
-                break
 
+        mx_line = self.df[self.df[0].str.contains(r'^\s+EXPANSION MATRIX OF PRIMITIVE CELL')].index
+        mx = self.df[0][mx_line[0]+1:mx_line[0]+4].map(lambda x: x.strip().split()).tolist()
+        mx = np.array([i[1:] for i in mx], dtype=float)
+
+        self.trans_matrix[:ndimen, :ndimen] = mx[:ndimen, :ndimen]
         return self.trans_matrix
 
     def get_primitive_geometry(self, initial=True, write_gui=False, gui_name=None,
@@ -841,7 +810,7 @@ class Crystal_output:
 
     def get_convergence(self, history=False):
         """
-        The upper level of ``get_scf_convergence`` and ``get_opt_convergence``.
+        The wrapper of ``get_scf_convergence`` and ``get_opt_convergence``.
         For analysing the geometry and energy convergence.
 
         .. note::
@@ -849,60 +818,29 @@ class Crystal_output:
             It might not work well with SCF / OPT cycles of multiple systems
             such as PREOPTGEOM + EOS calculations
 
+        .. note::
+
+            For optimizations, it only returns to optimization convergence. SCF
+            convergence is not available. Call ``get_opt_convergence()`` if needed.
+
         Args:
-            history (bool): If true, the convergence history of optimisation
-                (energy,gradient, displacement) / SCF is returned.
+            history (bool): Deprecated. Always return to history.
 
         Returns:
             self (Crystal_output): New attributes listed below
-            self.final_energy (float) The converged energy of SCF / Opt. Unit: eV
+            self.final_energy (float) The converged SCF / Opt energy. Unit: eV
 
-        For other attributes, see ``get_scf_convergence`` and
-        ``get_opt_convergence`` methods on the same page.
+        For other attributes, see ``get_scf_convergence()`` and
+        ``get_opt_convergence()`` methods on the same page.
         """
         import re
         import warnings
 
-        self.final_energy = None
-        for line in self.data[self.eoo::-1]:
-            if re.match(r'\s\W OPT END - CONVERGED', line) != None:
-                data = line.strip().split()
-                self.final_energy = units.H_to_eV(float(data[7]))
-                self.opt_cycles = int(data[-2])
-                if re.search('CONVERGED', line):
-                    self.opt_status = 'converged'
-                elif re.search('FAILED', line):
-                    self.opt_status = 'failed'
-                else:
-                    warnings.warn('Unknown termination.', stacklevel=2)
-                    self.opt_status = 'unknown'
-                is_scf = False
-                break
-
-            elif re.match(r'^ == SCF ENDED', line) != None:
-                data = line.strip().split()
-                self.final_energy = units.H_to_eV(float(data[8]))
-                self.scf_cycles = int(data[-1])
-                if re.search('CONVERGENCE', line):
-                    self.scf_status = 'converged'
-                elif re.search('TOO MANY CYCLES', line):
-                    self.scf_status = 'too many cycles'
-                else:
-                    warnings.warn('Unknown termination.', stacklevel=2)
-                    self.scf_status = 'unknown'
-                is_scf = True
-                break
-
-        if np.all(self.final_energy==None):
-            warnings.warn('No final energy found in the output file. self.final_energy = None',
-                          stacklevel=2)
-
-        if history == True:
-            if is_scf == True:
-                self.get_scf_convergence(all_cycles=False)
-            else:
-                self.get_opt_convergence()
-
+        opttitle = self.df[self.df[0].str.contains(r'^\s*[A-Z]+ OPTIMIZATION - POINT')].index
+        if len(opttitle) == 0: # SCF only
+            self.get_scf_convergence(scflog=None)
+        else:
+            self.get_opt_convergence(scf_history=False, scflog=None)
         return self
 
     def get_final_energy(self):
@@ -910,105 +848,203 @@ class Crystal_output:
         Get the final energy of the system. A wrapper of ``self.get_convergence``.
 
         Returns:
-            self.final_energy (float): The final energy of the system.
+            self.final_energy (float): The final energy of the system in eV.
         """
-        self.get_convergence(history=False)
-
+        self.get_convergence()
         return self.final_energy
 
     #### SCF ####
 
-    def get_scf_convergence(self, all_cycles=False):
+    def get_scf_convergence(self, all_cycles=False, scflog=None):
         """
-        Returns the scf convergence energy and energy difference. A wrapper of
-        ``CRYSTALpytools.base.SCFBASE.read_convergence``.
+        Returns the scf convergence energy and energy difference.
+
+        .. note::
+
+            With empirical corrections (DFT-D or gCP), the ``scf_energy`` refers
+            to DFT energy only. The ``final_energy`` attribute includes
+            corrections at the final step. ``final_energy`` is valid only if
+            ``scf_status='converged'``.
+
+        .. note::
+
+            For optimizations, using ``get_opt_convergence()`` with
+            ``scf_history=True`` is suggested.
 
         Args:
-            all_cycles (bool, optional): Return all SCF steps for a geometry
-                opt. The 'ONELOG' CRYSTAL keyword is needed.
+            all_cycles (bool): Deprecated.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial SCF convergence or every SCF step
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
             self (Crystal_output): New attributes listed below
-            self.scf_cycles (int | array): Number of cycles. Array if
-                ``all_cycles=True``.
-            self.scf_status (str | list): 'terminated', 'converged',
-                'too many cycles' and 'unknown'. List if ``all_cycles=True``.
-            self.scf_energy (array): SCF energy convergence. Unit: eV
-            self.scf_deltae (array): Energy difference. Unit: eV
+            self.scf_cycles (int|list): Number of cycles. Array if
+                multiple SCF cycles are read.
+            self.scf_status (str|list): 'terminated', 'converged',
+                'too many cycles' and 'unknown'. List if multiple SCF cycles are read.
+            self.scf_energy (array|list): SCF energy convergence. Unit: eV
+            self.scf_deltae (array|list): Energy difference. Unit: eV
+            self.final_energy (float): Last step energy with corrections. Unit: eV
         """
         import numpy as np
+        import pandas as pd
+        import copy
         from CRYSTALpytools.base.output import SCFBASE
+        from CRYSTALpytools.units import H_to_eV
 
-        if all_cycles == True:
-            self.scf_cycles = []
-            self.scf_status = []
-            self.scf_energy = []
-            self.scf_deltae = []
+        self.scf_cycles = []
+        self.scf_status = []
+        self.scf_energy = []
+        self.scf_deltae = []
 
-        countline = 0
-        while countline < self.eoo:
-            output = SCFBASE.read_convergence(self.data[:self.eoo], countline)
-            if all_cycles == False:
-                self.scf_cycles = output[1]
-                self.scf_status = output[2]
-                self.scf_energy = output[3]
-                self.scf_deltae = output[4]
-                break
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        for i in SCFrange:
+            output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+            self.scf_cycles.append(output[0])
+            self.scf_status.append(output[1])
+            self.scf_energy.append(output[2])
+            self.scf_deltae.append(output[3])
+
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            for i in SCFrangelog:
+                output = SCFBASE.read_convergence(df[0].loc[i[0]:i[1]])
+                self.scf_cycles.append(output[0])
+                self.scf_status.append(output[1])
+                self.scf_energy.append(output[2])
+                self.scf_deltae.append(output[3])
+
+        if nSCF == 1:
+            self.scf_cycles = int(self.scf_cycles[-1])
+            self.scf_status = str(self.scf_status[-1])
+            self.scf_energy = self.scf_energy[-1]
+            self.scf_deltae = self.scf_deltae[-1]
+        # final energy, with corrections
+        status = copy.deepcopy(self.scf_status)
+        status = np.array(status, ndmin=1)
+        if status[-1] == 'converged':
+            finalline = self.df[self.df[0].str.contains(r'^\s*TOTAL ENERGY \+ ')].index
+            optline = self.df[self.df[0].str.contains(r'^\s*\* OPT END')].index
+            if len(optline) == 0 and len(finalline) == 0:
+                self.final_energy = self.scf_energy[-1]
+            elif len(optline) == 0:
+                self.final_energy = H_to_eV(float(self.df[0][finalline[-1]].strip().split()[-1]))
             else:
-                countline = output[0]
-                self.scf_cycles.append(output[1])
-                self.scf_status.append(output[2])
-                self.scf_energy.append(output[3])
-                self.scf_deltae.append(output[4])
-                countline += 1
-
-        if all_cycles == True:
-            self.scf_cycles = np.array(self.scf_cycles, dtype=int)
-            self.scf_energy = np.array(self.scf_energy)
-            self.scf_deltae = np.array(self.scf_deltae)
-
+                self.final_energy = H_to_eV(float(self.df[0][optline[-1]].strip().split()[-4]))
+        else:
+            self.final_energy = 0.
         return self
 
-    def get_fermi_energy(self, history=False):
+    def get_fermi_energy(self, history=False, scflog=None):
         """
-        Returns the system Fermi energy.
+        Returns the system Fermi energy / valance band maximum (insulators).
+        For ``history=True``, Fermi energy at step 0 is always 0 as no Fermi
+        energy is solved. Similary, steps with SPINLOCK or level shifting also
+        return to 0 Fermi energy.
 
         Args:
             history (bool): Whether to read the convergence history of Fermi energy.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial Fermi energy or energies of every SCF
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
-            self.fermi_energy (float | array): Fermi energy of the system. For
-                spin-polarized insulating systems, ``self.fermi_energy`` would
-                be either a 2\*1 array (``history=False``) or a nCYC\*2 array
-                (``history=True``).
+            self.fermi_energy (float|array): Fermi energy of the system. For
+                spin-polarized insulators, the highest VBM is returned.
+            self.spin_pol (bool): *Not returned but defined* Whether the
+                calculation is spin-polarized.
         """
         from CRYSTALpytools.base.output import SCFBASE
+        import numpy as np
 
-        output = SCFBASE.read_fermi_energy(self.data[:self.eoo], self.eoo - 1, history=history)
-        self.spin_pol = output[1]
-        self.fermi_energy = output[2]
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        if history == True:
+            self.fermi_energy = []
+            for i in SCFrange:
+                output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+                self.fermi_energy.append(output[5])
+            self.spin_pol = output[4]
+        else:
+            output = SCFBASE.read_convergence(self.df[0].loc[SCFrange[-1,0] : SCFrange[-1,1]])
+            self.spin_pol = output[4]
+            self.fermi_energy = output[5][-1]
 
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            if history == True:
+                for i in SCFrangelog:
+                    output = SCFBASE.read_convergence(df.loc[i[0]:i[1]])
+                    self.fermi_energy.append(output[5])
+                self.spin_pol = output[4]
+            else:
+                output = SCFBASE.read_convergence(df.loc[SCFrangelog[-1,0] : SCFrangelog[-1,1]])
+                self.spin_pol = output[4]
+                self.fermi_energy = output[5][-1]
+
+        if history == True:
+            self.fermi_energy = np.array(self.fermi_energy)
+            if nSCF == 1: self.fermi_energy = self.fermi_energy[0]
         return self.fermi_energy
 
-    def get_band_gap(self, history=False):
+    def get_band_gap(self, history=False, scflog=None):
         """
-        Returns the system band gap.
+        Returns the system band gap. For ``history=True``, gap at step 0 is
+        always 0 as no energy gap is solved. Similary, steps with SPINLOCK or
+        level shifting also return to 0 gap.
 
         Args:
             history (bool): Whether to read the convergence history of band gap.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial band gap or gaps of every SCF if
+                'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
 
         Returns:
-            self.band_gap (float | array): Band gap of the system. For
-                spin-polarized systems, ``self.band_gap`` would be either a
-                2\*1 array (``history=False``) or a nCYC\*2 array
-                (``history=True``).
+            self.band_gap (float|array): Band gap of the system. For
+                spin-polarized systems, ``self.band_gap`` would be either a 2\*1
+                array (``history=False``) or a nCYC\*2 array (``history=True``).
+            self.spin_pol (bool): *Not returned but defined* Whether the
+                calculation is spin-polarized.
         """
         from CRYSTALpytools.base.output import SCFBASE
+        import numpy as np
 
-        output = SCFBASE.read_band_gap(self.data[:self.eoo], self.eoo - 1, history=history)
-        self.spin_pol = output[1]
-        self.band_gap = output[2]
+        nSCF, SCFrange = SCFBASE.get_SCF_blocks(self.df[0])
+        if history == True:
+            self.band_gap = []
+            for i in SCFrange:
+                output = SCFBASE.read_convergence(self.df[0].loc[i[0]:i[1]])
+                self.band_gap.append(output[6])
+            self.spin_pol = output[4]
+        else:
+            output = SCFBASE.read_convergence(self.df[0].loc[SCFrange[-1,0] : SCFrange[-1,1]])
+            self.spin_pol = output[4]
+            self.band_gap = output[6][-1]
 
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog, 'r'))
+            nSCFlog, SCFrangelog = SCFBASE.get_SCF_blocks(df[0])
+            nSCF += nSCFlog
+            if history == True:
+                for i in SCFrangelog:
+                    output = SCFBASE.read_convergence(df.loc[i[0]:i[1]])
+                    self.band_gap.append(output[6])
+                self.spin_pol = output[4]
+            else:
+                output = SCFBASE.read_convergence(df.loc[SCFrangelog[-1,0] : SCFrangelog[-1,1]])
+                self.spin_pol = output[4]
+                self.band_gap = output[6][-1]
+
+        if history == True:
+            self.band_gap = np.array(self.band_gap)
+            if nSCF == 1: self.band_gap = self.band_gap[0]
         return self.band_gap
 
     def get_mulliken_charges(self):
@@ -1053,38 +1089,38 @@ class Crystal_output:
         else:
             apb = np.array(mulliken[0], dtype=float)
             amb = np.array(mulliken[1], dtype=float)
-            self.mulliken_charges = np.array([apb, (apb + amb) / 2, (apb - amb) / 2])
+            self.mulliken_charges = np.vstack([apb, (apb+amb)/2, (apb-amb)/2]).transpose()
             self.spin_pol = True
-
         return self.mulliken_charges
 
     #### Optimization ####
 
-    def get_opt_convergence(self, primitive=False, scf_history=False,
-                            write_gui=False, gui_name=None,
-                            symmetry='pymatgen', **kwargs):
+    def get_opt_convergence(self, primitive=False, scf_history=False, scflog=None,
+                            write_gui=False, gui_name=None, symmetry='pymatgen',
+                            **kwargs):
         """
-        Returns optimisation convergence. A wrapper of
-        ``CRYSTALpytools.base.OptBASE.read_convergence``.
+        Returns optimisation convergence.
 
         Args:
-            primitive (bool): Restore the primitive cell (multiply by the
-                cell transform matrix inversed)
-            scf_history (bool): Read SCF history of each optimisation step.
-                Keyword 'ONELOG' is needed. Please refer to
-                ``self.get_scf_convergence(all_cycles=True)`` method.
+            primitive (bool): Deprecated. Use ``get_primitive_geometry()`` for
+                initial and last geometries. The method here always returns to
+                the actual structure optimized.
+            scf_history (bool): Read SCF history of each optimisation step. Also
+                refer to the ``get_scf_convergence()`` method.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns to either the initial SCF convergence or every SCF step
+                if 'ONELOG' keyword is enabled. This option helps to get SCF history
+                from 'SCFOUT.LOG' file.
             write_gui (bool): If True, write .gui file of each step
-            gui_name (str): Valid only if ``write_gui = True``. Gui file
-                is named as 'gui_name-optxxx.gui'. If None, use
-                'basename-optxxx.gui'. The basename is the same as output.
-            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen'
-                to use symmetry info from a pymatgen SpacegroupAnalyzer;
-                'initial' to use symmstry information on output file. If
-                None, no symmstry. Otherwise it is taken from the existing
-                gui file.
-            **kwargs: Valid only if ``write_gui = True`` and
-                ``symmetry = 'pymatgen'``.  Passed to Pymatgen
-                SpacegroupAnalyzer object.
+            gui_name (str): Valid only if ``write_gui = True``. Gui file is
+                named as 'gui_name-optxxx.gui'. If None, use 'basename-optxxx.gui'.
+                The basename is the same as output.
+            symmetry (str): Valid only if ``write_gui = True``. 'pymatgen' to
+                use symmetry info from a pymatgen SpacegroupAnalyzer; 'initial'
+                to use symmstry information on output file. If None, no symmstry.
+                Otherwise it is taken from the existing gui file.
+            **kwargs: Valid only if ``write_gui = True`` and ``symmetry = 'pymatgen'``.
+                Passed to Pymatgen SpacegroupAnalyzer object.
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1097,120 +1133,65 @@ class Crystal_output:
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
             self.opt_maxdisp (array): Maximum displacement convergence. Unit: Bohr
             self.opt_rmsdisp (array): RMS displacement convergence. Unit: Bohr
+            self.final_energy (float): Last step energy with corrections. Unit: eV
         """
         from CRYSTALpytools.crystal_io import Crystal_gui
         from CRYSTALpytools.convert import cry_pmg2gui
-        from CRYSTALpytools.base.output import OptBASE
-        from pymatgen.core.lattice import Lattice
+        from CRYSTALpytools.base.output import OptBASE, GeomBASE
         import numpy as np
-        import re
-        import os
-
-        ndimen = self.get_dimensionality()
-        countline = 0
+        import warnings
 
         # Initial geometry
+        ndimen = self.get_dimensionality()
         struc0 = self.get_geometry(initial=True, write_gui=False)
 
-        # Initial SCF energy. No SCF when optimisation is restarted
-        e0 = None
-        self.opt_cycles = 0
-        lattice_line = -1
-        while countline < self.eoo:
-            line = self.data[countline]
-            # Initial step SCF
-            if re.match(r'^\s*== SCF ENDED', line):
-                line_data = line.strip().split()
-                e0 = float(line_data[8])
-                countline += 1
-            # Initial step SCF empirical corrections
-            elif re.match(r'^\s*TOTAL ENERGY \+', line):
-                line_data = line.strip().split()
-                e0 = float(line_data[-1])
-                countline += 1
-            # Initial Gradient
-            elif re.match(r'^\s+MAX GRADIENT', line):
-                line_data = line.strip().split()
-                maxg0 = float(line_data[2])
-                countline += 1
-            elif re.match(r'^\s+RMS GRADIENT', line):
-                line_data = line.strip().split()
-                rmsg0 = float(line_data[2])
-                countline += 1
-            # Enter the Opt block
-            elif re.match(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT', line):
-                output = OptBASE.read_optblock(self.data[:self.eoo], countline)
-                self.opt_cycles = output[1]
-                self.opt_status = output[2]
-                self.opt_energy = output[3]
-                self.opt_deltae = output[4]
-                self.opt_geometry = output[5]
-                self.opt_maxgrad = output[6]
-                self.opt_rmsgrad = output[7]
-                self.opt_maxdisp = output[8]
-                self.opt_rmsdisp = output[9]
-                break
-            # Lattice matrix rotation issue
-            elif re.match(r'^ DIRECT LATTICE VECTORS CARTESIAN', line):
-                lattice_line = countline
-                countline += 1
-            else:
-                countline += 1
+        # steps
+        self.opt_cycles, OPTrange, self.opt_status = OptBASE.get_opt_block(self.df[0])
+        self.opt_energy = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_deltae = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_geometry = [struc0,]
+        self.opt_maxgrad = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_rmsgrad = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_maxdisp = np.zeros([self.opt_cycles,], dtype=float)
+        self.opt_rmsdisp = np.zeros([self.opt_cycles,], dtype=float)
 
-        # Converged at initial step, or wrong file
-        if self.opt_cycles == 0:
-            if np.all(e0==None):
-                raise Exception('Valid data not found.')
-            else:
-                self.opt_cycles += 1
-                self.opt_status = 'converged at initial step'
-                self.opt_energy = np.array([e0,])
-                self.opt_deltae = np.array([e0,])
-                self.opt_geometry = [struc0,]
-                self.opt_maxgrad = np.array([maxg0,])
-                self.opt_rmsgrad = np.array([rmsg0,])
-                self.opt_maxdisp = np.array([])
-                self.opt_rmsdisp = np.array([])
-        else:
-            # restarted from previous opt
-            if np.all(e0==None):
-                pass
-            else:
-                self.opt_cycles += 1
-                self.opt_energy = np.concatenate([[e0,], self.opt_energy])
-                self.opt_deltae = np.concatenate([[e0,], self.opt_deltae])
-                self.opt_geometry = [struc0,] + self.opt_geometry
-                self.opt_maxgrad = np.concatenate([[maxg0,], self.opt_maxgrad])
-                self.opt_rmsgrad = np.concatenate([[rmsg0,], self.opt_rmsgrad])
-                self.opt_maxdisp = np.concatenate([[0.,], self.opt_maxdisp])
-                self.opt_rmsdisp = np.concatenate([[0.,], self.opt_rmsdisp])
+        for i in range(self.opt_cycles):
+            bg = OPTrange[i, 0]; ed = OPTrange[i, 1]
+            try:
+                output = OptBASE.read_opt_block(self.df[0].loc[bg:ed])
+            except IndexError: # Unfinished Opt step
+                warnings.warn('Hit the unfinished step. Properties except geometry are set to 0.',
+                              stacklevel=2)
+                self.opt_geometry.append(GeomBASE.read_geom(self.df[0].loc[bg:ed]))
+                continue
 
-        # Lattice matrix rotation issue
-        if ndimen != 0 and lattice_line != -1:
-            # Reference lattice vector a
-            a_crys = np.array(self.data[lattice_line + 2].strip().split(), dtype=float)
-            # Pmg lattice vector a
-            a_pmg = struc0.lattice.matrix[0, :]
-            # Rotate lattice: CStructure.rot_cel
-            for idx_s, s in enumerate(self.opt_geometry):
-                self.opt_geometry[idx_s] = s.rot_cel(a_crys, a_pmg)
-
-        # Get primitive cell
-        if primitive == True:
-            ndimen = self.get_dimensionality()
-            if ndimen == 0:
-                warnings.warn('0D system. Nothing to reduce.', stacklevel=2)
-            else:
-                self.get_trans_matrix()
-                shrink_mx = np.linalg.inv(self.trans_matrix)
-                for idx_s, s in enumerate(self.opt_geometry):
-                    self.opt_geometry[idx_s] = s.get_pcel(self.trans_matrix)
+            self.opt_energy[i] = output[0]
+            self.opt_deltae[i] = output[1]
+            if i > 0: self.opt_geometry.append(output[2])
+            self.opt_maxgrad[i] = output[3]
+            self.opt_rmsgrad[i] = output[4]
+            self.opt_maxdisp[i] = output[5]
+            self.opt_rmsdisp[i] = output[6]
 
         # SCF history
-        if scf_history == True:
-            self.get_scf_convergence(all_cycles=True)
+        if np.all(scflog!=None): scf_history = True
+        if scf_history == True: self.get_scf_convergence(scflog=scflog)
 
-        # Write gui files
+        # final energy
+        self.final_energy = self.opt_energy[-1]
+
+        # Geometry
+        ## Lattice matrix rotation issue
+        if ndimen != 0:
+            lattice_line = self.df[self.df[0].str.contains(r'^ DIRECT LATTICE VECTORS CARTESIAN')].index
+            # always use the last one. Lattice vector is only used to indicate the direction.
+            lattice_line = lattice_line[-1]
+            a_crys = np.array(self.df[0][lattice_line+2].strip().split(), dtype=float)
+            a_pmg = struc0.lattice.matrix[0, :]
+            # Rotate the geometry back
+            for idx_s, s in enumerate(self.opt_geometry):
+                self.opt_geometry[idx_s] = s.rot_cel(a_crys, a_pmg)
+        ## Write gui files
         if write_gui == True:
             if np.all(gui_name==None):
                 gui_name = os.path.splitext(self.name)[0]
@@ -1245,17 +1226,23 @@ class Crystal_output:
 
         return self
 
-    def get_forces(self, initial=True, grad=False):
+    def get_forces(self, initial=True, grad=False, scflog=None):
         """
         Read forces.
 
+        .. note::
+
+            To get forces of the last optimization step, 'SCFOUT.LOG' file or
+            the 'ONELOG' keyword are needed.
+
         Args:
-            initial (bool): Return forces from the initial calculation. If
-                ``initial=False``, return to the last forces, which is valid
-                only for geometry optimizations and the keyword 'ONELOG' is
-                needed in d12 file.
+            initial (bool): Deprecated.
             grad (bool): Return gradient convergence history. For optimizations
                 only.
+            scflog (str): Path to 'SCFOUT.LOG'. For optimizations, ``scflog=None``
+                returns forces from the initial SCF convergence or forces of
+                every SCF step if 'ONELOG' keyword is enabled. This option helps
+                to get forces of every step from 'SCFOUT.LOG' file.
 
         Returns:
             self (Crystal_output): New attributes listed below
@@ -1266,44 +1253,64 @@ class Crystal_output:
         """
         import warnings, re
         import numpy as np
+        import pandas as pd
 
+        title = self.df[self.df[0].str.contains(r'^\s*OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT')].index
         if initial == False or grad == True:
-            if ' OPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPTOPT\n' not in self.data:
+            if len(title) == 0:
                 warnings.warn('Not a geometry optimisation: Set initial = True and grad = False', stacklevel=2)
-                initial = True
-                grad = False
-
-        self.forces_atoms = []
-        self.forces_cell = []
-        struc = self.get_geometry(initial=True, write_gui=False)
+                initial = True; grad = False
 
         if grad == True:
             self.get_opt_convergence()
 
-        if initial == True:
-            for i, line in enumerate(self.data):
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(i+2, i+2+struc.num_sites):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+        forcetitle = self.df[self.df[0].str.contains(r'^\s*\*\s+FORCE CALCULATION')].index
+        if len(forcetitle) == 0: raise Exception('Force calculation not found.')
 
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(i+4, i+7):
-                        self.forces_cell.append(self.data[j].strip().split())
-                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+        # dimensionalities
+        atomtitle = self.df[self.df[0].str.contains(
+            r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)')].index.to_numpy(dtype=int)
+        celltitle = self.df[self.df[0].str.contains(
+            r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR')].index.to_numpy(dtype=int)
+        natomf = len(atomtitle)
+        ncellf = len(celltitle)
+        struc = self.get_geometry(initial=True, write_gui=False)
+        natom = struc.num_sites
+        if np.all(scflog!=None):
+            df = pd.DataFrame(open(scflog))
+            atomtitleLOG = df[df[0].str.contains(
+                r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)')].index.to_numpy(dtype=int)
+            celltitleLOG = df[df[0].str.contains(
+                r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR')].index.to_numpy(dtype=int)
+            natomf += len(atomtitleLOG)
+            ncellf += len(celltitleLOG)
 
+        if natomf != 0:
+            self.forces_atoms = np.zeros([natomf, natom, 3])
+            for i in range(len(atomtitle)):
+                atomf = self.df[0].loc[atomtitle[i]+2 : atomtitle[i]+1+natom].map(lambda x: x.strip().split()).tolist()
+                self.forces_atoms[i, :, :] = np.array([j[2:] for j in atomf], dtype=float)
+            if np.all(scflog!=None):
+                for i in range(natomf-len(atomtitle)):
+                    atomf = df[0].loc[atomtitleLOG[i]+2 : atomtitleLOG[i]+1+natom].map(lambda x: x.strip().split()).tolist()
+                    self.forces_atoms[i+len(atomtitle), :, :] = np.array([j[2:] for j in atomf], dtype=float)
         else:
-            for i, line in enumerate(self.data[::-1]):
-                if re.match(r'^ GRADIENT WITH RESPECT TO THE CELL PARAMETER IN HARTREE/BOHR', line):
-                    for j in range(len(self.data)-i+3, len(self.data)-i+6):
-                        self.forces_cell.append(self.data[j].strip().split())
-                    self.forces_cell = np.array(self.forces_cell, dtype=float)
+            self.forces_atoms = []
 
-                if re.match(r'^ CARTESIAN FORCES IN HARTREE/BOHR \(ANALYTICAL\)', line):
-                    for j in range(len(self.data)-i+1, len(self.data)-i+1+struc.num_sites):
-                        self.forces_atoms.append(self.data[j].strip().split()[2:])
-                    self.forces_atoms = np.array(self.forces_atoms, dtype=float)
+        if ncellf != 0:
+            self.forces_cell = np.zeros([ncellf, 3, 3])
+            for i in range(len(celltitle)):
+                cellf = self.df[0].loc[celltitle[i]+4 : celltitle[i]+6].map(lambda x: x.strip().split()).tolist()
+                self.forces_cell[i, :, :] = np.array(cellf, dtype=float)
+            if np.all(scflog!=None):
+                for i in range(ncellf-len(celltitle)):
+                    cellf = df[0].loc[celltitleLOG[i]+4 : celltitleLOG[i]+6].map(lambda x: x.strip().split()).tolist()
+                    self.forces_cell[i+len(celltitle), :, :] = np.array(cellf, dtype=float)
+        else:
+            self.forces_cell = []
 
+        if natomf == 1: self.forces_atoms = self.forces_atoms[0]
+        if ncellf == 1: self.forces_cell = self.forces_cell[0]
         return self
 
     #### Lattice Dynamics ####
@@ -1313,50 +1320,61 @@ class Crystal_output:
         """
         Read phonon-related properties from output file.
 
+        .. note::
+
+            In QHA calculations, ``self.nqpoint`` refer to harmonic phonons
+            computed. In other cases it refers to actual q points in reciprocal
+            space.
+
+        .. note::
+
+            This method is developed as a basic I/O function for thermodynamic
+            analysis. For phonon band / dos or IR / Raman spectra, please refer
+            to the ``get_phonon_band``, ``get_phonon_dos`` and ``get_spectra``
+            methods.
+
         Args:
             read_eigvt (bool): Whether to read phonon eigenvectors and
                 normalize it to 1.
-            rm_imaginary (bool): Remove the modes with negative frequencies and
-                set all the related properties to NaN.
+            rm_imaginary (bool): Set negative frequencies to 0 and remove all
+                the related properties. Only eigenvectors are kept.
             rm_overlap (bool): *For dispersion calculations* Remove repeated q
                 points and recalculate their weights.
             imaginary_tol (float): *``rm_imaginary`` = True only* The threshold
                 of negative frequencies.
             q_overlap_tol (float): *``rm_overlap`` = True only* The threshold of
-                overlapping points, defined as the 2nd norm of the difference
+                overlapping q points, defined as the 2nd norm of the difference
                 of fractional q vectors
             eigvt_amplitude (float|str): Normalize the eigenvector to a certian
-                amplitude. Either a number or 'classical' (classical amplitude).
+                amplitude. Either a number or 'classical' (**classical
+                amplitude in Bohr**).
 
         Returns:
             self (Crystal_output): New attributes listed below
             self.edft (array[float]): :math:`E_{0}` Energy with empirical
                 correction. Unit: kJ/mol.
             self.nqpoint (int): Number of q points
-            self.qpoint (list[list[array[float], float]]): A nqpoint\*1 list of
-                2\*1 list whose first element is a 3\*1 array of fractional
+            self.qpoint (list[list[array[float], float]]): A 1\*nQpoint list of
+                1\*2 list whose first element is a 1\*3 array of fractional
                 coordinates and the second is its weight.
-            self.nmode (array[int]): Number of modes at q point. nqpoint\*1
+            self.nmode (array[int]): Number of modes at q point. 1\*nQpoint
                 array.
-            self.frequency (array[float]): nqpoint\*nmode array ofvibrational
+            self.frequency (array[float]): nQpoint\*nMode array ofvibrational
                 frequency. Unit: THz
-            self.intens (array[float]): nqpoint\*nmode array of harmonic
+            self.mode_symm (array[str]): nQpoint\*nMode array of the
+                irreducible representations. In Mulliken symbols.
+            self.intens (array[float]): nqpoint\*nmode array of harmonic IR
                 intensiy. Unit: km/mol
             self.IR (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is IR active
             self.Raman (array[bool]): nqpoint\*nmode array of boolean values
                 specifying whether the mode is Raman active
             self.eigenvector (array[complex]): *``read_eigvt = True only``*
-                nqpoint\*nmode\*natom\*3 array of eigenvectors. Normalized to 1.
-
-        .. note::
-
-            In QHA calculations, ``self.nqpoint`` refer to harmonic phonons
-            computed. In other cases it refers to actual q points in reciprocal
-            space.
+                nqpoint\*nmode\*natom\*3 array of eigenvectors.
         """
         import re
         import numpy as np
+        import pandas as pd
         from CRYSTALpytools.base.output import PhononBASE
         from CRYSTALpytools.units import H_to_kjmol
 
@@ -1367,116 +1385,107 @@ class Crystal_output:
         self.qpoint = []
         self.nmode = []
         self.frequency = []
+        self.mode_symm = []
         self.intens = []
         self.IR = []
         self.Raman = []
         self.eigenvector = []
 
-        countline = 0
-        while countline < self.eoo:
-            line = self.data[countline]
-            # Whether is a frequency file
-            if re.match(r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+', line):
-                is_freq = True
-                countline += 1
-                continue
-            # E_0 with empirical corrections
-            elif re.match(r'^\s+CENTRAL POINT', line):
-                self.edft.append(float(line.strip().split()[2]))
-                countline += 1
-                continue
-            # Q point info + frequency
-            ## Dispersion
-            elif re.match(r'^.+EXPRESSED IN UNITS\s+OF DENOMINATOR', line):
-                shrink = int(line.strip().split()[-1])
-                countline += 1
-                continue
-            elif re.match(r'\s+DISPERSION K POINT NUMBER', line):
-                coord = np.array(line.strip().split()[7:10], dtype=float)
-                weight = float(line.strip().split()[-1])
-                self.qpoint.append([coord / shrink, weight])
-                self.nqpoint += 1
-                countline += 2
-                # Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Gamma point
-            elif re.match(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+IRREP', line) and self.nqpoint == 0:
-                countline += 2
-                # Read phonons
-                phonon = PhononBASE.readmode_basic(self.data[:self.eoo], countline)
-                countline = phonon[0]
-                self.frequency.append(phonon[1])
-                self.intens.append(phonon[2])
-                self.IR.append(phonon[3])
-                self.Raman.append(phonon[4])
-            ## Phonon eigenvector
-            ### Gamma point: real numbers. Imaginary = 0
-            elif re.match(r'^\s+NORMAL MODES NORMALIZED', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                countline += 2
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt[0]
-                self.eigenvector.append(eigvt[1] + 0.j)
-            ### Dispersion: complex numbers
-            elif re.match(r'^\s+MODES IN PHASE', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                if found_anti == False:  # Real k point
-                    self.eigenvector.append(tmp_eigvt)
-                countline += 2
-                found_anti = False
-                eigvt = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt[0]
-                tmp_eigvt = eigvt[1] + 0.j
-            elif re.match(r'^\s+MODES IN ANTI\-PHASE', line):
-                if read_eigvt == False:
-                    countline += 1
-                    continue
-                countline += 2
-                found_anti = True
-                eigvt_anti = PhononBASE.readmode_eigenvector(self.data[:self.eoo], countline)
-                countline = eigvt_anti[0]
-                self.eigenvector.append(tmp_eigvt + eigvt_anti[1] * 1.j)
-            # Other data
-            else:
-                countline += 1
-                continue
+        # Whether is a frequency file
+        title = self.df[self.df[0].str.contains(
+            r'^\s*\+\+\+\sSYMMETRY\sADAPTION\sOF\sVIBRATIONAL\sMODES\s\+\+\+')].index
+        if len(title) == 0: raise Exception('Not a frequency calculation.')
 
-        if is_freq == False:
-            raise Exception('Not a frequency calculation.')
-        if found_anti == False and read_eigvt == True:  # The last real k point
-            self.eigenvector.append(tmp_eigvt)
+        # E_0 with empirical corrections
+        edft_idx = self.df[self.df[0].str.contains(r'^\s+CENTRAL POINT')].index
+        self.edft = [
+            i[2] for i in self.df[0][edft_idx].map(lambda x: x.strip().split()).tolist()
+        ]
+        self.edft = H_to_kjmol(np.array(self.edft, dtype=float))
 
-        # Format data
-        # HA/QHA Gamma point calculation
-        if self.nqpoint == 0:
-            self.nqpoint = len(self.edft)
-            self.qpoint = [[np.zeros([3,]), 1.] for i in range(self.nqpoint)]
-            if len(self.edft) == 1:
-                self.edft = [self.edft[0] for i in range(self.nqpoint)]
-        # Dispersion
+        # Q point info + frequency
+        ## Note: Not only for phonon band. also for 'DISPERSI' keyword and SCF k grid
+        band_title = self.df[self.df[0].str.contains(r'^\s*\*\s+LIST OF THE K POINTS USED FOF PHONON DISPERSION\.\s+\*\s*$')].index
+        empty_line = self.df[self.df[0].map(lambda x: x.strip() == '')].index.to_numpy(dtype=int)
+        if len(band_title) > 0:
+            ## Dispersion q point info
+            kheader = self.df[self.df[0].str.contains(r'^\s*\*\s+K\s+WEIGHT\s+COORD\s+\*\s*$')].index[0]
+            kend = self.df[self.df[0].str.contains(r'^\s*\*\s+WITH SHRINKING FACTORS: IS1 =\s+[0-9]+')].index[0]
+            self.nqpoint = int(kend - kheader - 1)
+            qpoint = np.array(self.df[0][kheader+1:kend].map(lambda x: x.strip().split()[1:-1]).tolist(),
+                              dtype=float)
+            is1 = float(self.df[0][kend].strip().split()[6])
+            is2 = float(self.df[0][kend].strip().split()[9])
+            is3 = float(self.df[0][kend].strip().split()[12])
+            self.qpoint = [[np.array([i[2]/is1, i[3]/is2, i[4]/is3]), i[1]] for i in qpoint]
+            del qpoint
+            freq_header = self.df[self.df[0].str.contains(r'\s+DISPERSION K POINT NUMBER')].index
+            # Generate list for IRREP symbols
+            IRREP = []
+            irreptitle = self.df[self.df[0].str.contains(r'^\s+\(HARTREE\*\*2\)\s+\(CM\*\*\-1\)\s+\(THZ\)\s+\(KM\/MOL\)')].index
+            if len(irreptitle) > 0:
+                bg = irreptitle[0]
+                ed = empty_line[np.where(empty_line>bg)[0][0]]
+                dfmini = self.df[0][bg+1:ed]
+                IRREP = dfmini.map(lambda x: x[49:52].strip()).tolist()
+                IRREP = np.unique(np.array(IRREP))
         else:
-            self.qpoint = [[i[0], i[1] / self.nqpoint] for i in self.qpoint]
-            self.edft = [self.edft[0] for i in range(self.nqpoint)]
+            ## Gamma point / Gamma point QHA.
+            self.nqpoint = len(self.edft)
+            self.qpoint = [[np.zeros([3,], dtype=float), 1.0] for i in range(self.nqpoint)]
+            ## frequency
+            freq_header = self.df[self.df[0].str.contains(r'^\s+MODES\s+EIGV\s+FREQUENCIES\s+')].index
+            IRREP = []
 
-        self.edft = H_to_kjmol(np.array(self.edft))
+        # Frequency
+        for bg in freq_header:
+            ed = empty_line[np.where(empty_line>=bg+2)[0][0]]
+            dfmini = self.df[0][bg:ed]
+            block_info = dfmini[dfmini.str.contains(r'^\s*[0-9]+\-\s+')]
+            idx = 0; empty = empty_line[np.where(empty_line>=ed)[0]]
+            while len(block_info) == 0:
+                ed = empty[idx]
+                dfmini = self.df[0][bg:ed]
+                block_info = dfmini[dfmini.str.contains(r'^\s*[0-9]+\-\s+')]
+                idx += 1
+            phonon = PhononBASE.readmode_basic(block_info, IRREP)
+            self.frequency.append(phonon[0])
+            self.nmode.append(len(phonon[0]))
+            if len(phonon[1]) != 0: self.mode_symm.append(phonon[1])
+            if len(phonon[2]) != 0: self.intens.append(phonon[2])
+            if len(phonon[3]) != 0: self.IR.append(phonon[3])
+            if len(phonon[4]) != 0: self.Raman.append(phonon[4])
+
+        ## eigenvector
+        if read_eigvt == True:
+            eigvt_header = self.df[self.df[0].str.contains(r'^\s*NORMAL MODES NORMALIZED TO')].index.tolist()
+            eigvt_header += self.df[self.df[0].str.contains(r'^\s*MODES IN PHASE')].index.tolist()
+            eigvt_header = np.sort(np.array(eigvt_header, dtype=int))
+
+            if len(band_title) > 0:
+                eigvt_end = freq_header.tolist()[1:]
+                eigvt_end.append(self.eoo)
+            else:
+                if self.nqpoint == 1: # Gamma frequency
+                    eigvt_end = [self.eoo]
+                else:
+                    dftitle = self.df[self.df[0].str.contains(r'\s*\*\s+CELL DEFORMATION\s*$')].index
+                    eigvt_end = dftitle.tolist()[1:] + [self.eoo]
+
+            countblock = 0
+            for bg, ed in zip(eigvt_header, eigvt_end):
+                dfmini = self.df[0][bg:ed]
+                self.eigenvector.append(
+                    PhononBASE.readmode_eigenvector(dfmini, self.nmode[countblock])
+                )
+                countblock += 1
 
         self.frequency = np.array(self.frequency)
-        self.nmode = np.array([len(i) for i in self.frequency], dtype=int)
-        if self.intens[0] == []:
-            self.intens = []
-            self.IR = []
-            self.Raman = []
-        else:
-            self.intens = np.array(self.intens)
+        self.nmode = np.array(self.nmode, dtype=int)
+        if len(self.mode_symm) != 0: self.mode_symm = np.array(self.mode_symm)
+        if len(self.intens) != 0: self.intens = np.array(self.intens, dtype=float)
+        if len(self.IR) != 0: self.IR = np.array(self.IR, dtype=bool)
+        if len(self.Raman) != 0: self.Raman = np.array(self.Raman, dtype=bool)
 
         if self.eigenvector != []:
             self.eigenvector = np.array(self.eigenvector)
@@ -1502,8 +1511,301 @@ class Crystal_output:
 
         return self
 
+    def get_phonon_band(self, q_overlap_tol=1e-4):
+        """
+        Read phonon bands from CRYSTAL output file.
+
+        Args:
+            q_overlap_tol (float): The threshold for overlapped k points. Only
+                used for getting tick positions.
+
+        Returns:
+            self.pband (PhononBand): ``phonons.PhononBand`` object.
+        """
+        from CRYSTALpytools.phonons import PhononBand
+        import pandas as pd
+        import numpy as np
+
+        band_title = self.df[self.df[0].str.contains(r'^\s*\*\s+PHONON BANDS\s+\*\s*$')].index
+        scelphono = self.df[self.df[0].str.contains(r'\s*\*+\s+ATOMS IN THE SUPERCELL REORDERED FOR PHONON CALCULATION\s*$')].index
+        if len(band_title) == 0:
+            raise Exception('Not a phonon band file')
+
+        self.get_phonon(read_eigvt=False, rm_imaginary=False, rm_overlap=False)
+        if len(scelphono) > 0:
+            struc = self.get_primitive_geometry(initial=False)
+        else:
+            struc = self.get_geometry(initial=False)
+
+        k_path3d = np.vstack([i[0] for i in self.qpoint])
+        bands = np.reshape(self.frequency.transpose(), [self.nmode[0], self.nqpoint, 1])
+        recp_latt = struc.lattice.reciprocal_lattice.matrix
+
+        # get labels and 1D k path
+        headline = self.df[self.df[0].str.contains(r'\s*FROM K\s+\(.*WITH DENOMINATOR')].index
+        headline = self.df[0][headline].map(lambda x: x.strip().split()).tolist()
+
+        steps = self.df[self.df[0].str.contains(r'\s*PHONONS ALONG PATH\:\s+[0-9]+\s+NUMBER OF K POINTS\:\s+[0-9]+')].index
+        steps = self.df[0][steps].map(lambda x: x.strip().split()[-1]).to_numpy(dtype=int)
+
+        k_path = np.array([], dtype=float); tick_pos = []; tick_label = []
+        tick_pos3d = []; totlen = 0.
+        for iline, line in enumerate(headline):
+            pt1 = np.array(line[3:6], dtype=int)
+            pt2 = np.array(line[10:13], dtype=int)
+            denominator = int(line[-1])
+            seglen = np.linalg.norm((pt2-pt1) @ recp_latt)
+            tick_pos3d.append(pt1 / denominator)
+            tick_pos3d.append(pt2 / denominator)
+            tick_label.append('({:d} {:d} {:d})/{:d}'.format(pt1[0], pt1[1], pt1[2], denominator))
+            tick_label.append('({:d} {:d} {:d})/{:d}'.format(pt2[0], pt2[1], pt2[2], denominator))
+            k_path = np.hstack([k_path, np.linspace(totlen, totlen+seglen, steps[iline])])
+            tick_pos.append(totlen)
+            tick_pos.append(totlen+seglen)
+            totlen += seglen
+
+        # overlapped points
+        for i in range(len(tick_label)-1, 1, -1):
+            dist = tick_pos[i]-tick_pos[i-1]
+            if dist <= q_overlap_tol:
+                del tick_pos[i], tick_label[i], tick_pos3d[i]
+
+        # instantiation
+        self.pband = PhononBand(tick_pos, tick_label, bands, k_path, struc,
+                                tick_pos3d=tick_pos3d, k_path3d=k_path3d)
+        return self.pband
+
+    def get_phonon_dos(self, read_INS=False, atom_prj=[], element_prj=[]):
+        """
+        Read phonon density of states from CRYSTAL output file.
+
+        Args:
+            read_INS (bool): Read the inelastic neutron scattering spectra.
+            atom_prj (list): Read the projections of atoms with specified labels.
+            element_prj (list): Read projections of elements with specified
+                conventional atomic numbers.
+
+        Returns:
+            self.pdos (PhononDOS): ``phonons.PhononDOS`` object.
+        """
+        import pandas as pd
+        import numpy as np
+        from CRYSTALpytools.units import cm_to_thz, thz_to_cm
+        from CRYSTALpytools.phonons import PhononDOS
+
+        # read from .out file
+        if read_INS == False:
+            header = self.df[self.df[0].str.contains(r'^\s*FREQUENCY \(CM\*\*\-1\)    TOTAL PDOS')].index
+        else:
+            header = self.df[self.df[0].str.contains(r'^\s*FREQUENCY \(CM\*\*\-1\)    TOTAL NW\-PDOS')].index
+            if len(header) == 0:
+                raise Exception('File does not have INS phonon DOS.')
+
+        empty_line = self.df[self.df[0].map(lambda x: x.strip() == '')].index.tolist()
+        empty_line = np.array(empty_line, dtype=int)
+        # total prj
+        totprj = []
+        for h in header:
+            end = empty_line[np.where(empty_line>h+2)[0][0]]
+            totprj.append(np.array(
+                self.df[0][h+2:end].map(lambda x: x.strip().split()).tolist(),
+                dtype=float
+            ))
+        totprj = np.array(totprj, dtype=float)
+
+        ## projections
+        atom_prj = np.array(atom_prj, ndmin=1)
+        element_prj = np.array(element_prj, ndmin=1)
+        nprj = len(atom_prj) + len(element_prj) + 1
+        doss = np.zeros([nprj, totprj.shape[1], 1], dtype=float)
+        freq = cm_to_thz(totprj[0, :, 0])
+        doss[0, :, 0] = np.sum(totprj[:, :, 1], axis=0)
+
+        ## atomic
+        if len(atom_prj) > 0:
+            for ia, a in enumerate(atom_prj):
+                header = self.df[self.df[0].str.contains(r'^\s\s\sATOM\s+{:d}$'.format(a))].index
+                if len(header) == 0:
+                    raise ValueError("The specified atom label: '{:d}' is not found.".format(a))
+                for h in header:
+                    end = empty_line[np.where(empty_line>h+4)[0][0]]
+                    doss[ia+1, :, 0] += np.array(
+                        self.df[0][h+4:end].map(lambda x: x.strip().split()).tolist(),
+                        dtype=float
+                    )[:, 1]
+        ## species
+        if len(element_prj) > 0:
+            for ie, e in enumerate(element_prj):
+                header = self.df[self.df[0].str.contains(r'^\s\s\sATOMIC NUMBER\s+{:d}$'.format(e))].index
+                if len(header) == 0:
+                    raise ValueError("The specified atomic number: '{:d}' is not found.".format(e))
+                for h in header:
+                    end = empty_line[np.where(empty_line>h+4)[0][0]]
+                    doss[ie+len(atom_prj)+1, :, 0] += np.array(
+                        self.df[0][h+4:end].map(lambda x: x.strip().split()).tolist(),
+                        dtype=float
+                    )[:, 1]
+
+        doss = thz_to_cm(doss)
+        self.pdos = PhononDOS(doss, freq, unit='THz')
+        return self.pdos
+
+    def get_spectra(self, specfile, type='infer'):
+        """
+        Read spectra from IRSPEC.DAT / RAMSPEC.DAT files.
+
+        .. note::
+
+            In principle, the code cannot tell the type of the files. It is
+            important to assign the appropriate type to the ``type`` keyword.
+            Currently the available options are 'IRSPEC' and 'RAMSPEC'.
+
+        Args:
+            specfile (str): File name of spectra data.
+            type (str): Type of the file. See above. If 'infer', type is
+                inferred from input file name.
+
+        Returns:
+            self.\* (IR|Raman): Dependending on the ``type`` keyword, return to
+                ``spectra.IR`` or ``spectra.Raman`` objects. Attribute names
+                same as ``type`` are set.
+        """
+        import numpy as np
+        from CRYSTALpytools.spectra import IR, Raman
+        import warnings
+
+        # sanity check
+        accepted_types = ['IRSPEC', 'RAMSPEC']
+        if type.lower() == 'infer':
+            name = specfile.upper()
+            for a in accepted_types:
+                if a in name: type = a; break
+            if type.lower() == 'infer':
+                raise Exception("Type of file cannot be inferred from input file name: '{}'.".format(specfile))
+
+        if type.upper() not in accepted_types:
+            raise ValueError("The specified type: '{}' is not vaild.".format(type))
+        type = type.upper()
+
+        if not hasattr(self, 'df'):
+            warnings.warn('Output file not available. Geometry information missing.',
+                          stacklevel=2)
+        else:
+            if type == 'IRSPEC':
+                title = self.df[self.df[0].str.contains(
+                    r'^\s*\*\s+CALCULATION OF INFRARED ABSORBANCE \/ REFLECTANCE SPECTRA'
+                )].index
+                if len(title) == 0:
+                    warnings.warn(
+                        'IR spectra block is not found in the screen output. Are files from the same calculation?',
+                         stacklevel=2
+                    )
+            elif type == 'RAMSPEC':
+                # mute pandas warning
+                warnings.filterwarnings("ignore", 'This pattern is interpreted as a regular expression, and has match groups.')
+                title = self.df[self.df[0].str.contains(
+                    r'^\s*(\<RAMAN\>){11}'
+                )].index
+                if len(title) == 0:
+                    warnings.warn(
+                        'Raman spectra block is not found in the screen output. Are files from the same calculation?',
+                        stacklevel=2
+                    )
+        # read file and instantiation
+        data = np.loadtxt(specfile)
+        if type == 'IRSPEC':
+            if data.shape[1] > 3: # crystal IR
+                obj = IR(freq=data[:, 0].T, absorb=data[:, 2:6].T, reflec=data[:, 6:].T, type='crystal')
+            else: # molecule IR
+                obj = IR(freq=data[:, 0].T, absorb=data[2].T, reflec=[], type='molecule')
+        elif type == 'RAMSPEC':
+            obj = Raman(freq=data[:, 0].T, poly=data[:, 1:4].T, single=data[:, 4:].T)
+
+        setattr(self, type, obj)
+        return getattr(self, type)
+
+    def get_elatensor(self, *thickness):
+        """
+        Extracts the elastic tensor from the data.
+
+        Args:
+            \*thickness (float): Effective thickness of low dimensional
+                 materials, in :math:`\\AA`.
+        Returns:
+            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
+                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
+                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
+                if effective thickness of materials are specified. Otherwise
+                GPa.m for 2D and GPa.m :math:`^{2}` for 1D (might lead to very
+                small numbers).
+        """
+        import re, warnings
+
+        etitle = self.df[
+            self.df[0].str.contains(r'^\s*SYMMETRIZED ELASTIC CONSTANTS')
+        ].index.to_numpy(dtype=int)
+
+        empty_line = self.df[
+            self.df[0].map(lambda x: x.strip() == '')
+        ].index.to_numpy(dtype=int)
+
+        if len(etitle) == 0:
+            raise Exception('Elastic tensor not found. Check your output file.')
+
+        bg = etitle[0] + 2
+        ed = empty_line[np.where(empty_line>bg)[0][0]]
+
+        tens = self.df[0].loc[bg:ed-1].map(lambda x: x.strip().split()).tolist()
+        # print(self.df[0].loc[bg:ed-1])
+        ndimen = len(tens)
+        self.tensor = np.zeros([ndimen,ndimen], dtype=float)
+        for i in range(ndimen):
+            self.tensor[i, i:] = np.array(tens[i][1:-1], dtype=float)
+        # Symmetrize tensor
+        for i in range(ndimen):
+            for j in range(i,ndimen):
+                self.tensor[j][i] = self.tensor[i][j]
+
+        # Unit conversion
+        title = self.df[0][etitle[0]].lower()
+        if re.search('gpa', title):
+            pass
+        elif re.search('hartree', title):
+            if ndimen == 1:
+                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
+            elif ndimen == 3:
+                area = np.linalg.norm(np.cross(
+                    self.get_lattice(initial=False)[0, :2],
+                    self.get_lattice(initial=False)[1, :2]
+                )) * 1e-20 # AA^2 --> m^2
+                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
+        else:
+            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
+                          stacklevel=2)
+
+        # Effective thickness
+        if len(thickness) > 0:
+            if ndimen == 1:
+                if len(thickness) == 1:
+                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
+                else:
+                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
+            elif ndimen == 3:
+                self.tensor = self.tensor / (thickness[0]*1e-10)
+        else:
+            if ndimen != 6:
+                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
+                               stacklevel=2)
+        return self.tensor
+
+
     def get_anh_spectra(self):
         """
+        .. note::
+
+            **This is not for the released feature of CRYSTAL23 v1.0.1**
+
         This method reads data from a CRYSTAL output file and processes it to 
         extract anharmonic (VSCF and VCI) IR and Raman spectra.
 
@@ -1591,8 +1893,11 @@ class Crystal_output:
             attributes have been listed here, but the yy, zz, xy, xz, yz components
             are available as well.  
         """
-        import re
+        import re, warnings
         import numpy as np
+
+        warnings.warn('This is not a released feature of CRYSTAL23 v1.0.1, make sure that you know what you are doing.',
+                      stacklevel=2)
 
         # Initialize some logical variables
         save = False
@@ -1952,90 +2257,6 @@ class Crystal_output:
 
         return self
 
-    def get_elatensor(self, *thickness):
-        """
-        Extracts the elastic tensor from the data.
-
-        Args:
-            \*thickness (float): Effective thickness of low dimensional
-                 materials, in :math:`\\AA`.
-        Returns:
-            self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
-                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
-                The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
-                if effective thickness of materials are specified. Otherwise
-                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
-                small numbers).
-        """
-        import re, warnings
-
-        title = ''
-        buffer = []
-        countline = 0
-        while countline < self.eoo:
-            line = self.data[countline]
-            if re.match(r'^\s*SYMMETRIZED ELASTIC CONSTANTS', line):
-                title = line
-                countline += 2
-                while self.data[countline].strip() != '':
-                    buffer.append(self.data[countline])
-                    countline += 1
-                break
-            else:
-                countline += 1
-                continue
-
-        # Build tensor
-        if len(buffer) == 0:
-            raise Exception('Elastic tensor not found. Check your output file.')
-        else:
-            dimen = len(buffer)
-            self.tensor = np.zeros([dimen,dimen], dtype=float)
-
-        for i in range(dimen):
-            # Clean buffer and copy it in strtensor
-            self.tensor[i, i:] = np.array(
-                buffer[i].strip().split()[1:-1], dtype=float
-            )
-        buffer.clear()
-
-        # Symmetrize tensor
-        for i in range(dimen):
-            for j in range(i,dimen):
-                self.tensor[j][i] = self.tensor[i][j]
-
-        # Unit conversion
-        if re.search('gpa', title.lower()):
-            pass
-        elif re.search('hartree', title.lower()):
-            if dimen == 1:
-                length = units.angstrom_to_au(self.get_lattice(initial=False)[0, 0]) * 1e-10 # AA --> m
-                self.tensor =  units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / length # Eh --> GJ/m
-            elif dimen == 3:
-                area = np.linalg.norm(np.cross(
-                    self.get_lattice(initial=False)[0, :2],
-                    self.get_lattice(initial=False)[1, :2]
-                )) * 1e-20 # AA^2 --> m^2
-                self.tensor = units.au_to_GPa(self.tensor) * (units.au_to_angstrom(1.)*1e-10)**3 / area # Eh --> GJ/m
-        else:
-            warnings.warn('Unknown unit identified, return to CRYSTAL default unit.',
-                          stacklevel=2)
-
-        # Effective thickness
-        if len(thickness) > 0:
-            if dimen == 1:
-                if len(thickness) == 1:
-                    self.tensor = self.tensor / (thickness[0]*1e-10)**2
-                else:
-                    self.tensor = self.tensor / (thickness[0]*1e-10) / (thickness[1]*1e-10)
-            elif dimen == 3:
-                self.tensor = self.tensor / (thickness[0]*1e-10)
-        else:
-            if dimen != 6:
-                warngings.warn('Low dimensional materials without effective thickness! Output units have extra dimensions of length.',
-                               stacklevel=2)
-        return self.tensor
-
 #------------------------------Deprecated-------------------------------------#
     @property
     def n_atoms(self):
@@ -2114,6 +2335,19 @@ class Crystal_output:
                       stacklevel=2)
         struc = self.get_geometry(initial=True, write_gui=False)
         return struc.crys_coords
+
+    def get_last_geom(self, write_gui_file=True, symm_info='pymatgen'):
+        """
+        Deprecated. Use ``get_geometry(initial=False)``. 
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated property. Use 'get_geometry(initial=False)'.",
+                      stacklevel=2)
+
+        struc = self.get_geometry(initial=False, write_gui=write_gui_file, symm_info=symm_info)
+        self.last_geom = [struc.lattice.matrix.tolist(), struc.species_Z, struc.cart_coords.tolist()]
+        return self.last_geom
 
 
 class Properties_input(Properties_inputBASE):
@@ -2387,149 +2621,6 @@ class Properties_output(POutBASE):
         """
         return cls(properties_output=properties_output)
 
-    def read_vecfield(self, properties_output, which_prop):
-        """Reads the fort.25 file to return data arrays containing one or more vectiorial density properties.
-
-        Args:
-            properties_output (str): The properties output file.
-            which_prop (str): The density property selected by the user.
-            'm' (magnetization), 'j' (spin current), 'J' (spin current density)
-        Returns:
-            Properties_output (str): The fort.25 output file.
-        """
-
-        import numpy as np
-
-        self.read_file(properties_output)
-
-        data = self.data
-
-        # Reads the header information
-        nrow = int(data[0].split()[1])
-        ncol = int(data[0].split()[2])
-        stepx = float(data[0].split()[3])
-        stepy = float(data[0].split()[4])
-        cosxy = float(data[0].split()[5])
-
-        A = np.array([float(data[1].split()[0]), float(
-            data[1].split()[1]), float(data[1].split()[2])])
-        B = np.array([float(data[1].split()[3]), float(
-            data[1].split()[4]), float(data[1].split()[5])])
-
-        C = np.array([float(data[2].split()[0]), float(
-            data[2].split()[1]), float(data[2].split()[2])])
-        naf = int(data[2].split()[3])
-        ldim = int(data[2].split()[4])
-
-        self.header = (nrow, ncol, stepx, stepy, cosxy, A, B, C, naf, ldim)
-
-        # Elaborates the header data
-        skip = 6 + naf
-
-        for i in range(2, 20):
-            if (nrow % i) == 0:
-                nrow_split = int(nrow/i)
-
-        for i in range(2, 20):
-            if (ncol % i) == 0:
-                ncol_split = int(ncol/i)
-
-        bline = (nrow*ncol)/6
-        if (bline % 6) == 0:
-            bline = int(bline)
-        else:
-            bline = int(bline) + 1
-
-        # Reads the types of density properties requested by the user and initializes the data arrays
-        check = np.zeros(3, dtype=int)
-        if 'm' in which_prop:
-            check[0] = 1
-            self.dens_m = np.zeros((nrow, ncol, 3), dtype=float)
-        if 'j' in which_prop:
-            check[1] = 1
-            self.dens_j = np.zeros((nrow, ncol, 3), dtype=float)
-        if 'J' in which_prop:
-            check[2] = 1
-            self.dens_JX = np.zeros((nrow, ncol, 3), dtype=float)
-            self.dens_JY = np.zeros((nrow, ncol, 3), dtype=float)
-            self.dens_JZ = np.zeros((nrow, ncol, 3), dtype=float)
-        if (not check[0]) and (not check[1]) and (not check[2]):
-            print('Error: Invalid Entry. Only the m, j, and J characters are supported')
-            sys.exit(1)
-
-        # Gathers the data
-        iamhere = 0
-
-        if check[0]:
-            iamhere = 3
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_m[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_m[r, s, 1] = data[i +
-                                                iamhere+bline+skip].split()[j]
-                    self.dens_m[r, s, 2] = data[i+iamhere +
-                                                (2*bline)+(2*skip)].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-            iamhere = iamhere + 3*bline + 2*skip
-        if check[1]:
-            if iamhere == 0:
-                iamhere = 3
-            else:
-                iamhere = iamhere + skip
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_j[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_j[r, s, 1] = data[i +
-                                                iamhere+bline+skip].split()[j]
-                    self.dens_j[r, s, 2] = data[i +
-                                                iamhere+2*bline+2*skip].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-            iamhere = iamhere + 3*bline + 2*skip
-        if check[2]:
-            if iamhere == 0:
-                iamhere = 3
-            else:
-                iamhere = iamhere + skip
-            r = 0
-            s = 0
-            for i in range(0, bline):
-                for j in range(0, len(data[i+iamhere].split())):
-                    self.dens_JX[r, s, 0] = data[i+iamhere].split()[j]
-                    self.dens_JX[r, s, 1] = data[i +
-                                                 iamhere+bline+skip].split()[j]
-                    self.dens_JX[r, s, 2] = data[i+iamhere +
-                                                 (2*bline)+(2*skip)].split()[j]
-                    self.dens_JY[r, s, 0] = data[i+iamhere +
-                                                 (3*bline)+(3*skip)].split()[j]
-                    self.dens_JY[r, s, 1] = data[i+iamhere +
-                                                 (4*bline)+(4*skip)].split()[j]
-                    self.dens_JY[r, s, 2] = data[i+iamhere +
-                                                 (5*bline)+(5*skip)].split()[j]
-                    self.dens_JZ[r, s, 0] = data[i+iamhere +
-                                                 (6*bline)+(6*skip)].split()[j]
-                    self.dens_JZ[r, s, 1] = data[i+iamhere +
-                                                 (7*bline)+(7*skip)].split()[j]
-                    self.dens_JZ[r, s, 2] = data[i+iamhere +
-                                                 (8*bline)+(8*skip)].split()[j]
-                    if s == (ncol - 1):
-                        r += 1
-                        s = 0
-                    else:
-                        s += 1
-        return self
-
 #----------------------------electronic structure------------------------------#
 
     def read_electron_band(self, band_file):
@@ -2598,13 +2689,17 @@ class Properties_output(POutBASE):
             type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
-            self.topond_\* (ChargeDenstiy): Return to the ``topond_*`` with type
-                suffixed (all capital). If type is unknown, return to
-                ``topond_unknown``. All of them are ``topond.Surf`` class.
+            self.\* (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph):
+                Return to ``topond`` property classes, depending on input file types. The
+                attribute name is upper case type names. If unknown, return to
+                ``self.TOPOND``. A ``topond.ChargeDensity`` or
+                ``topond.GradientTraj`` class is generated.
         """
         import warnings
         from CRYSTALpytools.base.extfmt import TOPONDParser
-        from CRYSTALpytools.topond import Surf, Traj
+        from CRYSTALpytools.topond import \
+            ChargeDensity, SpinDensity, Gradient, Laplacian, HamiltonianKE, \
+            LagrangianKE, VirialField, ELF, GradientTraj, ChemicalGraph
 
         surflist = ['SURFRHOO', 'SURFSPDE', 'SURFLAPP', 'SURFLAPM', 'SURFGRHO',
                     'SURFKKIN', 'SURFGKIN', 'SURFVIRI', 'SURFELFB']
@@ -2617,15 +2712,9 @@ class Properties_output(POutBASE):
 
         issurf = False; istraj = False
         for t in surflist:
-            if t in type:
-                issurf = True
-                type = t
-                break
+            if t in type: issurf = True; type = t; break
         for t in trajlist:
-            if t in type:
-                istraj = True
-                type = t
-                break
+            if t in type: istraj = True; type = t; break
 
         # still need to distinguish surf and traj
         if issurf==False and istraj==False:
@@ -2635,13 +2724,11 @@ class Properties_output(POutBASE):
             file = open(topondfile, 'r')
             header = file.readline()
             file.close()
-            if 'DSAA' in header:
-                issurf = True
-            else:
-                istraj = True
+            if 'DSAA' in header: issurf = True
+            else: istraj = True
 
         if issurf == True:
-            _, a, b, c, _, _, map1, _, unit = TOPONDParser.contour2D(topondfile)
+            _, a, b, c, _, _, map, unit = TOPONDParser.contour2D(topondfile)
             if not hasattr(self, 'file_name'):
                 warnings.warn('Properties output file not found: Geometry not available',
                               stacklevel=2)
@@ -2653,7 +2740,25 @@ class Properties_output(POutBASE):
                 # no atom plot currently, though read method is given
                 _, base = super().get_topond_geometry()
             # class instantiation
-            obj = Surf(map1, base, struc, type=type, unit=unit)
+            if type == 'SURFRHOO' or type == 'unknown':
+            # map from base method has spin dimension
+                obj = ChargeDensity(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFSPDE':
+                obj = SpinDensity(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFLAPP':
+                obj = Laplacian(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFLAPM':
+                obj = Laplacian(-map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFGRHO':
+                obj = Gradient(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFKKIN':
+                obj = HamiltonianKE(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFGKIN':
+                obj = LagrangianKE(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFVIRI':
+                obj = VirialField(map[:,:,0], base, 2, struc, unit)
+            elif type == 'SURFELFB':
+                obj = ELF(map[:,:,0], base, 2, struc, unit)
             obj._set_unit('Angstrom')
 
         elif istraj == True:
@@ -2664,143 +2769,310 @@ class Properties_output(POutBASE):
             # no atom plot currently, though read method is given
             _, base = super().get_topond_geometry()
             # class instantiation
-            obj = Traj(wtraj, traj, base, struc, type=type, unit=unit)
+            if type == 'TRAJGRAD' or type == 'unknown':
+                obj = GradientTraj(wtraj, traj, base, struc, unit)
+            elif type == 'TRAJMOLG':
+                obj = ChemicalGraph(wtraj, traj, base, struc, unit)
             obj._set_unit('Angstrom')
 
-        setattr(self, 'topond_{}'.format(type), obj)
-        return getattr(self, 'topond_{}'.format(type))
+        if type == 'unknown': type = 'TOPOND'
 
-    def read_ECHG(self, *f25_files, method=None):
+        setattr(self, type, obj)
+        return getattr(self, type)
+
+    def read_ECHG(self, *f25_files, method='normal', index=None):
         """
         Read charge / spin density data from a file. Unit: :math:`e.\\AA^{-3}`.
 
         Available methods are:
 
+        * 'normal': Normal 1-file reading.  
         * 'substact': Substracting data from the first entry based on following
-            entries. Multiple entries only.  
+            entries. Multiple entries or 1 entry with 'PATO' keyword enabled.
+            For multiple entries, make sure the charge map is in the first (and
+            ideally the only) 'MAPN' data block, otherwise the code won't get
+            the correct data. For 1 entry with 'PATO', data will be substracted
+            from the 'normal' system.  
         * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
             :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
             / spin(:math:`\\alpha-\\beta`). Single entry only.
 
+        .. note::
+
+            The standard screen output is highly recommended to add, which
+            identifies the indices of corresponding 2D data maps. Otherwise the
+            ``index`` input can be specified. Otherwise, the code only reads
+            the first 2D data map for spin =1 and first 2 maps for spin=2.
+
         Args:
             \*f25_files (str): Path to the fort.25 file(s).
             method (str): Data processing method. See above.
+            index (int|list): Sequence number of headers with the '-%-MAPN'
+                pattern. Useful only if the standard screen output is not
+                available. Starting from 0.
         Returns:
             self.echg (ChargeDensity): ``electronics.ChargeDensity`` object.
         """
         from CRYSTALpytools.base.extfmt import CrgraParser
         from CRYSTALpytools.electronics import ChargeDensity
         import numpy as np
+        import pandas as pd
         import warnings
 
-        if isinstance(method, str):
-            method = method.lower()
-            if method != 'substract' and method != 'alpha_beta':
-                raise ValueError("Unknown method: '{}'.".format(method))
+        method = method.lower()
+        if method != 'substract' and method != 'alpha_beta' and method != 'normal':
+            raise ValueError("Unknown method: '{}'.".format(method))
 
-        spin, a, b, c, cosxy, struc, map1, map2, unit = CrgraParser.mapn(f25_files[0])
-        if spin == 1:
-            self.echg = ChargeDensity(map1, np.vstack([a,b,c]), spin, 2, struc, unit)
-        else:
-            self.echg = ChargeDensity(np.dstack([map1, map2]), np.vstack([a,b,c]),
-                                      spin, 2, struc, unit)
-        self.echg._set_unit('Angstrom')
-
-        # methods
-        if len(f25_files) > 1 and method == 'substract':
-            self.echg = self.echg.substract(*[f for f in f25_files[1:]])
-        elif len(f25_files) > 1 and method != 'substract':
-            warnings.warn("Only the 'substract' method is available to more than 1 entries. Nothing is done to other entries.",
-                          stacklevel=2)
-        elif len(f25_files) == 1 and method == 'substract':
-            warnings.warn("The 'substract' method is used only for multiple entries.",
-                          stacklevel=2)
-        # alpha-beta
-        if method == 'alpha_beta':
-            if len(f25_files) > 1:
-                warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
+        pato = [] # used for method check
+        if not hasattr(self, 'file_name'):
+            if np.all(index==None):
+                warnings.warn('Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).',
                               stacklevel=2)
-            self.echg.alpha_beta()
+                index = None
+            else:
+                index = np.array(index, dtype=int, ndmin=1)
+        else:
+            df = pd.DataFrame(self.data)
+            headers = df[df[0].str.contains(r'^\s*-%-[0-4]MAPN')].index.to_numpy(dtype=int)
+            chg = df[df[0].str.contains(r'^\s*ALPHA\+BETA ELECTRONS DENSITY')].index.to_numpy(dtype=int)
+            spin = df[df[0].str.contains(r'^\s*ALPHA\-BETA ELECTRONS DENSITY')].index.to_numpy(dtype=int)
+            pato = df[df[0].str.contains(r'^\s*DENSITY MATRIX AS SUPERPOSITION')].index.to_numpy(dtype=int)
+
+            if len(chg) == 0:
+                raise Exception('Charge density calculation not found in the output file.')
+            elif len(chg) == 1:
+                if len(spin) == 1: # find the header closest to keywords
+                    index = np.array([np.where(headers>chg[0])[0][0],
+                                      np.where(headers>spin[0])[0][0]], dtype=int)
+                    index = np.sort(index)
+                else:
+                    index = np.where(headers>chg[0])[0][0]
+            else:
+                if len(pato) == 1 and len(chg) == 2:
+                    if chg[0] < pato[0]: use_idx = 0 # density before pato
+                    else: use_idx = 1 # density after pato
+                    ipato = np.where(headers>pato[0])[0][0]
+                    ichg = np.where(headers>chg[use_idx])[0][0]
+                    if len(spin) != 0:
+                        ispin = np.where(headers>spin[use_idx][0][0])
+                        if method == 'substract': # pato substract
+                            index = np.array([ipato, ichg, ispin], dtype=int)
+                        else: # normal
+                            index = np.array([ichg, ispin], dtype=int)
+                    else:
+                        if method == 'substract': # pato substract
+                            index = np.array([ipato, ichg], dtype=int)
+                        else: # normal
+                            index = np.array([ichg], dtype=int)
+                    index = np.sort(index)
+                else:
+                    warnings.warn('Multiple charge densities exist in the calculation. Only the first density map will be read.',
+                                  stacklevel=2)
+                    index = 0
+
+        # read file 0
+        spin, a, b, c, cosxy, struc, map, unit = CrgraParser.mapn(f25_files[0], index)
+        # methods
+        if len(f25_files) == 1 and len(pato) == 1 and method == 'substract': # PATO in the same file
+            if ichg < ipato:
+                if spin == 1:
+                    self.echg = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    self.echg = self.echg.substract(obj)
+                else:
+                    self.echg = ChargeDensity(np.dstack([map[0], map[1]], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit))
+                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    self.echg = self.echg.substract(obj)
+            else:
+                if spin == 1:
+                    self.echg = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    self.echg = self.echg.substract(obj)
+                else:
+                    self.echg = ChargeDensity(np.dstack([map[1], map[2]], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit))
+                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+                    self.echg = self.echg.substract(obj)
+            self.echg._set_unit('Angstrom')
+            self.echg.data = self.echg.data[::-1] # base vector use BA rather than AB
+        else: # others
+            if spin == 1:
+                self.echg = ChargeDensity(map, np.vstack([a,b,c]), 1, 2, struc, unit)
+            else:
+                if isinstance(cosxy, float):
+                    raise Exception('Broken file: charge / spin density missing for spin polarized systems.')
+                self.echg = ChargeDensity(np.dstack([map[0], map[1]]), np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+            self.echg._set_unit('Angstrom')
+            self.echg.data = self.echg.data[::-1] # base vector use BA rather than AB
+            if method == 'alpha_beta':
+                if len(f25_files) > 1:
+                    warnings.warn("The 'alpha_beta' method is used only for a single entry. Nothing is done to other entries.",
+                                  stacklevel=2)
+                elif spin != 2:
+                    warnings.warn("Not a spin-polarized system, do nothing", stacklevel=2)
+                else:
+                    self.echg.alpha_beta()
+            elif method == 'substract':
+                if len(f25_files) > 1:
+                    self.echg = self.echg.substract(*[f for f in f25_files[1:]])
+                else:
+                    warnings.warn("Nothing to substract.", stacklevel=2)
 
         return self.echg
 
-#-------------------------------------XRD--------------------------------------#
+#-----------------------------2D vector field----------------------------------#
 
-    def read_cry_xrd_spec(self, properties_output):
+    def read_relativistics(self, f25_file, type, index=None):
         """
-        Read XRD spectrum data from a file.
+        Read 2D scalar / vector fields from 2c-SCF calculations, generated by
+        the 'PROPS2COMP' keyword.
+
+        .. note ::
+
+            The standard screen output is highly recommended to add, which
+            identifies the indices of corresponding 2D data maps. Otherwise the
+            ``index`` must be specified by integer or list of integers.
 
         Args:
-            properties_output (str): Path to the properties output file.
+            f25_file (str): File name of the fort.25 file.
+            type (str|int|list): Property to calculate, 'DENSITY', 'MAGNETIZ',
+                'ORBCURDENS', or 'SPICURDENS'.
+            index (int|list): Sequence number of headers with the '-%-MAPN'
+                pattern. Useful only if the standard screen output is not
+                available. Starting from 0.
+
         Returns:
-            self: The modified object with extracted XRD spectrum data.
+            self.\* (ChargeDensity|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity):
+                Return to classes defined in the ``relativisitcs`` module,
+                depending on ``type``. The attribute name is upper case type
+                names. Unit: charge densities, :math:`\\AA^{-3}`; magnetization,
+                A/m; Orbital/spin densities, A/m :math:`^{2}`.
         """
-        import re
-        import sys
-
+        import numpy as np
         import pandas as pd
+        from CRYSTALpytools.base.extfmt import CrgraParser
+        from CRYSTALpytools.relativistics import (ChargeDensity, Magnetization,
+            OrbitalCurrentDensity, SpinCurrentDensity)
 
-        self.read_file(properties_output)
+        type_avail = ['DENSITY', 'MAGNETIZ', 'ORBCURDENS', 'SPICURDENS']
+        type = type.upper()
+        if type not in type_avail:
+            raise ValueError("Unknown type: '{}'.".format(type))
 
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        if filename.endswith('.outp'):
-            pass
+        if not hasattr(self, 'file_name'):
+            if np.all(index==None):
+                raise Exception("Properties output file is mandatory here, otherwise specify the index.")
+            index = np.array(index, dtype=int, ndmin=1)
         else:
-            sys.exit('please, choose a valid file or rename it properly')
+            struc = super().get_geometry()
+            # get corresponding MPNET entries from output file
+            df = pd.DataFrame(self.data)
+            headers = df[df[0].str.contains(r'^\s*-%-[0-4]MAPN')].index.to_numpy(dtype=int)
+            dens = df[df[0].str.contains(r'^\s+PARTICLE\-NUMBER DENSITY')].index.to_numpy(dtype=int)
+            mag = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP MAGNETIZATION')].index.to_numpy(dtype=int)
+            orbt = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP ORB\-CURR DENS')].index.to_numpy(dtype=int)
+            spinc = df[df[0].str.contains(r'^\s+[X,Y,Z]\-COMP [X,Y,Z] S\-CURR DENS')].index.to_numpy(dtype=int)
 
-        spectrum = re.compile(
-            '2THETA    INTENS  INTENS-LP INTENS-LP-DW', re.DOTALL)
+            indices = np.concatenate([dens, mag, orbt, spinc])
+            indices = np.sort(indices)
+            if len(indices) == 0:
+                raise Exception('2c-SCF calculation not found in the output file.')
+            headers_2c = headers[np.where(headers>indices[-1])] # headers for 2c scf block
+            if type == 'DENSITY':
+                if len(dens) != 1:
+                    raise Exception('Charge density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.where(indices==dens[0])[0]
+            elif type == 'MAGNETIZ':
+                if len(mag) != 3:
+                    raise Exception('Magnetization not found, or found more than once, in the calculation.')
+                 # index in headers_2c
+                idx = np.array([np.where(indices==mag[0])[0],
+                                np.where(indices==mag[1])[0],
+                                np.where(indices==mag[2])[0]], dtype=int)
+            elif type == 'ORBCURDENS':
+                if len(orbt) != 3:
+                    raise Exception('Orbital-current density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.array([np.where(indices==orbt[0])[0],
+                                np.where(indices==orbt[1])[0],
+                                np.where(indices==orbt[2])[0]], dtype=int)
+            elif type == 'SPICURDENS':
+                if len(spinc) != 9:
+                    raise Exception('Spin-current density not found, or found more than once, in the calculation.')
+                # index in headers_2c
+                idx = np.concatenate([
+                    np.where(indices==spinc[0])[0], np.where(indices==spinc[1])[0],
+                    np.where(indices==spinc[2])[0], np.where(indices==spinc[3])[0],
+                    np.where(indices==spinc[4])[0], np.where(indices==spinc[5])[0],
+                    np.where(indices==spinc[6])[0], np.where(indices==spinc[7])[0],
+                    np.where(indices==spinc[8])[0]
+                ], dtype=int)
+            # index in the full fort.25 file.
+            index = [np.where(headers==headers_2c[i])[0][0] for i in idx]
 
-        match = []
+        # read file
+        spin, a, b, c, cosxy, struc, map, unit = CrgraParser.mapn(f25_file, index)
 
-        a = 0
+        if type == 'DENSITY':
+            obj = ChargeDensity(map, np.vstack([a,b,c]), 1, 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('Angstrom')
+        elif type == 'MAGNETIZ':
+            obj = Magnetization(np.dstack([map[0], map[1], map[2]]),
+                                np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
+        elif type == 'ORBCURDENS':
+            obj = OrbitalCurrentDensity(np.dstack([map[0], map[1], map[2]]),
+                                        np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data = obj.data[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
+        elif type == 'SPICURDENS':
+            obj = SpinCurrentDensity(np.dstack([map[0], map[1], map[2]]),
+                                     np.dstack([map[3], map[4], map[5]]),
+                                     np.dstack([map[6], map[7], map[8]]),
+                                     np.vstack([a[0],b[0],c[0]]), 2, struc, unit)
+            obj.data_x = obj.data_x[::-1] # base vector use BA rather than AB
+            obj.data_y = obj.data_y[::-1] # base vector use BA rather than AB
+            obj.data_z = obj.data_z[::-1] # base vector use BA rather than AB
+            obj._set_unit('SI')
 
-        for line in data:
-            if spectrum.search(line):
-                match.append('WRITE LINE:' + line)
-                a = 1
-            else:
-                match.append('WRONG LINE:' + line)
+        setattr(self, type, obj)
+        return getattr(self, type)
 
-        if (a == 0):
-            sys.exit('please, choose a valid file or rename it properly')
+#-------------------------------------XRD--------------------------------------#
 
-        df = pd.DataFrame(match)
+    def read_XRDspec(self, option='LP'):
+        """
+        Read XRD spectra from standard screen output of properties calculation.
+        It is envoked by keyword 'XRDSPEC'.
 
-        num_riga = (df[df[0].str.contains(u'WRITE')].index.values)
+        Args:
+            option (str): 'NC' for no correction (The 'INTENS' col); 'LP' for
+                Lorentz and polarization effects ('INTENS-LP') and 'DW' for LP
+                with Debye-Waller thermal factors ('INTENS-LP-DW').
+        Returns:
+            self.XRDspec (XRD): The ``spectra.XRD`` object with spectra
+                information.
+        """
+        import numpy as np
+        from CRYSTALpytools.spectra import XRD
 
-        num_riga = num_riga[0]
+        if not hasattr(self, 'file_name'):
+            raise Exception("The screen output file is not defined. Use the 'from_file()' method to add it.")
 
-        match = match[num_riga:]
+        spec = super().get_XRDSPEC()
 
-        pattern = re.compile(
-            '\s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+ \s+ \d+\.\d+\n', re.DOTALL)
-
-        match_2 = []
-
-        for line in match:
-            if pattern.search(line):
-                # pulisco dalle scritte di prima
-                line = line.replace('WRONG LINE:', '')
-                match_2.append(line)
-
-        df = pd.DataFrame([i.strip().split() for i in match_2])
-
-        for i in range(0, 4):
-            df[i] = df[i].astype(float)
-
-        df = df.rename(columns={0: '2THETA', 1: 'INTENS',
-                                2: 'INTENS-LP', 3: 'INTENS-LP-DW'})
-
-        self.x = df['2THETA']
-        self.y = df['INTENS-LP']
-
-        self.title = title[:-1]
-
-        return self
+        option = option.upper()
+        if option == 'NC':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 1])
+        elif option == 'LP':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 2])
+        elif option == 'DW':
+            self.XRDspec = XRD(theta=spec[:, 0], spectra=spec[:, 3])
+        else:
+            raise ValueError("Unknown XRD spectra read option: '{}'.".format(option))
+        return self.XRDspec
 
 #--------------------------------1D line profile-------------------------------#
 
@@ -2847,168 +3119,6 @@ class Properties_output(POutBASE):
         self.y = df_dens[1]/0.148184743
 
         self.title = title[:-4]
-
-        return self
-
-#-----------------------------transport properties-----------------------------#
-
-    def read_cry_seebeck(self, properties_output):
-        """
-        Read Seebeck coefficient data from a file.
-
-        Args:
-            properties_output (str): Path to the properties output file.
-        Returns:
-            self: The modified object with extracted Seebeck coefficient data.
-        """
-        import re
-        import sys
-
-        import pandas as pd
-
-        self.read_file(properties_output)
-
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        spectrum = re.compile('Npoints', re.DOTALL)
-
-        match = []
-
-        for line in data:
-            if spectrum.search(line):
-                match.append('RIGHT LINE:' + line)
-            else:
-                match.append('WRONG LINE:' + line)
-
-        df = pd.DataFrame(match)
-        indx = list(df[df[0].str.contains("RIGHT")].index)
-
-        lin = []
-        for i in indx:
-            lin.append(i+1)
-
-        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
-
-        length = diffs[0] - 1
-
-        lif = []
-        for i in lin:
-            lif.append(i+length)
-
-        c = []
-        for i in range(len(lin)):
-            c.append(lin[i])
-            c.append(lif[i])
-
-        d = [c[i:i + 2] for i in range(0, len(c), 2)]
-
-        l = []
-        for i in range(0, len(d)):
-            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
-
-        right = df[df[0].str.contains("RIGHT")]
-        right = right.reset_index().drop('index', axis=1)
-
-        self.temp = []
-
-        for i in range(0, len(right)):
-            self.temp.append(float(str(right[0][i])[20:24]))
-
-        ll = []
-        for k in range(0, len(l)):
-            ll.append(l[k].reset_index().drop('index', axis=1))
-
-        self.all_data = []
-        for k in range(0, len(ll)):
-            for i in ll[k]:
-                self.all_data.append(ll[k][i].apply(
-                    lambda x: x.replace('WRONG LINE:', '')))
-
-        self.volume = (float(str(match[2:3])[-13:-4]))
-
-        self.title = title
-
-        return self
-
-    def read_cry_sigma(self, properties_output):
-        """
-        Read electrical conductivity data from a file.
-
-        Args:
-            properties_output (str): Path to the properties output file.
-        Returns:
-            self: The modified object with extracted electrical conductivity data.
-        """
-        import re
-        import sys
-
-        import pandas as pd
-
-        self.read_file(properties_output)
-
-        data = self.data
-        filename = self.abspath
-        title = self.title
-
-        spectrum = re.compile('Npoints', re.DOTALL)
-
-        match = []
-
-        for line in data:
-            if spectrum.search(line):
-                match.append('RIGHT LINE:' + line)
-            else:
-                match.append('WRONG LINE:' + line)
-
-        df = pd.DataFrame(match)
-        indx = list(df[df[0].str.contains("RIGHT")].index)
-
-        lin = []
-        for i in indx:
-            lin.append(i+1)
-
-        diffs = [abs(x - y) for x, y in zip(lin, lin[1:])]
-
-        length = diffs[0] - 1
-
-        lif = []
-        for i in lin:
-            lif.append(i+length)
-
-        c = []
-        for i in range(len(lin)):
-            c.append(lin[i])
-            c.append(lif[i])
-
-        d = [c[i:i + 2] for i in range(0, len(c), 2)]
-
-        l = []
-        for i in range(0, len(d)):
-            pd.DataFrame(l.append(df[d[i][0]:d[i][1]]))
-
-        right = df[df[0].str.contains("RIGHT")]
-        right = right.reset_index().drop('index', axis=1)
-
-        self.temp = []
-
-        for i in range(0, len(right)):
-            self.temp.append(float(str(right[0][i])[20:24]))
-
-        ll = []
-        for k in range(0, len(l)):
-            ll.append(l[k].reset_index().drop('index', axis=1))
-
-        self.all_data = []
-        for k in range(0, len(ll)):
-            for i in ll[k]:
-                self.all_data.append(ll[k][i].apply(
-                    lambda x: x.replace('WRONG LINE:', '')))
-
-        self.volume = (float(str(match[2:3])[-13:-4]))
-
-        self.title = title
 
         return self
 
@@ -3144,6 +3254,62 @@ class Properties_output(POutBASE):
 
         return self
 
+#-----------------------------transport properties-----------------------------#
+
+    def read_transport(self, boltztra_out):
+        """
+        Read electron transport properties by the BOLTZTRA keyword, including
+        'KAPPA', 'SIGMA', 'SIGMAS', 'SEEBECK' and 'TDF'. Though currently the
+        geometry information is not required, it is saved if the standard
+        output file is given.
+
+        .. note::
+
+            For 'SEEBECK', all the 9 elements of the tensor was printed. As far
+            as the developers have been aware of, it is symmetrized. Therefore
+            the redundant 'yx', 'zx' and 'zy' dimensions are removed to keep
+            consistent with other outputs.
+
+        Args:
+            boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
+
+        Returns:
+            self.\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
+                'SIGMA', 'SIGMAS', 'SEEBECK') or ``transport.Distribution``
+                (TDF) classes, depending on the input file. The attribute name
+                is upper case types.
+        """
+        from CRYSTALpytools.base.extfmt import BOLTZTRAParaser
+        from CRYSTALpytools.transport import Kappa, Sigma, Seebeck, SigmaS, TDF
+
+        if hasattr(self, 'file_name'):
+            struc = super().get_geometry()
+        else:
+            struc = None
+
+        file = open(boltztra_out)
+        header = file.readline()
+        file.close()
+        if 'Transport distribution function' in header:
+            out = BOLTZTRAParaser.distribution(boltztra_out)
+            if out[1] == 'TDF':
+                obj = TDF(out[2], out[3], struc)
+            else:
+                raise TypeError("Unknown distribution function. Please contact the developers for updates.")
+        else:
+            out = BOLTZTRAParaser.tensor(boltztra_out)
+            if out[1] == 'KAPPA':
+                obj = Kappa(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMA':
+                obj = Sigma(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SIGMAS':
+                obj = SigmaS(out[3], out[4], out[5], out[6], struc)
+            elif out[1] == 'SEEBECK':
+                obj = Seebeck(out[3], out[4], out[5], out[6], struc)
+
+        setattr(self, out[1], obj)
+        return getattr(self, out[1])
+
 #------------------------------------------------------------------------------#
 #--------------------------------obsolete methods------------------------------#
 #------------------------------------------------------------------------------#
@@ -3175,7 +3341,7 @@ class Properties_output(POutBASE):
 
         warnings.warn("You are calling a deprecated function. Use 'read_ECHG' instead.",
                       stacklevel=2)
-        return self.read_ECHG(f25_file, method=None)
+        return self.read_ECHG(f25_file, method='normal')
 
     def read_cry_ECHG_delta(self, f25_file1, f25_file2):
         """
@@ -3196,6 +3362,67 @@ class Properties_output(POutBASE):
         warnings.warn("You are calling a deprecated function. Use 'read_topond' instead.",
                       stacklevel=2)
         return self.read_topond(properties_output)
+
+    def read_cry_seebeck(self, properties_output):
+        """
+        Deprecated. Use ``read_transport``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_transport' instead.",
+                      stacklevel=2)
+        obj = self.read_transport(properties_output)
+        if obj.type != 'SEEBECK':
+            raise Exception('Input is not a SEBECK coefficient file.')
+        return obj
+
+    def read_cry_sigma(self, properties_output):
+        """
+        Deprecated. Use ``read_transport``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_transport' instead.",
+                      stacklevel=2)
+        obj = self.read_transport(properties_output)
+        if obj.type != 'SIGMA':
+            raise Exception('Input is not a conductivity file.')
+        return obj
+
+    def read_vecfield(self, properties_output, which_prop):
+        """
+        Deprecated. Use ``read_relativistics``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_relativistics' instead.",
+                      stacklevel=2)
+        index = [0]
+        for i in which_prop:
+            if 'm' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+                type = 'MAGNETIZ'
+            if 'j' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3])
+                type = 'ORBCURDENS'
+            if 'J' in which_prop:
+                index.extend([index[-1]+1, index[-1]+2, index[-1]+3,
+                              index[-1]+4, index[-1]+5, index[-1]+6,
+                              index[-1]+7, index[-1]+8, index[-1]+9])
+                type = 'SPICURDENS'
+        return self.read_relativistics(properties_output, type, index[1:])
+
+    def read_cry_xrd_spec(self, properties_output):
+        """
+        Deprecated. Use ``read_XRDspec``.
+        """
+        import warnings
+
+        warnings.warn("You are calling a deprecated function. Use 'read_XRDspec' instead.",
+                      stacklevel=2)
+        if not hasattr(self, 'file_name'): self = Properties_output(properties_output)
+        self.read_XRDspec()
+        return self.XRDspec
 
 
 
@@ -3639,83 +3866,3 @@ def write_cry_density(fort98_name, new_p, new_fort98):
         for line in final_fort98:
             file.writelines(line)
 
-
-class External_unit:
-    # WORK IN PROGRESS
-    # This class will generate an object from the CRYSTAL external units like: IRSPEC.DAT
-    # RAMSPEC.DAT tha can be plotted through the corresponding function in plot.py
-
-    def __init__(self):
-
-        pass
-
-    def read_external_unit(self, external_unit):
-        import os
-
-        self.file_name = external_unit
-        try:
-            file = open(external_unit, 'r')
-            self.data = file.readlines()
-            file.close()
-
-            # directory
-            dir_name = os.path.split(external_unit)[0]
-            self.abspath = os.path.join(dir_name)
-
-            # title (named "title" only to distinguish from "file_name" which means another thing)
-            self.title = os.path.split(external_unit)[1]
-
-        except:
-            raise FileNotFoundError(
-                'EXITING: a CRYSTAL generated .DAT unit file needs to be specified')
-
-    def read_cry_irspec(self, external_unit):
-        import numpy as np
-
-        self.read_external_unit(external_unit)
-
-        data = self.data
-
-        for index, line in enumerate(data):
-            data[index] = line.split()
-
-        columns = len(data[0])
-        no_points = len(data)
-
-        if columns > 3:
-            self.calculation = 'solid'
-        else:
-            self.calculation = 'molecule'
-
-        irspec = np.zeros((no_points, columns))
-
-        for i, line in enumerate(data):
-            for j, element in enumerate(line):
-                irspec[i, j] = float(element)
-
-        self.irspec = irspec
-
-        return self
-
-    def read_cry_ramspec(self, external_unit):
-        import numpy as np
-
-        self.read_external_unit(external_unit)
-
-        data = self.data
-
-        for index, line in enumerate(data):
-            data[index] = line.split()
-
-        columns = len(data[0])
-        no_points = len(data)
-
-        ramspec = np.zeros((no_points, columns))
-
-        for i, line in enumerate(data):
-            for j, element in enumerate(line):
-                ramspec[i, j] = float(element)
-
-        self.ramspec = ramspec
-
-        return self

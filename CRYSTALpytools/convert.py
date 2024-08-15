@@ -55,8 +55,7 @@ def cry_bands2pmg(band, output, labels=None):
         band.geometry = pout.get_geometry()
         band.reciprocal_latt = pout.get_reciprocal_lattice()
         band.tick_pos3d, band.k_path3d = pout.get_3dkcoord()
-
-    return band.to_pmg(labels, output)
+    return band.to_pmg(labels)
 
 
 def cry_gui2ase(gui, vacuum=None, **kwargs):
@@ -64,7 +63,7 @@ def cry_gui2ase(gui, vacuum=None, **kwargs):
     Transform a CRYSTAL structure (gui) file into an ASE atoms object.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         **kwargs: Passed to ASE Atoms constructor
@@ -85,7 +84,7 @@ def cry_gui2cif(gui, cif_file_name, vacuum=None, **kwargs):
     object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
         cif_file_name (str): Name (including path) of the cif file to be saved
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
@@ -108,15 +107,15 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
-        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        vacuum (float): Vacuum distance. Unit: :math:`\\AA`. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
 
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
-    from CRYSTALpytools.crystal_io import Crystal_gui
+    from CRYSTALpytools.geometry import Crystal_gui
     from pymatgen.core.structure import Structure, Molecule
     from pymatgen.core.lattice import Lattice
     import numpy as np
@@ -232,7 +231,7 @@ def cry_out2cif(output, cif_file_name, vacuum=None, initial=False, **kwargs):
     Args:
         output (str|Crystal_output): Crystal output file or Crystal_output object
         cif_file_name (str): Name (including path) of the CIF file to be saved.
-        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+        vacuum (float): Vacuum distance. Unit: :math:`\\AA`. If none, set the
             ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
         initial (bool): Read the last geometry of the output file.
         **kwargs: Passed to Pymatgen CifWriter.
@@ -264,7 +263,7 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
     """
     from CRYSTALpytools.crystal_io import Crystal_output
     from pymatgen.core.lattice import Lattice
-    from pymatgen.core.structure import Structure
+    from pymatgen.core.structure import Structure, Molecule
     import numpy as np
     import copy
 
@@ -283,9 +282,9 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
 
     if ndimen == 0:
         if molecule == True:
+            struc = Molecule(species=struc.species, coords=struc.cart_coords)
             return struc
-
-        elif molecule == False:
+        else:
             if np.all(vacuum!=None):
                 pbc = (True, True, True)
                 thickness_x = np.amax(struc.cart_coords[:, 0]) - np.amin(struc.cart_coords[:, 0])
@@ -322,7 +321,6 @@ def cry_out2pmg(output, vacuum=None, initial=False, molecule=True):
         pbc = (True, True, True)
 
     latt = Lattice(latt_mx, pbc=pbc)
-
     return Structure(latt, struc.atomic_numbers, struc.cart_coords, coords_are_cartesian=True)
 
 
@@ -354,7 +352,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui_file (str): CRYSTAL gui / fort.34 file.
         pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
             directions. If none, the code will read it from input structure.
-        vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
+        vacuum (float): Vacuum distance. Unit: :math:`\\AA`. If none, set the
             length of non-periodic direction to 500 Angstrom. Low dimensional
             systems only.
         symmetry (bool): Do symmetry analysis.
@@ -363,7 +361,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object. Valid only
             if ``symmetry=True``.
     """
-    from CRYSTALpytools.crystal_io import Crystal_gui
+    from CRYSTALpytools.geometry import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
     from CRYSTALpytools.geometry import CStructure
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -376,7 +374,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
 
     # dimensionality
     if np.all(pbc==None):
-        if 'Molecule' in str(type(structure)):
+        if isinstance(structure, Molecule):
             pbc = (False, False, False)
             structure = Molecule(structure.species,
                                  [i.coords for i in structure.sites])
@@ -386,17 +384,17 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     gui = Crystal_gui()
     dimensionality = pbc.count(True)
 
-    if dimensionality == 0 and 'Molecule' in str(type(structure)):
+    if dimensionality == 0 and isinstance(structure, Molecule):
         molecule = structure
         is_molecule = True # 0D object called as molecule
-    elif dimensionality > 0:
+    elif dimensionality > 0 or isinstance(structure, CStructure):
         is_molecule = False # >0D object called as structure
-    elif dimensionality == 0 and 'Molecule' not in str(type(structure)):
+    elif dimensionality == 0 and not isinstance(structure, Molecule) and not isinstance(structure, CStructure):
         warnings.warn('Dimensionality is set to 0, but the structure is not a molecule. Periodicity will be removed.')
         molecule = Molecule(structure.species,
                             [i.coords for i in structure.sites])
         is_molecule = True # 0D object called as molecule
-    elif dimensionality > 0 and 'Molecule' in str(type(structure)):
+    elif dimensionality > 0 and isinstance(structure, Molecule):
         warnings.warn('Dimensionality is set to 1-3, but the structure is a molecule. Periodicity will be added.')
         structure = structure.get_boxed_structure(500., 500., 500.)
         is_molecule = False # >0D object called as structure

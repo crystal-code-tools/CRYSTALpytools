@@ -63,3 +63,12 @@ def au_to_GPa(pressure):
     # Conversion from Hartree.Bohr^-3 to GPa
     return pressure * 1e-9 * constants.physical_constants['Hartree energy'][0] / constants.physical_constants['atomic unit of length'][0]**3
 
+def ampere_to_au(current):
+    # Conversion from Ampere to atomic unit
+    return current / (constants.e * constants.physical_constants['Hartree energy'][0] / constants.hbar)
+
+def au_to_ampere(current):
+    # Conversion from atomic unit to Ampere
+    return current * (constants.e * constants.physical_constants['Hartree energy'][0] / constants.hbar)
+
+

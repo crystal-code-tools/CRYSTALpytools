@@ -7,6 +7,28 @@ from pymatgen.core.structure import Molecule
 
 import numpy as np
 
+# very slow to call mendeleev instances. Define a periodic table here for some simple cases
+ptable = {
+    0 : 'X',
+    1 : 'H', 2 : 'He',
+    3 : 'Li', 4 : 'Be', 5 : 'B', 6 : 'C', 7 : 'N', 8 : 'O', 9 : 'F', 10 : 'Ne',
+    11 : 'Na', 12 : 'Mg', 13 : 'Al', 14 : 'Si', 15 : 'P', 16 : 'S', 17 : 'Cl', 18 : 'Ar',
+    19 : 'K', 20 : 'Ca',
+    21 : 'Sc', 22 : 'Ti', 23 : 'V', 24 : 'Cr', 25 : 'Mn', 26 : 'Fe', 27 : 'Co', 28 : 'Ni', 29 : 'Cu', 30 : 'Zn',
+    31 : 'Ga', 32 : 'Ge', 33 : 'As', 34 : 'Se', 35 : 'Br', 36 : 'Kr',
+    37 : 'Rb', 38 : 'Sr',
+    39 : 'Y', 40 : 'Zr', 41 : 'Nb', 42 : 'Mo', 43 : 'Tc', 44 : 'Ru', 45 : 'Rh', 46 : 'Pd', 47 : 'Ag', 48 : 'Cd',
+    49 : 'In', 50 : 'Sn', 51 : 'Sb', 52 : 'Te', 53 : 'I', 54 : 'Xe',
+    55 : 'Cs', 56 : 'Ba',
+    57 : 'La', 58 : 'Ce', 59 : 'Pr', 60 : 'Nd', 61 : 'Pm', 62 : 'Sm', 63 : 'Eu', 64 : 'Gd', 65 : 'Tb', 66 : 'Dy', 67 : 'Ho', 68 : 'Er', 69 : 'Tm', 70 : 'Yb', 71 : 'Lu',
+    72 : 'Hf', 73 : 'Ta', 74 : 'W', 75 : 'Re', 76 : 'Os', 77 : 'Ir', 78 : 'Pt', 79 : 'Au', 80 : 'Hg',
+    81 : 'Tl', 82 : 'Pb', 83 : 'Bi', 84 : 'Po', 85 : 'At', 86 : 'Rn',
+    87 : 'Fr', 88 : 'Ra',
+    89 : 'Ac', 90 : 'Th', 91 : 'Pa', 92 : 'U', 93 : 'Np', 94 : 'Pu', 95 : 'Am', 96 : 'Cm', 97 : 'Bk', 98 : 'Cf', 99 : 'Es'
+}
+
+ptable_inv = dict(zip(ptable.values(), ptable.keys()))
+
 
 class Crystal_gui():
     """
@@ -260,22 +282,35 @@ class CStructure(Structure):
             **conventional** atomic numbers.
         symmetry_group (int): Symmetry group number or symbol in CRYSTAL
             convention.
+        pbc (list|tuple): Periodicity.
+        standarize (bool): Whether to use the CRYSTAL convention of periodic
+            boundaries for low dimensional materials. It calls the
+            ``standarize_pbc()`` method.
         \*\*kwargs: Other arguments passed to pymatgen Structure.
     Returns:
         self (CStructure): ``CStructure`` object.
     """
-    def __init__(self, lattice, species, coords, symmetry_group=1,
+    def __init__(self, lattice, species, coords, symmetry_group=1, pbc=None,
                  standarize=False, **kwargs):
         import numpy as np
-        from mendeleev import element
+        from pymatgen.core.lattice import Lattice
 
-        if isinstance(species[0], int) or isinstance(species[0], float):
+        # conventional atomic number
+        if isinstance(species[0], int) or isinstance(species[0], float) \
+        or isinstance(species[0], np.int64) or isinstance(species[0], np.float64):
             zconv = [int(i) for i in species]
-            species = [element(int(i % 100)).symbol for i in zconv]
+            species = [ptable[int(i % 100)] for i in species]
         else:
             zconv = []
-
-        kwargs['lattice'] = lattice
+        # PBC
+        if isinstance(lattice, Lattice):
+            if np.all(pbc==None): pbc = lattice.pbc
+            latt = Lattice(lattice.matrix, pbc=pbc)
+        else:
+            if np.all(pbc==None): pbc = (True, True, True)
+            latt = Lattice(lattice, pbc=pbc)
+        # structure
+        kwargs['lattice'] = latt
         kwargs['species'] = species
         kwargs['coords'] = coords
         super().__init__(**kwargs)
@@ -284,6 +319,9 @@ class CStructure(Structure):
             self._species_Z = [i.Z for i in self.species]
         else:
             self._species_Z = zconv
+        # standarization
+        if standarize == True:
+            self.standarize_pbc()
 
     @classmethod
     def from_pmg(cls, struc):
@@ -309,9 +347,7 @@ class CStructure(Structure):
         """
         Atom symbols.
         """
-        from mendeleev import element
-
-        return [element(int(i % 100)).symbol for i in self.species_Z]
+        return [ptable[int(i % 100)] for i in self.species_Z]
 
     @property
     def species_Z(self):
@@ -736,11 +772,11 @@ class CMolecule(Molecule):
     """
     def __init__(species, coords, symmetry_group=1, **kwargs):
         import numpy as np
-        from mendeleev import element
 
-        if isinstance(species[0], int) or isinstance(species[0], float):
+        if isinstance(species[0], int) or isinstance(species[0], float) \
+        or isinstance(species[0], np.int64) or isinstance(species[0], np.float64):
             zconv = [int(i) for i in species]
-            species = [element(int(i % 100)).symbol for i in zconv]
+            species = [ptable[int(i % 100)] for i in zconv]
 
         self = Molecule(species=species, coords=coords, **kwargs)
         self._symmetry_group = symmetry_group

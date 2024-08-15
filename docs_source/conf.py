@@ -16,9 +16,11 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../../CRYSTALpytools'))
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../CRYSTALpytools'))
+sys.path.insert(0, os.path.abspath('../examples'))
+sys.path.insert(0, os.path.abspath('../tutorial'))
 
 # -- Project information -----------------------------------------------------
 
@@ -40,7 +42,8 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary',
-			  'sphinx.ext.napoleon', 'sphinx.ext.githubpages']
+			  'sphinx.ext.napoleon', 'sphinx.ext.githubpages',
+              'nbsphinx', 'sphinx_gallery.load_style']
 # Set `Returns` section to behave like the `Args` section
 # For Google Doc format
 napoleon_custom_sections = [('Returns', 'params_style')]
@@ -51,10 +54,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
-
-# The suffix of source filenames.
-source_suffix = '.rst'
+exclude_patterns = ['**.ipynb_checkpoints', '_build']
 
 # The master toctree document.
 master_doc = 'index'
