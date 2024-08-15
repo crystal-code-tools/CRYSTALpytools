@@ -3,7 +3,7 @@ Examples and Test Cases
 
 .. _ref-examples:
 
-Notebooks displayed here is the testing examples used during the development of
+Notebooks displayed here are the testing examples used during the development of
 CRYSTALpytools. They are designed to be self-explanatory and can be used as
 (basic) tutorials. All the files are available in the `examples/ <https://github.com/crystal-code-tools/CRYSTALpytools/tree/main/examples>`_.
 directory of project's GitHub repository.
