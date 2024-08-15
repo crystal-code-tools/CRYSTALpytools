@@ -8,5 +8,3 @@ mendeleev>=0.14.0
 pymatgen>=2022.7.25
 ase>=3.22.1
 basis_set_exchange>=0.9.1
-nbsphinx>=0.9.5
-sphinx-gallery>=0.17.1

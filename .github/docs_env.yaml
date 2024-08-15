@@ -16,4 +16,5 @@ dependencies:
   - nbsphinx
   - recommonmark
   - sphinx-markdown-tables
+  - sphinx-gallery
 
