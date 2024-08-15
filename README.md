@@ -4,16 +4,15 @@ This repository contains functions that allow the user to access the [CRYSTAL co
 
 In January 2022 the first stable version (v2022.1.10) was released.
 
+## Documentation
+
+The **[documentation site](https://crystal-code-tools.github.io/CRYSTALpytools/)** of CRYSTALpytoosl explains the usage of submodules and classes. The latest released version of CRYSTALpytools is available via [PyPI](https://pypi.org/project/CRYSTALpytools/#history).
+
 ## Structure
 
 The CRYSTALpytools module aims at providing the user a python interface to the CRYSTAL code. The central data structure, called 'Crystal_object' is created by the `crystal_io` by parsing CRYSTAL input/output files. The flowchart below is aimed at showing how different parts of the module interact with the Crystal_objects.
 
 ![crystal_object](docs_source/_static/crystal_object.png)
-
-
-## Documentation
-
-The **[documentation site](https://crystal-code-tools.github.io/CRYSTALpytools/)** of CRYSTALpytoosl explains the usage of submodules and classes. The latest released version of CRYSTALpytools is available via [PyPI](https://pypi.org/project/CRYSTALpytools/#history).
 
 ## Installation
 
