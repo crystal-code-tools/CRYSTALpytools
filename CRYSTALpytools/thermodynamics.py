@@ -1528,8 +1528,8 @@ class Quasi_harmonic:
 
         Returns:
             self (Quasi_harmonic): New attributes listed below
-            self.c_v (array): nPressure\*nTemperature, same below. Constant volume specific heat. Unit: J.mol:math:`^{-1}`.K:math:`^{-1}`
-            self.c_p (array): Constant pressure specific heat. Unit: J.mol:math:`^{-1}`.K:math:`^{-1}`
+            self.c_v (array): nPressure\*nTemperature, same below. Constant volume specific heat. Unit: J/mol/K
+            self.c_p (array): Constant pressure specific heat. Unit: J/mol/K.
 
         .. note::
 
@@ -2334,7 +2334,7 @@ class Phonopy():
         supercelland get phonon frequencies at Gamma point, use the following
         code:
 
-        .. code-block::
+        .. code-block:: python
 
             >>> from CRYSTALpytools.thermodynamics import Phonopy
             >>> Phonopy.write_force_constants(hessfile='example.HESSFREQ')

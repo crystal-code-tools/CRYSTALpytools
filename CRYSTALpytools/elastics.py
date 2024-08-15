@@ -16,7 +16,7 @@ class Tensor3D():
     3D elastic tensor and related properties.
 
     Args:
-        matrix (numpy.ndarray): 6\*6 compliance or stiffness matrix. Unit: GPa:math:`^{-1}` or GPa.
+        matrix (numpy.ndarray): 6\*6 compliance or stiffness matrix. Unit: GPa :math:`^{-1}` or GPa.
         lattice (numpy.ndarray): lattice matrix.
         is_compliance (bool): Compliance or stiffness matrix used as input.
     """
@@ -52,7 +52,7 @@ class Tensor3D():
     @property
     def compliance(self):
         """
-        6\*6 compliance matrix in Voigt annotation. Unit: GPa:math:`^{-1}`.
+        6\*6 compliance matrix in Voigt annotation. Unit: GPa :math:`^{-1}`.
         """
         return self._S
 
@@ -106,7 +106,7 @@ class Tensor3D():
         Args:
             property (str): Property to compute. See options above.
             u (numpy.ndarray): 3\*1 or nu\*3 array of vectors.
-            nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
+            nchi (int): Resolution of auxiliary angle :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)

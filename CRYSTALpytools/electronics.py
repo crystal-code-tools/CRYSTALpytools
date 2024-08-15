@@ -640,7 +640,7 @@ class ChargeDensity():
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             option (str): Available options see above.
             levels (int|array): Set levels of contour plot. A number for
                 linear scaled plot colors or an array for user-defined levels,
@@ -666,7 +666,7 @@ class ChargeDensity():
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
-                ``b_range``, that refers to the old :math:`b`(i.e., expansion first).
+                ``b_range``, that refers to the old :math:`b` (i.e., expansion first).
             edgeplot (bool): Whether to add cell edges represented by the
                 original base vectors (not inflenced by a/b range or rectangle
                 options).
@@ -678,7 +678,7 @@ class ChargeDensity():
                 fixed to be equal.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``axes.contour()`` function
+            \*\*kwargs: Other arguments passed to ``axes.contour()`` function
                 to set contour lines.
 
         Returns:

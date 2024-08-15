@@ -1736,7 +1736,7 @@ class Crystal_output:
                 notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
                 The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
                 if effective thickness of materials are specified. Otherwise
-                GPa.m for 2D and GPa.m:math:`^{2}` for 1D (might lead to very
+                GPa.m for 2D and GPa.m :math:`^{2}` for 1D (might lead to very
                 small numbers).
         """
         import re, warnings
@@ -2945,7 +2945,7 @@ class Properties_output(POutBASE):
                 Return to classes defined in the ``relativisitcs`` module,
                 depending on ``type``. The attribute name is upper case type
                 names. Unit: charge densities, :math:`\\AA^{-3}`; magnetization,
-                A/m; Orbital/spin densities, A/m:math:`^{2}`.
+                A/m; Orbital/spin densities, A/m :math:`^{2}`.
         """
         import numpy as np
         import pandas as pd

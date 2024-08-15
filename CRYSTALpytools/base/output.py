@@ -420,11 +420,12 @@ class PhononBASE():
         Get classical amplitude of phonon modes *Under Testing*
 
         .. math::
-            x = \sqrt{\frac{\hbar}{\mu\omega}}
+
+            x = \\sqrt{\\frac{\\hbar}{\\mu\\omega}}
 
         Args:
             struc (Structure): Pymatgen structure
-            freq (float | array): Frequency. Unit: THz
+            freq (float|array): Frequency. Unit: THz
         Returns:
             classic_a (array): nfreq\*3natom\*3natom array, or 3natom\*3natom
                 if ``freq`` is float. The diagonal matrix of classical amplitude.

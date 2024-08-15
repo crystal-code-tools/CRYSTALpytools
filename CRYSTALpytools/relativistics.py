@@ -317,7 +317,7 @@ class Magnetization(VectorField):
 class OrbitalCurrentDensity(VectorField):
     """
     The class for orbital current density. Unit: 'SI' (length: :math:`\\AA`,
-    orbital current density: A/m:math:`^{2}`).
+    orbital current density: A/m :math:`^{2}`).
 
     Args:
         data (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of orbnital current vectors
@@ -371,7 +371,7 @@ class OrbitalCurrentDensity(VectorField):
             illustrates the norm of vectors, similar to the 2D scalar map.
 
         Args:
-            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m:math:`^{2}`.
+            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m :math:`^{2}`.
                 'a.u.' for Bohr and a.u. current density.
             levels (int|array): Set levels of colored contour/quiver plot. A
                 number for linear scaled plot colors or an array for
@@ -456,7 +456,7 @@ class OrbitalCurrentDensity(VectorField):
 
         Args:
             unit (str): 'SI', length: :math:`\\AA`, orbital current density:
-                A/m:math:`^{2}`. 'a.u.', all in a.u..
+                A/m :math:`^{2}`. 'a.u.', all in a.u..
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom, ampere_to_au, au_to_ampere
 
@@ -487,7 +487,7 @@ class OrbitalCurrentDensity(VectorField):
 class SpinCurrentDensity(VectorField):
     """
     The class for spin current density. Unit: 'SI' (length: :math:`\\AA`,
-    spin current density: A/m:math:`^{2}`).
+    spin current density: A/m :math:`^{2}`).
 
     Args:
         data_x (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of spin current vectors
@@ -547,7 +547,7 @@ class SpinCurrentDensity(VectorField):
             illustrates the norm of vectors, similar to the 2D scalar map.
 
         Args:
-            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m:math:`^{2}`.
+            unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m :math:`^{2}`.
                 'a.u.' for Bohr and a.u. current density.
             direction (str|list): Direction of spin-current to plot, in 'x', 'y' or 'z'.
             levels (int|array): Set levels of colored contour/quiver plot. A
@@ -652,7 +652,7 @@ class SpinCurrentDensity(VectorField):
 
         Args:
             unit (str): 'SI', length: :math:`\\AA`, spin current density:
-                A/m:math:`^{2}`. 'a.u.', all in a.u..
+                A/m :math:`^{2}`. 'a.u.', all in a.u..
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom, ampere_to_au, au_to_ampere
 

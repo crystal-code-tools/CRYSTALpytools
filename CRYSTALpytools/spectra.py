@@ -79,7 +79,7 @@ class XRD():
 class IR():
     """
     The class for infrared spectrum. Unit: in principle, should always in
-    'cm:math:`^{-1}`'.
+    'cm :math:`^{-1}`'.
 
     Args:
         freq (array): Frequencies. Must be commensurate with unit.
@@ -122,7 +122,7 @@ class IR():
         Plot IR spectra into the same axis.
 
         Args:
-            unit (str): X axis unit. 'cm:math:`^{-1}`' or 'nm'.
+            unit (str): X axis unit. 'cm :math:`^{-1}`' or 'nm'.
             option (str): Broadening method. 'LG' for Lorentzian-Gaussian, 'V'
                 for Voigt, 'RS' for Rayleigh spherical particles, 'RE' for
                 Rayleigh with elipsoid particles, 'REFL' for reflectance spectra
@@ -316,7 +316,7 @@ class IR():
 class Raman():
     """
     The class for Raman spectrum. Unit: in principle, should always in
-    'cm:math:`^{-1}`'.
+    'cm :math:`^{-1}`'.
 
     Args:
         freq (array): Frequencies. Must be commensurate with unit.

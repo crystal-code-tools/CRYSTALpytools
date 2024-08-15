@@ -283,7 +283,7 @@ class Trajectory():
 class ChargeDensity(ScalarField):
     """
     The charge density object from TOPOND. Unit: 'Angstrom' for
-    :math:`\\AA^{-3}` and 'a.u.' for Bohr:math:`^{-3}`.
+    :math:`\\AA^{-3}` and 'a.u.' for Bohr :math:`^{-3}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -343,7 +343,7 @@ class ChargeDensity(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -463,7 +463,7 @@ class ChargeDensity(ScalarField):
         Set units of data of ``ChargeDensity`` object.
 
         Args:
-            unit (str): ''Angstrom', :math:`\\AA^{-3}`; 'a.u.', Bohr:math:`^{-3}`.
+            unit (str): ''Angstrom', :math:`\\AA^{-3}`; 'a.u.', Bohr :math:`^{-3}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
 
@@ -493,7 +493,7 @@ class ChargeDensity(ScalarField):
 class SpinDensity(ScalarField):
     """
     The spin density object from TOPOND. Unit: 'Angstrom' for :math:`\\AA^{-3}`
-    and 'a.u.' for Bohr:math:`^{-3}`.
+    and 'a.u.' for Bohr :math:`^{-3}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -553,7 +553,7 @@ class SpinDensity(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -669,7 +669,7 @@ class SpinDensity(ScalarField):
         Set units of data of ``SpinDensity`` object.
 
         Args:
-            unit (str): ''Angstrom', :math:`\\AA^{-3}`; 'a.u.', Bohr:math:`^{-3}`.
+            unit (str): ''Angstrom', :math:`\\AA^{-3}`; 'a.u.', Bohr :math:`^{-3}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
 
@@ -699,7 +699,7 @@ class SpinDensity(ScalarField):
 class Gradient(ScalarField):
     """
     The charge density gradient object from TOPOND. Unit: 'Angstrom' for
-    :math:`\\AA^{-4}` and 'a.u.' for Bohr:math:`^{-4}`.
+    :math:`\\AA^{-4}` and 'a.u.' for Bohr :math:`^{-4}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -759,7 +759,7 @@ class Gradient(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -879,7 +879,7 @@ class Gradient(ScalarField):
         Set units of data of ``Gradient`` object.
 
         Args:
-            unit (str): ''Angstrom', :math:`\\AA^{-4}`; 'a.u.', Bohr:math:`^{-4}`.
+            unit (str): ''Angstrom', :math:`\\AA^{-4}`; 'a.u.', Bohr :math:`^{-4}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
 
@@ -909,7 +909,7 @@ class Gradient(ScalarField):
 class Laplacian(ScalarField):
     """
     The Laplacian object from TOPOND. Unit: 'Angstrom' for :math:`\\AA^{-5}`
-    and 'a.u.' for Bohr:math:`^{-5}`.
+    and 'a.u.' for Bohr :math:`^{-5}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -979,7 +979,7 @@ class Laplacian(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             plot_lapm (bool): Whether to plot :math:`-\\nabla^{2}\\rho`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
@@ -1110,7 +1110,7 @@ class Laplacian(ScalarField):
         Set units of data of ``Laplacian`` object.
 
         Args:
-            unit (str): ''Angstrom', :math:`\\AA^{-5}`; 'a.u.', Bohr:math:`^{-5}`.
+            unit (str): ''Angstrom', :math:`\\AA^{-5}`; 'a.u.', Bohr :math:`^{-5}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom
 
@@ -1140,7 +1140,7 @@ class Laplacian(ScalarField):
 class HamiltonianKE(ScalarField):
     """
     The Hamiltonian kinetic energy density object from TOPOND. Unit: 'Angstrom'
-    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr:math:`^{-3}`.
+    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -1200,7 +1200,7 @@ class HamiltonianKE(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -1322,7 +1322,7 @@ class HamiltonianKE(ScalarField):
 
         Args:
             unit (str): ''Angstrom', eV.:math:`\\AA^{-3}`; 'a.u.',
-                Hartree.Bohr:math:`^{-3}`.
+                Hartree.Bohr :math:`^{-3}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom, H_to_eV, eV_to_H
 
@@ -1354,7 +1354,7 @@ class HamiltonianKE(ScalarField):
 class LagrangianKE(ScalarField):
     """
     The Lagrangian kinetic energy density object from TOPOND. Unit: 'Angstrom'
-    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr:math:`^{-3}`.
+    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -1414,7 +1414,7 @@ class LagrangianKE(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -1535,7 +1535,7 @@ class LagrangianKE(ScalarField):
 
         Args:
             unit (str): ''Angstrom', eV.:math:`\\AA^{-3}`; 'a.u.',
-                Hartree.Bohr:math:`^{-3}`.
+                Hartree.Bohr :math:`^{-3}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom, H_to_eV, eV_to_H
 
@@ -1567,7 +1567,7 @@ class LagrangianKE(ScalarField):
 class VirialField(ScalarField):
     """
     The Virial field density object from TOPOND. Unit: 'Angstrom'
-    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr:math:`^{-3}`.
+    for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
         data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
@@ -1627,7 +1627,7 @@ class VirialField(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -1748,7 +1748,7 @@ class VirialField(ScalarField):
 
         Args:
             unit (str): ''Angstrom', eV.:math:`\\AA^{-3}`; 'a.u.',
-                Hartree.Bohr:math:`^{-3}`.
+                Hartree.Bohr :math:`^{-3}`.
         """
         from CRYSTALpytools.units import angstrom_to_au, au_to_angstrom, H_to_eV, eV_to_H
 
@@ -1839,7 +1839,7 @@ class ELF(ScalarField):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             levels (array|int): Set levels of colored / line contour plot. A
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D. 'default' for default levels.
@@ -2042,7 +2042,7 @@ class GradientTraj(Trajectory):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             cpt_marker (str): Marker of critical point scatter.
             cpt_color (str): Marker color of critical point scatter.
             cpt_size (float|int): Marker size of critical point scatter.
@@ -2210,7 +2210,7 @@ class ChemicalGraph(Trajectory):
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr:math:`^{-3}`.
+                Bohr :math:`^{-3}`.
             cpt_marker (str): Marker of critical point scatter.
             cpt_color (str): Marker color of critical point scatter.
             cpt_size (float|int): Marker size of critical point scatter.

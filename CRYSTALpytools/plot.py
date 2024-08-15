@@ -43,10 +43,10 @@ def plot_ECHG(
         entries. Return to a non spin-polarized object.  
 
     Args:
-        \*echg (ChargeDensity|str): Extendable. File names or
+        \*echg (electronics.ChargeDensity|str): Extendable. File names or
             ``electronics.ChargeDensity`` objects.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-            Bohr:math:`^{-3}`.
+            Bohr :math:`^{-3}`.
         output (str|list[str]): Output files corresponding to the input data
             file. String for the same output of all the files and list for
             every input file. If not given, read the first 1(2) MAPNET data of
@@ -215,7 +215,7 @@ def plot_relativistics2D(
     Args:
         \*relat (str|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity|):
             extendable input of vector field classes, or input files.
-        unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m (A/m:math:`^{2}`).
+        unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m (A/m :math:`^{2}`).
             'a.u.' for Bohr and a.u. magnetization / current density.
         type (str|list[str]): Properties to plot. Either as a string or a list
             of strings consistent with input filenames. If a list of types and
@@ -843,12 +843,12 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         ``Laplacian().plot_2D()``.
 
     Args:
-        \*topond (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph|list|str):
+        \*topond (electronics.ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph|list|str):
             Extendable. File names, ``topond`` objects or 1\*2 list for
             ``option='overlay'``. Geometry information is not available if file
             names are used - **might lead to errors!**.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-            Bohr:math:`^{-3}`.
+            Bohr :math:`^{-3}`.
         type (str): 'infer' or specified. Otherwise warning will be given.
         option (str): Available options see above.
         levels (array|int): Set levels of contour plot. 'Default' for built-in,
@@ -1014,10 +1014,10 @@ def plot_cry_rholine(rholine_obj):
         None
 
     Notes:
-        - Plots the resistivity as a function of distance.
-        - Sets the x-axis label as 'd  [$\AA$]' and the y-axis label as r'$\rho$  [$\frac{e}{\AA^3}$]'.
-        - Saves the plot to a file named 'figure_rholine_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
-        - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
+    - Plots the resistivity as a function of distance.
+    - Sets the x-axis label as ``\\AA`` and the y-axis label as ``\\rho [\\frac{e}{\\AA^{3}]``.
+    - Saves the plot to a file named 'figure_rholine_YYYY-MM-DD_HHMMSS.jpg' in the current directory.
+    - If save_to_file is True, saves the plot to a file specified by save_to_file parameter.
     """
     import os
     import time
@@ -1171,7 +1171,7 @@ def plot_transport_tensor(
             including 'xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy' and 'zz'.
             A list of options will generate nDirect\*1 subplots. The direction
             of each subplot is annotated on the upper left corner. **List entry
-            is not allowed for ``option='multi'``.
+            is not allowed for ``option='multi'``**.
         spin (str): Spin-polarized systems only. Electron spins to plot. 'up',
             'down' or 'sum'. Disabled for ``option='spin'``.
         plot_series (list|array|float): **Values** of the plot series. Should

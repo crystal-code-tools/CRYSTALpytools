@@ -63,7 +63,7 @@ def cry_gui2ase(gui, vacuum=None, **kwargs):
     Transform a CRYSTAL structure (gui) file into an ASE atoms object.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of ASE atoms object. Low dimensional systems only.
         **kwargs: Passed to ASE Atoms constructor
@@ -84,7 +84,7 @@ def cry_gui2cif(gui, cif_file_name, vacuum=None, **kwargs):
     object of Pymatgen is called. By default, ``symprec = 0.01`` is used.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
         cif_file_name (str): Name (including path) of the cif file to be saved
         vacuum (float): Vacuum distance. Unit: Angstrom. If none, set the
             ``pbc`` attribute of Pymatgen atoms object. Low dimensional systems only.
@@ -107,7 +107,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     Transform a CRYSTAL structure (gui) object into a Pymatgen Structure object.
 
     Args:
-        gui (str|Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
+        gui (str|geometry.Crystal_gui): CRYSTAL gui / fort.34 file or CRYSTALpytools gui object
         vacuum (float): Vacuum distance. Unit: :math:`\\AA`. If none, set the
             ``pbc`` attribute of Pymatgen object. Low dimensional systems only.
         molecule (bool): Generate a Molecule Pymatgen object for 0D structures.
@@ -115,7 +115,7 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
     Returns:
         Structure or Molecule: Pymatgen Structure or Molecule object.
     """
-    from CRYSTALpytools.crystal_io import Crystal_gui
+    from CRYSTALpytools.geometry import Crystal_gui
     from pymatgen.core.structure import Structure, Molecule
     from pymatgen.core.lattice import Lattice
     import numpy as np
@@ -361,7 +361,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         **kwargs: Passed to Pymatgen SpacegroupAnalyzer object. Valid only
             if ``symmetry=True``.
     """
-    from CRYSTALpytools.crystal_io import Crystal_gui
+    from CRYSTALpytools.geometry import Crystal_gui
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer,PointGroupAnalyzer
     from CRYSTALpytools.geometry import CStructure
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

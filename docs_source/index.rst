@@ -1,17 +1,14 @@
 .. toctree::
    :hidden:
    :maxdepth: 3
+   :caption: Contents
+   :glob:
 
-   introduction
+   .. introduction
    installation
    examples
    tutorials
-   Module-specific Docs<crystalpytools>
+   API Docs<crystalpytools>
    cite
 
 .. include:: introduction.rst
-.. include:: installation.rst
-.. include:: examples.rst
-.. include:: tutorials.rst
-.. include:: usage.rst
-.. include:: cite.rst
