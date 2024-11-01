@@ -28,9 +28,12 @@ Activate the conda environment:
 Install CRYSTALpytools
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The CRYSTALpytools package can be installed from ``pip``. ``pip`` is a
-package-management system written in Python and is used to install and manage
-software packages (called modules in python).
+By PyPI
+-----------------
+
+CRYSTALpytools can be installed from ``pip``. ``pip`` is a package-management
+system written in Python and is used to install and manage software packages
+(called modules in python).
 
 .. code-block:: console
 
@@ -41,6 +44,18 @@ Windows users might need to install windows-curses. This can be done by using:
 .. code-block:: console
 
    pip install windows-curses
+
+By Conda Forge
+-----------------
+
+CRYSTALpytools is also available on `Conda Forge <https://conda-forge.org/>`_:
+
+.. code-block:: console
+
+   conda install CRYSTALpytools -c conda-forge
+
+Check Installation
+------------------
 
 To check that CRYSTALpytools was installed successfully please type:
 
@@ -62,10 +77,10 @@ being displayed. This appears at the beginning of the “conda list” command. 
 most common mistake at this stage is that the environment was not activated as
 described above.
 
-Please note that ``pip`` will only install the functions and not the example /
-test cases (provided as Jupyter Notebooks. This decision was taken in order to
-reduce the volume of data transferred when installing. If you are interested in
-the example notebooks please read the section below.
+Please note that both ``pip`` and ``conda`` can only install the functions and
+not the example / test cases (provided as Jupyter Notebooks. This decision was
+taken in order to reduce the volume of data transferred when installing. If you
+are interested in the example notebooks please read the 'Testing' section below.
 
 Set the path to runcry and runprop
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
