@@ -12,13 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Sphinx docs to gh-pages
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Make conda environment
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: test
           python-version: 3.10    # Python version to build the html sphinx documentation
           environment-file: .github/docs_env.yaml    # Path to the documentation conda environment
           auto-update-conda: false
