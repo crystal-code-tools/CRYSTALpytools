@@ -1,6 +1,6 @@
-numpy<2.0
+numpy
 sympy
-scipy<1.14.0
+scipy
 matplotlib
 pandas
 PyYAML

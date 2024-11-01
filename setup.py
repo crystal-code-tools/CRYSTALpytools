@@ -22,9 +22,9 @@ setuptools.setup(
     packages=setuptools.find_packages(include=['CRYSTALpytools', 'CRYSTALpytools.*']),
     #python_requires=">=3.8",
     install_requires=[
-	"numpy<2.0",
+	"numpy",
 	"sympy",
-	"scipy<1.14.0",
+	"scipy",
 	"matplotlib",
 	"pandas",
 	"PyYAML",
