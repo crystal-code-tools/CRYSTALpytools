@@ -20,9 +20,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(include=['CRYSTALpytools', 'CRYSTALpytools.*']),
-    #python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
-	"numpy",
+	"numpy<2.0",
 	"sympy",
 	"scipy",
 	"matplotlib",
@@ -30,7 +30,6 @@ setuptools.setup(
 	"PyYAML",
 	"mendeleev>=0.14.0",
     "pymatgen>=2022.7.25",
-    "pymatgen<2024.10.3",
     "ase>=3.22.1",
     "basis_set_exchange>=0.9.1"
     ]
