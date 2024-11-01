@@ -1,0 +1,158 @@
+CRYSTALpytools package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   CRYSTALpytools.base
+   CRYSTALpytools.io
+
+Submodules
+----------
+
+CRYSTALpytools.adsorb module
+----------------------------
+
+.. automodule:: CRYSTALpytools.adsorb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.calculate module
+-------------------------------
+
+.. automodule:: CRYSTALpytools.calculate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.convert module
+-----------------------------
+
+.. automodule:: CRYSTALpytools.convert
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.crystal\_io module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.crystal_io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.elastics module
+------------------------------
+
+.. automodule:: CRYSTALpytools.elastics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.electronics module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.electronics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.execute module
+-----------------------------
+
+.. automodule:: CRYSTALpytools.execute
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.geometry module
+------------------------------
+
+.. automodule:: CRYSTALpytools.geometry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.phonons module
+-----------------------------
+
+.. automodule:: CRYSTALpytools.phonons
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.plot module
+--------------------------
+
+.. automodule:: CRYSTALpytools.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.relativistics module
+-----------------------------------
+
+.. automodule:: CRYSTALpytools.relativistics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.spectra module
+-----------------------------
+
+.. automodule:: CRYSTALpytools.spectra
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.thermodynamics module
+------------------------------------
+
+.. automodule:: CRYSTALpytools.thermodynamics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.topond module
+----------------------------
+
+.. automodule:: CRYSTALpytools.topond
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.transport module
+-------------------------------
+
+.. automodule:: CRYSTALpytools.transport
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.units module
+---------------------------
+
+.. automodule:: CRYSTALpytools.units
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.utils module
+---------------------------
+
+.. automodule:: CRYSTALpytools.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: CRYSTALpytools
+   :members:
+   :undoc-members:
+   :show-inheritance:
