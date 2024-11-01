@@ -21,6 +21,7 @@ section. Further details can be found in the :ref:`API documentations <ref-APIdo
    examples/charge_density/charge_density
    examples/elastic_properties/elastic_properties
    examples/electronic_structure/electronic_structure
+   examples/fermi_surface/fermi_surface
    examples/phonons/phonons
    examples/relativistics/relativistics
    examples/spectra/spectra

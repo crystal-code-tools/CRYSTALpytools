@@ -1580,7 +1580,8 @@ class Crystal_output:
         Read phonon density of states from CRYSTAL output file.
 
         Args:
-            read_INS (bool): Read the inelastic neutron scattering spectra.
+            read_INS (bool): Read the inelastic neutron scattering spectra,
+                instead of the PDOS.
             atom_prj (list): Read the projections of atoms with specified labels.
             element_prj (list): Read projections of elements with specified
                 conventional atomic numbers.
@@ -2625,41 +2626,103 @@ class Properties_output(POutBASE):
 
     def read_electron_band(self, band_file):
         """
-        Generate bands object from CRYSTAL BAND.DAT or fort.25 file. Energy
+        Generate bands object from CRYSTAL BAND.DAT / fort.25 file. Energy
         unit: eV. E Fermi is aligned to 0.
 
         Args:
-            band_file (str): Name of BAND.DAT or fort.25 file
+            band_file (str): Name of BAND.DAT / fort.25 file.
 
         Returns:
-            self.bands (ElectronBand): An ``CRYSTALpytools.electronics.ElectronBand`` object
+            self.bands (ElectronBand): The :ref:`electronics.ElectronBand <ref-ElectronBand>` object.
         """
+        from CRYSTALpytools.base.extfmt import CrgraParser, DLVParser
+        from CRYSTALpytools.units import H_to_eV, angstrom_to_au
         from CRYSTALpytools.electronics import ElectronBand
         import warnings
 
-        if not hasattr(self, 'file_name'):
-            warnings.warn('Properties output file not found: 3D k path not available',
-                          stacklevel=2)
-            self.bands = ElectronBand.from_file(band_file)
+        file = open(band_file)
+        flag = file.readline()
+        file.close()
+        if '-%-' in flag: # fort.25
+            bandout = CrgraParser.band(band_file)
+        elif '#' in flag: # BAND.DAT
+            bandout = DLVParser.band(band_file)
         else:
-            self.bands = ElectronBand.from_file(band_file, self.file_name)
+            raise Exception("Pattern not found in '{}'. Is it a band structure file?".format(band_file))
 
+        if not hasattr(self, 'file_name'):
+            warnings.warn('Properties output file not found: 3D k path not available.',
+                          stacklevel=2)
+            struc = None; t3d = None; k3d = None
+        else:
+            struc = super().get_geometry()
+            t3d, k3d = super().get_3dkcoord()
+        self.bands = ElectronBand(
+            bandout[0], bandout[1], bandout[2], bandout[3], bandout[4],
+            bandout[5], struc, None, t3d, k3d, bandout[6])
         return self.bands
+
+
+    def read_Fermi_surface(self, f35_file):
+        """
+        Generate the Fermi surface, i.e., band energy across the first brillouin
+        zone :math:`E(k)` from CRYSTAL fort.35 file (with 'DLV_BAND' keyword).
+        Energy unit: eV.
+
+        .. note::
+
+            When output is available, energies are aligned to :math:`E_{F}=0`.
+            Otherwise values reported in fort.35 file are used.
+
+        Args:
+            f35_file (str): Name of fort.35 file.
+
+        Returns:
+            self.FermiSurf (FermiSurface): The :ref:`electronics.FermiSurface <ref-FermiSurface>` object
+        """
+        from CRYSTALpytools.base.extfmt import DLVParser
+        from CRYSTALpytools.units import H_to_eV, angstrom_to_au
+        from CRYSTALpytools.electronics import FermiSurface
+        import warnings
+
+        rlatt, band, _ = DLVParser.fort35(f35_file)
+        rlatt = angstrom_to_au(rlatt) # A^-1 to Bohr^-1
+        band = H_to_eV(band)
+        if not hasattr(self, 'file_name'):
+            warnings.warn('Properties output file not found: Fermi energy not available.',
+                          stacklevel=2)
+            efermi = 0.
+        else:
+            efermi = super().get_Fermi()
+        self.FermiSurf = FermiSurface(rlatt, band-efermi, efermi=efermi, unit='eV')
+        return self.FermiSurf
+
 
     def read_electron_dos(self, dos_file):
         """
-        Generate doss object from CRYSTAL DOSS.DAT or fort.25 file. Energy
+        Get density of states from CRYSTAL DOSS.DAT or fort.25 file. Energy
         unit: eV. E Fermi is aligned to 0.
+
         Args:
             dos_file (str): Name of DOSS.DAT or fort.25 file
-
         Returns:
-            self.doss (ElectronDOS): An ``CRYSTALpytools.electronics.ElectronDOS`` object
+            self.doss (ElectronDOS): The :ref:`electronics.ElectronDOS <ref-ElectronDOS>` object.
         """
+        from CRYSTALpytools.base.extfmt import CrgraParser, DLVParser
         from CRYSTALpytools.electronics import ElectronDOS
 
-        self.doss = ElectronDOS.from_file(dos_file)
+        file = open(dos_file)
+        flag = file.readline()
+        file.close()
+        if '-%-' in flag:  # fort.25 file format
+            dosout = CrgraParser.dos(dos_file)
+        elif '#' in flag: # DOSS.DAT
+            dosout = DLVParser.dos(dos_file)
+        else:
+            raise Exception("Pattern not found in '{}'. Is it a DOSS file?".format(dos_file))
 
+        self.doss = ElectronDOS(spin=dosout[0], efermi=dosout[1], doss=dosout[2],
+                   energy=dosout[3], unit=dosout[4])
         return self.doss
 
 #-----------------------------2D scalar field----------------------------------#
@@ -2787,7 +2850,7 @@ class Properties_output(POutBASE):
         Available methods are:
 
         * 'normal': Normal 1-file reading.  
-        * 'substact': Substracting data from the first entry based on following
+        * 'substract': Substracting data from the first entry based on following
             entries. Multiple entries or 1 entry with 'PATO' keyword enabled.
             For multiple entries, make sure the charge map is in the first (and
             ideally the only) 'MAPN' data block, otherwise the code won't get
@@ -2849,22 +2912,20 @@ class Properties_output(POutBASE):
                     index = np.where(headers>chg[0])[0][0]
             else:
                 if len(pato) == 1 and len(chg) == 2:
-                    if chg[0] < pato[0]: use_idx = 0 # density before pato
-                    else: use_idx = 1 # density after pato
-                    ipato = np.where(headers>pato[0])[0][0]
-                    ichg = np.where(headers>chg[use_idx])[0][0]
-                    if len(spin) != 0:
-                        ispin = np.where(headers>spin[use_idx][0][0])
-                        if method == 'substract': # pato substract
-                            index = np.array([ipato, ichg, ispin], dtype=int)
-                        else: # normal
-                            index = np.array([ichg, ispin], dtype=int)
-                    else:
-                        if method == 'substract': # pato substract
-                            index = np.array([ipato, ichg], dtype=int)
-                        else: # normal
-                            index = np.array([ichg], dtype=int)
-                    index = np.sort(index)
+                    if chg[0] < pato[0] and chg[1] > pato[0]: use_idx = 0
+                    else: use_idx = 1
+
+                    if method != 'substract': # Normal read of charge densities (No PATO)
+                        if len(spin) != 0:
+                            index = np.array([np.where(headers>chg[use_idx])[0][0],
+                                              np.where(headers>spin[use_idx])[0][0]], dtype=int)
+                            index = np.sort(index)
+                        else:
+                            index = np.where(headers>chg[0])[0][0]
+                    else: # spin dimension is not kept
+                        index = np.array([np.where(headers>chg[use_idx])[0][0],
+                                          np.where(headers>chg[1-use_idx])[0][0]], dtype=int)
+                        index = np.sort(index)
                 else:
                     warnings.warn('Multiple charge densities exist in the calculation. Only the first density map will be read.',
                                   stacklevel=2)
@@ -2874,24 +2935,9 @@ class Properties_output(POutBASE):
         spin, a, b, c, cosxy, struc, map, unit = CrgraParser.mapn(f25_files[0], index)
         # methods
         if len(f25_files) == 1 and len(pato) == 1 and method == 'substract': # PATO in the same file
-            if ichg < ipato:
-                if spin == 1:
-                    self.echg = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
-                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
-                    self.echg = self.echg.substract(obj)
-                else:
-                    self.echg = ChargeDensity(np.dstack([map[0], map[1]], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit))
-                    obj = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
-                    self.echg = self.echg.substract(obj)
-            else:
-                if spin == 1:
-                    self.echg = ChargeDensity(map[1], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
-                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
-                    self.echg = self.echg.substract(obj)
-                else:
-                    self.echg = ChargeDensity(np.dstack([map[1], map[2]], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit))
-                    obj = ChargeDensity(map[0], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
-                    self.echg = self.echg.substract(obj)
+            self.echg = ChargeDensity(map[use_idx], np.vstack([a[0],b[0],c[0]]), spin, 2, struc[0], unit)
+            obj = ChargeDensity(map[1-use_idx], np.vstack([a[1],b[1],c[1]]), spin, 2, struc[1], unit)
+            self.echg = self.echg.substract(obj)
             self.echg._set_unit('Angstrom')
             self.echg.data = self.echg.data[::-1] # base vector use BA rather than AB
         else: # others
@@ -2918,6 +2964,98 @@ class Properties_output(POutBASE):
                     warnings.warn("Nothing to substract.", stacklevel=2)
 
         return self.echg
+
+    def read_ECH3(self, *cubefiles, method='normal'):
+        """
+        Read 3D charge / spin density data from CUBE files. Unit: :math:`e.\\AA^{-3}`.
+
+        .. note::
+
+            Only compatible with CRYSTAL cube outputs. Lattice constants are
+            annotated in the comment line.
+
+        Available methods are:
+
+        * 'normal': Normal reading, 1 or 2 entries for charge and spin
+            densities.  
+        * 'substract': Substracting data from the first entry based on following
+            entries.  
+        * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
+            :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
+            / spin(:math:`\\alpha-\\beta`). 1 or 2 entries for charge and spin
+            densities.
+
+        Args:
+            \*cubefiles (str): Path to the CUBE file(s).
+            method (str): Data processing method. See above.
+
+        Returns:
+            self.ech3 (ChargeDensity): ``electronics.ChargeDensity`` object.
+        """
+        from CRYSTALpytools.base.extfmt import CUBEParser
+        from CRYSTALpytools.electronics import ChargeDensity
+        import numpy as np
+        import pandas as pd
+        import warnings
+
+        method = method.lower()
+        if method != 'substract' and method != 'alpha_beta' and method != 'normal':
+            raise ValueError("Unknown method: '{}'.".format(method))
+        if len(cubefiles) > 2 and method != 'substract':
+            raise ValueError("Only 1 or 2 entries are permitted for method: '{}'.".format(method))
+        if (method=='substract' or method=='alpha_beta') and len(cubefiles) < 2:
+            warings.warn("At least 2 files are needed for the specified method. Using 'normal' now.",
+                         stacklevel=2)
+        # The first entry
+        origin, a, b, c, struc, data, _ = CUBEParser.read_cube(cubefiles[0])
+        # Structure from output if provided, to keep periodicity settings.
+        ## compare structures of CUBE and output
+        def compare_struc(struc0, struc1):
+            if np.linalg.norm(struc0.lattice.matrix - struc1.lattice.matrix) > 1e-4:
+                return False
+            if struc0.num_sites != struc1.num_sites:
+                return False
+            if np.linalg.norm(struc0.frac_coords-struc1.frac_coords)>1e-2:
+                return False
+            return True
+        if hasattr(self, 'file_name'):
+            struc1 = super().get_geometry()
+            if compare_struc(struc, struc1) == False:
+                raise Exception('Inconsistent geometries are given in output and CUBE files. Check your input files.')
+            struc = struc1
+
+        # Other entries
+        if len(cubefiles) > 1:
+            for f in cubefiles[1:]:
+                o1, a1, b1, c1, struc1, data1, _ = CUBEParser.read_cube(f)
+                if np.linalg.norm(origin-o1)>1e-4 or np.linalg.norm(a-a1)>1e-4 \
+                or np.linalg.norm(b-b1)>1e-4 or np.linalg.norm(c-c1)>1e-4 \
+                or np.linalg.norm(np.array(data1.shape)-np.array(data.shape))>1e-4:
+                    raise Exception("Inconsistent data grid between the initial and the file: '{}'.".format(f))
+                if method == 'substract':
+                    data -= data1
+                else:
+                    if compare_struc(struc, struc1) == False:
+                        raise Exception("Inconsistent structure between the initial and the file: '{}'.".format(f))
+
+        if method == 'substract':
+            self.ech3 = ChargeDensity(np.expand_dims(data, axis=3),
+                                      [origin, a, b, c], 1, 3, struc=struc, unit='a.u.')
+            del data, data1
+        else:
+            spin = len(cubefiles)
+            datanew = np.zeros([data.shape[0], data.shape[1], data.shape[2], spin])
+            datanew[:, :, :, 0] = data; del data
+            if spin > 1:
+                datanew[:, :, :, 1] = data1; del data1
+            self.ech3 = ChargeDensity(datanew, [origin, a, b, c], spin, 3,
+                                      struc=struc, unit='a.u.')
+            del datanew
+
+        if method == 'alpha_beta':
+            self.ech3.alpha_beta()
+        self.ech3._set_unit('Angstrom')
+        return self.ech3
 
 #-----------------------------2D vector field----------------------------------#
 

@@ -372,7 +372,7 @@ class Geom(BlockBASE):
         # The 0D geometry keyword 'MOLECULE' and the molecular crystal option 'MOLECULE'
         geom = ['CRYSTAL', 'SLAB', 'POLYMER', 'HELIX', 'MOLECULE', 'EXTERNAL', 'DLVINPUT']
         for i in geom:
-            if np.all(self[i][0]!=None):
+            if np.all(self._block_dict[i][0]!=None):
                 warnings.warn("Geometry definition exists. To launch the MOLECULE to isolate molecules from lattice, use the 'geom.molecule2' method.",
                               stacklevel=2)
 

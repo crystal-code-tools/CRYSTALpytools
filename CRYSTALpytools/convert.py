@@ -530,3 +530,53 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
         gui.write_gui(gui_file, symm=symmetry)
 
     return gui
+
+# Need to check unit and periodicity.
+# def cry_cube2xsf(cube, xsf, periodicity='CRYSTAL'):
+#     """
+#     The shortcut function to convert CRYSTAL CUBE file into XCrySDen XSF format.
+#     Useful for 3D scalar field data.
+
+#     .. note::
+
+#         #. CUBE file must follow CRYSTAL convention. The lattice constants are
+#         annotated in the second line of the file. Non-periodic directions must
+#         along the Z (YZ) axis (axes) for 2D (1D) systems. Data grid is aligned
+#         with lattice.
+
+#         #. It's important to specify periodicity of the system with CRYSTAL
+#         keywords ('CRYSTAL', 'SLAB', 'POLYMER', 'MOLECULE'). In some rare cases
+#         the default 3D perodicity might cause file loading error for low
+#         dimensional systems. See :ref:`electronics.ChargeDensity.to_xsf() <ref-ChgDensToXSF>`
+#         for more information.
+
+#     Args:
+#         cube (ChargeDensity | str): `electronics.ChargeDensity` class or name
+#             of the CUBE file.
+#         xsf (str): Name of the output XSF file.
+#         periodicity (str): 'CRYSTAL', 'SLAB', 'POLYMER' or 'MOLECULE'
+
+#     Returns:
+#         None
+#     """
+#     from CRYSTALpytools.electronics import ChargeDensity
+#     from CRYSTALpytools.geometry import CStructure
+#     from pymatgen.core.lattice import Lattice
+
+#     if not isinstance(cube, ChargeDensity):
+#         cube = ChargeDensity.from_file(cube)
+
+#     periodicity = periodicity.upper()
+#     if periodicity not in ['CRYSTAL', 'SLAB', 'POLYMER', 'MOLECULE']:
+#         raise ValueError("Unknown periodicity specification: '{}'.".format(periodicity))
+#     pbc = {'CRYSTAL' : (True, True, True),
+#            'SLAB'    : (True, True, False),
+#            'POLYMER' : (True, False, False),
+#            'MOLECULE': (False, False, False)}
+#     # Update structure with periodicity
+#     cube.structure = CStructure(cube.structure.lattice, cube.structure.species,
+#                                 cube.structure.frac_coords, pbc=pbc[periodicity])
+#     cube.to_xsf(xsf)
+#     return
+
+

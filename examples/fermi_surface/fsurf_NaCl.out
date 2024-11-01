@@ -1,0 +1,205 @@
+Pre-Calc Summary
+--------------------------------------------
+  date:                Fri 27 Sep 17:38:27 BST 2024
+  hostname:            nhpc101
+  system:              Linux nhpc101 5.3.18-150300.59.76-default #1 SMP Thu Jun 16 04:23:47 UTC 2022 (2cc2ade) x86_64 x86_64 x86_64 GNU/Linux
+  user:                huanyu
+  input:               /home/huanyu/Desktop/band3d/nacl_3dband.d3
+  output:              /home/huanyu/Desktop/band3d/nacl_3dband.out
+  temporary directory: /home/huanyu/Desktop/band3d/nacl_3dband_tmpfile
+  executable script:   /home/huanyu/GitHub/Spica-Vir/HPC-job-submission/PC-Job-Submission/run_job
+  executable dir:      module load CRYSTAL/23v1-intel
+  mpi + exe command:   mpiexec -np 4 Pproperties
+-------------------------------------------
+
+Find input data: /home/huanyu/Desktop/band3d/nacl_3dband.d3
+Find input reference: /home/huanyu/Desktop/band3d/nacl.f9
+Find input reference: /home/huanyu/Desktop/band3d/nacl.f9
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : nacl_3dband
+  Command        : mpiexec -np 4 Pproperties >> /home/huanyu/Desktop/band3d/nacl_3dband.out 2>&1
+  Temporary dir  : /home/huanyu/Desktop/band3d/nacl_3dband_tmpfile
+  List of files  : total 572
+-rw-r--r-- 1 huanyu users 284328 Sep 27 17:38 fort.20
+-rw-r--r-- 1 huanyu users 284328 Sep 27 17:38 fort.9
+-rw-r--r-- 1 huanyu users     37 Sep 27 17:38 INPUT
+-rw-r--r-- 1 huanyu users   7554 Sep 27 17:38 Job_script_nacl_3dband
+  Input script   :
+NEWK
+12 12
+ 1 0
+DLV_BAND
+1 30 24
+END
+-------------------------------------------
+
+ PROCESS            0  OF            4  WORKING
+ PROCESS            3  OF            4  WORKING
+ PROCESS            2  OF            4  WORKING
+ PROCESS            1  OF            4  WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 27 09 2024 TIME 17:38:28.4
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ NaCl band 3D test                                                               
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  RESTRICTED CLOSED SHELL
+ *******************************************************************************
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(PBEsol GGA)[PBEsol]
+
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+         0.00000    2.81412    2.81412
+         2.81412    0.00000    2.81412
+         2.81412    2.81412    0.00000
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+    3.97976    3.97976    3.97976     60.0000   60.0000   60.0000      44.57138
+ *******************************************************************************
+ N. OF ATOMS PER CELL         2 COULOMB OVERLAP TOL          (T1) 10**   -7
+ NUMBER OF SHELLS             9 COULOMB PENETRATION TOL      (T2) 10**   -7
+ NUMBER OF AO                30 EXCHANGE OVERLAP TOL         (T3) 10**   20
+ N. OF ELECTRONS PER CELL    28 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   20
+ CORE ELECTRONS PER CELL     20 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**   20
+ N. OF SYMMETRY OPERATORS    48 POLE ORDER IN MONO ZONE                   4
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1   11 NA    4     2.814     2.814     2.814   2.730E-01      10.042
+    2   17 CL    5     0.000     0.000     0.000   1.250E-01      17.958
+ *******************************************************************************
+ DE(K)                   0.000E+00  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -6.2125991638156E+02  CONVERGENCE ON ENER        1.303E-10
+ KIN. ENERGY   6.2010170134019E+02  VIR. COEFF.           1.03351803E+00
+ N. OF SCF CYCLES                3  FERMI ENERGY              -0.242E+00
+ WEIGHT OF F(I) IN F(I+1)      30
+ SHRINK. FACT.(MONKH.)    12 12 12  SHRINKING FACTOR(GILAT NET)       12
+ NUMBER OF K POINTS IN THE IBZ  72  CELL VOLUME (A.U.)        302.673172
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  105 RMAX    79.59117 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.40 TCPU        0.15
+
+ MATRIX SIZE: P(G)   11002, F(G)    5708, P(G) IRR     882, F(G) IRR     882
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 133
+
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET  72; SYMMOPS:K SPACE  48;G SPACE  48
+
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET  72; SYMMOPS:K SPACE  48;G SPACE  48
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                  72 POINTS(GILAT NET)                72
+ SHRINK FACTORS(MONK.)        12 12 12 SHRINK FACTOR(GILAT)             12
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 12)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-C(  3  0  0)
+   5-C(  4  0  0)   6-C(  5  0  0)   7-R(  6  0  0)   8-C(  1  1  0)
+   9-C(  2  1  0)  10-C(  3  1  0)  11-C(  4  1  0)  12-C(  5  1  0)
+  13-C(  6  1  0)  14-C(  7  1  0)  15-C(  8  1  0)  16-C(  9  1  0)
+  17-C( 10  1  0)  18-C( 11  1  0)  19-C(  2  2  0)  20-C(  3  2  0)
+  21-C(  4  2  0)  22-C(  5  2  0)  23-C(  6  2  0)  24-C(  7  2  0)
+  25-C(  8  2  0)  26-C(  9  2  0)  27-C( 10  2  0)  28-C(  3  3  0)
+  29-C(  4  3  0)  30-C(  5  3  0)  31-C(  6  3  0)  32-C(  7  3  0)
+  33-C(  8  3  0)  34-C(  9  3  0)  35-C(  4  4  0)  36-C(  5  4  0)
+  37-C(  6  4  0)  38-C(  7  4  0)  39-C(  8  4  0)  40-C(  5  5  0)
+  41-C(  6  5  0)  42-C(  7  5  0)  43-R(  6  6  0)  44-C(  3  2  1)
+  45-C(  4  2  1)  46-C(  5  2  1)  47-C(  6  2  1)  48-C(  7  2  1)
+  49-C(  4  3  1)  50-C(  5  3  1)  51-C(  6  3  1)  52-C(  7  3  1)
+  53-C(  8  3  1)  54-C(  9  3  1)  55-C( 10  3  1)  56-C(  5  4  1)
+  57-C(  6  4  1)  58-C(  7  4  1)  59-C(  8  4  1)  60-C(  9  4  1)
+  61-C(  6  5  1)  62-C(  7  5  1)  63-C(  8  5  1)  64-C(  7  6  1)
+  65-C(  6  4  2)  66-C(  7  4  2)  67-C(  8  4  2)  68-C(  7  5  2)
+  69-C(  8  5  2)  70-C(  9  5  2)  71-C(  8  6  2)  72-C(  9  6  3)
+
+ FERMI ENERGY AND DENSITY MATRIX CALCULATION ON COMPUTED EIGENVECTORS
+ DENSITY MATRIX AT SCF CYCLE (  3+1)
+
+ INSULATING STATE
+ TOP OF VALENCE BANDS -    BAND     14; K    1; EIG -2.4200053E-01 AU
+ BOTTOM OF VIRTUAL BANDS - BAND     15; K    1; EIG -4.4415257E-02 AU
+ DIRECT ENERGY BAND GAP:   5.3766 eV
+
+ CORE DENSITY MATRIX CALCULATION
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE        0.41 TCPU        0.16
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DLV_BAND    TELAPSE        1.40 TCPU        1.15
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE        1.40 TCPU        1.15
+ EEEEEEEEEE TERMINATION  DATE 27 09 2024 TIME 17:38:29.4
+NODE    0 CPU TIME =         1.153
+NODE    1 CPU TIME =         1.152
+NODE    2 CPU TIME =         1.153
+NODE    3 CPU TIME =         1.151
+    TOTAL CPU TIME =         4.609
+  fort.9               nacl_3dband.f9                                        284328   Sep 27 17:38
+  fort.35              nacl_3dband.f35                                       47344199 Sep 27 17:38
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /home/huanyu/Desktop/band3d/nacl_3dband_tmpfile
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       3.7T  909G  2.8T  25% /home
+
+  Usage by folders (du -m)
+49	/home/huanyu/Desktop/band3d/nacl_3dband_tmpfile
+
+  Detailed file list (ls -l .)
+    see /home/huanyu/Desktop/band3d/nacl_3dband.log file
+--------------------------------------------
+

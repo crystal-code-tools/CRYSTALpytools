@@ -1,0 +1,409 @@
+Running Job Report
+--------------------------------------------
+DATE START : Tue 22 Oct 18:03:05 BST 2024
+
+Pre-Calc Summary
+--------------------------------------------
+  date:                Tue 22 Oct 18:03:05 BST 2024
+  hostname:            hx1-c05-8-4
+  system:              Linux hx1-c05-8-4 4.18.0-372.32.1.el8_6.x86_64 #1 SMP Fri Oct 7 12:35:10 EDT 2022 x86_64 x86_64 x86_64 GNU/Linux
+  user:                hz1420
+  input:               /gpfs/home/hz1420/band3d/MV_band3d.d12
+  output:              /gpfs/home/hz1420/band3d/MV_band3d.out
+  temporary directory: /gpfs/home/hz1420/tmp/MV_band3d_140943
+  executable script:   /gpfs/home/hz1420/GitHub/HPC-job-submission/Imperial-HPC-Job-Submission/run_exec
+  executable dir:      /gpfs/home/hz1420/app/CRYSTAL23__foss2023a/bin
+  mpi + exe command:    mpiexec -np 64 Pproperties
+-------------------------------------------
+
+Find input data: /gpfs/home/hz1420/band3d/MV_band3d.d12
+Find input reference: /gpfs/home/hz1420/band3d/6x6.f9
+Find input reference: /gpfs/home/hz1420/band3d/6x6.f9
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : MV_band3d
+  ID             : 140943.pbs-6
+  Command        : mpiexec -np 64 Pproperties >> /gpfs/home/hz1420/band3d/MV_band3d.out 2>&1
+  Temporary dir  : /gpfs/home/hz1420/tmp/MV_band3d_140943
+  List of files  : total 1
+-rw-r--r-- 1 hz1420 hpc-nmh 8182512 Oct 22 18:03 fort.20
+-rw-r--r-- 1 hz1420 hpc-nmh 8182512 Oct 22 18:03 fort.9
+-rw-r--r-- 1 hz1420 hpc-nmh      39 Oct 22 18:03 INPUT
+-rw-r--r-- 1 hz1420 hpc-nmh    8201 Oct 22 18:03 Job_script_140943
+  Input script   :
+NEWK
+24 48
+1 0
+DLV_BAND
+209 218 24
+END
+-------------------------------------------
+
+          64 PROCESSORS WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 22 10 2024 TIME 18:03:09.1
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ 6x6 graphene nostrain monovacancy                                               
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  UNRESTRICTED OPEN SHELL
+ *******************************************************************************
+ SPIN POLARIZED SYSTEM: SUMMED SPIN DENSITY    2.00000000
+
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(HSE06 SR/GGA)[PERDEW-BURKE-ERNZERHOF]
+
+ RANGE-SEPARATED HYBRID FUNCTIONAL 
+ OMEGA (SHORT-RANGE)[LONG-RANGE]:(    0.1100)[    0.0000]
+
+ HYBRID EXCHANGE - PERCENTAGE OF FOCK EXCHANGE    25.0000
+
+ SPIN POLARIZED DFT SELECTED
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+        12.70639   -7.44076    0.00000
+        -0.09069   14.72444    0.00000
+         0.00000    0.00000  500.00000
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+   14.72471   14.72472  500.00000     90.0000   90.0000  120.7058     186.41966
+ *******************************************************************************
+ N. OF ATOMS PER CELL        71 COULOMB OVERLAP TOL          (T1) 10**   -7
+ NUMBER OF SHELLS           284 COULOMB PENETRATION TOL      (T2) 10**   -7
+ NUMBER OF AO               994 EXCHANGE OVERLAP TOL         (T3) 10**   -7
+ N. OF ELECTRONS PER CELL   426 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   -7
+ CORE ELECTRONS PER CELL    142 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**  -14
+ N. OF SYMMETRY OPERATORS     1 POLE ORDER IN MONO ZONE                   4
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1    6 C     4    -1.434     0.022    -0.000   8.000E-01       5.996
+    2    6 C     4    -1.426     2.470    -0.000   8.000E-01       6.000
+    3    6 C     4    -1.413     4.915    -0.000   8.000E-01       6.003
+    4    6 C     4    -1.427     7.358     0.000   8.000E-01       6.001
+    5    6 C     4    -1.366    -4.904     0.000   8.000E-01       5.999
+    6    6 C     4    -1.415    -2.432     0.000   8.000E-01       6.001
+    7    6 C     4     0.695    -1.203    -0.000   8.000E-01       6.000
+    8    6 C     4     0.698     1.253    -0.000   8.000E-01       5.996
+    9    6 C     4     0.748     3.726    -0.000   8.000E-01       6.003
+   10    6 C     4     0.718     6.149    -0.000   8.000E-01       6.001
+   11    6 C     4     0.751    -6.122     0.000   8.000E-01       6.001
+   12    6 C     4     0.704    -3.656     0.000   8.000E-01       6.001
+   13    6 C     4     2.814    -2.437     0.000   8.000E-01       6.001
+   14    6 C     4     2.813     0.009    -0.000   8.000E-01       6.001
+   15    6 C     4     2.827     2.479    -0.000   8.000E-01       5.997
+   16    6 C     4     2.970     5.017    -0.000   8.000E-01       6.020
+   17    6 C     4     2.890    -7.323    -0.000   8.000E-01       5.989
+   18    6 C     4     2.810    -4.868    -0.000   8.000E-01       5.996
+   19    6 C     4     4.926    -3.712     0.000   8.000E-01       6.001
+   20    6 C     4     4.930    -1.269     0.000   8.000E-01       5.999
+   21    6 C     4     4.931     1.165     0.000   8.000E-01       6.001
+   22    6 C     4     4.944     3.590     0.000   8.000E-01       5.992
+   23    6 C     4     4.896    -6.164    -0.000   8.000E-01       5.989
+   24    6 C     4    -5.684     2.453     0.000   8.000E-01       6.001
+   25    6 C     4    -5.659     4.915     0.000   8.000E-01       6.001
+   26    6 C     4    -5.657     7.361     0.000   8.000E-01       6.001
+   27    6 C     4    -5.658     9.801     0.000   8.000E-01       6.005
+   28    6 C     4    -5.582    -2.486     0.000   8.000E-01       5.992
+   29    6 C     4    -5.830    -0.064    -0.000   8.000E-01       6.020
+   30    6 C     4    -3.601     1.215    -0.000   8.000E-01       6.003
+   31    6 C     4    -3.550     3.681    -0.000   8.000E-01       6.003
+   32    6 C     4    -3.539     6.130     0.000   8.000E-01       6.000
+   33    6 C     4    -3.546     8.580     0.000   8.000E-01       6.001
+   34    6 C     4    -3.475    -3.688     0.000   8.000E-01       6.001
+   35    6 C     4    -3.560    -1.209    -0.000   8.000E-01       5.997
+   36    6 C     4    -0.719    -1.202    -0.000   8.000E-01       5.999
+   37    6 C     4    -0.720     1.247    -0.000   8.000E-01       6.002
+   38    6 C     4    -0.689     3.700    -0.000   8.000E-01       6.000
+   39    6 C     4    -0.707     6.137    -0.000   8.000E-01       5.995
+   40    6 C     4    -0.653    -6.130     0.000   8.000E-01       5.999
+   41    6 C     4    -0.700    -3.659     0.000   8.000E-01       5.999
+   42    6 C     4     1.403    -2.429     0.000   8.000E-01       5.998
+   43    6 C     4     1.401     0.021    -0.000   8.000E-01       5.999
+   44    6 C     4     1.414     2.479    -0.000   8.000E-01       6.001
+   45    6 C     4     1.498     4.967    -0.000   8.000E-01       5.994
+   46    6 C     4     1.480    -7.345    -0.000   8.000E-01       5.989
+   47    6 C     4     1.408    -4.878     0.000   8.000E-01       6.000
+   48    6 C     4     3.521    -3.658     0.000   8.000E-01       6.000
+   49    6 C     4     3.519    -1.223     0.000   8.000E-01       5.999
+   50    6 C     4     3.522     1.226     0.000   8.000E-01       5.999
+   51    6 C     4     3.544     3.696    -0.000   8.000E-01       5.991
+   52    6 C     4     3.788    -8.408    -0.000   8.000E-01       6.039
+   53    6 C     4     3.502    -6.065    -0.000   8.000E-01       5.976
+   54    6 C     4     5.622    -4.954     0.000   8.000E-01       5.989
+   55    6 C     4     5.635    -2.499     0.000   8.000E-01       5.999
+   56    6 C     4     5.638    -0.059     0.000   8.000E-01       5.998
+   57    6 C     4     5.645     2.364     0.000   8.000E-01       5.984
+   58    6 C     4     5.775   -10.003     0.000   8.000E-01       6.046
+   59    6 C     4     5.387    -7.484    -0.000   8.000E-01       6.039
+   60    6 C     4    -5.051     1.186    -0.000   8.000E-01       5.994
+   61    6 C     4    -4.961     3.681     0.000   8.000E-01       5.995
+   62    6 C     4    -4.952     6.135     0.000   8.000E-01       5.999
+   63    6 C     4    -4.952     8.578     0.000   8.000E-01       5.997
+   64    6 C     4    -4.870    -3.707     0.000   8.000E-01       5.984
+   65    6 C     4    -4.973    -1.221    -0.000   8.000E-01       5.991
+   66    6 C     4    -2.854     0.015    -0.000   8.000E-01       6.001
+   67    6 C     4    -2.860     2.447    -0.000   8.000E-01       6.000
+   68    6 C     4    -2.832     4.906    -0.000   8.000E-01       5.995
+   69    6 C     4    -2.837     7.356     0.000   8.000E-01       5.999
+   70    6 C     4    -2.768    -4.912     0.000   8.000E-01       5.998
+   71    6 C     4    -2.823    -2.437     0.000   8.000E-01       5.999
+ *******************************************************************************
+ DE(K)                   4.390E-08  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -2.7009399698149E+03  CONVERGENCE ON ENER       -3.205E-09
+ KIN. ENERGY   2.6926934310614E+03  VIR. COEFF.           1.05701644E+00
+ N. OF SCF CYCLES               24  FERMI ENERGY              -0.102E+00
+ WEIGHT OF F(I) IN F(I+1)      30
+ SHRINK. FACT.(MONKH.)     4  4  1  SHRINKING FACTOR(GILAT NET)        8
+ NUMBER OF K POINTS IN THE IBZ  10  CELL VOLUME (A.U.)        665.716690
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    83    83     0
+ NO.OF VECTORS CREATED 6999 STARS 3500 RMAX  1218.77026 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        3.05 TCPU        1.30
+
+ MATRIX SIZE: P(G)  570438, F(G)  135960, P(G) IRR  287278, F(G) IRR  137522
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS  13
+
+
+ CAPPA:IS1  4;IS2  4;IS3  1; K PTS MONK NET  10; SYMMOPS:K SPACE   2;G SPACE   1
+
+
+ CAPPA:IS1 24;IS2 24;IS3  1; K PTS MONK NET 290; SYMMOPS:K SPACE   2;G SPACE   1
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                 290 POINTS(GILAT NET)              1154
+ SHRINK FACTORS(MONK.)        24 24  1 SHRINK FACTOR(GILAT)             48
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 24)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-C(  3  0  0)
+   5-C(  4  0  0)   6-C(  5  0  0)   7-C(  6  0  0)   8-C(  7  0  0)
+   9-C(  8  0  0)  10-C(  9  0  0)  11-C( 10  0  0)  12-C( 11  0  0)
+  13-R( 12  0  0)  14-C(  0  1  0)  15-C(  1  1  0)  16-C(  2  1  0)
+  17-C(  3  1  0)  18-C(  4  1  0)  19-C(  5  1  0)  20-C(  6  1  0)
+  21-C(  7  1  0)  22-C(  8  1  0)  23-C(  9  1  0)  24-C( 10  1  0)
+  25-C( 11  1  0)  26-C( 12  1  0)  27-C( 13  1  0)  28-C( 14  1  0)
+  29-C( 15  1  0)  30-C( 16  1  0)  31-C( 17  1  0)  32-C( 18  1  0)
+  33-C( 19  1  0)  34-C( 20  1  0)  35-C( 21  1  0)  36-C( 22  1  0)
+  37-C( 23  1  0)  38-C(  0  2  0)  39-C(  1  2  0)  40-C(  2  2  0)
+  41-C(  3  2  0)  42-C(  4  2  0)  43-C(  5  2  0)  44-C(  6  2  0)
+  45-C(  7  2  0)  46-C(  8  2  0)  47-C(  9  2  0)  48-C( 10  2  0)
+  49-C( 11  2  0)  50-C( 12  2  0)  51-C( 13  2  0)  52-C( 14  2  0)
+  53-C( 15  2  0)  54-C( 16  2  0)  55-C( 17  2  0)  56-C( 18  2  0)
+  57-C( 19  2  0)  58-C( 20  2  0)  59-C( 21  2  0)  60-C( 22  2  0)
+  61-C( 23  2  0)  62-C(  0  3  0)  63-C(  1  3  0)  64-C(  2  3  0)
+  65-C(  3  3  0)  66-C(  4  3  0)  67-C(  5  3  0)  68-C(  6  3  0)
+  69-C(  7  3  0)  70-C(  8  3  0)  71-C(  9  3  0)  72-C( 10  3  0)
+  73-C( 11  3  0)  74-C( 12  3  0)  75-C( 13  3  0)  76-C( 14  3  0)
+  77-C( 15  3  0)  78-C( 16  3  0)  79-C( 17  3  0)  80-C( 18  3  0)
+  81-C( 19  3  0)  82-C( 20  3  0)  83-C( 21  3  0)  84-C( 22  3  0)
+  85-C( 23  3  0)  86-C(  0  4  0)  87-C(  1  4  0)  88-C(  2  4  0)
+  89-C(  3  4  0)  90-C(  4  4  0)  91-C(  5  4  0)  92-C(  6  4  0)
+  93-C(  7  4  0)  94-C(  8  4  0)  95-C(  9  4  0)  96-C( 10  4  0)
+  97-C( 11  4  0)  98-C( 12  4  0)  99-C( 13  4  0) 100-C( 14  4  0)
+ 101-C( 15  4  0) 102-C( 16  4  0) 103-C( 17  4  0) 104-C( 18  4  0)
+ 105-C( 19  4  0) 106-C( 20  4  0) 107-C( 21  4  0) 108-C( 22  4  0)
+ 109-C( 23  4  0) 110-C(  0  5  0) 111-C(  1  5  0) 112-C(  2  5  0)
+ 113-C(  3  5  0) 114-C(  4  5  0) 115-C(  5  5  0) 116-C(  6  5  0)
+ 117-C(  7  5  0) 118-C(  8  5  0) 119-C(  9  5  0) 120-C( 10  5  0)
+ 121-C( 11  5  0) 122-C( 12  5  0) 123-C( 13  5  0) 124-C( 14  5  0)
+ 125-C( 15  5  0) 126-C( 16  5  0) 127-C( 17  5  0) 128-C( 18  5  0)
+ 129-C( 19  5  0) 130-C( 20  5  0) 131-C( 21  5  0) 132-C( 22  5  0)
+ 133-C( 23  5  0) 134-C(  0  6  0) 135-C(  1  6  0) 136-C(  2  6  0)
+ 137-C(  3  6  0) 138-C(  4  6  0) 139-C(  5  6  0) 140-C(  6  6  0)
+ 141-C(  7  6  0) 142-C(  8  6  0) 143-C(  9  6  0) 144-C( 10  6  0)
+ 145-C( 11  6  0) 146-C( 12  6  0) 147-C( 13  6  0) 148-C( 14  6  0)
+ 149-C( 15  6  0) 150-C( 16  6  0) 151-C( 17  6  0) 152-C( 18  6  0)
+ 153-C( 19  6  0) 154-C( 20  6  0) 155-C( 21  6  0) 156-C( 22  6  0)
+ 157-C( 23  6  0) 158-C(  0  7  0) 159-C(  1  7  0) 160-C(  2  7  0)
+ 161-C(  3  7  0) 162-C(  4  7  0) 163-C(  5  7  0) 164-C(  6  7  0)
+ 165-C(  7  7  0) 166-C(  8  7  0) 167-C(  9  7  0) 168-C( 10  7  0)
+ 169-C( 11  7  0) 170-C( 12  7  0) 171-C( 13  7  0) 172-C( 14  7  0)
+ 173-C( 15  7  0) 174-C( 16  7  0) 175-C( 17  7  0) 176-C( 18  7  0)
+ 177-C( 19  7  0) 178-C( 20  7  0) 179-C( 21  7  0) 180-C( 22  7  0)
+ 181-C( 23  7  0) 182-C(  0  8  0) 183-C(  1  8  0) 184-C(  2  8  0)
+ 185-C(  3  8  0) 186-C(  4  8  0) 187-C(  5  8  0) 188-C(  6  8  0)
+ 189-C(  7  8  0) 190-C(  8  8  0) 191-C(  9  8  0) 192-C( 10  8  0)
+ 193-C( 11  8  0) 194-C( 12  8  0) 195-C( 13  8  0) 196-C( 14  8  0)
+ 197-C( 15  8  0) 198-C( 16  8  0) 199-C( 17  8  0) 200-C( 18  8  0)
+ 201-C( 19  8  0) 202-C( 20  8  0) 203-C( 21  8  0) 204-C( 22  8  0)
+ 205-C( 23  8  0) 206-C(  0  9  0) 207-C(  1  9  0) 208-C(  2  9  0)
+ 209-C(  3  9  0) 210-C(  4  9  0) 211-C(  5  9  0) 212-C(  6  9  0)
+ 213-C(  7  9  0) 214-C(  8  9  0) 215-C(  9  9  0) 216-C( 10  9  0)
+ 217-C( 11  9  0) 218-C( 12  9  0) 219-C( 13  9  0) 220-C( 14  9  0)
+ 221-C( 15  9  0) 222-C( 16  9  0) 223-C( 17  9  0) 224-C( 18  9  0)
+ 225-C( 19  9  0) 226-C( 20  9  0) 227-C( 21  9  0) 228-C( 22  9  0)
+ 229-C( 23  9  0) 230-C(  0 10  0) 231-C(  1 10  0) 232-C(  2 10  0)
+ 233-C(  3 10  0) 234-C(  4 10  0) 235-C(  5 10  0) 236-C(  6 10  0)
+ 237-C(  7 10  0) 238-C(  8 10  0) 239-C(  9 10  0) 240-C( 10 10  0)
+ 241-C( 11 10  0) 242-C( 12 10  0) 243-C( 13 10  0) 244-C( 14 10  0)
+ 245-C( 15 10  0) 246-C( 16 10  0) 247-C( 17 10  0) 248-C( 18 10  0)
+ 249-C( 19 10  0) 250-C( 20 10  0) 251-C( 21 10  0) 252-C( 22 10  0)
+ 253-C( 23 10  0) 254-C(  0 11  0) 255-C(  1 11  0) 256-C(  2 11  0)
+ 257-C(  3 11  0) 258-C(  4 11  0) 259-C(  5 11  0) 260-C(  6 11  0)
+ 261-C(  7 11  0) 262-C(  8 11  0) 263-C(  9 11  0) 264-C( 10 11  0)
+ 265-C( 11 11  0) 266-C( 12 11  0) 267-C( 13 11  0) 268-C( 14 11  0)
+ 269-C( 15 11  0) 270-C( 16 11  0) 271-C( 17 11  0) 272-C( 18 11  0)
+ 273-C( 19 11  0) 274-C( 20 11  0) 275-C( 21 11  0) 276-C( 22 11  0)
+ 277-C( 23 11  0) 278-R(  0 12  0) 279-C(  1 12  0) 280-C(  2 12  0)
+ 281-C(  3 12  0) 282-C(  4 12  0) 283-C(  5 12  0) 284-C(  6 12  0)
+ 285-C(  7 12  0) 286-C(  8 12  0) 287-C(  9 12  0) 288-C( 10 12  0)
+ 289-C( 11 12  0) 290-R( 12 12  0)
+
+ FERMI ENERGY AND DENSITY MATRIX CALCULATION ON COMPUTED EIGENVECTORS
+ DENSITY MATRIX AT SCF CYCLE ( 24+1)
+
+ POSSIBLY CONDUCTING STATE - EFERMI(AU) -1.0201396E-01 (RES. CHARGE  4.43E-12;IT. 14)
+
+ CORE DENSITY MATRIX CALCULATION
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE       73.45 TCPU       70.69
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DLV_BAND    TELAPSE       73.69 TCPU       70.73
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE       73.69 TCPU       70.73
+ EEEEEEEEEE TERMINATION  DATE 22 10 2024 TIME 18:04:19.8
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+Note: The following floating-point exceptions are signalling: IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
+
+DATE END   : Tue 22 Oct 18:04:20 BST 2024
+Script run_exec done.
+============================================
+
+============================================
+Post Processing Report
+--------------------------------------------
+Begining of post processing : Tue 22 Oct 18:04:20 BST 2024
+List of saved files from Node 0
+  TEMPORARY            SAVED
+  fort.9               MV_band3d.f9                                          8182512  Oct 22 18:03
+  fort.35              MV_band3d.f35                                         672383   Oct 22 18:04
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /gpfs/home/hz1420/tmp/MV_band3d_140943
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+gpfs            2.1P  143T  2.0P   7% /gpfs
+
+  Usage by folders (du -m)
+19600	/gpfs/home/hz1420/tmp/MV_band3d_140943
+
+  Detailed file list of Node 0(ls -l .)
+    see /gpfs/home/hz1420/band3d/MV_band3d.log file
+--------------------------------------------
+
+End of post processing : Tue 22 Oct 18:04:21 BST 2024
+Script post_proc done.
+===========================================

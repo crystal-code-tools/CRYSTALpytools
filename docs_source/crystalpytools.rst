@@ -29,6 +29,16 @@ CRYSTALpytools instructions for users.
    crystalpytools.topond
    crystalpytools.transport
 
+Externals
+---------
+
+I/O methods developed for CRYSTAL's friends (Not a comprehensive list! :)).
+
+.. toctree::
+   :maxdepth: 1
+
+   crystalpytools.io.xcrysden
+
 Developers
 ----------
 

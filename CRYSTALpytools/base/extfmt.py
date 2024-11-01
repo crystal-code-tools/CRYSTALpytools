@@ -354,10 +354,11 @@ class CrgraParser():
             map = np.array([c for row in map for c in row], dtype=float)
             all_map.append(map.reshape([points_ab, points_bc, 1], order='F'))
             # struc
-            if io + 1 >= len(index):
-                next_o = index[io] + 1
-            else:
-                next_o = index[io+1]
+            next_o = o + 1
+            # if io + 1 >= len(index):
+            #     next_o = index[io] + 1
+            # else:
+            #     next_o = index[io+1]
             atoms = df[0][mapn_lines[o][1]:mapn_lines[next_o][0]-3].map(
                 lambda x: x.strip().split()).tolist()
             species = np.array([i[0] for i in atoms], dtype=int)
@@ -375,10 +376,10 @@ class CrgraParser():
         return spin, all_a, all_b, all_c, all_cosxy, all_struc, all_map, 'a.u.'
 
 
-class XmgraceParser():
+class DLVParser():
     """
-    A collection of functions to parse Xmgrace files (also used for DLV).
-    Instantiation of this object is not recommaneded.
+    A collection of functions to parse DLV / Xmgrace files. Instantiation of
+    this object is not recommaneded.
     """
     @classmethod
     def band(cls, filename):
@@ -535,8 +536,70 @@ class XmgraceParser():
         else:
             energy = cm_to_thz(energy)
             doss = thz_to_cm(doss)
-
         return spin, efermi, doss, energy, unit
+
+    @classmethod
+    def fort35(cls, filename):
+        """
+        Keyword 'DLV_BAND'. For 3D band structures in reciprocal space. 3D and
+        2D systems only.
+
+        Returns:
+            rlatt (array): 3\*3 reciprocal lattice matrix in Bohr.
+            bandnew (array): nBand\*nZ\*nY\*nX\*nSpin array of 3D band in Hartree.
+            unit (str): 'a.u.'
+        """
+        import numpy as np
+        import pandas as pd
+
+        df = pd.DataFrame(open(filename))
+
+        iband = df[df[0].str.contains(r'^\s*Band\s+[0-9]+\s*$')].index.tolist()
+        nband = 0
+        if len(iband) > 0: # no-spin
+            iband.append(len(df[0]))
+            iband = np.array(iband, ndmin=2, dtype=int)
+            nband = iband.shape[1] - 1
+            nspin = 1
+        else:
+            iaband = df[df[0].str.contains(r'^\s*Alpha band\s+[0-9]+\s*$')].index.tolist()
+            ibband = df[df[0].str.contains(r'^\s*Beta band\s+[0-9]+\s*$')].index.tolist()
+            iaband.append(ibband[0])
+            ibband.append(len(df[0]))
+            iband = np.vstack([iaband, ibband], dtype=int)
+            nband = iband.shape[1] - 1
+            nspin = 2
+        if nband == 0:
+            raise Exception("Band info not found. Check your file name: '{}'.".format(filename))
+
+        npt = np.array(df[0].loc[0].strip().split(), dtype=int)
+        rlatt = np.array(
+            df[0].loc[2:4].map(lambda x: x.strip().split()).tolist(),
+            dtype=float
+        )
+        rlatt[0] = rlatt[0] * ((npt[0]-1)*0.5+1)
+        rlatt[1] = rlatt[1] * ((npt[1]-1)*0.5+1)
+        rlatt[2] = rlatt[2] * ((npt[2]-1)*0.5+1)
+        band = np.zeros([nband, npt[2], npt[1], npt[0], nspin], dtype=float)
+        for i in range(nband):
+            for j in range(nspin):
+                bg = iband[j, i] + 1
+                ed = iband[j, i+1] - 1
+                aband = df[0].loc[bg:ed].map(lambda x: x.strip().split()).tolist()
+                band[i, :, :, :, j] = np.array(
+                    [c for row in aband for c in row], dtype=float
+                ).reshape(npt[::-1], order='F')
+        del aband
+        # Redefine band in recepical cell rather than 1BZ
+        # na: points along re-latt vector
+        na = int((band.shape[3]-1)/2+1)
+        nb = int((band.shape[2]-1)/2+1)
+        nc = int((band.shape[1]-1)/2+1)
+        bandnew = np.zeros([nband, nc, nb, na, nspin])
+        idx = np.where(band<9999)
+        bandnew[:, idx[1]%nc, idx[2]%nb, idx[3]%na, :] = band[:, idx[1], idx[2], idx[3], :]
+        del band, idx
+        return rlatt, bandnew, 'a.u.'
 
 
 class TOPONDParser():
@@ -746,4 +809,80 @@ class BOLTZTRAParaser():
         data = np.array(data, dtype=float)
         data = np.transpose(data, axes=[1,2,0])
         return spin, 'TDF', data[:, 0, :], data[:, 1:, :], '1/hbar^2*eV*fs/angstrom'
+
+
+class CUBEParser():
+    """
+    A collection of functions to parse **CRYSTAL** CUBE files. Instantiation of
+    this object is not recommaneded.
+
+    .. note::
+
+        Developed especially for CUBE formatted output of CRYSTAL. Lattice
+        parameters must be included in the comment line in Bohr and degree.
+
+    """
+    @classmethod
+    def read_cube(cls, filename):
+        """
+        Read CUBE formatted files. For base vectors, they are defined by 4 points,
+        `origin`, `a`, `b` and `c`.
+
+        Args:
+            filename (str):
+
+        Returns:
+            origin (array): 1\*3 Cartesian coordinates of origin. Unit: :math:`\\AA`.
+            a (array): 1\*3 Cartesian coordinates of grid x base vector end. Unit: :math:`\\AA`.
+            b (array): 1\*3 Cartesian coordinates of grid y base vector end. Unit: :math:`\\AA`.
+            c (array): 1\*3 Cartesian coordinates of grid z base vector end. Unit: :math:`\\AA`.
+            struc (CStructure): Extended Pymatgen Structure object.
+            grid (array): nZ\*nY\*nX array of 3D data grid.
+            unit (str): Data grid unit, 'a.u.'
+        """
+        import pandas as pd
+        import numpy as np
+        from CRYSTALpytools.geometry import CStructure
+        from CRYSTALpytools.units import au_to_angstrom
+        from pymatgen.core.lattice import Lattice
+        from scipy.spatial.transform import Rotation as Rot
+
+        df = pd.DataFrame(open(filename))
+        latt = np.array(df[0][1].strip().split(), dtype=float)
+        latt[0:3] = au_to_angstrom(latt[0:3])
+
+        # get geom
+        ## lattice
+        gridv = np.array(df[0].loc[2:5].map(lambda x: x.strip().split()).tolist(),
+                         dtype=float)
+        natom = int(gridv[0, 0])
+        origin = au_to_angstrom(gridv[0, 1:])
+        a = au_to_angstrom(gridv[1, 1:] * (gridv[1, 0]-1)) + origin
+        b = au_to_angstrom(gridv[2, 1:] * (gridv[2, 0]-1)) + origin
+        c = au_to_angstrom(gridv[3, 1:] * (gridv[3, 0]-1)) + origin
+        atoms = df[0].loc[6:5+natom].map(lambda x: x.strip().split()).tolist()
+        species = np.array([i[0] for i in atoms], dtype=int)
+        site_properties = {'charges' : species - np.array([i[1] for i in atoms], dtype=float)}
+        coords = np.array([i[2:] for i in atoms], dtype=float)
+
+        ## align lattice vector a with grid base vector a
+        lattice = Lattice.from_parameters(a=latt[0], b=latt[1], c=latt[2],
+                                          alpha=latt[3], beta=latt[4], gamma=latt[5])
+        lattmx = lattice.matrix
+        vec1 = lattmx[0] / np.linalg.norm(lattmx[0])
+        vec2 = (a-origin) / np.linalg.norm(a-origin)
+        rotvec = np.cross(vec1, vec2)
+        if np.all(np.abs(rotvec) < 1e-4): rotvec = np.zeros([3,])
+        else: rotvec = rotvec / np.linalg.norm(rotvec) * np.arccos(np.dot(vec1, vec2))
+        rot = Rot.from_rotvec(rotvec)
+        lattice = Lattice(rot.apply(lattmx))
+        struc = CStructure(lattice, species, au_to_angstrom(coords), pbc=(True, True, True),
+                           site_properties=site_properties, coords_are_cartesian=True)
+        # read data
+        na = int(gridv[1, 0]); nb = int(gridv[2, 0]); nc = int(gridv[3, 0])
+        grid = []
+        df[0].loc[6+natom:].map(lambda x: grid.extend(x.strip().split()))
+        grid = np.array(grid, dtype=float).reshape([nc, nb, na], order='F')
+        return origin, a, b, c, struc, grid, 'a.u.'
+
 

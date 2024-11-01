@@ -358,6 +358,8 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
                         title=None, figsize=[6.4, 4.8], legend='lower right',
                         sharex=True, sharey=True, fontsize=14, **kwargs):
     """
+    .. _ref-plotebands:
+
     Plot electron band structures.
 
     Args:
@@ -520,6 +522,8 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
                        legend='lower right', sharex=True, sharey=False,
                        fontsize=14, **kwargs):
     """
+    .. _ref-plotedoss:
+
     Plot electron density of states.
 
     Args:

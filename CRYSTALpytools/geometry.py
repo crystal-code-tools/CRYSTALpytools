@@ -314,14 +314,25 @@ class CStructure(Structure):
         kwargs['species'] = species
         kwargs['coords'] = coords
         super().__init__(**kwargs)
+        # standarization
+        ## Orientation
+        if standarize == True: self.standarize_pbc()
+        ## Limit coordinates to [-0.5, 0.5)
+        newfrac = self.frac_coords
+        while np.any(newfrac>=0.5):
+            for i in np.array(np.where(newfrac>=0.5)).T:
+                newfrac[i[0], i[1]] -= 1.
+        while np.any(newfrac<-0.5):
+            for i in np.array(np.where(newfrac<-0.5)).T:
+                newfrac[i[0], i[1]] += 1.
+        super().__init__(lattice=latt, species=self.species, coords=newfrac,
+                         coords_are_cartesian=False) # other settings have been saved with species
+        # Extras
         self._symmetry_group = symmetry_group
         if zconv == []:
             self._species_Z = [i.Z for i in self.species]
         else:
             self._species_Z = zconv
-        # standarization
-        if standarize == True:
-            self.standarize_pbc()
 
     @classmethod
     def from_pmg(cls, struc):

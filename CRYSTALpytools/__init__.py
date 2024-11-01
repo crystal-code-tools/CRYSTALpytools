@@ -3,6 +3,7 @@ from CRYSTALpytools import base
 from CRYSTALpytools import calculate
 from CRYSTALpytools import convert
 from CRYSTALpytools import crystal_io
+from CRYSTALpytools import io
 from CRYSTALpytools import elastics
 from CRYSTALpytools import electronics
 from CRYSTALpytools import execute

@@ -100,7 +100,10 @@ class SCFBASE():
 
         scftitle = data[data.str.contains(r'^\s*T+\s+SDIK\s+TELAPSE')].index.to_numpy(dtype=int)
         scfend = data[data.str.contains(r'^\s*== SCF ENDED')].index.to_numpy(dtype=int)
-        realtitle = data[data.str.contains(r'^\s*CHARGE NORMALIZATION FACTOR')].index.to_numpy(dtype=int)
+        # This pattern excludes the initial charge assignment but charge info is not always printed out
+        realtitle = data[data.str.contains(r'^\s*T+\s+MOQGAD\s+TELAPSE')].index.to_numpy(dtype=int)
+        if len(realtitle) == 0:
+            raise Exception('SCF block not found. Does it include SCF results?')
 
         nSCF = len(scftitle)
         SCFrange = np.zeros([nSCF, 2], dtype=int)
@@ -555,8 +558,8 @@ class PhononBASE():
         for q, freq in enumerate(crysout.frequency):
             neg_rank = np.where(freq <= threshold)[0]
             if len(neg_rank) == 0: continue
-            warnings.warn('Negative frequencies detected.\n  Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by 0.',
-                          stacklevel=2)
+            # warnings.warn('Negative frequencies detected.\n  Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by 0.',
+            #               stacklevel=2)
 
             if len(neg_rank) > 3:
                 warnings.warn('MORE THAN 3 IMAGINARY MODES! The structure is highly probable to be unstable.', stacklevel=2)
@@ -619,7 +622,7 @@ class POutBASE():
                 countline += 1
                 line = data[countline].strip().split()
                 [a, b, c, al, be, ga, vol] = [float(i) for i in line]
-                s = a * b * np.sin(ga)
+                s = a * b * np.sin(ga/180*np.pi)
                 l = a
                 if np.abs(vol-l) < 1e-4:
                     ndimen = 1
@@ -818,5 +821,16 @@ class POutBASE():
         spec = df[0][title[0]+7 : end[0]].map(lambda x: x.strip().split()).tolist()
         spec = np.array(spec, dtype=float)
         return spec
+
+    def get_Fermi(self):
+        """
+        Get Fermi energy in eV from the common block.
+        """
+        import pandas as pd
+        from CRYSTALpytools.units import H_to_eV
+
+        df = pd.DataFrame(self.data)
+        fline = df[df[0].str.contains(r'^\s*N\. OF SCF CYCLES.+FERMI ENERGY')].index[0]
+        return H_to_eV(float(df[0].loc[fline].strip().split()[-1]))
 
 
