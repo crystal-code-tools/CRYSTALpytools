@@ -170,16 +170,12 @@ def cry_gui2pmg(gui, vacuum=None, molecule=True):
         else:
             pbc = (True, True, False)
 
-    #Convert the pseudopotential atoms to their original atomic number
-    atomic_numbers = np.array(gui.atom_number)%200
-
-    return Structure(gui.lattice, atomic_numbers, gui.atom_positions, coords_are_cartesian=True)
-
+    #Convert the pseudopotential / different basis set atoms to their original atomic number
+    atomic_numbers = np.array(gui.atom_number)%100
     if gui.dimensionality == 3:
         pbc = (True, True, True)
 
     latt = Lattice(gui.lattice, pbc=pbc)
-
     return Structure(latt, gui.atom_number, gui.atom_positions, coords_are_cartesian=True)
 
 
