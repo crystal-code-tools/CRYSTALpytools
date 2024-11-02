@@ -15,8 +15,9 @@ In this latter scenario, the CRYSTALpytools could be seen as a layer between
 CRYSTAL and pymatgen.
 
 In January 2022 the first stable version (v2022.1.10) was released. The latest
-release is available on `PyPI <https://pypi.org/project/CRYSTALpytools/>`_ and
-can be installed via ``pip`` (See the next section).
+release is available on both `PyPI <https://pypi.org/project/CRYSTALpytools/>`_
+and `conda forge <https://conda-forge.org/>`_. For details please refer to the
+:ref:`Installation <ref-installation>` section.
 
 
 Structure

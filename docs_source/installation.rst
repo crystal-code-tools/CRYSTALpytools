@@ -1,6 +1,8 @@
 Installation
 ============
 
+.. _ref-installation:
+
 Create a conda/anaconda environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
