@@ -35,3 +35,7 @@ jobs:
           sphinxapiopts: '-o ../ ../CRYSTALpytools/'
           sphinxapiexclude: '*setup* *.ipynb test*'
           sphinxopts: ''
+      - name: Copy meta tag from Google Search Console
+        shell: bash -l {0}
+        run: |
+          sed -i '/<head>/a\  <meta name="google-site-verification" content="VCwinqac8JtcGFEAmAYxTO3I1MmOx119sGsTHSDtFYE" />' index.html
