@@ -1,0 +1,848 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File / Class Conversion &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/convert/convert.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Charge Density" href="../charge_density/charge_density.html" />
+    <link rel="prev" title="Output Analysis" href="../output/output.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">File / Class Conversion</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/convert/convert.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="File-/-Class-Conversion">
+<h1>File / Class Conversion<a class="headerlink" href="#File-/-Class-Conversion" title="Link to this heading"></a></h1>
+<p>Examples are given for conversion between CRYSTALpytools classes and external classes. Functions tested here are defined in the <code class="docutils literal notranslate"><span class="pre">convert</span></code> module.</p>
+<section id="CRYSTAL-&lt;-&gt;-pymatgen">
+<h2>CRYSTAL &lt;-&gt; pymatgen<a class="headerlink" href="#CRYSTAL-<->-pymatgen" title="Link to this heading"></a></h2>
+<section id="The-'cry_out2pmg()'-function">
+<h3>The ‘cry_out2pmg()’ function<a class="headerlink" href="#The-'cry_out2pmg()'-function" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cry_out2pmg()</span></code> converts a CRYSTAL output file into a pymatgen Structure/Molecule object, which is different from the <code class="docutils literal notranslate"><span class="pre">crystal_io.Crystal_ouput.get_geometry()</span></code> method, where the <code class="docutils literal notranslate"><span class="pre">geometry.CStructure</span></code> class is returned.</p>
+<p>Get the optimized geometry of MgO.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_out2pmg
+
+struc = cry_out2pmg(&#39;conv_mgoOpt.out&#39;,initial=False)
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (Mg1 O1)
+Reduced Formula: MgO
+abc   :   2.998288   2.998288   2.998288
+angles:  60.000000  60.000000  60.000000
+pbc   :       True       True       True
+Sites (2)
+  #  SP      a    b     c
+---  ----  ---  ---  ----
+  0  Mg    0    0     0
+  1  O     0.5  0.5  -0.5
+</pre></div></div>
+</div>
+<p>Get a Molecule class for CO.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_out2pmg
+
+struc = cry_out2pmg(&#39;conv_coOpt.out&#39;,initial=False, molecule=True)
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (C1 O1)
+Reduced Formula: CO
+Charge = 0.0, Spin Mult = 1
+Sites (2)
+0 C    -0.063726    -0.039829    -0.031863
+1 O     0.863726     0.539829     0.431863
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_gui2pmg'-function">
+<h3>The ‘cry_gui2pmg’ function<a class="headerlink" href="#The-'cry_gui2pmg'-function" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cry_gui2pmg()</span></code> converts a CRYSTAL GUI (fort.34) file into a pymatgen Structure/Molecule object.</p>
+<p><strong>NOTE</strong></p>
+<p>Currently, symmetry information of GUI class is lost during conversion.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+
+struc = cry_gui2pmg(&#39;conv_paracetamol.gui&#39;)
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (H36 C32 N4 O8)
+Reduced Formula: H9C8NO2
+abc   :   7.161425   9.265602  12.677166
+angles:  90.000000 116.348749  90.000000
+pbc   :       True       True       True
+Sites (80)
+  #  SP            a          b          c
+---  ----  ---------  ---------  ---------
+  0  O      0.05598    0.43021   -0.286803
+  1  O     -0.05598   -0.06979   -0.213197
+  2  O     -0.05598   -0.43021    0.286803
+  3  O      0.05598    0.06979    0.213197
+  4  O      0.453896  -0.002239   0.302393
+  5  O      0.546104   0.497761   0.197607
+  6  O     -0.453896   0.002239  -0.302393
+  7  O     -0.546104  -0.497761  -0.197607
+  8  N     -0.212129   0.043273   0.339866
+  9  N      0.212129  -0.456727   0.160134
+ 10  N      0.212129  -0.043273  -0.339866
+ 11  N     -0.212129   0.456727  -0.160134
+ 12  C     -0.149616   0.137894   0.436285
+ 13  C      0.149616  -0.362106   0.063715
+ 14  C      0.149616  -0.137894  -0.436285
+ 15  C     -0.149616   0.362106  -0.063715
+ 16  C     -0.237476   0.141661  -0.485502
+ 17  C      0.237476  -0.358339  -0.014498
+ 18  C      0.237476  -0.141661   0.485502
+ 19  C     -0.237476   0.358339   0.014498
+ 20  C     -0.166071   0.239609  -0.393174
+ 21  C      0.166071  -0.260391  -0.106826
+ 22  C      0.166071  -0.239609   0.393174
+ 23  C     -0.166071   0.260391   0.106826
+ 24  C     -0.004707   0.33468   -0.376123
+ 25  C      0.004707  -0.16532   -0.123877
+ 26  C      0.004707  -0.33468    0.376123
+ 27  C     -0.004707   0.16532    0.123877
+ 28  C      0.086433   0.328413  -0.452801
+ 29  C     -0.086433  -0.171587  -0.047199
+ 30  C     -0.086433  -0.328413   0.452801
+ 31  C      0.086433   0.171587   0.047199
+ 32  C      0.014023   0.231484   0.4547
+ 33  C     -0.014023  -0.268516   0.0453
+ 34  C     -0.014023  -0.231484  -0.4547
+ 35  C      0.014023   0.268516  -0.0453
+ 36  C      0.600808  -0.017228   0.277576
+ 37  C      0.399192   0.482772   0.222424
+ 38  C     -0.600808   0.017228  -0.277576
+ 39  C     -0.399192  -0.482772  -0.222424
+ 40  C      0.581296  -0.106752   0.174364
+ 41  C      0.418704   0.393248   0.325636
+ 42  C     -0.581296   0.106752  -0.174364
+ 43  C     -0.418704  -0.393248  -0.325636
+ 44  H     -0.361418   0.069092  -0.494845
+ 45  H      0.361418  -0.430908  -0.005155
+ 46  H      0.361418  -0.069092   0.494845
+ 47  H     -0.361418   0.430908   0.005155
+ 48  H     -0.237356   0.240664  -0.333637
+ 49  H      0.237356  -0.259336  -0.166363
+ 50  H      0.237356  -0.240664   0.333637
+ 51  H     -0.237356   0.259336   0.166363
+ 52  H     -0.787752   0.400762  -0.441974
+ 53  H     -0.212248  -0.099238  -0.058026
+ 54  H      0.787752  -0.400762   0.441974
+ 55  H      0.212248   0.099238   0.058026
+ 56  H      0.086988   0.228584   0.396029
+ 57  H     -0.086988  -0.271416   0.103971
+ 58  H     -0.086988  -0.228584  -0.396029
+ 59  H      0.086988   0.271416  -0.103971
+ 60  H      0.195544   0.469876  -0.265796
+ 61  H     -0.195544  -0.030124  -0.234204
+ 62  H     -0.195544  -0.469876   0.265796
+ 63  H      0.195544   0.030124   0.234204
+ 64  H     -0.105395   0.028427   0.308708
+ 65  H      0.105395  -0.471573   0.191292
+ 66  H      0.105395  -0.028427  -0.308708
+ 67  H     -0.105395   0.471573  -0.191292
+ 68  H      0.433006  -0.085398   0.098483
+ 69  H      0.566994   0.414602   0.401517
+ 70  H     -0.433006   0.085398  -0.098483
+ 71  H     -0.566994  -0.414602  -0.401517
+ 72  H     -0.292847  -0.088761   0.149936
+ 73  H      0.292847   0.411239   0.350064
+ 74  H      0.292847   0.088761  -0.149936
+ 75  H     -0.292847  -0.411239  -0.350064
+ 76  H      0.580205  -0.220848   0.194754
+ 77  H      0.419795   0.279152   0.305246
+ 78  H     -0.580205   0.220848  -0.194754
+ 79  H     -0.419795  -0.279152  -0.305246
+</pre></div></div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">vacuum</span></code> option, vacuum layer with the specified thickness is inserted along the non-periodic direction(s). The returned structure is 3D periodic. For non-periodic structures, set <code class="docutils literal notranslate"><span class="pre">vacuum=None</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+
+struc = cry_gui2pmg(&#39;conv_mgo100.gui&#39;, vacuum=20)
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (Mg2 O4)
+Reduced Formula: MgO2
+abc   :   3.009789   3.009789  26.128240
+angles:  90.000000  90.000000  90.000000
+pbc   :       True       True       True
+Sites (6)
+  #  SP      a    b          c
+---  ----  ---  ---  ---------
+  0  Mg    0    0.5   0.040727
+  1  Mg    0.5  0    -0.040727
+  2  O     0    0.5  -0.040727
+  3  O     0.5  0     0.040727
+  4  O     0.5  0    -0.117272
+  5  O     0    0.5   0.117272
+</pre></div></div>
+</div>
+<p>Alternatively, a 2D periodic structure is returned with default 500 Angstrom along non-periodic direction(s).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+
+struc = cry_gui2pmg(&#39;conv_mgo100.gui&#39;)
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (Mg2 O4)
+Reduced Formula: MgO2
+abc   :   3.009789   3.009789 500.000000
+angles:  90.000000  90.000000  90.000000
+pbc   :       True       True      False
+Sites (6)
+  #  SP      a    b          c
+---  ----  ---  ---  ---------
+  0  Mg    0    0.5   0.002128
+  1  Mg    0.5  0    -0.002128
+  2  O     0    0.5  -0.002128
+  3  O     0.5  0     0.002128
+  4  O     0.5  0    -0.006128
+  5  O     0    0.5   0.006128
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_pmg2gui()'-function">
+<h3>The ‘cry_pmg2gui()’ function<a class="headerlink" href="#The-'cry_pmg2gui()'-function" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cry_pmg2gui()</span></code> saves a pymatgen structure/molecule object into a CRYSTAL gui object and (optionally) writes it into a gui (fort.34) file.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">gui_file=None</span></code> (default) to disable gui file output</p>
+<p><strong>NOTE</strong></p>
+<p>Currently, symmetry analysis (<code class="docutils literal notranslate"><span class="pre">symmetry=True</span></code>) is limited to 3D and 2D cases.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+from CRYSTALpytools.convert import cry_pmg2gui
+
+out = Crystal_output(&#39;conv_mgoOpt.out&#39;)
+struc = out.get_geometry(initial=False)
+struc.make_supercell([[-1, 1, 1], [1, -1, 1], [1, 1, -1]])
+
+mgo_gui = cry_pmg2gui(struc, gui_file=&#39;conv_mgoOpt.gui&#39;, symmetry=True)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="The-'cry_bands2pmg()''-function">
+<h3>The ‘cry_bands2pmg()’’ function<a class="headerlink" href="#The-'cry_bands2pmg()''-function" title="Link to this heading"></a></h3>
+<p>Essentially this is a short cut for <code class="docutils literal notranslate"><span class="pre">electronics.ElectronBand.to_pmg()</span></code> method.</p>
+<p>Read the band and plot.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_bands2pmg
+from pymatgen.electronic_structure.plotter import BSPlotter
+
+bs = cry_bands2pmg(&#39;conv_mgoBand.BAND&#39;, &#39;conv_mgoBand.outp&#39;,
+                   labels=[r&#39;$\Gamma$&#39;,&#39;B&#39;,&#39;C&#39;,r&#39;$\Gamma$&#39;,&#39;E&#39;])
+bsplot = BSPlotter(bs)
+bsplot.get_plot(ylim=(-10, 10), zero_to_efermi=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;$\\mathrm{Wave\\ Vector}$&#39;, ylabel=&#39;$\\mathrm{E\\ -\\ E_f\\ (eV)}$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_convert_convert_13_1.png" src="../../_images/examples_convert_convert_13_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="CRYSTAL-&lt;-&gt;-ASE">
+<h2>CRYSTAL &lt;-&gt; ASE<a class="headerlink" href="#CRYSTAL-<->-ASE" title="Link to this heading"></a></h2>
+<p>Fundamentally, CRYSTALpytools converts its classes to pymatgen classes and calls pymatgen to further convert them into other classes.</p>
+<section id="The-'cry_out2ase()'-function">
+<h3>The ‘cry_out2ase()’ function<a class="headerlink" href="#The-'cry_out2ase()'-function" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_out2ase
+
+co_ase = cry_out2ase(&#39;conv_coOpt.out&#39;, initial=True)
+print(co_ase)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MSONAtoms(symbols=&#39;CO&#39;, pbc=False)
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_gui2ase()'-function">
+<h3>The ‘cry_gui2ase()’ function<a class="headerlink" href="#The-'cry_gui2ase()'-function" title="Link to this heading"></a></h3>
+<p>Convert GUI file/class into ASE ‘Atoms’ class.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2ase
+
+mgo_ase = cry_gui2ase(&#39;conv_mgo100.gui&#39;, vacuum=10)
+print(mgo_ase)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MSONAtoms(symbols=&#39;Mg2O4&#39;, pbc=True, cell=[[3.00978870041, 0.0, 0.0], [-1.84296404903e-16, 3.00978870041, 0.0], [0.0, 0.0, 16.128239999999998]])
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_ase2gui()'-function">
+<h3>The ‘cry_ase2gui()’ function<a class="headerlink" href="#The-'cry_ase2gui()'-function" title="Link to this heading"></a></h3>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">gui_file=None</span></code> (default) to disable gui file output</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_ase2gui
+from ase.build import bulk
+
+copper_ase = bulk(&#39;Cu&#39;, &#39;fcc&#39;, a=3.6)
+copper_gui = cry_ase2gui(copper_ase, gui_file=&#39;conv_CuASE.gui&#39;, symmetry=True)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Saving-structure-files-(.cif-and-.xyz)">
+<h2>Saving structure files (.cif and .xyz)<a class="headerlink" href="#Saving-structure-files-(.cif-and-.xyz)" title="Link to this heading"></a></h2>
+<section id="The-'cry_out2cif()'-function">
+<h3>The ‘cry_out2cif()’ function<a class="headerlink" href="#The-'cry_out2cif()'-function" title="Link to this heading"></a></h3>
+<p>Optional arguments can be put at the end, which will be passed to the <a class="reference external" href="https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter">pymatgen.io.cif.CifWriter</a> object.</p>
+<p>By default, symmetrized structure output is enabled with <code class="docutils literal notranslate"><span class="pre">symprec=0.01</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_out2cif
+
+cry_out2cif(&#39;conv_mgo100.out&#39;, &#39;conv_mgo100.cif&#39;, vacuum=10, initial=True)
+! cat conv_mgo100.cif
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+# generated using pymatgen
+data_MgO2
+_symmetry_space_group_name_H-M   P4/nmm
+_cell_length_a   3.00978870
+_cell_length_b   3.00978870
+_cell_length_c   16.12824000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   129
+_chemical_formula_structural   MgO2
+_chemical_formula_sum   &#39;Mg2 O4&#39;
+_cell_volume   146.10295240
+_cell_formula_units_Z   2
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  &#39;x, y, z&#39;
+  2  &#39;-y+1/2, x+1/2, z&#39;
+  3  &#39;-x, -y, z&#39;
+  4  &#39;y+1/2, -x+1/2, z&#39;
+  5  &#39;x+1/2, -y+1/2, -z&#39;
+  6  &#39;-y, -x, -z&#39;
+  7  &#39;-x+1/2, y+1/2, -z&#39;
+  8  &#39;y, x, -z&#39;
+  9  &#39;-x+1/2, -y+1/2, -z&#39;
+  10  &#39;y, -x, -z&#39;
+  11  &#39;x+1/2, y+1/2, -z&#39;
+  12  &#39;-y, x, -z&#39;
+  13  &#39;-x, y, z&#39;
+  14  &#39;y+1/2, x+1/2, z&#39;
+  15  &#39;x, -y, z&#39;
+  16  &#39;-y+1/2, -x+1/2, z&#39;
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Mg  Mg0  2  0.00000000  0.50000000  0.06597868  1
+  O  O1  2  0.00000000  0.50000000  0.18998477  1
+  O  O2  2  0.00000000  0.50000000  0.93402132  1
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_gui2cif()'-function">
+<h3>The ‘cry_gui2cif()’ function<a class="headerlink" href="#The-'cry_gui2cif()'-function" title="Link to this heading"></a></h3>
+<p>Optional arguments can be put at the end, which will be passed to the <a class="reference external" href="https://pymatgen.org/pymatgen.io.html#pymatgen.io.cif.CifWriter">pymatgen.io.cif.CifWriter</a> object.</p>
+<p>By default, symmetrized structure output is enabled with <code class="docutils literal notranslate"><span class="pre">symprec=0.01</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2cif
+
+cry_gui2cif(&#39;conv_paracetamol.gui&#39;, &#39;conv_paracetamol.cif&#39;)
+! cat conv_paracetamol.cif
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+# generated using pymatgen
+data_H9C8NO2
+_symmetry_space_group_name_H-M   P2_1/c
+_cell_length_a   7.16142460
+_cell_length_b   9.26560241
+_cell_length_c   12.67716617
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   116.34874858
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   14
+_chemical_formula_structural   H9C8NO2
+_chemical_formula_sum   &#39;H36 C32 N4 O8&#39;
+_cell_volume   753.80006344
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  &#39;x, y, z&#39;
+  2  &#39;-x, -y, -z&#39;
+  3  &#39;-x, y+1/2, -z+1/2&#39;
+  4  &#39;x, -y+1/2, z+1/2&#39;
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  H  H0  4  0.08698795  0.22858371  0.39602925  1
+  H  H1  4  0.10539508  0.52842732  0.19129183  1
+  H  H2  4  0.19554393  0.03012373  0.23420412  1
+  H  H3  4  0.21224837  0.09923841  0.05802646  1
+  H  H4  4  0.23735644  0.74066371  0.83363740  1
+  H  H5  4  0.29284689  0.08876147  0.85006363  1
+  H  H6  4  0.36141848  0.56909239  0.99484488  1
+  H  H7  4  0.41979469  0.22084824  0.80524578  1
+  H  H8  4  0.43300640  0.58539849  0.59848256  1
+  C  C9  4  0.00470750  0.66532012  0.37612335  1
+  C  C10  4  0.01402274  0.23148403  0.45470045  1
+  C  C11  4  0.08643290  0.17158686  0.04719886  1
+  C  C12  4  0.14961594  0.63789425  0.06371476  1
+  C  C13  4  0.16607109  0.73960930  0.89317382  1
+  C  C14  4  0.23747598  0.64166052  0.98550157  1
+  C  C15  4  0.39919152  0.01722823  0.72242435  1
+  C  C16  4  0.41870361  0.10675211  0.82563609  1
+  N  N17  4  0.21212918  0.54327289  0.16013400  1
+  O  O18  4  0.05597976  0.06978984  0.21319720  1
+  O  O19  4  0.45389631  0.50223886  0.80239301  1
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_gui2xyz()'-function">
+<h3>The ‘cry_gui2xyz()’ function<a class="headerlink" href="#The-'cry_gui2xyz()'-function" title="Link to this heading"></a></h3>
+<p>Optional arguments can be put at the end, which will be passed to the <a class="reference external" href="https://pymatgen.org/pymatgen.io.html#pymatgen.io.xyz.XYZ">pymatgen.io.xyz.XYZ</a> object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2xyz
+
+cry_gui2xyz(&#39;conv_THF.gui&#39;, &#39;conv_THF.xyz&#39;)
+!cat conv_THF.xyz
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+13
+H8 C4 O1
+C 0.741332 2.117653 1.407777
+C 1.893667 3.049791 1.036298
+C 3.098124 2.139956 1.256255
+O 2.655667 0.819485 0.961776
+C 1.238012 0.791402 0.842854
+H 0.641873 2.054622 2.492302
+H -0.216641 2.420182 0.989685
+H 1.821281 3.336523 -0.013719
+H 1.934790 3.954421 1.639420
+H 3.942117 2.379091 0.609359
+H 3.435426 2.182677 2.296453
+H 0.965393 0.690877 -0.212497
+H 0.859259 -0.076681 1.382035
+</pre></div></div>
+</div>
+</section>
+<section id="The-'cry_out2xyz()'-function">
+<h3>The ‘cry_out2xyz()’ function<a class="headerlink" href="#The-'cry_out2xyz()'-function" title="Link to this heading"></a></h3>
+<p>Optional arguments can be put at the end, which will be passed to the <a class="reference external" href="https://pymatgen.org/pymatgen.io.html#pymatgen.io.xyz.XYZ">pymatgen.io.xyz.XYZ</a> object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_out2xyz
+
+cry_out2xyz(&#39;conv_toluene.out&#39;, &#39;conv_toluene.xyz&#39;)
+!cat conv_toluene.xyz
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+15
+H8 C7
+C -0.984612 0.000163 0.014830
+C -0.270650 1.195597 0.011653
+C -0.270798 -1.195337 0.010052
+C -2.488953 0.000108 -0.002093
+C 1.117118 1.198581 -0.001608
+C 1.116957 -1.198632 -0.002841
+C 1.816634 -0.000078 -0.010182
+H -0.809924 2.135277 0.022707
+H -0.810214 -2.134972 0.020237
+H -2.888568 -0.880617 0.498531
+H -2.888737 0.885078 0.490855
+H -2.864355 -0.004536 -1.026829
+H 1.652616 2.138815 -0.002050
+H 1.652252 -2.138983 -0.003587
+H 2.898133 -0.000164 -0.017475
+</pre></div></div>
+</div>
+<p>For more information please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.convert.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../output/output.html" class="btn btn-neutral float-left" title="Output Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../charge_density/charge_density.html" class="btn btn-neutral float-right" title="Charge Density" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

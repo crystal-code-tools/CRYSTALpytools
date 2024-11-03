@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.base.plotbase module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.plotbase.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.base.propd3 module" href="crystalpytools.base.propd3.html" />
+    <link rel="prev" title="CRYSTALpytools.base.output module" href="crystalpytools.base.output.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.base.plotbase module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.base.plotbase.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-base-plotbase-module">
+<h1>CRYSTALpytools.base.plotbase module<a class="headerlink" href="#crystalpytools-base-plotbase-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.base.plotbase"><span id="ref-base-plotbase"></span>Base functions for plotting 2D and 3D figures</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_overlap_bands">
+<span class="sig-name descname"><span class="pre">plot_overlap_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_xax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_overlap_bands" title="Link to this definition"></a></dt>
+<dd><p>The plotting function for overlapped band structures of electron or phonon.
+Also can be used to get a single band.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You must specify colors in string. List of RGB values are not allowed
+and might lead to unexpected errors.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object. To be passed from wrapper functions.</p></li>
+<li><p><strong>bands</strong> (<em>list</em>) – Band structure, 1*nSystem list of nBand*nKpoint*nSpin
+numpy arrays.</p></li>
+<li><p><strong>k_xax</strong> (<em>list</em>) – Coordinates of x axis. 1*nSystem list.</p></li>
+<li><p><strong>k_path</strong> (<em>list</em>) – Coordinates of high-symmetric k points, 1*nSystem list
+of 1*nTick numpy arrays. Unit: <span class="math notranslate nohighlight">\(\AA^{-1}\)</span>.</p></li>
+<li><p><strong>k_label</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – 1*nTick list of strings of the label for
+high symmetry points along the path. <a class="reference external" href="https://matplotlib.org/stable/users/explain/text/mathtext.html">mathtext</a>
+experssions can also be used as in matplotlib.</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em>) – 1*2 list of plotting energy range.</p></li>
+<li><p><strong>k_range</strong> (<em>list</em>) – 1*2 list of plotting k range. Can either be length
+(float) or k label (str). Must be used with <code class="docutils literal notranslate"><span class="pre">not_scaled=False</span></code>
+and the same set of <code class="docutils literal notranslate"><span class="pre">k_label</span></code>.</p></li>
+<li><p><strong>band_label</strong> (<em>list</em>) – 1*nSystem or nSystem*2 (spin) plot legend. If
+spin&gt;1 and 1*nSystem list is used, they are marked with the same
+label.</p></li>
+<li><p><strong>band_color</strong> (<em>list</em>) – 1*nSystem or nSystem*2 (spin) plot color. If spin
+&gt;1 and 1*nSystem list is used, they are in the same color.</p></li>
+<li><p><strong>band_linestyle</strong> (<em>list</em>) – 1*nSystem or nSystem*2 (spin) linestyle string.
+If spin&gt;1 and 1*nSystem list is used, they are in the same style.</p></li>
+<li><p><strong>band_linewidth</strong> (<em>list</em>) – 1*nSystem or nSystem*2 (spin) width of the plot
+lines. If spin&gt;1 and 1*nSystem list is used, they are in the same
+width.</p></li>
+<li><p><strong>fermi</strong> (<em>float</em><em> | </em><em>None</em>) – Fermi energy. By default the band is aligned to
+0. Can be used to offset the band. None for not plotting Fermi
+level.</p></li>
+<li><p><strong>fermi_color</strong> (<em>str</em>) – Color of the Fermi level.</p></li>
+<li><p><strong>fermi_linestyle</strong> (<em>str</em>) – Line style of Fermi level.</p></li>
+<li><p><strong>fermi_linewidth</strong> (<em>float</em>) – Width of the Fermi level.</p></li>
+<li><p><strong>legend</strong> (<em>str</em><em>|</em><em>None</em>) – Loc parameter passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html">axes.legend()</a>
+None for not adding legend.</p></li>
+<li><p><strong>**kwargs</strong> – Other commands passed to matplotlib <code class="docutils literal notranslate"><span class="pre">axes.plot()</span></code> method
+when plotting bands. Applied to all bands.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_compare_bands">
+<span class="sig-name descname"><span class="pre">plot_compare_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_xax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_compare_bands" title="Link to this definition"></a></dt>
+<dd><p>The plotting function for band structures of electron or phonon in different
+panels.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You must specify colors in string. List of RGB values are not allowed
+and might lead to unexpected errors.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object or a flatted list of them. To be
+passed from wrapper functions.</p></li>
+<li><p><strong>bands</strong> (<em>list</em>) – Band structure, 1*nSystem list of nBand*nKpoint*nSpin
+numpy arrays.</p></li>
+<li><p><strong>k_xax</strong> (<em>list</em>) – Coordinates of x axis. 1*nSystem list.</p></li>
+<li><p><strong>k_path</strong> (<em>list</em>) – Coordinates of high-symmetric k points, 1*nSystem list
+of 1*nTick numpy arrays. Unit: <span class="math notranslate nohighlight">\(\AA^{-1}\)</span>.</p></li>
+<li><p><strong>k_label</strong> (<em>list</em>) – <p>nSystem*nTick or 1*nTick list of strings of the label
+for high symmetry points along the path. If a 1D list is given,
+the same labels are used for all the systems. <a class="reference external" href="https://matplotlib.org/stable/users/explain/text/mathtext.html">mathtext</a>
+experssions can also be used  as in matplotlib.</p>
+</p></li>
+<li><p><strong>not_scaled</strong> (<em>bool</em>) – Whether to scale the x-axis for different volumes.</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em>) – 1*2 list of plotting energy range.</p></li>
+<li><p><strong>k_range</strong> (<em>list</em>) – 1*2 list of plotting k range. Can either be length
+(float) or k label (str). Must be used with <code class="docutils literal notranslate"><span class="pre">not_scaled=False</span></code>
+and the same set of <code class="docutils literal notranslate"><span class="pre">k_label</span></code>.</p></li>
+<li><p><strong>band_label</strong> (<em>list</em>) – 1*nSystem or nSystem*2 (spin) plot legend. If
+spin&gt;1 and 1*nSystem list is used, they are marked with the same
+label.</p></li>
+<li><p><strong>band_color</strong> (<em>list</em><em>|</em><em>str</em>) – A color string or 1*2 color list for spin. If
+nSpin&gt;1 but a string is given, same color for both spins.</p></li>
+<li><p><strong>band_linestyle</strong> (<em>list</em><em>|</em><em>str</em>) – A linestyle string or 1*2 linestyle list
+for spin.  If nSpin&gt;1 but a string is given, same linestyle for
+both spins.</p></li>
+<li><p><strong>band_linewidth</strong> (<em>list</em><em>|</em><em>float</em>) – A linewidth number or 1*2 linewidth list
+for spin. If nSpin&gt;1 but a string is given, same linewidth for both
+spins.</p></li>
+<li><p><strong>fermi</strong> (<em>float</em><em> | </em><em>None</em>) – Fermi energy. By default the band is aligned to
+0. Can be used to offset the band. None for not plotting Fermi
+level.</p></li>
+<li><p><strong>fermi_color</strong> (<em>str</em>) – Color of the Fermi level.</p></li>
+<li><p><strong>fermi_linestyle</strong> (<em>str</em>) – Line style of Fermi level.</p></li>
+<li><p><strong>fermi_linewidth</strong> (<em>float</em>) – Width of the Fermi level.</p></li>
+<li><p><strong>legend</strong> (<em>str</em><em>|</em><em>None</em>) – <p>Loc parameter passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html">axes.legend()</a>
+None for not adding legend.</p>
+</p></li>
+<li><p><strong>**kwargs</strong> – Other commands passed to matplotlib <code class="docutils literal notranslate"><span class="pre">axes.plot()</span></code> method
+when plotting bands. Applied to all bands.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object or a flatted list of them.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase._plot_bands_preprocess">
+<span class="sig-name descname"><span class="pre">_plot_bands_preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_scaled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linewidth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase._plot_bands_preprocess" title="Link to this definition"></a></dt>
+<dd><p>Do the boring parameters checking jobs for band structures. For the meanings
+of parameters, refer to <code class="docutils literal notranslate"><span class="pre">plot_overlap_bands()</span></code> (<code class="docutils literal notranslate"><span class="pre">plot_compare_bands</span></code> has
+less strict requirements).</p>
+<p><code class="docutils literal notranslate"><span class="pre">not_scaled</span></code> is a flag to set whether to set the same length of k pathes
+of different systems.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase._plot_label_preprocess">
+<span class="sig-name descname"><span class="pre">_plot_label_preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linewidth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase._plot_label_preprocess" title="Link to this definition"></a></dt>
+<dd><p>Do the boring parameters checking jobs for plots (both band and dos). For
+the meanings of parameters, refer to <code class="docutils literal notranslate"><span class="pre">plot_compare_bands</span></code>. The same rule
+is applied to DOS.</p>
+<ol class="arabic simple">
+<li><p>For None input, generate nsystem*2 list default values</p></li>
+<li><p>For string/float inputs, generate nsystem*2 list same values</p></li>
+<li><p>For nsystem*1 inputs, generate nsystem*2 list, spin-up and down states share the same style.</p></li>
+<li><p>For nsystem*2 inputs, do nothing.</p></li>
+</ol>
+<p>return to a bigger command variable of [label, color, linestyle, linewidth].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_doss">
+<span class="sig-name descname"><span class="pre">plot_doss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_vertical</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_doss" title="Link to this definition"></a></dt>
+<dd><p>The base function to plot electron / phonon density of states on one axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object.</p></li>
+<li><p><strong>doss</strong> (<em>numpy.ndarray</em>) – nProj*nEnergy*nSpin array of DOS. Positive
+values for both spin up and spin down states.</p></li>
+<li><p><strong>energy</strong> (<em>numpy.ndarray</em>) – 1*nEnergy array of energy.</p></li>
+<li><p><strong>beta</strong> (<em>str</em>) – Plot settings for <span class="math notranslate nohighlight">\(eta\)</span> states (‘up’ or ‘down’).</p></li>
+<li><p><strong>prj</strong> (<em>list</em>) – Index of selected projections, consistent with the first
+dimension of the <code class="docutils literal notranslate"><span class="pre">doss</span></code>, starting from 1.</p></li>
+<li><p><strong>energy_range</strong> (<em>list</em>) – 1*2 list of energy range.</p></li>
+<li><p><strong>dos_range</strong> (<em>list</em>) – 1*2 list of DOS range.</p></li>
+<li><p><strong>dos_label</strong> (<em>list</em>) – 1*nProj or nProj*2 (spin) plot legend. If spin&gt;1
+and 1*nProj list is used, they are marked with the same label.</p></li>
+<li><p><strong>dos_color</strong> (<em>list</em>) – 1*nProj or nProj*2 (spin) plot color. If spin&gt;1 and
+1*nProj list is used, they are in the same color.</p></li>
+<li><p><strong>dos_linestyle</strong> (<em>list</em>) – 1*nProj or nProj*2 (spin) linestyle string. If
+spin&gt;1 and 1*nProj list is used, they are in the same style.</p></li>
+<li><p><strong>dos_linewidth</strong> (<em>list</em>) – 1*nProj or nProj*2 (spin) width of the plot
+lines. If spin&gt;1 and 1*nSystem list is used, they are in the same
+width.</p></li>
+<li><p><strong>fermi</strong> (<em>float</em><em>|</em><em>None</em>) – Fermi energy in eV. By default the band is aligned
+to 0. Can be used to offset the band. None for not plotting Fermi
+level.</p></li>
+<li><p><strong>fermi_color</strong> (<em>str</em><em>|</em><em>None</em>) – Color of the Fermi level.</p></li>
+<li><p><strong>fermi_linestyle</strong> (<em>str</em><em>|</em><em>None</em>) – Line style of Fermi level.</p></li>
+<li><p><strong>fermi_linewidth</strong> (<em>float</em><em>|</em><em>None</em>) – Width of the Fermi level.</p></li>
+<li><p><strong>legend</strong> (<em>str</em><em>|</em><em>None</em>) – <p>Loc parameter passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html">axes.legend()</a>
+None for not adding legend.</p>
+</p></li>
+<li><p><strong>plot_vertical</strong> (<em>bool</em>) – <em>Developer Only</em> Get vertical (DOS-Energy) DOS
+plots.</p></li>
+<li><p><strong>**kwargs</strong> – Other commands passed to matplotlib <code class="docutils literal notranslate"><span class="pre">axes.plot()</span></code> method
+when plotting bands. Applied to all bands.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib axes object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_banddos">
+<span class="sig-name descname"><span class="pre">plot_banddos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linestyle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fermi_linewidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_banddos" title="Link to this definition"></a></dt>
+<dd><p>The base function to plot electron / phonon band structure + DOS. A single
+system only.</p>
+<p>Input arguments not in the list are consistent with <code class="docutils literal notranslate"><span class="pre">plot_doss</span></code> and
+<code class="docutils literal notranslate"><span class="pre">plot_compare_bands</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<a class="reference internal" href="crystalpytools.electronics.html#CRYSTALpytools.electronics.ElectronBand" title="CRYSTALpytools.electronics.ElectronBand"><em>ElectronBand</em></a>) – A <code class="docutils literal notranslate"><span class="pre">electronics.ElectronBand</span></code> object.</p></li>
+<li><p><strong>doss</strong> (<a class="reference internal" href="crystalpytools.electronics.html#CRYSTALpytools.electronics.ElectronDOS" title="CRYSTALpytools.electronics.ElectronDOS"><em>ElectronDOS</em></a>) – A <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS</span></code> object</p></li>
+<li><p><strong>band_width</strong> (<em>int</em><em>|</em><em>float</em>) – Relative width of band structure, times of the
+width of a DOS subplot.</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em>) – Plot DOS projections into the same axes or multiple
+axes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_2Dscalar">
+<span class="sig-name descname"><span class="pre">plot_2Dscalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contourline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_2Dscalar" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D scalar field map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object</p></li>
+<li><p><strong>data</strong> (<em>array</em>) – 2D map data.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of points A, B, C to define a
+2D map. Vectors BA and BC are used.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>None</em>) – Contour line / color isovalues. It also defines
+the range of data.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em><em>|</em><em>None</em>) – If not None, set line styles and colors of
+every contourline. nLevel*3 list of matplotlib plot color,
+linestyle and linewidth.</p></li>
+<li><p><strong>isovalue</strong> (<em>str</em><em>|</em><em>None</em>) – If not None, set the format of isovalues added to
+contourlines. Useful only when <code class="docutils literal notranslate"><span class="pre">contourline</span></code> is not None.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em><em>|</em><em>None</em>) – If not None, set the colormap of color-filled
+contour plots.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Title of colorbar. Useful only when <code class="docutils literal notranslate"><span class="pre">colormap</span></code> is
+not None.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(b\)</span> axis (x, or AB) in fractional coordinate.</p></li>
+<li><p><strong>rectangle</strong> (<em>bool</em>) – If <span class="math notranslate nohighlight">\(a, b\)</span> are non-orthogonal, plot a rectangle
+region and reset <span class="math notranslate nohighlight">\(b\)</span>. If used together with <code class="docutils literal notranslate"><span class="pre">b_range</span></code>, that
+refers to the old <span class="math notranslate nohighlight">\(b\)</span>.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to plot plane edges</p></li>
+<li><p><strong>xticks</strong> (<em>int</em>) – Number of ticks in the x direction.</p></li>
+<li><p><strong>yticks</strong> (<em>int</em>) – Number of ticks in the y direction.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">axes.contour()</span></code> function to
+set contour lines.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase.plot_2Dvector">
+<span class="sig-name descname"><span class="pre">plot_2Dvector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorquiver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticks</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase.plot_2Dvector" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D vector field map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em>) – Matplotlib Axes object</p></li>
+<li><p><strong>data</strong> (<em>array</em>) – 2D vector map data, in nY*nX*3.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of points A, B, C to define a
+2D map. Vectors BA and BC are used.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Tune the length of arrows.</p></li>
+<li><p><strong>colorquiver</strong> (<em>str</em>) – Specify the color of arrows or ‘colored’ for color-
+coded quiver plots.</p></li>
+<li><p><strong>levels</strong> (<em>array</em>) – Contour color isovalues. It also defines the range of
+data. Useful only if <code class="docutils literal notranslate"><span class="pre">colorquiver='colored'</span></code>.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em><em>|</em><em>None</em>) – Set the colormap of color-filled contour plots.
+Useful only if <code class="docutils literal notranslate"><span class="pre">colorquiver='colored'</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Title of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorquiver='colored'</span></code>.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(b\)</span> axis (x, or AB) in fractional coordinate.</p></li>
+<li><p><strong>rectangle</strong> (<em>bool</em>) – If <span class="math notranslate nohighlight">\(a, b\)</span> are non-orthogonal, plot a rectangle
+region and reset <span class="math notranslate nohighlight">\(b\)</span>. If used together with <code class="docutils literal notranslate"><span class="pre">b_range</span></code>, that
+refers to the old <span class="math notranslate nohighlight">\(b\)</span>.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to plot plane edges</p></li>
+<li><p><strong>xticks</strong> (<em>int</em>) – Number of ticks in the x direction.</p></li>
+<li><p><strong>yticks</strong> (<em>int</em>) – Number of ticks in the y direction.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">axes.quiver()</span></code> function to
+set contour lines.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase._manipulate_2D_grid">
+<span class="sig-name descname"><span class="pre">_manipulate_2D_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase._manipulate_2D_grid" title="Link to this definition"></a></dt>
+<dd><p>Repeat 2D grid data and get rectangle region</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D map data.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of points A, B, C to define a
+2D map. Vectors BA and BC are used.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(b\)</span> axis (x, or AB) in fractional coordinate.</p></li>
+<li><p><strong>rectangle</strong> (<em>bool</em>) – If <span class="math notranslate nohighlight">\(a, b\)</span> are non-orthogonal, plot a rectangle
+region and reset <span class="math notranslate nohighlight">\(b\)</span>. If used together with <code class="docutils literal notranslate"><span class="pre">b_range</span></code>, that
+refers to the old <span class="math notranslate nohighlight">\(b\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>X</strong> (<em>array</em>) – nY*nX mesh grid.</p></li>
+<li><p><strong>Y</strong> (<em>array</em>) – nY*nX mesh grid.</p></li>
+<li><p><strong>data</strong> (<em>array</em>) – nY*nX mesh grid data.</p></li>
+<li><p><strong>a_range</strong> (<em>array</em>) – 1*2 fractional coordinate of plot range along vector BC.</p></li>
+<li><p><strong>b_range</strong> (<em>array</em>) – 1*2 fractional coordinate of plot range along vector BA.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase._get_2D_base_frame">
+<span class="sig-name descname"><span class="pre">_get_2D_base_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase._get_2D_base_frame" title="Link to this definition"></a></dt>
+<dd><p>Get the 2D parallelogram plot boundary. Useful when the plot is extended.
+The frame is always shifted to the origin, or positive side of the plot and
+close to the origin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of points A, B, C to define a
+2D map. Vectors BA and BC are used.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – Range of <span class="math notranslate nohighlight">\(b\)</span> axis (x, or AB) in fractional coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>xpath</strong> (<em>array</em>) – 1*3 array of x coordinates of parallelogram plot boundary.</p></li>
+<li><p><strong>ypath</strong> (<em>array</em>) – 1*3 array of y coordinates of parallelogram plot boundary.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.plotbase._get_operation">
+<span class="sig-name descname"><span class="pre">_get_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.plotbase._get_operation" title="Link to this definition"></a></dt>
+<dd><p>Get the rotation object and translational movement to align surface norm
+(to z) and BC axis (to x) of 3D reference frame to the plotting frame. The
+translational movement is used to move B (plot origin) to z=0. The plotting
+referance frame is defined by the base vector BC (x) and BA (y).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rot</strong> (<em>Rotation</em>) – The Scipy rotation object.</p></li>
+<li><p><strong>disp</strong> (<em>array</em>) – Displacement along x, y, z axes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.base.output.html" class="btn btn-neutral float-left" title="CRYSTALpytools.base.output module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.base.propd3.html" class="btn btn-neutral float-right" title="CRYSTALpytools.base.propd3 module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Charge Density &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/charge_density/charge_density.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Elastic Properties" href="../elastic_properties/elastic_properties.html" />
+    <link rel="prev" title="File / Class Conversion" href="../convert/convert.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Charge Density</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/charge_density/charge_density.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Charge-Density">
+<h1>Charge Density<a class="headerlink" href="#Charge-Density" title="Link to this heading"></a></h1>
+<p>Here code examples for charge and spin densities are given..</p>
+<section id="The-'read_ECHG'-method">
+<h2>The ‘read_ECHG’ method<a class="headerlink" href="#The-'read_ECHG'-method" title="Link to this heading"></a></h2>
+<p>This method is defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Properties_output</span></code> class, which read formatted output files generated by CRYSTAL and return to the <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> class. It requires the Crgra2006 (fort.25) file.</p>
+<p>The standard screen output is required to identify the indices of corresponding 2D data maps. Otherwise the code only reads the first 2D data map.</p>
+<p>Read an ‘ECHG’ calculation and return to a <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> class. The <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute is a nX*nY*nspin array.</p>
+<p><strong>NOTE</strong></p>
+<p>Though ‘PATO’ is specified in the file ‘dens_grapheneMV’, by default method only the charge densities of the bonded system is read. For charge density differences, use <code class="docutils literal notranslate"><span class="pre">method='substract'</span></code>. If the charge density by overlapping atomic densities are wanted (very rare), a separate calculation with ‘PATO+ECHG’ only is needed (see ‘dens_grapheneMV_PATO’ files).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+chg = Properties_output(&#39;dens_grapheneMV.out&#39;).read_ECHG(&#39;dens_grapheneMV.f25&#39;)
+print(&#39;Spin: {:d}&#39;.format(chg.spin))
+print(&#39;Base vectors (point A, B, C):&#39;)
+print(chg.base)
+print(&#39;Data dimensionality:&#39;)
+print(chg.data.shape)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Spin: 2
+Base vectors (point A, B, C):
+[[12.7064 -7.4408  0.    ]
+ [ 0.      0.      0.    ]
+ [-0.0907 14.7244  0.    ]]
+Data dimensionality:
+(100, 100, 2)
+</pre></div></div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">method</span></code> input the user can substract the difference of charge between inputs of arbitrary length. Data is substracted from the first entry based on the following entries.</p>
+<p>Since the ‘spin’ dimension is somewhat ‘meaningless’, the returned object has no spin dimension.</p>
+<p>For multiple entries, make sure the charge (spin) density is the first (second) 2D grid data (‘-%-MAPN’) in the fort.25 files because the code does not check the output in this case. Warnings is generated.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dchg = Properties_output().read_ECHG(&#39;dens_grapheneMV.f25&#39;,
+                                     &#39;dens_grapheneMV_PATO.f25&#39;,
+                                     method=&#39;substract&#39;)
+print(&#39;Spin: {:d}&#39;.format(dchg.spin))
+print(&#39;Data dimensionality:&#39;)
+print(dchg.data.shape)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Spin: 1
+Data dimensionality:
+(100, 100, 1)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_21724/2111153245.py:1: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  dchg = Properties_output().read_ECHG(&#39;dens_grapheneMV.f25&#39;,
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:1160: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  obj = Properties_output().read_ECHG(i, method=&#39;normal&#39;)
+</pre></div></div>
+</div>
+<p>A safer way is to generate 2 <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> objects (see the next section) for 2 files separately and call the <code class="docutils literal notranslate"><span class="pre">substract</span></code> method.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+
+dchg = Properties_output(&#39;dens_grapheneMV.out&#39;).read_ECHG(&#39;dens_grapheneMV.f25&#39;)
+pato = Properties_output(&#39;dens_grapheneMV_PATO.out&#39;).read_ECHG(&#39;dens_grapheneMV_PATO.f25&#39;)
+dchg = dchg.substract(pato)
+
+print(&#39;Spin: {:d}&#39;.format(dchg.spin))
+print(&#39;Data dimensionality:&#39;)
+print(dchg.data.shape)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Spin: 1
+Data dimensionality:
+(100, 100, 1)
+</pre></div></div>
+</div>
+<p>The ‘substract’ method also allows for a single fort.25 file including both ‘normal’ and ‘PATO’ charge densities. The screen output is required, otherwise the code only reads the first 2D map data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dchg = Properties_output(&#39;dens_grapheneMV.out&#39;).read_ECHG(&#39;dens_grapheneMV.f25&#39;, method=&#39;substract&#39;)
+print(&#39;Spin: {:d}&#39;.format(dchg.spin))
+print(&#39;Data dimensionality:&#39;)
+print(dchg.data.shape)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Spin: 1
+Data dimensionality:
+(100, 100, 1)
+</pre></div></div>
+</div>
+</section>
+<section id="'electronics.ChargeDensity'-class">
+<h2>‘electronics.ChargeDensity’ class<a class="headerlink" href="#'electronics.ChargeDensity'-class" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> class has object-oriented methods for data analysis and plotting. It is designed to be applicable to systems with 1 to 3D though by July 2024, 3D plotting is still under developing.</p>
+<section id="Instantiatation">
+<h3>Instantiatation<a class="headerlink" href="#Instantiatation" title="Link to this heading"></a></h3>
+<p>The classmethod <code class="docutils literal notranslate"><span class="pre">from_file</span></code> is a wrapper of I/O functions introduced above. For spin-polarized systems, the user can also save the data in <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> states rather than charge density (<span class="math notranslate nohighlight">\(\alpha+\beta\)</span>) and spin density (<span class="math notranslate nohighlight">\(\alpha-\beta\)</span>).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;,
+                              output=&#39;dens_grapheneMV.out&#39;, method=&#39;alpha_beta&#39;)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Quick-plotting">
+<h3>Quick plotting<a class="headerlink" href="#Quick-plotting" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_2D()</span></code> method helps to visualize the charge / spin densities.</p>
+<p>Plot them together with default setups (color-filled contour plot):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+
+fig = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;,
+                              output=&#39;dens_grapheneMV.out&#39;).plot_2D()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_11_0.png" src="../../_images/examples_charge_density_charge_density_11_0.png" />
+</div>
+</div>
+<p>Not nice. Change the settings of <code class="docutils literal notranslate"><span class="pre">levels</span></code> for plot levels and range, and <code class="docutils literal notranslate"><span class="pre">figsize</span></code> for figure size.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 100, 100))
+spinlevel = np.linspace(-0.05, 0.05, 100)
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(levels=[chglevel, spinlevel], figsize=[8, 4])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_13_0.png" src="../../_images/examples_charge_density_charge_density_13_0.png" />
+</div>
+</div>
+<p>In this example, the plot is non-orthogonal. The user can get orthogonal plot by setting <code class="docutils literal notranslate"><span class="pre">rectangle=True</span></code>. The cmode moves the non-orthogonal part on the right to the left hand side, i.e., similar to the ‘RECTANGU’ keyword of ‘MAPNET’ (see CRYSTAL manual).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 100, 100))
+spinlevel = np.linspace(-0.05, 0.05, 100)
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(levels=[chglevel, spinlevel], figsize=[8, 6], rectangle=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_15_0.png" src="../../_images/examples_charge_density_charge_density_15_0.png" />
+</div>
+</div>
+<p>The monovacancy is off-center after rectangle plotting. The user can modify periodicity by setting <code class="docutils literal notranslate"><span class="pre">a_range</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range</span></code>. Both of them uses fractional coordinates of plot base vector. If they are used with <code class="docutils literal notranslate"><span class="pre">rectangle=True</span></code>, that refers to the <strong>old, non-orthogonal</strong> base vectors. The origin of plotting axes are always 0. To avoid influences of periodic boundaries, supercell sizes, i.e., <code class="docutils literal notranslate"><span class="pre">a_range[1]-a_range[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range[1]-b_range[0]</span></code> must be integers.</p>
+<p>By setting <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code> and <code class="docutils literal notranslate"><span class="pre">colorplot=False</span></code>, contour lines is plotted. If both are ‘True’, contour lines are overlapped with color plots (not looking good with this example). Solid lines for positive values and 0 (doubled width). Dotted lines for negative values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 10, 10))
+spinlevel = np.linspace(-0.05, 0.05, 10)
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(levels=[chglevel, spinlevel], figsize=[8, 6], lineplot=True, colorplot=True,
+                  a_range=[-0.3, 0.7], b_range=[-0.1, 0.9], rectangle=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_17_0.png" src="../../_images/examples_charge_density_charge_density_17_0.png" />
+</div>
+</div>
+<p>It is also possible to get color-coded lines for contourplots with <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code> and <code class="docutils literal notranslate"><span class="pre">colorplot=False</span></code>. Positive values are denoted by solid red lines and negative by dotted blue lines. 0 is denoted by the solid black lines with doubled width.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 10, 10))
+spinlevel = np.linspace(-0.05, 0.05, 10)
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(levels=[chglevel, spinlevel], figsize=[8, 6], lineplot=True, colorplot=False,
+                  a_range=[-0.3, 0.7], b_range=[-0.1, 0.9], rectangle=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_19_0.png" src="../../_images/examples_charge_density_charge_density_19_0.png" />
+</div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">a_range</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range</span></code>, one can also plot supercells. Set <code class="docutils literal notranslate"><span class="pre">edgeplot=True</span></code> to mark unit cell boundaries, which is not influanced by ‘range’ or ‘rectangle’ options.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 100, 100))
+spinlevel = np.linspace(-0.05, 0.05, 100)
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(levels=[chglevel, spinlevel], figsize=[8, 6],
+                  a_range=[-0.5, 1.5], b_range=[-0.5, 1.5],
+                  rectangle=True, edgeplot=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_21_0.png" src="../../_images/examples_charge_density_charge_density_21_0.png" />
+</div>
+</div>
+</section>
+<section id="Analysis">
+<h3>Analysis<a class="headerlink" href="#Analysis" title="Link to this heading"></a></h3>
+<p>As has illustrated above, the <code class="docutils literal notranslate"><span class="pre">sustract()</span></code> method helps to generate difference maps. The <code class="docutils literal notranslate"><span class="pre">alpha_beta()</span></code> method splits <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> densities into the original charge and spin densities.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 10, 100)) * 0.53**3 # roughly convert AA^-3 to Bohr^-3
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, method=&#39;alpha_beta&#39;,
+                              output=&#39;dens_grapheneMV.out&#39;)
+fig = chg.plot_2D(unit=&#39;a.u.&#39;, levels=[chglevel, chglevel], figsize=[8, 6],
+                  cbar_label=[r&#39;$\rho_{\alpha}$&#39;, r&#39;$\rho_{\beta}$&#39;],
+                  rectangle=True, add_title=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_23_0.png" src="../../_images/examples_charge_density_charge_density_23_0.png" />
+</div>
+</div>
+</section>
+<section id="Conversion-to-XSF">
+<h3>Conversion to XSF<a class="headerlink" href="#Conversion-to-XSF" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">to_xsf()</span></code> method helps to write 2D/3D charge/spin densities into the <a class="reference external" href="http://www.xcrysden.org/">XCrySDen</a> XSF format for visualization and analysis. Such file format is accepted by many popular modelling software such as <a class="reference external" href="http://www.xcrysden.org/">XCrySDen</a>, <a class="reference external" href="https://www.ks.uiuc.edu/Research/vmd/">VMD</a> and <a class="reference external" href="https://jp-minerals.org/vesta/en/">VESTA</a>.</p>
+<p><strong>NOTE</strong></p>
+<p>For 3D data grid, if CUBE file(s) are read without output, the XSF file output has the 3D ‘CRYSTAL’ periodicity. As far as the authors have been aware of, this only causes Segmentation Fault of XCrySDen 1.6.2 when dealing with low dimensional systems. Available solution includes:</p>
+<ol class="arabic simple">
+<li><p>including output file</p></li>
+<li><p>using other software such as VESTA</p></li>
+<li><p>changing the keyword manually.</p></li>
+</ol>
+<p>Convert the same system into XSF format with 2D data grid.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+
+chg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;)
+chg.to_xsf(&#39;dens_grapheneMV.xsf&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:1497: UserWarning: File &#39;dens_grapheneMV.xsf&#39; exists! It will be overwritten.
+  xsf.write(filename, geomonly=False, grid_name=&#39;alpha+beta&#39;)
+</pre></div></div>
+</div>
+<p>Visualize spin densities in XCrySDen.</p>
+<p><img alt="128ffab2be2f49efafb4de186536057e" class="no-scaled-link" src="../../_images/dens_grapheneMV.png" style="width: 480px;" /></p>
+<p>Get charge density difference before and after CO adsoprtion onto the MgO <span class="math notranslate nohighlight">\((001)\)</span> 2 layers slab.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+
+dchg = ChargeDensity.from_file(&#39;dens_MgOCO.cube&#39;,
+                               &#39;dens_MgO.cube&#39;,
+                               &#39;dens_CO.cube&#39;,
+                               output=&#39;dens_MgOCO.out&#39;,
+                               method=&#39;substract&#39;)
+dchg.to_xsf(&#39;dens_dMgOCO.xsf&#39;)
+</pre></div>
+</div>
+</div>
+<p>Visualize charge density difference in VESTA. The cell has been expanded 3 times in both directions.</p>
+<p><img alt="d2af8960326048d09dc4963e5a6bf1b4" class="no-scaled-link" src="../../_images/dens_dMgOCO.png" style="width: 480px;" /></p>
+</section>
+</section>
+<section id="The-'plot.plot_ECHG()'-function">
+<h2>The ‘plot.plot_ECHG()’ function<a class="headerlink" href="#The-'plot.plot_ECHG()'-function" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot.plot_ECHG()</span></code> function enables a higher-level of plotting. It accepts extendable length of ‘fort.25’ files or <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> objects.</p>
+<section id="Single-system-charge-/-spin-density.">
+<h3>Single-system charge / spin density.<a class="headerlink" href="#Single-system-charge-/-spin-density." title="Link to this heading"></a></h3>
+<p>By default the charge / spin densities of a single sysmtem is plotted, as the example showed above.</p>
+</section>
+<section id="Multi-system-charge-/-spin-densities">
+<h3>Multi-system charge / spin densities<a class="headerlink" href="#Multi-system-charge-/-spin-densities" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">plot_ECHG()</span></code> can read entries of arbitrary length and return to the matplotlib Figure object with subplots. For comparison, the uniform scale can be used by setting <code class="docutils literal notranslate"><span class="pre">levels</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_ECHG
+import numpy as np
+
+chglevel = np.log(np.linspace(1, 10, 100))
+files = [&#39;dens_grapheneMV.f25&#39;, &#39;dens_grapheneMV_PATO.f25&#39;]
+
+figs = plot_ECHG(*files, option=&#39;charge&#39;, levels=chglevel,
+                 rectangle=True, figsize=[8, 6])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:1140: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  cls = Properties_output(output).read_ECHG(*files, method=method)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_30_1.png" src="../../_images/examples_charge_density_charge_density_30_1.png" />
+</div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">option='diff'</span></code>, the user can quickly plot charge difference maps. It returns to non spin-polarized solution (<code class="docutils literal notranslate"><span class="pre">obj.spin=1</span></code>) as only charge density difference is considered.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_ECHG
+import numpy as np
+
+chglevel = np.linspace(-0.5, 1, 100)
+files = [&#39;dens_grapheneMV.f25&#39;, &#39;dens_grapheneMV_PATO.f25&#39;]
+
+figs = plot_ECHG(*files, option=&#39;diff&#39;, levels=chglevel, rectangle=True,
+                 a_range=[0, 2], b_range=[0, 2], edgeplot=True, figsize=[6, 6],
+                 add_title=False, cbar_label=r&#39;$\Delta\rho$ ($|e|/\AA^{-3}$)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_32_0.png" src="../../_images/examples_charge_density_charge_density_32_0.png" />
+</div>
+</div>
+<p>If the object is generated with ‘substract’ method, plot it with ‘charge’ or ‘both’ will get charge density differences.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ChargeDensity
+from CRYSTALpytools.plot import plot_ECHG
+import numpy as np
+
+chglevel = np.linspace(-0.5, 0.5, 100)
+dchg = ChargeDensity.from_file(&#39;dens_grapheneMV.f25&#39;, output=&#39;dens_grapheneMV.out&#39;,
+                               method=&#39;substract&#39;)
+fig = plot_ECHG(dchg, option=&#39;charge&#39;, levels=chglevel, figsize=[6, 6])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_charge_density_charge_density_34_0.png" src="../../_images/examples_charge_density_charge_density_34_0.png" />
+</div>
+</div>
+<p>For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.electronics.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../convert/convert.html" class="btn btn-neutral float-left" title="File / Class Conversion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../elastic_properties/elastic_properties.html" class="btn btn-neutral float-right" title="Elastic Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

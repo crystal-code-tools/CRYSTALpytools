@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fermi Surface &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/fermi_surface/fermi_surface.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Phonons" href="../phonons/phonons.html" />
+    <link rel="prev" title="Electronic Structure" href="../electronic_structure/electronic_structure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Fermi Surface</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/fermi_surface/fermi_surface.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Fermi-Surface">
+<h1>Fermi Surface<a class="headerlink" href="#Fermi-Surface" title="Link to this heading"></a></h1>
+<p>Here code examples for Fermi surfaces are given. Fermi surfaces are band structures in 3D, i.e. distributions of <span class="math notranslate nohighlight">\(E(k)\)</span> in the first Brillouin zone (1BZ). Therefore methods are similar to band structures, i.e. projections of <span class="math notranslate nohighlight">\(E(k)\)</span> along the high symmetry lines of 1BZ. For band structures, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/electronic_structure/electronic_structure.html">Electronic Structure examples</a>.</p>
+<p><strong>NOTE</strong></p>
+<p>For 3D and 2D systems only.</p>
+<section id="The-'read_Fermi_surface()'-method">
+<h2>The ‘read_Fermi_surface()’ method<a class="headerlink" href="#The-'read_Fermi_surface()'-method" title="Link to this heading"></a></h2>
+<p>This method is defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Properties_output</span></code> class. The fort.35 file generated by the ‘DLV_BAND’ keyword, which specifies the min and max band numbers and the size of k mesh.</p>
+<p>The screen output (‘out’ or ‘outp’) is strongly suggested to get Fermi energy. Otherwise the data in fort.35 is used, rather than the energy aligned to <span class="math notranslate nohighlight">\(E_{F}=0\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(E(k)\)</span> is saved by a grid defined in reciprocal unit cell, rather than the grid defined in 1BZ.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+fsurf = Properties_output(&#39;fsurf_NaCl.out&#39;).read_Fermi_surface(&#39;fsurf_NaCl.f35&#39;)
+
+print(&#39;NaCl Fermi energy = {:.2f} {}&#39;.format(fsurf.efermi, fsurf.unit))
+print(&#39;NaCl grid size = Z {:d} Y {:d} X {:d}&#39;.format(fsurf.bands.shape[1],
+                                                     fsurf.bands.shape[2],
+                                                     fsurf.bands.shape[3]))
+print(&#39;NaCl nband = {:d}&#39;.format(fsurf.bands.shape[0]))
+print(&#39;NaCl spin = {:d}&#39;.format(fsurf.bands.shape[-1]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+NaCl Fermi energy = -6.59 eV
+NaCl grid size = Z 24 Y 24 X 24
+NaCl nband = 30
+NaCl spin = 1
+</pre></div></div>
+</div>
+<p>For spin-polarized cases, the last dimension is doubled.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+f2D = Properties_output(&#39;fsurf_GMV.out&#39;).read_Fermi_surface(&#39;fsurf_GMV.f35&#39;)
+
+print(&#39;MV graphene Fermi energy = {:.2f} {}&#39;.format(f2D.efermi, f2D.unit))
+print(&#39;MV graphene grid size = Z {:d} Y {:d} X {:d}&#39;.format(f2D.bands.shape[1],
+                                                            f2D.bands.shape[2],
+                                                            f2D.bands.shape[3]))
+print(&#39;MV graphene nband = {:d}&#39;.format(f2D.bands.shape[0]))
+print(&#39;MV graphene spin = {:d}&#39;.format(f2D.bands.shape[-1]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MV graphene Fermi energy = -2.78 eV
+MV graphene grid size = Z 1 Y 24 X 24
+MV graphene nband = 10
+MV graphene spin = 2
+</pre></div></div>
+</div>
+</section>
+<section id="The-'electronics.FermiSurface'-class">
+<h2>The ‘electronics.FermiSurface’ class<a class="headerlink" href="#The-'electronics.FermiSurface'-class" title="Link to this heading"></a></h2>
+<p>This class includes object-oriented methods for data analysis and quick plotting.</p>
+<section id="The-'get_bandgap()'-method-and-'bandgap'-attribute">
+<h3>The ‘get_bandgap()’ method and ‘bandgap’ attribute<a class="headerlink" href="#The-'get_bandgap()'-method-and-'bandgap'-attribute" title="Link to this heading"></a></h3>
+<p>Similar to <code class="docutils literal notranslate"><span class="pre">electronics.ElectronBand</span></code> class, this attribute gets VBM, CBM and band gap from <span class="math notranslate nohighlight">\(E_{k}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import FermiSurface
+
+fsurf = FermiSurface.from_file(&#39;fsurf_NaCl.f35&#39;, &#39;fsurf_NaCl.out&#39;)
+print(&#39;NaCl band gap = {:.2f} {}&#39;.format(fsurf.bandgap, fsurf.unit))
+
+_, _, _, pos = fsurf.get_bandgap()
+print(&#39;VBM position: X {:.4f} Y {:.4f} Z {:.4f}&#39;.format(pos[0, 0], pos[0, 1], pos[0, 2]))
+print(&#39;CBM position: X {:.4f} Y {:.4f} Z {:.4f}&#39;.format(pos[1, 0], pos[1, 1], pos[1, 2]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+NaCl band gap = 11.70 eV
+VBM position: X 1.0699 Y 1.0699 Z 1.0699
+CBM position: X -0.0465 Y 0.5117 Z 1.0699
+</pre></div></div>
+</div>
+<p>For spin-polarized cases, this method returns to VBM/CBM of <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> states separately.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import FermiSurface
+
+f2D = FermiSurface.from_file(&#39;fsurf_GMV.f35&#39;, &#39;fsurf_GMV.out&#39;)
+print(&#39;MV graphene alpha band gap = {:.2f} {}&#39;.format(f2D.bandgap[0], f2D.unit))
+
+_, vbm, cbm, _ = f2D.get_bandgap()
+print(&#39;Alpha VBM = {:.4f} {}&#39;.format(vbm[0], f2D.unit))
+print(&#39;Beta CBM = {:.4f} {}&#39;.format(cbm[1], f2D.unit))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MV graphene alpha band gap = 1.80 eV
+Alpha VBM = -0.0340 eV
+Beta CBM = 0.3848 eV
+</pre></div></div>
+</div>
+</section>
+<section id="The-'to_bxsf()'-method">
+<h3>The ‘to_bxsf()’ method<a class="headerlink" href="#The-'to_bxsf()'-method" title="Link to this heading"></a></h3>
+<p>This method writes data into the BXSF formatted file used by <a class="reference external" href="http://www.xcrysden.org/doc/fermi.html">XCrySDen’s Fermi surface viewer</a>. Currently only 3D systems are supported by BXSF format.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">band_index</span></code> option (starting from 1) to specify the band to dump. For spin-polarized systems, attach ‘a’ or ‘b’ for <span class="math notranslate nohighlight">\(\alpha\)</span> or <span class="math notranslate nohighlight">\(\beta\)</span> states.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import FermiSurface
+
+fsurf = FermiSurface.from_file(&#39;fsurf_NaCl.f35&#39;, &#39;fsurf_NaCl.out&#39;)
+fsurf.to_bxsf(&#39;fsurf_NaCl.bxsf&#39;, band_index=[&#39;vb&#39;, &#39;cb&#39;])
+</pre></div>
+</div>
+</div>
+<p>Visualize the valance band in XCrySDen. The isosurface of -0.5 eV below <span class="math notranslate nohighlight">\(E_{F}\)</span> is plotted.</p>
+<p><img alt="20c889f3af1d4585bfbe43f4a1f8698f" class="no-scaled-link" src="../../_images/fsurf_NaCl_BXSF.png" style="width: 640px;" /></p>
+</section>
+</section>
+<section id="Visualization">
+<h2>Visualization<a class="headerlink" href="#Visualization" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">electronics.FermiSurface.plot()</span></code> method plots:</p>
+<ol class="arabic simple">
+<li><p>For 3D systems, isosurfaces of <span class="math notranslate nohighlight">\(E(k)\)</span>, which is plotted as 3D isosurfaces.</p></li>
+<li><p>For 2D systems, the distribution of <span class="math notranslate nohighlight">\(E(k)\)</span>, which is plotted as the 3D surface, with XY plane as 1BZ and Z axis as energy.</p></li>
+</ol>
+<div class="line-block">
+<div class="line"><strong>NOTE</strong> 1. <a class="reference external" href="https://docs.enthought.com/mayavi/mayavi/index.html">MayaVi</a> is required for plotting, which is not installed by default.</div>
+<div class="line">2. Currently it is the only visualization method of CRYSTALpytools. There is no similar methods available in the <code class="docutils literal notranslate"><span class="pre">plot</span></code> module.</div>
+</div>
+<section id="3D-systems">
+<h3>3D systems<a class="headerlink" href="#3D-systems" title="Link to this heading"></a></h3>
+<p>It plots 1 or more isosurfaces of the same band structure. Though in principle the user can also specify multiple bands with <code class="docutils literal notranslate"><span class="pre">band_index</span></code> and the same <code class="docutils literal notranslate"><span class="pre">isovalue</span></code> entry is applied to all the bands, it is not recommended and rarely tested.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import FermiSurface
+
+fsurf = FermiSurface.from_file(&#39;fsurf_NaCl.f35&#39;, &#39;fsurf_NaCl.out&#39;)
+fsurf.plot(&#39;vb&#39;, isovalue=[-0.3, -0.5, -0.7], interp=&#39;slinear&#39;, interp_size=2,
+           BZ_linewidth=0.5, BZ_color=(0.5, 0.5, 0.5))
+</pre></div>
+</div>
+</div>
+<p>Displayed in the pop-up window of MayaVi.</p>
+<p><img alt="e65efc40ef1049b9a356e5170517f4c2" class="no-scaled-link" src="../../_images/fsurf_NaCl.png" style="width: 480px;" /></p>
+</section>
+<section id="2D-systems">
+<h3>2D systems<a class="headerlink" href="#2D-systems" title="Link to this heading"></a></h3>
+<p>For 2D systems, it is possible to plot multiple bands at the same time. <code class="docutils literal notranslate"><span class="pre">isovalue</span></code> is ignored.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import FermiSurface
+
+fsurf = FermiSurface.from_file(&#39;fsurf_GMV.f35&#39;, &#39;fsurf_GMV.out&#39;)
+fsurf.plot([&#39;5a&#39;, &#39;5b&#39;, &#39;6a&#39;, &#39;6b&#39;], colormap=&#39;jet&#39;,
+            interp=&#39;slinear&#39;, interp_size=3, BZ_scale=1.5)
+</pre></div>
+</div>
+</div>
+<p>Displayed in the pop-up window of MayaVi.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># This code block is only used to generate a thumbnail for the example gallary.
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.imshow(plt.imread(&quot;./fsurf_GMV.png&quot;))
+ax.axis(&#39;off&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(-0.5, 628.5, 425.5, -0.5)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_fermi_surface_fermi_surface_17_1.png" src="../../_images/examples_fermi_surface_fermi_surface_17_1.png" />
+</div>
+</div>
+<p>For more information, please refer to <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.electronics.html">the API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../electronic_structure/electronic_structure.html" class="btn btn-neutral float-left" title="Electronic Structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../phonons/phonons.html" class="btn btn-neutral float-right" title="Phonons" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

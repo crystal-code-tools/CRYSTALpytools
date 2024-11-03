@@ -1,0 +1,21 @@
+CRYSTALpytools.io package
+=========================
+
+Submodules
+----------
+
+CRYSTALpytools.io.xcrysden module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.io.xcrysden
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: CRYSTALpytools.io
+   :members:
+   :undoc-members:
+   :show-inheritance:

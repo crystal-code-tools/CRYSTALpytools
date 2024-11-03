@@ -1,0 +1,1217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properties output and plot &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/test_oldmethods.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Properties output and plot</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/test_oldmethods.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><strong>It is used only to test the deprecated methods that has not been removed from the code. Not part of tutorial.</strong></p>
+<p>Whether they work or not is a main concern.</p>
+<section id="Properties-output-and-plot">
+<h1>Properties output and plot<a class="headerlink" href="#Properties-output-and-plot" title="Link to this heading"></a></h1>
+<p>Band plot</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_band, plot_electron_band
+
+obj1 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs.BAND&#39;)
+obj2 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_noso.BAND&#39;)
+obj3 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_P15.BAND&#39;)
+obj4 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_P25.BAND&#39;)
+
+fig = plot_cry_band([obj1, obj2, obj3, obj4], energy_range=[-5, 5],
+                    k_labels=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;],
+                    mode=&#39;multi&#39;, labels=[&#39;NOSOC&#39;, &#39;SCDFT&#39;, &#39;P15&#39;, &#39;P25&#39;],
+                    color=[&#39;b&#39;, &#39;c&#39;, &#39;g&#39;, &#39;r&#39;],
+                    linestl=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;,&#39;dashdot&#39;])
+
+fig = plot_electron_band([obj1, obj2, obj3, obj4], energy_range=[-5, 5],
+                         k_labels=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;],
+                         mode=&#39;compare&#39;, labels=[&#39;NOSOC&#39;, &#39;SCDFT&#39;, &#39;P15&#39;, &#39;P25&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32103/2691132715.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_electron_band&#39; instead.
+  obj1 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs.BAND&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3479: UserWarning: Properties output file not found: 3D k path not available.
+  return self.read_electron_band(band_file)
+/tmp/ipykernel_32103/2691132715.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_electron_band&#39; instead.
+  obj2 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_noso.BAND&#39;)
+/tmp/ipykernel_32103/2691132715.py:6: UserWarning: You are calling a deprecated function. Use &#39;read_electron_band&#39; instead.
+  obj3 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_P15.BAND&#39;)
+/tmp/ipykernel_32103/2691132715.py:7: UserWarning: You are calling a deprecated function. Use &#39;read_electron_band&#39; instead.
+  obj4 = Properties_output().read_cry_band(&#39;electronic_structure/band_hTaAs_P25.BAND&#39;)
+/tmp/ipykernel_32103/2691132715.py:9: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_bands&#39; instead.
+  fig = plot_cry_band([obj1, obj2, obj3, obj4], energy_range=[-5, 5],
+/tmp/ipykernel_32103/2691132715.py:15: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_bands&#39; instead.
+  fig = plot_electron_band([obj1, obj2, obj3, obj4], energy_range=[-5, 5],
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_1_1.png" src="../_images/examples_test_oldmethods_1_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_1_2.png" src="../_images/examples_test_oldmethods_1_2.png" />
+</div>
+</div>
+<p>Density of states</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_doss, plot_electron_dos
+
+obj1 = Properties_output().read_cry_doss(&#39;electronic_structure/doss_96.DOSS&#39;)
+obj2 = Properties_output().read_cry_doss(&#39;electronic_structure/doss_cu.DOSS&#39;)
+
+fig = plot_cry_doss(obj1, linestl=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;], fermi=&#39;indigo&#39;, color=&#39;orange&#39;,
+                    prj=[1,2,3], energy_range=[-5, 5], dos_range=[0, 10])
+fig = plot_electron_dos(obj2, energy_range=[-5, 5], dos_range=[-10, 10], fermi=&#39;indigo&#39;,
+                        overlap=True, beta=&#39;down&#39;, linewidth=1.5,
+                        color=[&#39;blue&#39;, &#39;orange&#39;, &#39;limegreen&#39;, &#39;purple&#39;],
+                        labels=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj4&#39;, &#39;Tot&#39;], prj=[1,2,4,5])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32103/2551822102.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_electron_dos&#39; instead.
+  obj1 = Properties_output().read_cry_doss(&#39;electronic_structure/doss_96.DOSS&#39;)
+/tmp/ipykernel_32103/2551822102.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_electron_dos&#39; instead.
+  obj2 = Properties_output().read_cry_doss(&#39;electronic_structure/doss_cu.DOSS&#39;)
+/tmp/ipykernel_32103/2551822102.py:7: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_doss&#39; instead.
+  fig = plot_cry_doss(obj1, linestl=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;], fermi=&#39;indigo&#39;, color=&#39;orange&#39;,
+/tmp/ipykernel_32103/2551822102.py:9: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_doss&#39; instead.
+  fig = plot_electron_dos(obj2, energy_range=[-5, 5], dos_range=[-10, 10], fermi=&#39;indigo&#39;,
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_3_1.png" src="../_images/examples_test_oldmethods_3_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_3_2.png" src="../_images/examples_test_oldmethods_3_2.png" />
+</div>
+</div>
+<p>Electronic structure</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_es
+
+obj1 = Properties_output().read_cry_band(&#39;electronic_structure/es_grapheneDV.f25&#39;)
+obj2 = Properties_output().read_cry_doss(&#39;electronic_structure/es_grapheneDV.f25&#39;)
+
+fig = plot_cry_es(obj1, obj2, color_bd=&#39;brown&#39;, fermi=&#39;limegreen&#39;,
+                  color_doss=[&#39;blue&#39;, &#39;red&#39;, &#39;green&#39;], energy_range=[-4,6],
+                  linestl_doss=[&#39;-&#39;, &#39;--&#39;, &#39;dotted&#39;], prj=[1,2,3],
+                  labels=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj3&#39;], dos_range=[0, 20],
+                  k_labels=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32103/2013934129.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_electron_band&#39; instead.
+  obj1 = Properties_output().read_cry_band(&#39;electronic_structure/es_grapheneDV.f25&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3479: UserWarning: Properties output file not found: 3D k path not available.
+  return self.read_electron_band(band_file)
+/tmp/ipykernel_32103/2013934129.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_electron_dos&#39; instead.
+  obj2 = Properties_output().read_cry_doss(&#39;electronic_structure/es_grapheneDV.f25&#39;)
+/tmp/ipykernel_32103/2013934129.py:7: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_banddos&#39; instead.
+  fig = plot_cry_es(obj1, obj2, color_bd=&#39;brown&#39;, fermi=&#39;limegreen&#39;,
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_5_1.png" src="../_images/examples_test_oldmethods_5_1.png" />
+</div>
+</div>
+<p>Charge density</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
+
+obj = Properties_output().read_cry_ECHG(&#39;charge_density/dens_grapheneMV.f25&#39;)
+fig = plot_dens_ECHG(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32103/3257411146.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_ECHG&#39; instead.
+  obj = Properties_output().read_cry_ECHG(&#39;charge_density/dens_grapheneMV.f25&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3499: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  return self.read_ECHG(f25_file, method=&#39;normal&#39;)
+/tmp/ipykernel_32103/3257411146.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_banddos&#39; instead.
+  fig = plot_dens_ECHG(obj)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_7_1.png" src="../_images/examples_test_oldmethods_7_1.png" />
+</div>
+</div>
+<p>Density difference</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_dens_ECHG, plot_spin_ECHG
+
+obj = Properties_output().read_cry_ECHG_delta(
+    &#39;charge_density/dens_grapheneMV.f25&#39;, &#39;charge_density/dens_grapheneMV_PATO.f25&#39;)
+fig = plot_dens_ECHG(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32103/2073804959.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_ECHG&#39; instead.
+  obj = Properties_output().read_cry_ECHG_delta(
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3509: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  return self.read_ECHG(f25_file1, f25_file2, method=&#39;substract&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:1042: UserWarning: Properties output file not found: Only the first 1 (2) density map(s) will be read for spin=1(2).
+  obj = Properties_output().read_ECHG(i, method=&#39;normal&#39;)
+/tmp/ipykernel_32103/2073804959.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_electron_banddos&#39; instead.
+  fig = plot_dens_ECHG(obj)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_9_1.png" src="../_images/examples_test_oldmethods_9_1.png" />
+</div>
+</div>
+<p>Topond output surfaces</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_contour
+
+obj = Properties_output().read_cry_contour(&#39;topond/topo_urea.SURFLAPP&#39;)
+fig = plot_cry_contour(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3287745872.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_topond&#39; instead.
+  obj = Properties_output().read_cry_contour(&#39;topond/topo_urea.SURFLAPP&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3364: UserWarning: Properties output file not found: Geometry not available
+  return self.read_topond(properties_output)
+/tmp/ipykernel_12287/3287745872.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_topond2D&#39; instead.
+  fig = plot_cry_contour(obj)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_11_1.png" src="../_images/examples_test_oldmethods_11_1.png" />
+</div>
+</div>
+<p>Topond output surface difference</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_contour_differences
+
+obj1 = Properties_output().read_cry_contour(&#39;topond/topo_urea.SURFRHOO&#39;)
+obj2 = Properties_output().read_cry_contour(&#39;topond/topo_ureaPATO.SURFRHOO&#39;)
+fig = plot_cry_contour_differences(obj1, obj2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/2012147669.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_topond&#39; instead.
+  obj1 = Properties_output().read_cry_contour(&#39;topond/topo_urea.SURFRHOO&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3364: UserWarning: Properties output file not found: Geometry not available
+  return self.read_topond(properties_output)
+/tmp/ipykernel_12287/2012147669.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_topond&#39; instead.
+  obj2 = Properties_output().read_cry_contour(&#39;topond/topo_ureaPATO.SURFRHOO&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:3364: UserWarning: Properties output file not found: Geometry not available
+  return self.read_topond(properties_output)
+/tmp/ipykernel_12287/2012147669.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_topond2D&#39; instead.
+  fig = plot_cry_contour_differences(obj1, obj2)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_13_1.png" src="../_images/examples_test_oldmethods_13_1.png" />
+</div>
+</div>
+<p>Transport properties, Seebeck - <span class="math notranslate nohighlight">\(\mu\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_seebeck_potential
+
+obj = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+fig = plot_cry_seebeck_potential(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/1694119961.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+/tmp/ipykernel_12287/1694119961.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_seebeck_potential(obj)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_15_3.png" src="../_images/examples_test_oldmethods_15_3.png" />
+</div>
+</div>
+<p>Transport properties, Seebeck - <span class="math notranslate nohighlight">\(\rho\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_seebeck_carrier
+
+obj = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+fig = plot_cry_seebeck_carrier(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3557699888.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+/tmp/ipykernel_12287/3557699888.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_seebeck_carrier(obj)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_17_3.png" src="../_images/examples_test_oldmethods_17_3.png" />
+</div>
+</div>
+<p>Transport properties, Multi Seebeck</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_multiseebeck
+
+obj1 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_TiNiSn_SK.DAT&#39;)
+fig = plot_cry_multiseebeck(obj1, obj2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/572774574.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj1 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+/tmp/ipykernel_12287/572774574.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_TiNiSn_SK.DAT&#39;)
+/tmp/ipykernel_12287/572774574.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_multiseebeck(obj1, obj2)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Insert the index of temperature you want to plot
+(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2]) 0
+Insert the lower value of chemical potential you want to plot in eV -5.5
+Inser the higher value of chemical potential you want to plot in eV -3.0
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yx, S_yy, S_yz, S_yz, S_zx, S_zy, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_19_2.png" src="../_images/examples_test_oldmethods_19_2.png" />
+</div>
+</div>
+<p>Transport properties, <span class="math notranslate nohighlight">\(\sigma-\mu\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_sigma_potential
+
+obj = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+fig = plot_cry_sigma_potential(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3449264977.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+/tmp/ipykernel_12287/3449264977.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_sigma_potential(obj)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_21_3.png" src="../_images/examples_test_oldmethods_21_3.png" />
+</div>
+</div>
+<p>Transport properties, <span class="math notranslate nohighlight">\(\sigma-\rho\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_sigma_carrier
+
+obj = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+fig = plot_cry_sigma_carrier(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/1695120354.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+/tmp/ipykernel_12287/1695120354.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_sigma_carrier(obj)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_23_3.png" src="../_images/examples_test_oldmethods_23_3.png" />
+</div>
+</div>
+<p>Transport properties, multi <span class="math notranslate nohighlight">\(\sigma\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_multisigma
+
+obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+obj2 = Properties_output().read_cry_sigma(&#39;transport/trans_TiNiSn_SG.DAT&#39;)
+fig = plot_cry_multisigma(obj1, obj2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3547555731.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+/tmp/ipykernel_12287/3547555731.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj2 = Properties_output().read_cry_sigma(&#39;transport/trans_TiNiSn_SG.DAT&#39;)
+/tmp/ipykernel_12287/3547555731.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_multisigma(obj1, obj2)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Insert the index of temperature you want to plot
+(i.e. if your temperature are [T1, T2, T3] indexes are [0, 1, 2]) 0
+Insert the lower value of chemical potential you want to plot in eV -5.5
+Inser the higher value of chemical potential you want to plot in eV -3.0
+Please, choose the direction you want to plot.
+You can choose among S_xx, S_xy, S_xz, S_yy, S_yz, S_zz
+ S_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_25_3.png" src="../_images/examples_test_oldmethods_25_3.png" />
+</div>
+</div>
+<p>Transport properties, Power Factor - <span class="math notranslate nohighlight">\(\mu\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_powerfactor_potential
+
+obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+fig = plot_cry_powerfactor_potential(obj2, obj1)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3108958610.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+/tmp/ipykernel_12287/3108958610.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+/tmp/ipykernel_12287/3108958610.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_powerfactor_potential(obj2, obj1)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz
+ PF_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_27_3.png" src="../_images/examples_test_oldmethods_27_3.png" />
+</div>
+</div>
+<p>Transport properties, Power Factor - <span class="math notranslate nohighlight">\(\rho\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_powerfactor_carrier
+
+obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+fig = plot_cry_powerfactor_carrier(obj2, obj1)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3422032945.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_Bi2Te3_SG.DAT&#39;)
+/tmp/ipykernel_12287/3422032945.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_Bi2Te3_SK.DAT&#39;)
+/tmp/ipykernel_12287/3422032945.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_powerfactor_carrier(obj2, obj1)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please, choose the direction you want to plot.
+You can choose among PF_xx, PF_xy, PF_xz, PF_yx, PF_yy, PF_yz, PF_yz, PF_zx, PF_zy, PF_zz
+ PF_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_29_3.png" src="../_images/examples_test_oldmethods_29_3.png" />
+</div>
+</div>
+<p>Transport properties, thermoelectric dimensionless figure of merit (ZT).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_cry_zt
+
+obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_G2S_SG.DAT&#39;)
+obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_G2S_SK.DAT&#39;)
+fig = plot_cry_zt(obj2, obj1)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/442225322.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj1 = Properties_output().read_cry_sigma(&#39;transport/trans_G2S_SG.DAT&#39;)
+/tmp/ipykernel_12287/442225322.py:5: UserWarning: You are calling a deprecated function. Use &#39;read_transport&#39; instead.
+  obj2 = Properties_output().read_cry_seebeck(&#39;transport/trans_G2S_SK.DAT&#39;)
+/tmp/ipykernel_12287/442225322.py:6: UserWarning: You are calling a deprecated function. Use &#39;plot_transport_tensor&#39; instead.
+  fig = plot_cry_zt(obj2, obj1)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:3551: UserWarning: The y axis captions will be displayed in Power Factor. The plot is divided by Kappa.
+  warnings.warn(&#34;The y axis captions will be displayed in Power Factor. The plot is divided by Kappa.&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Please insert the value of ktot in WK-1m-1 3077.4
+Please, choose the direction you want to plot.
+You can choose among ZT_xx, ZT_xy, ZT_xz, ZT_yx, ZT_yy, ZT_yz, ZT_yz, ZT_zx, ZT_zy, ZT_zz
+ ZT_xx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+To differentiate transport coefficients due to n-type or p-type conduction (electrons or holes as majority carriers) dashed and solid lines are used, respectively.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_31_3.png" src="../_images/examples_test_oldmethods_31_3.png" />
+</div>
+</div>
+<p>2D vector fields are not compatible with the new scheme. Error is given.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+from CRYSTALpytools.plot import plot_vecfield2D_m
+
+obj = Properties_output().read_vecfield(&#39;relativistics/relt_WSe2.f25&#39;, &#39;m&#39;)
+plot_vecfield2D_m(&#39;some header&#39;, obj.data, 1.0)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/1518924715.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_relativistics&#39; instead.
+  obj = Properties_output().read_vecfield(&#39;relativistics/relt_WSe2.f25&#39;, &#39;m&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">DeprecationWarning</span>                        Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[17], line 5</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">CRYSTALpytools</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">plot</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> plot_vecfield2D_m
+<span class="ansi-green-intense-fg ansi-bold">      4</span> obj <span style="color: rgb(98,98,98)">=</span> Properties_output()<span style="color: rgb(98,98,98)">.</span>read_vecfield(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">relativistics/relt_WSe2.f25</span><span style="color: rgb(175,0,0)">&#39;</span>, <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">m</span><span style="color: rgb(175,0,0)">&#39;</span>)
+<span class="ansi-green-fg">----&gt; 5</span> <span class="ansi-yellow-bg">plot_vecfield2D_m</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">some header</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">obj</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">data</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.0</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">~/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:3165</span>, in <span class="ansi-cyan-fg">plot_vecfield2D_m</span><span class="ansi-blue-fg">(header, dens, quivscale, name, levels, dpi)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3161</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">plot_vecfield2D_m</span>(header, dens, quivscale, name<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">MAG</span><span style="color: rgb(175,0,0)">&#39;</span>, levels<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">150</span>, dpi<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">400</span>):
+<span class="ansi-green-intense-fg ansi-bold">   3162</span> <span style="color: rgb(188,188,188)">    </span><span style="color: rgb(175,0,0)">&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">   3163</span> <span style="color: rgb(175,0,0)">    Deprecated and incompatible with new functions. Give error.</span>
+<span class="ansi-green-intense-fg ansi-bold">   3164</span> <span style="color: rgb(175,0,0)">    &#34;&#34;&#34;</span>
+<span class="ansi-green-fg">-&gt; 3165</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">DeprecationWarning</span>(<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">The called method is deprecated and incompatible with the new one. Call </span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">plot_relativistics2D()</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)"> instead.</span><span style="color: rgb(175,0,0)">&#34;</span>)
+
+<span class="ansi-red-fg">DeprecationWarning</span>: The called method is deprecated and incompatible with the new one. Call &#39;plot_relativistics2D()&#39; instead.
+</pre></div></div>
+</div>
+<p>3D elastic properties</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_cry_ela
+
+plot_cry_ela(&#39;young&#39;, 90, &#39;elastic_properties/elastic3D_ZIF8_P0.out&#39;,
+             &#39;elastic_properties/elastic3D_ZIF8_P01.out&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/337828267.py:3: UserWarning: You are calling a deprecated function. Use &#39;plot_elastics3D&#39; instead.
+  plot_cry_ela(&#39;young&#39;, 90, &#39;elastic_properties/elastic3D_ZIF8_P0.out&#39;,
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_35_1.png" src="../_images/examples_test_oldmethods_35_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_35_2.png" src="../_images/examples_test_oldmethods_35_2.png" />
+</div>
+</div>
+<p>XRD spectra</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_cry_xrd
+from CRYSTALpytools.crystal_io import Properties_output
+
+obj = Properties_output().read_cry_xrd_spec(&#39;spectra/spec_diamondXRD.out&#39;)
+fig = plot_cry_xrd(obj)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3505178457.py:4: UserWarning: You are calling a deprecated function. Use &#39;read_XRDspec&#39; instead.
+  obj = Properties_output().read_cry_xrd_spec(&#39;spectra/spec_diamondXRD.out&#39;)
+/tmp/ipykernel_12287/3505178457.py:5: UserWarning: You are calling a deprecated function. Use &#39;plot_XRD&#39; instead.
+  fig = plot_cry_xrd(obj)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_37_1.png" src="../_images/examples_test_oldmethods_37_1.png" />
+</div>
+</div>
+<p>IR spectra</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_cry_irspec
+
+fig = plot_cry_irspec(&#39;spectra/spec_dryIceIR.IRSPEC&#39;, y_mode=&#39;V&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/1632833345.py:3: UserWarning: You are calling a deprecated function. Use &#39;plot_IR&#39; instead.
+  fig = plot_cry_irspec(&#39;spectra/spec_dryIceIR.IRSPEC&#39;, y_mode=&#39;V&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/spectra.py:115: UserWarning: Output file not available. Geometry information missing.
+  return Crystal_output(output).get_spectra(specfile, &#39;IRSPEC&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_39_1.png" src="../_images/examples_test_oldmethods_39_1.png" />
+</div>
+</div>
+<p>Raman spectra</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_cry_ramspec
+
+fig = plot_cry_ramspec(&#39;spectra/spec_dryIceRaman.RAMSPEC&#39;, y_mode=&#39;yy&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/2289666464.py:3: UserWarning: You are calling a deprecated function. Use &#39;plot_Raman&#39; instead.
+  fig = plot_cry_ramspec(&#39;spectra/spec_dryIceRaman.RAMSPEC&#39;, y_mode=&#39;yy&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/spectra.py:349: UserWarning: Output file not available. Geometry information missing.
+  return Crystal_output(output).get_spectra(specfile, &#39;RAMSPEC&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_test_oldmethods_41_1.png" src="../_images/examples_test_oldmethods_41_1.png" />
+</div>
+</div>
+</section>
+<section id="Crystal-output">
+<h1>Crystal output<a class="headerlink" href="#Crystal-output" title="Link to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;output/out_mgoOpt.out&#39;)
+out.get_last_geom(write_gui_file=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_12287/3748215010.py:4: UserWarning: You are calling a deprecated property. Use &#39;get_geometry(initial=False)&#39;.
+  out.get_last_geom(write_gui_file=False)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[[2.220446049250313e-16, 2.12010964947103, 2.1201096494710305],
+  [-1.8794474130776828, 2.3269357998365443, -0.2068261503655131],
+  [-2.315657104493933, 0.22938354105073647, 1.8907261084202944]],
+ [12, 8],
+ [[0.0, 0.0, 0.0],
+  [2.0975522587858073, -2.3382144951791557, -1.9020048037629058]]]
+</pre></div></div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

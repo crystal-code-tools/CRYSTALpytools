@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/modules.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/modules.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools">
+<h1>CRYSTALpytools<a class="headerlink" href="#crystalpytools" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CRYSTALpytools.html">CRYSTALpytools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.base.html">CRYSTALpytools.base package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.basisset">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.crysd12">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.extfmt">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.inputbase">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.output">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.plotbase">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base.propd3">CRYSTALpytools.base.propd3 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.base.html#module-CRYSTALpytools.base">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.io.html">CRYSTALpytools.io package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.io.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.io.html#module-CRYSTALpytools.io.xcrysden">CRYSTALpytools.io.xcrysden module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.io.html#module-CRYSTALpytools.io">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.adsorb">CRYSTALpytools.adsorb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.adsorb.sub_ads_indices"><code class="docutils literal notranslate"><span class="pre">sub_ads_indices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.calculate">CRYSTALpytools.calculate module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.calculate.cry_ads_energy"><code class="docutils literal notranslate"><span class="pre">cry_ads_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.calculate.cry_shrink"><code class="docutils literal notranslate"><span class="pre">cry_shrink()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.convert">CRYSTALpytools.convert module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_ase2gui"><code class="docutils literal notranslate"><span class="pre">cry_ase2gui()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_bands2pmg"><code class="docutils literal notranslate"><span class="pre">cry_bands2pmg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_gui2ase"><code class="docutils literal notranslate"><span class="pre">cry_gui2ase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_gui2cif"><code class="docutils literal notranslate"><span class="pre">cry_gui2cif()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_gui2pmg"><code class="docutils literal notranslate"><span class="pre">cry_gui2pmg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_gui2xyz"><code class="docutils literal notranslate"><span class="pre">cry_gui2xyz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_out2ase"><code class="docutils literal notranslate"><span class="pre">cry_out2ase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_out2cif"><code class="docutils literal notranslate"><span class="pre">cry_out2cif()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_out2pmg"><code class="docutils literal notranslate"><span class="pre">cry_out2pmg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_out2xyz"><code class="docutils literal notranslate"><span class="pre">cry_out2xyz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.convert.cry_pmg2gui"><code class="docutils literal notranslate"><span class="pre">cry_pmg2gui()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.crystal_io">CRYSTALpytools.crystal_io module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input"><code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.read_file"><code class="docutils literal notranslate"><span class="pre">Crystal_input.read_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.write_file"><code class="docutils literal notranslate"><span class="pre">Crystal_input.write_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.geom_from_cif"><code class="docutils literal notranslate"><span class="pre">Crystal_input.geom_from_cif()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.geom_from_pmg"><code class="docutils literal notranslate"><span class="pre">Crystal_input.geom_from_pmg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.bs_user"><code class="docutils literal notranslate"><span class="pre">Crystal_input.bs_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_input.bs_keyword"><code class="docutils literal notranslate"><span class="pre">Crystal_input.bs_keyword()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output"><code class="docutils literal notranslate"><span class="pre">Crystal_output</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.read_file"><code class="docutils literal notranslate"><span class="pre">Crystal_output.read_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_dielectric_tensor"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_dielectric_tensor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_eigenvectors"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_eigenvectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_dimensionality"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_dimensionality()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_symmops"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_symmops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_geometry"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_lattice"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_reciprocal_lattice"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_reciprocal_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.sg_number"><code class="docutils literal notranslate"><span class="pre">Crystal_output.sg_number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.sg_symbol"><code class="docutils literal notranslate"><span class="pre">Crystal_output.sg_symbol</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_trans_matrix"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_trans_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_geometry"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_primitive_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_lattice"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_primitive_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_reciprocal_lattice"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_primitive_reciprocal_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_config_analysis"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_config_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_convergence"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_convergence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_final_energy"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_final_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_scf_convergence"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_scf_convergence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_fermi_energy"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_fermi_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_band_gap"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_band_gap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_mulliken_charges"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_mulliken_charges()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_opt_convergence"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_opt_convergence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_forces"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_forces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_phonon"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_phonon()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_phonon_band"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_phonon_band()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_phonon_dos"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_phonon_dos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_spectra"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_spectra()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_elatensor"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_elatensor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_anh_spectra"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_anh_spectra()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.n_atoms"><code class="docutils literal notranslate"><span class="pre">Crystal_output.n_atoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.atom_symbols"><code class="docutils literal notranslate"><span class="pre">Crystal_output.atom_symbols</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.atom_numbers"><code class="docutils literal notranslate"><span class="pre">Crystal_output.atom_numbers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.atom_positions"><code class="docutils literal notranslate"><span class="pre">Crystal_output.atom_positions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.atom_positions_cart"><code class="docutils literal notranslate"><span class="pre">Crystal_output.atom_positions_cart</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.atom_positions_frac"><code class="docutils literal notranslate"><span class="pre">Crystal_output.atom_positions_frac</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_output.get_last_geom"><code class="docutils literal notranslate"><span class="pre">Crystal_output.get_last_geom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input"><code class="docutils literal notranslate"><span class="pre">Properties_input</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.read_file"><code class="docutils literal notranslate"><span class="pre">Properties_input.read_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.write_file"><code class="docutils literal notranslate"><span class="pre">Properties_input.write_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.make_band_block"><code class="docutils literal notranslate"><span class="pre">Properties_input.make_band_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.make_doss_block"><code class="docutils literal notranslate"><span class="pre">Properties_input.make_doss_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.make_pdoss_block"><code class="docutils literal notranslate"><span class="pre">Properties_input.make_pdoss_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.make_newk_block"><code class="docutils literal notranslate"><span class="pre">Properties_input.make_newk_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.make_bands_block"><code class="docutils literal notranslate"><span class="pre">Properties_input.make_bands_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.from_file"><code class="docutils literal notranslate"><span class="pre">Properties_input.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_input.write_properties_input"><code class="docutils literal notranslate"><span class="pre">Properties_input.write_properties_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output"><code class="docutils literal notranslate"><span class="pre">Properties_output</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_file"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_electron_band"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_electron_band()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_Fermi_surface"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_Fermi_surface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_electron_dos"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_electron_dos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_topond"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_topond()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_ECHG"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_ECHG()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_ECH3"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_ECH3()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_relativistics"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_relativistics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_XRDspec"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_XRDspec()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_rholine"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_rholine()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_lapl_profile"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_lapl_profile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_density_profile"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_density_profile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_transport"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_transport()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_band"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_band()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_doss"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_doss()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_ECHG()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG_delta"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_ECHG_delta()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_contour"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_contour()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_seebeck"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_seebeck()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_sigma"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_vecfield"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_vecfield()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Properties_output.read_cry_xrd_spec"><code class="docutils literal notranslate"><span class="pre">Properties_output.read_cry_xrd_spec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_gui"><code class="docutils literal notranslate"><span class="pre">Crystal_gui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_density"><code class="docutils literal notranslate"><span class="pre">Crystal_density</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.Crystal_density.read_cry_irr_density"><code class="docutils literal notranslate"><span class="pre">Crystal_density.read_cry_irr_density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.cry_combine_density"><code class="docutils literal notranslate"><span class="pre">cry_combine_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.crystal_io.write_cry_density"><code class="docutils literal notranslate"><span class="pre">write_cry_density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.elastics">CRYSTALpytools.elastics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D"><code class="docutils literal notranslate"><span class="pre">Tensor3D</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.stiffness"><code class="docutils literal notranslate"><span class="pre">Tensor3D.stiffness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.compliance"><code class="docutils literal notranslate"><span class="pre">Tensor3D.compliance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.from_file"><code class="docutils literal notranslate"><span class="pre">Tensor3D.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.get_1D"><code class="docutils literal notranslate"><span class="pre">Tensor3D.get_1D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.get_pair"><code class="docutils literal notranslate"><span class="pre">Tensor3D.get_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.plot_2D"><code class="docutils literal notranslate"><span class="pre">Tensor3D.plot_2D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.plot_3D"><code class="docutils literal notranslate"><span class="pre">Tensor3D.plot_3D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor3D.transform"><code class="docutils literal notranslate"><span class="pre">Tensor3D.transform()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D"><code class="docutils literal notranslate"><span class="pre">Tensor2D</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.stiffness"><code class="docutils literal notranslate"><span class="pre">Tensor2D.stiffness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.compliance"><code class="docutils literal notranslate"><span class="pre">Tensor2D.compliance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.from_file"><code class="docutils literal notranslate"><span class="pre">Tensor2D.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.get_1D"><code class="docutils literal notranslate"><span class="pre">Tensor2D.get_1D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.get_pair"><code class="docutils literal notranslate"><span class="pre">Tensor2D.get_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.plot_2D"><code class="docutils literal notranslate"><span class="pre">Tensor2D.plot_2D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.Tensor2D.transform"><code class="docutils literal notranslate"><span class="pre">Tensor2D.transform()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.young"><code class="docutils literal notranslate"><span class="pre">young()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.comp"><code class="docutils literal notranslate"><span class="pre">comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.shear"><code class="docutils literal notranslate"><span class="pre">shear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.poisson"><code class="docutils literal notranslate"><span class="pre">poisson()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.tensor_from_file"><code class="docutils literal notranslate"><span class="pre">tensor_from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.voigt2cart"><code class="docutils literal notranslate"><span class="pre">voigt2cart()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.elastics.cart2voigt"><code class="docutils literal notranslate"><span class="pre">cart2voigt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.electronics">CRYSTALpytools.electronics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand"><code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand.from_file"><code class="docutils literal notranslate"><span class="pre">ElectronBand.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand.plot"><code class="docutils literal notranslate"><span class="pre">ElectronBand.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand.bandgap"><code class="docutils literal notranslate"><span class="pre">ElectronBand.bandgap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand.get_bandgap"><code class="docutils literal notranslate"><span class="pre">ElectronBand.get_bandgap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBand.to_pmg"><code class="docutils literal notranslate"><span class="pre">ElectronBand.to_pmg()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface"><code class="docutils literal notranslate"><span class="pre">FermiSurface</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface.from_file"><code class="docutils literal notranslate"><span class="pre">FermiSurface.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface.bandgap"><code class="docutils literal notranslate"><span class="pre">FermiSurface.bandgap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface.get_bandgap"><code class="docutils literal notranslate"><span class="pre">FermiSurface.get_bandgap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface.plot"><code class="docutils literal notranslate"><span class="pre">FermiSurface.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.FermiSurface.to_bxsf"><code class="docutils literal notranslate"><span class="pre">FermiSurface.to_bxsf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronDOS"><code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronDOS.from_file"><code class="docutils literal notranslate"><span class="pre">ElectronDOS.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronDOS.plot"><code class="docutils literal notranslate"><span class="pre">ElectronDOS.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBandDOS"><code class="docutils literal notranslate"><span class="pre">ElectronBandDOS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBandDOS.from_file"><code class="docutils literal notranslate"><span class="pre">ElectronBandDOS.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ElectronBandDOS.plot"><code class="docutils literal notranslate"><span class="pre">ElectronBandDOS.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity"><code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity.from_file"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity.substract"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.substract()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity.alpha_beta"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.alpha_beta()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity.plot_2D"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.plot_2D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.electronics.ChargeDensity.to_xsf"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.to_xsf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.execute">CRYSTALpytools.execute module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.execute.set_runcry_path"><code class="docutils literal notranslate"><span class="pre">set_runcry_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.execute.set_runprop_path"><code class="docutils literal notranslate"><span class="pre">set_runprop_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.execute.runcry"><code class="docutils literal notranslate"><span class="pre">runcry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.execute.runprop"><code class="docutils literal notranslate"><span class="pre">runprop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.geometry">CRYSTALpytools.geometry module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.Crystal_gui"><code class="docutils literal notranslate"><span class="pre">Crystal_gui</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.Crystal_gui.read_pmg"><code class="docutils literal notranslate"><span class="pre">Crystal_gui.read_pmg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.Crystal_gui.read_gui"><code class="docutils literal notranslate"><span class="pre">Crystal_gui.read_gui()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.Crystal_gui.write_gui"><code class="docutils literal notranslate"><span class="pre">Crystal_gui.write_gui()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure"><code class="docutils literal notranslate"><span class="pre">CStructure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.from_pmg"><code class="docutils literal notranslate"><span class="pre">CStructure.from_pmg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.ndimen"><code class="docutils literal notranslate"><span class="pre">CStructure.ndimen</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.species_symbol"><code class="docutils literal notranslate"><span class="pre">CStructure.species_symbol</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.species_Z"><code class="docutils literal notranslate"><span class="pre">CStructure.species_Z</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.crys_coords"><code class="docutils literal notranslate"><span class="pre">CStructure.crys_coords</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.standarize_pbc"><code class="docutils literal notranslate"><span class="pre">CStructure.standarize_pbc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.refine_geometry"><code class="docutils literal notranslate"><span class="pre">CStructure.refine_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.get_sg_symmops"><code class="docutils literal notranslate"><span class="pre">CStructure.get_sg_symmops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.get_pcel"><code class="docutils literal notranslate"><span class="pre">CStructure.get_pcel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.get_scel"><code class="docutils literal notranslate"><span class="pre">CStructure.get_scel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.rot_cel"><code class="docutils literal notranslate"><span class="pre">CStructure.rot_cel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.miller_norm"><code class="docutils literal notranslate"><span class="pre">CStructure.miller_norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CStructure.write_gui"><code class="docutils literal notranslate"><span class="pre">CStructure.write_gui()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.geometry.CMolecule"><code class="docutils literal notranslate"><span class="pre">CMolecule</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.phonons">CRYSTALpytools.phonons module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBand"><code class="docutils literal notranslate"><span class="pre">PhononBand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBand.from_file"><code class="docutils literal notranslate"><span class="pre">PhononBand.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBand.plot"><code class="docutils literal notranslate"><span class="pre">PhononBand.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononDOS"><code class="docutils literal notranslate"><span class="pre">PhononDOS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononDOS.from_file"><code class="docutils literal notranslate"><span class="pre">PhononDOS.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononDOS.plot"><code class="docutils literal notranslate"><span class="pre">PhononDOS.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBandDOS"><code class="docutils literal notranslate"><span class="pre">PhononBandDOS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBandDOS.from_file"><code class="docutils literal notranslate"><span class="pre">PhononBandDOS.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.phonons.PhononBandDOS.plot"><code class="docutils literal notranslate"><span class="pre">PhononBandDOS.plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.plot">CRYSTALpytools.plot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_ECHG"><code class="docutils literal notranslate"><span class="pre">plot_ECHG()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_relativistics2D"><code class="docutils literal notranslate"><span class="pre">plot_relativistics2D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_electron_bands"><code class="docutils literal notranslate"><span class="pre">plot_electron_bands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_electron_doss"><code class="docutils literal notranslate"><span class="pre">plot_electron_doss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_electron_banddos"><code class="docutils literal notranslate"><span class="pre">plot_electron_banddos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_topond2D"><code class="docutils literal notranslate"><span class="pre">plot_topond2D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_rholine"><code class="docutils literal notranslate"><span class="pre">plot_cry_rholine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_lapl_profile"><code class="docutils literal notranslate"><span class="pre">plot_cry_lapl_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_density_profile"><code class="docutils literal notranslate"><span class="pre">plot_cry_density_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_transport_tensor"><code class="docutils literal notranslate"><span class="pre">plot_transport_tensor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_elastics3D"><code class="docutils literal notranslate"><span class="pre">plot_elastics3D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_elastics2D"><code class="docutils literal notranslate"><span class="pre">plot_elastics2D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_phonon_bands"><code class="docutils literal notranslate"><span class="pre">plot_phonon_bands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_phonon_doss"><code class="docutils literal notranslate"><span class="pre">plot_phonon_doss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_phonon_banddos"><code class="docutils literal notranslate"><span class="pre">plot_phonon_banddos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_XRD"><code class="docutils literal notranslate"><span class="pre">plot_XRD()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_IR"><code class="docutils literal notranslate"><span class="pre">plot_IR()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_Raman"><code class="docutils literal notranslate"><span class="pre">plot_Raman()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_spec"><code class="docutils literal notranslate"><span class="pre">plot_cry_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_spec_multi"><code class="docutils literal notranslate"><span class="pre">plot_cry_spec_multi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_xrd"><code class="docutils literal notranslate"><span class="pre">plot_cry_xrd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_irspec"><code class="docutils literal notranslate"><span class="pre">plot_cry_irspec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_ramspec"><code class="docutils literal notranslate"><span class="pre">plot_cry_ramspec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_ela"><code class="docutils literal notranslate"><span class="pre">plot_cry_ela()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_vecfield2D_m"><code class="docutils literal notranslate"><span class="pre">plot_vecfield2D_m()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_vecfield2D_j"><code class="docutils literal notranslate"><span class="pre">plot_vecfield2D_j()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_vecfield2D_J"><code class="docutils literal notranslate"><span class="pre">plot_vecfield2D_J()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_electron_band"><code class="docutils literal notranslate"><span class="pre">plot_electron_band()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_band"><code class="docutils literal notranslate"><span class="pre">plot_cry_band()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_electron_dos"><code class="docutils literal notranslate"><span class="pre">plot_electron_dos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_doss"><code class="docutils literal notranslate"><span class="pre">plot_cry_doss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_es"><code class="docutils literal notranslate"><span class="pre">plot_cry_es()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_dens_ECHG"><code class="docutils literal notranslate"><span class="pre">plot_dens_ECHG()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_spin_ECHG"><code class="docutils literal notranslate"><span class="pre">plot_spin_ECHG()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_contour"><code class="docutils literal notranslate"><span class="pre">plot_cry_contour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_contour_differences"><code class="docutils literal notranslate"><span class="pre">plot_cry_contour_differences()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_seebeck_potential"><code class="docutils literal notranslate"><span class="pre">plot_cry_seebeck_potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_seebeck_carrier"><code class="docutils literal notranslate"><span class="pre">plot_cry_seebeck_carrier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_multiseebeck"><code class="docutils literal notranslate"><span class="pre">plot_cry_multiseebeck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_sigma_potential"><code class="docutils literal notranslate"><span class="pre">plot_cry_sigma_potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_sigma_carrier"><code class="docutils literal notranslate"><span class="pre">plot_cry_sigma_carrier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_multisigma"><code class="docutils literal notranslate"><span class="pre">plot_cry_multisigma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_powerfactor_potential"><code class="docutils literal notranslate"><span class="pre">plot_cry_powerfactor_potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_powerfactor_carrier"><code class="docutils literal notranslate"><span class="pre">plot_cry_powerfactor_carrier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.plot.plot_cry_zt"><code class="docutils literal notranslate"><span class="pre">plot_cry_zt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.relativistics">CRYSTALpytools.relativistics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.ChargeDensity"><code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.ChargeDensity.from_file"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.VectorField"><code class="docutils literal notranslate"><span class="pre">VectorField</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.VectorField.plot_2D"><code class="docutils literal notranslate"><span class="pre">VectorField.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.Magnetization"><code class="docutils literal notranslate"><span class="pre">Magnetization</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.Magnetization.from_file"><code class="docutils literal notranslate"><span class="pre">Magnetization.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.Magnetization.plot_2D"><code class="docutils literal notranslate"><span class="pre">Magnetization.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.OrbitalCurrentDensity"><code class="docutils literal notranslate"><span class="pre">OrbitalCurrentDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.OrbitalCurrentDensity.from_file"><code class="docutils literal notranslate"><span class="pre">OrbitalCurrentDensity.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.OrbitalCurrentDensity.plot_2D"><code class="docutils literal notranslate"><span class="pre">OrbitalCurrentDensity.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.SpinCurrentDensity"><code class="docutils literal notranslate"><span class="pre">SpinCurrentDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.SpinCurrentDensity.from_file"><code class="docutils literal notranslate"><span class="pre">SpinCurrentDensity.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.relativistics.SpinCurrentDensity.plot_2D"><code class="docutils literal notranslate"><span class="pre">SpinCurrentDensity.plot_2D()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.spectra">CRYSTALpytools.spectra module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.XRD"><code class="docutils literal notranslate"><span class="pre">XRD</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.XRD.from_file"><code class="docutils literal notranslate"><span class="pre">XRD.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.XRD.plot"><code class="docutils literal notranslate"><span class="pre">XRD.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.IR"><code class="docutils literal notranslate"><span class="pre">IR</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.IR.from_file"><code class="docutils literal notranslate"><span class="pre">IR.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.IR.plot"><code class="docutils literal notranslate"><span class="pre">IR.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.Raman"><code class="docutils literal notranslate"><span class="pre">Raman</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.Raman.from_file"><code class="docutils literal notranslate"><span class="pre">Raman.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.spectra.Raman.plot"><code class="docutils literal notranslate"><span class="pre">Raman.plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.thermodynamics">CRYSTALpytools.thermodynamics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode"><code class="docutils literal notranslate"><span class="pre">Mode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.get_zp_energy"><code class="docutils literal notranslate"><span class="pre">Mode.get_zp_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.get_u_vib"><code class="docutils literal notranslate"><span class="pre">Mode.get_u_vib()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.get_entropy"><code class="docutils literal notranslate"><span class="pre">Mode.get_entropy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.get_c_v"><code class="docutils literal notranslate"><span class="pre">Mode.get_c_v()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.polynomial_fit"><code class="docutils literal notranslate"><span class="pre">Mode.polynomial_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Mode.get_gruneisen"><code class="docutils literal notranslate"><span class="pre">Mode.get_gruneisen()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic"><code class="docutils literal notranslate"><span class="pre">Harmonic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic.from_file"><code class="docutils literal notranslate"><span class="pre">Harmonic.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic.from_phonopy"><code class="docutils literal notranslate"><span class="pre">Harmonic.from_phonopy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic.from_frequency"><code class="docutils literal notranslate"><span class="pre">Harmonic.from_frequency()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic.thermodynamics"><code class="docutils literal notranslate"><span class="pre">Harmonic.thermodynamics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Harmonic.write_HA_result"><code class="docutils literal notranslate"><span class="pre">Harmonic.write_HA_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_HA_files"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.from_HA_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_QHA_file"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.from_QHA_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_phonopy_files"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.from_phonopy_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_freq"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.thermo_freq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_gruneisen"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.thermo_gruneisen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_eos"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.thermo_eos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_vol"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.expansion_vol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.bulk_modulus"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.bulk_modulus()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.specific_heat"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.specific_heat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_lin"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.expansion_lin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.eos_fit"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.eos_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Quasi_harmonic.freq_polynomial_fit"><code class="docutils literal notranslate"><span class="pre">Quasi_harmonic.freq_polynomial_fit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Phonopy"><code class="docutils literal notranslate"><span class="pre">Phonopy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Phonopy.read_structure"><code class="docutils literal notranslate"><span class="pre">Phonopy.read_structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Phonopy.read_frequency"><code class="docutils literal notranslate"><span class="pre">Phonopy.read_frequency()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Phonopy.write_force_constants"><code class="docutils literal notranslate"><span class="pre">Phonopy.write_force_constants()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output"><code class="docutils literal notranslate"><span class="pre">Output</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_HA_result"><code class="docutils literal notranslate"><span class="pre">Output.write_HA_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_combinedata"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_combinedata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_sortphonon"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_sortphonon()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_eosfit"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_eosfit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_polyfit"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_polyfit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_thermofreq"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_thermofreq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_thermogru"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_thermogru()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_QHA_thermoeos"><code class="docutils literal notranslate"><span class="pre">Output.write_QHA_thermoeos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_expansion_vol"><code class="docutils literal notranslate"><span class="pre">Output.write_expansion_vol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_bulk_modulus"><code class="docutils literal notranslate"><span class="pre">Output.write_bulk_modulus()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_specific_heat"><code class="docutils literal notranslate"><span class="pre">Output.write_specific_heat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.thermodynamics.Output.write_expansion_latt"><code class="docutils literal notranslate"><span class="pre">Output.write_expansion_latt()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.topond">CRYSTALpytools.topond module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ScalarField"><code class="docutils literal notranslate"><span class="pre">ScalarField</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ScalarField.plot_2D"><code class="docutils literal notranslate"><span class="pre">ScalarField.plot_2D()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ScalarField.substract"><code class="docutils literal notranslate"><span class="pre">ScalarField.substract()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Trajectory.plot_2D"><code class="docutils literal notranslate"><span class="pre">Trajectory.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChargeDensity"><code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChargeDensity.from_file"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChargeDensity.plot_2D"><code class="docutils literal notranslate"><span class="pre">ChargeDensity.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.SpinDensity"><code class="docutils literal notranslate"><span class="pre">SpinDensity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.SpinDensity.from_file"><code class="docutils literal notranslate"><span class="pre">SpinDensity.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.SpinDensity.plot_2D"><code class="docutils literal notranslate"><span class="pre">SpinDensity.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Gradient"><code class="docutils literal notranslate"><span class="pre">Gradient</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Gradient.from_file"><code class="docutils literal notranslate"><span class="pre">Gradient.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Gradient.plot_2D"><code class="docutils literal notranslate"><span class="pre">Gradient.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Laplacian"><code class="docutils literal notranslate"><span class="pre">Laplacian</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Laplacian.from_file"><code class="docutils literal notranslate"><span class="pre">Laplacian.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.Laplacian.plot_2D"><code class="docutils literal notranslate"><span class="pre">Laplacian.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.HamiltonianKE"><code class="docutils literal notranslate"><span class="pre">HamiltonianKE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.HamiltonianKE.from_file"><code class="docutils literal notranslate"><span class="pre">HamiltonianKE.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.HamiltonianKE.plot_2D"><code class="docutils literal notranslate"><span class="pre">HamiltonianKE.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.LagrangianKE"><code class="docutils literal notranslate"><span class="pre">LagrangianKE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.LagrangianKE.from_file"><code class="docutils literal notranslate"><span class="pre">LagrangianKE.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.LagrangianKE.plot_2D"><code class="docutils literal notranslate"><span class="pre">LagrangianKE.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.VirialField"><code class="docutils literal notranslate"><span class="pre">VirialField</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.VirialField.from_file"><code class="docutils literal notranslate"><span class="pre">VirialField.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.VirialField.plot_2D"><code class="docutils literal notranslate"><span class="pre">VirialField.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ELF"><code class="docutils literal notranslate"><span class="pre">ELF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ELF.from_file"><code class="docutils literal notranslate"><span class="pre">ELF.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ELF.plot_2D"><code class="docutils literal notranslate"><span class="pre">ELF.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.GradientTraj"><code class="docutils literal notranslate"><span class="pre">GradientTraj</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.GradientTraj.from_file"><code class="docutils literal notranslate"><span class="pre">GradientTraj.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.GradientTraj.plot_2D"><code class="docutils literal notranslate"><span class="pre">GradientTraj.plot_2D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChemicalGraph"><code class="docutils literal notranslate"><span class="pre">ChemicalGraph</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChemicalGraph.from_file"><code class="docutils literal notranslate"><span class="pre">ChemicalGraph.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.topond.ChemicalGraph.plot_2D"><code class="docutils literal notranslate"><span class="pre">ChemicalGraph.plot_2D()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.transport">CRYSTALpytools.transport module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Tensor"><code class="docutils literal notranslate"><span class="pre">Tensor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Tensor.from_file"><code class="docutils literal notranslate"><span class="pre">Tensor.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Tensor.get_power_factor"><code class="docutils literal notranslate"><span class="pre">Tensor.get_power_factor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Tensor.get_zt"><code class="docutils literal notranslate"><span class="pre">Tensor.get_zt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Tensor.plot"><code class="docutils literal notranslate"><span class="pre">Tensor.plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Distribution"><code class="docutils literal notranslate"><span class="pre">Distribution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Distribution.from_file"><code class="docutils literal notranslate"><span class="pre">Distribution.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Kappa"><code class="docutils literal notranslate"><span class="pre">Kappa</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Kappa.from_file"><code class="docutils literal notranslate"><span class="pre">Kappa.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Sigma"><code class="docutils literal notranslate"><span class="pre">Sigma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Sigma.from_file"><code class="docutils literal notranslate"><span class="pre">Sigma.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Seebeck"><code class="docutils literal notranslate"><span class="pre">Seebeck</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.Seebeck.from_file"><code class="docutils literal notranslate"><span class="pre">Seebeck.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.SigmaS"><code class="docutils literal notranslate"><span class="pre">SigmaS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.SigmaS.from_file"><code class="docutils literal notranslate"><span class="pre">SigmaS.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.PowerFactor"><code class="docutils literal notranslate"><span class="pre">PowerFactor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.PowerFactor.from_file"><code class="docutils literal notranslate"><span class="pre">PowerFactor.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.ZT"><code class="docutils literal notranslate"><span class="pre">ZT</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.ZT.from_file"><code class="docutils literal notranslate"><span class="pre">ZT.from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.TDF"><code class="docutils literal notranslate"><span class="pre">TDF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.transport.TDF.from_file"><code class="docutils literal notranslate"><span class="pre">TDF.from_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.units">CRYSTALpytools.units module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.H_to_eV"><code class="docutils literal notranslate"><span class="pre">H_to_eV()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.eV_to_H"><code class="docutils literal notranslate"><span class="pre">eV_to_H()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.H_to_kjmol"><code class="docutils literal notranslate"><span class="pre">H_to_kjmol()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.kjmol_to_H"><code class="docutils literal notranslate"><span class="pre">kjmol_to_H()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.au_to_angstrom"><code class="docutils literal notranslate"><span class="pre">au_to_angstrom()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.angstrom_to_au"><code class="docutils literal notranslate"><span class="pre">angstrom_to_au()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.cm_to_thz"><code class="docutils literal notranslate"><span class="pre">cm_to_thz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.thz_to_cm"><code class="docutils literal notranslate"><span class="pre">thz_to_cm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.hartree_to_thz"><code class="docutils literal notranslate"><span class="pre">hartree_to_thz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.thz_to_hartree"><code class="docutils literal notranslate"><span class="pre">thz_to_hartree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.amu_to_me"><code class="docutils literal notranslate"><span class="pre">amu_to_me()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.me_to_amu"><code class="docutils literal notranslate"><span class="pre">me_to_amu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.GPa_to_au"><code class="docutils literal notranslate"><span class="pre">GPa_to_au()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.au_to_GPa"><code class="docutils literal notranslate"><span class="pre">au_to_GPa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.ampere_to_au"><code class="docutils literal notranslate"><span class="pre">ampere_to_au()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.units.au_to_ampere"><code class="docutils literal notranslate"><span class="pre">au_to_ampere()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools.utils">CRYSTALpytools.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.utils.help"><code class="docutils literal notranslate"><span class="pre">help()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="CRYSTALpytools.html#CRYSTALpytools.utils.view_pmg"><code class="docutils literal notranslate"><span class="pre">view_pmg()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CRYSTALpytools.html#module-CRYSTALpytools">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,892 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.elastics module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.elastics.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.electronics module" href="crystalpytools.electronics.html" />
+    <link rel="prev" title="CRYSTALpytools.crystal_io module" href="crystalpytools.crystal_io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.elastics module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.elastics.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-elastics-module">
+<h1>CRYSTALpytools.elastics module<a class="headerlink" href="#crystalpytools-elastics-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.elastics"><span id="ref-elastics"></span>The module for 3D / 2D elastic properties.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tensor3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compliance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>3D elastic tensor and related properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>numpy.ndarray</em>) – 6*6 compliance or stiffness matrix. Unit: GPa <span class="math notranslate nohighlight">\(^{-1}\)</span> or GPa.</p></li>
+<li><p><strong>lattice</strong> (<em>numpy.ndarray</em>) – lattice matrix.</p></li>
+<li><p><strong>is_compliance</strong> (<em>bool</em>) – Compliance or stiffness matrix used as input.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.stiffness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stiffness</span></span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.stiffness" title="Link to this definition"></a></dt>
+<dd><p>GPa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>6*6 stiffness matrix in Voigt annotation. Unit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.compliance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compliance</span></span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.compliance" title="Link to this definition"></a></dt>
+<dd><p>GPa <span class="math notranslate nohighlight">\(^{-1}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>6*6 compliance matrix in Voigt annotation. Unit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conventional_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read elastic tensor from CRYSTAL output file and generate <code class="docutils literal notranslate"><span class="pre">Tensor3D</span></code>
+object. Calls the <code class="docutils literal notranslate"><span class="pre">crystal_io.Crystal_output.get_elatensor()</span></code> method.
+Lattice information is obtained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>str</em>) – CRYSTAL output file.</p></li>
+<li><p><strong>conventional_lattice</strong> (<em>bool</em>) – Get conventional lattice.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Tensor3D</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.get_1D">
+<span class="sig-name descname"><span class="pre">get_1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.get_1D" title="Link to this definition"></a></dt>
+<dd><p>Compute properties along the given vector. Available properties are
+defined by the <code class="docutils literal notranslate"><span class="pre">property</span></code> variable. To get shear modulus / Poisson
+ratio of 2 specified vectors, use <code class="docutils literal notranslate"><span class="pre">get_pair</span></code>.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“young”: Young’s modulus in GPa.</p></li>
+<li><p>“comp”: Linear compressibility.</p></li>
+<li><p>“shear”: Shear modulus on the ‘loop’ normal to vector, in GPa.</p></li>
+<li><p>“shear avg”: Averaged shear modulus on the ‘loop’, in GPa.</p></li>
+<li><p>“shear min”: Minimum shear modulus on the ‘loop’, in GPa.</p></li>
+<li><p>“shear max”: Maximum shear modulus on the ‘loop’, in GPa.</p></li>
+<li><p>“poisson”: Poisson ratio on the ‘loop’ normal to vector.</p></li>
+<li><p>“poisson avg”: Averaged Poisson ratio on the ‘loop’.</p></li>
+<li><p>“poisson min”: Minimum Poisson ratio on the ‘loop’.</p></li>
+<li><p>“poisson max”: Maximum Poisson ratio on the ‘loop’.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em>) – Property to compute. See options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 3*1 or nu*3 array of vectors.</p></li>
+<li><p><strong>nchi</strong> (<em>int</em>) – Resolution of auxiliary angle <span class="math notranslate nohighlight">\(\chi\)</span>, in radian
+<span class="math notranslate nohighlight">\([0, 2\pi)\)</span>. Shear modulus and Poisson ratio only.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> (<em>float | numpy.ndarray</em>) – float or nu*1, some sort of property.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.get_pair">
+<span class="sig-name descname"><span class="pre">get_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.get_pair" title="Link to this definition"></a></dt>
+<dd><p>Compute properties between given pairs of vectors. Used for shear
+modulus and Poisson ratio. For properties along the normal vector, use
+<code class="docutils literal notranslate"><span class="pre">get_1D</span></code>.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“shear”: Shear modulus between <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>, in GPa.</p></li>
+<li><p>“poisson”: Poisson ratio between <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em>) – Property to compute. See options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 3*1 or nu*3 array of vector 1.</p></li>
+<li><p><strong>v</strong> (<em>numpy.ndarray</em>) – 3*1 or nu*3 array of vector 2.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> (<em>float | numpy.ndarray</em>) – float or nu*1, some sort of property.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane_definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'miller'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D crystal elastic properties across the given plane. The plane is
+defined by any of the following methods:</p>
+<ul class="simple">
+<li><p>‘miller’: Miller indices.</p></li>
+<li><p>‘cartesian’: The plane normal vector in Cartesian coordinates.</p></li>
+<li><p>‘fractional’: The plane normal vector in fractional coordinates.</p></li>
+</ul>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“young”: Young’s modulus in GPa.</p></li>
+<li><p>“comp”: Linear compressibility.</p></li>
+<li><p>“shear”: Shear modulus in the plane, in GPa.</p></li>
+<li><p>“shear avg”: Averaged shear modulus of vectors in the plane, in GPa.</p></li>
+<li><p>“shear min”: Minimum shear modulus of vectors in the plane, in GPa.</p></li>
+<li><p>“shear max”: Maximum shear modulus of vectors in the plane, in GPa.</p></li>
+<li><p>“poisson”: Poisson ratio in the plane.</p></li>
+<li><p>“poisson avg”: Averaged Poisson ratio of vectors in the plane.</p></li>
+<li><p>“poisson min”: Minimum Poisson ratio of vectors in the plane.</p></li>
+<li><p>“poisson max”: Maximum Poisson ratio of vectors in the plane.</p></li>
+</ul>
+<p>This method can be used for multi-plane, multi-property plots. The same
+scale is enforced for subplots of the same property. Subplot titles are
+added automatically. The layout of subplots is, by default,
+nProp*nPlane or 1*nProp, which is not editable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em><em>|</em><em>list</em>) – Property(ies) to compute. See options above.</p></li>
+<li><p><strong>plane</strong> (<em>numpy.ndarray</em>) – 3*1 or nplane*3 array of planes.</p></li>
+<li><p><strong>ntheta</strong> (<em>int</em>) – Resolution of azimuth angle <span class="math notranslate nohighlight">\(\theta\)</span> on plane,
+in radian <span class="math notranslate nohighlight">\([0, 2\pi)\)</span>.</p></li>
+<li><p><strong>nchi</strong> (<em>int</em>) – Resolution of auxiliary angle  <span class="math notranslate nohighlight">\(\chi\)</span>, in radian
+<span class="math notranslate nohighlight">\([0, 2\pi)\)</span>. Shear modulus and Poisson ratio only.</p></li>
+<li><p><strong>plane_definition</strong> (<em>str</em>) – The method used to define the plane. See
+options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 3*1 or nu*3 array of vectors to be added into
+the figure. A line segment with doubled radius is plotted to
+indicate the vector. Or ‘max’ / ‘min’ / ‘bothends’, plot
+vectors corresponding to the max and min of elastic properties.
+For ‘bothends’, min first.</p></li>
+<li><p><strong>utext</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em>) – A string or a list of string. Used to mark
+The vector. If <code class="docutils literal notranslate"><span class="pre">None</span></code> or ‘value’, the value is annotated.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+<li><p><strong>plot_lattice</strong> (<em>bool</em>) – Draw lattice base vectors to indicate
+orientation of the plane.</p></li>
+<li><p><strong>loop_color</strong> (<em>str</em><em>|</em><em>list</em>) – Color of 2D loops. If only one string is
+given, apply it to all loops. ‘None’ for default values
+(matplotlib Tableau Palette).</p></li>
+<li><p><strong>loop_linestyle</strong> (<em>str</em><em>|</em><em>list</em>) – Linestyle of 2D loops. If only one
+string is given, apply it to all plots. ‘None’ for default
+values (‘-‘).</p></li>
+<li><p><strong>loop_linewidth</strong> (<em>str</em><em>|</em><em>list</em>) – Linewidth of band structure. If only one
+number is given, apply it to all plots. For the ‘multi’ mode,
+1*nSystem list of linewidth numbers. ‘None’ for default values
+(1.0).</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – The figure size specified as [width, height].</p></li>
+<li><p><strong>get_data</strong> (<em>bool</em>) – <em>Developer only</em> Return data or figure.</p></li>
+<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">PolarAxes.plot</span></code> to customize
+the loops. Applied to all the loops.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib <code class="docutils literal notranslate"><span class="pre">Figure</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.plot_3D">
+<span class="sig-name descname"><span class="pre">plot_3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nphi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_cbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_lib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matplotlib'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.plot_3D" title="Link to this definition"></a></dt>
+<dd><p>Plot 3D crystal elastic properties on the basis of the elastic tensor.
+The 3D surface is colored by the elastic property.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“young”: Young’s modulus in GPa.</p></li>
+<li><p>“comp”: Linear compressibility.</p></li>
+<li><p>“shear avg”: Averaged shear modulus in the normal plane, in GPa.</p></li>
+<li><p>“shear min”: Minimum shear modulus in the normal plane, in GPa.</p></li>
+<li><p>“shear max”: Maximum shear modulus in the normal plane, in GPa.</p></li>
+<li><p>“poisson avg”: Averaged Poisson ratio in the normal plane.</p></li>
+<li><p>“poisson min”: Minimum Poisson ratio in the normal plane.</p></li>
+<li><p>“poisson max”: Maximum Poisson ratio in the normal plane.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em>) – Property to compute. See options above.</p></li>
+<li><p><strong>nphi</strong> (<em>int</em>) – Resolution of azimuth angle <span class="math notranslate nohighlight">\(\phi\)</span> on xy plane,
+in radian <span class="math notranslate nohighlight">\([0, 2\pi)\)</span>.</p></li>
+<li><p><strong>ntheta</strong> (<em>int</em>) – Resolution of polar angle <span class="math notranslate nohighlight">\(\theta\)</span> in radian
+<span class="math notranslate nohighlight">\([0, 2\pi)\)</span>. In practice only half of the points defined
+in <span class="math notranslate nohighlight">\([0, \pi)\)</span> are used.</p></li>
+<li><p><strong>nchi</strong> (<em>int</em>) – Resolution of auxiliary angle  <span class="math notranslate nohighlight">\(\chi\)</span>, in radian
+<span class="math notranslate nohighlight">\([0, 2\pi)\)</span>. Shear modulus and Poisson ratio only.</p></li>
+<li><p><strong>scale_radius</strong> (<em>bool</em>) – To scale the radius by values of the elastic
+property, or plot a sphere with radius = 1.</p></li>
+<li><p><strong>range_cbar</strong> (<em>list</em><em>[</em><em>float</em><em>,</em><em>float</em><em>]</em>) – <em>Not
+suggested</em> Explicitly specifying the ranges of colorbar, x, y
+and z axes.</p></li>
+<li><p><strong>range_x</strong> (<em>list</em><em>[</em><em>float</em><em>,</em><em>float</em><em>]</em>) – <em>Not
+suggested</em> Explicitly specifying the ranges of colorbar, x, y
+and z axes.</p></li>
+<li><p><strong>range_y</strong> (<em>list</em><em>[</em><em>float</em><em>,</em><em>float</em><em>]</em>) – <em>Not
+suggested</em> Explicitly specifying the ranges of colorbar, x, y
+and z axes.</p></li>
+<li><p><strong>range_z</strong> (<em>list</em><em>[</em><em>float</em><em>,</em><em>float</em><em>]</em>) – <em>Not
+suggested</em> Explicitly specifying the ranges of colorbar, x, y
+and z axes.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 3*1 or nu*3 array of vectors to be added into
+the figure. A line segment with doubled radius is plotted to
+indicate the vector. Or ‘max’ / ‘min’ / ‘bothends’, plot
+vectors corresponding to the max and min of elastic properties.
+For ‘bothends’, min first.</p></li>
+<li><p><strong>utext</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em>) – A string or a list of string. Used to mark
+the vector. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input <code class="docutils literal notranslate"><span class="pre">u</span></code> and the corresponding
+value is annotated. If ‘value’, the value is annotated.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+<li><p><strong>plot_lattice</strong> (<em>bool</em>) – Draw the lattice box around the 3D surface.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Colormap name.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Figure size in inches. For plotly, 300 ppi is
+assumed.</p></li>
+<li><p><strong>plot_lib</strong> (<em>bool</em>) – ‘matplotlib’ or ‘plotly’. By default use
+<a class="reference external" href="https://matplotlib.org/">matplotlib</a>. Alternatively use
+<a class="reference external" href="https://plotly.com/">plotly</a> to enable interactive
+inspections in Jupyter Notebook.</p></li>
+<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">Axes3D.view_init</span></code> (matplotlib)
+or <code class="docutils literal notranslate"><span class="pre">fig.update_layout()</span></code> (plotly). Only camera position
+keywords are suggested.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib or plotly <code class="docutils literal notranslate"><span class="pre">Figure</span></code> object. It <code class="docutils literal notranslate"><span class="pre">axes</span></code>
+is a 2*1 list of matplotlib <code class="docutils literal notranslate"><span class="pre">Axis</span></code> object. The first element
+is the axis of colorbar. The second is the axis of 3D surface.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> if <code class="docutils literal notranslate"><span class="pre">plot_lib</span> <span class="pre">=</span> <span class="pre">'plotly'</span></code>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using <code class="docutils literal notranslate"><span class="pre">u='max'</span></code>, only one vector will be plotted if the same
+value is repeated along different directions. Same for <code class="docutils literal notranslate"><span class="pre">min</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bothends</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor3D.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_lattice</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor3D.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform (rotate) the lattice and change matrix elements. Useful when
+lattice information is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_lattice</strong> (<em>numpy.ndarray</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Tensor3D</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tensor2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compliance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>2D elastic tensor and related properties. Periodic boundary conditions are
+consistent with CRYSTAL definitions, i.e., xy-periodic and slab vertical to
+z. Basic units: GPa, m</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>numpy.ndarray</em>) – 3*3 compliance or stiffness matrix.</p></li>
+<li><p><strong>lattice</strong> (<em>numpy.ndarray</em>) – 2*2 lattice matrix.</p></li>
+<li><p><strong>is_compliance</strong> (<em>bool</em>) – Compliance or stiffness matrix used as input.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.stiffness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stiffness</span></span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.stiffness" title="Link to this definition"></a></dt>
+<dd><p>GPa, m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3*3 stiffness matrix in Voigt annotation. Basic units</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.compliance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compliance</span></span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.compliance" title="Link to this definition"></a></dt>
+<dd><p>GPa, m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3*3 compliance matrix in Voigt annotation. Basic units</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read elastic tensor from CRYSTAL output file and generate <code class="docutils literal notranslate"><span class="pre">Tensor2D</span></code>
+object. Calls the <code class="docutils literal notranslate"><span class="pre">crystal_io.Crystal_output.get_elatensor()</span></code> method.
+Lattice information is obtained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>str</em>) – CRYSTAL output file.</p></li>
+<li><p><strong>thickness</strong> (<em>float</em>) – Effective thickness of low dimensional materials,
+in <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Tensor2D</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.get_1D">
+<span class="sig-name descname"><span class="pre">get_1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.get_1D" title="Link to this definition"></a></dt>
+<dd><p>Compute properties along the given vector. Available properties are
+defined by the <code class="docutils literal notranslate"><span class="pre">property</span></code> variable. To get shear modulus / Poisson
+ratio of 2 specified vectors, use <code class="docutils literal notranslate"><span class="pre">get_pair</span></code>.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“young”: Young’s modulus in GPa.</p></li>
+<li><p>“comp”: Linear compressibility.</p></li>
+<li><p>“shear”: Shear modulus between the vector and its normal vector in plane, in GPa.</p></li>
+<li><p>“poisson”: Poisson ratio between the vector and its normal vector in plane.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em>) – Property to compute. See options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 2*1 or nu*2 array of vectors.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> (<em>float | numpy.ndarray</em>) – float or nu*1, some sort of property.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.get_pair">
+<span class="sig-name descname"><span class="pre">get_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.get_pair" title="Link to this definition"></a></dt>
+<dd><p>Compute properties between given pairs of in-plane vectors. Used for
+shear modulus and Poisson ratio. For properties along 1 given vector,
+use <code class="docutils literal notranslate"><span class="pre">get_1D</span></code>.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“shear”: Shear modulus between in-plane <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>, in GPa.</p></li>
+<li><p>“poisson”: Poisson ratio between in-plane <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em>) – Property to compute. See options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 2*1 or nu*2 array of vector 1.</p></li>
+<li><p><strong>v</strong> (<em>numpy.ndarray</em>) – 2*1 or nu*2 array of vector 2.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> (<em>float | numpy.ndarray</em>) – float or nu*1, some sort of property.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D crystal elastic properties of the system.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p>“young”: Young’s modulus in GPa.</p></li>
+<li><p>“comp”: Linear compressibility.</p></li>
+<li><p>“shear”: In-plane shear modulus between 2 vectors in the plane, in GPa.</p></li>
+<li><p>“poisson”: In-plane Poisson ratio between 2 vectors in the plane.</p></li>
+</ul>
+<p>This method can be used for multi-property plots. Subplot titles are
+added automatically. The layout of subplots is, by default, 1*nProp.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">u</span></code> is defined by 2D vectors.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<em>str</em><em>|</em><em>list</em>) – Property(ies) to compute. See options above.</p></li>
+<li><p><strong>plane</strong> (<em>numpy.ndarray</em>) – 3*1 or nplane*3 array of planes.</p></li>
+<li><p><strong>ntheta</strong> (<em>int</em>) – Resolution of azimuth angle <span class="math notranslate nohighlight">\(\theta\)</span> on plane,
+in radian <span class="math notranslate nohighlight">\([0, 2\pi)\)</span>.</p></li>
+<li><p><strong>nchi</strong> (<em>int</em>) – Resolution of auxiliary angle  <span class="math notranslate nohighlight">\(\chi\)</span>, in radian
+<span class="math notranslate nohighlight">\([0, 2\pi)\)</span>. Shear modulus and Poisson ratio only.</p></li>
+<li><p><strong>plane_definition</strong> (<em>str</em>) – The method used to define the plane. See
+options above.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – 2*1 or nu*2 array of vectors to be added into
+the figure. A line segment with doubled radius is plotted to
+indicate the vector. Or ‘max’ / ‘min’ / ‘bothends’, plot
+vectors corresponding to the max and min of elastic properties.
+For ‘bothends’, min first.</p></li>
+<li><p><strong>utext</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em>) – A string or a list of string. Used to mark
+The vector. If <code class="docutils literal notranslate"><span class="pre">None</span></code> or ‘value’, the value is annotated.</p></li>
+<li><p><strong>use_cartesian</strong> (<em>bool</em>) – Vector is defined as cartesian or fractional
+coordinates. (<em>Only when lattice information is available</em>.)</p></li>
+<li><p><strong>plot_lattice</strong> (<em>bool</em>) – Draw lattice base vectors to indicate
+orientation of the plane.</p></li>
+<li><p><strong>loop_color</strong> (<em>str</em><em>|</em><em>list</em>) – Color of 2D loops. If only one string is
+given, apply it to all loops. ‘None’ for default values
+(matplotlib Tableau Palette).</p></li>
+<li><p><strong>loop_linestyle</strong> (<em>str</em><em>|</em><em>list</em>) – Linestyle of 2D loops. If only one
+string is given, apply it to all plots. ‘None’ for default
+values (‘-‘).</p></li>
+<li><p><strong>loop_linewidth</strong> (<em>str</em><em>|</em><em>list</em>) – Linewidth of band structure. If only one
+number is given, apply it to all plots. For the ‘multi’ mode,
+1*nSystem list of linewidth numbers. ‘None’ for default values
+(1.0).</p></li>
+<li><p><strong>layout</strong> (<em>list</em><em>|</em><em>tuple</em>) – 2*1 list. The layout of subplots. The first
+element is nrows, the second is ncolumns. By default, 1*nProp.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – The figure size specified as [width, height].</p></li>
+<li><p><strong>get_data</strong> (<em>bool</em>) – <em>Developer only</em> Return data or figure.</p></li>
+<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">PolarAxes.plot</span></code> to customize
+the loops. Applied to all the loops.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib <code class="docutils literal notranslate"><span class="pre">Figure</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.Tensor2D.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_lattice</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.Tensor2D.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform (rotate) the lattice and change matrix elements. Useful when
+lattice information is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_lattice</strong> (<em>numpy.ndarray</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Tensor2D</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.young">
+<span class="sig-name descname"><span class="pre">young</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndimen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.young" title="Link to this definition"></a></dt>
+<dd><p>The equation of Young’s modulus. Using <code class="docutils literal notranslate"><span class="pre">Tensor*</span></code> objects is recommended.</p>
+<div class="math notranslate nohighlight">
+\[E = \frac{1}{u_{i}u_{j}u_{k}u_{l}S_{ijkl}}\]</div>
+<p>Einstein’s notation is used. <span class="math notranslate nohighlight">\(i,j,k,l=1,ndimen; j&gt;i; l&gt;k\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – ndimen*ndimen*ndimen*ndimen compliance matrix in
+Cartesian form. Base units: GPa, m.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – nu*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>ndimen</strong> (<em>int</em>) – Dimensionality, either 2 or 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> (<em>numpy.ndarray</em>) – nu*1 Youngs’s modulus. Base units: GPa, m.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.comp">
+<span class="sig-name descname"><span class="pre">comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndimen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.comp" title="Link to this definition"></a></dt>
+<dd><p>The equation of linear compressibility. Using <code class="docutils literal notranslate"><span class="pre">Tensor*</span></code> objects is recommended.</p>
+<div class="math notranslate nohighlight">
+\[\beta = u_{i}u_{j}S_{ijkk}\]</div>
+<p>Einstein’s notation is used. <span class="math notranslate nohighlight">\(i,j,k=1,ndimen; j&gt;i\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – ndimen*ndimen*ndimen*ndimen compliance matrix in
+Cartesian form. Base units: GPa, m.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – nu*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>ndimen</strong> (<em>int</em>) – Dimensionality, either 2 or 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>beta</strong> (<em>numpy.ndarray</em>) – nu*1 Linear compressibility.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.shear">
+<span class="sig-name descname"><span class="pre">shear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndimen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.shear" title="Link to this definition"></a></dt>
+<dd><p>The equation of shear modulus. Using <code class="docutils literal notranslate"><span class="pre">Tensor*</span></code> objects is recommended.</p>
+<div class="math notranslate nohighlight">
+\[G = \frac{1}{u_{i}v_{j}u_{k}v_{l}S_{ijkl}}\]</div>
+<p>Einstein’s notation is used. <span class="math notranslate nohighlight">\(i,j,k,l=1,ndimen\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – ndimen*ndimen*ndimen*ndimen compliance matrix in
+Cartesian form. Base units: GPa, m.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – nu*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>v</strong> (<em>numpy.ndarray</em>) – nu*nv*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>ndimen</strong> (<em>int</em>) – Dimensionality, either 2 or 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>g</strong> (<em>numpy.ndarray</em>) – nu*nv Shear modulus. Base units: GPa, m.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.poisson">
+<span class="sig-name descname"><span class="pre">poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndimen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.poisson" title="Link to this definition"></a></dt>
+<dd><p>The equation of Poisson ratio. Using <code class="docutils literal notranslate"><span class="pre">Tensor*</span></code> objects is recommended.</p>
+<div class="math notranslate nohighlight">
+\[\nu = -\frac{u_{i}u_{j}v_{k}v_{l}S_{ijkl}}{u_{i}u_{j}u_{k}u_{l}S_{ijkl}}\]</div>
+<p>Einstein’s notation is used. <span class="math notranslate nohighlight">\(i,j,k=1,ndimen; j&gt;i\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>numpy.ndarray</em>) – ndimen*ndimen*ndimen*ndimen compliance matrix in
+Cartesian form. Base units: GPa, m.</p></li>
+<li><p><strong>u</strong> (<em>numpy.ndarray</em>) – nu*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>v</strong> (<em>numpy.ndarray</em>) – nu*nv*ndimen array. Must be normalized Cartesian
+vectors.</p></li>
+<li><p><strong>ndimen</strong> (<em>int</em>) – Dimensionality, either 2 or 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>nu</strong> (<em>numpy.ndarray</em>) – nu*nv Poisson ratio.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.tensor_from_file">
+<span class="sig-name descname"><span class="pre">tensor_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conventional_lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">thickness</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.tensor_from_file" title="Link to this definition"></a></dt>
+<dd><p>A wrapper function to get tensor objects of corresponding dimensionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>str</em>) – CRYSTAL output file.</p></li>
+<li><p><strong>conventional_lattice</strong> (<em>bool</em>) – 3D only. Get conventional lattice.</p></li>
+<li><p><strong>thickness</strong> (<em>float</em>) – 2D only. Effective thickness of low dimensional
+materials, in <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>t</strong> (<em>Tensor3D | Tensor2D</em>) – Tensor objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.voigt2cart">
+<span class="sig-name descname"><span class="pre">voigt2cart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.voigt2cart" title="Link to this definition"></a></dt>
+<dd><p>Convert stiffness / compliance matrix in Voigt representation into
+Cartesian representation. For 3D: 6*6 to 3*3*3*3. For 2D: 3*3 to
+2*2*2*2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>V</strong> (<em>numpy.ndarray</em>) – Voigt represented matrix.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>C</strong> (<em>numpy.ndarray</em>) – Cartesian represented matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.elastics.cart2voigt">
+<span class="sig-name descname"><span class="pre">cart2voigt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.elastics.cart2voigt" title="Link to this definition"></a></dt>
+<dd><p>Convert 3*3*3*3  stiffness / compliance matrix in Cartesian
+representation into 6*6 Voigt representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>C</strong> (<em>numpy.ndarray</em>) – Cartesian represented matrix.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>V</strong> (<em>numpy.ndarray</em>) – Voigt represented matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.crystal_io.html" class="btn btn-neutral float-left" title="CRYSTALpytools.crystal_io module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.electronics.html" class="btn btn-neutral float-right" title="CRYSTALpytools.electronics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

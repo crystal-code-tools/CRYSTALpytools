@@ -1,0 +1,1475 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.base.crysd12 module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.crysd12.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.base.extfmt module" href="crystalpytools.base.extfmt.html" />
+    <link rel="prev" title="CRYSTALpytools.base.basisset module" href="crystalpytools.base.basisset.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.base.crysd12 module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.base.crysd12.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-base-crysd12-module">
+<h1>CRYSTALpytools.base.crysd12 module<a class="headerlink" href="#crystalpytools-base-crysd12-module" title="Link to this heading"></a></h1>
+<p id="ref-base-crysd12">The <code class="docutils literal notranslate"><span class="pre">Crystal_inputBASE</span></code> object is strictly structured by ‘blocks’, which, in general, is defined as keywords that are closed by ‘END’. It is inherited from the <a class="reference internal" href="crystalpytools.base.inputbase.html#ref-base-inputbase"><span class="std std-ref">BlockBASE</span></a> object and is inherited by the <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Crystal_input</span></a> object. All the blocks are organized in layers and each corresponds to a list of keywords that can be called and set. The current structure of <code class="docutils literal notranslate"><span class="pre">Crystal_inputBASE</span></code> is listed below:</p>
+<p>Layer 1: <code class="docutils literal notranslate"><span class="pre">geom</span></code>, <code class="docutils literal notranslate"><span class="pre">basisset</span></code>, <code class="docutils literal notranslate"><span class="pre">scf</span></code></p>
+<p>Layer 2: <code class="docutils literal notranslate"><span class="pre">optgeom</span></code>, <code class="docutils literal notranslate"><span class="pre">freqcalc</span></code>, <code class="docutils literal notranslate"><span class="pre">hf3c</span></code>, <code class="docutils literal notranslate"><span class="pre">hfsol3c</span></code>, <code class="docutils literal notranslate"><span class="pre">dft</span></code>, <code class="docutils literal notranslate"><span class="pre">dftd3</span></code>, <code class="docutils literal notranslate"><span class="pre">gcp</span></code>, <code class="docutils literal notranslate"><span class="pre">geom</span></code>, <code class="docutils literal notranslate"><span class="pre">base</span></code>, <code class="docutils literal notranslate"><span class="pre">geba</span></code></p>
+<p>Layer 3: <code class="docutils literal notranslate"><span class="pre">preoptgeom</span></code></p>
+<p>For the usages of <a class="reference internal" href="crystalpytools.base.inputbase.html#ref-base-inputbase"><span class="std std-ref">BlockBASE</span></a> and <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Crystal_input</span></a> objects, please refer to the corresponding documentations.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>Note that methods listed below are for <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Crystal_input</span></a> objects, which is typically consistent with <code class="docutils literal notranslate"><span class="pre">Crystal_inputBASE</span></code>, except file read and write functions.</p>
+<p>To set force convergence threshold of a optimization run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Crystal_input</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">optgeom</span><span class="o">.</span><span class="n">toldeg</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By calling the ‘block-like’ attribute, a sub-block object will be automatically generated if no such object is saved in the upper block object. It also be initialized and deleted in a similar way as keyword commands.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Crystal_input</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">optgeom</span><span class="p">()</span> <span class="c1"># Initialize OPTGEOM</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">optgeom</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># Remove OPTGEOM</span>
+</pre></div>
+</div>
+<p>To set the values of keywords, their names are called as methods with a really rare exception (1 so far):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">freqcalc</span><span class="o">.</span><span class="n">preoptgeom</span><span class="p">()</span> <span class="c1"># Initialize PREOPTGEOM</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">freqcalc</span><span class="o">.</span><span class="n">preoptgeom</span><span class="o">.</span><span class="n">toldeg</span><span class="p">(</span><span class="mf">0.0003</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">toldee</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="c1"># Set SCF TOLDEE = 9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">toldee</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># Clean the TOLDEE keyword and value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">ppan</span><span class="p">()</span> <span class="c1"># Print PPAN keyword, without value</span>
+</pre></div>
+</div>
+<p>The only exception is given below. However, when doing text analysis and printing formatted string to files, the correct keyword is recognized and printed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">molecule2</span><span class="p">()</span> <span class="c1"># MOLECULE keyword to extract molecule from lattice. Renamed to address the conflict with modelling keyword MOLECULE</span>
+</pre></div>
+</div>
+<p>Though one can set CRYSTAL input object by manually setting up all the attributes, it is also possible to read a template d12 file and do modifications.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Crystal_input</span><span class="p">(</span><span class="s1">&#39;opt.d12&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">optgeom</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># Remove OPTGEOM block</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;scf.d12&#39;</span><span class="p">)</span> <span class="c1"># Print it into file</span>
+</pre></div>
+</div>
+<p>It is also possible to set individual blocks by a string. This is achieved by simply assigning the string variable as input when calling the corresponding method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">dft</span><span class="p">(</span><span class="s1">&#39;SPIN</span><span class="se">\n</span><span class="s1">EXCHANGE</span><span class="se">\n</span><span class="s1">PBE</span><span class="se">\n</span><span class="s1">CORRELAT</span><span class="se">\n</span><span class="s1">P86</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For basis set, it is not a typical <code class="docutils literal notranslate"><span class="pre">BlockBASE</span></code> object (though it inherits <code class="docutils literal notranslate"><span class="pre">BlockBASE</span></code>). When ‘BASISSET’ keyword is used, it is called in the same way as other blocks. When explicit definitions of basis set are used, it can be defined via formatted string, file, <a class="reference external" href="https://molssi-bse.github.io/basis_set_exchange/index.html">Basis Set Exchange (BSE)</a> and <a class="reference internal" href="crystalpytools.base.basisset.html#ref-base-basisset"><span class="std std-ref">BasisSetBASE</span></a> object. The ending line ‘99 0’ is required.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">basisset</span><span class="o">.</span><span class="n">basisset</span><span class="p">(</span><span class="s1">&#39;def2-SVP&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">basisset</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;mybasis.txt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">basisset</span><span class="o">.</span><span class="n">from_bse</span><span class="p">(</span><span class="s1">&#39;6-311G*&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span> <span class="c1"># conventional atomic numbers are supported.</span>
+</pre></div>
+</div>
+<p>Wrapper methods (<code class="docutils literal notranslate"><span class="pre">bs_user()</span></code> and <code class="docutils literal notranslate"><span class="pre">bs_keyword()</span></code>) are added in <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Crystal_input</span></a>. For details please checkt the manual <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">there</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">bs_keyword</span><span class="p">(</span><span class="s1">&#39;def2-SVP&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">bs_user</span><span class="p">(</span><span class="s1">&#39;mybasis.txt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">bs_user</span><span class="p">(</span><span class="s1">&#39;6-311G*&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span> <span class="c1"># bs_user accepts file, string and BSE variables</span>
+</pre></div>
+</div>
+<p>To examine the data in a block object, including the <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Crystal_input</span></a> obj itself, call the <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p id="module-CRYSTALpytools.base.crysd12">Classes and methods of keywords used in ‘crystal’ input file (d12).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_inputBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>The base class of Crystal_input class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geba</strong> (<em>bool</em>) – Whether it is a normal d12 object or a GEBA subblock</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE.geom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE.geom" title="Link to this definition"></a></dt>
+<dd><p>Geometry subblock</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE.basisset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basisset</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE.basisset" title="Link to this definition"></a></dt>
+<dd><p>Basis set subblock</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE.scf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scf</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE.scf" title="Link to this definition"></a></dt>
+<dd><p>SCF subblock</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE.data" title="Link to this definition"></a></dt>
+<dd><p>Settings in all the attributes are summarized here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Crystal_inputBASE.analyze_text">
+<span class="sig-name descname"><span class="pre">analyze_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Crystal_inputBASE.analyze_text" title="Link to this definition"></a></dt>
+<dd><p>Analyze formatted d12 file. A ‘complete’ d12 file with geometry, basis
+set and SCF blocks is suggested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em>) – Formatted string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Geom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>Geometry block object</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.data" title="Link to this definition"></a></dt>
+<dd><p>Settings in all the attributes are summarized here. Covers the data
+property in BlockBASE, to address the ambiguity of ‘MOLECULE’ keywords.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.analyze_text">
+<span class="sig-name descname"><span class="pre">analyze_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.analyze_text" title="Link to this definition"></a></dt>
+<dd><p>Overrides the same method from parent class for title line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.title">
+<span class="sig-name descname"><span class="pre">title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Generated</span> <span class="pre">by</span> <span class="pre">CRYSTALpytools'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.title" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.crystal">
+<span class="sig-name descname"><span class="pre">crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IGR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFLAG</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFHR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFSO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.crystal" title="Link to this definition"></a></dt>
+<dd><p>Define ‘CRYSTAL’ structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sg</strong> (<em>int</em>) – Space group number. Parameter IGR in the manual</p></li>
+<li><p><strong>latt</strong> (<em>list</em>) – Minimal set of crystallographic cell parameters</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – Natom * 4 list of conventional atomic number and 3D
+fractional coordinates.</p></li>
+<li><p><strong>IFLAG</strong> (<em>int</em>) – See the manual</p></li>
+<li><p><strong>IFHR</strong> (<em>int</em>) – See the manual</p></li>
+<li><p><strong>IFSO</strong> (<em>int</em>) – See the manual</p></li>
+<li><p><strong>origin</strong> (<em>list</em>) – <em>IFSO &gt; 1</em> See the manual</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.slab">
+<span class="sig-name descname"><span class="pre">slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IGR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.slab" title="Link to this definition"></a></dt>
+<dd><p>Define ‘SLAB’ structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.polymer">
+<span class="sig-name descname"><span class="pre">polymer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IGR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.polymer" title="Link to this definition"></a></dt>
+<dd><p>Define ‘POLYMER’ structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.helix">
+<span class="sig-name descname"><span class="pre">helix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.helix" title="Link to this definition"></a></dt>
+<dd><p>Define ‘HELIX’ structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N1</strong> (<em>int</em>) – See the manual</p></li>
+<li><p><strong>N2</strong> (<em>int</em>) – See the manual</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.molecule">
+<span class="sig-name descname"><span class="pre">molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IGR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.molecule" title="Link to this definition"></a></dt>
+<dd><p>Define ‘MOLECULE’ structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.external">
+<span class="sig-name descname"><span class="pre">external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">external</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.external" title="Link to this definition"></a></dt>
+<dd><p>Define ‘EXTERNAL’ structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.dlvinput">
+<span class="sig-name descname"><span class="pre">dlvinput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dlvinput</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.dlvinput" title="Link to this definition"></a></dt>
+<dd><p>Define ‘DLVINPUT’ structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.supercel">
+<span class="sig-name descname"><span class="pre">supercel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.supercel" title="Link to this definition"></a></dt>
+<dd><p>Supercell by ‘SUPERCEL’ keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mx</strong> (<em>array</em><em> | </em><em>list</em><em> | </em><em>str</em>) – ndimen * ndimen matrix, <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">''</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.supercon">
+<span class="sig-name descname"><span class="pre">supercon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.supercon" title="Link to this definition"></a></dt>
+<dd><p>Supercell by ‘SUPERCON’ keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.scelconf">
+<span class="sig-name descname"><span class="pre">scelconf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.scelconf" title="Link to this definition"></a></dt>
+<dd><p>Supercell by ‘SCELCONF’ keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.scelphono">
+<span class="sig-name descname"><span class="pre">scelphono</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.scelphono" title="Link to this definition"></a></dt>
+<dd><p>Supercell by ‘SCELPHONO’ keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.elastic">
+<span class="sig-name descname"><span class="pre">elastic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IDEF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.elastic" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atombsse">
+<span class="sig-name descname"><span class="pre">atombsse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IAT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NSTAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RMAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atombsse" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atomdisp">
+<span class="sig-name descname"><span class="pre">atomdisp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NDISP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atomdisp" title="Link to this definition"></a></dt>
+<dd><p>ATOMDISP keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NDISP</strong> (<em>int</em>) – See manual</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – NDISP*4 list. Including LB, DX, DY, DZ</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atominse">
+<span class="sig-name descname"><span class="pre">atominse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NINS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atominse" title="Link to this definition"></a></dt>
+<dd><p>ATOMINSE keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NINS</strong> (<em>int</em>) – See manual</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – NINS*4 list. Including NA, X, Y, Z</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atomorde">
+<span class="sig-name descname"><span class="pre">atomorde</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomorde</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atomorde" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atomremo">
+<span class="sig-name descname"><span class="pre">atomremo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atomremo" title="Link to this definition"></a></dt>
+<dd><p>ATOMREMO keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NL</strong> (<em>int</em>) – See manual</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – NL*1 list. Including LB</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.atomsubs">
+<span class="sig-name descname"><span class="pre">atomsubs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NSOST</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.atomsubs" title="Link to this definition"></a></dt>
+<dd><p>ATOMSUBS keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NSOST</strong> (<em>int</em>) – See manual</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – NSOST*2 list. Conventional atomic number of atoms to
+be substituted and to substituted</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.molecule2">
+<span class="sig-name descname"><span class="pre">molecule2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NMOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.molecule2" title="Link to this definition"></a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Corresponds to the <strong>option</strong> MOLECULE to isolate molecules from
+lattice. Only the method’s name is changed to avoid ambiguity with
+the one to set 0D geometry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NMOL</strong> (<em>int</em>)</p></li>
+<li><p><strong>atom</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>]</em><em>]</em>) – NMOL*4 list. See CRYSTAL manual.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.extprt">
+<span class="sig-name descname"><span class="pre">extprt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extprt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.extprt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.cifprt">
+<span class="sig-name descname"><span class="pre">cifprt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cifprt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.cifprt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.cifprtsym">
+<span class="sig-name descname"><span class="pre">cifprtsym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cifprtsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.cifprtsym" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.coorprt">
+<span class="sig-name descname"><span class="pre">coorprt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coorprt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.coorprt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.testgeom">
+<span class="sig-name descname"><span class="pre">testgeom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">testgeom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.testgeom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.optgeom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optgeom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.optgeom" title="Link to this definition"></a></dt>
+<dd><p>Subblock object OPTGEOM</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Geom.freqcalc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">freqcalc</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Geom.freqcalc" title="Link to this definition"></a></dt>
+<dd><p>Subblock object FREQCALC</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Optgeom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>OPTGEOM block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.fulloptg">
+<span class="sig-name descname"><span class="pre">fulloptg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fulloptg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.fulloptg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.cellonly">
+<span class="sig-name descname"><span class="pre">cellonly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cellonly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.cellonly" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.intredun">
+<span class="sig-name descname"><span class="pre">intredun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intredun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.intredun" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.itatocel">
+<span class="sig-name descname"><span class="pre">itatocel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">itatocel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.itatocel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.cvolopt">
+<span class="sig-name descname"><span class="pre">cvolopt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cvolopt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.cvolopt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.hessiden">
+<span class="sig-name descname"><span class="pre">hessiden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessiden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.hessiden" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.hessmod1">
+<span class="sig-name descname"><span class="pre">hessmod1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessmod1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.hessmod1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.hessmod2">
+<span class="sig-name descname"><span class="pre">hessmod2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessmod2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.hessmod2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.hessnum">
+<span class="sig-name descname"><span class="pre">hessnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.hessnum" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.toldeg">
+<span class="sig-name descname"><span class="pre">toldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TG</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0003</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.toldeg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.toldex">
+<span class="sig-name descname"><span class="pre">toldex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0012</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.toldex" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.toldee">
+<span class="sig-name descname"><span class="pre">toldee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IG</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.toldee" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.maxcycle">
+<span class="sig-name descname"><span class="pre">maxcycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.maxcycle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.fragment">
+<span class="sig-name descname"><span class="pre">fragment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.fragment" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NL</strong> (<em>int</em><em> | </em><em>str</em>) – Number of atoms. See manual</p></li>
+<li><p><strong>LB</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Label of atoms. See manual</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.restart">
+<span class="sig-name descname"><span class="pre">restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.restart" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.finalrun">
+<span class="sig-name descname"><span class="pre">finalrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ICODE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.finalrun" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.extpress">
+<span class="sig-name descname"><span class="pre">extpress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.extpress" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.allowtrustr">
+<span class="sig-name descname"><span class="pre">allowtrustr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allowtrustr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.allowtrustr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.notrustr">
+<span class="sig-name descname"><span class="pre">notrustr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notrustr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.notrustr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.maxtradius">
+<span class="sig-name descname"><span class="pre">maxtradius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TRMAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.maxtradius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.trustradius">
+<span class="sig-name descname"><span class="pre">trustradius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TRADIUS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.trustradius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.onelog">
+<span class="sig-name descname"><span class="pre">onelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onelog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.onelog" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.noxyz">
+<span class="sig-name descname"><span class="pre">noxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">noxyz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.noxyz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.nosymmops">
+<span class="sig-name descname"><span class="pre">nosymmops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nosymmops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.nosymmops" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.printforces">
+<span class="sig-name descname"><span class="pre">printforces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printforces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.printforces" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.printhess">
+<span class="sig-name descname"><span class="pre">printhess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printhess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.printhess" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.printopt">
+<span class="sig-name descname"><span class="pre">printopt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printopt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.printopt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.tsopt">
+<span class="sig-name descname"><span class="pre">tsopt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tsopt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.tsopt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.modefollow">
+<span class="sig-name descname"><span class="pre">modefollow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MODEFOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.modefollow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.pathfollow">
+<span class="sig-name descname"><span class="pre">pathfollow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NPATHFOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.pathfollow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.fittopath">
+<span class="sig-name descname"><span class="pre">fittopath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NPATHFOL2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPATHWEIGHT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.fittopath" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.chngtsfol">
+<span class="sig-name descname"><span class="pre">chngtsfol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chngtsfol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.chngtsfol" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.scanatom">
+<span class="sig-name descname"><span class="pre">scanatom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NATSCAN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TARGET</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MSCAN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.scanatom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Optgeom.scanredu">
+<span class="sig-name descname"><span class="pre">scanredu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IREDSCA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ENDSCA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MAXSCA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Optgeom.scanredu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Freqcalc</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>FREQCALC block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.nooptgeom">
+<span class="sig-name descname"><span class="pre">nooptgeom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nooptgeom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.nooptgeom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.preoptgeom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preoptgeom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.preoptgeom" title="Link to this definition"></a></dt>
+<dd><p>Subblock object PREOPTGEOM</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.dispersion">
+<span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dispersion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.dispersion" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.bands">
+<span class="sig-name descname"><span class="pre">bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NSUB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NLINE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.bands" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.modes">
+<span class="sig-name descname"><span class="pre">modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.modes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.nomodes">
+<span class="sig-name descname"><span class="pre">nomodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nomodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.nomodes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.numderiv">
+<span class="sig-name descname"><span class="pre">numderiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.numderiv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.pressure">
+<span class="sig-name descname"><span class="pre">pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.pressure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.restart">
+<span class="sig-name descname"><span class="pre">restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.restart" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.stepsize">
+<span class="sig-name descname"><span class="pre">stepsize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">STEP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.003</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.stepsize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.Freqcalc.temperat">
+<span class="sig-name descname"><span class="pre">temperat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.Freqcalc.temperat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasisSet</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>Basis Set block object</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.data" title="Link to this definition"></a></dt>
+<dd><p>Settings in all the attributes are summarized here. Covers the data
+property in BlockBASE, to deal with user’s definition of basis sets.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.analyze_text">
+<span class="sig-name descname"><span class="pre">analyze_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.analyze_text" title="Link to this definition"></a></dt>
+<dd><p>Analyze the input and return to corresponding attributes. Add support
+to basis set strings</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.basisset">
+<span class="sig-name descname"><span class="pre">basisset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NAME</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.basisset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.ghosts">
+<span class="sig-name descname"><span class="pre">ghosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.ghosts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.from_bse">
+<span class="sig-name descname"><span class="pre">from_bse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.from_bse" title="Link to this definition"></a></dt>
+<dd><p>Download basis set definitions from <a class="reference external" href="https://www.basissetexchange.org/">Basis Set Exchange (BSE)</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Basis set’s name.</p></li>
+<li><p><strong>z</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of elements, specified by conventional atomic
+numbers.</p></li>
+<li><p><strong>append</strong> (<em>bool</em>) – Whether to cover old entries. If the old entry
+contains ‘BASISSET’, it will be removed anyway. Useful when
+different series of basis sets are defined</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.from_string">
+<span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crystal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.from_string" title="Link to this definition"></a></dt>
+<dd><p>Basis set from a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> (<em>str</em>) – Basis set definition.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format string. Consistent with <a class="reference external" href="https://www.basissetexchange.org/">BSE</a>
+python API. For non-CRYSTAL formats, only all-electron basis
+sets are supported. Charge of each shell will be automatically
+assigned to get charge neutral atoms.</p></li>
+<li><p><strong>append</strong> (<em>bool</em>) – Whether to cover old entries. If the old entry
+contains ‘BASISSET’, it will be removed anyway. Useful when
+different series of basis sets are defined</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.from_file">
+<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crystal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.from_file" title="Link to this definition"></a></dt>
+<dd><p>Basis set from a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>file</em>) – Basis set definition.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – <p>Format string. Consistent with <a class="reference external" href="https://www.basissetexchange.org/">BSE</a>
+python API. For non-CRYSTAL formats, only all-electron basis
+sets are supported. Charge of each shell will be automatically
+assigned to get charge neutral atoms.</p>
+</p></li>
+<li><p><strong>append</strong> (<em>bool</em>) – Whether to cover old entries. If the old entry
+contains ‘BASISSET’, it will be removed anyway. Useful when
+different series of basis sets are defined</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.BasisSet.from_obj">
+<span class="sig-name descname"><span class="pre">from_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.BasisSet.from_obj" title="Link to this definition"></a></dt>
+<dd><p>Define basis set from a <code class="docutils literal notranslate"><span class="pre">base.basisset.BasisSetBASE</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bs_obj</strong> (<a class="reference internal" href="crystalpytools.base.basisset.html#CRYSTALpytools.base.basisset.BasisSetBASE" title="CRYSTALpytools.base.basisset.BasisSetBASE"><em>BasisSetBASE</em></a>)</p></li>
+<li><p><strong>append</strong> (<em>bool</em>) – Whether to cover old entries. If the old entry
+contains ‘BASISSET’, it will be removed anyway. Useful when
+different series of basis sets are defined</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SCF</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>SCF block object</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.data" title="Link to this definition"></a></dt>
+<dd><p>Print formatted input. Redefined to address the END keywords of
+FIXINDEX blocks</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.rhf">
+<span class="sig-name descname"><span class="pre">rhf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.rhf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.uhf">
+<span class="sig-name descname"><span class="pre">uhf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uhf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.uhf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.rohf">
+<span class="sig-name descname"><span class="pre">rohf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NSPIN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.rohf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.dft">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dft</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.dft" title="Link to this definition"></a></dt>
+<dd><p>Subblock object DFT</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.hf3c">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hf3c</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.hf3c" title="Link to this definition"></a></dt>
+<dd><p>Subblock object HF3C</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.hfsol3c">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hfsol3c</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.hfsol3c" title="Link to this definition"></a></dt>
+<dd><p>Subblock object HFSOL3C</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.dftd3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dftd3</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.dftd3" title="Link to this definition"></a></dt>
+<dd><p>Subblock object DFTD3</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.gcp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gcp</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.gcp" title="Link to this definition"></a></dt>
+<dd><p>Subblock object GCP</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.gcpauto">
+<span class="sig-name descname"><span class="pre">gcpauto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gcpauto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.gcpauto" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.atomspin">
+<span class="sig-name descname"><span class="pre">atomspin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.atomspin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.toldee">
+<span class="sig-name descname"><span class="pre">toldee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ITOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.toldee" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.guessp">
+<span class="sig-name descname"><span class="pre">guessp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guessp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.guessp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.maxcycle">
+<span class="sig-name descname"><span class="pre">maxcycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.maxcycle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.ldremo">
+<span class="sig-name descname"><span class="pre">ldremo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.ldremo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.smear">
+<span class="sig-name descname"><span class="pre">smear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">WIDTH</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.smear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.levshift">
+<span class="sig-name descname"><span class="pre">levshift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISHIFT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ILOCK</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.levshift" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.shrink">
+<span class="sig-name descname"><span class="pre">shrink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ISP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.shrink" title="Link to this definition"></a></dt>
+<dd><p>Shrink parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.tolinteg">
+<span class="sig-name descname"><span class="pre">tolinteg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ITOL1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITOL2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITOL3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITOL4</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITOL5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.tolinteg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.biposize">
+<span class="sig-name descname"><span class="pre">biposize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISIZE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.biposize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.exchsize">
+<span class="sig-name descname"><span class="pre">exchsize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISIZE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.exchsize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.bipolar">
+<span class="sig-name descname"><span class="pre">bipolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ITCOUL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITEXCH</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.bipolar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.nobipola">
+<span class="sig-name descname"><span class="pre">nobipola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nobipola</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.nobipola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.nobipcou">
+<span class="sig-name descname"><span class="pre">nobipcou</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nobipcou</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.nobipcou" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.nobipexc">
+<span class="sig-name descname"><span class="pre">nobipexc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nobipexc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.nobipexc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.fmixing">
+<span class="sig-name descname"><span class="pre">fmixing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IPMIX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.fmixing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.diis">
+<span class="sig-name descname"><span class="pre">diis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.diis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.nodiis">
+<span class="sig-name descname"><span class="pre">nodiis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodiis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.nodiis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.diisallk">
+<span class="sig-name descname"><span class="pre">diisallk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diisallk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.diisallk" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.sloshing">
+<span class="sig-name descname"><span class="pre">sloshing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sloshing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.sloshing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.histdiis">
+<span class="sig-name descname"><span class="pre">histdiis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NCYC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.histdiis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.thrediis">
+<span class="sig-name descname"><span class="pre">thrediis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DEDIIS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.thrediis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.thrkdiis">
+<span class="sig-name descname"><span class="pre">thrkdiis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DIISTHR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.thrkdiis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.sloshfac">
+<span class="sig-name descname"><span class="pre">sloshfac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FKERK</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.sloshfac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.prtdiis">
+<span class="sig-name descname"><span class="pre">prtdiis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prtdiis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.prtdiis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.anderson">
+<span class="sig-name descname"><span class="pre">anderson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anderson</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.anderson" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.broyden">
+<span class="sig-name descname"><span class="pre">broyden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IMIX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ISTART</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.broyden" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.ppan">
+<span class="sig-name descname"><span class="pre">ppan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.ppan" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.gradcal">
+<span class="sig-name descname"><span class="pre">gradcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.gradcal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.exchange">
+<span class="sig-name descname"><span class="pre">exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exchange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.exchange" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.postscf">
+<span class="sig-name descname"><span class="pre">postscf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">postscf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.postscf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.cmplxfac">
+<span class="sig-name descname"><span class="pre">cmplxfac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">WEIGHT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.cmplxfac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.repldata">
+<span class="sig-name descname"><span class="pre">repldata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repldata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.repldata" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.stdiag">
+<span class="sig-name descname"><span class="pre">stdiag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdiag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.stdiag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.fixindex">
+<span class="sig-name descname"><span class="pre">fixindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.fixindex" title="Link to this definition"></a></dt>
+<dd><p>Fixindex keywords.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>‘GEOM’ is a <code class="docutils literal notranslate"><span class="pre">Geom</span></code> object. To modify keywords (‘CRYSTAL’ as
+example), use <code class="docutils literal notranslate"><span class="pre">input.scf.geom.crystal()</span></code>.</p>
+<p>‘BASE’ is a <code class="docutils literal notranslate"><span class="pre">BasisSet</span></code> object. To define basis set from bse, use
+<code class="docutils literal notranslate"><span class="pre">input.scf.base.from_bse()</span></code>.</p>
+<p>‘GEBA’ is a <code class="docutils literal notranslate"><span class="pre">Crystal_inputBASE</span></code> object. To modify keywords
+(‘CRYSTAL’ as example), use <code class="docutils literal notranslate"><span class="pre">input.scf.geba.geom.crystal()</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.geom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geom</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.geom" title="Link to this definition"></a></dt>
+<dd><p>Subblock object GEOM</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.base">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.base" title="Link to this definition"></a></dt>
+<dd><p>Subblock object BASE</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.SCF.geba">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geba</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.SCF.geba" title="Link to this definition"></a></dt>
+<dd><p>Subblock object GEBA</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.HF3C">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HF3C</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.HF3C" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>HF3C block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.HF3C.rescales8">
+<span class="sig-name descname"><span class="pre">rescales8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.HF3C.rescales8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.HF3C.scalegcp">
+<span class="sig-name descname"><span class="pre">scalegcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gcp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.HF3C.scalegcp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.HFSOL3C">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HFSOL3C</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.HFSOL3C" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.crysd12.HF3C" title="CRYSTALpytools.base.crysd12.HF3C"><code class="xref py py-class docutils literal notranslate"><span class="pre">HF3C</span></code></a></p>
+<p>HFSOL3C block object</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DFT</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>DFT block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.exchange">
+<span class="sig-name descname"><span class="pre">exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.exchange" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.correlat">
+<span class="sig-name descname"><span class="pre">correlat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.correlat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.xcfunc">
+<span class="sig-name descname"><span class="pre">xcfunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.xcfunc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.sr_omega">
+<span class="sig-name descname"><span class="pre">sr_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr_omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.sr_omega" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.mr_omega">
+<span class="sig-name descname"><span class="pre">mr_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mr_omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.mr_omega" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.lr_omega">
+<span class="sig-name descname"><span class="pre">lr_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lr_omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.lr_omega" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.sr_hyb_wb97x">
+<span class="sig-name descname"><span class="pre">sr_hyb_wb97x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.sr_hyb_wb97x" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.lsrsh_pbe">
+<span class="sig-name descname"><span class="pre">lsrsh_pbe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.lsrsh_pbe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.lgrid">
+<span class="sig-name descname"><span class="pre">lgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lgrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.lgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.oldgrid">
+<span class="sig-name descname"><span class="pre">oldgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oldgrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.oldgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.xlgrid">
+<span class="sig-name descname"><span class="pre">xlgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlgrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.xlgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.xxlgrid">
+<span class="sig-name descname"><span class="pre">xxlgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xxlgrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.xxlgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.xxxlgrid">
+<span class="sig-name descname"><span class="pre">xxxlgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xxxlgrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.xxxlgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.hugegrid">
+<span class="sig-name descname"><span class="pre">hugegrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hugegrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.hugegrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.radial">
+<span class="sig-name descname"><span class="pre">radial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.radial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFT.angular">
+<span class="sig-name descname"><span class="pre">angular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LEV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFT.angular" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DFTD3</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>DFTD3 block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NAT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.func">
+<span class="sig-name descname"><span class="pre">func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">CHAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.func" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.abc">
+<span class="sig-name descname"><span class="pre">abc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.abc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.s6">
+<span class="sig-name descname"><span class="pre">s6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s6</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.s6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.s8">
+<span class="sig-name descname"><span class="pre">s8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.s8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.a1">
+<span class="sig-name descname"><span class="pre">a1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.a1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.a2">
+<span class="sig-name descname"><span class="pre">a2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.a2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.rs6">
+<span class="sig-name descname"><span class="pre">rs6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rs6</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.rs6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.rs8">
+<span class="sig-name descname"><span class="pre">rs8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rs8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.rs8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.radius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.cnradius">
+<span class="sig-name descname"><span class="pre">cnradius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cnradius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.cnradius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.abcradius">
+<span class="sig-name descname"><span class="pre">abcradius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abcradius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.abcradius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.DFTD3.printc6">
+<span class="sig-name descname"><span class="pre">printc6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printc6</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.DFTD3.printc6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GCP</span></span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>GCP block object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.method">
+<span class="sig-name descname"><span class="pre">method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.method" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.sigma">
+<span class="sig-name descname"><span class="pre">sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.sigma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.alpha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.beta">
+<span class="sig-name descname"><span class="pre">beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.beta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.eta">
+<span class="sig-name descname"><span class="pre">eta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.eta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.radius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.crysd12.GCP.printemiss">
+<span class="sig-name descname"><span class="pre">printemiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printemiss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.crysd12.GCP.printemiss" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.base.basisset.html" class="btn btn-neutral float-left" title="CRYSTALpytools.base.basisset module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.base.extfmt.html" class="btn btn-neutral float-right" title="CRYSTALpytools.base.extfmt module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

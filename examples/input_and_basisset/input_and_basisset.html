@@ -1,0 +1,1262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input and Basis Set Generation &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/input_and_basisset/input_and_basisset.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Basis Set: Advanced" href="basisset_advanced.html" />
+    <link rel="prev" title="Examples and Test Cases" href="../../examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Input and Basis Set Generation</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/input_and_basisset/input_and_basisset.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Input-and-Basis-Set-Generation">
+<h1>Input and Basis Set Generation<a class="headerlink" href="#Input-and-Basis-Set-Generation" title="Link to this heading"></a></h1>
+<p>CRYSTALpytools provides a branch of methods to prepare input files and basis sets interactively. They are kept in the <code class="docutils literal notranslate"><span class="pre">crystal_io</span></code> module.</p>
+<section id="'crystal_io.Crystal_input'-class">
+<h2>‘crystal_io.Crystal_input’ class<a class="headerlink" href="#'crystal_io.Crystal_input'-class" title="Link to this heading"></a></h2>
+<p><strong>NOTE</strong></p>
+<p><strong>Though developers are working hard to implement all the keywords, due to the limit of time and developing forces, not all keywords has been implemented. Please confirm that in module-specific documentations or contact developers via</strong> <a class="reference external" href="https://github.com/crystal-code-tools/CRYSTALpytools">GitHub</a><strong>.</strong></p>
+<section id="Basic-file-generation">
+<h3>Basic file generation<a class="headerlink" href="#Basic-file-generation" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code> class accepts keywords and prepare input files for ‘crystal’ calculations of CRYSTAL package. The user can create a crystal input object by directly calling the methods. Both the name and format of methods are consistent with CRYSTAL keywords. The text input in ‘d12’ format is accessible by calling the <code class="docutils literal notranslate"><span class="pre">data</span></code> property.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_input
+
+mgo_input = Crystal_input()
+mgo_input.geom.title(&#39;MGO BULK - GEOMETRY TEST&#39;)
+mgo_input.geom.crystal(225, # Space group
+                      [4.217], # Minimal set of lattice parameters
+                      [[12, 0., 0., 0.], # Atomic labels and coordinates
+                       [8, 0.5, 0.5, 0.5]]
+                      )
+mgo_input.basisset.basisset(&#39;POB-DZVP&#39;)
+mgo_input.scf.dft.xcfunc(&#39;B3LYP&#39;)
+mgo_input.scf.dft.xxlgrid()
+mgo_input.scf.tolinteg(7, 7, 7, 7, 14)
+mgo_input.scf.shrink(12, 24)
+mgo_input.scf.maxcycle(70)
+mgo_input.scf.fmixing(70)
+mgo_input.scf.diis()
+
+print(mgo_input.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MGO BULK - GEOMETRY TEST
+CRYSTAL
+0   0   0
+225
+4.217000
+2
+12     0.00000000   0.00000000   0.00000000
+8      0.50000000   0.50000000   0.50000000
+BASISSET
+POB-DZVP
+DFT
+B3LYP
+XXLGRID
+ENDDFT
+MAXCYCLE
+70
+SHRINK
+12 24
+TOLINTEG
+7 7 7 7 14
+FMIXING
+70
+DIIS
+ENDSCF
+
+</pre></div></div>
+</div>
+<p>Of course the previous example might look cumbersome. The <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code> objects can be generated by ‘block’ texts. ‘Block’ is a multiple-line string closed by the ‘END’ keyword. 3 basic blocks are defined in CRYSTAL d12 format: geometry, basis set and SCF. There are sub-blocks in the 3 major blocks that can be defined in a similar way by calling corresponding keywords. Also the whole file is recognized as a block.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>geom_block = \
+&quot;&quot;&quot;MGO BULK - GEOMETRY TEST
+CRYSTAL
+0 0 0
+225
+4.217
+2
+12 0.    0.    0.
+8 0.5   0.5   0.5
+ENDGEOM
+&quot;&quot;&quot;
+
+bs_block   = \
+&quot;&quot;&quot;BASISSET
+POB-DZVP
+&quot;&quot;&quot;
+func_block = \
+&quot;&quot;&quot;DFT
+B3LYP
+XXLGRID
+ENDDFT
+&quot;&quot;&quot;
+scf_block  = \
+&quot;&quot;&quot;TOLINTEG
+7 7 7 7 14
+SHRINK
+12 24
+MAXCYCLE
+200
+FMIXING
+70
+DIIS
+ENDSCF
+&quot;&quot;&quot;
+mgo_input = Crystal_input()
+mgo_input.geom(geom_block)
+mgo_input.basisset(bs_block)
+mgo_input.scf(scf_block)
+mgo_input.scf.dft(func_block) # DFT is a sub-block of SCF block
+print(mgo_input.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MGO BULK - GEOMETRY TEST
+CRYSTAL
+0 0 0
+225
+4.217
+2
+12 0.    0.    0.
+8 0.5   0.5   0.5
+BASISSET
+POB-DZVP
+DFT
+B3LYP
+XXLGRID
+ENDDFT
+MAXCYCLE
+200
+SHRINK
+12 24
+TOLINTEG
+7 7 7 7 14
+FMIXING
+70
+DIIS
+ENDSCF
+
+</pre></div></div>
+</div>
+<p>To set value for keywords (not closed by ‘END’), use <code class="docutils literal notranslate"><span class="pre">obj.keyword(value)</span></code>. 3 types of input parameters are allowed.</p>
+<ol class="arabic simple">
+<li><p>Normal input: Depending on the requirements of the keyword</p></li>
+<li><p>Empty: Print the keyword only</p></li>
+<li><p>‘None’: Clean the entry and the keyword.</p></li>
+</ol>
+<p>A warning message is printed because the newly added ‘NODIIS’ conflicts with the original ‘DIIS’ keyword. The old entry is removed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_input.scf.fmixing(30) # edit FMIXING keyword
+mgo_input.scf.maxcycle(None) # remove MAXCYCLE keyword
+mgo_input.scf.nodiis() # add NODIIS keyword
+print(mgo_input.scf.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DFT
+B3LYP
+XXLGRID
+ENDDFT
+SHRINK
+12 24
+TOLINTEG
+7 7 7 7 14
+FMIXING
+30
+NODIIS
+ENDSCF
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/base/crysd12.py:1231: UserWarning: &#39;NODIIS&#39; conflicts with the existing &#39;DIIS&#39;. The old one is deleted.
+  super().assign_keyword(&#39;NODIIS&#39;, [], nodiis); return self
+</pre></div></div>
+</div>
+<p>The user can also use an existing file as a template. In a similar way one can change, delete and substitute keywords. Here a ‘keyword-only’ OPTGEOM block is defined.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_opt = Crystal_input(&#39;crysinp_mgo.d12&#39;)
+mgo_opt.geom.optgeom()
+print(mgo_opt.geom.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MGO BULK - GEOMETRY TEST
+CRYSTAL
+0 0 0
+225
+4.217
+2
+12 0.    0.    0.
+8 0.5   0.5   0.5
+OPTGEOM
+ENDOPT
+ENDGEOM
+
+</pre></div></div>
+</div>
+<p>Sub-blocks can be automatically added by calling keywords defined within. The object can also be instantiated by calling the classmethod <code class="docutils literal notranslate"><span class="pre">read_file()</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_opt = Crystal_input.read_file(&#39;crysinp_mgo.d12&#39;)
+mgo_opt.geom.title(&#39;Generated by CRYSTALpytools&#39;)
+mgo_opt.geom.optgeom.toldex(0.0012)
+mgo_opt.geom.optgeom.toldeg(0.0003)
+print(mgo_opt.geom.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generated by CRYSTALpytools
+CRYSTAL
+0 0 0
+225
+4.217
+2
+12 0.    0.    0.
+8 0.5   0.5   0.5
+OPTGEOM
+TOLDEG
+0.0003
+TOLDEX
+0.0012
+ENDOPT
+ENDGEOM
+
+</pre></div></div>
+</div>
+<p>Eventually an input file can be written.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_opt.write_file(&#39;crysinp_mgo_opt.d12&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.crystal_io.Crystal_input at 0x7fdb6d111370&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Set-geometry">
+<h3>Set geometry<a class="headerlink" href="#Set-geometry" title="Link to this heading"></a></h3>
+<p>Geometry input can be set by a CIF file or a pymatgen structure when needed. There are 2 available options:</p>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">keyword='EXTERNAL'</span></code> (default) and <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code> object automatically convert the geometry entry to a gui file with default settings. Recommended.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>para = Crystal_input().geom_from_cif(&#39;crysinp_para.cif&#39;,
+                                     gui_name=&#39;crysinp_para.gui&#39;)
+print(para.geom.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generated by CRYSTALpytools
+EXTERNAL
+ENDGEOM
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/pymatgen/io/cif.py:1287: UserWarning: Issues encountered while parsing CIF: Skipping relative stoichiometry check because CIF does not contain formula keys.
+  warnings.warn(&#34;Issues encountered while parsing CIF: &#34; + &#34;\n&#34;.join(self.warnings))
+</pre></div></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">keyword=CRYSTAL</span></code>, the input block will be automatically generated. 3D structures only.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>para = Crystal_input().geom_from_cif(&#39;crysinp_para.cif&#39;,
+                                     keyword=&#39;CRYSTAL&#39;)
+print(para.geom.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generated by CRYSTALpytools
+CRYSTAL
+0   0   0
+14
+7.073000     9.166000     12.667000    115.510000
+20
+1      0.37160000   0.92980000   0.49880000
+1      0.24220000   0.76340000   0.33040000
+1      0.77660000   0.60000000   0.43090000
+1      0.90770000   0.76640000   0.60050000
+1      0.79990000   0.53530000   0.25760000
+1      0.10820000   0.95930000   0.69510000
+1      0.56840000   0.08530000   0.89610000
+1      0.29390000   0.07980000   0.85010000
+1      0.40860000   0.21910000   0.80230000
+6      0.14960000   0.85790000   0.56187000
+6      0.24320000   0.85758000   0.48526000
+6      0.17040000   0.76206000   0.39004000
+6      0.00430000   0.66838000   0.37078000
+6      0.90790000   0.67092000   0.44601000
+6      0.98060000   0.76560000   0.54106000
+6      0.39830000   0.01599000   0.71975000
+6      0.41680000   0.10369000   0.82440000
+7      0.21229000   0.94984000   0.66089000
+8      0.94130000   0.57511000   0.27811000
+8      0.54450000   0.00741000   0.69146000
+ENDGEOM
+
+</pre></div></div>
+</div>
+<p>It should be noted that sequences of atoms of the input geometry are different from d12 blocks. The coordinates might also change during the standarization of unit cell. In ordinary scenarios it would not affect the outcomes.</p>
+<p>However, extra care must be taken when conventional atomic numbers are set (i.e., when using peudopotentials or different basis sets for the same element). Though <code class="docutils literal notranslate"><span class="pre">zconv</span></code> can be set for <code class="docutils literal notranslate"><span class="pre">geom_from_cif()</span></code> and <code class="docutils literal notranslate"><span class="pre">geom_from_pmg()</span></code> methods, they are not recommended unless the user is very sure about the output indices of atoms with conventional atomic numbers. The developers are working actively for better solutions.</p>
+</section>
+<section id="Set-basis-set">
+<h3>Set basis set<a class="headerlink" href="#Set-basis-set" title="Link to this heading"></a></h3>
+<p>The user can set basis set by string (as shown before), a text file or downloading it from <a class="reference external" href="https://www.basissetexchange.org/">Basis Set Exchange (BSE)</a>. Besides, a built-in BS can be called by keyword ‘BASISSET’.</p>
+<p>To download BSs from BSE, the name of basis set and conventional atomic numbers of elements are needed.</p>
+<p><strong>Note</strong></p>
+<p><strong>In BSE, the charge information is missing. A neutral atom is always assumed by default, which works well in most cases. To modify the initial charge guess, see below.</strong></p>
+<p><strong>Automatic assignment of charges is available only for all-electron BSs.</strong></p>
+<p>Call the wrapper method <code class="docutils literal notranslate"><span class="pre">bs_user()</span></code>, which is equivalent to <code class="docutils literal notranslate"><span class="pre">basisset.from_bse()</span></code>. The downloaded BS is written as user-defined basis sets.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_input = Crystal_input.read_file(&#39;crysinp_mgo.d12&#39;)
+
+mgo_input.bs_user(&#39;6-31G*&#39;, z=[12, 8])
+print(mgo_input.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+12 5
+0 0 6 2.00 1.00
+  11722.8000000000      0.0019778293
+   1759.9300000000      0.0151139948
+    400.8460000000      0.0739107745
+    112.8070000000      0.2491909140
+     35.9997000000      0.4879278316
+     12.1828000000      0.3196618896
+0 1 6 8.00 1.00
+    189.1800000000     -0.0032371705      0.0049281299
+     45.2119000000     -0.0410079060      0.0349887994
+     14.3563000000     -0.1126000164      0.1407249977
+      5.1388600000      0.1486330216      0.3336419947
+      1.9065200000      0.6164970898      0.4449399929
+      0.7058870000      0.3648290531      0.2692539957
+0 1 3 2.00 1.00
+      0.9293400000     -0.2122908985     -0.0224191812
+      0.2690350000     -0.1079854570      0.1922708390
+      0.1173790000      1.1758449770      0.8461802916
+0 1 1 0.00 1.00
+      0.0421061000      1.0000000000      1.0000000000
+0 3 1 0.00 1.00
+      0.1750000000      1.0000000000
+8 4
+0 0 6 2.00 1.00
+   5484.6716600000      0.0018310744
+    825.2349460000      0.0139501722
+    188.0469580000      0.0684450781
+     52.9645000000      0.2327143360
+     16.8975704000      0.4701928980
+      5.7996353400      0.3585208530
+0 1 3 6.00 1.00
+     15.5396162500     -0.1107775495      0.0708742682
+      3.5999335860     -0.1480262627      0.3397528391
+      1.0137617500      1.1307670150      0.7271585773
+0 1 1 0.00 1.00
+      0.2700058226      1.0000000000      1.0000000000
+0 3 1 0.00 1.00
+      0.8000000000      1.0000000000
+99 0
+ENDBS
+
+</pre></div></div>
+</div>
+<p>The same method can be used to interprete basis set files, equivalent to the <code class="docutils literal notranslate"><span class="pre">basisset.from_file()</span></code> method. Format string is consistent with <a class="reference external" href="https://molssi-bse.github.io/basis_set_exchange/bse_cli.html#list-formats">BSE python API</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_input.bs_user(&#39;bs_mgo.gbs&#39;, fmt=&#39;gaussian94&#39;)
+print(mgo_input.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+8 2
+0 0 3 2.00 1.00
+    130.7093214000      0.1543289673
+     23.8088660500      0.5353281423
+      6.4436083130      0.4446345422
+0 1 3 6.00 1.00
+      5.0331513190     -0.0999672292      0.1559162750
+      1.1695961250      0.3995128261      0.6076837186
+      0.3803889600      0.7001154689      0.3919573931
+12 3
+0 0 3 2.00 1.00
+    299.2374137000      0.1543289673
+     54.5064684500      0.5353281423
+     14.7515775200      0.4446345422
+0 1 3 8.00 1.00
+     15.1218235200     -0.0999672292      0.1559162750
+      3.5139865790      0.3995128261      0.6076837186
+      1.1428574980      0.7001154689      0.3919573931
+0 1 3 2.00 1.00
+      1.3954482930     -0.2196203690      0.0105876043
+      0.3893265318      0.2255954336      0.5951670053
+      0.1523797659      0.9003984260      0.4620010120
+99 0
+ENDBS
+
+</pre></div></div>
+</div>
+<p>In some rare cases, the user might want to change the charge of BS shells to get ions and a better initial guess of charge density. A dictionary is used to define the charge.</p>
+<ul class="simple">
+<li><p>Key: Conventional atomic number</p></li>
+<li><p>Value: nshell*1 list of charges. Must be consistent with BS definitions.</p></li>
+</ul>
+<p>Define Mg<span class="math notranslate nohighlight">\(^{2+}\)</span> and O<span class="math notranslate nohighlight">\(^{2-}\)</span> ions:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>chg = {8  : [2.0, 8.0],
+       12 : [2.0, 8.0, 0.0]}
+mgo_input.bs_user(&#39;bs_mgo.gbs&#39;, fmt=&#39;gaussian94&#39;, charge=chg)
+print(mgo_input.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+8 2
+0 0 3 2.00 1.00
+    130.7093214000      0.1543289673
+     23.8088660500      0.5353281423
+      6.4436083130      0.4446345422
+0 1 3 8.00 1.00
+      5.0331513190     -0.0999672292      0.1559162750
+      1.1695961250      0.3995128261      0.6076837186
+      0.3803889600      0.7001154689      0.3919573931
+12 3
+0 0 3 2.00 1.00
+    299.2374137000      0.1543289673
+     54.5064684500      0.5353281423
+     14.7515775200      0.4446345422
+0 1 3 8.00 1.00
+     15.1218235200     -0.0999672292      0.1559162750
+      3.5139865790      0.3995128261      0.6076837186
+      1.1428574980      0.7001154689      0.3919573931
+0 1 3 0.00 1.00
+      1.3954482930     -0.2196203690      0.0105876043
+      0.3893265318      0.2255954336      0.5951670053
+      0.1523797659      0.9003984260      0.4620010120
+99 0
+ENDBS
+
+</pre></div></div>
+</div>
+<p>Convert the Gaussian-formatted basis set collection and write them into the external ‘crysinp_BASISSETS.DAT’ file in CRYSTAL format, with the title ‘STO-3G from BSE’.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>chg = {8  : [2.0, 8.0],
+       12 : [2.0, 8.0, 0.0]}
+mgo_input.bs_user(&#39;bs_mgo.gbs&#39;, fmt=&#39;gaussian94&#39;, charge=chg,
+                  BSfile=&#39;crysinp_BASISSETS.DAT&#39;, title=&#39;STO-3G from BSE&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.crystal_io.Crystal_input at 0x7fdbc938ff70&gt;
+</pre></div></div>
+</div>
+<p>The input keywords are changed accordingly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(mgo_input.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+BASISSET
+STO-3G from BSE
+
+</pre></div></div>
+</div>
+<p>Similarly, effective core pseudopotential can be defined. The automatic charge assignment of atomic charge is also available for ECP BSs.</p>
+<p>Defining BaO basis set with Stuttgart ECP (Only Ba, O is not supported in CRYSTAL and causes error). Use <code class="docutils literal notranslate"><span class="pre">append=True</span></code> to attach new entries.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>bao_input = Crystal_input()
+bao_input.bs_user(&#39;Stuttgart RSC 1997&#39;, z=[356],
+                  ECP={356 : &#39;STUTSC&#39;})
+bao_input.bs_user(&#39;6-31G*&#39;, z=[8], append=True)
+print(bao_input.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+356 11
+STUTSC
+0 0 3 2.00 1.00
+      2.3961900000     -5.9288950000
+      2.2433050000      6.6469340000
+      0.7174020000     -0.5514370000
+0 0 1 2.00 1.00
+      0.2784460000      1.0000000000
+0 0 1 0.00 1.00
+      0.0431880000      1.0000000000
+0 0 1 0.00 1.00
+      0.0197980000      1.0000000000
+0 2 3 6.00 1.00
+      2.9267420000      0.7633590000
+      2.5207180000     -1.0220140000
+      0.5240950000      0.6498360000
+0 2 1 0.00 1.00
+      0.2034280000      1.0000000000
+0 2 1 0.00 1.00
+      0.0479960000      1.0000000000
+0 2 1 0.00 1.00
+      0.0200950000      1.0000000000
+0 3 3 0.00 1.00
+      0.9663150000     -0.9089380000
+      0.8938280000      0.9472400000
+      0.2731950000      0.3220570000
+0 3 2 0.00 1.00
+      0.1038910000      0.4732600000
+      0.0355780000      0.3659770000
+0 4 1 0.00 1.00
+      0.6970000000      1.0000000000
+8 4
+0 0 6 2.00 1.00
+   5484.6716600000      0.0018310744
+    825.2349460000      0.0139501722
+    188.0469580000      0.0684450781
+     52.9645000000      0.2327143360
+     16.8975704000      0.4701928980
+      5.7996353400      0.3585208530
+0 1 3 6.00 1.00
+     15.5396162500     -0.1107775495      0.0708742682
+      3.5999335860     -0.1480262627      0.3397528391
+      1.0137617500      1.1307670150      0.7271585773
+0 1 1 0.00 1.00
+      0.2700058226      1.0000000000      1.0000000000
+0 3 1 0.00 1.00
+      0.8000000000      1.0000000000
+99 0
+ENDBS
+
+</pre></div></div>
+</div>
+<p>To set conventional atomic numbers for basis sets, the user can use <code class="docutils literal notranslate"><span class="pre">bs_user()</span></code> twice with <code class="docutils literal notranslate"><span class="pre">append=True</span></code>. Here a ‘def2-SVP’ basis set is defined for H atom with atomic number 101.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>obj = Crystal_input()
+obj.bs_user(&#39;6-31G*&#39;, [6, 1])
+obj.bs_user(&#39;def2-SVP&#39;, [101], append=True)
+print(obj.basisset.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+6 4
+0 0 6 2.00 1.00
+   3047.5248800000      0.0018347371
+    457.3695180000      0.0140373228
+    103.9486850000      0.0688426223
+     29.2101553000      0.2321844432
+      9.2866629600      0.4679413484
+      3.1639269600      0.3623119853
+0 1 3 4.00 1.00
+      7.8682723500     -0.1193324198      0.0689990666
+      1.8812885400     -0.1608541517      0.3164239610
+      0.5442492580      1.1434564380      0.7443082909
+0 1 1 0.00 1.00
+      0.1687144782      1.0000000000      1.0000000000
+0 3 1 0.00 1.00
+      0.8000000000      1.0000000000
+1 2
+0 0 3 1.00 1.00
+     18.7311369600      0.0334946043
+      2.8253943650      0.2347269535
+      0.6401216923      0.8137573261
+0 0 1 0.00 1.00
+      0.1612777588      1.0000000000
+101 3
+0 0 3 1.00 1.00
+     13.0107010000      0.0196821580
+      1.9622572000      0.1379652400
+      0.4445379600      0.4783193500
+0 0 1 0.00 1.00
+      0.1219496200      1.0000000000
+0 2 1 0.00 1.00
+      0.8000000000      1.0000000000
+99 0
+ENDBS
+
+</pre></div></div>
+</div>
+<p>In principle, to use ‘BASISSET’ keyword, the <code class="docutils literal notranslate"><span class="pre">basisset.basisset()</span></code> should be called. A shortcut <code class="docutils literal notranslate"><span class="pre">bs_keyword</span></code> is added. A warning message is triggered because of the old definition of basis sets.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgo_input = Crystal_input.read_file(&#39;crysinp_mgo.d12&#39;)
+mgo_input.bs_keyword(&#39;pob-DZVP&#39;)
+print(mgo_input.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MGO BULK - GEOMETRY TEST
+CRYSTAL
+0 0 0
+225
+4.217
+2
+12 0.    0.    0.
+8 0.5   0.5   0.5
+BASISSET
+pob-DZVP
+DFT
+B3LYP
+XXLGRID
+ENDDFT
+MAXCYCLE
+200
+SHRINK
+12 24
+TOLINTEG
+7 7 7 7 14
+FMIXING
+70
+DIIS
+ENDSCF
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/crystal_io.py:229: UserWarning: User&#39;s definition of baisis set is not empty. It will be covered by &#39;BASISSET&#39; keyword.
+  self.basisset.basisset(keyword)
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="'crystal_io.Properties_input'-class">
+<h2>‘crystal_io.Properties_input’ class<a class="headerlink" href="#'crystal_io.Properties_input'-class" title="Link to this heading"></a></h2>
+<p><strong>NOTE</strong></p>
+<p><strong>Though developers are working hard to implement all the keywords, due to the limit of time and developing forces, not all keywords has been implemented. Please confirm that in module-specific documentations or contact developers via</strong> <a class="reference external" href="https://github.com/crystal-code-tools/CRYSTALpytools">GitHub</a><strong>.</strong></p>
+<section id="id1">
+<h3>Basic file generation<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> class is developed in a similar style as the <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code> class. It prepares input ‘d3’ files for ‘properties’ calculations of CRYSTAL package.</p>
+<p>An instance is generated by manually calling keywords ‘NEWK’, ‘ECHG’, ‘DOSS’ and ‘BAND’ for charge density, DOS and band calculations. As pointed out in CRYSTAL user manual, ‘BAND’ must be put before ‘NEWK’, while in the following code, <code class="docutils literal notranslate"><span class="pre">newk()</span></code> is called first. The generated output automatically corrects this issue.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_input
+
+inp = Properties_input()
+# NEWK
+inp.newk(12, 24, 1, 0)
+# ECHG
+inp.echg(0, 95) # N point of MAPNET set to 95. Default 100
+inp.echg.coordina([-4., -4., 0.], [4, -4, 0.], [4., 4., 0.])
+inp.echg.margins(1.5, 1.5, 1.5, 1.5)
+inp.echg.rectangu()
+# DOSS
+inp.doss(0, 600, 203, 224, 1, 12, 0)
+# BAND
+inp.band(&#39;Band structure&#39;, 3, 4, 200, 1, 26, 1, 0,
+         [[[0, 0, 0], [2, 0, 0]],
+          [[2, 0, 0], [2, 2, 2]],
+          [[2, 2, 2], [1, 0, 2]]])
+
+# Write the input
+inp.write_file(&#39;propinp_1.d3&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.crystal_io.Properties_input at 0x7fdb64540910&gt;
+</pre></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> class can be instantiated from file or text in the same way as <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code>. Please refer to the examples above.</p>
+</section>
+<section id="'make_band_block'-short-cut-method">
+<h3>‘make_band_block’ short cut method<a class="headerlink" href="#'make_band_block'-short-cut-method" title="Link to this heading"></a></h3>
+<p>It is a shortcut method parameterized for quick generations of band structure block. It accepts either list definition or pymatgen <code class="docutils literal notranslate"><span class="pre">HighSymmKpath</span></code> object.</p>
+<p>The following example shows how to prepare band structure plot from geometry optimization output of diamond.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pymatgen.symmetry.bandstructure import HighSymmKpath
+from CRYSTALpytools.crystal_io import Crystal_output, Properties_input
+
+dia = Crystal_output(&#39;propinp_diamondcrys.out&#39;).get_geometry(initial=False)
+k_path = HighSymmKpath(dia.get_pcel([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]))
+
+inp = Properties_input().make_band_block(k_path, 200, 1, 26)
+print(inp.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+BAND
+BAND STRUCTURE CALCULATION
+10 8 200 1 26 1 0
+0  0  0    4  0  4
+4  0  4    4  2  6
+4  2  6    3  3  6
+3  3  6    0  0  0
+0  0  0    4  4  4
+4  4  4    5  2  5
+5  2  5    4  2  6
+4  2  6    4  4  4
+4  4  4    3  3  6
+3  3  6    5  2  5
+END
+
+</pre></div></div>
+</div>
+</section>
+<section id="'make_doss_block'-shortcut-method">
+<h3>‘make_doss_block’ shortcut method<a class="headerlink" href="#'make_doss_block'-shortcut-method" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">make_doss_block</span></code> is also a shortcut method with parameters set. It allows specification of projected elements with <code class="docutils literal notranslate"><span class="pre">projections</span></code> entry, when output file of ‘crystal’ calculation is available. Useful for big systems.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>inp = Properties_input()
+
+inp.newk(12, 24, 1, 0)
+inp.make_doss_block(band_range=[1, 26], projections=[&#39;O&#39;],
+                    output_file=&#39;propinp_Mg2O2crys.out&#39;)
+print(inp.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+NEWK
+12 24
+1 0
+DOSS
+1 200 1 26 2 12 1
+-4 3 4 5 6
+END
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Advanced:-Repeated-keywords-and-'append'-property">
+<h2>Advanced: Repeated keywords and ‘append’ property<a class="headerlink" href="#Advanced:-Repeated-keywords-and-'append'-property" title="Link to this heading"></a></h2>
+<p>Both <code class="docutils literal notranslate"><span class="pre">Crystal_input</span></code> and <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> classes are inherited from the same <code class="docutils literal notranslate"><span class="pre">BlockBASE</span></code> object defined in ‘base.inputbase’ script. Keywords are protected by block objects and repeating the same keyword in the same block overwrites the previous entry. Therefore, in principle, all the keywords should appear only once in the same block.</p>
+<p>So far as the developers have been aware of, that causes 2 issues:</p>
+<ol class="arabic simple">
+<li><p>In <code class="docutils literal notranslate"><span class="pre">Crystal_input.geom</span></code> block, the keyword ‘MOLECULE’ refers to both the modelling keyword for 0D systems and editing keyword to substracte molecules from molecular crystal. The method of the latter one should be called as <code class="docutils literal notranslate"><span class="pre">molecule2()</span></code> but the original keyword is recognized for file I/O.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_input
+
+inp = Crystal_input().geom_from_cif(&#39;crysinp_para.cif&#39;, keyword=&#39;CRYSTAL&#39;)
+inp.geom.atomorde()
+inp.geom.molecule2(1, [[1 ,0, 0, 0]])
+inp.write_file(&#39;adv_molecule2.d12&#39;)
+
+inp = Crystal_input.read_file(&#39;adv_molecule2.d12&#39;)
+inp.geom.molecule2(None)
+print(inp.geom.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generated by CRYSTALpytools
+CRYSTAL
+0   0   0
+14
+7.073000     9.166000     12.667000    115.510000
+20
+1      0.37160000   0.92980000   0.49880000
+1      0.24220000   0.76340000   0.33040000
+1      0.77660000   0.60000000   0.43090000
+1      0.90770000   0.76640000   0.60050000
+1      0.79990000   0.53530000   0.25760000
+1      0.10820000   0.95930000   0.69510000
+1      0.56840000   0.08530000   0.89610000
+1      0.29390000   0.07980000   0.85010000
+1      0.40860000   0.21910000   0.80230000
+6      0.14960000   0.85790000   0.56187000
+6      0.24320000   0.85758000   0.48526000
+6      0.17040000   0.76206000   0.39004000
+6      0.00430000   0.66838000   0.37078000
+6      0.90790000   0.67092000   0.44601000
+6      0.98060000   0.76560000   0.54106000
+6      0.39830000   0.01599000   0.71975000
+6      0.41680000   0.10369000   0.82440000
+7      0.21229000   0.94984000   0.66089000
+8      0.94130000   0.57511000   0.27811000
+8      0.54450000   0.00741000   0.69146000
+ATOMORDE
+ENDGEOM
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/pymatgen/io/cif.py:1287: UserWarning: Issues encountered while parsing CIF: Skipping relative stoichiometry check because CIF does not contain formula keys.
+  warnings.warn(&#34;Issues encountered while parsing CIF: &#34; + &#34;\n&#34;.join(self.warnings))
+</pre></div></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>For charge difference maps, ‘ECHG’ keyword is defined twice to get charge differences. The user can run 2 separate calculations and call <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> class to get difference maps, or define then <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> object with ‘append’ subblocks, which can be set just as <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> objects. The <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> object allows 5 ‘append’ blocks, i.e., <code class="docutils literal notranslate"><span class="pre">append1</span></code> to <code class="docutils literal notranslate"><span class="pre">append5</span></code>.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_input
+
+inp = Properties_input()
+inp.echg(0, 100)
+inp.echg.coordina([-4., -4., 0.], [4, -4, 0.], [4., 4., 0.])
+inp.echg.margins(1.5, 1.5, 1.5, 1.5)
+inp.echg.rectangu()
+
+inp.append1.pato(0, 0)
+inp.append1.echg(0, 100)
+inp.append1.echg.coordina([-4., -4., 0.], [4, -4, 0.], [4., 4., 0.])
+inp.append1.echg.margins(1.5, 1.5, 1.5, 1.5)
+inp.append1.echg.rectangu()
+
+inp.write_file(&#39;adv_dCHG.d3&#39;)
+print(inp.data)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ECHG
+0
+100
+COORDINA
+-4.000000 -4.000000  0.000000
+ 4.000000 -4.000000  0.000000
+ 4.000000  4.000000  0.000000
+RECTANGU
+MARGINS
+1.5 1.5 1.5 1.5
+END
+PATO
+0 0
+ECHG
+0
+100
+COORDINA
+-4.000000 -4.000000  0.000000
+ 4.000000 -4.000000  0.000000
+ 4.000000  4.000000  0.000000
+RECTANGU
+MARGINS
+1.5 1.5 1.5 1.5
+END
+END
+
+</pre></div></div>
+</div>
+<p>For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.crystal_io.html">API documentations</a> and the developer’s documentation of <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.inputbase.html">InputBASE</a>, <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.crysd12.html">Crystal_inputBASE</a> and
+<a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.propd3.html">Properties_inputBASE</a> classes. For more information about basis sets, also check the <a class="reference internal" href="basisset_advanced.html"><span class="doc">Basis Set: Advanced</span></a> example book.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../examples.html" class="btn btn-neutral float-left" title="Examples and Test Cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="basisset_advanced.html" class="btn btn-neutral float-right" title="Basis Set: Advanced" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

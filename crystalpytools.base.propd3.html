@@ -1,0 +1,840 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.base.propd3 module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.propd3.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How to Cite CRYSTALpytools" href="cite.html" />
+    <link rel="prev" title="CRYSTALpytools.base.plotbase module" href="crystalpytools.base.plotbase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.base.propd3 module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.base.propd3.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-base-propd3-module">
+<h1>CRYSTALpytools.base.propd3 module<a class="headerlink" href="#crystalpytools-base-propd3-module" title="Link to this heading"></a></h1>
+<p id="ref-base-propd3">The <code class="docutils literal notranslate"><span class="pre">Properties_inputBASE</span></code> object is strictly structured by ‘blocks’, which, in general, is defined as keywords that are closed by ‘END’. It is inherited from the <a class="reference internal" href="crystalpytools.base.inputbase.html#ref-base-inputbase"><span class="std std-ref">BlockBASE</span></a> object and is inherited by the <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Properties_input</span></a> object. All the blocks are organized in layers and each corresponds to a list of keywords that can be called and set. The current structure of <code class="docutils literal notranslate"><span class="pre">Properties_inputBASE</span></code> is listed below:</p>
+<p>Layer 1: Optional, repeated block (same calculation, another time) <code class="docutils literal notranslate"><span class="pre">append1</span></code> to <code class="docutils literal notranslate"><span class="pre">append5</span></code></p>
+<p>Layer 2: Data grid and DFT/MP2 correlation energy <code class="docutils literal notranslate"><span class="pre">ECHG</span></code>, <code class="docutils literal notranslate"><span class="pre">POTM</span></code>, <code class="docutils literal notranslate"><span class="pre">CLAS</span></code>, <code class="docutils literal notranslate"><span class="pre">EDFT/ENECOR</span></code>, <code class="docutils literal notranslate"><span class="pre">ADFT/ACOR</span></code></p>
+<p>For the usages of <a class="reference internal" href="crystalpytools.base.inputbase.html#ref-base-inputbase"><span class="std std-ref">BlockBASE</span></a> and <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Properties_input</span></a> objects, please refer to the corresponding documentations.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>Note that methods listed below are for <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Properties_input</span></a> objects, which is typically consistent with <code class="docutils literal notranslate"><span class="pre">Properties_inputBASE</span></code>, except file read and write functions.</p>
+<p>To set a band structure and a projected doss calculation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Properties_input</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">band</span><span class="p">(</span><span class="s1">&#39;Band calc title&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">188</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+<span class="go">             [[[0, 0, 0], [3, 0, 0]], # A 3*2*3 list, for 3 line segments, 2 ending points of each segment, xyz for each point</span>
+<span class="go">              [[3, 0, 0], [2, 2, 0]],</span>
+<span class="go">              [[2, 2, 0], [0, 0, 0]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">newk</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">doss</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">57</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">]])</span> <span class="c1"># Project to atom 54 and atom 64</span>
+</pre></div>
+</div>
+<p>By calling the ‘block-like’ attribute, a sub-block object will be automatically generated if no such object is saved in the upper block object. It also be initialized and deleted in a similar way as keyword commands.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Properties_input</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="p">()</span> <span class="c1"># Initialize ECHG</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># Remove ECHG</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">95</span><span class="p">)</span> <span class="c1"># Charge density map, Npoint of MAPNET is 95 (default value 100)</span>
+</pre></div>
+</div>
+<p>To set the values of keywords, their names are called as methods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">coordina</span><span class="p">([</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.249</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.164</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">rectangu</span><span class="p">()</span> <span class="c1"># Print RECTANGU keyword, without value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Though one can set CRYSTAL input object by manually setting up all the attributes, it is also possible to read a template d3 file and do modifications.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Properties_input</span><span class="p">(</span><span class="s1">&#39;charge2d.d3&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># Remove ECHG block</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">ech3</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># Define ECH3 block</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">ech3</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># Range of Non-periodic direction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;charge3d.d3&#39;</span><span class="p">)</span> <span class="c1"># Print it into file</span>
+</pre></div>
+</div>
+<p>It is also possible to set individual blocks by a string. This is achieved by simply assigning the string variable as input when calling the corresponding method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">ech3</span><span class="p">(</span><span class="s1">&#39;ECH3</span><span class="se">\n</span><span class="s1">100</span><span class="se">\n</span><span class="s1">RANGE</span><span class="se">\n</span><span class="s1">-10</span><span class="se">\n</span><span class="s1">10</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As stressed in the doc of <a class="reference internal" href="crystalpytools.base.inputbase.html#ref-base-inputbase"><span class="std std-ref">base.inputbase</span></a>, repeated keywords not protected by sub-blocks are not permitted. That leads to problems when, for example, plotting the charge difference map to analyze bonds, where ‘ECHG’ is repeated twice in the main block. To address this, the following sub-block is called when the second ‘ECHG’ is used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Properties_input</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Set the first ECHG. MAPNET density = 100, default value is used.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">coordina</span><span class="p">([</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.249</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.164</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">rectangu</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="p">()</span> <span class="c1"># Initialize the first appended calculation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="o">.</span><span class="n">pato</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="o">.</span><span class="n">echg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Set the second ECHG. MAPNET density = 100, default value is used.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">coordina</span><span class="p">([</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.498</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.249</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.164</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.696</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">rectangu</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append1</span><span class="o">.</span><span class="n">echg</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>5 appended calculations (<code class="docutils literal notranslate"><span class="pre">append1</span></code> to <code class="docutils literal notranslate"><span class="pre">append5</span></code>) at most can be added and the <code class="docutils literal notranslate"><span class="pre">Properties_input</span></code> object is the initial calculation, so the same keyword, which is not protected by subblocks, can repeat 6 times at most. Error is reported if it appears more than 6 times.</p>
+<p>To examine the data in a block object, including the <a class="reference internal" href="crystalpytools.crystal_io.html#ref-crystalio"><span class="std std-ref">Properties_input</span></a> obj itself, call the <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p id="module-CRYSTALpytools.base.propd3">Classes and methods of keywords used in ‘properties’ input file (d3).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PInputBlock</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>The base class of a ‘property input block’, i.e., a properties calculation,
+with non-repeated keywords.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.rdfmwf">
+<span class="sig-name descname"><span class="pre">rdfmwf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdfmwf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.rdfmwf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.band">
+<span class="sig-name descname"><span class="pre">band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TITLE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NLINE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ISS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NSUB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INZB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LPR66</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.band" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">path</span></code> can either be a NLINE*2 list of string (labels), or a
+NLINE*2*3 list of int (fractional coordinates).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.anbd">
+<span class="sig-name descname"><span class="pre">anbd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NK</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.anbd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.bwidth">
+<span class="sig-name descname"><span class="pre">bwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">INZB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.bwidth" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.commens">
+<span class="sig-name descname"><span class="pre">commens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ICASO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.commens" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pato">
+<span class="sig-name descname"><span class="pre">pato</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IBN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pato" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.nosymada">
+<span class="sig-name descname"><span class="pre">nosymada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nosymada</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.nosymada" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.newk">
+<span class="sig-name descname"><span class="pre">newk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.newk" title="Link to this definition"></a></dt>
+<dd><p>Inputs are separated by comma.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pban">
+<span class="sig-name descname"><span class="pre">pban</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pban" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pgeomw">
+<span class="sig-name descname"><span class="pre">pgeomw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pgeomw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pgeomw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pdide">
+<span class="sig-name descname"><span class="pre">pdide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">EMI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EMX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pdide" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.adft">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">adft</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.adft" title="Link to this definition"></a></dt>
+<dd><p>Subblock object ADFT.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.acor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acor</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.acor" title="Link to this definition"></a></dt>
+<dd><p>Alias of block ADFT.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.edft">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edft</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.edft" title="Link to this definition"></a></dt>
+<dd><p>Subblock object EDFT.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.enecor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enecor</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.enecor" title="Link to this definition"></a></dt>
+<dd><p>Alias of block EDFT.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.clas">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clas</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.clas" title="Link to this definition"></a></dt>
+<dd><p>Subblock object CLAS. Call <code class="docutils literal notranslate"><span class="pre">self.clas()</span></code> to set parameters. Call
+<code class="docutils literal notranslate"><span class="pre">self.clas.coordina()</span></code> (for example) to set mapnet keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>IFOR</strong> (<em>int</em>) – Number of point multipoles</p></li>
+<li><p><strong>charge</strong> (<em>list</em>) – Formal net charge</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET). Default 100.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.echg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">echg</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.echg" title="Link to this definition"></a></dt>
+<dd><p>Subblock object ECHG. Call <code class="docutils literal notranslate"><span class="pre">self.echg()</span></code> to set parameters. Call
+<code class="docutils literal notranslate"><span class="pre">self.echg.coordina()</span></code> (for example) to set mapnet keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET). Default 100.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.ech3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ech3</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.ech3" title="Link to this definition"></a></dt>
+<dd><p>Subblock object ECH3. Call <code class="docutils literal notranslate"><span class="pre">self.ech3()</span></code> to set parameters. Call
+<code class="docutils literal notranslate"><span class="pre">self.ech3.range()</span></code> (for example) to set 3D grid keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NP</strong> (<em>int</em>) – Number of points along the first direction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.potm">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">potm</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.potm" title="Link to this definition"></a></dt>
+<dd><p>Subblock object POTM. Call <code class="docutils literal notranslate"><span class="pre">self.potm()</span></code> to set parameters. Call
+<code class="docutils literal notranslate"><span class="pre">self.potm.coordina()</span></code> (for example) to set mapnet keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>ITOL</strong> (<em>int</em>) – Penetration tolerance</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET). Default 100.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pot3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pot3</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pot3" title="Link to this definition"></a></dt>
+<dd><p>Subblock object POT3. Call <code class="docutils literal notranslate"><span class="pre">self.pot3()</span></code> to set parameters. Call
+<code class="docutils literal notranslate"><span class="pre">self.pot3.range()</span></code> (for example) to set 3D grid keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NP</strong> (<em>int</em>) – Number of points along the first direction</p></li>
+<li><p><strong>ITOL</strong> (<em>int</em>) – Penetration tolerance</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.potc">
+<span class="sig-name descname"><span class="pre">potc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ICA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPU</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datagrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.potc" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">datagrid</span></code> corresponds to X, Y, Z, ZP, ZM and ZD parameters, which
+can be NPU*3 (<code class="docutils literal notranslate"><span class="pre">ICA=0</span></code>), 2*1 (<code class="docutils literal notranslate"><span class="pre">ICA=1</span></code>) or 3*1 (<code class="docutils literal notranslate"><span class="pre">ICA=2</span></code>) lists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.hirshchg">
+<span class="sig-name descname"><span class="pre">hirshchg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hchg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.hirshchg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.ppan">
+<span class="sig-name descname"><span class="pre">ppan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pchg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.ppan" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.emdldm">
+<span class="sig-name descname"><span class="pre">emdldm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PMAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">STEP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ICASO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NSA1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NSA2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.emdldm" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">hkl</span></code> is a N*3 list of int.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.kinetemd">
+<span class="sig-name descname"><span class="pre">kinetemd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PMAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PINT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">STEP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">STEPDIST</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ICASO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.kinetemd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.poli">
+<span class="sig-name descname"><span class="pre">poli</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IDIPO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITENS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LPR68</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.poli" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.polspin">
+<span class="sig-name descname"><span class="pre">polspin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IDIPO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITENS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LPR68</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.polspin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.anisotro">
+<span class="sig-name descname"><span class="pre">anisotro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.anisotro" title="Link to this definition"></a></dt>
+<dd><p>Available keywords: ‘ALL’, ‘UNIQUE’, ‘SELECT’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.isotropic">
+<span class="sig-name descname"><span class="pre">isotropic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.isotropic" title="Link to this definition"></a></dt>
+<dd><p>Available keywords: ‘ALL’, ‘UNIQUE’, ‘SELECT’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.doss">
+<span class="sig-name descname"><span class="pre">doss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NPRO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INZB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.doss" title="Link to this definition"></a></dt>
+<dd><p>Energy range (BMI, BMA, 2*1 list) and projections (N, NDM,
+Nproj*(NDM+1) list) are defined by extendable list variables. If both
+are defined, projections should be the last entry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.coop">
+<span class="sig-name descname"><span class="pre">coop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NINT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INZB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.coop" title="Link to this definition"></a></dt>
+<dd><p>Energy range (BMI, BMA, 2*1 list) and projections (N, NDM,
+Nproj*(NDM+1) list) are defined by extendable list variables. If both
+are defined, projections should be the last entry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.cohp">
+<span class="sig-name descname"><span class="pre">cohp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NINT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INZB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPOL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.cohp" title="Link to this definition"></a></dt>
+<dd><p>Energy range (BMI, BMA, 2*1 list) and projections (N, NDM,
+Nproj*(NDM+1) list) are defined by extendable list variables. If both
+are defined, projections should be the last entry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock.pscf">
+<span class="sig-name descname"><span class="pre">pscf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pscf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock.pscf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.PInputBlock._doss_like">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_doss_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NPRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INZB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IFNB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPLO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPOL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NPR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.PInputBlock._doss_like" title="Link to this definition"></a></dt>
+<dd><p>Get formatted input text for ‘DOSS’-like keywords, including ‘DOSS’,
+‘COHP’ and ‘COOP’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Properties_inputBASE</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.PInputBlock" title="CRYSTALpytools.base.propd3.PInputBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">PInputBlock</span></code></a></p>
+<p>The base class of Properties_input class. At maximum 5 same ‘properties’
+calculations can be appended</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.append1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append1</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.append1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.append2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append2</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.append2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.append3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append3</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.append3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.append4">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append4</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.append4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.append5">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append5</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.append5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Properties_inputBASE.analyze_text">
+<span class="sig-name descname"><span class="pre">analyze_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Properties_inputBASE.analyze_text" title="Link to this definition"></a></dt>
+<dd><p>Analyze formatted d3 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em>) – Formatted string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EDFT</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>EDFT sub-block</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.becke">
+<span class="sig-name descname"><span class="pre">becke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">becke</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.becke" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.savin">
+<span class="sig-name descname"><span class="pre">savin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">savin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.savin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.radial">
+<span class="sig-name descname"><span class="pre">radial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.radial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.angular">
+<span class="sig-name descname"><span class="pre">angular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">NI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.angular" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.printout">
+<span class="sig-name descname"><span class="pre">printout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.printout" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.tolldens">
+<span class="sig-name descname"><span class="pre">tolldens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ID</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.tolldens" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.EDFT.tollgrid">
+<span class="sig-name descname"><span class="pre">tollgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IG</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.EDFT.tollgrid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.ADFT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ADFT</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.ADFT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.EDFT" title="CRYSTALpytools.base.propd3.EDFT"><code class="xref py py-class docutils literal notranslate"><span class="pre">EDFT</span></code></a></p>
+<p>ADFT sub-block</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.ADFT.newbasis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">newbasis</span></span><a class="headerlink" href="#CRYSTALpytools.base.propd3.ADFT.newbasis" title="Link to this definition"></a></dt>
+<dd><p>Subblock object NEWBASIS</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Grid2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>A base class for 2D data grid (ECHG, POTM, CLAS).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>header</strong> (<em>str</em>) – Formatted headers</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.coordina">
+<span class="sig-name descname"><span class="pre">coordina</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crdb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crdc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.coordina" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.atoms">
+<span class="sig-name descname"><span class="pre">atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.atoms" title="Link to this definition"></a></dt>
+<dd><p>IA IB IC are 4*1 lists</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.rectangu">
+<span class="sig-name descname"><span class="pre">rectangu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.rectangu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.margins">
+<span class="sig-name descname"><span class="pre">margins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ABM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ADM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BCM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.margins" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.angstrom">
+<span class="sig-name descname"><span class="pre">angstrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.angstrom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.bohr">
+<span class="sig-name descname"><span class="pre">bohr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">br</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.bohr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid2D.fraction">
+<span class="sig-name descname"><span class="pre">fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid2D.fraction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.ECHG">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.ECHG" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.Grid2D" title="CRYSTALpytools.base.propd3.Grid2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid2D</span></code></a></p>
+<p>Class for ECHG. Initialization can be done by formatted string only.
+Otherwise call this object from upper block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.POTM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">POTM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.POTM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.Grid2D" title="CRYSTALpytools.base.propd3.Grid2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid2D</span></code></a></p>
+<p>Class for POTM. Initialization can be done by formatted string only.
+Otherwise call this object from upper block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>ITOL</strong> (<em>int</em>) – Penetration tolerance</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.CLAS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CLAS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.CLAS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.Grid2D" title="CRYSTALpytools.base.propd3.Grid2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid2D</span></code></a></p>
+<p>Class for CLAS. Initialization can be done by formatted string only.
+Otherwise call this object from upper block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>IDER</strong> (<em>int</em>) – Order of the derivative</p></li>
+<li><p><strong>IFOR</strong> (<em>int</em>) – Number of point multipoles</p></li>
+<li><p><strong>charge</strong> (<em>list</em>) – Formal net charge</p></li>
+<li><p><strong>NPY</strong> (<em>int</em>) – Number of points (MAPNET)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid3DBASE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Grid3DBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid3DBASE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.inputbase.html#CRYSTALpytools.base.inputbase.BlockBASE" title="CRYSTALpytools.base.inputbase.BlockBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockBASE</span></code></a></p>
+<p>A base class for 3D data grid (ECH3, POT3). Not for ‘GRID3D’ keyword</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>header</strong> (<em>str</em>) – Formatted headers</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid3DBASE.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid3DBASE.scale" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.Grid3DBASE.range">
+<span class="sig-name descname"><span class="pre">range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.Grid3DBASE.range" title="Link to this definition"></a></dt>
+<dd><p>Inputs are 2*1 lists. <code class="docutils literal notranslate"><span class="pre">[minvalue,</span> <span class="pre">maxvalue]</span></code>. The sequence of rg123
+is consistent with CRYSTAL (2D: z; 1D: y, z; 0D: x, y, z)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.ECH3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ECH3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.ECH3" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.Grid3DBASE" title="CRYSTALpytools.base.propd3.Grid3DBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid3DBASE</span></code></a></p>
+<p>Class for ECH3. Initialization can be done by formatted string only.
+Otherwise call this object from upper block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NP</strong> (<em>int</em>) – Number of points along the first direction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.propd3.POT3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">POT3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.propd3.POT3" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.base.propd3.Grid3DBASE" title="CRYSTALpytools.base.propd3.Grid3DBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid3DBASE</span></code></a></p>
+<p>Class for POT3. Initialization can be done by formatted string only.
+Otherwise call this object from upper block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NP</strong> (<em>int</em>) – Number of points along the first direction</p></li>
+<li><p><strong>ITOL</strong> (<em>int</em>) – Penetration tolerance</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.base.plotbase.html" class="btn btn-neutral float-left" title="CRYSTALpytools.base.plotbase module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cite.html" class="btn btn-neutral float-right" title="How to Cite CRYSTALpytools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

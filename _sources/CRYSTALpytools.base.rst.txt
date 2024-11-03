@@ -1,0 +1,69 @@
+CRYSTALpytools.base package
+===========================
+
+Submodules
+----------
+
+CRYSTALpytools.base.basisset module
+-----------------------------------
+
+.. automodule:: CRYSTALpytools.base.basisset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.crysd12 module
+----------------------------------
+
+.. automodule:: CRYSTALpytools.base.crysd12
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.extfmt module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.base.extfmt
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.inputbase module
+------------------------------------
+
+.. automodule:: CRYSTALpytools.base.inputbase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.output module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.base.output
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.plotbase module
+-----------------------------------
+
+.. automodule:: CRYSTALpytools.base.plotbase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CRYSTALpytools.base.propd3 module
+---------------------------------
+
+.. automodule:: CRYSTALpytools.base.propd3
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: CRYSTALpytools.base
+   :members:
+   :undoc-members:
+   :show-inheritance:

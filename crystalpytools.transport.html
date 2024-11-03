@@ -1,0 +1,821 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.transport module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.transport.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.io.xcrysden module" href="crystalpytools.io.xcrysden.html" />
+    <link rel="prev" title="CRYSTALpytools.topond module" href="crystalpytools.topond.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.transport module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.transport.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-transport-module">
+<h1>CRYSTALpytools.transport module<a class="headerlink" href="#crystalpytools-transport-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.transport"><span id="reftransport"></span>The module for electron transport property analysis.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Tensor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Tensor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The basic class for electron transport properties described by tensors,
+including ‘KAPPA’, ‘SIGMA’, ‘SIGMAS’ and ‘SEEBECK’. Units must be consistent
+with the output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – ‘KAPPA’, ‘SIGMA’, ‘SIGMAS’ or ‘SEEBECK’.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Same as output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Tensor</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Tensor.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Tensor.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read electron transport properties by the BOLTZTRA keyword, including
+‘KAPPA’, ‘SIGMA’, ‘SIGMAS’, and ‘SEEBECK’. Though currently the
+geometry information is not required, it is saved if the standard
+output file is given.</p>
+<p>Also allow for generating the following properties not printed by
+CRYSTAL:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Power Factor: <span class="math notranslate nohighlight">\(S^{2}\sigma\)</span>. Any 2 from ‘SEEBECK’, ‘SIGMA’ and</dt><dd><p>‘SIGMAS’ are required.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ZT: <span class="math notranslate nohighlight">\(\frac{S^{r}\sigma T}{\kappa}\)</span>. ‘KAPPA’ and any 2</dt><dd><p>from ‘SEEBECK’, ‘SIGMA’ and ‘SIGMAS’ are required.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure all the entries are from the same calculation. The code
+only checks the dimensionalities of tensors.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For ‘SEEBECK’, all the 9 elements of the tensor was printed. As far
+as the developers have been aware of, it is symmetrized. Therefore
+the redundant ‘yx’, ‘zx’ and ‘zy’ dimensions are removed to keep
+consistent with other outputs.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘DAT’ files by CRYSTAL BOLTZTRA keyword. Extendable
+only when <code class="docutils literal notranslate"><span class="pre">method='power</span> <span class="pre">factor'</span></code> or <code class="docutils literal notranslate"><span class="pre">method='zt'</span></code>.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – ‘normal’ to read 1 file, or ‘power factor’ or ‘zt’.
+For meanings, see above.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Tensor</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Tensor.get_power_factor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_power_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Tensor.get_power_factor" title="Link to this definition"></a></dt>
+<dd><p>Get thermoelectric power factor object from any 2 objects of ‘SEEBECK’,
+‘SIGMA’ or ‘SIGMAS’ types.</p>
+<div class="math notranslate nohighlight">
+\[\text{Power Factor} = S^{2}\sigma\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure all the entries are from the same calculation. The code
+only checks the dimensionalities of tensors. The geometry follows
+the first entry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj1</strong> (<a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><em>Tensor</em></a>) – Tensor object 1 of ‘SEEBECK’, ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>obj2</strong> (<a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><em>Tensor</em></a>) – Tensor object 2 of ‘SEEBECK’, ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>PowerFactor</em>) – ‘POWERFACTOR’ type of object, in ‘W/m/K^2’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Tensor.get_zt">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_zt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Tensor.get_zt" title="Link to this definition"></a></dt>
+<dd><p>Get thermoelectric dimensionless figure of merit (ZT) object from a
+‘KAPPA’ object and any 2 from ‘SEEBECK’, ‘SIGMA’ and ‘SIGMAS’.</p>
+<div class="math notranslate nohighlight">
+\[ZT = \frac{S^{r}\sigma T}{\kappa}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure all the entries are from the same calculation. The code
+only checks the dimensionalities of tensors. The geometry follows
+the ‘KAPPA’ entry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj1</strong> (<a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><em>Tensor</em></a>) – Tensor object 1 of ‘KAPPA’, ‘SEEBECK’, ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>obj2</strong> (<a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><em>Tensor</em></a>) – Tensor object 2 of ‘KAPPA’, ‘SEEBECK’, ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>obj3</strong> (<a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><em>Tensor</em></a>) – Tensor object 3 of ‘KAPPA’, ‘SEEBECK’, ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ZT</em>) – ‘ZT’ type of object, in ‘dimensionless’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Tensor.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'potential'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tab:gray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'upper</span> <span class="pre">left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Tensor.plot" title="Link to this definition"></a></dt>
+<dd><p>Plot tensor-like transport properties in multiple ways:</p>
+<ol class="arabic simple">
+<li><p>X_axis: Chemical potential <span class="math notranslate nohighlight">\(\mu\)</span>; Plot series: Temperature <span class="math notranslate nohighlight">\(T\)</span>.</p></li>
+<li><p>X_axis: Carrier density <span class="math notranslate nohighlight">\(\rho(\mu; T)\)</span>; Plot series: Temperature <span class="math notranslate nohighlight">\(T\)</span>.</p></li>
+<li><p>X_axis: Temperature <span class="math notranslate nohighlight">\(T\)</span>; Plot series: Chemical potential <span class="math notranslate nohighlight">\(\mu\)</span>.</p></li>
+</ol>
+<p>For comparison of multiple systems, please refer to the
+<a class="reference internal" href="crystalpytools.plot.html#ref-plot"><span class="std std-ref">plot.plot_transport_tensor()</span></a> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_axis</strong> (<em>str</em>) – X axis options, ‘potential’, ‘carrier’ or
+‘temperature’. For meanings, see above.</p></li>
+<li><p><strong>x_range</strong> (<em>list</em>) – Display range of x axis. Y axis is self-adaptive.</p></li>
+<li><p><strong>direction</strong> (<em>str</em><em>|</em><em>list</em>) – Depending on the dimensionality of the system,
+including ‘xx’, ‘xy’, ‘xz’, ‘yx’, ‘yy’, ‘yz’, ‘zx’, ‘zy’ and
+‘zz’. A list of options will generate nDirect*1 subplots. The
+direction of each subplot is annotated on the upper left corner.</p></li>
+<li><p><strong>spin</strong> (<em>str</em>) – Spin-polarized systems only. Electron spins to plot.
+‘up’, ‘down’ or ‘sum’.</p></li>
+<li><p><strong>plot_series</strong> (<em>list</em><em>|</em><em>array</em><em>|</em><em>float</em>) – <strong>Values</strong> of the plot series.
+Should be commensurate with the choice of <code class="docutils literal notranslate"><span class="pre">x_axis</span></code>.</p></li>
+<li><p><strong>plot_label</strong> (<em>list</em><em>|</em><em>str</em><em>|</em><em>None</em>) – None for default values: <code class="docutils literal notranslate"><span class="pre">plot_series</span></code>
+and its unit. If str, prefixing that entry in front of the
+default value. If list, it should be 1*nPlotSeries for every
+plot line.</p></li>
+<li><p><strong>plot_color</strong> (<em>list</em><em>|</em><em>str</em><em>|</em><em>None</em>) – Similar to <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS.plot()</span></code>.
+If str, use the same color for all the plot lines. If
+1*nPlotSeries, use the same color for every plot line. If
+2*nPlotSeries, use different colors for p-type and n-type
+carrier properties.</p></li>
+<li><p><strong>plot_linestyle</strong> (<em>list</em><em>|</em><em>str</em><em>|</em><em>None</em>) – Similar to <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS.plot()</span></code>.
+See explanations of <code class="docutils literal notranslate"><span class="pre">plot_color</span></code>.</p></li>
+<li><p><strong>plot_linewidth</strong> (<em>list</em><em>|</em><em>float</em><em>|</em><em>None</em>) – Similar to <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS.plot()</span></code>.
+See explanations of <code class="docutils literal notranslate"><span class="pre">plot_color</span></code>.</p></li>
+<li><p><strong>zero_color</strong> (<em>str</em>) – Color of the 0 value line.</p></li>
+<li><p><strong>zero_linestyle</strong> (<em>str</em>) – Linestyle of the 0 value line.</p></li>
+<li><p><strong>zero_linewidth</strong> (<em>float</em>) – Linewidth of the 0 value line.</p></li>
+<li><p><strong>layout</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Layout of subplots. By default it is nDirection*1
+gird of figures.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for the property plotted.
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Figure size.</p></li>
+<li><p><strong>legend</strong> (<em>str</em><em>|</em><em>None</em>) – Location of legend. None for not adding legend.</p></li>
+<li><p><strong>sharey</strong> (<em>bool</em>) – Share y axis for multiple subplots. Share x is enforced.</p></li>
+<li><p><strong>fontsize</strong> (<em>float</em><em>|</em><em>int</em>) – Font size of the title, subplot capations
+(direction), x and y axis capations.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – <em>Developer Only</em>, indices of axes in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to the matplotlib <code class="docutils literal notranslate"><span class="pre">Axes.plot()</span></code>
+method. Applied to all the plots.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Distribution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Distribution" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class for electron transport properties described by distribution,
+currently transport distribution function (TDF) only. Units must be
+consistent with the output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>array</em>) – Energy in eV.</p></li>
+<li><p><strong>distr</strong> (<em>array</em>) – nEnergy*nDimen*nSpin Distribution function</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – ‘TDF’.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Same as output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Distribution</em>) – Attributes: ‘energy’, ‘function’, ‘type’, ‘struc’,
+‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Distribution.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boltztra_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Distribution.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read electron transport distribution functions (‘TDF.DAT’) by the
+BOLTZTRA keyword. Though currently the geometry information is not
+required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boltztra_out</strong> (<em>str</em>) – ‘DAT’ files by CRYSTAL BOLTZTRA keyword.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Distribution</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Kappa">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Kappa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Kappa" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Themal conductivity <span class="math notranslate nohighlight">\(\kappa\)</span>. Inherited from <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>.
+Unit: W/m/K.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Kappa</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Kappa.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Kappa.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read the ‘KAPPA.DAT’ file. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘KAPPA.DAT’ file.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Kappa</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Sigma">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Sigma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Electrical conductivity <span class="math notranslate nohighlight">\(\sigma\)</span>. Inherited <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>.
+Unit: 1/Ohm/m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Sigma</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Sigma.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Sigma.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read the ‘SIGMA.DAT’ file. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘SIGMA.DAT’ file.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Sigma</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Seebeck">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Seebeck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Seebeck" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Seebeck coefficient <span class="math notranslate nohighlight">\(S\)</span>. Inherited <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>. Unit: V/K.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">Seebeck</span></code>, spin is always 1 but its dimension is kept to be
+commensurate with other classes.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*1 array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*1 array of flattened tensor elements.
+nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Seebeck</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.Seebeck.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.Seebeck.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read the ‘SEEBECK.DAT’ file. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘SEEBECK.DAT’ file.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Seebeck</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.SigmaS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SigmaS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.SigmaS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Electrical conductivity times Seebeck coefficient <span class="math notranslate nohighlight">\(\sigma S\)</span>.
+Inherited <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>. Unit: A/m/K.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>SigmaS</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.SigmaS.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.SigmaS.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read the ‘SIGMAS.DAT’ file. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘SIGMAS.DAT’ file.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>SigmaS</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.PowerFactor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PowerFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.PowerFactor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Thermoelectrical power factor <span class="math notranslate nohighlight">\(S^{2}\sigma\)</span>. Inherited
+<code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>. Unit: W/m/K^2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>PowerFactor</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.PowerFactor.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.PowerFactor.from_file" title="Link to this definition"></a></dt>
+<dd><p>Get thermoelectric power factor object from any 2 files of ‘SEEBECK’,
+‘SIGMA’ or ‘SIGMAS’ types. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure all the entries are from the same calculation. The code
+only checks the dimensionalities of tensors. The geometry follows
+the first entry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file1</strong> (<em>str</em>) – File 1 in ‘SEEBECK’ ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>file2</strong> (<em>str</em>) – File 2 in ‘SEEBECK’ ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>PowerFactor</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.ZT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carrier_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.ZT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Tensor" title="CRYSTALpytools.transport.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<p>Thermoelectric dimensionless figure of merit (ZT)
+<span class="math notranslate nohighlight">\(\frac{S^{r}\sigma T}{\kappa}\)</span>. Inherited <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code>.
+Unit: dimensionless.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em>) – Temperature in K</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nPot*nDimen*nSpin array of flattened tensor
+elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>ZT</em>) – Attributes: ‘T’, ‘mu’, ‘carrier’, ‘data’, ‘type’,
+‘struc’, ‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.ZT.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.ZT.from_file" title="Link to this definition"></a></dt>
+<dd><p>Get ZT object from a ‘KAPPA’ file and any 2 files of ‘SEEBECK’, ‘SIGMA’
+and ‘SIGMAS’. Though currently the geometry information is not required,
+it is saved if the standard output file is given.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure all the entries are from the same calculation. The code
+only checks the dimensionalities of tensors. The geometry follows
+the first entry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file1</strong> (<em>str</em>) – File 1 in ‘KAPPA’, ‘SEEBECK’ ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>file2</strong> (<em>str</em>) – File 2 in ‘KAPPA’, ‘SEEBECK’ ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>file3</strong> (<em>str</em>) – File 3 in ‘KAPPA’, ‘SEEBECK’ ‘SIGMA’ or ‘SIGMAS’ types.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>PowerFactor</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.TDF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TDF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.TDF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.transport.Distribution" title="CRYSTALpytools.transport.Distribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distribution</span></code></a></p>
+<p>Themal distribution function. Inherited from <code class="docutils literal notranslate"><span class="pre">transport.Distribution</span></code>.
+Unit: eV and 1/hbar^2*eV*fs/angstrom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>array</em>) – Energy in eV.</p></li>
+<li><p><strong>distr</strong> (<em>array</em>) – nEnergy*nDimen*nSpin Distribution function</p></li>
+<li><p><strong>carrier_density</strong> (<em>array</em>) – nT*nPot*nSpin array of carrier density in
+cm <span class="math notranslate nohighlight">\(^{-3}\)</span>. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>Distribution</em>) – Attributes: ‘energy’, ‘function’, ‘type’, ‘struc’,
+‘unit’ and ‘spin’</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.transport.TDF.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.transport.TDF.from_file" title="Link to this definition"></a></dt>
+<dd><p>Read the ‘TDF.DAT’ file. Though currently the geometry information is
+not required, it is saved if the standard output file is given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘TDF.DAT’ file.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Properties output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>SigmaS</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.topond.html" class="btn btn-neutral float-left" title="CRYSTALpytools.topond module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.io.xcrysden.html" class="btn btn-neutral float-right" title="CRYSTALpytools.io.xcrysden module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

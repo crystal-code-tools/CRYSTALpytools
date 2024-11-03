@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.geometry module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.geometry.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.phonons module" href="crystalpytools.phonons.html" />
+    <link rel="prev" title="CRYSTALpytools.execute module" href="crystalpytools.execute.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.geometry module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.geometry.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-geometry-module">
+<h1>CRYSTALpytools.geometry module<a class="headerlink" href="#crystalpytools-geometry-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.geometry"><span id="ref-geometry"></span>Class and methods to deal with geometries, including Pymatgen Structrue and
+Molecule geometries and CRYSTAL gui geometries</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.Crystal_gui">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensionality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.Crystal_gui" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class can read a CRYSTAL gui file into an object or substrate
+information of the object to generate a gui file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dimensionality</strong> (<em>int</em>) – Number of dimensions</p></li>
+<li><p><strong>lattice</strong> (<em>array</em>) – 3*3 lattice matrix in Angstrom</p></li>
+<li><p><strong>symmops</strong> (<em>array</em>) – n_symmops*4*3 matrices of symmetry operators</p></li>
+<li><p><strong>atom_number</strong> (<em>array</em>) – natom*1 int array of atomic numbers</p></li>
+<li><p><strong>atom_positions</strong> (<em>array</em>) – natom*3 array of Cartesian coordinates</p></li>
+<li><p><strong>space_group</strong> (<em>int</em>) – CRYSTAL space group number</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.Crystal_gui.read_pmg">
+<span class="sig-name descname"><span class="pre">read_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.Crystal_gui.read_pmg" title="Link to this definition"></a></dt>
+<dd><p>Read a pymatgen Structure object into a <code class="docutils literal notranslate"><span class="pre">CRYSTAL_gui</span></code> object. Vacuum
+layer is set to 500 Angstrom as the default of CRYSTAL for low symmstry
+systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struc</strong> (<em>Structure</em><em>|</em><em>Molecule</em>) – Pymatgen Structure / Molecule object.</p></li>
+<li><p><strong>pbc</strong> (<em>list</em>) – 1*3 boolian list. Implements periodicity along x, y and z
+directions. If none, the code will read it from input structure.</p></li>
+<li><p><strong>vacuum</strong> (<em>float</em>) – Vacuum distance. Unit: Angstrom. Low dimensional
+systems only.</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – Do symmetry analysis.</p></li>
+<li><p><strong>zconv</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – 1st element: The <strong>index</strong> of atom;
+2nd element: The new conventional atomic number.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to Pymatgen SpacegroupAnalyzer object. Valid only
+if <code class="docutils literal notranslate"><span class="pre">symmetry=True</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.Crystal_gui.read_gui">
+<span class="sig-name descname"><span class="pre">read_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gui_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.Crystal_gui.read_gui" title="Link to this definition"></a></dt>
+<dd><p>Read CRYSTAL gui file and genreate a <code class="docutils literal notranslate"><span class="pre">Crystal_gui</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gui_file</strong> (<em>str</em>) – The CRYSTAL structure (gui) file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.Crystal_gui.write_gui">
+<span class="sig-name descname"><span class="pre">write_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gui_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pseudo_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.Crystal_gui.write_gui" title="Link to this definition"></a></dt>
+<dd><p>Write a CRYSTAL gui file (to file)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gui_file</strong> (<em>str</em>) – The name of the gui that is going to be written (
+including .gui).</p></li>
+<li><p><strong>symm</strong> (<em>bool</em>) – Whether to include symmetry operations.</p></li>
+<li><p><strong>pseudo_atoms</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – A list of atoms whose core is described
+by a pseudopotential (conventional atomic number = atomic
+number + 200)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standarize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></p>
+<p>Inherited from <a class="reference external" href="https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Structure">Pymatgen Structure</a>
+object with added methods.</p>
+<p>Arguments not listed are the same as <a class="reference external" href="https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Structure">Pymatgen Structure</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Same as pymatgen or a 1*nAtom list of
+<strong>conventional</strong> atomic numbers.</p></li>
+<li><p><strong>symmetry_group</strong> (<em>int</em>) – Symmetry group number or symbol in CRYSTAL
+convention.</p></li>
+<li><p><strong>pbc</strong> (<em>list</em><em>|</em><em>tuple</em>) – Periodicity.</p></li>
+<li><p><strong>standarize</strong> (<em>bool</em>) – Whether to use the CRYSTAL convention of periodic
+boundaries for low dimensional materials. It calls the
+<code class="docutils literal notranslate"><span class="pre">standarize_pbc()</span></code> method.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to pymatgen Structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>CStructure</em>) – <code class="docutils literal notranslate"><span class="pre">CStructure</span></code> object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.from_pmg">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.from_pmg" title="Link to this definition"></a></dt>
+<dd><p>Get a <code class="docutils literal notranslate"><span class="pre">CStructure</span></code> object from Pymatgen structure. <code class="docutils literal notranslate"><span class="pre">symmetry_group</span></code>
+currently not available.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.ndimen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndimen</span></span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.ndimen" title="Link to this definition"></a></dt>
+<dd><p>Dimensionality (1~3) of the system.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.species_symbol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">species_symbol</span></span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.species_symbol" title="Link to this definition"></a></dt>
+<dd><p>Atom symbols.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.species_Z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">species_Z</span></span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.species_Z" title="Link to this definition"></a></dt>
+<dd><p>Conventional atomic numbers</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.crys_coords">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crys_coords</span></span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.crys_coords" title="Link to this definition"></a></dt>
+<dd><p>Composite fractional / Cartesian atomic coordinates. Consistent
+with CRYSTAL conventions.</p>
+<ul class="simple">
+<li><p>3D: Fractional</p></li>
+<li><p>2D: Frac, Frac, Cart</p></li>
+<li><p>1D: Frac, Cart, Cart</p></li>
+<li><p>0D: Cart, Cart, Cart</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.standarize_pbc">
+<span class="sig-name descname"><span class="pre">standarize_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.standarize_pbc" title="Link to this definition"></a></dt>
+<dd><p>Use the CRYSTAL standard periodic boundary for low dimensional materials.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.refine_geometry">
+<span class="sig-name descname"><span class="pre">refine_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.refine_geometry" title="Link to this definition"></a></dt>
+<dd><p>Get refined geometry. Useful when reducing the cell to the irrducible
+one. 3D only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Passed to Pymatgen <a class="reference external" href="https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer">SpacegroupAnalyzer</a> object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>CStructure</em>) – New attributes listed below</p></li>
+<li><p><strong>sg</strong> (<em>int</em>) – Space group number</p></li>
+<li><p><strong>pstruc</strong> (<em>Structure</em>) – Irrducible structure that is consistent with
+International Crystallographic Table</p></li>
+<li><p><strong>platt</strong> (<em>list</em>) – minimal set of crystallographic cell parameters</p></li>
+<li><p><strong>natom_irr</strong> (<em>int</em>) – number of irrducible atoms</p></li>
+<li><p><strong>atom</strong> (<em>list</em>) – natom*4 array. 1st element: atomic number; 2-4:
+fractional coordinates</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.get_sg_symmops">
+<span class="sig-name descname"><span class="pre">get_sg_symmops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.get_sg_symmops" title="Link to this definition"></a></dt>
+<dd><p>Get space group number and corresponding symmetry operations. To keep
+consistency with International Crystallographic Table, refined geometry
+is suggested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Passed to Pymatgen SpacegroupAnalyzer object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>CStructure</em>) – New attributes are listed below</p></li>
+<li><p><strong>sg</strong> (<em>int</em>) – Space group number</p></li>
+<li><p><strong>n_symmops</strong> (<em>int</em>) – number of symmetry operations</p></li>
+<li><p><strong>symmops</strong> (<em>array</em>) – n_symmops*4*3 array of symmetry operations</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.get_pcel">
+<span class="sig-name descname"><span class="pre">get_pcel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.get_pcel" title="Link to this definition"></a></dt>
+<dd><p>Restore the supercell to primitive cell, with the origin shifted to the
+middle of lattice to utilize symmetry (as the default of CRYSTAL).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>smx</strong> (<em>array</em>) – 3*3 array of <em>supercell expansion matrix</em>. Inverse
+will be taken automatically.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pcel</strong> (<em>CStructure</em>) – Pymatgen structure of primitive cell with
+CRYSTALpytools methods.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.get_scel">
+<span class="sig-name descname"><span class="pre">get_scel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.get_scel" title="Link to this definition"></a></dt>
+<dd><p>Get the supercell from primitive cell, with the origin shifted to the
+middle of lattice to utilize symmetry (as the default of CRYSTAL).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>smx</strong> (<em>array</em>) – 3*3 array of supercell expansion matrix</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>scel</strong> (<em>CStructure</em>) – Pymatgen structure of supercell</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.rot_cel">
+<span class="sig-name descname"><span class="pre">rot_cel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.rot_cel" title="Link to this definition"></a></dt>
+<dd><p>Rotate the geometry according to 2 vectors. A <a class="reference external" href="https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation#Rotation_vector">rotation vector</a>
+is defined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec1</strong> (<em>array</em>) – A Cartesian vector before rotation</p></li>
+<li><p><strong>vec2</strong> (<em>array</em>) – A Cartesian vector after rotation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rcel</strong> (<em>CStructure</em>) – Pymatgen structure of rotated cell</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.miller_norm">
+<span class="sig-name descname"><span class="pre">miller_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">miller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.miller_norm" title="Link to this definition"></a></dt>
+<dd><p>Find the norm vector of a specified Miller plane</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>miller</strong> (<em>array</em><em> | </em><em>list</em>) – Miller indices. 3*1 1D array or nmiller*3 3D array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vec</strong> (<em>array</em>) – Norm vector, normalized to 1. 3*1 1D array or nmiller*3 3D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure.write_gui">
+<span class="sig-name descname"><span class="pre">write_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gui_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure.write_gui" title="Link to this definition"></a></dt>
+<dd><p>Read a pymatgen Structure object into a <code class="docutils literal notranslate"><span class="pre">CRYSTAL_gui</span></code> object. Vacuum
+layer is set to 500 Angstrom as the default of CRYSTAL for low symmstry
+systems.</p>
+<p><em>Developing</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struc</strong> (<em>Structure</em><em>|</em><em>Molecule</em>) – Pymatgen Structure / Molecule object.</p></li>
+<li><p><strong>pbc</strong> (<em>list</em>) – 1*3 boolian list. Implements periodicity along x, y and z
+directions. If none, the code will read it from input structure.</p></li>
+<li><p><strong>vacuum</strong> (<em>float</em>) – Vacuum distance. Unit: Angstrom. Low dimensional
+systems only.</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – Do symmetry analysis.</p></li>
+<li><p><strong>zconv</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – 1st element: The <strong>index</strong> of atom;
+2nd element: The new conventional atomic number.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to Pymatgen SpacegroupAnalyzer object. Valid only
+if <code class="docutils literal notranslate"><span class="pre">symmetry=True</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CStructure._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#CRYSTALpytools.geometry.CStructure._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CMolecule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CMolecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.geometry.CMolecule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Molecule</span></code></p>
+<p>Inherited from <a class="reference external" href="https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Molecule">Pymatgen Molecule</a>
+object with added methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Same as pymatgen or a 1*nAtom list of
+<strong>conventional</strong> atomic numbers.</p></li>
+<li><p><strong>symmetry_group</strong> (<em>int</em>) – Symmetry group number or symbol in CRYSTAL
+convention.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to pymatgen Molecule.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>CMolecule</em>) – <code class="docutils literal notranslate"><span class="pre">CMolecule</span></code> object.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CRYSTALpytools.geometry.CMolecule._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#CRYSTALpytools.geometry.CMolecule._abc_impl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.execute.html" class="btn btn-neutral float-left" title="CRYSTALpytools.execute module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.phonons.html" class="btn btn-neutral float-right" title="CRYSTALpytools.phonons module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

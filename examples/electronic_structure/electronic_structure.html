@@ -1,0 +1,843 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electronic Structure &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/electronic_structure/electronic_structure.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Fermi Surface" href="../fermi_surface/fermi_surface.html" />
+    <link rel="prev" title="Elastic Properties" href="../elastic_properties/elastic_properties.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Electronic Structure</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/electronic_structure/electronic_structure.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Electronic-Structure">
+<h1>Electronic Structure<a class="headerlink" href="#Electronic-Structure" title="Link to this heading"></a></h1>
+<p>Here code examples for electron band structure, density of states (DOS) are given. For dispersions of <code class="docutils literal notranslate"><span class="pre">E(k)</span></code> across the first Brillouin zone, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/fermi_surface/fermi_surface.html">Fermi Surface examples</a>.</p>
+<section id="'read_electron_band()'-and-'read_electron_dos()'-methods">
+<h2>‘read_electron_band()’ and ‘read_electron_dos()’ methods<a class="headerlink" href="#'read_electron_band()'-and-'read_electron_dos()'-methods" title="Link to this heading"></a></h2>
+<p>Both methods are defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Properties_output</span></code> class, which read formatted output files generated by CRYSTAL and return to <code class="docutils literal notranslate"><span class="pre">electronics.ElectronBand</span></code> and <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS</span></code> classes. Both methods accept Crgra2006 (fort.25) and Xmgrace files (BAND.DAT, DOSS.DAT).</p>
+<p>The standard output is not required for plotting, the geometry information is required during analysis. The output of properties calculation can be specified during object instantiation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+mgoband = Properties_output(&#39;band_mgo.outp&#39;).read_electron_band(&#39;band_mgo.BAND&#39;)
+
+print(&#39;MgO energy unit = {}&#39;.format(mgoband.unit))
+print(&#39;MgO Fermi energy = {:.2f}&#39;.format(mgoband.efermi))
+print(&#39;MgO reciprocal lattice:&#39;)
+print(mgoband.reciprocal_latt)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MgO energy unit = eV
+MgO Fermi energy = -4.14
+MgO reciprocal lattice:
+[[-1.48996569  1.48996569  1.48996569]
+ [ 1.48996569 -1.48996569  1.48996569]
+ [ 1.48996569  1.48996569 -1.48996569]]
+</pre></div></div>
+</div>
+<p>Currently no geometry information is added to the <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgodoss = Properties_output().read_electron_dos(&#39;doss_mgo.DOSS&#39;)
+
+print(&#39;MgO energy unit = {}&#39;.format(mgodoss.unit))
+print(&#39;MgO Fermi energy = {:.2f}&#39;.format(mgodoss.efermi))
+print(&#39;MgO DOS projections = {}&#39;.format(len(mgodoss.doss)))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MgO energy unit = eV
+MgO Fermi energy = -4.14
+MgO DOS projections = 3
+</pre></div></div>
+</div>
+</section>
+<section id="'electronics'-module">
+<h2>‘electronics’ module<a class="headerlink" href="#'electronics'-module" title="Link to this heading"></a></h2>
+<p>The electronics module includes object-oriented methods for data analysis and quick plotting.</p>
+<section id="'ElectronBand'-object">
+<h3>‘ElectronBand’ object<a class="headerlink" href="#'ElectronBand'-object" title="Link to this heading"></a></h3>
+<p>The user can instantiate a <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> object by directly calling the <code class="docutils literal notranslate"><span class="pre">from_file</span></code> class method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ElectronBand
+
+mgoband = ElectronBand.from_file(&#39;band_mgo.BAND&#39;, &#39;band_mgo.outp&#39;)
+</pre></div>
+</div>
+</div>
+<p>Basic properties can be analyzed with its methods. For band positions, when 3D k path is available, return to 3D cartesian coordinates.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mgoband.get_bandgap()
+print(&#39;Band gap of MgO = {:.2f} {}&#39;.format(mgoband.gap, mgoband.unit))
+print(&#39;CBM to Fermi level = {:.2f}&#39;.format(mgoband.cbm))
+print(&#39;3D VBM position = {:.2f} {:.2f} {:.2f}&#39;.format(mgoband.gap_pos[0, 0],
+                                                      mgoband.gap_pos[0, 1],
+                                                      mgoband.gap_pos[0, 2]))
+print(&#39;3D CBM position = {:.2f} {:.2f} {:.2f}&#39;.format(mgoband.gap_pos[1, 0],
+                                                      mgoband.gap_pos[1, 1],
+                                                      mgoband.gap_pos[1, 2]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Band gap of MgO = 7.12 eV
+CBM to Fermi level = 7.12
+3D VBM position = 0.00 0.00 0.00
+3D CBM position = 0.00 0.00 0.00
+</pre></div></div>
+</div>
+<p><strong>When geometry information is available</strong>, the user can convert the <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> object into the <a class="reference external" href="https://pymatgen.org/pymatgen.electronic_structure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine">pymatgen ‘BandStructureSymmLine’</a> object for further analysis.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pymatgen.electronic_structure.plotter import BSPlotter
+
+pmgband = mgoband.to_pmg(labels=[r&#39;$\Gamma$&#39;, &#39;B&#39;, &#39;C&#39;, r&#39;$\Gamma$&#39;, &#39;E&#39;])
+bsplot = BSPlotter(pmgband)
+bsplot.get_plot(ylim=(-10, 10), zero_to_efermi=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;$\\mathrm{Wave\\ Vector}$&#39;, ylabel=&#39;$\\mathrm{E\\ -\\ E_f\\ (eV)}$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_9_1.png" src="../../_images/examples_electronic_structure_electronic_structure_9_1.png" />
+</div>
+</div>
+<p>Of course the user can also do a quick plot by calling the <code class="docutils literal notranslate"><span class="pre">plot</span></code> method. It also allows for finer adjustments of band structure plot. Here the band structure of MgO is replotted in Hartree unit with energy aligned to vacuum.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = mgoband.plot(unit=&#39;a.u.&#39;,  energy_range=[-1.0, 0.85],
+                   fermi_color=&#39;tab:red&#39;, fermi_level=mgoband.efermi,)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_11_0.png" src="../../_images/examples_electronic_structure_electronic_structure_11_0.png" />
+</div>
+</div>
+</section>
+<section id="'ElectronDOS'-object">
+<h3>‘ElectronDOS’ object<a class="headerlink" href="#'ElectronDOS'-object" title="Link to this heading"></a></h3>
+<p>Similarly, the <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> object can be instantiated and plotted.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ElectronDOS
+
+mgodoss = ElectronDOS.from_file(&#39;doss_mgo.DOSS&#39;)
+fig = mgodoss.plot(sharey=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_13_0.png" src="../../_images/examples_electronic_structure_electronic_structure_13_0.png" />
+</div>
+</div>
+</section>
+<section id="'ElectronBandDOS'-object">
+<h3>‘ElectronBandDOS’ object<a class="headerlink" href="#'ElectronBandDOS'-object" title="Link to this heading"></a></h3>
+<p>This is an object combining <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> and <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code>. It can be instantiated by 2 files (band first) or a single ‘fort.25’ file with both band and DOS data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.electronics import ElectronBandDOS
+
+es = ElectronBandDOS.from_file(&#39;es_grapheneDV.f25&#39;)
+fig = es.plot(k_label=[r&#39;$\Gamma$&#39;, &quot;M&#39;&quot;, &#39;K&#39;, r&#39;$\Gamma$&#39;, &#39;M&#39;, &quot;K&#39;&quot;, r&#39;$\Gamma$&#39;],
+              energy_range=[-3, 3], dos_prj=[-1], dos_label=&#39;Total&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_15_1.png" src="../../_images/examples_electronic_structure_electronic_structure_15_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="'plot.plot_electron_bands'-function">
+<h2>‘plot.plot_electron_bands’ function<a class="headerlink" href="#'plot.plot_electron_bands'-function" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot.plot_electron_bands()</span></code> function enables a higher-level of plotting. It accepts extendable length of ‘fort.25’ / ‘BAND.DAT’ files, or <code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code> objects.</p>
+<p>When files are used, warning message might be triggered as no screen output file is given and geometry information is not available. It is (currently) only useful when converting the object into pymatgen formats.</p>
+<section id="Single-system-band-structure">
+<h3>Single-system band structure<a class="headerlink" href="#Single-system-band-structure" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import CRYSTALpytools.plot as cfplt
+
+fig = cfplt.plot_electron_bands(&#39;band_hTaAs.BAND&#39;, energy_range=[-5, 5],
+                                title=&#39;hTaAs&#39;, fermi_color=&#39;tab:red&#39;,
+                                k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_17_1.png" src="../../_images/examples_electronic_structure_electronic_structure_17_1.png" />
+</div>
+</div>
+<p>The user can customize their settings as has been shown in the previous sections. Here is another example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_bands(
+    &#39;band_hTaAs.BAND&#39;, unit=&#39;a.u.&#39;, k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;],
+    energy_range=[-0.1, 0.1], k_range=[&#39;Gamma&#39;, &#39;A&#39;],
+    band_label=&#39;hTaAs&#39;, band_color=&#39;green&#39;, band_linestyle=&#39;--&#39;, band_linewidth=2,
+    fermi_level=0., fermi_color=&#39;tab:gray&#39;, fermi_linestyle=&#39;-&#39;, fermi_linewidth=5,
+    title=&#39;hTaAs&#39;, figsize=(6,4), fontsize=18)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_19_1.png" src="../../_images/examples_electronic_structure_electronic_structure_19_1.png" />
+</div>
+</div>
+</section>
+<section id="Multi-system-Band-Structures">
+<h3>Multi-system Band Structures<a class="headerlink" href="#Multi-system-Band-Structures" title="Link to this heading"></a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">plot_electron_bands()</span></code> fuction you can plot multiple band structures in two ways:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'multi'</span></code>: Overlapping the structures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'compare'</span></code>: Side by side plots</p></li>
+</ul>
+<p>In both cases, the user can customize the plot settings just as in single-system plotting.</p>
+<p>Here is an example of overlapped band structures of hTaAs under different pressures. Since the volume has changed, their K pathes are scaled. This is enforced when <code class="docutils literal notranslate"><span class="pre">mode='multi'</span></code>. Note here the plotting parameters should be given in lists with the same length as band structure inputs. Refer to module specific documentations for more information.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>Data = [&#39;band_hTaAs.BAND&#39;, &#39;band_hTaAs_noso.BAND&#39;,
+        &#39;band_hTaAs_P15.BAND&#39;, &#39;band_hTaAs_P25.BAND&#39;]
+
+fig = cfplt.plot_electron_bands(
+    *Data, mode=&#39;multi&#39;, energy_range=[-5, 5], title=&#39;hTaAs&#39;,
+    k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;], fermi_color=&#39;k&#39;,
+    band_label=[&#39;NOSOC&#39;, &#39;SCDFT&#39;, &#39;P15&#39;, &#39;P25&#39;],
+    band_linestyle=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;,&#39;dashdot&#39;],
+    legend=None
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_22_1.png" src="../../_images/examples_electronic_structure_electronic_structure_22_1.png" />
+</div>
+</div>
+<p>Here is an example of side-by-side plots, also customized. The displaying scheme is specified by <code class="docutils literal notranslate"><span class="pre">layout=[2,</span> <span class="pre">2]</span></code>. The plotting parameters can be given in text or numbers, or 1*2 lists for spin-polarized systems. Refer to module specific documentations for more information.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>Data = [&#39;band_hTaAs.BAND&#39;, &#39;band_hTaAs_noso.BAND&#39;,
+        &#39;band_hTaAs_P15.BAND&#39;, &#39;band_hTaAs_P25.BAND&#39;]
+
+fig = cfplt.plot_electron_bands(
+    *Data, mode=&#39;compare&#39;, energy_range=[-5, 5], layout=(2,2), fontsize=20,
+    k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;],
+    band_label=[&#39;NOSOC&#39;, &#39;SCDFT&#39;, &#39;P15&#39;, &#39;P25&#39;], band_color=&#39;forestgreen&#39;,
+    band_linestyle=&#39;--&#39;, band_linewidth=2, fermi_color=&#39;red&#39;, figsize=(8,8),
+    legend=&#39;center right&#39;
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_24_1.png" src="../../_images/examples_electronic_structure_electronic_structure_24_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="'plot.plot_electron_doss'-function">
+<h2>‘plot.plot_electron_doss’ function<a class="headerlink" href="#'plot.plot_electron_doss'-function" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot.plot_electron_doss()</span></code> function enables a higher-level of plotting. It accepts extendable length of ‘fort.25’ / ‘DOSS.DAT’ files, or <code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code> objects.</p>
+<section id="Single-system-DOS">
+<h3>Single-system DOS<a class="headerlink" href="#Single-system-DOS" title="Link to this heading"></a></h3>
+<p>By default a the DOS of a single system is plotted into separate subplots, depending on the number of projections.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(&#39;doss_96.DOSS&#39;, sharey=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_26_0.png" src="../../_images/examples_electronic_structure_electronic_structure_26_0.png" />
+</div>
+</div>
+<p>Similar to band structure, the user can customize of DOSS plots. Projections can be selected by the <code class="docutils literal notranslate"><span class="pre">plt</span></code> parameter (<strong>It starts from 1</strong>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(
+    &#39;doss_96.DOSS&#39;, title=&#39;example&#39;, figsize=(8,4),
+    energy_range=[-0.2,0.2], dos_range=[0, 280], prj=[1,2,3],
+    dos_color=&#39;orange&#39;, dos_linestyle=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;], dos_linewidth=2,
+    unit=&#39;a.u.&#39;, fermi_level=0., fermi_color=&#39;indigo&#39; )
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_28_0.png" src="../../_images/examples_electronic_structure_electronic_structure_28_0.png" />
+</div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">overlap=True</span></code>, multiple projections are ploted into the same panel.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(
+    &#39;doss_96.DOSS&#39;, title=&#39;example&#39;, energy_range=[-5,5], prj=[1,2,3],
+    overlap=True, dos_color=[&#39;blue&#39;, &#39;orange&#39;, &#39;limegreen&#39;],
+    dos_label=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj3&#39;],
+    dos_linestyle=[&#39;-&#39;,&#39;--&#39;,&#39;dotted&#39;], dos_linewidth=2, fermi_color=&#39;r&#39;,
+    figsize=(8,4))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_30_0.png" src="../../_images/examples_electronic_structure_electronic_structure_30_0.png" />
+</div>
+</div>
+<p>For spin-polarized systems, the user can either plot the <span class="math notranslate nohighlight">\(\beta\)</span> state on the same (<code class="docutils literal notranslate"><span class="pre">beta='up'</span></code>, default) or the opposite side (<code class="docutils literal notranslate"><span class="pre">beta=down</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(
+    &#39;doss_cu.DOSS&#39;, prj=[4], figsize=(8, 2), energy_range=[-5, 5]
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_32_0.png" src="../../_images/examples_electronic_structure_electronic_structure_32_0.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">beta='down'</span></code> and remove the legend by <code class="docutils literal notranslate"><span class="pre">legend=None</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(
+    &#39;doss_cu.DOSS&#39;, prj=[4], figsize=(8, 3), energy_range=[-5, 5],
+    beta=&#39;down&#39;, legend=None
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_34_0.png" src="../../_images/examples_electronic_structure_electronic_structure_34_0.png" />
+</div>
+</div>
+<p>Multiple projections with <code class="docutils literal notranslate"><span class="pre">overlap=True</span></code>. The default line style becomes ‘solid’ for <span class="math notranslate nohighlight">\(\alpha\)</span> states and ‘dashed’ for <span class="math notranslate nohighlight">\(\beta\)</span> states.</p>
+<p>Note when the system is spin polarized, all the line setting parameters should be nPrj*2 lists. The first entry for <span class="math notranslate nohighlight">\(\alpha\)</span> states and the second for <span class="math notranslate nohighlight">\(\beta\)</span> states. If 1D lists are given, the same style is used for both states. Therefore, it is not suggested to change <code class="docutils literal notranslate"><span class="pre">dos_linestyle</span></code> with 1D lists.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_doss(
+    &#39;doss_cu.DOSS&#39;, title=&#39;example&#39;, figsize=(8, 4), energy_range=[-5, 5],
+    fermi_color=&#39;indigo&#39;, overlap=True, beta=&#39;down&#39;, dos_linewidth=1.5,
+    dos_color=[&#39;blue&#39;, &#39;orange&#39;, &#39;limegreen&#39;, &#39;purple&#39;],
+    dos_label=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj4&#39;, &#39;Tot&#39;], prj=[1,2,4,5], legend=&#39;upper right&#39;
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_36_0.png" src="../../_images/examples_electronic_structure_electronic_structure_36_0.png" />
+</div>
+</div>
+</section>
+<section id="Multi-system-DOSs">
+<h3>Multi-system DOSs<a class="headerlink" href="#Multi-system-DOSs" title="Link to this heading"></a></h3>
+<p>DOS of multiple systems can also be plotted with <code class="docutils literal notranslate"><span class="pre">plot_electron_doss()</span></code>. Every system is plotted into a subplot with their projections overlapped. The custimization settings applies to all the systems, so make sure that all the entries have the same number of projections.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = [&#39;doss_grapheneDV4.DOSS&#39;,
+        &#39;doss_grapheneDV5.DOSS&#39;,
+        &#39;doss_grapheneDV8.DOSS&#39;]
+fig = cfplt.plot_electron_doss(
+    *data, figsize=(8, 4), prj=[1, 2], energy_range=[-2, 2], dos_range=[0, 30],
+    dos_label=[&#39;S&#39;, &#39;C&#39;], legend=&#39;upper left&#39;
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_38_0.png" src="../../_images/examples_electronic_structure_electronic_structure_38_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="'plot.plot_electron_banddos'-function">
+<h2>‘plot.plot_electron_banddos’ function<a class="headerlink" href="#'plot.plot_electron_banddos'-function" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot.plot_electron_banddos()</span></code> function helps to plot combined band structure - vertical DOS plots for electron structure analysis. It only accepts single-system band and DOS plots.</p>
+<p>For inputs, it accepts 2 entries with the first one for band (‘fort.25’/’BAND.DAT’/<code class="docutils literal notranslate"><span class="pre">ElectronBand</span></code>) and the second for DOS (‘fort.25’/’DOSS.DAT’/<code class="docutils literal notranslate"><span class="pre">ElectronDOS</span></code>). Alternatively it also accepts 1 entry of a combined ‘fort.25’ (as shown in previous sections) or a <code class="docutils literal notranslate"><span class="pre">ElectronBandDOS</span></code> object.</p>
+<section id="Overlapped-DOS">
+<h3>Overlapped DOS<a class="headerlink" href="#Overlapped-DOS" title="Link to this heading"></a></h3>
+<p>While only one band is plotted on the left, multiple projections of DOS can be plotted on the right. Projections can be specified with <code class="docutils literal notranslate"><span class="pre">dos_prj</span></code> and range can be specified with <code class="docutils literal notranslate"><span class="pre">dos_range</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_banddos(
+    &#39;band_hTaAs.BAND&#39;, &#39;doss_96.DOSS&#39;,
+    k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;], k_range=[&#39;Gamma&#39;, &#39;L&#39;],
+    dos_overlap=True, dos_linewidth=2, dos_range=[0, 50],
+    dos_linestyle=[&#39;-&#39;, &#39;--&#39;, &#39;dotted&#39;],
+    dos_label=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj3&#39;], dos_prj=[1,2,3],
+    dos_color=[&#39;blue&#39;, &#39;red&#39;, &#39;green&#39;],
+    band_color=&#39;brown&#39;, band_linestyle=&#39;-&#39;, band_linewidth=2,
+    fermi_color=&#39;limegreen&#39;, energy_range=[-4,6],
+    legend=&#39;upper right&#39;
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_40_1.png" src="../../_images/examples_electronic_structure_electronic_structure_40_1.png" />
+</div>
+</div>
+</section>
+<section id="Multi-panel-DOS">
+<h3>Multi-panel DOS<a class="headerlink" href="#Multi-panel-DOS" title="Link to this heading"></a></h3>
+<p>DOS projections can also be plotted in separate panels. In that sense <code class="docutils literal notranslate"><span class="pre">dos_overlap=False</span></code>. In case that the figure is too long, <code class="docutils literal notranslate"><span class="pre">band_width</span></code> can be set to control the width of the band panel in times of a DOS panel.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = cfplt.plot_electron_banddos(
+    &#39;band_hTaAs.BAND&#39;, &#39;doss_96.DOSS&#39;,
+    k_label=[&#39;Gamma&#39;, &#39;M&#39;, &#39;K&#39;, &#39;A&#39;, &#39;L&#39;, &#39;H&#39;, &#39;K&#39;],
+    dos_overlap=False, dos_linewidth=2,
+    dos_linestyle=[&#39;-&#39;, &#39;--&#39;, &#39;dotted&#39;, &#39;dashdot&#39;],
+    dos_label=[&#39;prj1&#39;, &#39;prj2&#39;, &#39;prj3&#39;, &#39;tot&#39;],
+    dos_color=[&#39;blue&#39;, &#39;red&#39;, &#39;green&#39;, &#39;orange&#39;],
+    band_width=4, band_color=&#39;brown&#39;, band_linestyle=&#39;-&#39;, band_linewidth=2,
+    fermi_color=&#39;limegreen&#39;, energy_range=[-4,6], figsize=(8,4),
+    legend=&#39;upper right&#39;
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/electronics.py:75: UserWarning: Properties output file not found: 3D k path not available.
+  return Properties_output(output).read_electron_band(band)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_electronic_structure_electronic_structure_42_1.png" src="../../_images/examples_electronic_structure_electronic_structure_42_1.png" />
+</div>
+</div>
+<p>For more details, please refer to <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.electronics.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../elastic_properties/elastic_properties.html" class="btn btn-neutral float-left" title="Elastic Properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fermi_surface/fermi_surface.html" class="btn btn-neutral float-right" title="Fermi Surface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.topond module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.topond.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.transport module" href="crystalpytools.transport.html" />
+    <link rel="prev" title="CRYSTALpytools.thermodynamics module" href="crystalpytools.thermodynamics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.topond module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.topond.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-topond-module">
+<h1>CRYSTALpytools.topond module<a class="headerlink" href="#crystalpytools-topond-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.topond"><span id="ref-topond"></span>The module for <a class="reference external" href="https://www.crystal.unito.it/topond.html">TOPOND</a> topological
+analysis of electron density</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ScalarField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScalarField</span></span><a class="headerlink" href="#CRYSTALpytools.topond.ScalarField" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic TOPOND scalar field class, containing a nY*nX (nZ*nY*nX) data
+array for 2D (3D) fields. Call the property-specific child classes below to
+use. <strong>3D methods under development</strong>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ScalarField.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contourline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ScalarField.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>2D periodicity (<code class="docutils literal notranslate"><span class="pre">a_range</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range</span></code>), though available for
+the <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> class, is not suggested as TOPOND plotting
+window does not always commensurate with periodic boundary. The
+<code class="docutils literal notranslate"><span class="pre">Trajectory</span></code> class has no 2D periodicity so if <code class="docutils literal notranslate"><span class="pre">overlay</span></code> is not
+None, <code class="docutils literal notranslate"><span class="pre">a_range</span></code>, <code class="docutils literal notranslate"><span class="pre">b_range</span></code> and <code class="docutils literal notranslate"><span class="pre">edgeplot</span></code> will be disabled.</p>
+</div>
+<p>3 styles are available:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code> and <code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>: The color-filled contour</dt><dd><p>map with black contour lines. Dotted lines for negative values and
+solid lines for positive values. The solid line twice in width for 0.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lineplot=False</span></code> and <code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>: The color-filled contour</dt><dd><p>map.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code> and <code class="docutils literal notranslate"><span class="pre">colorplot=False</span></code>: The color coded contour</dt><dd><p>line map. Blue dotted line for negative values and red solid lines
+for positive values. The balck solid line twice in width for 0.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – nLevel*3 contour line styles. Useful only if
+<code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. For every line, color, line style and line
+width are defined in sequence.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ScalarField.substract">
+<span class="sig-name descname"><span class="pre">substract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ScalarField.substract" title="Link to this definition"></a></dt>
+<dd><p>Substracting data of the same type from the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*args</strong> (<em>str</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><em>ScalarField</em></a>) – File names or <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> objects.
+Must be of the same type (check the attribute <code class="docutils literal notranslate"><span class="pre">type</span></code>).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>ScalarField</em>) – Data difference</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Trajectory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Trajectory</span></span><a class="headerlink" href="#CRYSTALpytools.topond.Trajectory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic TOPOND trajectory plot class. Call the property-specific child classes
+below to use.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Trajectory.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpt_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">':'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Trajectory.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Get TOPOND trajectory in a 2D plot.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>2D periodicity (<code class="docutils literal notranslate"><span class="pre">a_range</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range</span></code>) is not available for
+the <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code> class. If <code class="docutils literal notranslate"><span class="pre">overlay</span></code> is not None, <code class="docutils literal notranslate"><span class="pre">a_range</span></code>
+and <code class="docutils literal notranslate"><span class="pre">b_range</span></code> and <code class="docutils literal notranslate"><span class="pre">edgeplot</span></code> will be disabled for the
+<code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> object.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cpt_marker</strong> (<em>str</em>) – Marker of critical point scatter.</p></li>
+<li><p><strong>cpt_color</strong> (<em>str</em>) – Marker color of critical point scatter.</p></li>
+<li><p><strong>cpt_size</strong> (<em>float</em><em>|</em><em>int</em>) – Marker size of critical point scatter.</p></li>
+<li><p><strong>traj_color</strong> (<em>str</em>) – Line color of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linestyl</strong> (<em>str</em>) – Line style of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linewidth</strong> (<em>str</em>) – Line width of 2D trajectory plot.</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><em>ScalarField</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em><em>|</em><em>None</em>) – <em>Developers only</em>, matplotlib Figure class..</p></li>
+<li><p><strong>ax_index</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – <em>Developer Only</em>, indices of axes in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">ScalarField.plot_2D()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChargeDensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargeDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChargeDensity" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The charge density object from TOPOND. Unit: ‘Angstrom’ for
+<span class="math notranslate nohighlight">\(\AA^{-3}\)</span> and ‘a.u.’ for Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChargeDensity.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChargeDensity.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFRHOO.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ChargeDensity</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChargeDensity.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChargeDensity.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChargeDensity._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChargeDensity._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>; ‘a.u.’, Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.SpinDensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpinDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.SpinDensity" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The spin density object from TOPOND. Unit: ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>
+and ‘a.u.’ for Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.SpinDensity.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.SpinDensity.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">SpinDensity</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFSPDE.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>SpinDensity</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.SpinDensity.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.4f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.SpinDensity.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.SpinDensity._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.SpinDensity._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">SpinDensity</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>; ‘a.u.’, Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Gradient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Gradient" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The charge density gradient object from TOPOND. Unit: ‘Angstrom’ for
+<span class="math notranslate nohighlight">\(\AA^{-4}\)</span> and ‘a.u.’ for Bohr <span class="math notranslate nohighlight">\(^{-4}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Gradient.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Gradient.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">Gradient</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFGRHO.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Gradient</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Gradient.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Gradient.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Gradient._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Gradient._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">Gradient</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, <span class="math notranslate nohighlight">\(\AA^{-4}\)</span>; ‘a.u.’, Bohr <span class="math notranslate nohighlight">\(^{-4}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Laplacian">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Laplacian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Laplacian" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The Laplacian object from TOPOND. Unit: ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-5}\)</span>
+and ‘a.u.’ for Bohr <span class="math notranslate nohighlight">\(^{-5}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Laplacian.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Laplacian.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">Laplacian</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+<p>It is suggested to name the file with ‘LAPP’ or ‘LAPM’. Otherwise
+it will be read as ‘LAPP’. Data is always saved as <span class="math notranslate nohighlight">\(\nabla^{2}\rho\)</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFLAPP.DAT’ or ‘SURFLAPM.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Laplacian</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Laplacian.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_lapm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Laplacian.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>plot_lapm</strong> (<em>bool</em>) – Whether to plot <span class="math notranslate nohighlight">\(-\nabla^{2}\rho\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.Laplacian._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.Laplacian._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">Laplacian</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, <span class="math notranslate nohighlight">\(\AA^{-5}\)</span>; ‘a.u.’, Bohr <span class="math notranslate nohighlight">\(^{-5}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.HamiltonianKE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HamiltonianKE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.HamiltonianKE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The Hamiltonian kinetic energy density object from TOPOND. Unit: ‘Angstrom’
+for eV.:math:<cite>AA^{-3}</cite> and ‘a.u.’ for Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.HamiltonianKE.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.HamiltonianKE.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">HamiltonianKE</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFKKIN.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>HamiltonianKE</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.HamiltonianKE.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.HamiltonianKE.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.HamiltonianKE._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.HamiltonianKE._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">HamiltonianKE</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, eV.:math:<cite>AA^{-3}</cite>; ‘a.u.’,
+Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.LagrangianKE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LagrangianKE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.LagrangianKE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The Lagrangian kinetic energy density object from TOPOND. Unit: ‘Angstrom’
+for eV.:math:<cite>AA^{-3}</cite> and ‘a.u.’ for Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.LagrangianKE.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.LagrangianKE.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">LagrangianKE</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFGKIN.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>LagrangianKE</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.LagrangianKE.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.LagrangianKE.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.LagrangianKE._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.LagrangianKE._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">LagrangianKE</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, eV.:math:<cite>AA^{-3}</cite>; ‘a.u.’,
+Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.VirialField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VirialField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.VirialField" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The Virial field density object from TOPOND. Unit: ‘Angstrom’
+for eV.:math:<cite>AA^{-3}</cite> and ‘a.u.’ for Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.VirialField.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.VirialField.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">VirialField</span></code> object from a single file. Can be used for
+multiple dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFVIRI.DAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>VirialField</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.VirialField.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.VirialField.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.VirialField._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.VirialField._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">VirialField</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, eV.:math:<cite>AA^{-3}</cite>; ‘a.u.’,
+Hartree.Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ELF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ELF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ELF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarField</span></code></a></p>
+<p>The electron localization object from TOPOND. Dimensionless. Unit: ‘Angstrom’
+for <span class="math notranslate nohighlight">\(\AA\)</span> and ‘a.u.’ for Bohr (only for plot base vectors).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – 2D (3D) Plot data. (nZ*)nY*nX. <strong>3D methods under developing</strong>.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ELF.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ELF.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">ELF</span></code> object from a single file. Can be used for multiple
+dimensions (2D only now. 3D under development).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Though output is not mandatory for plotting proposes, it is highly
+recommended to be added for geometry information and other methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – File name of the ‘SURFELFBDAT’ file</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Screen output of ‘properties’ calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ELF</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ELF.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgeplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ELF.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot 2D contour lines, color maps or both for the 2D data set. The user
+can also get the overlapped plot of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code>
+classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>levels</strong> (<em>array</em><em>|</em><em>int</em>) – Set levels of colored / line contour plot. A
+number for linear scaled plot colors or an array for
+user-defined levels. 1D. ‘default’ for default levels.</p></li>
+<li><p><strong>lineplot</strong> (<em>bool</em>) – Plot contour lines.</p></li>
+<li><p><strong>contourline</strong> (<em>list</em>) – Width of contour lines. Other styles are pre-
+set and cannot be changed.</p></li>
+<li><p><strong>isovalues</strong> (<em>str</em><em>|</em><em>None</em>) – Add isovalues to contour lines and set their
+formats. Useful only if <code class="docutils literal notranslate"><span class="pre">lineplot=True</span></code>. None for not adding
+isovalues.</p></li>
+<li><p><strong>colorplot</strong> (<em>bool</em>) – Plot color-filled contour plots.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em>) – Matplotlib colormap option. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>.</p></li>
+<li><p><strong>cbar_label</strong> (<em>str</em>) – Label of colorbar. Useful only if
+<code class="docutils literal notranslate"><span class="pre">colorplot=True</span></code>. ‘None’ for no labels.</p></li>
+<li><p><strong>a_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(a\)</span> axis (x, or BC) in
+fractional coordinate.</p></li>
+<li><p><strong>b_range</strong> (<em>list</em>) – 1*2 range of <span class="math notranslate nohighlight">\(b\)</span> axis (y, or BA) in
+fractional coordinate.</p></li>
+<li><p><strong>edgeplot</strong> (<em>bool</em>) – Whether to add cell boundaries represented by the
+original base vectors (not inflenced by a/b range).</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for default values and
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><em>Trajectory</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em>) – <em>Developer Only</em>, matplotlib Figure class.</p></li>
+<li><p><strong>ax_index</strong> (<em>int</em>) – <em>Developer Only</em>, index of the axis in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ELF._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ELF._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ELF</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘’Angstrom’, <span class="math notranslate nohighlight">\(\AA\)</span>; ‘a.u.’, Bohr. Only for plot
+base vectors</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.GradientTraj">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GradientTraj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wtraj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.GradientTraj" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a></p>
+<p>The charge density gradient trajectory object from TOPOND. Unit: ‘Angstrom’
+for <span class="math notranslate nohighlight">\(\AA\)</span> and ‘a.u.’ for Bohr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wtraj</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – 1*nPath, weight of the path, int 0 to 3.</p></li>
+<li><p><strong>traj</strong> (<em>list</em><em>[</em><em>array</em><em>]</em>) – 1*nPath, list of paths. Every array is a nPoint*3
+3D ref framework coordinates of points on the path.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>GradientTraj</em>) – Import attributes: <code class="docutils literal notranslate"><span class="pre">trajectory</span></code>, nPath*2 list of
+trajectory and its weight; <code class="docutils literal notranslate"><span class="pre">cpoint</span></code>, nCpoint*3 array of critical
+point coordinates in 3D ref framework.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.GradientTraj.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.GradientTraj.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">GradientTraj</span></code> object from ‘TRAJGRAD.DAT’ file and the
+standard screen output of CRYSTAL ‘properties’ calculation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Output file is mandatory.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘TRAJGRAD.DAT’ file by TOPOND.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Standard output of Properties calculation, used to
+get geometry and orientation of the plane.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ChargeDensity</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.GradientTraj.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">':'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.GradientTraj.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot charge density gradient trajectory in a 2D plot.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>cpt_marker</strong> (<em>str</em>) – Marker of critical point scatter.</p></li>
+<li><p><strong>cpt_color</strong> (<em>str</em>) – Marker color of critical point scatter.</p></li>
+<li><p><strong>cpt_size</strong> (<em>float</em><em>|</em><em>int</em>) – Marker size of critical point scatter.</p></li>
+<li><p><strong>traj_color</strong> (<em>str</em>) – Line color of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linestyl</strong> (<em>str</em>) – Line style of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linewidth</strong> (<em>str</em>) – Line width of 2D trajectory plot.</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for proeprty plotted.
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><em>ScalarField</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em><em>|</em><em>None</em>) – <em>Developers only</em>, matplotlib Figure class..</p></li>
+<li><p><strong>ax_index</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – <em>Developer Only</em>, indices of axes in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">ScalarField.plot_2D()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.GradientTraj._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.GradientTraj._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">GradientTraj</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘Angstrom’ or ‘a.u.’</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChemicalGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChemicalGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wtraj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChemicalGraph" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CRYSTALpytools.topond.Trajectory" title="CRYSTALpytools.topond.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a></p>
+<p>The molecular / crystal graph object from TOPOND. Unit: ‘Angstrom’ for
+<span class="math notranslate nohighlight">\(\AA\)</span> and ‘a.u.’ for Bohr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wtraj</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – 1*nPath, weight of the path, int 0 to 3.</p></li>
+<li><p><strong>traj</strong> (<em>list</em><em>[</em><em>array</em><em>]</em>) – 1*nPath, list of paths. Every array is a nPoint*3
+3D ref framework coordinates of points on the path.</p></li>
+<li><p><strong>base</strong> (<em>array</em>) – 3*3 Cartesian coordinates of the 3 points defining
+vectors BA and BC.</p></li>
+<li><p><strong>struc</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – In principle, should always be ‘Angstrom’ (case insensitive).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> (<em>ChemicalGraph</em>) – Import attributes: <code class="docutils literal notranslate"><span class="pre">trajectory</span></code>, nPath*2 list
+of trajectory and its weight; <code class="docutils literal notranslate"><span class="pre">cpoint</span></code>, nCpoint*3 array of
+critical point coordinates in 3D ref framework.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChemicalGraph.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChemicalGraph.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate a <code class="docutils literal notranslate"><span class="pre">ChemicalGraph</span></code> object from ‘TRAJMOLG.DAT’ file and the
+standard screen output of CRYSTAL ‘properties’ calculation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Output file is mandatory.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – ‘TRAJMOLG.DAT’ file by TOPOND.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – Standard output of Properties calculation, used to
+get geometry and orientation of the plane.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>ChargeDensity</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChemicalGraph.plot_2D">
+<span class="sig-name descname"><span class="pre">plot_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Angstrom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpt_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">':'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[6.4,</span> <span class="pre">4.8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChemicalGraph.plot_2D" title="Link to this definition"></a></dt>
+<dd><p>Plot crystal / molecular graph in a 2D plot.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information of plot setups, please refer its parent class,
+<code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unit</strong> (<em>str</em>) – Plot unit. ‘Angstrom’ for <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>, ‘a.u.’ for
+Bohr <span class="math notranslate nohighlight">\(^{-3}\)</span>.</p></li>
+<li><p><strong>cpt_marker</strong> (<em>str</em>) – Marker of critical point scatter.</p></li>
+<li><p><strong>cpt_color</strong> (<em>str</em>) – Marker color of critical point scatter.</p></li>
+<li><p><strong>cpt_size</strong> (<em>float</em><em>|</em><em>int</em>) – Marker size of critical point scatter.</p></li>
+<li><p><strong>traj_color</strong> (<em>str</em>) – Line color of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linestyl</strong> (<em>str</em>) – Line style of 2D trajectory plot.</p></li>
+<li><p><strong>traj_linewidth</strong> (<em>str</em>) – Line width of 2D trajectory plot.</p></li>
+<li><p><strong>x_ticks</strong> (<em>int</em>) – Number of ticks on x axis.</p></li>
+<li><p><strong>y_ticks</strong> (<em>int</em>) – Number of ticks on y axis.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>|</em><em>None</em>) – Plot title. ‘default’ for proeprty plotted.
+‘None’ for no title.</p></li>
+<li><p><strong>figsize</strong> (<em>list</em>) – Matplotlib figure size. Note that axes aspects are
+fixed to be equal.</p></li>
+<li><p><strong>overlay</strong> (<em>None</em><em>|</em><a class="reference internal" href="#CRYSTALpytools.topond.ScalarField" title="CRYSTALpytools.topond.ScalarField"><em>ScalarField</em></a>) – Overlapping a 2D plot from the
+<code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code> object if not None.</p></li>
+<li><p><strong>fig</strong> (<em>Figure</em><em>|</em><em>None</em>) – <em>Developers only</em>, matplotlib Figure class..</p></li>
+<li><p><strong>ax_index</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – <em>Developer Only</em>, indices of axes in <code class="docutils literal notranslate"><span class="pre">fig.axes</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Other arguments passed to <code class="docutils literal notranslate"><span class="pre">ScalarField.plot_2D()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> (<em>Figure</em>) – Matplotlib Figure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.topond.ChemicalGraph._set_unit">
+<span class="sig-name descname"><span class="pre">_set_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.topond.ChemicalGraph._set_unit" title="Link to this definition"></a></dt>
+<dd><p>Set units of data of <code class="docutils literal notranslate"><span class="pre">ChemicalGraph</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unit</strong> (<em>str</em>) – ‘Angstrom’ or ‘a.u.’</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.thermodynamics.html" class="btn btn-neutral float-left" title="CRYSTALpytools.thermodynamics module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.transport.html" class="btn btn-neutral float-right" title="CRYSTALpytools.transport module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

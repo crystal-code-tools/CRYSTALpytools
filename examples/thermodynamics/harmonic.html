@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lattice Dynamics 1: Harmonic Approximation &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/thermodynamics/harmonic.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lattice Dynamics 2: Quasi-Harmonic Approximation" href="qha.html" />
+    <link rel="prev" title="Spectra" href="../spectra/spectra.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Lattice Dynamics 1: Harmonic Approximation</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/thermodynamics/harmonic.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Lattice-Dynamics-1:-Harmonic-Approximation">
+<h1>Lattice Dynamics 1: Harmonic Approximation<a class="headerlink" href="#Lattice-Dynamics-1:-Harmonic-Approximation" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">thermodynamics</span></code> module is developed for both harmonic approximated (HA) and quasi-harmonic approximated (QHA) lattice dynamics. For simplicity, this part is focused only on HA phonons. For QHA, please refer to <a class="reference internal" href="qha.html"><span class="doc">Lattice Dynamics 2: Quasi-Harmonic Approximation</span></a> example book in the same catagory. For phonon band and density of states, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.phonons.html">phonons module</a>.</p>
+<section id="Instantiation">
+<h2>Instantiation<a class="headerlink" href="#Instantiation" title="Link to this heading"></a></h2>
+<p>No data is read at the object instantiation step. Instead, important controlling parameters are defined.</p>
+<p>Define the room temperature and pressure with <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">pressure</span></code> (optional) and specify whether to write data into an output file (<code class="docutils literal notranslate"><span class="pre">filename</span></code>) and whether to automatically run the calculation (<code class="docutils literal notranslate"><span class="pre">autocalc</span></code>)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+
+obj = Harmonic(filename=&#39;ha_paracetamolG.txt&#39;, autocalc=False,
+               temperature=[298.15], pressure=[0.10132500E-3])
+</pre></div>
+</div>
+</div>
+</section>
+<section id="File-I/O">
+<h2>File I/O<a class="headerlink" href="#File-I/O" title="Link to this heading"></a></h2>
+<p>Currently the user can read geometries, internal energies, phonon frequencies, eigenvectors from CRYSTAL or <a class="reference external" href="https://phonopy.github.io/phonopy/">phonopy</a> (not internal energies). CRYSTALpytools helps to calculate important thermodynamic properties at specified temperature and pressure.</p>
+<section id="The-'from_file()'-method.">
+<h3>The ‘from_file()’ method.<a class="headerlink" href="#The-'from_file()'-method." title="Link to this heading"></a></h3>
+<p>Please note that the <code class="docutils literal notranslate"><span class="pre">get_phonon()</span></code> method defined in <code class="docutils literal notranslate"><span class="pre">crystal_io.Crystal_output</span></code> is a general-propose method designed to be called (in most cases) internally. Users are always recommended to use the <code class="docutils literal notranslate"><span class="pre">from_file()</span></code> method after instantiation.</p>
+<p>Call the <code class="docutils literal notranslate"><span class="pre">thermodynamics()</span></code> method after reading data. Temperature and pressure can also be specified here.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>obj.from_file(&#39;ha_paracetamolG.out&#39;)
+
+print(&#39;Number of q / k points: {:d}&#39;.format(obj.nqpoint))
+print(&#39;Number of modes at Gamma: {:d}&#39;.format(obj.nmode[0]))
+print(&#39;The first non-translational mode frequnecy at Gamma: {:.4f} THz&#39;.format(
+    obj.frequency[0, 3]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of q / k points: 1
+Number of modes at Gamma: 240
+The first non-translational mode frequnecy at Gamma: 1.0304 THz
+</pre></div></div>
+</div>
+<p>This method also accepts outputs by ‘QHA’ keyword of CRYSTAL. <code class="docutils literal notranslate"><span class="pre">qha_index</span></code> should be specified to substract the desired data (starting from 0).</p>
+<p>Get the equilibrium geometry of QHA calculation of Al<span class="math notranslate nohighlight">\(_{2}\)</span>O<span class="math notranslate nohighlight">\(_{3}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+
+obj = Harmonic(filename=None, autocalc=False).from_file(&#39;qha_corundumG.out&#39;,
+                                                        qha_index=3)
+print(&#39;Number of q / k points: {:d}&#39;.format(obj.nqpoint))
+print(&#39;Number of modes at Gamma: {:d}&#39;.format(obj.nmode[0]))
+print(&#39;The first non-translational mode frequnecy at Gamma: {:.4f} THz&#39;.format(
+    obj.frequency[0, 3]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of q / k points: 1
+Number of modes at Gamma: 90
+The first non-translational mode frequnecy at Gamma: 4.4021 THz
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:379: UserWarning: QHA output found, reading the 3 HA calculation from file.
+  warnings.warn(&#34;QHA output found, reading the {:d} HA calculation from file.&#34;.format(qha_index))
+</pre></div></div>
+</div>
+<p>Also might be useful to read phonon dispersions in the first Brillouin Zone for a better description of thermodynamics.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+
+obj = Harmonic(filename=None, autocalc=False).from_file(&#39;ha_paracetamolDisp.out&#39;)
+print(&#39;Number of q / k points: {:d}&#39;.format(obj.nqpoint))
+print(&#39;Number of modes at Gamma: {:d}&#39;.format(obj.nmode[0]))
+print(&#39;The first non-translational mode frequnecy at Gamma: {:.4f} THz&#39;.format(
+    obj.frequency[0, 3]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:556: UserWarning: Negative frequencies detected.
+  Calculated thermodynamics might be inaccurate. Negative frequencies will be substituted by 0.
+  self = PhononBASE.clean_imaginary(self, threshold=imaginary_tol)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of q / k points: 216
+Number of modes at Gamma: 240
+The first non-translational mode frequnecy at Gamma: 1.2303 THz
+</pre></div></div>
+</div>
+</section>
+<section id="The-'from_phonopy()'-method">
+<h3>The ‘from_phonopy()’ method<a class="headerlink" href="#The-'from_phonopy()'-method" title="Link to this heading"></a></h3>
+<p>Output files of phonopy calculations in ‘yaml’ format are accepted. Use <code class="docutils literal notranslate"><span class="pre">phono_yaml</span></code> for frequency files (‘band.yaml’ or ‘qpoint.yaml’) and <code class="docutils literal notranslate"><span class="pre">struc_yaml</span></code> for geometry (‘phonopy.yaml’ or ‘phonopy_disp.yaml’).</p>
+<p>DFT total energy is unknown, so it is important to specified that. A warning message is triggered in the following case.</p>
+<p><strong>NOTE</strong></p>
+<p><a class="reference external" href="https://phonopy.github.io/phonopy/">Phonopy</a> is not in the dependency list of CRYSTALpytools.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+
+obj = Harmonic(filename=None, autocalc=False).from_phonopy(
+    &#39;ha_freq.yaml&#39;, &#39;ha_struc.yaml&#39;)
+
+print(&#39;Number of q / k points: {:d}&#39;.format(obj.nqpoint))
+print(&#39;Number of modes at Gamma: {:d}&#39;.format(obj.nmode[0]))
+print(&#39;The first non-translational mode frequnecy at Gamma: {:.4f} THz&#39;.format(
+    obj.frequency[0, 3]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:468: UserWarning: DFT energy is set to 0.
+  warnings.warn(&#39;DFT energy is set to 0.&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of q / k points: 1
+Number of modes at Gamma: 240
+The first non-translational mode frequnecy at Gamma: 1.0301 THz
+</pre></div></div>
+</div>
+</section>
+<section id="The-'Phonopy.write_force_constants'-method">
+<h3>The ‘Phonopy.write_force_constants’ method<a class="headerlink" href="#The-'Phonopy.write_force_constants'-method" title="Link to this heading"></a></h3>
+<p>The numerical Hessian is printed out in a formatted ‘HESSFREQ.DAT’ file by CRYSTAL, which can be converted into a Phonopy FORCE_CONSTANTS file by the <code class="docutils literal notranslate"><span class="pre">thermodynamics.Phonopy.write_force_constants()</span></code> method and used by phonopy in future analysis.</p>
+<p><strong>NOTE</strong></p>
+<p><a class="reference external" href="https://phonopy.github.io/phonopy/">Phonopy</a> is not in the dependency list of CRYSTALpytools.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Phonopy
+
+Phonopy.write_force_constants(hessfile=&#39;ha_paracetamolG.HESSFREQ&#39;,
+                              phonopyfile=&#39;FORCE_CONSTANTS&#39;)
+# call phonopy
+! phonopy --crystal --qpoints=&#39;0 0 0&#39; -c ha_paracetamolG.out --dim=&#39;1 1 1&#39; --readfc &gt; /dev/null 2&gt;&amp;1
+</pre></div>
+</div>
+</div>
+<p>Frequencies are computed by phonopy in the ‘qpoints.yaml’ file of the same directory.</p>
+</section>
+</section>
+<section id="Thermodynamics">
+<h2>Thermodynamics<a class="headerlink" href="#Thermodynamics" title="Link to this heading"></a></h2>
+<section id="Gamma-point">
+<h3>Gamma point<a class="headerlink" href="#Gamma-point" title="Link to this heading"></a></h3>
+<p>Call the <code class="docutils literal notranslate"><span class="pre">thermodynamics()</span></code> method after reading data. Temperature and pressure can also be specified here if not specified at instantiation stage.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+
+obj = Harmonic(filename=None, autocalc=False, temperature=[298.15],
+               pressure=[0.10132500E-3])
+obj.from_file(&#39;ha_paracetamolG.out&#39;).thermodynamics()
+
+print(&#39;DFT total energy (EL) = &#39;, obj.edft, &#39;KJ/mol&#39;)
+print(&#39;Helmholtz free energy (EL+E0+ET-TS) = &#39;, obj.helmholtz[0, 0], &#39; KJ/mol&#39;)
+print(&#39;Gibbs free energy (EL+E0+ET+pV-TS) = &#39;, obj.gibbs[0, 0, 0], &#39; KJ/mol&#39;)
+print(&#39;Zero-point energy (E0) = &#39;, obj.zp_energy[0], &#39; KJ/mol&#39;)
+print(&#39;Vibrational contribution to interla energy - E0 (ET) = &#39;, obj.u_vib[0, 0] - obj.zp_energy[0], &#39; KJ/mol&#39;)
+print(&#39;Entropy*Temperature (TS) = &#39;, obj.entropy[0, 0] * 298.15, &#39; J/mol&#39;)
+print(&#39;Heat capacity = &#39;, obj.c_v[0, 0], &#39; J/mol*K&#39;)
+print(&#39;Entropy = &#39;, obj.entropy[0, 0], &#39; J/mol*K&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DFT total energy (EL) =  -5402456.254965135 KJ/mol
+Helmholtz free energy (EL+E0+ET-TS) =  -5400800.797249377  KJ/mol
+Gibbs free energy (EL+E0+ET+pV-TS) =  -5400800.7512229495  KJ/mol
+Zero-point energy (E0) =  1759.100392885878  KJ/mol
+Vibrational contribution to interla energy - E0 (ET) =  107.20364114600739  KJ/mol
+Entropy*Temperature (TS) =  210846.31827405942  J/mol
+Heat capacity =  665.5752603999974  J/mol*K
+Entropy =  707.1820166830771  J/mol*K
+</pre></div></div>
+</div>
+<p>References from ‘ha_paracetamolG.out’ (line 11703~11738) are attached below. Here are several findings:</p>
+<ol class="arabic simple">
+<li><p>Parameters from frequencies agree well with reference data. The choice of physical constants and different unit conversion coefficients might lead to the discrepancy, where the physical constants play a major role (See below).</p></li>
+<li><p>The difference in DFT total energy lies in different coefficients for unit conversion. In CRYSTALpytools, constants from <code class="docutils literal notranslate"><span class="pre">`scipy.constants</span></code> &lt;<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/constants.html">https://docs.scipy.org/doc/scipy/reference/constants.html</a>&gt;`__ is used.</p></li>
+<li><p>The PV term is neglected at room condition. Helmholtz free energy is the focus of this tutorial since the Harmonic class was initially developed for QHA fittings. To calculate Gibbs free energy at HA level, use this equation: <span class="math notranslate nohighlight">\(G(T,p) = F(T) + pV\)</span></p></li>
+</ol>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*******************************************************************************
+
+HARMONIC VIBRATIONAL CONTRIBUTIONS TO THERMODYNAMIC FUNCTIONS AT GIVEN
+TEMPERATURE AND PRESSURE:
+
+(EL = ELECTRONIC ENERGY
+ E0 = ZERO-POINT ENERGY
+ ET = THERMAL CONTRIBUTION TO THE VIBRATIONAL ENERGY
+ PV = PRESSURE * VOLUME
+ TS = TEMPERATURE * ENTROPY)
+
+                         AU/CELL             EV/CELL                 KJ/MOL
+EL            :   -2057.686915559598  -55992.507576455653    -5402456.23545757
+E0            :       0.670005954735      18.231788914567        1759.10038625
+
+
+*******************************************************************************
+
+THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+AT (T =  298.15 K, P =   0.10132500E+00 MPA):
+
+                         AU/CELL             EV/CELL                 KJ/MOL
+ET            :       0.040831798552       1.111089725297         107.20387199
+PV            :       0.000017530544       0.000477030356           0.04602644
+TS            :       0.080307302905       2.185272809177         210.84679406
+ET+PV-TS      :      -0.039457973810      -1.073706053524        -103.59689564
+EL+E0+ET+PV-TS:   -2057.056367578673  -55975.349493594607    -5400800.73196695
+
+OTHER THERMODYNAMIC FUNCTIONS:
+
+                     mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ENTROPY       :       0.269352013769       7.329440916241         707.18361249
+HEAT CAPACITY :       0.253504784422       6.898215882635         665.57671770
+
+*******************************************************************************
+</pre></div>
+</div>
+</section>
+<section id="Dispersion">
+<h3>Dispersion<a class="headerlink" href="#Dispersion" title="Link to this heading"></a></h3>
+<p>Similarly, get thermodynamic properties from phonon dispersion calculations. Properties at q points are summed according to their weights. The output data is written in the output file ‘thermo_paracetamolDisp.txt’.</p>
+<p>Note that negative frequencies are all in the translational modes. If more than 3 negative frequencies are found at the same q point, another warning message will be given.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Harmonic
+import numpy as np
+
+obj = Harmonic(filename=&#39;ha_paracetamolDisp.txt&#39;, autocalc=False,
+               temperature=np.linspace(0, 300, 11), pressure=np.linspace(0, 1, 5))
+obj.from_file(&#39;ha_paracetamolDisp.out&#39;).thermodynamics()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.thermodynamics.Harmonic at 0x7f078f3b9f40&gt;
+</pre></div></div>
+</div>
+<p>For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.thermodynamics.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../spectra/spectra.html" class="btn btn-neutral float-left" title="Spectra" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="qha.html" class="btn btn-neutral float-right" title="Lattice Dynamics 2: Quasi-Harmonic Approximation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

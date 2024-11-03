@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.base.extfmt module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.extfmt.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.base.inputbase module" href="crystalpytools.base.inputbase.html" />
+    <link rel="prev" title="CRYSTALpytools.base.crysd12 module" href="crystalpytools.base.crysd12.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.base.extfmt module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.base.extfmt.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-base-extfmt-module">
+<h1>CRYSTALpytools.base.extfmt module<a class="headerlink" href="#crystalpytools-base-extfmt-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.base.extfmt"><span id="ref-base-extfmt"></span>Classes and methods to parse multiple external output formats by ‘crystal’ and
+‘properties’ executables, such as ‘BAND.DAT’ and ‘fort.25’ formats.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CrgraParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CrgraParser</span></span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CrgraParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of functions to parse Crgra fort.25 files. Instantiation of
+this object is not recommaneded.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CrgraParser.band">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CrgraParser.band" title="Link to this definition"></a></dt>
+<dd><p>Parse fort.25 file for electron / phonon band structure(‘-%-BAND’).
+Unit: eV / THz. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – File name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>tick_pos</strong> (<em>array</em>) – n_tick*1 array of 1D tick coordinates. Unit: Angstrom</p></li>
+<li><p><strong>tick_label</strong> (<em>list</em>) – n_tick*1 of default tick labels</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV. 0 for phonon bands.</p></li>
+<li><p><strong>bands</strong> (<em>array</em>) – n_bands*n_kpoints*spin array of energy / frequency.
+Unit: eV / THz</p></li>
+<li><p><strong>k_path</strong> (<em>array</em>) – 1D coordinates of k points. Unit: Angstrom</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘eV’ or ‘THz’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CrgraParser.dos">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CrgraParser.dos" title="Link to this definition"></a></dt>
+<dd><p>Parse fort.25 file for electron / phonon density of states (‘-%-DOSS’
+and ‘-%-PDOS’). Unit: eV^-1 / THz^-1. E Fermi is aligned to 0. All
+projections must have the same energy / frequency range</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – File name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>array</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV. 0 for phonon bands.</p></li>
+<li><p><strong>doss</strong> (<em>array</em>) – n_proj*n_energy*spin array of DOS. Positive values
+for both spin up and spin down states</p></li>
+<li><p><strong>energy</strong> (<em>int</em>) – Number of sampling points (energy or frequency).</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘eV’ or ‘THz’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CrgraParser.mapn">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mapn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CrgraParser.mapn" title="Link to this definition"></a></dt>
+<dd><p>Parse fort.25 file for 2D isovalue maps generated by the ‘MAPNAT’
+formatted keyword block (‘-%-MAPN’). Unit: a.u.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – File name</p></li>
+<li><p><strong>index</strong> (<em>int</em><em>|</em><em>list</em><em>|</em><em>None</em>) – The sequence of ‘-%-MAPN’ headers starting
+from 0. List inputs are accepted. ‘None’ to read the first 1(2)
+MAPN entries for spin=1(2).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>array</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>all_a</strong> (<em>array|list</em>) – 3D Cartesian coordinates of MAPNET point A.
+1*3 array of <code class="docutils literal notranslate"><span class="pre">index</span></code> is an integer or 1*1 list. 1*nIndex
+list otherwise. Same below.</p></li>
+<li><p><strong>all_b</strong> (<em>array|list</em>) – 3D Cartesian coordinates of MAPNET point B</p></li>
+<li><p><strong>all_c</strong> (<em>array|list</em>) – 3D Cartesian coordinates of MAPNET point C</p></li>
+<li><p><strong>all_cosxy</strong> (<em>float|list</em>) – Cosine of vector AB and BC</p></li>
+<li><p><strong>all_struc</strong> (<em>CStructure|list</em>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>all_map</strong> (<em>array|list</em>) – 2D scalar field map commensurate with MAPNET
+defined above, nY*nX*nSpin.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘a.u.’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.DLVParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DLVParser</span></span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.DLVParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of functions to parse DLV / Xmgrace files. Instantiation of
+this object is not recommaneded.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.DLVParser.band">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.DLVParser.band" title="Link to this definition"></a></dt>
+<dd><p>Parse BAND.DAT / PHONBANDS.DAT file for electron / phonon band structure.
+Unit: eV / THz. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – BAND.DAT or PHONBANDS.DAT.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>tick_pos</strong> (<em>array</em>) – n_tick*1 array of 1D tick coordinates. Unit: Angstrom</p></li>
+<li><p><strong>tick_label</strong> (<em>list</em>) – n_tick*1 of default tick labels</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV. 0 for phonon bands.</p></li>
+<li><p><strong>bands</strong> (<em>array</em>) – n_bands*n_kpoints*spin array of energy / frequency.
+Unit: eV / THz</p></li>
+<li><p><strong>k_path</strong> (<em>array</em>) – 1D coordinates of k points. Unit: Angstrom</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘eV’ or ‘THz’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.DLVParser.dos">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.DLVParser.dos" title="Link to this definition"></a></dt>
+<dd><p>Parse DOSS.DAT / PHONDOS.DAT file for electron / phonon density of
+states. Unit: eV^-1 / THz^-1. E Fermi is aligned to 0. All projections
+must have the same energy / frequency range</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – File name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>array</em>) – 1, closed shell; 2, open shell</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy. Unit: eV. 0 for phonon bands.</p></li>
+<li><p><strong>doss</strong> (<em>array</em>) – n_proj*n_energy*spin array of DOS. Positive values</p></li>
+<li><p><strong>energy</strong> (<em>int</em>) – Number of sampling points (energy or frequency).</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘eV’ or ‘THz’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.DLVParser.fort35">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fort35</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.DLVParser.fort35" title="Link to this definition"></a></dt>
+<dd><p>Keyword ‘DLV_BAND’. For 3D band structures in reciprocal space. 3D and
+2D systems only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rlatt</strong> (<em>array</em>) – 3*3 reciprocal lattice matrix in Bohr.</p></li>
+<li><p><strong>bandnew</strong> (<em>array</em>) – nBand*nZ*nY*nX*nSpin array of 3D band in Hartree.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘a.u.’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.TOPONDParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TOPONDParser</span></span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.TOPONDParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of functions to parse TOPOND output files. Instantiation of
+this object is not recommaneded.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.TOPONDParser.contour2D">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">contour2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.TOPONDParser.contour2D" title="Link to this definition"></a></dt>
+<dd><p>Parse TOPOND 2D scalar contour plot files (SURF*.DAT). Unit: a.u.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>spin</strong> (<em>array</em>) – Always 1</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – 3D Cartesian coordinates of MAPNET point A (xmin, ymax)</p></li>
+<li><p><strong>b</strong> (<em>array</em>) – 3D Cartesian coordinates of MAPNET point B (xmin, ymin)</p></li>
+<li><p><strong>c</strong> (<em>array</em>) – 3D Cartesian coordinates of MAPNET point C (xmax, ymin)</p></li>
+<li><p><strong>cosxy</strong> (<em>float</em>) – Always 0</p></li>
+<li><p><strong>struc</strong> (<em>None</em>) – Always None</p></li>
+<li><p><strong>map</strong> (<em>array</em>) – 2D scalar field map commensurate with MAPNET defined
+above. nY*nX*1 (spin dimension kept but no use).</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘a.u.’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.TOPONDParser.traj">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">traj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.TOPONDParser.traj" title="Link to this definition"></a></dt>
+<dd><p>Parse TOPOND trajectory plot files (TRAJ*.DAT). Unit: a.u.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>wtraj</strong> (<em>list[int]</em>) – 1*nPath, weight of the path</p></li>
+<li><p><strong>traj</strong> (<em>list[array]</em>) – 1*nPath, list of critical paths. Every array
+is the nPoint*3 3D ref framework coordinates of points on the
+path.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – ‘a.u.’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.BOLTZTRAParaser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BOLTZTRAParaser</span></span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.BOLTZTRAParaser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of functions to parse BOLTZTRA output files. Instantiation of
+this object is not recommaneded.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.BOLTZTRAParaser.tensor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.BOLTZTRAParaser.tensor" title="Link to this definition"></a></dt>
+<dd><p>Read properties in tensor forms, include KAPPA, SEEBECK, SIGMA, SIGMAS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1 for closed shell and 2 for open shell.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type of tensor output.</p></li>
+<li><p><strong>v</strong> (<em>float</em>) – Volume in cm:math:<cite>^{3}</cite>.</p></li>
+<li><p><strong>t</strong> (<em>array</em>) – Temperature in K.</p></li>
+<li><p><strong>mu</strong> (<em>array</em>) – Chemical potential in eV.</p></li>
+<li><p><strong>dc</strong> (<em>array</em>) – nT*nMu*nspin array of carrier density. Unit:
+cm:math:<cite>^{-3}</cite>.</p></li>
+<li><p><strong>tensor</strong> (<em>array</em>) – nT*nMu*ndimen*nspin array of tensor elements.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Unit of tensor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.BOLTZTRAParaser.distribution">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.BOLTZTRAParaser.distribution" title="Link to this definition"></a></dt>
+<dd><p>Read transport distribution function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin</strong> (<em>int</em>) – 1 for closed shell and 2 for open shell.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type. Currently only ‘TDF’</p></li>
+<li><p><strong>energy</strong> (<em>array</em>) – nEnergy*nspin array, Energy in eV.</p></li>
+<li><p><strong>distr</strong> (<em>array</em>) – nEnergy*nDimen*nspin array of distribution. Unit:
+<span class="math notranslate nohighlight">\(\hbar^{-2}.eV.fs.\AA^{-2}\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CUBEParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CUBEParser</span></span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CUBEParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of functions to parse <strong>CRYSTAL</strong> CUBE files. Instantiation of
+this object is not recommaneded.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Developed especially for CUBE formatted output of CRYSTAL. Lattice
+parameters must be included in the comment line in Bohr and degree.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.base.extfmt.CUBEParser.read_cube">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.base.extfmt.CUBEParser.read_cube" title="Link to this definition"></a></dt>
+<dd><p>Read CUBE formatted files. For base vectors, they are defined by 4 points,
+<cite>origin</cite>, <cite>a</cite>, <cite>b</cite> and <cite>c</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>origin</strong> (<em>array</em>) – 1*3 Cartesian coordinates of origin. Unit: <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – 1*3 Cartesian coordinates of grid x base vector end. Unit: <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+<li><p><strong>b</strong> (<em>array</em>) – 1*3 Cartesian coordinates of grid y base vector end. Unit: <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+<li><p><strong>c</strong> (<em>array</em>) – 1*3 Cartesian coordinates of grid z base vector end. Unit: <span class="math notranslate nohighlight">\(\AA\)</span>.</p></li>
+<li><p><strong>struc</strong> (<em>CStructure</em>) – Extended Pymatgen Structure object.</p></li>
+<li><p><strong>grid</strong> (<em>array</em>) – nZ*nY*nX array of 3D data grid.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Data grid unit, ‘a.u.’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.base.crysd12.html" class="btn btn-neutral float-left" title="CRYSTALpytools.base.crysd12 module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.base.inputbase.html" class="btn btn-neutral float-right" title="CRYSTALpytools.base.inputbase module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

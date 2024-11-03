@@ -1,0 +1,1713 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.crystal_io module &mdash; CRYSTALpytools 2024.11.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.crystal_io.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=626ec6bd"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.elastics module" href="crystalpytools.elastics.html" />
+    <link rel="prev" title="CRYSTALpytools.convert module" href="crystalpytools.convert.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-method">The ‘read_ECHG’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.crystal_io module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.crystal_io.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="crystalpytools-crystal-io-module">
+<h1>CRYSTALpytools.crystal_io module<a class="headerlink" href="#crystalpytools-crystal-io-module" title="Link to this heading"></a></h1>
+<p id="module-CRYSTALpytools.crystal_io"><span id="ref-crystalio"></span>Objects of input / output files of CRYSTAL. Methods to edit or substract data
+from corresponding files are provided.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.crysd12.html#CRYSTALpytools.base.crysd12.Crystal_inputBASE" title="CRYSTALpytools.base.crysd12.Crystal_inputBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">Crystal_inputBASE</span></code></a></p>
+<p>Crystal input object inherited from the <a class="reference internal" href="crystalpytools.base.crysd12.html#ref-base-crysd12"><span class="std std-ref">Crystal_inputBASE</span></a>
+object. For the basic set-ups of keywords, please refer to manuals <a class="reference internal" href="crystalpytools.base.crysd12.html#ref-base-crysd12"><span class="std std-ref">there</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – Template file or string. An empty object is generated for
+<code class="docutils literal notranslate"><span class="pre">''</span></code>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.read_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.read_file" title="Link to this definition"></a></dt>
+<dd><p>Instantiate class object from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – The name of the input file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Crystal_input</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.write_file">
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.write_file" title="Link to this definition"></a></dt>
+<dd><p>Write data to a file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.geom_from_cif">
+<span class="sig-name descname"><span class="pre">geom_from_cif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXTERNAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[True,</span> <span class="pre">True,</span> <span class="pre">True]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fort.34'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.geom_from_cif" title="Link to this definition"></a></dt>
+<dd><p>Read geometry from cif file and put infomation to geom block, either as
+‘EXTERNAL’ or ‘CRYSTAL’. CIF files with a single geometry only.</p>
+<p>CIF with Symmetry is required.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>CIF files should have the ‘.cif’ extension.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – CIF file.</p></li>
+<li><p><strong>keyword</strong> (<em>str</em>) – ‘EXTERNAL’ or ‘CRYSTAL’.</p></li>
+<li><p><strong>zconv</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – 1st element: The <strong>index</strong> of atom;
+2nd element: The new conventional atomic number. Atoms of the
+irreducible unit is required.</p></li>
+<li><p><strong>pbc</strong> (<em>list</em><em>[</em><em>bool</em><em>]</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">keyword</span> <span class="pre">=</span> <span class="pre">EXTERNAL</span></code>. Force to remove
+periodic boundary conditions along x, y, z axis.</p></li>
+<li><p><strong>gui_name</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">keyword</span> <span class="pre">=</span> <span class="pre">EXTERNAL</span></code>. Gui file’s name.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to Pymatgen <a class="reference external" href="https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer">SpacegroupAnalyzer</a> object.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.geom_from_pmg">
+<span class="sig-name descname"><span class="pre">geom_from_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXTERNAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fort.34'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.geom_from_pmg" title="Link to this definition"></a></dt>
+<dd><p>Read geometry defined by PyMatGen structure object and put infomation
+into geom block, either as ‘EXTERNAL’ or ‘CRYSTAL’.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">geom_from_cif</span></code> for definition of arguments.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Coordinates of corresponding atoms may not consistent with the
+original CIF file if ‘CRYSTAL’ is used, in which case
+coordinates of another symmetry equivalent atom is used.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.bs_user">
+<span class="sig-name descname"><span class="pre">bs_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crystal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ECP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BSfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MYBASIS'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.bs_user" title="Link to this definition"></a></dt>
+<dd><p>A shortcut to get user defined (free format) basis sets from <a class="reference external" href="https://www.basissetexchange.org/">Basis Set
+Exchange (BSE)</a>, formatted string
+or file.</p>
+<p>In some rare cases the user might want to manually change the charge
+assigned to the atoms to get ionic initial guess.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bs_str</strong> (<em>str</em>) – Name of basis set(BSE), formatted string or file.</p></li>
+<li><p><strong>z</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of elements, specified by conventional atomic
+numbers. BSE only.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format string. Consistent with <a class="reference external" href="https://molssi-bse.github.io/basis_set_exchange/bse_cli.html#list-formats">BSE python API</a>.
+For string and files.</p></li>
+<li><p><strong>append</strong> (<em>bool</em>) – Whether to cover old entries. If the old entry
+contains ‘BASISSET’, it will be removed anyway. Useful when
+different series of basis sets are defined</p></li>
+<li><p><strong>charge</strong> (<em>dict</em>) – To define charge. Keys: z, conventional atomic
+number; Values: charge of shells, whose sequence must be
+consistent with BS definition.</p></li>
+<li><p><strong>ECP</strong> (<em>dict</em>) – Definition of effective core pseudopotentials. Keys:
+z, conventional atomic number; Values: ECP string.</p></li>
+<li><p><strong>BSfile</strong> (<em>str</em>) – If not None, print basis set definitions into
+<code class="docutils literal notranslate"><span class="pre">BSfile</span></code> and use <code class="docutils literal notranslate"><span class="pre">title</span></code> as the entry to ‘BASISSET’ keyword</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Useful when <code class="docutils literal notranslate"><span class="pre">BSfile</span></code> is not None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_input.bs_keyword">
+<span class="sig-name descname"><span class="pre">bs_keyword</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keyword</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_input.bs_keyword" title="Link to this definition"></a></dt>
+<dd><p>A shortcut to define basis sets by keywords. Equivalent to <code class="docutils literal notranslate"><span class="pre">self.basisset.basisset</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>keyword</strong> (<em>str</em>) – Name of basis set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class reads a CRYSTAL output and generates an object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_name</strong> (<em>str</em>) – Filename</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.read_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.read_file" title="Link to this definition"></a></dt>
+<dd><p>Reads a CRYSTAL output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_name</strong> (<em>str</em>) – Name of the output file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Crystal_output</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_dielectric_tensor">
+<span class="sig-name descname"><span class="pre">get_dielectric_tensor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_dielectric_tensor" title="Link to this definition"></a></dt>
+<dd><p>Extracts the dielectric tensor from the output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list</strong> – Dielectric tensor values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_eigenvectors">
+<span class="sig-name descname"><span class="pre">get_eigenvectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_eigenvectors" title="Link to this definition"></a></dt>
+<dd><p>Extracts eigenvectors from the output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_dimensionality">
+<span class="sig-name descname"><span class="pre">get_dimensionality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_dimensionality" title="Link to this definition"></a></dt>
+<dd><p>Gets the dimensionality of the system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self.dimensionality</strong> (<em>int</em>) – Dimensionality of the system.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_symmops">
+<span class="sig-name descname"><span class="pre">get_symmops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_symmops" title="Link to this definition"></a></dt>
+<dd><p>Return the symmetry operators</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial</strong> (<em>bool</em>) – <em>Optimization Only</em> Read symmetry operators of the
+initial or the final geometry.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.symmops</strong> (<em>numpy.ndarray</em>) – Symmetry operators</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_geometry">
+<span class="sig-name descname"><span class="pre">get_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_gui</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pymatgen'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_geometry" title="Link to this definition"></a></dt>
+<dd><p>Get the geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last gemetry. Useful in
+case of geometry optimization.</p></li>
+<li><p><strong>write_gui</strong> (<em>bool</em>) – If True, write .gui file</p></li>
+<li><p><strong>gui_name</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. Gui file
+is named as ‘gui_name’. If None, use ‘basename.gui’. The
+basename is the same as output file.</p></li>
+<li><p><strong>symmetry</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. ‘pymatgen’
+to use symmetry info from a pymatgen SpacegroupAnalyzer;
+‘initial’ to use symmstry information on output file. If
+None, no symmstry. Otherwise it is taken from the existing
+gui file.</p></li>
+<li><p><strong>**kwargs</strong> – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">symmetry</span> <span class="pre">=</span> <span class="pre">'pymatgen'</span></code>.  Passed to Pymatgen
+SpacegroupAnalyzer object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.geometry</strong> (<em>CStructure | CMolecule</em>) – A modified pymatgen Structure
+or molecule object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_lattice">
+<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_lattice" title="Link to this definition"></a></dt>
+<dd><p>Returns the lattice of the system. Unit: Angstrom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last lattice. Useful in
+case of geometry optimization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.lattice</strong> (<em>np.ndarray</em>) – Lattice of the system.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_reciprocal_lattice">
+<span class="sig-name descname"><span class="pre">get_reciprocal_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_reciprocal_lattice" title="Link to this definition"></a></dt>
+<dd><p>Returns the reciprocal lattice of the system. Unit: Angstrom^-1.
+Reciprocal lattice is consistent with CRYSTAL: 2pi is added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last lattice. Useful in
+case of geometry optimization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.reciprocal_lattice</strong> (<em>np.ndarray</em>) – Lattice of the system.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.sg_number">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sg_number</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.sg_number" title="Link to this definition"></a></dt>
+<dd><p>CRYSTAL 0~3D space group number. Before geometry editing.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.sg_symbol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sg_symbol</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.sg_symbol" title="Link to this definition"></a></dt>
+<dd><p>CRYSTAL 0~3D 0~3D space group symbol. Before geometry editing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_trans_matrix">
+<span class="sig-name descname"><span class="pre">get_trans_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_trans_matrix" title="Link to this definition"></a></dt>
+<dd><p>Get cell transformation matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self.trans_matrix</strong> (<em>np.ndarray</em>) – 3*3 array of supercell
+expansion matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_primitive_geometry">
+<span class="sig-name descname"><span class="pre">get_primitive_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_gui</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pymatgen'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_geometry" title="Link to this definition"></a></dt>
+<dd><p>Get the primitive geometry, reduced by cell transformation matrix
+inversed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is not the standard ‘primitive cell’. This method returns
+geometry before supercell expansion keywords such as ‘SUPERCEL’
+or ‘SCELPHONO’.</p>
+<p>Conventional atomic numbers are not available.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last geometry. Useful in
+case of geometry optimization.</p></li>
+<li><p><strong>write_gui</strong> (<em>bool</em>) – If True, write .gui file</p></li>
+<li><p><strong>gui_name</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. Gui file
+is named as ‘gui_name’. If None, use ‘basename.gui’. The
+basename is the same as output file.</p></li>
+<li><p><strong>symmetry</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. ‘pymatgen’
+to use symmetry info from a pymatgen SpacegroupAnalyzer;
+‘initial’ to use symmstry information on output file. If
+None, no symmstry. Otherwise it is taken from the existing
+gui file.</p></li>
+<li><p><strong>**kwargs</strong> – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">symmetry</span> <span class="pre">=</span> <span class="pre">'pymatgen'</span></code>.  Passed to Pymatgen
+SpacegroupAnalyzer object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.primitive_geometry</strong> (<em>CStructure | CMolecule</em>) – A modified
+pymatgen Structure or molecule object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_primitive_lattice">
+<span class="sig-name descname"><span class="pre">get_primitive_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_lattice" title="Link to this definition"></a></dt>
+<dd><p>Returns the primitive lattice of the system reduced by cell
+transformation matrix inverse. Unit: Angstrom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last lattice. Useful in
+case of geometry optimization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.primitive_lattice</strong> (<em>np.ndarray</em>) – Lattice of the system.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_primitive_reciprocal_lattice">
+<span class="sig-name descname"><span class="pre">get_primitive_reciprocal_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_primitive_reciprocal_lattice" title="Link to this definition"></a></dt>
+<dd><p>Returns the primitive reciprocal lattice of the system before
+expansion by cell transformation matrix inverse. Unit: Angstrom^-1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial</strong> (<em>bool</em>) – Read the initial or last lattice. Useful in
+case of geometry optimization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.primitive_reciprocal_lattice</strong> (<em>np.ndarray</em>) – Lattice of the system.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_config_analysis">
+<span class="sig-name descname"><span class="pre">get_config_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_config_analysis" title="Link to this definition"></a></dt>
+<dd><p>Return the configuration analysis for solid solutions (CONFCON keyword in input)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>return_multiplicity</strong> (<em>bool</em><em>, </em><em>optional</em>) – Return multiplicity information. Defaults to False.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list or str</strong> – Configuration analysis if available, or a warning message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_convergence">
+<span class="sig-name descname"><span class="pre">get_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_convergence" title="Link to this definition"></a></dt>
+<dd><p>The wrapper of <code class="docutils literal notranslate"><span class="pre">get_scf_convergence</span></code> and <code class="docutils literal notranslate"><span class="pre">get_opt_convergence</span></code>.
+For analysing the geometry and energy convergence.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It might not work well with SCF / OPT cycles of multiple systems
+such as PREOPTGEOM + EOS calculations</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For optimizations, it only returns to optimization convergence. SCF
+convergence is not available. Call <code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> if needed.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>history</strong> (<em>bool</em>) – Deprecated. Always return to history.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Crystal_output</em>) – New attributes listed below</p></li>
+<li><p><strong>self.final_energy</strong> (<em>float</em>) – eV</p></li>
+</ul>
+</dd>
+</dl>
+<p>For other attributes, see <code class="docutils literal notranslate"><span class="pre">get_scf_convergence()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> methods on the same page.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_final_energy">
+<span class="sig-name descname"><span class="pre">get_final_energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_final_energy" title="Link to this definition"></a></dt>
+<dd><p>Get the final energy of the system. A wrapper of <code class="docutils literal notranslate"><span class="pre">self.get_convergence</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self.final_energy</strong> (<em>float</em>) – The final energy of the system in eV.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_scf_convergence">
+<span class="sig-name descname"><span class="pre">get_scf_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scflog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_scf_convergence" title="Link to this definition"></a></dt>
+<dd><p>Returns the scf convergence energy and energy difference.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With empirical corrections (DFT-D or gCP), the <code class="docutils literal notranslate"><span class="pre">scf_energy</span></code> refers
+to DFT energy only. The <code class="docutils literal notranslate"><span class="pre">final_energy</span></code> attribute includes
+corrections at the final step. <code class="docutils literal notranslate"><span class="pre">final_energy</span></code> is valid only if
+<code class="docutils literal notranslate"><span class="pre">scf_status='converged'</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For optimizations, using <code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> with
+<code class="docutils literal notranslate"><span class="pre">scf_history=True</span></code> is suggested.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_cycles</strong> (<em>bool</em>) – Deprecated.</p></li>
+<li><p><strong>scflog</strong> (<em>str</em>) – Path to ‘SCFOUT.LOG’. For optimizations, <code class="docutils literal notranslate"><span class="pre">scflog=None</span></code>
+returns to either the initial SCF convergence or every SCF step
+if ‘ONELOG’ keyword is enabled. This option helps to get SCF history
+from ‘SCFOUT.LOG’ file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Crystal_output</em>) – New attributes listed below</p></li>
+<li><p><strong>self.scf_cycles</strong> (<em>int|list</em>) – Number of cycles. Array if
+multiple SCF cycles are read.</p></li>
+<li><p><strong>self.scf_status</strong> (<em>str|list</em>) – ‘terminated’, ‘converged’,
+‘too many cycles’ and ‘unknown’. List if multiple SCF cycles are read.</p></li>
+<li><p><strong>self.scf_energy</strong> (<em>array|list</em>) – SCF energy convergence. Unit: eV</p></li>
+<li><p><strong>self.scf_deltae</strong> (<em>array|list</em>) – Energy difference. Unit: eV</p></li>
+<li><p><strong>self.final_energy</strong> (<em>float</em>) – Last step energy with corrections. Unit: eV</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_fermi_energy">
+<span class="sig-name descname"><span class="pre">get_fermi_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scflog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_fermi_energy" title="Link to this definition"></a></dt>
+<dd><p>Returns the system Fermi energy / valance band maximum (insulators).
+For <code class="docutils literal notranslate"><span class="pre">history=True</span></code>, Fermi energy at step 0 is always 0 as no Fermi
+energy is solved. Similary, steps with SPINLOCK or level shifting also
+return to 0 Fermi energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>history</strong> (<em>bool</em>) – Whether to read the convergence history of Fermi energy.</p></li>
+<li><p><strong>scflog</strong> (<em>str</em>) – Path to ‘SCFOUT.LOG’. For optimizations, <code class="docutils literal notranslate"><span class="pre">scflog=None</span></code>
+returns to either the initial Fermi energy or energies of every SCF
+if ‘ONELOG’ keyword is enabled. This option helps to get SCF history
+from ‘SCFOUT.LOG’ file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self.fermi_energy</strong> (<em>float|array</em>) – Fermi energy of the system. For
+spin-polarized insulators, the highest VBM is returned.</p></li>
+<li><p><strong>self.spin_pol</strong> (<em>bool</em>) – <em>Not returned but defined</em> Whether the
+calculation is spin-polarized.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_band_gap">
+<span class="sig-name descname"><span class="pre">get_band_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scflog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_band_gap" title="Link to this definition"></a></dt>
+<dd><p>Returns the system band gap. For <code class="docutils literal notranslate"><span class="pre">history=True</span></code>, gap at step 0 is
+always 0 as no energy gap is solved. Similary, steps with SPINLOCK or
+level shifting also return to 0 gap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>history</strong> (<em>bool</em>) – Whether to read the convergence history of band gap.</p></li>
+<li><p><strong>scflog</strong> (<em>str</em>) – Path to ‘SCFOUT.LOG’. For optimizations, <code class="docutils literal notranslate"><span class="pre">scflog=None</span></code>
+returns to either the initial band gap or gaps of every SCF if
+‘ONELOG’ keyword is enabled. This option helps to get SCF history
+from ‘SCFOUT.LOG’ file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self.band_gap</strong> (<em>float|array</em>) – Band gap of the system. For
+spin-polarized systems, <code class="docutils literal notranslate"><span class="pre">self.band_gap</span></code> would be either a 2*1
+array (<code class="docutils literal notranslate"><span class="pre">history=False</span></code>) or a nCYC*2 array (<code class="docutils literal notranslate"><span class="pre">history=True</span></code>).</p></li>
+<li><p><strong>self.spin_pol</strong> (<em>bool</em>) – <em>Not returned but defined</em> Whether the
+calculation is spin-polarized.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_mulliken_charges">
+<span class="sig-name descname"><span class="pre">get_mulliken_charges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_mulliken_charges" title="Link to this definition"></a></dt>
+<dd><p>Return the atomic Mulliken charges (PPAN keyword in input).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self.mulliken_charges</strong> (<em>array</em>) – natom*1 for non spin-polarised systems.
+natom*3 for spin-polarised systems. [total, <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_opt_convergence">
+<span class="sig-name descname"><span class="pre">get_opt_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scflog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_gui</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pymatgen'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_opt_convergence" title="Link to this definition"></a></dt>
+<dd><p>Returns optimisation convergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>primitive</strong> (<em>bool</em>) – Deprecated. Use <code class="docutils literal notranslate"><span class="pre">get_primitive_geometry()</span></code> for
+initial and last geometries. The method here always returns to
+the actual structure optimized.</p></li>
+<li><p><strong>scf_history</strong> (<em>bool</em>) – Read SCF history of each optimisation step. Also
+refer to the <code class="docutils literal notranslate"><span class="pre">get_scf_convergence()</span></code> method.</p></li>
+<li><p><strong>scflog</strong> (<em>str</em>) – Path to ‘SCFOUT.LOG’. For optimizations, <code class="docutils literal notranslate"><span class="pre">scflog=None</span></code>
+returns to either the initial SCF convergence or every SCF step
+if ‘ONELOG’ keyword is enabled. This option helps to get SCF history
+from ‘SCFOUT.LOG’ file.</p></li>
+<li><p><strong>write_gui</strong> (<em>bool</em>) – If True, write .gui file of each step</p></li>
+<li><p><strong>gui_name</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. Gui file is
+named as ‘gui_name-optxxx.gui’. If None, use ‘basename-optxxx.gui’.
+The basename is the same as output.</p></li>
+<li><p><strong>symmetry</strong> (<em>str</em>) – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code>. ‘pymatgen’ to
+use symmetry info from a pymatgen SpacegroupAnalyzer; ‘initial’
+to use symmstry information on output file. If None, no symmstry.
+Otherwise it is taken from the existing gui file.</p></li>
+<li><p><strong>**kwargs</strong> – Valid only if <code class="docutils literal notranslate"><span class="pre">write_gui</span> <span class="pre">=</span> <span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">symmetry</span> <span class="pre">=</span> <span class="pre">'pymatgen'</span></code>.
+Passed to Pymatgen SpacegroupAnalyzer object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Crystal_output</em>) – New attributes listed below</p></li>
+<li><p><strong>self.opt_cycles</strong> (<em>int</em>) – Number of cycles.</p></li>
+<li><p><strong>self.opt_status</strong> (<em>str</em>) – ‘terminated’, ‘converged’, ‘failed’ and ‘unknown’</p></li>
+<li><p><strong>self.opt_energy</strong> (<em>array</em>) – Total energy convergence. Unit: eV</p></li>
+<li><p><strong>self.opt_deltae</strong> (<em>array</em>) – Total energy difference. Unit: eV</p></li>
+<li><p><strong>self.opt_geometry</strong> (<em>list</em>) – Modified CStructure/CMolecule at each step.</p></li>
+<li><p><strong>self.opt_maxgrad</strong> (<em>array</em>) – Maximum gradient convergence. Unit: Hartree/Bohr</p></li>
+<li><p><strong>self.opt_rmsgrad</strong> (<em>array</em>) – RMS gradient convergence. Unit: Hartree/Bohr</p></li>
+<li><p><strong>self.opt_maxdisp</strong> (<em>array</em>) – Maximum displacement convergence. Unit: Bohr</p></li>
+<li><p><strong>self.opt_rmsdisp</strong> (<em>array</em>) – RMS displacement convergence. Unit: Bohr</p></li>
+<li><p><strong>self.final_energy</strong> (<em>float</em>) – Last step energy with corrections. Unit: eV</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_forces">
+<span class="sig-name descname"><span class="pre">get_forces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scflog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_forces" title="Link to this definition"></a></dt>
+<dd><p>Read forces.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To get forces of the last optimization step, ‘SCFOUT.LOG’ file or
+the ‘ONELOG’ keyword are needed.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>bool</em>) – Deprecated.</p></li>
+<li><p><strong>grad</strong> (<em>bool</em>) – Return gradient convergence history. For optimizations
+only.</p></li>
+<li><p><strong>scflog</strong> (<em>str</em>) – Path to ‘SCFOUT.LOG’. For optimizations, <code class="docutils literal notranslate"><span class="pre">scflog=None</span></code>
+returns forces from the initial SCF convergence or forces of
+every SCF step if ‘ONELOG’ keyword is enabled. This option helps
+to get forces of every step from ‘SCFOUT.LOG’ file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Crystal_output</em>) – New attributes listed below</p></li>
+<li><p><strong>self.forces_atoms</strong> (<em>array</em>) – natom*3 array. Atomic forces. Unit: Hartree/Bohr</p></li>
+<li><p><strong>self.forces_cell</strong> (<em>array</em>) – 3*3 array. Cell forces, 3D only. Unit: Hartree/Bohr</p></li>
+<li><p><strong>self.opt_maxgrad</strong> (<em>array</em>) – Maximum gradient convergence. Unit: Hartree/Bohr</p></li>
+<li><p><strong>self.opt_rmsgrad</strong> (<em>array</em>) – RMS gradient convergence. Unit: Hartree/Bohr</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_phonon">
+<span class="sig-name descname"><span class="pre">get_phonon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_eigvt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rm_imaginary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rm_overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigvt_amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_phonon" title="Link to this definition"></a></dt>
+<dd><p>Read phonon-related properties from output file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In QHA calculations, <code class="docutils literal notranslate"><span class="pre">self.nqpoint</span></code> refer to harmonic phonons
+computed. In other cases it refers to actual q points in reciprocal
+space.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is developed as a basic I/O function for thermodynamic
+analysis. For phonon band / dos or IR / Raman spectra, please refer
+to the <code class="docutils literal notranslate"><span class="pre">get_phonon_band</span></code>, <code class="docutils literal notranslate"><span class="pre">get_phonon_dos</span></code> and <code class="docutils literal notranslate"><span class="pre">get_spectra</span></code>
+methods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_eigvt</strong> (<em>bool</em>) – Whether to read phonon eigenvectors and
+normalize it to 1.</p></li>
+<li><p><strong>rm_imaginary</strong> (<em>bool</em>) – Set negative frequencies to 0 and remove all
+the related properties. Only eigenvectors are kept.</p></li>
+<li><p><strong>rm_overlap</strong> (<em>bool</em>) – <em>For dispersion calculations</em> Remove repeated q
+points and recalculate their weights.</p></li>
+<li><p><strong>imaginary_tol</strong> (<em>float</em>) – <em>``rm_imaginary`` = True only</em> The threshold
+of negative frequencies.</p></li>
+<li><p><strong>q_overlap_tol</strong> (<em>float</em>) – <em>``rm_overlap`` = True only</em> The threshold of
+overlapping q points, defined as the 2nd norm of the difference
+of fractional q vectors</p></li>
+<li><p><strong>eigvt_amplitude</strong> (<em>float</em><em>|</em><em>str</em>) – Normalize the eigenvector to a certian
+amplitude. Either a number or ‘classical’ (<strong>classical
+amplitude in Bohr</strong>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Crystal_output</em>) – New attributes listed below</p></li>
+<li><p><strong>self.edft</strong> (<em>array[float]</em>) – <span class="math notranslate nohighlight">\(E_{0}\)</span> Energy with empirical
+correction. Unit: kJ/mol.</p></li>
+<li><p><strong>self.nqpoint</strong> (<em>int</em>) – Number of q points</p></li>
+<li><p><strong>self.qpoint</strong> (<em>list[list[array[float], float]]</em>) – A 1*nQpoint list of
+1*2 list whose first element is a 1*3 array of fractional
+coordinates and the second is its weight.</p></li>
+<li><p><strong>self.nmode</strong> (<em>array[int]</em>) – Number of modes at q point. 1*nQpoint
+array.</p></li>
+<li><p><strong>self.frequency</strong> (<em>array[float]</em>) – nQpoint*nMode array ofvibrational
+frequency. Unit: THz</p></li>
+<li><p><strong>self.mode_symm</strong> (<em>array[str]</em>) – nQpoint*nMode array of the
+irreducible representations. In Mulliken symbols.</p></li>
+<li><p><strong>self.intens</strong> (<em>array[float]</em>) – nqpoint*nmode array of harmonic IR
+intensiy. Unit: km/mol</p></li>
+<li><p><strong>self.IR</strong> (<em>array[bool]</em>) – nqpoint*nmode array of boolean values
+specifying whether the mode is IR active</p></li>
+<li><p><strong>self.Raman</strong> (<em>array[bool]</em>) – nqpoint*nmode array of boolean values
+specifying whether the mode is Raman active</p></li>
+<li><p><strong>self.eigenvector</strong> (<em>array[complex]</em>) – <em>``read_eigvt = True only``</em>
+nqpoint*nmode*natom*3 array of eigenvectors.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_phonon_band">
+<span class="sig-name descname"><span class="pre">get_phonon_band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_phonon_band" title="Link to this definition"></a></dt>
+<dd><p>Read phonon bands from CRYSTAL output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q_overlap_tol</strong> (<em>float</em>) – The threshold for overlapped k points. Only
+used for getting tick positions.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.pband</strong> (<em>PhononBand</em>) – <code class="docutils literal notranslate"><span class="pre">phonons.PhononBand</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_phonon_dos">
+<span class="sig-name descname"><span class="pre">get_phonon_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_INS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_phonon_dos" title="Link to this definition"></a></dt>
+<dd><p>Read phonon density of states from CRYSTAL output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_INS</strong> (<em>bool</em>) – Read the inelastic neutron scattering spectra,
+instead of the PDOS.</p></li>
+<li><p><strong>atom_prj</strong> (<em>list</em>) – Read the projections of atoms with specified labels.</p></li>
+<li><p><strong>element_prj</strong> (<em>list</em>) – Read projections of elements with specified
+conventional atomic numbers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.pdos</strong> (<em>PhononDOS</em>) – <code class="docutils literal notranslate"><span class="pre">phonons.PhononDOS</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_spectra">
+<span class="sig-name descname"><span class="pre">get_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'infer'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_spectra" title="Link to this definition"></a></dt>
+<dd><p>Read spectra from IRSPEC.DAT / RAMSPEC.DAT files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In principle, the code cannot tell the type of the files. It is
+important to assign the appropriate type to the <code class="docutils literal notranslate"><span class="pre">type</span></code> keyword.
+Currently the available options are ‘IRSPEC’ and ‘RAMSPEC’.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specfile</strong> (<em>str</em>) – File name of spectra data.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type of the file. See above. If ‘infer’, type is
+inferred from input file name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.*</strong> (<em>IR|Raman</em>) – Dependending on the <code class="docutils literal notranslate"><span class="pre">type</span></code> keyword, return to
+<code class="docutils literal notranslate"><span class="pre">spectra.IR</span></code> or <code class="docutils literal notranslate"><span class="pre">spectra.Raman</span></code> objects. Attribute names
+same as <code class="docutils literal notranslate"><span class="pre">type</span></code> are set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_elatensor">
+<span class="sig-name descname"><span class="pre">get_elatensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">thickness</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_elatensor" title="Link to this definition"></a></dt>
+<dd><p>Extracts the elastic tensor from the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*thickness</strong> (<em>float</em>) – Effective thickness of low dimensional
+materials, in <span class="math notranslate nohighlight">\(\AA\)</span>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.tensor</strong> (<em>numpy.ndarray</em>) – Symmetrized elastic tensor in Voigt
+notation. For 3D systems, 6*6; for 2D, 3*3; for 1D, 1*1.
+The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
+if effective thickness of materials are specified. Otherwise
+GPa.m for 2D and GPa.m <span class="math notranslate nohighlight">\(^{2}\)</span> for 1D (might lead to very
+small numbers).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_anh_spectra">
+<span class="sig-name descname"><span class="pre">get_anh_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_anh_spectra" title="Link to this definition"></a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>This is not for the released feature of CRYSTAL23 v1.0.1</strong></p>
+</div>
+<p>This method reads data from a CRYSTAL output file and processes it to
+extract anharmonic (VSCF and VCI) IR and Raman spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self.IR_HO_0K</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic IR
+frequency and intensities computed at 0 K.</p></li>
+<li><p><strong>self.IR_HO_T</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic IR
+frequency and intensities computed at temperature T.</p></li>
+<li><p><strong>self.IR_VSCF_0K</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF IR
+frequency and intensities computed at 0 K.</p></li>
+<li><p><strong>self.IR_VSCF_T</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF IR
+frequency and intensities computed at temperature T.</p></li>
+<li><p><strong>self.IR_VCI_0K</strong> (<em>array[float]</em>) – 2D numpy array containing VCI IR
+frequency and intensities computed at 0 K.</p></li>
+<li><p><strong>self.IR_VCI_T</strong> (<em>array[float]</em>) – 2D numpy array containing VCI IR
+frequency and intensities computed at temperature T.</p></li>
+<li><p><strong>self.Ram_HO_0K_tot</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (total) computed at 0 K.</p></li>
+<li><p><strong>self.Ram_HO_0K_per</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (perpendicular component ) computed at
+temperature 0 K.</p></li>
+<li><p><strong>self.Ram_HO_0K_par</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (parallel component ) computed at
+temperature 0 K.</p></li>
+<li><p><strong>self.Ram_HO_T_tot</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (total) computed at temperature T.</p></li>
+<li><p><strong>self.Ram_HO_T_per</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (perpendicular component ) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_HO_T_par</strong> (<em>array[float]</em>) – 2D numpy array containing harmonic
+Raman frequency and intensities (parallel component ) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VSCF_0K_tot</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (total) computed at 0 K.</p></li>
+<li><p><strong>self.Ram_VSCF_0K_per</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (perpendicular component) computed at
+0 K.</p></li>
+<li><p><strong>self.Ram_VSCF_0K_par</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (parallel component) computed at
+0 K.</p></li>
+<li><p><strong>self.Ram_VSCF_T_tot</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (total) computed at temperature T.</p></li>
+<li><p><strong>self.Ram_VSCF_T_per</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (perpendicular component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VSCF_T_par</strong> (<em>array[float]</em>) – 2D numpy array containing VSCF
+Raman frequency and intensities (parallel component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VCI_0K_tot</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (total) computed at 0 K.</p></li>
+<li><p><strong>self.Ram_VCI_0K_per</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (perpendicular component) computed at
+0 K.</p></li>
+<li><p><strong>self.Ram_VCI_0K_par</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (parallel component) computed at
+0 K.</p></li>
+<li><p><strong>self.Ram_VCI_T_tot</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (total) computed at temperature T.</p></li>
+<li><p><strong>self.Ram_VCI_T_per</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (perpendicular component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VCI_T_par</strong> (<em>array[float]</em>) – 2D numpy array containing VCI
+Raman frequency and intensities (parallel component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_HO_0K_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+harmonic Raman frequency and intensities (xx component) computed at 0
+K.</p></li>
+<li><p><strong>self.Ram_HO_T_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+harmonic Raman frequency and intensities (xx component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VSCF_0K_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+VSCF Raman frequency and intensities (xx component) computed at 0 K.</p></li>
+<li><p><strong>self.Ram_VSCF_T_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+VSCF Raman frequency and intensities (xx component) computed at
+temperature T.</p></li>
+<li><p><strong>self.Ram_VCI_0K_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+VCI Raman frequency and intensities (xx component) computed at 0 K.</p></li>
+<li><p><strong>self.Ram_VCI_T_comp_xx</strong> (<em>array[float]</em>) – 2D numpy array containing
+VCI Raman frequency and intensities (xx component) computed at
+temperature T.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please, note that for the sake of brevity, only the xx Raman component
+attributes have been listed here, but the yy, zz, xy, xz, yz components
+are available as well.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.n_atoms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_atoms</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.n_atoms" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘num_sites’ attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.atom_symbols">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_symbols</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.atom_symbols" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘species_symbol’ attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.atom_numbers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_numbers</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.atom_numbers" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘species_Z’ attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.atom_positions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_positions</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.atom_positions" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘crys_coords’ attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.atom_positions_cart">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_positions_cart</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.atom_positions_cart" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘cart_coords’ attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.atom_positions_frac">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_positions_frac</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.atom_positions_frac" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Get structure object by ‘get_geometry’ and call the
+‘crys_coords’ attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_output.get_last_geom">
+<span class="sig-name descname"><span class="pre">get_last_geom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_gui_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pymatgen'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_output.get_last_geom" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">get_geometry(initial=False)</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Properties_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.propd3.html#CRYSTALpytools.base.propd3.Properties_inputBASE" title="CRYSTALpytools.base.propd3.Properties_inputBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">Properties_inputBASE</span></code></a></p>
+<p>Properties input object inherited from the <a class="reference internal" href="crystalpytools.base.propd3.html#ref-base-propd3"><span class="std std-ref">Properties_inputBASE</span></a>
+object. For the basic set-ups of keywords, please refer to manuals <a class="reference internal" href="crystalpytools.base.propd3.html#ref-base-propd3"><span class="std std-ref">there</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – Template file or string. An empty object is generated for
+<code class="docutils literal notranslate"><span class="pre">''</span></code>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.read_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.read_file" title="Link to this definition"></a></dt>
+<dd><p>Instantiate the object from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – The name of the input file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Properties_input</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.write_file">
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.write_file" title="Link to this definition"></a></dt>
+<dd><p>Writes the properties input to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – The name of the d3 file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.make_band_block">
+<span class="sig-name descname"><span class="pre">make_band_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_eig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BAND</span> <span class="pre">STRUCTURE</span> <span class="pre">CALCULATION'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.make_band_block" title="Link to this definition"></a></dt>
+<dd><p>A shortcut for <code class="docutils literal notranslate"><span class="pre">self.band()</span></code>. Also accepts pymatgen <a class="reference external" href="https://pymatgen.org/pymatgen.symmetry.html#pymatgen.symmetry.bandstructure.HighSymmKpath">HighSymmKpath</a>
+objects for k path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k_path</strong> (<em>list</em><em> | </em><em>HighSymmKpath</em>) – The k-path for the bands calculation.</p></li>
+<li><p><strong>n_kpoints</strong> (<em>int</em>) – The number of k-points along the path.</p></li>
+<li><p><strong>first_band</strong> (<em>int</em>) – The index of the first band.</p></li>
+<li><p><strong>last_band</strong> (<em>int</em>) – The index of the last band.</p></li>
+<li><p><strong>print_eig</strong> (<em>int</em>) – Printing options for eigenvalues (default is 0).</p></li>
+<li><p><strong>print_option</strong> (<em>int</em>) – Properties printing options (default is 1).</p></li>
+<li><p><strong>precision</strong> (<em>int</em>) – Precision in the calculation of <code class="docutils literal notranslate"><span class="pre">numpy.gcd</span></code></p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of the calculation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.make_doss_block">
+<span class="sig-name descname"><span class="pre">make_doss_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'atom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.make_doss_block" title="Link to this definition"></a></dt>
+<dd><p>A shortcut for <code class="docutils literal notranslate"><span class="pre">self.doss()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_points</strong> (<em>int</em>) – The number of points in the DOS plot.</p></li>
+<li><p><strong>band_range</strong> (<em>list</em><em> or </em><em>tuple</em>) – The range of bands to include in the DOS calculation.</p></li>
+<li><p><strong>e_range</strong> (<em>list</em><em> or </em><em>tuple</em>) – The energy range for the DOS calculation. Unit: eV</p></li>
+<li><p><strong>plotting_option</strong> (<em>int</em>) – DOS plotting options.</p></li>
+<li><p><strong>poly</strong> (<em>int</em>) – Degree of the polynomial for smearing.</p></li>
+<li><p><strong>print_option</strong> (<em>int</em>) – Properties printing options.</p></li>
+<li><p><strong>projections</strong> (<em>list</em>) – nProj*nElement list of ints specifying the
+projections for the pdoss calculation, or nProj*1 list of
+strings specifying element names to project on all atoms of the
+same element (<code class="docutils literal notranslate"><span class="pre">output_file</span></code> is needed).</p></li>
+<li><p><strong>proj_type</strong> (<em>str</em>) – Type of projection (‘atom’ or ‘site’).</p></li>
+<li><p><strong>output_file</strong> (<em>str</em>) – Output file of ‘crystal’ calculation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.make_pdoss_block">
+<span class="sig-name descname"><span class="pre">make_pdoss_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'atom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.make_pdoss_block" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use either <code class="docutils literal notranslate"><span class="pre">self.doss()</span></code> or <code class="docutils literal notranslate"><span class="pre">self.make_doss_block()</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.make_newk_block">
+<span class="sig-name descname"><span class="pre">make_newk_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shrink1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shrink2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.make_newk_block" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">self.newk()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.make_bands_block">
+<span class="sig-name descname"><span class="pre">make_bands_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_band</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_eig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BAND</span> <span class="pre">STRUCTURE</span> <span class="pre">CALCULATION'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.make_bands_block" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">self.make_band_block()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.from_file">
+<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.from_file" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_file()</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_input.write_properties_input">
+<span class="sig-name descname"><span class="pre">write_properties_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_input.write_properties_input" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">write_file()</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Properties_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.base.output.html#CRYSTALpytools.base.output.POutBASE" title="CRYSTALpytools.base.output.POutBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">POutBASE</span></code></a></p>
+<p>Creates a Properties_output object. Since not all results from ‘properties’
+executable creates are summarized in output, methods of this class usually
+requires multiple files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most of methods directly dealing with output file itself are saved in
+<code class="docutils literal notranslate"><span class="pre">base.output.POutBASE</span></code> object. Users typically do not need to call
+methods there since they are called internally.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>properties_output</strong> (<em>str</em>) – Properties output file</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_file" title="Link to this definition"></a></dt>
+<dd><p>Parse the properties output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>properties_output</strong> (<em>str</em>) – The properties output file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cls</strong> (<em>Properties_output</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_electron_band">
+<span class="sig-name descname"><span class="pre">read_electron_band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_electron_band" title="Link to this definition"></a></dt>
+<dd><p>Generate bands object from CRYSTAL BAND.DAT / fort.25 file. Energy
+unit: eV. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>band_file</strong> (<em>str</em>) – Name of BAND.DAT / fort.25 file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.bands</strong> (<em>ElectronBand</em>) – The <a class="reference internal" href="crystalpytools.electronics.html#ref-electronband"><span class="std std-ref">electronics.ElectronBand</span></a> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_Fermi_surface">
+<span class="sig-name descname"><span class="pre">read_Fermi_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f35_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_Fermi_surface" title="Link to this definition"></a></dt>
+<dd><p>Generate the Fermi surface, i.e., band energy across the first brillouin
+zone <span class="math notranslate nohighlight">\(E(k)\)</span> from CRYSTAL fort.35 file (with ‘DLV_BAND’ keyword).
+Energy unit: eV.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When output is available, energies are aligned to <span class="math notranslate nohighlight">\(E_{F}=0\)</span>.
+Otherwise values reported in fort.35 file are used.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f35_file</strong> (<em>str</em>) – Name of fort.35 file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.FermiSurf</strong> (<em>FermiSurface</em>) – The <a class="reference internal" href="crystalpytools.electronics.html#ref-fermisurface"><span class="std std-ref">electronics.FermiSurface</span></a> object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_electron_dos">
+<span class="sig-name descname"><span class="pre">read_electron_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_electron_dos" title="Link to this definition"></a></dt>
+<dd><p>Get density of states from CRYSTAL DOSS.DAT or fort.25 file. Energy
+unit: eV. E Fermi is aligned to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dos_file</strong> (<em>str</em>) – Name of DOSS.DAT or fort.25 file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.doss</strong> (<em>ElectronDOS</em>) – The <a class="reference internal" href="crystalpytools.electronics.html#ref-electrondos"><span class="std std-ref">electronics.ElectronDOS</span></a> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_topond">
+<span class="sig-name descname"><span class="pre">read_topond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topondfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'infer'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_topond" title="Link to this definition"></a></dt>
+<dd><p>Read the 2D scalar plot files (‘SURF*.DAT’) or trajectory files
+(TRAJ*.DAT) written by <a class="reference external" href="https://www.crystal.unito.it/topond.html">TOPOND</a>.</p>
+<p>Geometry information is printed in the standard ouput, which is not
+mandatory for ‘SURF*.DAT’ but is mandatory for ‘TRAJ*.DAT’</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the convenience of analysis and plotting, it is important to select
+the correct type for your input file. By default <cite>type=’infer’</cite> will
+search for (case insensitive) the following strings:</p>
+<p>‘SURFRHOO’, ‘SURFSPDE’, ‘SURFLAPP’, ‘SURFLAPM’, ‘SURFGRHO’,
+‘SURFKKIN’, ‘SURFGKIN’, ‘SURFVIRI’, ‘SURFELFB’, ‘TRAJGRAD’,
+‘TRAJMOLG’.</p>
+<p>For their meanings, please refer <a class="reference external" href="https://www.crystal.unito.it/include/manuals/topond.pdf">TOPOND manual</a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topondfile</strong> (<em>str</em>) – TOPOND formatted 2D plot file</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – ‘infer’ or specified. Otherwise warning will be given.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.*</strong> (<em>ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph</em>) – Return to <code class="docutils literal notranslate"><span class="pre">topond</span></code> property classes, depending on input file types. The
+attribute name is upper case type names. If unknown, return to
+<code class="docutils literal notranslate"><span class="pre">self.TOPOND</span></code>. A <code class="docutils literal notranslate"><span class="pre">topond.ChargeDensity</span></code> or
+<code class="docutils literal notranslate"><span class="pre">topond.GradientTraj</span></code> class is generated.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_ECHG">
+<span class="sig-name descname"><span class="pre">read_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">f25_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_ECHG" title="Link to this definition"></a></dt>
+<dd><p>Read charge / spin density data from a file. Unit: <span class="math notranslate nohighlight">\(e.\AA^{-3}\)</span>.</p>
+<p>Available methods are:</p>
+<ul class="simple">
+<li><p>‘normal’: Normal 1-file reading.</p></li>
+<li><dl class="simple">
+<dt>‘substract’: Substracting data from the first entry based on following</dt><dd><p>entries. Multiple entries or 1 entry with ‘PATO’ keyword enabled.
+For multiple entries, make sure the charge map is in the first (and
+ideally the only) ‘MAPN’ data block, otherwise the code won’t get
+the correct data. For 1 entry with ‘PATO’, data will be substracted
+from the ‘normal’ system.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>‘alpha_beta’: Save spin-polarized data in <span class="math notranslate nohighlight">\(\alpha\)</span> /</dt><dd><p><span class="math notranslate nohighlight">\(\beta\)</span> states, rather than charge(<span class="math notranslate nohighlight">\(\alpha+\beta\)</span>)
+/ spin(<span class="math notranslate nohighlight">\(\alpha-\beta\)</span>). Single entry only.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The standard screen output is highly recommended to add, which
+identifies the indices of corresponding 2D data maps. Otherwise the
+<code class="docutils literal notranslate"><span class="pre">index</span></code> input can be specified. Otherwise, the code only reads
+the first 2D data map for spin =1 and first 2 maps for spin=2.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*f25_files</strong> (<em>str</em>) – Path to the fort.25 file(s).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Data processing method. See above.</p></li>
+<li><p><strong>index</strong> (<em>int</em><em>|</em><em>list</em>) – Sequence number of headers with the ‘-%-MAPN’
+pattern. Useful only if the standard screen output is not
+available. Starting from 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.echg</strong> (<em>ChargeDensity</em>) – <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_ECH3">
+<span class="sig-name descname"><span class="pre">read_ECH3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cubefiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_ECH3" title="Link to this definition"></a></dt>
+<dd><p>Read 3D charge / spin density data from CUBE files. Unit: <span class="math notranslate nohighlight">\(e.\AA^{-3}\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only compatible with CRYSTAL cube outputs. Lattice constants are
+annotated in the comment line.</p>
+</div>
+<p>Available methods are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>‘normal’: Normal reading, 1 or 2 entries for charge and spin</dt><dd><p>densities.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>‘substract’: Substracting data from the first entry based on following</dt><dd><p>entries.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>‘alpha_beta’: Save spin-polarized data in <span class="math notranslate nohighlight">\(\alpha\)</span> /</dt><dd><p><span class="math notranslate nohighlight">\(\beta\)</span> states, rather than charge(<span class="math notranslate nohighlight">\(\alpha+\beta\)</span>)
+/ spin(<span class="math notranslate nohighlight">\(\alpha-\beta\)</span>). 1 or 2 entries for charge and spin
+densities.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*cubefiles</strong> (<em>str</em>) – Path to the CUBE file(s).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Data processing method. See above.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.ech3</strong> (<em>ChargeDensity</em>) – <code class="docutils literal notranslate"><span class="pre">electronics.ChargeDensity</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_relativistics">
+<span class="sig-name descname"><span class="pre">read_relativistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f25_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_relativistics" title="Link to this definition"></a></dt>
+<dd><p>Read 2D scalar / vector fields from 2c-SCF calculations, generated by
+the ‘PROPS2COMP’ keyword.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The standard screen output is highly recommended to add, which
+identifies the indices of corresponding 2D data maps. Otherwise the
+<code class="docutils literal notranslate"><span class="pre">index</span></code> must be specified by integer or list of integers.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f25_file</strong> (<em>str</em>) – File name of the fort.25 file.</p></li>
+<li><p><strong>type</strong> (<em>str</em><em>|</em><em>int</em><em>|</em><em>list</em>) – Property to calculate, ‘DENSITY’, ‘MAGNETIZ’,
+‘ORBCURDENS’, or ‘SPICURDENS’.</p></li>
+<li><p><strong>index</strong> (<em>int</em><em>|</em><em>list</em>) – Sequence number of headers with the ‘-%-MAPN’
+pattern. Useful only if the standard screen output is not
+available. Starting from 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.*</strong> (<em>ChargeDensity|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity</em>) – Return to classes defined in the <code class="docutils literal notranslate"><span class="pre">relativisitcs</span></code> module,
+depending on <code class="docutils literal notranslate"><span class="pre">type</span></code>. The attribute name is upper case type
+names. Unit: charge densities, <span class="math notranslate nohighlight">\(\AA^{-3}\)</span>; magnetization,
+A/m; Orbital/spin densities, A/m <span class="math notranslate nohighlight">\(^{2}\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_XRDspec">
+<span class="sig-name descname"><span class="pre">read_XRDspec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LP'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_XRDspec" title="Link to this definition"></a></dt>
+<dd><p>Read XRD spectra from standard screen output of properties calculation.
+It is envoked by keyword ‘XRDSPEC’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>option</strong> (<em>str</em>) – ‘NC’ for no correction (The ‘INTENS’ col); ‘LP’ for
+Lorentz and polarization effects (‘INTENS-LP’) and ‘DW’ for LP
+with Debye-Waller thermal factors (‘INTENS-LP-DW’).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.XRDspec</strong> (<em>XRD</em>) – The <code class="docutils literal notranslate"><span class="pre">spectra.XRD</span></code> object with spectra
+information.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_rholine">
+<span class="sig-name descname"><span class="pre">read_cry_rholine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_rholine" title="Link to this definition"></a></dt>
+<dd><p>Read density line data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>properties_output</strong> (<em>str</em>) – Path to the properties output file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The modified object with extracted density line data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_lapl_profile">
+<span class="sig-name descname"><span class="pre">read_cry_lapl_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_lapl_profile" title="Link to this definition"></a></dt>
+<dd><p>Read Laplacian profile data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>properties_output</strong> (<em>str</em>) – Path to the properties output file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The modified object with extracted Laplacian profile data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_density_profile">
+<span class="sig-name descname"><span class="pre">read_cry_density_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_density_profile" title="Link to this definition"></a></dt>
+<dd><p>Read density profile data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>properties_output</strong> (<em>str</em>) – Path to the properties output file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The modified object with extracted density profile data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_transport">
+<span class="sig-name descname"><span class="pre">read_transport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boltztra_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_transport" title="Link to this definition"></a></dt>
+<dd><p>Read electron transport properties by the BOLTZTRA keyword, including
+‘KAPPA’, ‘SIGMA’, ‘SIGMAS’, ‘SEEBECK’ and ‘TDF’. Though currently the
+geometry information is not required, it is saved if the standard
+output file is given.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For ‘SEEBECK’, all the 9 elements of the tensor was printed. As far
+as the developers have been aware of, it is symmetrized. Therefore
+the redundant ‘yx’, ‘zx’ and ‘zy’ dimensions are removed to keep
+consistent with other outputs.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boltztra_out</strong> (<em>str</em>) – ‘DAT’ files by CRYSTAL BOLTZTRA keyword.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self.*</strong> (<em>Tensor|Distribution</em>) – <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code> (‘KAPPA’,
+‘SIGMA’, ‘SIGMAS’, ‘SEEBECK’) or <code class="docutils literal notranslate"><span class="pre">transport.Distribution</span></code>
+(TDF) classes, depending on the input file. The attribute name
+is upper case types.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_band">
+<span class="sig-name descname"><span class="pre">read_cry_band</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_band" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_electron_band</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_doss">
+<span class="sig-name descname"><span class="pre">read_cry_doss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_doss" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_electron_dos</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG">
+<span class="sig-name descname"><span class="pre">read_cry_ECHG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f25_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_ECHG</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG_delta">
+<span class="sig-name descname"><span class="pre">read_cry_ECHG_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f25_file1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f25_file2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_ECHG_delta" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_ECHG</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_contour">
+<span class="sig-name descname"><span class="pre">read_cry_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_contour" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_topond</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_seebeck">
+<span class="sig-name descname"><span class="pre">read_cry_seebeck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_seebeck" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_transport</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_sigma">
+<span class="sig-name descname"><span class="pre">read_cry_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_sigma" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_transport</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_vecfield">
+<span class="sig-name descname"><span class="pre">read_vecfield</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_vecfield" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_relativistics</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Properties_output.read_cry_xrd_spec">
+<span class="sig-name descname"><span class="pre">read_cry_xrd_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Properties_output.read_cry_xrd_spec" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Use <code class="docutils literal notranslate"><span class="pre">read_XRDspec</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_gui">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensionality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_gui" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.Crystal_gui" title="CRYSTALpytools.geometry.Crystal_gui"><code class="xref py py-class docutils literal notranslate"><span class="pre">Crystal_gui</span></code></a></p>
+<p>Inherited from <code class="docutils literal notranslate"><span class="pre">geometry.Crystal_gui</span></code>. See documentations <a class="reference internal" href="crystalpytools.geometry.html#ref-geometry"><span class="std std-ref">there</span></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_density">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Crystal_density</span></span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_density" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Read density data from a .f98 file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.Crystal_density.read_cry_irr_density">
+<span class="sig-name descname"><span class="pre">read_cry_irr_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fort98_unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.Crystal_density.read_cry_irr_density" title="Link to this definition"></a></dt>
+<dd><p>Read density profile data from a CRYSTAL .f98 file.
+:param fort98_unit: The file containing the formatted density matrix.
+:type fort98_unit: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+</dl>
+<p>Note:
+This is a work in progress. If you are interested in this functionality,
+please open an Issue on GitHub.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.cry_combine_density">
+<span class="sig-name descname"><span class="pre">cry_combine_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'new_density.f98'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_pol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.cry_combine_density" title="Link to this definition"></a></dt>
+<dd><p>Combine density matrix files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density1</strong> (<em>str</em>) – The first density matrix file.</p></li>
+<li><p><strong>density2</strong> (<em>str</em>) – The second density matrix file.</p></li>
+<li><p><strong>density3</strong> (<em>str</em>) – The density matrix file for the whole system.</p></li>
+<li><p><strong>new_density</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the new density matrix. Defaults to ‘new_density.f98’.</p></li>
+<li><p><strong>spin_pol</strong> (<em>bool</em><em>, </em><em>optional</em>) – Specifies if the system is spin polarized. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None</strong></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a work in progress. If you are interested in this functionality,
+please open an Issue on GitHub.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CRYSTALpytools.crystal_io.write_cry_density">
+<span class="sig-name descname"><span class="pre">write_cry_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fort98_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_fort98</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.crystal_io.write_cry_density" title="Link to this definition"></a></dt>
+<dd><p>Write the formatted density matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fort98_name</strong> (<em>str</em>) – The name of the previous density matrix file.</p></li>
+<li><p><strong>new_p</strong> (<em>list</em>) – The new density matrix.</p></li>
+<li><p><strong>new_fort98</strong> (<em>str</em>) – The name of the new density matrix file.</p></li>
+<li><p><strong>Returns</strong></p></li>
+<li><p><strong>None</strong></p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a work in progress. If you are interested in this functionality,
+please open an Issue on GitHub.</p>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.convert.html" class="btn btn-neutral float-left" title="CRYSTALpytools.convert module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.elastics.html" class="btn btn-neutral float-right" title="CRYSTALpytools.elastics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
