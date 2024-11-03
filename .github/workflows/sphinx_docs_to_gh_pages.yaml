@@ -35,9 +35,15 @@ jobs:
           sphinxapiopts: '-o ../ ../CRYSTALpytools/'
           sphinxapiexclude: '*setup* *.ipynb test*'
           sphinxopts: ''
-      # - name: Copy HTML verification from Google Search Console
-      #   env:
-      #     TARGET_BRANCH: 'gh-pages'
-      #   run: |
-      #     git checkout $TARGET_BRANCH
-      #     git checkout ${GITHUB_REF##*/} -- 
+      - name: Copy HTML verification from Google Search Console
+        env:
+          TARGET_BRANCH: 'gh-pages'
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git fetch
+          git checkout $TARGET_BRANCH
+          git checkout ${GITHUB_REF##*/} -- $(find docs_source -name google*.html)
+          git add -A
+          git diff-index --quiet HEAD ||  git commit -am "deploy files"
+          git push origin $TARGET_BRANCH
