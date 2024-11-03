@@ -35,7 +35,9 @@ jobs:
           sphinxapiopts: '-o ../ ../CRYSTALpytools/'
           sphinxapiexclude: '*setup* *.ipynb test*'
           sphinxopts: ''
-      - name: Copy meta tag from Google Search Console
-        shell: bash -l {0}
-        run: |
-          sed -i '/<head>/a\  <meta name="google-site-verification" content="VCwinqac8JtcGFEAmAYxTO3I1MmOx119sGsTHSDtFYE" />' docs_source/_build/html/index.html
+      # - name: Copy HTML verification from Google Search Console
+      #   env:
+      #     TARGET_BRANCH: 'gh-pages'
+      #   run: |
+      #     git checkout $TARGET_BRANCH
+      #     git checkout ${GITHUB_REF##*/} -- 
