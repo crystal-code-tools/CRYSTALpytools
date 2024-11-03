@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/introduction.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/installation.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/input_and_basisset/input_and_basisset.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/input_and_basisset/basisset_advanced.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/output/output.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/convert/convert.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/charge_density/charge_density.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/elastic_properties/elastic_properties.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/electronic_structure/electronic_structure.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/fermi_surface/fermi_surface.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/phonons/phonons.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/relativistics/relativistics.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/spectra/spectra.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/thermodynamics/harmonic.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/thermodynamics/qha.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/topond/topond.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/examples/transport/transport.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/tutorials.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.adsorb.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.calculate.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.convert.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.crystal_io.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.elastics.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.electronics.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.execute.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.geometry.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.phonons.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.plot.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.relativistics.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.spectra.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.thermodynamics.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.topond.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.transport.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.io.xcrysden.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.basisset.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.crysd12.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.extfmt.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.inputbase.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.output.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.plotbase.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.propd3.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/cite.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://crystal-code-tools.github.io/CRYSTALpytools/index.html</loc>
+  <lastmod>2024-11-03T01:08:05+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
+
+</urlset>
