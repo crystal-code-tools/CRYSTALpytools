@@ -32,6 +32,6 @@ jobs:
         with:
           branch: main
           dir_docs: docs_source
-          sphinxapiopts: '-o ../ ../CRYSTALpytools/'
-          sphinxapiexclude: '*setup* *.ipynb test*'
-          sphinxopts: ''
+          sphinx-apidoc-opts: '-o ../ ../CRYSTALpytools/'
+          sphinx-apidoc-exclude: '*setup* *.ipynb test*'
+          sphinx-opts: ''
