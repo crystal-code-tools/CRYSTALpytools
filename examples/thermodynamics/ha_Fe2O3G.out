@@ -1,0 +1,3497 @@
+  Input script   :
+Hematite Fe2O3 as a spin example
+CRYSTAL
+0 0 0
+167
+5.07480459 13.86101426
+2
+26   1.336818841275E-17  6.683641182032E-18  1.428850185023E-01
+8   -3.613566924029E-01 -3.333334176606E-01 -8.333333924195E-02
+MODISYMM
+4
+1 1
+2 2
+3 1
+4 2
+FREQCALC
+RESTART
+MODES
+PRESSURE
+11 0 1000
+TEMPERAT
+11 0 300
+ENDFREQ
+ENDGEOM
+26 7
+0 0 8 2.0 1.0
+ 315379.0 0.000227
+ 45690.0 0.0019
+ 9677.3 0.0111
+ 2520.88 0.0501
+ 759.746 0.1705
+ 262.964 0.36924
+ 102.801 0.4033
+ 42.9733 0.1434
+0 1 6 8.0 1.0
+ 798.262 -0.0052 0.00850
+ 191.162 -0.068 0.0608
+ 63.6885 -0.1314 0.2114
+ 25.3625 0.2517 0.3944
+ 10.7338 0.6433 0.398
+ 3.764 0.2825 0.2251
+0 1 4 8.0 1.0
+ 48.1434 0.0122 -0.0215
+ 17.4579 -0.2278 -0.085
+ 6.9972 -0.8801 0.201
+ 3.0791 0.9755 1.3024
+0 1 1 2.0 1.0
+ 1.3137 1.0 1.0
+0 1 1 0.0 1.0
+ 0.5625 1.0 1.0
+0 3 4 6.0 1.0
+ 30.4821 0.0583
+ 8.692 0.2591
+ 3.1008 0.5162
+ 1.1709 0.5656
+0 3 1 0.0 1.0
+ 0.4345 1.0
+8 4
+0 0 8 2.0 1.0
+ 8020.0 0.00108
+ 1338.0 0.00804
+ 255.4 0.05324
+ 69.22 0.1681
+ 23.90 0.3581
+ 9.264 0.3855
+ 3.851 0.1468
+ 1.212 0.0728
+0 1 4 6.0 1.0
+ 49.43 -0.00883 0.00958
+ 10.47 -0.0915 0.0696
+ 3.235 -0.0402 0.2065
+ 1.217 0.379 0.347
+0 1 1 0.0 1.0
+ 0.4764 1.0 1.0
+0 1 1 0.0 1.0
+ 0.1802 1.0 1.0
+99 0
+ENDBS
+DFT
+SPIN
+B3LYP
+XXLGRID
+ENDDFT
+ATOMSPIN
+4
+1     1
+2    -1
+3     1
+4    -1
+SPINLOCK
+0 -5
+TOLDEE
+9
+TOLINTEG
+7 7 7 7 14
+SHRINK
+12 12
+EXCHSIZE
+12000000
+BIPOSIZE
+12000000
+ENDSCF
+-------------------------------------------
+
+ PROCESS            1  OF            4  WORKING
+ PROCESS            2  OF            4  WORKING
+ PROCESS            0  OF            4  WORKING
+ PROCESS            3  OF            4  WORKING
+ Default number of threads is:            1
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 14 03 2025 TIME 13:04:03.3
+ Hematite Fe2O3 as a spin example                                                
+
+ CRYSTAL CALCULATION
+ (INPUT ACCORDING TO THE INTERNATIONAL TABLES FOR X-RAY CRYSTALLOGRAPHY)
+ CRYSTAL FAMILY                       :  HEXAGONAL   
+ CRYSTAL CLASS  (GROTH - 1921)        :  DITRIGONAL SCALENOHEDRAL             
+
+ SPACE GROUP (CENTROSYMMETRIC)        :  R -3 C          
+
+ LATTICE PARAMETERS  (ANGSTROMS AND DEGREES) - CONVENTIONAL CELL
+        A           B           C        ALPHA        BETA       GAMMA
+     5.07480     5.07480    13.86101    90.00000    90.00000   120.00000
+
+
+ NUMBER OF IRREDUCIBLE ATOMS IN THE CONVENTIONAL CELL:    2
+
+ INPUT COORDINATES
+
+ ATOM AT. N.              COORDINATES
+   1  26     1.336818841275E-17  6.683641182032E-18  1.428850185023E-01
+   2   8    -3.613566924029E-01 -3.333334176606E-01 -8.333333924195E-02
+
+ *******************************************************************************
+
+ << INFORMATION >>: FROM NOW ON, ALL COORDINATES REFER TO THE PRIMITIVE CELL
+
+ *******************************************************************************
+
+ LATTICE PARAMETERS  (ANGSTROMS AND DEGREES) - PRIMITIVE CELL
+       A          B          C        ALPHA      BETA     GAMMA        VOLUME
+    5.47102    5.47102    5.47102    55.26382  55.26382  55.26382    103.048823
+
+ COORDINATES OF THE EQUIVALENT ATOMS (FRACTIONAL UNITS)
+
+ N. ATOM EQUIV AT. N.          X                  Y                  Z
+
+   1   1   1   26 FE    1.42885018502E-01  1.42885018502E-01  1.42885018502E-01
+   2   1   2   26 FE    3.57114981498E-01  3.57114981498E-01  3.57114981498E-01
+   3   1   3   26 FE   -1.42885018502E-01 -1.42885018502E-01 -1.42885018502E-01
+   4   1   4   26 FE   -3.57114981498E-01 -3.57114981498E-01 -3.57114981498E-01
+
+   5   2   1    8 O    -4.44690031645E-01 -5.53100644996E-02  2.50000078419E-01
+   6   2   2    8 O     2.50000078419E-01 -4.44690031645E-01 -5.53100644996E-02
+   7   2   3    8 O    -5.53100644996E-02  2.50000078419E-01 -4.44690031645E-01
+   8   2   4    8 O     4.44690031645E-01  5.53100644996E-02 -2.50000078419E-01
+   9   2   5    8 O    -2.50000078419E-01  4.44690031645E-01  5.53100644996E-02
+  10   2   6    8 O     5.53100644996E-02 -2.50000078419E-01  4.44690031645E-01
+
+ NUMBER OF SYMMETRY OPERATORS         :   12
+ *******************************************************************************
+ * GEOMETRY EDITING - INPUT COORDINATES ARE GIVEN IN ANGSTROM         
+ *******************************************************************************
+
+ GEOMETRY NOW FULLY CONSISTENT WITH THE GROUP
+ SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+ REDUCTION OF SYMMETRY - ATOMIC LABELS SET TO (ATOM, AT. N., LABEL)
+   1( 26) 1;   2( 26) 2;   3( 26) 1;   4( 26) 2;   5(  8) 0;   6(  8) 0;
+   7(  8) 0;   8(  8) 0;   9(  8) 0;  10(  8) 0;
+ THE NUMBER OF SYMMETRY OPERATORS HAS BEEN REDUCED FROM 12 TO  6
+ *******************************************************************************
+
+ FRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQFRQ
+
+                       FREQUENCY CALCULATION
+
+ INFORMATION **** INPFREQ **** FREQUENCY CALCULATION RESTART(DATA FROM FREQINFO.DAT)
+ INFORMATION **** INPFREQ ****  PRINTING OF EIGENVECTORS
+ PRESSURE FOR THERMO ANALYSIS    0.00 MPA - 1000.00 MPA (POINTS 11)
+ TEMPERATURE FOR THERMO ANALYSIS    0.00 KELVIN -  300.00 KELVIN (POINTS 11)
+ INFORMATION **** INPFREQ **** NEW DEFAULT - IMPOSING ECKART CONDITIONS TO THE HESSIAN
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  522 RMAX   105.42051 BOHR
+
+ GEOMETRY FOR WAVE FUNCTION - DIMENSIONALITY OF THE SYSTEM    3
+ (NON PERIODIC DIRECTION: LATTICE PARAMETER FORMALLY SET TO 500)
+ *******************************************************************************
+ LATTICE PARAMETERS (ANGSTROMS AND DEGREES) - BOHR = 0.5291772083 ANGSTROM
+ PRIMITIVE CELL - CENTRING CODE 7/1 VOLUME=   103.048823 - DENSITY  5.152 g/cm^3
+         A              B              C           ALPHA      BETA       GAMMA 
+     5.47102104     5.47102104     5.47102104    55.263822  55.263822  55.263822
+ *******************************************************************************
+ ATOMS IN THE ASYMMETRIC UNIT    3 - ATOMS IN THE UNIT CELL:   10
+     ATOM                 X/A                 Y/B                 Z/C    
+ *******************************************************************************
+      1 T  26 FE    1.428850185023E-01  1.428850185023E-01  1.428850185023E-01
+      2 T  26 FE    3.571149814977E-01  3.571149814977E-01  3.571149814977E-01
+      3 F  26 FE   -1.428850185023E-01 -1.428850185023E-01 -1.428850185023E-01
+      4 F  26 FE   -3.571149814977E-01 -3.571149814977E-01 -3.571149814977E-01
+      5 T   8 O    -4.446899835726E-01 -5.531001642740E-02  2.500000000000E-01
+      6 F   8 O     2.500000000000E-01 -4.446899835726E-01 -5.531001642740E-02
+      7 F   8 O    -5.531001642740E-02  2.500000000000E-01 -4.446899835726E-01
+      8 F   8 O     4.446899835726E-01  5.531001642740E-02 -2.500000000000E-01
+      9 F   8 O    -2.500000000000E-01  4.446899835726E-01  5.531001642740E-02
+     10 F   8 O     5.531001642740E-02 -2.500000000000E-01  4.446899835726E-01
+
+ TRANSFORMATION MATRIX PRIMITIVE-CRYSTALLOGRAPHIC CELL
+  1.0000  0.0000  1.0000 -1.0000  1.0000  1.0000  0.0000 -1.0000  1.0000
+
+ *******************************************************************************
+ CRYSTALLOGRAPHIC CELL (VOLUME=        309.14646869)
+         A              B              C           ALPHA      BETA       GAMMA 
+     5.07480459     5.07480459    13.86101426    90.000000  90.000000 120.000000
+
+ COORDINATES IN THE CRYSTALLOGRAPHIC CELL
+     ATOM                 X/A                 Y/B                 Z/C    
+ *******************************************************************************
+      1 T  26 FE    1.633508190064E-17  1.246867890689E-17  1.428850185023E-01
+      2 T  26 FE    3.333333333333E-01 -3.333333333333E-01  2.378164816437E-02
+      3 F  26 FE   -1.478703130867E-17 -4.719548842154E-18 -1.428850185023E-01
+      4 F  26 FE   -3.333333333333E-01  3.333333333333E-01 -2.378164816437E-02
+      5 T   8 O    -3.613566502393E-01 -3.333333333333E-01 -8.333333333333E-02
+      6 F   8 O     3.333333333333E-01 -2.802331690593E-02 -8.333333333333E-02
+      7 F   8 O     2.802331690593E-02  3.613566502393E-01 -8.333333333333E-02
+      8 F   8 O     3.613566502393E-01  3.333333333333E-01  8.333333333333E-02
+      9 F   8 O    -3.333333333333E-01  2.802331690593E-02  8.333333333333E-02
+     10 F   8 O    -2.802331690593E-02 -3.613566502393E-01  8.333333333333E-02
+
+ T = ATOM BELONGING TO THE ASYMMETRIC UNIT
+
+ ****    6 SYMMOPS - TRANSLATORS IN FRACTIONAL UNITS
+ **** MATRICES AND TRANSLATORS IN THE CRYSTALLOGRAPHIC REFERENCE FRAME
+   V INV                    ROTATION MATRICES                   TRANSLATORS
+   1   1  1.00  0.00  0.00  0.00  1.00  0.00  0.00  0.00  1.00  0.00  0.00  0.00
+   2   3 -0.00  0.00  1.00  1.00 -0.00 -0.00 -0.00  1.00  0.00  0.00  0.00  0.00
+   3   2 -0.00  1.00  0.00 -0.00  0.00  1.00  1.00 -0.00 -0.00  0.00  0.00  0.00
+   4   4 -1.00  0.00  0.00  0.00 -1.00 -0.00  0.00 -0.00 -1.00  0.00  0.00  0.00
+   5   6  0.00  0.00 -1.00 -1.00  0.00  0.00  0.00 -1.00  0.00  0.00  0.00  0.00
+   6   5  0.00 -1.00  0.00  0.00  0.00 -1.00 -1.00  0.00  0.00  0.00  0.00  0.00
+
+ DIRECT LATTICE VECTORS CARTESIAN COMPONENTS (ANGSTROM)
+          X                    Y                    Z
+   0.292993979612E+01  -0.198878800465E-16   0.462033808667E+01
+  -0.146496989806E+01   0.253740229500E+01   0.462033808667E+01
+  -0.146496989806E+01  -0.253740229500E+01   0.462033808667E+01
+
+
+ CARTESIAN COORDINATES - PRIMITIVE CELL
+ *******************************************************************************
+ *      ATOM          X(ANGSTROM)         Y(ANGSTROM)         Z(ANGSTROM)
+ *******************************************************************************
+    1    26 FE    7.179120980039E-17  2.182743464421E-17  1.980531279001E+00
+    2    26 FE   -2.929939796121E+00 -4.518061302419E-17  3.296377643326E-01
+    3    26 FE   -6.498766724664E-17  1.356985905196E-17 -1.980531279001E+00
+    4    26 FE   -1.464969898061E+00 -2.537402295000E+00 -3.296377643326E-01
+    5     8 O    -1.588129845194E+00 -7.746943363694E-01 -1.155084521667E+00
+    6     8 O     1.464969898061E+00 -9.880136222613E-01 -1.155084521667E+00
+    7     8 O     1.231599471330E-01  1.762707958631E+00 -1.155084521667E+00
+    8     8 O     1.588129845194E+00  7.746943363694E-01  1.155084521667E+00
+    9     8 O    -1.464969898061E+00  9.880136222613E-01  1.155084521667E+00
+   10     8 O    -1.231599471330E-01 -1.762707958631E+00  1.155084521667E+00
+
+ *******************************************************************************
+ LOCAL ATOMIC FUNCTIONS BASIS SET
+ *******************************************************************************
+   ATOM   X(AU)   Y(AU)   Z(AU)  N. TYPE  EXPONENT  S COEF   P COEF   D/F/G COEF
+ *******************************************************************************
+   1 FE   0.000   0.000   3.743
+                                  1 S  
+                                         3.154E+05 2.270E-04 0.000E+00 0.000E+00
+                                         4.569E+04 1.900E-03 0.000E+00 0.000E+00
+                                         9.677E+03 1.110E-02 0.000E+00 0.000E+00
+                                         2.521E+03 5.010E-02 0.000E+00 0.000E+00
+                                         7.597E+02 1.705E-01 0.000E+00 0.000E+00
+                                         2.630E+02 3.692E-01 0.000E+00 0.000E+00
+                                         1.028E+02 4.033E-01 0.000E+00 0.000E+00
+                                         4.297E+01 1.434E-01 0.000E+00 0.000E+00
+                           2-     5 SP 
+                                         7.983E+02-5.200E-03 8.500E-03 0.000E+00
+                                         1.912E+02-6.800E-02 6.080E-02 0.000E+00
+                                         6.369E+01-1.314E-01 2.114E-01 0.000E+00
+                                         2.536E+01 2.517E-01 3.944E-01 0.000E+00
+                                         1.073E+01 6.433E-01 3.980E-01 0.000E+00
+                                         3.764E+00 2.825E-01 2.251E-01 0.000E+00
+                           6-     9 SP 
+                                         4.814E+01 1.220E-02-2.150E-02 0.000E+00
+                                         1.746E+01-2.278E-01-8.500E-02 0.000E+00
+                                         6.997E+00-8.801E-01 2.010E-01 0.000E+00
+                                         3.079E+00 9.755E-01 1.302E+00 0.000E+00
+                          10-    13 SP 
+                                         1.314E+00 1.000E+00 1.000E+00 0.000E+00
+                          14-    17 SP 
+                                         5.625E-01 1.000E+00 1.000E+00 0.000E+00
+                          18-    22 D  
+                                         3.048E+01 0.000E+00 0.000E+00 5.830E-02
+                                         8.692E+00 0.000E+00 0.000E+00 2.591E-01
+                                         3.101E+00 0.000E+00 0.000E+00 5.162E-01
+                                         1.171E+00 0.000E+00 0.000E+00 5.656E-01
+                          23-    27 D  
+                                         4.345E-01 0.000E+00 0.000E+00 1.000E+00
+   2 FE  -5.537  -0.000   0.623
+   3 FE  -0.000   0.000  -3.743
+   4 FE  -2.768  -4.795  -0.623
+   5 O   -3.001  -1.464  -2.183
+                                109 S  
+                                         8.020E+03 1.080E-03 0.000E+00 0.000E+00
+                                         1.338E+03 8.040E-03 0.000E+00 0.000E+00
+                                         2.554E+02 5.324E-02 0.000E+00 0.000E+00
+                                         6.922E+01 1.681E-01 0.000E+00 0.000E+00
+                                         2.390E+01 3.581E-01 0.000E+00 0.000E+00
+                                         9.264E+00 3.855E-01 0.000E+00 0.000E+00
+                                         3.851E+00 1.468E-01 0.000E+00 0.000E+00
+                                         1.212E+00 7.280E-02 0.000E+00 0.000E+00
+                         110-   113 SP 
+                                         4.943E+01-8.830E-03 9.580E-03 0.000E+00
+                                         1.047E+01-9.150E-02 6.960E-02 0.000E+00
+                                         3.235E+00-4.020E-02 2.065E-01 0.000E+00
+                                         1.217E+00 3.790E-01 3.470E-01 0.000E+00
+                         114-   117 SP 
+                                         4.764E-01 1.000E+00 1.000E+00 0.000E+00
+                         118-   121 SP 
+                                         1.802E-01 1.000E+00 1.000E+00 0.000E+00
+   6 O    2.768  -1.867  -2.183
+   7 O    0.233   3.331  -2.183
+   8 O    3.001   1.464   2.183
+   9 O   -2.768   1.867   2.183
+  10 O   -0.233  -3.331   2.183
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+ INFORMATION **** READM2 **** NEW DEFAULT: FOCK/KS MATRIX MIXING SET TO 30 %
+ INFORMATION **** READM2 **** NEW DEFAULT: FULL DIRECT SCF MODE
+ INFORMATION **** READM2 **** NEW DEFAULT: COULOMB BIPOLAR BUFFER SET TO 32 Mb
+ INFORMATION **** READM2 **** NEW DEFAULT: EXCHANGE BIPOLAR BUFFER SET TO 32 Mb
+
+ *******************************************************************************
+ NEW DEFAULT: DFT INTEGRATION GRID INCREASED TO XLGRID
+ NEW DEFAULT: DIIS ACCELERATOR ACTIVE
+ USE KEYWORD NODIIS TO TURN IT OFF
+ *******************************************************************************
+
+ SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+ ATOMIC SPINS SET TO (ATOM, AT. N., SPIN)
+   1  26 1   2  26-1   3  26 1   4  26-1   5   8 0   6   8 0   7   8 0   8   8 0
+   9   8 0  10   8 0
+ INFORMATION **** SPINLOCK **** LOCK IN A GIVEN SPIN STATE
+ ALPHA-BETA ELECTRONS LOCKED TO   0 WHILE ENE DIFF BETWEEN CYCS GT 10**  -5
+ INFORMATION **** TOLDEE **** SCF TOL ON TOTAL ENERGY SET TO           9
+ INFORMATION **** TOLINTEG **** COULOMB AND EXCHANGE SERIES TOLERANCES MODIFIED
+ INFORMATION **** EXCHSIZE **** EXCHANGE BIPOLAR BUFFER SIZE SET TO    12000000
+ INFORMATION **** BIPOSIZE **** COULOMB BIPOLAR BUFFER SET TO    12000000
+ WARNING **** READM2 **** PROBABLE LOSS IN FREQCALC ACCURACY; SCF TOL LT          10
+ *******************************************************************************
+ N. OF ATOMS PER CELL        10  COULOMB OVERLAP TOL         (T1) 10**   -7
+ NUMBER OF SHELLS            52  COULOMB PENETRATION TOL     (T2) 10**   -7
+ NUMBER OF AO               186  EXCHANGE OVERLAP TOL        (T3) 10**   -7
+ N. OF ELECTRONS PER CELL   152  EXCHANGE PSEUDO OVP (F(G))  (T4) 10**   -7
+ CORE ELECTRONS PER CELL     84  EXCHANGE PSEUDO OVP (P(G))  (T5) 10**  -14
+ N. OF SYMMETRY OPERATORS     6  POLE ORDER IN MONO ZONE                  4
+ *******************************************************************************
+ TYPE OF CALCULATION :  UNRESTRICTED OPEN SHELL
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(BECKE 88)[LEE-YANG-PARR]
+
+ NON-LOCAL WEIGHTING FACTOR (EXCHANGE) =           0.9000
+ NON-LOCAL WEIGHTING FACTOR [CORRELATION] =        0.8100
+
+ HYBRID EXCHANGE - PERCENTAGE OF FOCK EXCHANGE    20.0000
+
+ SPIN POLARIZED DFT SELECTED
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET 294; SYMMOPS:K SPACE   6;G SPACE   6
+
+ *******************************************************************************
+ MAX NUMBER OF SCF CYCLES      50  CONVERGENCE ON DELTAP        10**-19
+ WEIGHT OF F(I) IN F(I+1)      30% CONVERGENCE ON ENERGY        10**- 9
+ SHRINK. FACT.(MONKH.)   12 12 12  NUMBER OF K POINTS IN THE IBZ    294
+ SHRINKING FACTOR(GILAT NET)   12  NUMBER OF K POINTS(GILAT NET)    294
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 12)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-C(  3  0  0)
+   5-C(  4  0  0)   6-C(  5  0  0)   7-R(  6  0  0)   8-C(  1  1  0)
+   9-C(  2  1  0)  10-C(  3  1  0)  11-C(  4  1  0)  12-C(  5  1  0)
+  13-C(  6  1  0)  14-C(  7  1  0)  15-C(  8  1  0)  16-C(  9  1  0)
+  17-C( 10  1  0)  18-C( 11  1  0)  19-C(  1  2  0)  20-C(  2  2  0)
+  21-C(  3  2  0)  22-C(  4  2  0)  23-C(  5  2  0)  24-C(  6  2  0)
+  25-C(  7  2  0)  26-C(  8  2  0)  27-C(  9  2  0)  28-C( 10  2  0)
+  29-C( 11  2  0)  30-C(  1  3  0)  31-C(  2  3  0)  32-C(  3  3  0)
+  33-C(  4  3  0)  34-C(  5  3  0)  35-C(  6  3  0)  36-C(  7  3  0)
+  37-C(  8  3  0)  38-C(  9  3  0)  39-C( 10  3  0)  40-C( 11  3  0)
+  41-C(  1  4  0)  42-C(  2  4  0)  43-C(  3  4  0)  44-C(  4  4  0)
+  45-C(  5  4  0)  46-C(  6  4  0)  47-C(  7  4  0)  48-C(  8  4  0)
+  49-C(  9  4  0)  50-C( 10  4  0)  51-C( 11  4  0)  52-C(  1  5  0)
+  53-C(  2  5  0)  54-C(  3  5  0)  55-C(  4  5  0)  56-C(  5  5  0)
+  57-C(  6  5  0)  58-C(  7  5  0)  59-C(  8  5  0)  60-C(  9  5  0)
+  61-C( 10  5  0)  62-C( 11  5  0)  63-C(  1  6  0)  64-C(  2  6  0)
+  65-C(  3  6  0)  66-C(  4  6  0)  67-C(  5  6  0)  68-R(  6  6  0)
+  69-C(  1  1  1)  70-C(  2  1  1)  71-C(  3  1  1)  72-C(  4  1  1)
+  73-C(  5  1  1)  74-C(  6  1  1)  75-C(  7  1  1)  76-C(  8  1  1)
+  77-C(  9  1  1)  78-C( 10  1  1)  79-C( 11  1  1)  80-C(  2  2  1)
+  81-C(  3  2  1)  82-C(  4  2  1)  83-C(  5  2  1)  84-C(  6  2  1)
+  85-C(  7  2  1)  86-C(  8  2  1)  87-C(  9  2  1)  88-C( 10  2  1)
+  89-C( 11  2  1)  90-C(  2  3  1)  91-C(  3  3  1)  92-C(  4  3  1)
+  93-C(  5  3  1)  94-C(  6  3  1)  95-C(  7  3  1)  96-C(  8  3  1)
+  97-C(  9  3  1)  98-C( 10  3  1)  99-C( 11  3  1) 100-C(  2  4  1)
+ 101-C(  3  4  1) 102-C(  4  4  1) 103-C(  5  4  1) 104-C(  6  4  1)
+ 105-C(  7  4  1) 106-C(  8  4  1) 107-C(  9  4  1) 108-C( 10  4  1)
+ 109-C( 11  4  1) 110-C(  2  5  1) 111-C(  3  5  1) 112-C(  4  5  1)
+ 113-C(  5  5  1) 114-C(  6  5  1) 115-C(  7  5  1) 116-C(  8  5  1)
+ 117-C(  9  5  1) 118-C( 10  5  1) 119-C( 11  5  1) 120-C(  2  6  1)
+ 121-C(  3  6  1) 122-C(  4  6  1) 123-C(  5  6  1) 124-C(  6  6  1)
+ 125-C(  7  6  1) 126-C(  8  6  1) 127-C(  9  6  1) 128-C( 10  6  1)
+ 129-C( 11  6  1) 130-C(  2  7  1) 131-C(  3  7  1) 132-C(  4  7  1)
+ 133-C(  5  7  1) 134-C(  6  7  1) 135-C(  7  7  1) 136-C(  8  7  1)
+ 137-C(  9  7  1) 138-C( 10  7  1) 139-C( 11  7  1) 140-C(  2  8  1)
+ 141-C(  3  8  1) 142-C(  4  8  1) 143-C(  5  8  1) 144-C(  6  8  1)
+ 145-C(  7  8  1) 146-C(  8  8  1) 147-C(  9  8  1) 148-C( 10  8  1)
+ 149-C( 11  8  1) 150-C(  2  9  1) 151-C(  3  9  1) 152-C(  4  9  1)
+ 153-C(  5  9  1) 154-C(  6  9  1) 155-C(  7  9  1) 156-C(  8  9  1)
+ 157-C(  9  9  1) 158-C( 10  9  1) 159-C( 11  9  1) 160-C(  2 10  1)
+ 161-C(  3 10  1) 162-C(  4 10  1) 163-C(  5 10  1) 164-C(  6 10  1)
+ 165-C(  7 10  1) 166-C(  8 10  1) 167-C(  9 10  1) 168-C( 10 10  1)
+ 169-C( 11 10  1) 170-C(  2  2  2) 171-C(  3  2  2) 172-C(  4  2  2)
+ 173-C(  5  2  2) 174-C(  6  2  2) 175-C(  7  2  2) 176-C(  8  2  2)
+ 177-C(  9  2  2) 178-C( 10  2  2) 179-C(  3  3  2) 180-C(  4  3  2)
+ 181-C(  5  3  2) 182-C(  6  3  2) 183-C(  7  3  2) 184-C(  8  3  2)
+ 185-C(  9  3  2) 186-C( 10  3  2) 187-C(  3  4  2) 188-C(  4  4  2)
+ 189-C(  5  4  2) 190-C(  6  4  2) 191-C(  7  4  2) 192-C(  8  4  2)
+ 193-C(  9  4  2) 194-C( 10  4  2) 195-C(  3  5  2) 196-C(  4  5  2)
+ 197-C(  5  5  2) 198-C(  6  5  2) 199-C(  7  5  2) 200-C(  8  5  2)
+ 201-C(  9  5  2) 202-C( 10  5  2) 203-C(  3  6  2) 204-C(  4  6  2)
+ 205-C(  5  6  2) 206-C(  6  6  2) 207-C(  7  6  2) 208-C(  8  6  2)
+ 209-C(  9  6  2) 210-C( 10  6  2) 211-C(  3  7  2) 212-C(  4  7  2)
+ 213-C(  5  7  2) 214-C(  6  7  2) 215-C(  7  7  2) 216-C(  8  7  2)
+ 217-C(  9  7  2) 218-C( 10  7  2) 219-C(  3  8  2) 220-C(  4  8  2)
+ 221-C(  5  8  2) 222-C(  6  8  2) 223-C(  7  8  2) 224-C(  8  8  2)
+ 225-C(  9  8  2) 226-C( 10  8  2) 227-C(  3  9  2) 228-C(  4  9  2)
+ 229-C(  5  9  2) 230-C(  6  9  2) 231-C(  7  9  2) 232-C(  8  9  2)
+ 233-C(  9  9  2) 234-C( 10  9  2) 235-C(  3  3  3) 236-C(  4  3  3)
+ 237-C(  5  3  3) 238-C(  6  3  3) 239-C(  7  3  3) 240-C(  8  3  3)
+ 241-C(  9  3  3) 242-C(  4  4  3) 243-C(  5  4  3) 244-C(  6  4  3)
+ 245-C(  7  4  3) 246-C(  8  4  3) 247-C(  9  4  3) 248-C(  4  5  3)
+ 249-C(  5  5  3) 250-C(  6  5  3) 251-C(  7  5  3) 252-C(  8  5  3)
+ 253-C(  9  5  3) 254-C(  4  6  3) 255-C(  5  6  3) 256-C(  6  6  3)
+ 257-C(  7  6  3) 258-C(  8  6  3) 259-C(  9  6  3) 260-C(  4  7  3)
+ 261-C(  5  7  3) 262-C(  6  7  3) 263-C(  7  7  3) 264-C(  8  7  3)
+ 265-C(  9  7  3) 266-C(  4  8  3) 267-C(  5  8  3) 268-C(  6  8  3)
+ 269-C(  7  8  3) 270-C(  8  8  3) 271-C(  9  8  3) 272-C(  4  4  4)
+ 273-C(  5  4  4) 274-C(  6  4  4) 275-C(  7  4  4) 276-C(  8  4  4)
+ 277-C(  5  5  4) 278-C(  6  5  4) 279-C(  7  5  4) 280-C(  8  5  4)
+ 281-C(  5  6  4) 282-C(  6  6  4) 283-C(  7  6  4) 284-C(  8  6  4)
+ 285-C(  5  7  4) 286-C(  6  7  4) 287-C(  7  7  4) 288-C(  8  7  4)
+ 289-C(  5  5  5) 290-C(  6  5  5) 291-C(  7  5  5) 292-C(  6  6  5)
+ 293-C(  7  6  5) 294-R(  6  6  6)
+
+ DIRECT LATTICE VECTORS COMPON. (A.U.)     RECIP. LATTICE VECTORS COMPON. (A.U.) 
+        X            Y            Z              X            Y            Z
+    5.5367838   -0.0000000    8.7311736      0.7565385   -0.0000000    0.2398756
+   -2.7683919    4.7949954    8.7311736     -0.3782693    0.6551816    0.2398756
+   -2.7683919   -4.7949954    8.7311736     -0.3782693   -0.6551816    0.2398756
+
+ DISK SPACE FOR EIGENVECTORS (FTN 10)    20204064 REALS
+
+ SYMMETRY ADAPTION OF THE BLOCH FUNCTIONS ENABLED
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.49 TCPU        0.18
+
+ MATRIX SIZE: P(G)  281602, F(G)   49724, P(G) IRR   26045, F(G) IRR    9514
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 123
+
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INPUT       TELAPSE        0.49 TCPU        0.18
+
+ NEIGHBORS OF THE NON-EQUIVALENT ATOMS
+
+ N = NUMBER OF NEIGHBORS AT DISTANCE R
+    ATOM  N     R/ANG      R/AU   NEIGHBORS (ATOM LABELS AND CELL INDICES)
+   1 FE   3     1.9503     3.6855    8 O    0 0 0    9 O    0 0 0   10 O    0 0 0
+   1 FE   3     2.1459     4.0552    5 O    1 0 0    6 O    0 1 0    7 O    0 0 1
+   1 FE   1     2.9694     5.6114    2 FE   1 0 0
+   1 FE   3     3.0032     5.6752    3 FE   1 0 0    3 FE   0 1 0    3 FE   0 0 1
+   1 FE   3     3.3630     6.3552    2 FE   0 0 0    2 FE   1 0-1    2 FE   1-1 0
+   1 FE   3     3.4156     6.4546    8 O   -1 0 1    9 O    1-1 0   10 O    0 1-1
+
+   2 FE   3     1.9503     3.6855    8 O   -1 0 1    9 O    0 0 0   10 O   -1 1 0
+   2 FE   3     2.1459     4.0552    5 O    0 0 0    6 O   -1 1 0    7 O   -1 0 1
+   2 FE   1     2.9694     5.6114    1 FE  -1 0 0
+   2 FE   3     3.0032     5.6752    4 FE   0 0 0    4 FE  -1 1 0    4 FE   0 1-1
+   2 FE   3     3.3630     6.3552    1 FE   0 0 0    1 FE  -1 0 1    1 FE  -1 1 0
+   2 FE   3     3.4156     6.4546    8 O   -1 1 0    9 O   -1 0 1   10 O    0 0 0
+
+   5 O    2     1.9503     3.6855    3 FE   0 0 0    4 FE   0 0 0
+   5 O    2     2.1459     4.0552    1 FE  -1 0 0    2 FE   0 0 0
+   5 O    2     2.6836     5.0713    6 O   -1 1 0    7 O   -1 0 1
+   5 O    2     2.7925     5.2771    8 O   -1 0 1    8 O   -1 0 0
+   5 O    4     2.9085     5.4962    9 O    0 0 0    9 O    0-1 0   10 O    0 0 0
+                                    10 O   -1 0 0
+   5 O    4     3.0605     5.7836    6 O    0 0 0    6 O   -1 0 1    7 O    0 0 0
+                                     7 O    0-1 1
+
+
+ SYMMETRY ALLOWED INTERNAL DEGREE(S) OF FREEDOM:   5
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT SYMM        TELAPSE        0.55 TCPU        0.19
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INT_SCREEN  TELAPSE        0.55 TCPU        0.19
+
+ *******************************************************************************
+ *                                                                             *
+ *                                                                             *
+ *         FFFFF  RRRR   EEEE   QQQ   U   U  EEEE  N   N   CCC  Y   Y          *
+ *         F      R   R  E     Q   Q  U   U  E     NN  N  C      Y Y           *
+ *         FFF    RRRR   EEEE  Q   Q  U   U  EEEE  N N N  C       Y            *
+ *         F      R   R  E     Q  QQ  U   U  E     N  NN  C       Y            *
+ *         F      R   R  EEEE   QQ Q   UUU   EEEE  N   N   CCC    Y            *
+ *                                                                             *
+ *                                                                             *
+ * CALCULATION OF PHONON FREQUENCIES AT THE GAMMA POINT.                       *
+ *                                                                             *
+ * SYMMETRY IS EXPLOITED TO BUILD THE TOTAL HESSIAN MATRIX.                    *
+ * (F. PASCALE PHD THESIS TURIN-PARIS 2002)                                    *
+ *                                                                             *
+ *******************************************************************************
+
+
+ * INTENSITIES COMPUTED VIA THE BERRY PHASE APPROACH                           *
+ *                                                                             *
+ * REFERENCES TO BE QUOTED WHEN USING THIS MODULE:                             *
+ *                                                                             *
+ * F. Pascale, C.M. Zicovich-Wilson, F. Lopez, B. Civalleri                    *
+ * R. Orlando, R. Dovesi                                                       *
+ * The calculation of the vibration frequencies of crystalline                 *
+ * compounds and its implementation in the CRYSTAL code                        *
+ * J. Comput. Chem. 25 (2004) 888-897                                          *
+ *                                                                             *
+ * C.M. Zicovich-Wilson, F. Pascale, C. Roetti, V.R. Saunders,                 *
+ * R. Orlando, R. Dovesi                                                       *
+ * The calculation of the vibration frequencies of alpha-quartz:               *
+ * the effect of hamiltonian and basis set                                     *
+ * J. Comput. Chem. 25 (2004) 1873-1881                                        *
+ *******************************************************************************
+
+
+
+ ATOMS ISOTOPIC MASS (AMU) FOR FREQUENCY CALCULATION 
+
+    1 FE     55.9349    2 FE     55.9349    3 FE     55.9349    4 FE     55.9349
+    5 O      15.9949    6 O      15.9949    7 O      15.9949    8 O      15.9949
+    9 O      15.9949   10 O      15.9949
+
+ INFORMATION CONCERNING THE SCF+GRADIENT CALCULATIONS REQUIRED FOR
+ GENERATING FREQUENCIES. IN PRINCIPLE 3N+1 SCF + GRADIENT
+ CALCULATIONS  ARE REQUIRED;
+ FOR EACH OF THEM THE REMAINING POINT SYMMETRY IS INDICATED.
+ POINT SYMMETRY PERMITS TO GENERATE GRADIENTS FOR DISPLACEMENT B 
+ STARTING FROM THE GRADIENT GENERATED BY DISPLACEMENT A.
+
+   N   LABEL SYMBOL DISPLACEMENT     SYM. 
+
+   1     EQUILIBRIUM GEOMETRY            6
+
+   2      1   FE           DX           1
+   3      1   FE           DY        GENERATED FROM LINE X WITH OP   2
+   4      1   FE           DZ           3
+   5      2   FE           DX           1
+   6      2   FE           DY        GENERATED FROM LINE X WITH OP   2
+   7      2   FE           DZ           3
+   8      5   O            DX           1
+   9      5   O            DY           1
+  10      5   O            DZ           1
+ USE OF RESIDUAL SYMMETRY AFTER DISPLACEMENT
+
+ NUMERICAL GRADIENT COMPUTED WITH A SINGLE DISPLACEMENT (+DX) FOR EACH
+ CARTESIAN COORDINATE WITH RESPECT TO THE EQUILIBRIUM CONFIGURATION
+ DX=  0.003 ANGSTROM
+ NUMBER OF IRREDUCIBLE ATOMS                     3
+ NUMBER OF SCF+GRADIENT CALCULATIONS             8
+
+  ATOM  SYMOP  ORDER
+    1      3      3
+    2      3      3
+    5      1      1
+
+ ATOM  : IRREDUCIBLE ATOM
+ SYMOP : NUMBER OF SYMMETRY OPERATORS THAT DOESN'T MOVE THE IRREDUCIBLE ATOM
+ ORDER : MAXIMUM ORDER AMONG THE OPERATORS OF THE IRREDUCIBLE ATOM
+
+ *******************************************************************************
+
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  522 RMAX   105.42051 BOHR
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET 294; SYMMOPS:K SPACE   6;G SPACE   6
+
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.59 TCPU        0.19
+
+ MATRIX SIZE: P(G)  281602, F(G)   49724, P(G) IRR   26045, F(G) IRR    9514
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 123
+
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INPUT       TELAPSE        0.59 TCPU        0.20
+
+ SYMMETRY ALLOWED INTERNAL DEGREE(S) OF FREEDOM:   5
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT SYMM        TELAPSE        0.63 TCPU        0.23
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INT_SCREEN  TELAPSE        0.63 TCPU        0.23
+
+         THE FIRST POINT IS RESTORED FROM THE FREQINFO.DAT
+
+
+ RESTART FROM  AN INCOMPLETE HESSIAN MATRIX
+
+
+ HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+                   FORCE CONSTANT MATRIX - NUMERICAL ESTIMATE
+ HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+ MAX ABS(DGRAD): MAXIMUM ABSOLUTE GRADIENT DIFFERENCE WITH RESPECT TO
+                 THE CENTRAL POINT
+ DE:             ENERGY DIFFERENCE WITH RESPECT TO THE CENTRAL POINT
+                 (DE IS EXPECTED TO BE POSITIVE FOR ALL DISPLACEMENTS)
+
+   ATOM      MAX ABS(DGRAD)       TOTAL ENERGY (AU)  N.CYC      DE       SYM
+    CENTRAL POINT             -5.506177743975E+03     0     0.0000E+00     6
+    1 FE DX                   RESTORED FROM A PREV. HESS. MATRIX
+    1 FE DY                   GENERATED FROM A PREVIOUS LINE
+    1 FE DZ                   RESTORED FROM A PREV. HESS. MATRIX
+    2 FE DX                   RESTORED FROM A PREV. HESS. MATRIX
+    2 FE DY                   GENERATED FROM A PREVIOUS LINE
+    2 FE DZ                   RESTORED FROM A PREV. HESS. MATRIX
+    5 O  DX                   RESTORED FROM A PREV. HESS. MATRIX
+    5 O  DY                   RESTORED FROM A PREV. HESS. MATRIX
+    5 O  DZ                   RESTORED FROM A PREV. HESS. MATRIX
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  522 RMAX   105.42051 BOHR
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET 294; SYMMOPS:K SPACE   6;G SPACE   6
+
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.75 TCPU        0.33
+
+ MATRIX SIZE: P(G)  281602, F(G)   49724, P(G) IRR   26045, F(G) IRR    9514
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 123
+
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INPUT       TELAPSE        0.75 TCPU        0.33
+
+ SYMMETRY ALLOWED INTERNAL DEGREE(S) OF FREEDOM:   5
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT SYMM        TELAPSE        0.76 TCPU        0.34
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INT_SCREEN  TELAPSE        0.76 TCPU        0.34
+
+ +++ SYMMETRY ADAPTION OF VIBRATIONAL MODES +++
+
+ SYMMETRY INFORMATION:
+ K-LITTLE GROUP: CLASS TABLE, CHARACTER TABLE.
+ IRREP-(DIMENSION, NO. IRREDUCIBLE SETS)
+ [WARNINGS: (1) ONLY ACTIVE IRREPS ARE GENERATED AND LISTED.
+            (2) ONLY RELEVANT CLASSES ARE CONSIDERED IN THE CHARACTER TABLE
+            (3) SYMBOLS MAY NOT FULLY COINCIDE WITH THOSE FROM TEXT BOOKS.]
+
+ (P, D, RP, RD, STAND FOR PAIRING, DOUBLING, REAL PAIRING AND REAL DOUBLING 
+ OF THE IRREPS (SEE MANUAL))
+
+ CLASS  | GROUP OPERATORS (SEE SYMMOPS KEYWORD)
+ --------------------------------------------------------------------
+ C3     |   2;
+ C3'    |   3;
+ I      |   4;
+ S6     |   5;
+ S6'    |   6;
+
+ IRREP/CLA      E     C3      I     S6
+ -------------------------------------
+  MULTIP |      1      1      1      1
+ -------------------------------------
+    Ag   |   1.00   1.00   1.00   1.00
+ RP Eg   |   2.00  -1.00   2.00  -1.00
+    Au   |   1.00   1.00  -1.00  -1.00
+ RP Eu   |   2.00  -1.00  -2.00   1.00
+ 
+ Ag -(1,   5); Eg -(1,  10);
+ Au -(1,   5); Eu -(1,  10);
+
+ HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+ EIGENVALUES (EIGV) OF THE MASS WEIGHTED HESSIAN MATRIX AND HARMONIC TRANSVERSE
+ OPTICAL (TO) FREQUENCIES. IRREP LABELS REFER TO SYMMETRY REPRESENTATION
+ ANALYSIS; A AND I INDICATE WHETHER THE MODE IS ACTIVE OR INACTIVE,
+ RESPECTIVELY, FOR IR AND RAMAN; INTEGRATED IR INTENSITIES IN BRACKETS.
+
+ CONVERSION FACTORS FOR FREQUENCIES:
+      1 CM**(-1) =   0.4556335E-05 HARTREE
+      1 THZ      =   0.3335641E+02 CM**(-1)
+
+ HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+    MODES         EIGV          FREQUENCIES     IRREP  IR   INTENS    RAMAN
+             (HARTREE**2)   (CM**-1)     (THZ)             (KM/MOL)
+    1-   1   -0.5504E-21      0.0000    0.0000  (Au )   A (     0.00)   I
+    2-   3    0.1897E-22      0.0000    0.0000  (Eu )   A (     0.00)   I
+    4-   4    0.8097E-06    197.4892    5.9206  (Ag )   I (     0.00)   A
+    5-   6    0.1195E-05    239.8844    7.1916  (Eu )   A (     0.00)   I
+    7-   7    0.1405E-05    260.1932    7.8004  (Ag )   I (     0.00)   A
+    8-   9    0.1543E-05    272.6567    8.1740  (Eg )   I (     0.00)   A
+   10-  11    0.1799E-05    294.3580    8.8246  (Eg )   I (     0.00)   A
+   12-  13    0.1929E-05    304.8569    9.1394  (Eu )   A (     0.00)   I
+   14-  14    0.1990E-05    309.5987    9.2815  (Au )   A (     0.00)   I
+   15-  16    0.2036E-05    313.1340    9.3875  (Eg )   I (     0.00)   A
+   17-  17    0.2542E-05    349.9227   10.4904  (Au )   A (     0.00)   I
+   18-  19    0.3782E-05    426.7976   12.7951  (Eg )   I (     0.00)   A
+   20-  21    0.4002E-05    439.0773   13.1632  (Eu )   A (     0.00)   I
+   22-  22    0.4123E-05    445.6644   13.3607  (Ag )   I (     0.00)   A
+   23-  23    0.5046E-05    493.0094   14.7801  (Ag )   I (     0.00)   A
+   24-  25    0.5772E-05    527.2911   15.8078  (Eu )   A (     0.00)   I
+   26-  26    0.6220E-05    547.3849   16.4102  (Au )   A (     0.00)   I
+   27-  27    0.7224E-05    589.8774   17.6841  (Au )   A (     0.00)   I
+   28-  29    0.7783E-05    612.2757   18.3556  (Eg )   I (     0.00)   A
+   30-  30    0.9698E-05    683.4848   20.4904  (Ag )   I (     0.00)   A
+
+ NORMAL MODES NORMALIZED TO CLASSICAL AMPLITUDES (IN BOHR)
+
+ FREQ(CM**-1)      0.00      0.00      0.00    197.49    239.88    239.88
+
+ AT.   1 FE X     0.0000    0.0557   -0.0049    0.0000    0.0036    0.0395
+            Y     0.0000   -0.0049   -0.0557    0.0000    0.0395   -0.0036
+            Z    -0.0559    0.0000    0.0000    0.0517    0.0000    0.0000
+ AT.   2 FE X     0.0000    0.0557   -0.0049    0.0000   -0.0228   -0.0327
+            Y     0.0000   -0.0049   -0.0557    0.0000   -0.0327    0.0228
+            Z    -0.0559    0.0000    0.0000    0.0520    0.0000    0.0000
+ AT.   3 FE X     0.0000    0.0557   -0.0049    0.0000    0.0036    0.0395
+            Y     0.0000   -0.0049   -0.0557    0.0000    0.0395   -0.0036
+            Z    -0.0559    0.0000    0.0000   -0.0517    0.0000    0.0000
+ AT.   4 FE X     0.0000    0.0557   -0.0049    0.0000   -0.0228   -0.0327
+            Y     0.0000   -0.0049   -0.0557    0.0000   -0.0327    0.0228
+            Z    -0.0559    0.0000    0.0000   -0.0520    0.0000    0.0000
+ AT.   5 O  X     0.0000    0.0557   -0.0049    0.0005    0.0316    0.0000
+            Y     0.0000   -0.0049   -0.0557    0.0008   -0.0158   -0.0131
+            Z    -0.0559    0.0000   -0.0000   -0.0095    0.0076   -0.0402
+ AT.   6 O  X    -0.0000    0.0557   -0.0049   -0.0010    0.0109   -0.0038
+            Y    -0.0000   -0.0049   -0.0557    0.0001   -0.0119   -0.0338
+            Z    -0.0559    0.0000    0.0000   -0.0095   -0.0386    0.0136
+ AT.   7 O  X     0.0000    0.0557   -0.0049    0.0004    0.0245   -0.0198
+            Y    -0.0000   -0.0049   -0.0557   -0.0009    0.0041   -0.0201
+            Z    -0.0559   -0.0000   -0.0000   -0.0095    0.0310    0.0267
+ AT.   8 O  X     0.0000    0.0557   -0.0049   -0.0005    0.0316    0.0000
+            Y     0.0000   -0.0049   -0.0557   -0.0008   -0.0158   -0.0131
+            Z    -0.0559    0.0000   -0.0000    0.0095    0.0076   -0.0402
+ AT.   9 O  X    -0.0000    0.0557   -0.0049    0.0010    0.0109   -0.0038
+            Y    -0.0000   -0.0049   -0.0557   -0.0001   -0.0119   -0.0338
+            Z    -0.0559    0.0000    0.0000    0.0095   -0.0386    0.0136
+ AT.  10 O  X     0.0000    0.0557   -0.0049   -0.0004    0.0245   -0.0198
+            Y    -0.0000   -0.0049   -0.0557    0.0009    0.0041   -0.0201
+            Z    -0.0559   -0.0000   -0.0000    0.0095    0.0310    0.0267
+
+ FREQ(CM**-1)    260.19    272.66    272.66    294.36    294.36    304.86
+
+ AT.   1 FE X     0.0000   -0.0376    0.0019   -0.0069   -0.0249    0.0049
+            Y     0.0000   -0.0019   -0.0376    0.0249   -0.0069   -0.0287
+            Z     0.0454    0.0000    0.0000    0.0000    0.0000    0.0000
+ AT.   2 FE X     0.0000   -0.0193    0.0318    0.0269    0.0036   -0.0287
+            Y     0.0000   -0.0318   -0.0193   -0.0036    0.0269    0.0036
+            Z    -0.0452    0.0000    0.0000    0.0000    0.0000    0.0000
+ AT.   3 FE X     0.0000    0.0376   -0.0019    0.0069    0.0249    0.0049
+            Y     0.0000    0.0019    0.0376   -0.0249    0.0069   -0.0287
+            Z    -0.0454    0.0000    0.0000    0.0000    0.0000    0.0000
+ AT.   4 FE X     0.0000    0.0193   -0.0318   -0.0269   -0.0036   -0.0287
+            Y     0.0000    0.0318    0.0193    0.0036   -0.0269    0.0036
+            Z     0.0452    0.0000    0.0000    0.0000    0.0000    0.0000
+ AT.   5 O  X     0.0050    0.0312   -0.0200    0.0112    0.0314    0.0253
+            Y    -0.0029    0.0172    0.0306    0.0330   -0.0095    0.0216
+            Z     0.0000    0.0077    0.0035    0.0531    0.0120    0.0300
+ AT.   6 O  X    -0.0000    0.0295   -0.0182    0.0236   -0.0259    0.0224
+            Y     0.0058    0.0190    0.0323   -0.0243   -0.0218    0.0351
+            Z     0.0000   -0.0068    0.0049   -0.0369    0.0400   -0.0210
+ AT.   7 O  X    -0.0050    0.0320   -0.0176   -0.0322   -0.0080    0.0355
+            Y    -0.0029    0.0196    0.0299   -0.0063    0.0339    0.0308
+            Z     0.0000   -0.0008   -0.0084   -0.0162   -0.0520   -0.0091
+ AT.   8 O  X    -0.0050   -0.0312    0.0200   -0.0112   -0.0314    0.0253
+            Y     0.0029   -0.0172   -0.0306   -0.0330    0.0095    0.0216
+            Z    -0.0000   -0.0077   -0.0035   -0.0531   -0.0120    0.0300
+ AT.   9 O  X     0.0000   -0.0295    0.0182   -0.0236    0.0259    0.0224
+            Y    -0.0058   -0.0190   -0.0323    0.0243    0.0218    0.0351
+            Z    -0.0000    0.0068   -0.0049    0.0369   -0.0400   -0.0210
+ AT.  10 O  X     0.0050   -0.0320    0.0176    0.0322    0.0080    0.0355
+            Y     0.0029   -0.0196   -0.0299    0.0063   -0.0339    0.0308
+            Z    -0.0000    0.0008    0.0084    0.0162    0.0520   -0.0091
+
+ FREQ(CM**-1)    304.86    309.60    313.13    313.13    349.92    426.80
+
+ AT.   1 FE X    -0.0287    0.0000    0.0294    0.0053    0.0000    0.0202
+            Y    -0.0049    0.0000    0.0053   -0.0294    0.0000   -0.0080
+            Z     0.0000   -0.0213    0.0000    0.0000   -0.0390    0.0000
+ AT.   2 FE X     0.0036    0.0000   -0.0290   -0.0053    0.0000    0.0090
+            Y     0.0287    0.0000   -0.0053    0.0290    0.0000   -0.0196
+            Z     0.0000   -0.0212    0.0000    0.0000    0.0391    0.0000
+ AT.   3 FE X    -0.0287    0.0000   -0.0294   -0.0053    0.0000   -0.0202
+            Y    -0.0049    0.0000   -0.0053    0.0294    0.0000    0.0080
+            Z     0.0000   -0.0213    0.0000    0.0000   -0.0390    0.0000
+ AT.   4 FE X     0.0036    0.0000    0.0290    0.0053    0.0000   -0.0090
+            Y     0.0287    0.0000    0.0053   -0.0290    0.0000    0.0196
+            Z     0.0000   -0.0212    0.0000    0.0000    0.0391    0.0000
+ AT.   5 O  X     0.0367    0.0117    0.0008    0.0252    0.0052    0.0488
+            Y    -0.0301    0.0203    0.0309    0.0108   -0.0030   -0.0307
+            Z    -0.0069    0.0495    0.0366    0.0293   -0.0001    0.0028
+ AT.   6 O  X     0.0233   -0.0234   -0.0054    0.0345   -0.0000    0.0064
+            Y    -0.0330    0.0000    0.0216    0.0046    0.0060   -0.0405
+            Z    -0.0226    0.0495    0.0071   -0.0464   -0.0001    0.0075
+ AT.   7 O  X     0.0275    0.0117   -0.0104    0.0244   -0.0052    0.0191
+            Y    -0.0199   -0.0203    0.0316   -0.0004   -0.0030    0.0012
+            Z     0.0294    0.0495   -0.0437    0.0171   -0.0001   -0.0103
+ AT.   8 O  X     0.0367    0.0117   -0.0008   -0.0252    0.0052   -0.0488
+            Y    -0.0301    0.0203   -0.0309   -0.0108   -0.0030    0.0307
+            Z    -0.0069    0.0495   -0.0366   -0.0293   -0.0001   -0.0028
+ AT.   9 O  X     0.0233   -0.0234    0.0054   -0.0345   -0.0000   -0.0064
+            Y    -0.0330    0.0000   -0.0216   -0.0046    0.0060    0.0405
+            Z    -0.0226    0.0495   -0.0071    0.0464   -0.0001   -0.0075
+ AT.  10 O  X     0.0275    0.0117    0.0104   -0.0244   -0.0052   -0.0191
+            Y    -0.0199   -0.0203   -0.0316    0.0004   -0.0030   -0.0012
+            Z     0.0294    0.0495    0.0437   -0.0171   -0.0001    0.0103
+
+ FREQ(CM**-1)    426.80    439.08    439.08    445.66    493.01    527.29
+
+ AT.   1 FE X    -0.0080    0.0088   -0.0005    0.0000    0.0000   -0.0000
+            Y    -0.0202   -0.0005   -0.0088    0.0000    0.0000   -0.0076
+            Z     0.0000    0.0000    0.0000    0.0023   -0.0028    0.0000
+ AT.   2 FE X    -0.0196    0.0047    0.0074    0.0000    0.0000    0.0070
+            Y    -0.0090    0.0074   -0.0047    0.0000    0.0000   -0.0028
+            Z     0.0000    0.0000    0.0000    0.0023    0.0027    0.0000
+ AT.   3 FE X     0.0080    0.0088   -0.0005    0.0000    0.0000   -0.0000
+            Y     0.0202   -0.0005   -0.0088    0.0000    0.0000   -0.0076
+            Z     0.0000    0.0000    0.0000   -0.0023    0.0028    0.0000
+ AT.   4 FE X     0.0196    0.0047    0.0074    0.0000    0.0000    0.0070
+            Y     0.0090    0.0074   -0.0047    0.0000    0.0000   -0.0028
+            Z     0.0000    0.0000    0.0000   -0.0023   -0.0027    0.0000
+ AT.   5 O  X    -0.0160   -0.0164   -0.0297    0.0204    0.0435    0.0351
+            Y    -0.0007    0.0135    0.0151    0.0357   -0.0251    0.0083
+            Z     0.0102    0.0520   -0.0329    0.0334    0.0003   -0.0074
+ AT.   6 O  X    -0.0062    0.0033    0.0022   -0.0411   -0.0000   -0.0331
+            Y    -0.0431   -0.0184    0.0348   -0.0002    0.0503   -0.0235
+            Z    -0.0076   -0.0545   -0.0286    0.0334    0.0003   -0.0096
+ AT.   7 O  X    -0.0478   -0.0342    0.0033    0.0207   -0.0435   -0.0265
+            Y    -0.0305   -0.0194   -0.0026   -0.0355   -0.0252    0.0515
+            Z    -0.0027    0.0025    0.0615    0.0334    0.0003    0.0170
+ AT.   8 O  X     0.0160   -0.0164   -0.0297   -0.0204   -0.0435    0.0351
+            Y     0.0007    0.0135    0.0151   -0.0357    0.0251    0.0083
+            Z    -0.0102    0.0520   -0.0329   -0.0334   -0.0003   -0.0074
+ AT.   9 O  X     0.0062    0.0033    0.0022    0.0411    0.0000   -0.0331
+            Y     0.0431   -0.0184    0.0348    0.0002   -0.0503   -0.0235
+            Z     0.0076   -0.0545   -0.0286   -0.0334   -0.0003   -0.0096
+ AT.  10 O  X     0.0478   -0.0342    0.0033   -0.0207    0.0435   -0.0265
+            Y     0.0305   -0.0194   -0.0026    0.0355    0.0252    0.0515
+            Z     0.0027    0.0025    0.0615   -0.0334   -0.0003    0.0170
+
+ FREQ(CM**-1)    527.29    547.38    589.88    612.28    612.28    683.48
+
+ AT.   1 FE X    -0.0076    0.0000    0.0000    0.0045   -0.0000    0.0000
+            Y     0.0000    0.0000    0.0000   -0.0000   -0.0045    0.0000
+            Z     0.0000   -0.0063    0.0031    0.0000    0.0000    0.0028
+ AT.   2 FE X    -0.0028    0.0000    0.0000   -0.0007    0.0044    0.0000
+            Y    -0.0070    0.0000    0.0000    0.0044    0.0007    0.0000
+            Z     0.0000   -0.0063   -0.0029    0.0000    0.0000    0.0028
+ AT.   3 FE X    -0.0076    0.0000    0.0000   -0.0045    0.0000    0.0000
+            Y     0.0000    0.0000    0.0000    0.0000    0.0045    0.0000
+            Z     0.0000   -0.0063    0.0031    0.0000    0.0000   -0.0028
+ AT.   4 FE X    -0.0028    0.0000    0.0000    0.0007   -0.0044    0.0000
+            Y    -0.0070    0.0000    0.0000   -0.0044   -0.0007    0.0000
+            Z     0.0000   -0.0063   -0.0029    0.0000    0.0000   -0.0028
+ AT.   5 O  X     0.0159   -0.0215    0.0401    0.0212   -0.0183   -0.0137
+            Y     0.0514   -0.0390   -0.0223    0.0422    0.0007   -0.0234
+            Z    -0.0154    0.0147   -0.0003   -0.0373    0.0068    0.0329
+ AT.   6 O  X     0.0477    0.0445   -0.0008    0.0310    0.0365    0.0271
+            Y    -0.0167    0.0009    0.0459   -0.0127    0.0105   -0.0002
+            Z     0.0141    0.0147   -0.0003    0.0245    0.0289    0.0329
+ AT.   7 O  X    -0.0273   -0.0230   -0.0393   -0.0214    0.0176   -0.0134
+            Y    -0.0102    0.0381   -0.0236    0.0063   -0.0419    0.0235
+            Z     0.0012    0.0147   -0.0003    0.0128   -0.0357    0.0329
+ AT.   8 O  X     0.0159   -0.0215    0.0401   -0.0212    0.0183    0.0137
+            Y     0.0514   -0.0390   -0.0223   -0.0422   -0.0007    0.0234
+            Z    -0.0154    0.0147   -0.0003    0.0373   -0.0068   -0.0329
+ AT.   9 O  X     0.0477    0.0445   -0.0008   -0.0310   -0.0365   -0.0271
+            Y    -0.0167    0.0009    0.0459    0.0127   -0.0105    0.0002
+            Z     0.0141    0.0147   -0.0003   -0.0245   -0.0289   -0.0329
+ AT.  10 O  X    -0.0273   -0.0230   -0.0393    0.0214   -0.0176    0.0134
+            Y    -0.0102    0.0381   -0.0236   -0.0063    0.0419   -0.0235
+            Z     0.0012    0.0147   -0.0003   -0.0128    0.0357   -0.0329
+
+ *******************************************************************************
+
+ VIBRATIONAL TEMPERATURES (K) [MODE NUMBER;IRREP]
+
+ TO MODES
+   284.1 [   4;Ag ]   345.1 [   5;Eu ]   345.1 [   6;Eu ]   374.4 [   7;Ag ]
+   392.3 [   8;Eg ]   392.3 [   9;Eg ]   423.5 [  10;Eg ]   423.5 [  11;Eg ]
+   438.6 [  12;Eu ]   438.6 [  13;Eu ]   445.4 [  14;Au ]   450.5 [  15;Eg ]
+   450.5 [  16;Eg ]   503.5 [  17;Au ]   614.1 [  18;Eg ]   614.1 [  19;Eg ]
+   631.7 [  20;Eu ]   631.7 [  21;Eu ]   641.2 [  22;Ag ]   709.3 [  23;Ag ]
+   758.7 [  24;Eu ]   758.7 [  25;Eu ]   787.6 [  26;Au ]   848.7 [  27;Au ]
+   880.9 [  28;Eg ]   880.9 [  29;Eg ]   983.4 [  30;Ag ]
+
+ *******************************************************************************
+
+ HARMONIC VIBRATIONAL CONTRIBUTIONS TO THERMODYNAMIC FUNCTIONS AT GIVEN
+ TEMPERATURE AND PRESSURE:
+
+ (EL = ELECTRONIC ENERGY
+  E0 = ZERO-POINT ENERGY
+  ET = THERMAL CONTRIBUTION TO THE VIBRATIONAL ENERGY
+  PV = PRESSURE * VOLUME
+  TS = TEMPERATURE * ENTROPY)
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ EL            :   -5506.177743975400 -149830.713659861620   -14456467.62952165
+ E0            :       0.024461342393       0.665626966346          64.22324540
+
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =    0.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :                  NaN                  NaN                  NaN
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :                  NaN                  NaN                  NaN
+ ET+PV-TS      :                  NaN                  NaN                  NaN
+ EL+E0+ET+PV-TS:                  NaN                  NaN                  NaN
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :                  NaN                  NaN                  NaN
+ HEAT CAPACITY :                  NaN                  NaN                  NaN
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :      -0.000000010315      -0.000000280683          -0.00002708
+ EL+E0+ET+PV-TS:   -5506.153282643320 -149830.048033175961   -14456403.40630332
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.002363633687       0.064317742468           6.20571937
+ EL+E0+ET+PV-TS:   -5506.150918999319 -149829.983715152834   -14456397.20055687
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.004727277688       0.128635765618          12.41146582
+ EL+E0+ET+PV-TS:   -5506.148555355318 -149829.919397129648   -14456390.99481042
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.007090921690       0.192953788769          18.61721227
+ EL+E0+ET+PV-TS:   -5506.146191711316 -149829.855079106492   -14456384.78906397
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.009454565692       0.257271811919          24.82295873
+ EL+E0+ET+PV-TS:   -5506.143828067314 -149829.790761083335   -14456378.58331751
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.011818209693       0.321589835069          31.02870518
+ EL+E0+ET+PV-TS:   -5506.141464423313 -149829.726443060208   -14456372.37757106
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.014181853695       0.385907858220          37.23445163
+ EL+E0+ET+PV-TS:   -5506.139100779311 -149829.662125037052   -14456366.17182461
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.016545497697       0.450225881370          43.44019808
+ EL+E0+ET+PV-TS:   -5506.136737135309 -149829.597807013895   -14456359.96607816
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.018909141698       0.514543904521          49.64594453
+ EL+E0+ET+PV-TS:   -5506.134373491307 -149829.533488990739   -14456353.76033171
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.021272785700       0.578861927671          55.85169098
+ EL+E0+ET+PV-TS:   -5506.132009847306 -149829.469170967612   -14456347.55458526
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   30.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000000105747       0.000002877513           0.00027764
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.000000116062       0.000003158195           0.00030472
+ ET+PV-TS      :       0.023636429702       0.643179950822          62.05743744
+ EL+E0+ET+PV-TS:   -5506.129646203304 -149829.404852944455   -14456341.34883880
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000003868718       0.000105273173           0.01015732
+ HEAT CAPACITY :       0.000036751404       0.001000056536           0.09649080
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :      -0.000004782472      -0.000130137668          -0.01255638
+ EL+E0+ET+PV-TS:   -5506.153287415477 -149830.048163032945   -14456403.41883262
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.002358861530       0.064187885482           6.19319007
+ EL+E0+ET+PV-TS:   -5506.150923771475 -149829.983845009789   -14456397.21308617
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.004722505532       0.128505908633          12.39893653
+ EL+E0+ET+PV-TS:   -5506.148560127474 -149829.919526986661   -14456391.00733972
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.007086149533       0.192823931783          18.60468298
+ EL+E0+ET+PV-TS:   -5506.146196483473 -149829.855208963505   -14456384.80159326
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.009449793535       0.257141954934          24.81042943
+ EL+E0+ET+PV-TS:   -5506.143832839471 -149829.790890940349   -14456378.59584681
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.011813437537       0.321459978084          31.01617588
+ EL+E0+ET+PV-TS:   -5506.141469195469 -149829.726572917192   -14456372.39010036
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.014177081538       0.385778001235          37.22192233
+ EL+E0+ET+PV-TS:   -5506.139105551468 -149829.662254894065   -14456366.18435391
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.016540725540       0.450096024385          43.42766879
+ EL+E0+ET+PV-TS:   -5506.136741907466 -149829.597936870909   -14456359.97860746
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.018904369542       0.514414047535          49.63341524
+ EL+E0+ET+PV-TS:   -5506.134378263464 -149829.533618847752   -14456353.77286100
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.021268013543       0.578732070686          55.83916169
+ EL+E0+ET+PV-TS:   -5506.132014619462 -149829.469300824596   -14456347.56711455
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   60.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000028120210       0.000765189817           0.07382960
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.000032902682       0.000895327485           0.08638598
+ ET+PV-TS      :       0.023631657545       0.643050093836          62.04490814
+ EL+E0+ET+PV-TS:   -5506.129650975461 -149829.404982801439   -14456341.36136810
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.000548378027       0.014922124745           1.43976631
+ HEAT CAPACITY :       0.002847451456       0.077483093292           7.47598275
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :      -0.000054839226      -0.001492251193          -0.14398037
+ EL+E0+ET+PV-TS:   -5506.153337472231 -149830.049525146460   -14456403.55025661
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.002308804776       0.062825771958           6.06176609
+ EL+E0+ET+PV-TS:   -5506.150973828229 -149829.985207123304   -14456397.34451015
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.004672448778       0.127143795108          12.26751254
+ EL+E0+ET+PV-TS:   -5506.148610184228 -149829.920889100176   -14456391.13876371
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.007036092779       0.191461818259          18.47325899
+ EL+E0+ET+PV-TS:   -5506.146246540226 -149829.856571077020   -14456384.93301725
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.009399736781       0.255779841409          24.67900544
+ EL+E0+ET+PV-TS:   -5506.143882896225 -149829.792253053864   -14456378.72727080
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.011763380783       0.320097864559          30.88475189
+ EL+E0+ET+PV-TS:   -5506.141519252223 -149829.727935030707   -14456372.52152435
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.014127024784       0.384415887710          37.09049834
+ EL+E0+ET+PV-TS:   -5506.139155608222 -149829.663617007580   -14456366.31577790
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.016490668786       0.448733910860          43.29624480
+ EL+E0+ET+PV-TS:   -5506.136791964220 -149829.599298984424   -14456360.11003144
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.018854312788       0.513051934011          49.50199125
+ EL+E0+ET+PV-TS:   -5506.134428320218 -149829.534980961267   -14456353.90428499
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.021217956789       0.577369957161          55.70773770
+ EL+E0+ET+PV-TS:   -5506.132064676216 -149829.470662938111   -14456347.69853854
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =   90.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000232744318       0.006333294875           0.61107012
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.000287583544       0.007825546068           0.75505049
+ ET+PV-TS      :       0.023581600791       0.641687980312          61.91348415
+ EL+E0+ET+PV-TS:   -5506.129701032215 -149829.406344914983   -14456341.49279209
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.003195372708       0.086950511864           8.38944986
+ HEAT CAPACITY :       0.011501447220       0.312970289972          30.19704542
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :      -0.000217998453      -0.005932039475          -0.57235486
+ EL+E0+ET+PV-TS:   -5506.153500631458 -149830.053964934748   -14456403.97863110
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.002145645549       0.058385983675           5.63339160
+ EL+E0+ET+PV-TS:   -5506.151136987457 -149829.989646911621   -14456397.77288465
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.004509289551       0.122704006826          11.83913805
+ EL+E0+ET+PV-TS:   -5506.148773343455 -149829.925328888465   -14456391.56713820
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.006872933552       0.187022029976          18.04488450
+ EL+E0+ET+PV-TS:   -5506.146409699453 -149829.861010865308   -14456385.36139174
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.009236577554       0.251340053127          24.25063095
+ EL+E0+ET+PV-TS:   -5506.144046055451 -149829.796692842152   -14456379.15564529
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.011600221556       0.315658076277          30.45637740
+ EL+E0+ET+PV-TS:   -5506.141682411450 -149829.732374818996   -14456372.94989884
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.013963865557       0.379976099428          36.66212385
+ EL+E0+ET+PV-TS:   -5506.139318767448 -149829.668056795839   -14456366.74415239
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.016327509559       0.444294122578          42.86787031
+ EL+E0+ET+PV-TS:   -5506.136955123447 -149829.603738772683   -14456360.53840593
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.018691153561       0.508612145728          49.07361676
+ EL+E0+ET+PV-TS:   -5506.134591479445 -149829.539420749526   -14456354.33265948
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.021054797562       0.572930168879          55.27936321
+ EL+E0+ET+PV-TS:   -5506.132227835444 -149829.475102726399   -14456348.12691303
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  120.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.000738525392       0.020096297585           1.93899814
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.000956523844       0.026028337060           2.51135300
+ ET+PV-TS      :       0.023418441564       0.637248192029          61.48510966
+ EL+E0+ET+PV-TS:   -5506.129864191442 -149829.410784703243   -14456341.92116658
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.007971032036       0.216902808829          20.92794166
+ HEAT CAPACITY :       0.022277043786       0.606189179474          58.48837022
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :      -0.000546210396      -0.014863140498          -1.43407519
+ EL+E0+ET+PV-TS:   -5506.153828843401 -149830.062896035757   -14456404.84035143
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.001817433606       0.049454882653           4.77167126
+ EL+E0+ET+PV-TS:   -5506.151465199400 -149829.998578012630   -14456398.63460498
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.004181077608       0.113772905803          10.97741771
+ EL+E0+ET+PV-TS:   -5506.149101555398 -149829.934259989474   -14456392.42885853
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.006544721609       0.178090928953          17.18316416
+ EL+E0+ET+PV-TS:   -5506.146737911396 -149829.869941966317   -14456386.22311208
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.008908365611       0.242408952104          23.38891062
+ EL+E0+ET+PV-TS:   -5506.144374267395 -149829.805623943161   -14456380.01736563
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.011272009613       0.306726975254          29.59465707
+ EL+E0+ET+PV-TS:   -5506.142010623394 -149829.741305920033   -14456373.81161918
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.013635653614       0.371044998405          35.80040352
+ EL+E0+ET+PV-TS:   -5506.139646979392 -149829.676987896877   -14456367.60587272
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.015999297616       0.435363021555          42.00614997
+ EL+E0+ET+PV-TS:   -5506.137283335390 -149829.612669873721   -14456361.40012627
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.018362941618       0.499681044706          48.21189642
+ EL+E0+ET+PV-TS:   -5506.134919691388 -149829.548351850564   -14456355.19437982
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.020726585619       0.563999067856          54.41764287
+ EL+E0+ET+PV-TS:   -5506.132556047387 -149829.484033827437   -14456348.98863337
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  150.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.001563544050       0.042546196621           4.10508433
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.002109754446       0.057409337119           5.53915952
+ ET+PV-TS      :       0.023090229621       0.628317091007          60.62338933
+ EL+E0+ET+PV-TS:   -5506.130192403385 -149829.419715804281   -14456342.78288691
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.014065029642       0.382728914124          36.92773012
+ HEAT CAPACITY :       0.032527459803       0.885117179729          85.40083368
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :      -0.001068223839      -0.029067848439          -2.80462129
+ EL+E0+ET+PV-TS:   -5506.154350856845 -149830.077100743714   -14456406.21089754
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.001295420163       0.035250174711           3.40112516
+ EL+E0+ET+PV-TS:   -5506.151987212843 -149830.012782720558   -14456400.00515108
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.003659064164       0.099568197862           9.60687161
+ EL+E0+ET+PV-TS:   -5506.149623568842 -149829.948464697431   -14456393.79940463
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.006022708166       0.163886221012          15.81261806
+ EL+E0+ET+PV-TS:   -5506.147259924840 -149829.884146674274   -14456387.59365818
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.008386352168       0.228204244162          22.01836451
+ EL+E0+ET+PV-TS:   -5506.144896280838 -149829.819828651118   -14456381.38791173
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.010749996169       0.292522267313          28.22411097
+ EL+E0+ET+PV-TS:   -5506.142532636836 -149829.755510627961   -14456375.18216527
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.013113640171       0.356840290463          34.42985742
+ EL+E0+ET+PV-TS:   -5506.140168992834 -149829.691192604805   -14456368.97641882
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.015477284173       0.421158313614          40.63560387
+ EL+E0+ET+PV-TS:   -5506.137805348833 -149829.626874581678   -14456362.77067237
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.017840928174       0.485476336764          46.84135032
+ EL+E0+ET+PV-TS:   -5506.135441704831 -149829.562556558521   -14456356.56492592
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.020204572176       0.549794359915          53.04709677
+ EL+E0+ET+PV-TS:   -5506.133078060830 -149829.498238535365   -14456350.35917947
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  180.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.002675756323       0.072811031195           7.02519724
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.003743980162       0.101878879634           9.82981853
+ ET+PV-TS      :       0.022568216178       0.614112383065          59.25284322
+ EL+E0+ET+PV-TS:   -5506.130714416828 -149829.433920512209   -14456344.15343302
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.020799889790       0.565993775744          54.61010295
+ HEAT CAPACITY :       0.041359627320       1.125452676279         108.58968623
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :      -0.001796217143      -0.048877553358          -4.71596745
+ EL+E0+ET+PV-TS:   -5506.155078850149 -149830.096910448628   -14456408.12224369
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.000567426858       0.015440469792           1.48977901
+ EL+E0+ET+PV-TS:   -5506.152715206147 -149830.032592425472   -14456401.91649723
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.002931070860       0.079758492943           7.69552546
+ EL+E0+ET+PV-TS:   -5506.150351562146 -149829.968274402345   -14456395.71075078
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.005294714862       0.144076516093          13.90127191
+ EL+E0+ET+PV-TS:   -5506.147987918144 -149829.903956379188   -14456389.50500433
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.007658358863       0.208394539244          20.10701836
+ EL+E0+ET+PV-TS:   -5506.145624274142 -149829.839638356032   -14456383.29925788
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.010022002865       0.272712562394          26.31276481
+ EL+E0+ET+PV-TS:   -5506.143260630141 -149829.775320332876   -14456377.09351143
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.012385646867       0.337030585545          32.51851127
+ EL+E0+ET+PV-TS:   -5506.140896986140 -149829.711002309748   -14456370.88776498
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.014749290868       0.401348608695          38.72425772
+ EL+E0+ET+PV-TS:   -5506.138533342138 -149829.646684286592   -14456364.68201852
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.017112934870       0.465666631845          44.93000417
+ EL+E0+ET+PV-TS:   -5506.136169698136 -149829.582366263436   -14456358.47627207
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.019476578872       0.529984654996          51.13575062
+ EL+E0+ET+PV-TS:   -5506.133806054134 -149829.518048240279   -14456352.27052562
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  210.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.004029611390       0.109651300478          10.57974321
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.005825828533       0.158528853836          15.29571066
+ ET+PV-TS      :       0.021840222873       0.594302678146          57.34149707
+ EL+E0+ET+PV-TS:   -5506.131442410133 -149829.453730217152   -14456346.06477917
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.027742040634       0.754899303982          72.83671742
+ HEAT CAPACITY :       0.048649280242       1.323814216788         127.72866727
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :      -0.002732247079      -0.074348222817          -7.17351370
+ EL+E0+ET+PV-TS:   -5506.156014880085 -149830.122381118097   -14456410.57978994
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :      -0.000368603078      -0.010030199667          -0.96776724
+ EL+E0+ET+PV-TS:   -5506.153651236084 -149830.058063094941   -14456404.37404349
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.001995040924       0.054287823484           5.23797921
+ EL+E0+ET+PV-TS:   -5506.151287592082 -149829.993745071784   -14456398.16829703
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.004358684926       0.118605846634          11.44372566
+ EL+E0+ET+PV-TS:   -5506.148923948080 -149829.929427048628   -14456391.96255058
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.006722328927       0.182923869784          17.64947211
+ EL+E0+ET+PV-TS:   -5506.146560304079 -149829.865109025501   -14456385.75680413
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.009085972929       0.247241892935          23.85521856
+ EL+E0+ET+PV-TS:   -5506.144196660077 -149829.800791002344   -14456379.55105768
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.011449616931       0.311559916085          30.06096502
+ EL+E0+ET+PV-TS:   -5506.141833016075 -149829.736472979188   -14456373.34531123
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.013813260932       0.375877939236          36.26671147
+ EL+E0+ET+PV-TS:   -5506.139469372073 -149829.672154956032   -14456367.13956477
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.016176904934       0.440195962386          42.47245792
+ EL+E0+ET+PV-TS:   -5506.137105728072 -149829.607836932904   -14456360.93381832
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.018540548936       0.504513985537          48.67820437
+ EL+E0+ET+PV-TS:   -5506.134742084070 -149829.543518909748   -14456354.72807187
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  240.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.005580874107       0.151863305020          14.65258290
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.008313121186       0.226211527837          21.82609660
+ ET+PV-TS      :       0.020904192937       0.568832008687          54.88395082
+ EL+E0+ET+PV-TS:   -5506.132378440068 -149829.479200886592   -14456348.52232542
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.034638004941       0.942548032654          90.94206916
+ HEAT CAPACITY :       0.054557088297       1.484573846844         143.23961514
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :      -0.003872624656      -0.105379474277         -10.16757460
+ EL+E0+ET+PV-TS:   -5506.157155257662 -149830.153412369546   -14456413.57385084
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :      -0.001508980654      -0.041061451127          -3.96182815
+ EL+E0+ET+PV-TS:   -5506.154791613660 -149830.089094346389   -14456407.36810439
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.000854663347       0.023256572024           2.24391830
+ EL+E0+ET+PV-TS:   -5506.152427969659 -149830.024776323262   -14456401.16235794
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.003218307349       0.087574595174           8.44966475
+ EL+E0+ET+PV-TS:   -5506.150064325657 -149829.960458300106   -14456394.95661149
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.005581951351       0.151892618324          14.65541121
+ EL+E0+ET+PV-TS:   -5506.147700681655 -149829.896140276949   -14456388.75086503
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.007945595352       0.216210641475          20.86115766
+ EL+E0+ET+PV-TS:   -5506.145337037653 -149829.831822253793   -14456382.54511858
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.010309239354       0.280528664625          27.06690411
+ EL+E0+ET+PV-TS:   -5506.142973393652 -149829.767504230666   -14456376.33937213
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.012672883356       0.344846687776          33.27265056
+ EL+E0+ET+PV-TS:   -5506.140609749650 -149829.703186207509   -14456370.13362568
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.015036527357       0.409164710926          39.47839701
+ EL+E0+ET+PV-TS:   -5506.138246105648 -149829.638868184353   -14456363.92787923
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.017400171359       0.473482734077          45.68414347
+ EL+E0+ET+PV-TS:   -5506.135882461646 -149829.574550161196   -14456357.72213277
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  270.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.007291584831       0.198414110419          19.14405327
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.011164209487       0.303793584697          29.31162788
+ ET+PV-TS      :       0.019763815361       0.537800757227          51.88988992
+ EL+E0+ET+PV-TS:   -5506.133518817645 -149829.510232138069   -14456351.51638632
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.041348924024       1.125161424802         108.56158473
+ HEAT CAPACITY :       0.059319237684       1.614158519628         155.74263659
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.00000000E+00 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.000000000000       0.000000000000           0.00000000
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :      -0.005210620647      -0.141788196165         -13.68048258
+ EL+E0+ET+PV-TS:   -5506.158493253653 -149830.189821091451   -14456417.08675882
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.10000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.002363644002       0.064318023150           6.20574645
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :      -0.002846976645      -0.077470173014          -7.47473613
+ EL+E0+ET+PV-TS:   -5506.156129609651 -149830.125503068295   -14456410.88101237
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.20000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.004727288003       0.128636046301          12.41149290
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :      -0.000483332643      -0.013152149864          -1.26898968
+ EL+E0+ET+PV-TS:   -5506.153765965649 -149830.061185045139   -14456404.67526592
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.30000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.007090932005       0.192954069451          18.61723936
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.001880311358       0.051165873286           4.93675678
+ EL+E0+ET+PV-TS:   -5506.151402321648 -149829.996867022011   -14456398.46951947
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.40000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.009454576007       0.257272092602          24.82298581
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.004243955360       0.115483896437          11.14250323
+ EL+E0+ET+PV-TS:   -5506.149038677646 -149829.932548998855   -14456392.26377301
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.50000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.011818220008       0.321590115752          31.02873226
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.006607599362       0.179801919587          17.34824968
+ EL+E0+ET+PV-TS:   -5506.146675033644 -149829.868230975699   -14456386.05802656
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.60000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.014181864010       0.385908138903          37.23447871
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.008971243363       0.244119942738          23.55399613
+ EL+E0+ET+PV-TS:   -5506.144311389642 -149829.803912952542   -14456379.85228011
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.70000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.016545508012       0.450226162053          43.44022516
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.011334887365       0.308437965888          29.75974258
+ EL+E0+ET+PV-TS:   -5506.141947745641 -149829.739594929415   -14456373.64653366
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.80000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.018909152013       0.514544185203          49.64597161
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.013698531367       0.372755989039          35.96548904
+ EL+E0+ET+PV-TS:   -5506.139584101639 -149829.675276906259   -14456367.44078721
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.90000000E+03 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.021272796015       0.578862208354          55.85171807
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.016062175368       0.437074012189          42.17123549
+ EL+E0+ET+PV-TS:   -5506.137220457637 -149829.610958883073   -14456361.23504075
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+
+ *******************************************************************************
+
+ THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS
+
+ AT (T =  300.00 K, P =   0.10000000E+04 MPA):
+
+                          AU/CELL             EV/CELL                 KJ/MOL
+ ET            :       0.009130865666       0.248463486416          23.97308443
+ PV            :       0.023636440017       0.643180231504          62.05746452
+ TS            :       0.014341486313       0.390251682581          37.65356701
+ ET+PV-TS      :       0.018425819370       0.501392035339          48.37698194
+ EL+E0+ET+PV-TS:   -5506.134856813635 -149829.546640859917   -14456355.02929430
+
+ OTHER THERMODYNAMIC FUNCTIONS:
+
+                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)
+ ENTROPY       :       0.047804954376       1.300838941938         125.51189003
+ HEAT CAPACITY :       0.063163869780       1.718776277620         165.83671674
+
+ *******************************************************************************
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE        0.94 TCPU        0.40
+ EEEEEEEEEE TERMINATION  DATE 14 03 2025 TIME 13:04:03.9
+NODE    0 CPU TIME =         0.398
+NODE    1 CPU TIME =         0.549
+NODE    2 CPU TIME =         0.546
+NODE    3 CPU TIME =         0.560
+    TOTAL CPU TIME =         2.052

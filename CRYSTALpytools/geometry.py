@@ -317,16 +317,6 @@ class CStructure(Structure):
         # standarization
         ## Orientation
         if standarize == True: self.standarize_pbc()
-        ## Limit coordinates to [-0.5, 0.5)
-        newfrac = self.frac_coords
-        while np.any(newfrac>=0.5):
-            for i in np.array(np.where(newfrac>=0.5)).T:
-                newfrac[i[0], i[1]] -= 1.
-        while np.any(newfrac<-0.5):
-            for i in np.array(np.where(newfrac<-0.5)).T:
-                newfrac[i[0], i[1]] += 1.
-        super().__init__(lattice=latt, species=self.species, coords=newfrac,
-                         coords_are_cartesian=False) # other settings have been saved with species
         # Extras
         self._symmetry_group = symmetry_group
         if zconv == []:
@@ -416,9 +406,13 @@ class CStructure(Structure):
             import numpy as np
 
             v1 = v1 / np.linalg.norm(v1); v2 = v2 / np.linalg.norm(v2)
-            vn = np.cross(v1,v2); vn = vn / np.linalg.norm(vn)
-            ang = np.arccos(np.dot(v1,v2) / np.linalg.norm(v1) / np.linalg.norm(v2))
-            return Rotation.from_rotvec(vn*ang)
+            vn = np.cross(v1,v2)
+            if np.linalg.norm(vn) < 1e-4:
+                return Rotation.from_rotvec([0., 0., 0.])
+            else:
+                vn = vn / np.linalg.norm(vn)
+                ang = np.arccos(np.dot(v1,v2) / np.linalg.norm(v1) / np.linalg.norm(v2))
+                return Rotation.from_rotvec(vn*ang)
 
         if self.ndimen == 2:
             if self.pbc[0] == False:
@@ -437,7 +431,7 @@ class CStructure(Structure):
             cart_coords = rot.apply(cart_coords)
             self = CStructure(Lattice(latt, pbc=(True, True, False)),
                               species=self.species, coords=cart_coords,
-                              coords_are_cartesian=True)
+                              standarize=False, coords_are_cartesian=True)
         elif self.ndimen == 1:
             if self.pbc[0] == True: # in case of tilted x
                 oldv = latt[0, :]
@@ -456,7 +450,7 @@ class CStructure(Structure):
             cart_coords = rot.apply(cart_coords)
             self = CStructure(Lattice(latt, pbc=(True, False, False)),
                               species=self.species, coords=cart_coords,
-                              coords_are_cartesian=True)
+                              standarize=False, coords_are_cartesian=True)
         return self
 
     def refine_geometry(self, **kwargs):
@@ -525,13 +519,13 @@ class CStructure(Structure):
         self.platt = latt
         self.natom_irr = len(struc3.equivalent_sites)
         self.atom = []
-        natom_eq = int(struc3.num_sites / self.natom_irr)
-        for i in range(self.natom_irr):
-            idx_eq = int(i * natom_eq)
-            z = struc4.species[idx_eq].Z
-            self.atom.append([z, struc4.sites[idx_eq].a, struc4.sites[idx_eq].b,
-                             struc4.sites[idx_eq].c])
-
+        invlatt = np.linalg.inv(struc4.lattice.matrix)
+        for i in np.unique(np.array(struc3.site_labels, dtype=int)):
+            frac_in_struc4 = struc3.cart_coords[i] @ invlatt
+            self.atom.append([struc3.species[i].Z,
+                              frac_in_struc4[0],
+                              frac_in_struc4[1],
+                              frac_in_struc4[2]])
         return self
 
     def get_sg_symmops(self, **kwargs):
@@ -766,22 +760,541 @@ class CStructure(Structure):
                 if ``symmetry=True``.
         """
 
+    # ---------------------------- Connectivity ------------------------------#
+
+    def get_bonds(self, scale=1.2, special_bonds={}):
+        """
+        .. _ref-CStrucGetBonds:
+
+        Get bond connectivity based on distances between atoms.
+
+        Args:
+            scale (float): Scale the sum of atomic radius A and radius B.
+            special_bonds(dict): Dictionary of bond lengths that are not
+                compliant to ``scale``. Should be defined as ``{'A:B' : len}``,
+                with ``A`` ``B`` being element symbols and ``len`` being bond
+                length in :math:`\\AA`. The sequence of ``A`` ``B`` is arbitrary.
+        Returns:
+            self (CStructure): New attributes listed below.
+            self.bonds (list): nBond\*3 list. The first and second elements are
+                atom indices (starting from 1) of the bond. The third element
+                is a 1\*3 integer array lattice vector of the second element.
+                The first atom always has the lattice vector of \[0,0,0\].
+            self.bond_matrix (bsr_array): nAtom\*nAtom sparse matrix of bond
+                connectivity. In `scipy.sparse.bsr_array <https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.bsr_array.html>`_
+                format.
+        """
+        import numpy as np
+        import warnings
+        from scipy.sparse import bsr_array
+
+        # get MAX bond lengths
+        uspec = np.unique(self.species)
+        bondMX = {}
+        for i in range(len(uspec)):
+            elei = uspec[i]
+            # between same atoms
+            bondMX['{}:{}'.format(elei.symbol, elei.symbol)] = elei.data['Atomic radius'] * 2 * scale
+            for j in range(i+1, len(uspec)):
+                elej = uspec[j]
+                bondMX['{}:{}'.format(elei.symbol, elej.symbol)] = (elei.data['Atomic radius'] + elej.data['Atomic radius']) * scale
+                bondMX['{}:{}'.format(elej.symbol, elei.symbol)] = bondMX['{}:{}'.format(elei.symbol, elej.symbol)]
+
+        if len(special_bonds) != 0:
+            for k in special_bonds.keys():
+                ka = k.split(':')[0].capitalize()
+                kb = k.split(':')[1].capitalize()
+                key1 = '{}:{}'.format(ka, kb)
+                if key not in bondMX.keys():
+                    warnings.warn("The specified pair '{}' does not exist in the structure. The definition is ignored.".format(k),
+                                  stacklevel=2)
+                    continue
+
+                bondMX[key1] = special_bonds[k]
+                if ka != kb:
+                    key2 = '{}:{}'.format(kb, ka)
+                    bondMX[key2] = special_bonds[k]
+
+
+        # neighboring cells
+        self.standarize_pbc()
+        if self.ndimen == 3:
+            nbr_cell = np.array([
+                [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1],
+                [0, 1, 1], [1, 1, 1], [-1,0, 0], [0,-1, 0], [0, 0,-1], [1,-1, 0],
+                [-1,1, 0], [1, 0,-1], [-1,0, 1], [0, 1,-1], [0,-1, 1], [-1,1, 1],
+                [1,-1, 1], [1, 1,-1], [-1,-1,0], [-1,0,-1], [0,-1,-1], [1,-1,-1],
+                [-1,1,-1], [-1,-1,1], [-1,-1,-1]], dtype=int)
+        elif self.ndimen == 2:
+            nbr_cell = np.array([
+                [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [-1,0, 0], [0,-1, 0],
+                [1,-1, 0], [-1,1, 0], [-1, -1, 0]], dtype=int)
+        elif self.ndimen == 1:
+            nbr_cell = np.array([[0, 0, 0], [1, 0, 0], [-1, 0, 0]], dtype=int)
+        else:
+            nbr_cell = np.array([[0, 0, 0]], dtype=int)
+        nbr_cell_c = nbr_cell @ self.lattice.matrix
+
+        self.bonds = []
+        self.bond_matrix = np.zeros([self.num_sites, self.num_sites])
+        # make the code faster
+        sbol = [i.symbol for i in self.species]
+        crds = self.cart_coords
+        nrepeat = nbr_cell.shape[0]
+        nsite = self.num_sites
+        for i in range(nsite):
+            v1 = crds[i]
+            s1 = sbol[i]
+            for j in range(i+1,nsite):
+                v2 = np.repeat([crds[j]], nrepeat, axis=0) + nbr_cell_c
+                s2 = sbol[j]
+                dists = np.linalg.norm(v1 - v2, axis=1)
+                bondTOL = bondMX['{}:{}'.format(s1, s2)]
+                for k in np.where(dists<bondTOL)[0]: # only loop 0 or 1 times
+                    self.bonds.append([i+1, j+1, nbr_cell[k]])
+                    self.bond_matrix[i, j] = 1
+                    self.bond_matrix[j, i] = 1
+                    break
+
+        self.bond_matrix = bsr_array(self.bond_matrix)
+        return self
+
+    def get_molecules(self, **kwargs):
+        """
+        Substract molecule from molecular crystals or clusters based on bond
+        connectivity. For ionic or covalent structures where bonds form an
+        integrated network, 1 molecule of all atoms are returned.
+
+        Args:
+            \*\*kwargs: See the ``get_bonds()`` method.
+        Returns:
+            self (CStructure): New attributes listed below.
+            self.molecules (list): nMolecule\*nAtom_per_molecule int list of
+                atom indices (from 1).
+        """
+        from scipy.sparse.csgraph import connected_components
+
+        if not hasattr(self, 'bond_matrix'): self.get_bonds(**kwargs)
+
+        nmolecule, label = connected_components(self.bond_matrix)
+        self.molecules = [[] for i in range(nmolecule)]
+        for iat, imole in enumerate(label):
+            self.molecules[imole].append(iat+1)
+        return self
+
+    # ---------------------------- Visualization -----------------------------#
+    def visualize(self,
+                  atom_color='cpk',
+                  atom_data=[],
+                  atom_null=(0., 0., 0.),
+                  atom_cbar_label='Atom Data',
+                  bond_color=(0.5, 0.5, 0.5),
+                  bond_data=[],
+                  bond_null=(0., 0., 0.),
+                  bond_cbar_label='Bond Data',
+                  atom_bond_ratio='medium',
+                  cell_display=True,
+                  cell_color=(0., 0., 0.),
+                  cell_linewidth=0.1,
+                  display_matrix=[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]],
+                  display_origin=[0., 0., 0.],
+                  display_range=[[0., 1.], [0., 1.], [0., 1.]],
+                  show_the_scene=True,
+                  **kwargs):
+        """
+        Visualize 3D atomic structure with `MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_
+        (*not installed by default*).
+
+        2 display modes are available:
+
+        #. Normal display. Distinguishing atoms by elements.  
+        #. Data display. Coloring atoms/bonds/both by the data assigned.
+
+        The displayed stucture is manipulated by the following equation:
+
+        .. math::
+
+            \\mathbf{L} = \\mathbf{M}\\mathbf{L_{0}} + \\mathbf{p}\\mathbf{M}\\mathbf{L_{0}}
+
+        where :math:`\\mathbf{M}` is defined by ``display_matrix``, :math:`\\mathbf{p}`
+        is defined by ``display_origin``. :math:`\\mathbf{L_{0}}` is the input
+        structure. The object itself will not be changed.
+
+        **A known issue**
+
+        Due to settings of MayaVi, bonds plotted in bond data display mode are
+        plotted as lines rather than tubes. That might make bonds look very
+        thick in the default rendering window, which can be addressed by
+        zooming in or expand the rendering window.
+
+        Args:
+            atom_color (str): Color map of atoms. 'jmol' or 'cpk' for normal
+                display (by elements). Or MayaVi colormaps for data display.
+            atom_data (array): nAtom\*2 array. The first column is atom indices
+                (from 1) and the second is data. Atoms without assigned data
+                are plotted in the color specified by ``atom_null``.
+            atom_null (turple): *Useful only for data-display mode*. Color of
+                atoms without data assigned.
+            atom_cbar_label (str): Title of atom data colorbar.
+            bond_color (turple|str): Color of bonds for normal display or
+                MayaVi colormaps for data display.
+            bond_data (array): nBond\*3 array. The first 2 columns are atom
+                indices (from 1) connecting atom A and B. The 3rd column is
+                data.
+            bond_null (turple): *Useful only for data-display mode*. Color of
+                bonds without data assigned.
+            bond_cbar_label (str): Title of bond data colorbar.
+            atom_bond_ratio (str): 'balls', 'large', 'medium', 'small' or
+                'sticks'. The relative sizes of balls and sticks.
+            cell_display (bool): Display lattice boundaries (at \[0., 0., 0.\] only).
+            cell_color (turple): Color of lattice boundaries.
+            cell_linewidth (float): Linewidth of plotted lattice boundaries.
+            display_matrix (array): nDimen\*nDimen **integer** matrix to
+                manipulate the structure. Matrices with determinant :math:`\\geq`
+                1 are meaningful, otherwise error will be displayed.
+            display_origin (array): 1\*3 array of structure origin in fractional
+                coordinates of the **expanded supercell**.
+            display_range (array): 3\*2 array defining the displayed region.
+                Fractional coordinates a, b, c are used but only the periodic
+                directions are applied. Defined according to the **expanded
+                and translated supercell**.
+            show_the_scene (bool): Display the scene by ``mlab.show()`` and
+                return None. Otherwise return the scene object.
+            \*\*kwargs: Other keywords passed to MayaVi or ``self.get_bonds()``.
+                See below.
+            scale (float): Scale the sum of atomic radius A and radius B.
+            special_bonds(dict): Dictionary of bond lengths that are not
+                compliant to ``scale``. Should be defined as ``{'A:B' : len}``,
+                with ``A`` ``B`` being element symbols and ``len`` being bond
+                length in :math:`\\AA`. The sequence of ``A`` ``B`` is arbitrary.
+            azimuth: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            elevation: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            distance: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+                By default set to 'auto'.
+            focalpoint: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            roll: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+        Returns:
+            None
+        """
+        try:
+            from mayavi import mlab
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError("MayaVi is required for this method.")
+        from ase.data import colors
+        import numpy as np
+        import copy, warnings
+
+        # Colormap by original indices
+        if atom_color.lower() in ['jmol', 'cpk']:
+            at_data = False
+            if len(atom_data)>0:
+                warnings.warn("'atom_data' available but colormap not specified. Using the default display mode.",
+                              stacklevel=2)
+        else:
+            at_data = True
+            if len(atom_data)==0:
+                raise Exception("'atom_data' not specified or incorrect 'atom_color' input.")
+
+        if not isinstance(bond_color, str):
+            bd_data = False
+            if len(bond_data)>0:
+                warnings.warn("'bond_data' available but colormap not specified. Using the default display mode.",
+                              stacklevel=2)
+        else:
+            bd_data = True
+            if len(bond_data)==0:
+                raise Exception("'bond_data' not specified or incorrect 'bond_color' input.")
+
+        # Ball and Stick ratio
+        if atom_bond_ratio.lower() not in ['balls', 'large', 'medium', 'small', 'sticks']:
+            raise ValueError("Invalid atom_bond_ratio: {}".format(atom_bond_ratio))
+        scale_factors = {'balls' : 2.0,
+                         'large' : 1.0,
+                         'medium': 0.8,
+                         'small' : 0.6,
+                         'sticks': 0.0}
+        atscale = scale_factors[atom_bond_ratio.lower()]
+
+        # Bond connectivity
+        bondkwd = ['scale', 'special_bonds']; newkwd = dict()
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in bondkwd: newkwd[k] = v
+
+        self.get_bonds(**newkwd)
+        # Supercell
+        ndimen = self.pbc.count(True)
+        smx = np.eye(3, dtype=int)
+        smx[0:ndimen, 0:ndimen] = np.array(display_matrix, dtype=int, ndmin=2)[0:ndimen, 0:ndimen]
+        if np.round(abs(np.linalg.det(smx)), 12) < 1:
+            raise ValueError('Determinant of input display matrix must >= 1.')
+        struc = self.make_supercell(smx, in_place=False) # this will get a 3D structure
+
+        # atoms to plot, map supercell indices back, when data display mode is on
+        if bd_data == True or at_data == True:
+            atplt = np.zeros([struc.num_sites, 4])
+            pfrac = np.round(struc.cart_coords @ np.linalg.inv(self.lattice.matrix) % 1, 6)
+            reffrac = np.round(self.frac_coords % 1, 6)
+            for iat, pf in enumerate(pfrac):
+                iref = np.where((pf==reffrac).all(axis=1))[0] # must have 1 entry
+                atplt[iat, 0] = iref
+                atplt[iat, 1:] = struc.frac_coords[iat]
+        else:
+            atplt = np.round(np.hstack([
+                [[i] for i in range(struc.num_sites)],
+                struc.frac_coords
+            ]), 12)
+
+        # Display range and origin
+        origin = np.array(display_origin, ndmin=1, dtype=float)
+        dispbg = np.round([i[0] for i in display_range], 12) + origin
+        disped = np.round([i[1] for i in display_range], 12) + origin
+
+        idx = np.where(disped-dispbg<1e-12)[0]
+        if len(idx) > 0:
+            direct = ['a', 'b', 'c'][idx[0]]
+            raise Exception("Display range error along {} axis!\n{} min = {:.2f}, {} max = {:.2f}. No structure is displayed.".format(
+                direct, direct, dispbg[idx[0]], direct, disped[idx[0]]))
+
+        ## Atoms in display range
+        for i, nbg, ned in zip([1,2,3], np.floor(dispbg), np.ceil(disped)):
+            tmp = copy.deepcopy(atplt)
+            for s in np.arange(nbg, ned, 1):
+                if s == 0: continue
+                ttmp = copy.deepcopy(tmp)
+                ttmp[:,i] = ttmp[:,i] + s
+                atplt = np.vstack([atplt, ttmp])
+                del ttmp
+            del tmp
+        # reduce to fractional boundary
+        atplt = atplt[np.where((atplt[:,1]>=dispbg[0])&(atplt[:,1]<disped[0]))]
+        atplt = atplt[np.where((atplt[:,2]>=dispbg[1])&(atplt[:,2]<disped[1]))]
+        atplt = atplt[np.where((atplt[:,3]>=dispbg[2])&(atplt[:,3]<disped[2]))]
+        atplt[:, 1:] = np.round(atplt[:, 1:] @ struc.lattice.matrix, 12)
+        if len(atplt) == 0:
+            raise Exception("No atom exist in the defined boundary. Check your input.")
+        ##  Data associated to atoms
+        if at_data == True:
+            saved_atoms = []
+            atom_data = np.array(atom_data, dtype=float, ndmin=2)
+            atom_data[:,0] -= 1
+            dat = np.empty([atplt.shape[0],]); dat[:] = np.nan
+            for i in range(atplt.shape[0]):
+                idx = np.where(atom_data[:,0]==atplt[i, 0])[0]
+                if idx.shape[0] == 0: continue
+                elif idx.shape[0] == 1: dat[i] = atom_data[idx, 1]
+                else: raise Exception("Multiple values defined for atom {:.0f}.".format(
+                    atom_data[idx[0], 0]+1))
+                saved_atoms.append(idx[0])
+            # not assigned data
+            saved_atoms = np.unique(saved_atoms)
+            if len(saved_atoms) < atom_data.shape[0]:
+                warnings.warn("Not all atoms defined by 'atom_data' are available in the visualized structure.",
+                              stacklevel=2)
+            del saved_atoms, idx, atom_data
+
+        # Bonds to plot, new connectivity based on atplt is needed.
+        latt = np.multiply(struc.lattice.matrix, (disped-dispbg).reshape([3,1]))
+        species = [struc.species[int(i[0])].symbol for i in atplt]
+        obj = CStructure(latt, species, atplt[:,1:4], pbc=self.pbc, coords_are_cartesian=True)
+        obj.get_bonds(**newkwd)
+        del species, latt
+
+        nbond = len(obj.bonds)
+        idx1 = np.array([i[0] for i in obj.bonds], dtype=int) - 1
+        idx2 = np.array([i[1] for i in obj.bonds], dtype=int) - 1
+        lattpt = np.array([i[2] for i in obj.bonds], dtype=float)
+        # align bonds to + directions
+        idx_neg = np.unique(np.where(lattpt<0)[0])
+        lattpt[idx_neg] = np.abs(lattpt[idx_neg])
+        tmp = copy.deepcopy(idx1[idx_neg])
+        idx1[idx_neg] = copy.deepcopy(idx2[idx_neg])
+        idx2[idx_neg] = copy.deepcopy(tmp)
+        del idx_neg, tmp
+
+        if bd_data == False:
+            bdplt = np.hstack([ # bond idx, cart coord A, cart coord B
+                np.linspace(0, nbond-1, nbond).reshape([-1, 1]),
+                atplt[idx1, 1:],
+                atplt[idx2, 1:] + lattpt@obj.lattice.matrix,
+            ])
+            del idx1, idx2, lattpt, obj
+        else:
+            # Explicit matching of bonds
+            bdplt = []
+            bdold = np.array([[i[0], i[1]] for i in self.bonds], dtype=int) - 1
+
+            bond_data = np.array(bond_data, dtype=float, ndmin=2)
+            bond_data[:,0] -= 1; bond_data[:,1] -= 1
+            dbd = np.empty([nbond,]); dbd[:] = np.nan # data to plot
+
+            saved_bonds = []
+            for i in range(nbond):
+                at1 = atplt[idx1[i]]; at2 = atplt[idx2[i]]
+                oldidx = np.sort([at1[0], at2[0]])
+                ibd = np.where((bdold==oldidx).all(axis=1))[0]
+                if ibd.shape[0] == 0: continue
+                bdplt.append(
+                    np.hstack([ibd[0], at1[1:], at2[1:]])
+                )
+
+                idx = np.where((bond_data[:,0:2]==oldidx).all(axis=1))[0]
+                if idx.shape[0] == 0: continue
+                elif idx.shape[0] == 1: dbd[i] = bond_data[idx[0], 2]
+                else: raise Exception(
+                    "Multiple values defined for the bond between atom {:.0f} and {:.0f}.".format(
+                    self.bonds[ibd[0]][0], self.bonds[ibd[0]][1])
+                )
+                saved_bonds.append(idx[0])
+
+            bdplt = np.array(bdplt)
+            bdplt[:, 4:7] += lattpt @ obj.lattice.matrix
+            # not assigned data
+            saved_bonds = np.unique(saved_bonds)
+            if len(saved_bonds) < bond_data.shape[0]:
+                warnings.warn("Not all bonds defined by 'bond_data' are available in the visualized structure.",
+                              stacklevel=2)
+            del idx1, idx2, lattpt, obj, bdold, bond_data, oldidx, saved_bonds
+
+        # plot
+        ## fig passed, developer only
+        if 'fig' in kwargs.keys():
+            del kwargs[k]
+        else:
+            fig = mlab.figure(bgcolor=(1, 1, 1), fgcolor=(0, 0, 0))
+        ## Atoms
+        radii = np.array([struc.species[int(i)].data['Atomic radius'] for i in atplt[:,0]])
+        radii[np.where(radii<0.4)[0]] = 0.4 # H too small
+
+        if at_data == False:
+            cat = np.zeros(atplt.shape, dtype=np.uint8) + 255
+            if atom_color.lower() == 'jmol':
+                cat[:, 0:3] = np.array([
+                    colors.jmol_colors[struc.species[int(i)].Z]*255 for i in atplt[:,0]
+                ], dtype=np.uint8)
+            else:
+                cat[:, 0:3] = np.array([
+                    colors.cpk_colors[struc.species[int(i)].Z]*255 for i in atplt[:,0]
+                ], dtype=np.uint8)
+            pts = mlab.pipeline.scalar_scatter(atplt[:,1], atplt[:,2], atplt[:,3],
+                                               figure=fig)
+            pts.add_attribute(cat, 'colors')
+            pts.data.point_data.set_active_scalars('colors')
+            pts.data.point_data.vectors = np.tile(radii, (3,1)).T
+            g = mlab.pipeline.glyph(pts)
+            g.glyph.glyph.scale_factor = atscale
+            g.glyph.scale_mode = 'scale_by_vector'
+        else:
+            pts = mlab.points3d(atplt[:,1], atplt[:,2], atplt[:,3], dat,
+                                figure=fig,
+                                colormap=atom_color,
+                                scale_factor=atscale)
+            pts.glyph.scale_mode = 'scale_by_vector'
+            pts.mlab_source.dataset.point_data.vectors = np.tile(radii, (3,1)).T
+            cat = np.zeros([4,], dtype=np.uint8) + 255
+            cat[0:3] = np.array([i*255 for i in atom_null], dtype=np.uint8)
+            pts.module_manager.scalar_lut_manager.lut.nan_color = tuple(cat)
+        # Bonds
+        if atom_bond_ratio.lower() == 'sticks':
+            bond_radius = 0.2
+        else:
+            bond_radius = 0.15
+
+        if bd_data == False:
+            for ib, b in enumerate(bdplt):
+                bds = mlab.plot3d([b[1], b[4]], [b[2], b[5]], [b[3], b[6]],
+                                  figure=fig,
+                                  color=bond_color,
+                                  tube_radius=bond_radius)
+        else: # use lines rather than tubes
+            bond_radius = 10
+            src = mlab.pipeline.scalar_scatter(bdplt[:, [1,4]].flatten(),
+                                               bdplt[:, [2,5]].flatten(),
+                                               bdplt[:, [3,6]].flatten(),
+                                               np.vstack([dbd, dbd]).T.flatten())
+            src.mlab_source.dataset.lines = [[i, i+1] for i in range(0, 2*nbond, 2)]
+            src.update()
+            lines = mlab.pipeline.stripper(src); del src
+            bds = mlab.pipeline.surface(lines,
+                                        figure=fig,
+                                        colormap=bond_color,
+                                        line_width=bond_radius)
+            cbd = np.zeros([4,], dtype=np.uint8) + 255
+            cbd[0:3] = np.array([i*255 for i in bond_null], dtype=np.uint8)
+            bds.module_manager.scalar_lut_manager.lut.nan_color = tuple(cbd)
+
+        ## Lattice
+        if cell_display == True:
+            if ndimen == 3:
+                lattpts = np.array([[0, 0, 0], [1, 0, 0],
+                                    [1, 0, 0], [1, 1, 0],
+                                    [1, 1, 0], [0, 1, 0],
+                                    [0, 1, 0], [0, 0, 0],
+                                    [0, 0, 1], [1, 0, 1],
+                                    [1, 0, 1], [1, 1, 1],
+                                    [1, 1, 1], [0, 1, 1],
+                                    [0, 1, 1], [0, 0, 1],
+                                    [0, 0, 0], [0, 0, 1],
+                                    [1, 0, 0], [1, 0, 1],
+                                    [1, 1, 0], [1, 1, 1],
+                                    [0, 1, 0], [0, 1, 1]]) @ struc.lattice.matrix
+                lattpts = np.add(lattpts, origin@struc.lattice.matrix)
+                for i in range(0, 24, 2):
+                    mlab.plot3d([lattpts[i,0], lattpts[i+1,0]],
+                                [lattpts[i,1], lattpts[i+1,1]],
+                                [lattpts[i,2], lattpts[i+1,2]],
+                                figure=fig,
+                                color=cell_color,
+                                line_width=cell_linewidth)
+            elif ndimen == 2:
+                lattpts = np.zeros([8, 3], dtype=float)
+                lattpts[:, 0:2] = np.array([[0, 0], [1, 0],
+                                            [1, 0], [1, 1],
+                                            [1, 1], [0, 1],
+                                            [0, 1], [0, 0]]) @ struc.lattice.matrix[0:2, 0:2]
+                lattpts = np.add(lattpts, origin@struc.lattice.matrix)
+                for i in range(0, 8, 2):
+                    mlab.plot3d([lattpts[i,0], lattpts[i+1,0]],
+                                [lattpts[i,1], lattpts[i+1,1]],
+                                [lattpts[i,2], lattpts[i+1,2]],
+                                figure=fig,
+                                color=cell_color,
+                                line_width=cell_linewidth)
+            elif ndimen == 1:
+                lattpts = np.zeros([2, 3], dtype=float)
+                lattpts[:, 0:1] = np.array([[0], [1]]) @ struc.lattice.matrix[0:1, 0:1]
+                lattpts = np.add(lattpts, origin@struc.lattice.matrix)
+                mlab.plot3d([lattpts[0,0], lattpts[1,0]],
+                            [lattpts[0,1], lattpts[1,1]],
+                            [lattpts[0,2], lattpts[1,2]],
+                            figure=fig,
+                            color=cell_color,
+                            line_width=cell_linewidth)
+
+        ## Add color bar
+        if at_data == True:
+            mlab.colorbar(object=pts, orientation='horizontal', title=atom_cbar_label, label_fmt='%.2f')
+        if bd_data == True:
+            mlab.colorbar(object=bds, orientation='vertical', title=bond_cbar_label, label_fmt='%.2f')
+
+        ## Final setups
+        keys = ['azimuth', 'elevation', 'distance', 'focalpoint', 'roll']
+        keywords = dict(figure=fig, distance='auto')
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+        mlab.view(**keywords)
+
+        if show_the_scene == False:
+            return fig
+        else:
+            mlab.gcf().scene.parallel_projection = True
+            mlab.show()
+            return
+
 
 class CMolecule(Molecule):
-    """
-    Inherited from `Pymatgen Molecule <https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Molecule>`_
-    object with added methods.
-
-    Args:
-        species (list[int]): Same as pymatgen or a 1\*nAtom list of
-            **conventional** atomic numbers.
-        symmetry_group (int): Symmetry group number or symbol in CRYSTAL
-            convention.
-        \*\*kwargs: Other arguments passed to pymatgen Molecule.
-    Returns:
-        self (CMolecule): ``CMolecule`` object.
-    """
+    """Deprecated, use CStructure"""
     def __init__(species, coords, symmetry_group=1, **kwargs):
+        import warnings
         import numpy as np
 
         if isinstance(species[0], int) or isinstance(species[0], float) \
@@ -792,6 +1305,9 @@ class CMolecule(Molecule):
         self = Molecule(species=species, coords=coords, **kwargs)
         self._symmetry_group = symmetry_group
         self._species_Z = zconv
+
+        warnings.warn("This is a deprecated method and returns to a pymatgen Molecule class only. Use CStructure with pbc=(False, False, False) instead.",
+                      stacklevel=2)
 
 
 

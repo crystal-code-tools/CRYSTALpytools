@@ -553,6 +553,9 @@ class DLVParser():
         import pandas as pd
 
         df = pd.DataFrame(open(filename))
+        # remove all the empty lines
+        df = df.replace(r'^\s*#*\s*$', np.nan, regex=True).dropna()
+        df.reset_index(drop=True, inplace=True)
 
         iband = df[df[0].str.contains(r'^\s*Band\s+[0-9]+\s*$')].index.tolist()
         nband = 0
@@ -588,17 +591,26 @@ class DLVParser():
                 aband = df[0].loc[bg:ed].map(lambda x: x.strip().split()).tolist()
                 band[i, :, :, :, j] = np.array(
                     [c for row in aband for c in row], dtype=float
-                ).reshape(npt[::-1], order='F')
+                ).reshape(npt[::-1], order='C')
         del aband
         # Redefine band in recepical cell rather than 1BZ
         # na: points along re-latt vector
         na = int((band.shape[3]-1)/2+1)
         nb = int((band.shape[2]-1)/2+1)
         nc = int((band.shape[1]-1)/2+1)
-        bandnew = np.zeros([nband, nc, nb, na, nspin])
+        if na > 1: newna = na+1
+        else: newna = na
+        if nb > 1: newnb = nb+1
+        else: newnb = nb
+        if nc > 1: newnc = nc+1
+        else: newnc = nc
+        bandnew = np.zeros([nband, newnc, newnb, newna, nspin]) # general grid
         idx = np.where(band<9999)
-        bandnew[:, idx[1]%nc, idx[2]%nb, idx[3]%na, :] = band[:, idx[1], idx[2], idx[3], :]
+        bandnew[:, (idx[1]+1)%nc, (idx[2]+1)%nb, (idx[3]+1)%na, :] = band[:, idx[1], idx[2], idx[3], :]
         del band, idx
+        if nc > 1: bandnew[:, -1, :, :, :] = bandnew[:, 0, :, :, :]
+        if nb > 1: bandnew[:, :, -1, :, :] = bandnew[:, :, 0, :, :]
+        if na > 1: bandnew[:, :, :, -1, :] = bandnew[:, :, :, 0, :]
         return rlatt, bandnew, 'a.u.'
 
 
@@ -724,6 +736,9 @@ class BOLTZTRAParaser():
         import numpy as np
 
         df = pd.DataFrame(open(filename))
+        # remove all the empty lines
+        df = df.replace(r'^\s*#*\s*$', np.nan, regex=True).dropna()
+        df.reset_index(drop=True, inplace=True)
         spin = int(df[0][0].strip().split()[1]) + 1
         v = float(df[0][2].strip().split()[-1])
         if 'in W/m/K' in df[0][0]:
@@ -737,33 +752,35 @@ class BOLTZTRAParaser():
         else:
             raise Exception('Unknown property. Check your input BOLTZTRA file.')
 
-        titles = df[df[0].str.contains('# ')].index
-        t = df[0][titles[2:]].map(lambda x: x.strip().split()[3])
-        t = t.to_numpy(dtype=float)
+        titles = df[df[0].str.contains('# ')].index.tolist()
         mu = df[0][titles[2]+1:titles[3]].map(lambda x: x.strip().split()[0])
         mu = mu.to_numpy(dtype=float)
         ncol = len(df[0][titles[2]+1].strip().split())
 
-        # open shell
-        if spin != 1 and type != 'SEEBECK':
-            betablock = df[df[0].str.contains('Beta')].index
+        if spin == 1 or type == 'SEEBECK': # no beta state
+            t = df[0][titles[2:]].map(lambda x: x.strip().split()[3])
+            t = t.to_numpy(dtype=float)
+            newtitle = [titles + [len(df[0])]]
+        else: # open shell
+            betablock = df[df[0].str.contains('Beta')].index.tolist()[0]
+            t = df[0][titles[2:int(len(titles)/2)]].map(lambda x: x.strip().split()[3])
+            t = t.to_numpy(dtype=float)
+
             tmp = []; newtitle = []
             for i in titles:
                 if i < betablock or i > betablock:
-                   tmp.append(i)
+                    tmp.append(i)
                 else:
                     newtitle.append(tmp + [betablock])
                     tmp = [betablock]
             newtitle.append(tmp + [len(df[0])])
-        else:
-            newtitle = [titles.tolist() + [len(df[0])]]
 
         dc = np.zeros([spin, len(t), len(mu)], dtype=float)
         tensor = np.zeros([spin, len(t), len(mu), ncol-3], dtype=float)
 
-        for ispin, titles in enumerate(newtitle):
-            for nt in range(2, len(titles)-1):
-                block = df[0][titles[nt]+1:titles[nt+1]].map(lambda x: x.strip().split())
+        for ispin, titles_block in enumerate(newtitle):
+            for nt in range(2, len(titles_block)-1):
+                block = df[0].loc[titles_block[nt]+1:titles_block[nt+1]-1].map(lambda x: x.strip().split())
                 block = np.array(block.tolist(), dtype=float)
                 dc[ispin, nt-2, :] = block[:, 2] / v # N carrier to density
                 tensor[ispin, nt-2, :, :] = block[:, 3:]
@@ -793,6 +810,9 @@ class BOLTZTRAParaser():
         import numpy as np
 
         df = pd.DataFrame(open(filename))
+        # remove all the empty lines
+        df = df.replace(r'^\s*#*\s*$', np.nan, regex=True).dropna()
+        df.reset_index(drop=True, inplace=True)
         spin = int(df[0][0].strip().split()[1]) + 1
         if 'Transport distribution function' not in df[0][0]:
             raise ValueError('Not a TDF file.')

@@ -1,0 +1,410 @@
+Pre-Calc Summary
+--------------------------------------------
+  date:                Fri 24 Jan 13:44:21 GMT 2025
+  hostname:            nhpc101
+  system:              Linux nhpc101 5.3.18-150300.59.76-default #1 SMP Thu Jun 16 04:23:47 UTC 2022 (2cc2ade) x86_64 x86_64 x86_64 GNU/Linux
+  user:                huanyu
+  input:               /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/
+  output:              /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity.out
+  temporary directory: /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity_tmpfile
+  executable script:   /home/huanyu/GitHub/Spica-Vir/HPC-job-submission/PC-Job-Submission/run_job
+  executable dir:      module load CRYSTAL/23v1-intel
+  mpi + exe command:   mpiexec -np 2 Pproperties
+-------------------------------------------
+
+Find input data: /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity.d3
+Find input reference: /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/hematite.f9
+Find input reference: /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/hematite.f9
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : ChargeDensity
+  Command        : mpiexec -np 2 Pproperties >> /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity.out 2>&1
+  Temporary dir  : /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity_tmpfile
+  List of files  : total 1828
+-rw-r--r-- 1 huanyu users 925972 Jan 24 13:44 fort.20
+-rw-r--r-- 1 huanyu users 925972 Jan 24 13:44 fort.9
+-rw-r--r-- 1 huanyu users    260 Jan 24 13:44 INPUT
+-rw-r--r-- 1 huanyu users   7579 Jan 24 13:44 Job_script_ChargeDensity
+  Input script   :
+NEWK
+12 12
+ 0  0
+ECH3
+24
+ECHG
+0
+24
+COORDINA
+ 2.93009   -0.00000    4.61958
+ 0.         0.         0.
+-2.93010    0.         9.23916
+END
+PATO
+0 0
+ECHG
+0
+24
+COORDINA
+ 2.93009   -0.00000    4.61958
+ 0.         0.         0.
+-2.93010    0.         9.23916
+END
+END
+-------------------------------------------
+
+ PROCESS            0  OF            2  WORKING
+ PROCESS            1  OF            2  WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 24 01 2025 TIME 13:44:22.0
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ Hematite Fe2O3 as a spin example                                                
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  UNRESTRICTED OPEN SHELL
+ *******************************************************************************
+ SPIN POLARIZED SYSTEM: SUMMED SPIN DENSITY    0.00000000
+
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(BECKE 88)[LEE-YANG-PARR]
+
+ NON-LOCAL WEIGHTING FACTOR (EXCHANGE) =           0.9000
+ NON-LOCAL WEIGHTING FACTOR [CORRELATION] =        0.8100
+
+ HYBRID EXCHANGE - PERCENTAGE OF FOCK EXCHANGE    20.0000
+
+ SPIN POLARIZED DFT SELECTED
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+         2.93009   -0.00000    4.61958
+        -1.46505    2.53754    4.61958
+        -1.46505   -2.53754    4.61958
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+    5.47047    5.47047    5.47047     55.2730   55.2730   55.2730     103.04286
+ *******************************************************************************
+ N. OF ATOMS PER CELL        10 COULOMB OVERLAP TOL          (T1) 10**   -7
+ NUMBER OF SHELLS            52 COULOMB PENETRATION TOL      (T2) 10**   -7
+ NUMBER OF AO               186 EXCHANGE OVERLAP TOL         (T3) 10**   -7
+ N. OF ELECTRONS PER CELL   152 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   -7
+ CORE ELECTRONS PER CELL     84 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**  -14
+ N. OF SYMMETRY OPERATORS     6 POLE ORDER IN MONO ZONE                   4
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1   26 FE    7    -2.930     0.000     0.330   4.345E-01      23.818
+    2   26 FE    7     0.000    -0.000     1.980   4.345E-01      23.818
+    3   26 FE    7    -1.465    -2.538    -0.330   4.345E-01      23.818
+    4   26 FE    7    -0.000     0.000    -1.980   4.345E-01      23.818
+    5    8 O     4    -1.589    -0.775    -1.155   1.802E-01       9.455
+    6    8 O     4     1.465    -0.988    -1.155   1.802E-01       9.455
+    7    8 O     4     0.124     1.763    -1.155   1.802E-01       9.455
+    8    8 O     4     1.589     0.775     1.155   1.802E-01       9.455
+    9    8 O     4    -1.465     0.988     1.155   1.802E-01       9.455
+   10    8 O     4    -0.124    -1.763     1.155   1.802E-01       9.455
+ *******************************************************************************
+ DE(K)                   0.000E+00  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -5.5061777424859E+03  CONVERGENCE ON ENER       -3.078E-09
+ KIN. ENERGY   5.4955991039040E+03  VIR. COEFF.           1.01949730E+00
+ N. OF SCF CYCLES                5  FERMI ENERGY              -0.148E+00
+ WEIGHT OF F(I) IN F(I+1)      30
+ SHRINK. FACT.(MONKH.)    12 12 12  SHRINKING FACTOR(GILAT NET)       12
+ NUMBER OF K POINTS IN THE IBZ 294  CELL VOLUME (A.U.)        686.275217
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    14    14    14
+ NO.OF VECTORS CREATED 6999 STARS  522 RMAX   105.42044 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.36 TCPU        0.11
+
+ MATRIX SIZE: P(G)  282370, F(G)   49724, P(G) IRR   26109, F(G) IRR    9514
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 123
+
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET 294; SYMMOPS:K SPACE   6;G SPACE   6
+
+
+ CAPPA:IS1 12;IS2 12;IS3 12; K PTS MONK NET 294; SYMMOPS:K SPACE   6;G SPACE   6
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                 294 POINTS(GILAT NET)               294
+ SHRINK FACTORS(MONK.)        12 12 12 SHRINK FACTOR(GILAT)             12
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 12)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-C(  3  0  0)
+   5-C(  4  0  0)   6-C(  5  0  0)   7-R(  6  0  0)   8-C(  1  1  0)
+   9-C(  2  1  0)  10-C(  3  1  0)  11-C(  4  1  0)  12-C(  5  1  0)
+  13-C(  6  1  0)  14-C(  7  1  0)  15-C(  8  1  0)  16-C(  9  1  0)
+  17-C( 10  1  0)  18-C( 11  1  0)  19-C(  1  2  0)  20-C(  2  2  0)
+  21-C(  3  2  0)  22-C(  4  2  0)  23-C(  5  2  0)  24-C(  6  2  0)
+  25-C(  7  2  0)  26-C(  8  2  0)  27-C(  9  2  0)  28-C( 10  2  0)
+  29-C( 11  2  0)  30-C(  1  3  0)  31-C(  2  3  0)  32-C(  3  3  0)
+  33-C(  4  3  0)  34-C(  5  3  0)  35-C(  6  3  0)  36-C(  7  3  0)
+  37-C(  8  3  0)  38-C(  9  3  0)  39-C( 10  3  0)  40-C( 11  3  0)
+  41-C(  1  4  0)  42-C(  2  4  0)  43-C(  3  4  0)  44-C(  4  4  0)
+  45-C(  5  4  0)  46-C(  6  4  0)  47-C(  7  4  0)  48-C(  8  4  0)
+  49-C(  9  4  0)  50-C( 10  4  0)  51-C( 11  4  0)  52-C(  1  5  0)
+  53-C(  2  5  0)  54-C(  3  5  0)  55-C(  4  5  0)  56-C(  5  5  0)
+  57-C(  6  5  0)  58-C(  7  5  0)  59-C(  8  5  0)  60-C(  9  5  0)
+  61-C( 10  5  0)  62-C( 11  5  0)  63-C(  1  6  0)  64-C(  2  6  0)
+  65-C(  3  6  0)  66-C(  4  6  0)  67-C(  5  6  0)  68-R(  6  6  0)
+  69-C(  1  1  1)  70-C(  2  1  1)  71-C(  3  1  1)  72-C(  4  1  1)
+  73-C(  5  1  1)  74-C(  6  1  1)  75-C(  7  1  1)  76-C(  8  1  1)
+  77-C(  9  1  1)  78-C( 10  1  1)  79-C( 11  1  1)  80-C(  2  2  1)
+  81-C(  3  2  1)  82-C(  4  2  1)  83-C(  5  2  1)  84-C(  6  2  1)
+  85-C(  7  2  1)  86-C(  8  2  1)  87-C(  9  2  1)  88-C( 10  2  1)
+  89-C( 11  2  1)  90-C(  2  3  1)  91-C(  3  3  1)  92-C(  4  3  1)
+  93-C(  5  3  1)  94-C(  6  3  1)  95-C(  7  3  1)  96-C(  8  3  1)
+  97-C(  9  3  1)  98-C( 10  3  1)  99-C( 11  3  1) 100-C(  2  4  1)
+ 101-C(  3  4  1) 102-C(  4  4  1) 103-C(  5  4  1) 104-C(  6  4  1)
+ 105-C(  7  4  1) 106-C(  8  4  1) 107-C(  9  4  1) 108-C( 10  4  1)
+ 109-C( 11  4  1) 110-C(  2  5  1) 111-C(  3  5  1) 112-C(  4  5  1)
+ 113-C(  5  5  1) 114-C(  6  5  1) 115-C(  7  5  1) 116-C(  8  5  1)
+ 117-C(  9  5  1) 118-C( 10  5  1) 119-C( 11  5  1) 120-C(  2  6  1)
+ 121-C(  3  6  1) 122-C(  4  6  1) 123-C(  5  6  1) 124-C(  6  6  1)
+ 125-C(  7  6  1) 126-C(  8  6  1) 127-C(  9  6  1) 128-C( 10  6  1)
+ 129-C( 11  6  1) 130-C(  2  7  1) 131-C(  3  7  1) 132-C(  4  7  1)
+ 133-C(  5  7  1) 134-C(  6  7  1) 135-C(  7  7  1) 136-C(  8  7  1)
+ 137-C(  9  7  1) 138-C( 10  7  1) 139-C( 11  7  1) 140-C(  2  8  1)
+ 141-C(  3  8  1) 142-C(  4  8  1) 143-C(  5  8  1) 144-C(  6  8  1)
+ 145-C(  7  8  1) 146-C(  8  8  1) 147-C(  9  8  1) 148-C( 10  8  1)
+ 149-C( 11  8  1) 150-C(  2  9  1) 151-C(  3  9  1) 152-C(  4  9  1)
+ 153-C(  5  9  1) 154-C(  6  9  1) 155-C(  7  9  1) 156-C(  8  9  1)
+ 157-C(  9  9  1) 158-C( 10  9  1) 159-C( 11  9  1) 160-C(  2 10  1)
+ 161-C(  3 10  1) 162-C(  4 10  1) 163-C(  5 10  1) 164-C(  6 10  1)
+ 165-C(  7 10  1) 166-C(  8 10  1) 167-C(  9 10  1) 168-C( 10 10  1)
+ 169-C( 11 10  1) 170-C(  2  2  2) 171-C(  3  2  2) 172-C(  4  2  2)
+ 173-C(  5  2  2) 174-C(  6  2  2) 175-C(  7  2  2) 176-C(  8  2  2)
+ 177-C(  9  2  2) 178-C( 10  2  2) 179-C(  3  3  2) 180-C(  4  3  2)
+ 181-C(  5  3  2) 182-C(  6  3  2) 183-C(  7  3  2) 184-C(  8  3  2)
+ 185-C(  9  3  2) 186-C( 10  3  2) 187-C(  3  4  2) 188-C(  4  4  2)
+ 189-C(  5  4  2) 190-C(  6  4  2) 191-C(  7  4  2) 192-C(  8  4  2)
+ 193-C(  9  4  2) 194-C( 10  4  2) 195-C(  3  5  2) 196-C(  4  5  2)
+ 197-C(  5  5  2) 198-C(  6  5  2) 199-C(  7  5  2) 200-C(  8  5  2)
+ 201-C(  9  5  2) 202-C( 10  5  2) 203-C(  3  6  2) 204-C(  4  6  2)
+ 205-C(  5  6  2) 206-C(  6  6  2) 207-C(  7  6  2) 208-C(  8  6  2)
+ 209-C(  9  6  2) 210-C( 10  6  2) 211-C(  3  7  2) 212-C(  4  7  2)
+ 213-C(  5  7  2) 214-C(  6  7  2) 215-C(  7  7  2) 216-C(  8  7  2)
+ 217-C(  9  7  2) 218-C( 10  7  2) 219-C(  3  8  2) 220-C(  4  8  2)
+ 221-C(  5  8  2) 222-C(  6  8  2) 223-C(  7  8  2) 224-C(  8  8  2)
+ 225-C(  9  8  2) 226-C( 10  8  2) 227-C(  3  9  2) 228-C(  4  9  2)
+ 229-C(  5  9  2) 230-C(  6  9  2) 231-C(  7  9  2) 232-C(  8  9  2)
+ 233-C(  9  9  2) 234-C( 10  9  2) 235-C(  3  3  3) 236-C(  4  3  3)
+ 237-C(  5  3  3) 238-C(  6  3  3) 239-C(  7  3  3) 240-C(  8  3  3)
+ 241-C(  9  3  3) 242-C(  4  4  3) 243-C(  5  4  3) 244-C(  6  4  3)
+ 245-C(  7  4  3) 246-C(  8  4  3) 247-C(  9  4  3) 248-C(  4  5  3)
+ 249-C(  5  5  3) 250-C(  6  5  3) 251-C(  7  5  3) 252-C(  8  5  3)
+ 253-C(  9  5  3) 254-C(  4  6  3) 255-C(  5  6  3) 256-C(  6  6  3)
+ 257-C(  7  6  3) 258-C(  8  6  3) 259-C(  9  6  3) 260-C(  4  7  3)
+ 261-C(  5  7  3) 262-C(  6  7  3) 263-C(  7  7  3) 264-C(  8  7  3)
+ 265-C(  9  7  3) 266-C(  4  8  3) 267-C(  5  8  3) 268-C(  6  8  3)
+ 269-C(  7  8  3) 270-C(  8  8  3) 271-C(  9  8  3) 272-C(  4  4  4)
+ 273-C(  5  4  4) 274-C(  6  4  4) 275-C(  7  4  4) 276-C(  8  4  4)
+ 277-C(  5  5  4) 278-C(  6  5  4) 279-C(  7  5  4) 280-C(  8  5  4)
+ 281-C(  5  6  4) 282-C(  6  6  4) 283-C(  7  6  4) 284-C(  8  6  4)
+ 285-C(  5  7  4) 286-C(  6  7  4) 287-C(  7  7  4) 288-C(  8  7  4)
+ 289-C(  5  5  5) 290-C(  6  5  5) 291-C(  7  5  5) 292-C(  6  6  5)
+ 293-C(  7  6  5) 294-R(  6  6  6)
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE        3.37 TCPU        2.77
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECH3 START  TELAPSE        3.37 TCPU        2.77
+
+ 3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D3D
+ 3D DENSITY, GRID IS  24* 24* 24
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT CHARGE      TELAPSE        9.49 TCPU        8.89
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECH3 END    TELAPSE        9.49 TCPU        8.89
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECH3        TELAPSE        9.49 TCPU        8.89
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ ELECTRON CHARGE (AND SPIN) DENSITY - DERIVATIVES UP TO ORDER 0
+
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ CO-ORDINATES IN ANGSTROM
+ REDEFINITION OF THE WINDOW AS A RECTANGULAR WINDOW
+
+                        COORDINATES OF THE 3 POINTS (BOHR):
+              A)    5.537    0.000    8.730 POINT INDICES (  1,  1)
+              B)    0.000    0.000    0.000 POINT INDICES (NPY,  1)
+              C)   -5.537    0.000   17.459 POINT INDICES (NPY,NPX)
+
+ N. OF POINTS ALONG THE A-B SEGMENT (NPY)   24
+ N. OF POINTS ALONG THE B-C SEGMENT (NPX)   42
+ N. OF POINTS IN THE GRID :               1008
+ COSINE OF THE ANGLE A-B-C              0.6430
+ N. OF ELEMENTS IN THE SYMMETRY SUB-GROUP    2
+ N. OF POINTS IN THE IRREDUCIBLE ZONE :   1008
+
+
+    ALPHA+BETA ELECTRONS DENSITY - VALMIN  2.8095E-03 VALMAX  1.9553E+02
+
+ 1008 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN   24   42 0.44946E+00 0.44674E+00 0.64303E+00
+
+
+    ALPHA-BETA ELECTRONS DENSITY - VALMIN -1.2317E+00 VALMAX  1.2506E+00
+
+ 1008 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN   24   42 0.44946E+00 0.44674E+00 0.64303E+00
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECHG        TELAPSE       12.03 TCPU       11.38
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         ATOMIC WAVEFUNCTION(S)
+
+
+ NUCLEAR CHARGE 26.0  SYMMETRY SPECIES            S    P    D
+ N. ELECTRONS   26.0  NUMBER OF PRIMITIVE GTOS   20   12    5
+                      NUMBER OF CONTRACTED GTOS   5    4    2
+                      NUMBER OF CLOSED SHELLS     4    2    0
+                      OPEN SHELL OCCUPATION       0    0    6
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+  26.0    17    -1.260241308E+03  1.270157535E+03 -1.992192916E+00  2.9E-06
+
+ NUCLEAR CHARGE  8.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS    8.0  NUMBER OF PRIMITIVE GTOS   14    6
+                      NUMBER OF CONTRACTED GTOS   4    3
+                      NUMBER OF CLOSED SHELLS     2    0
+                      OPEN SHELL OCCUPATION       0    4
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+   8.0    13    -7.480074697E+01  7.460838933E+01 -2.002578231E+00  3.3E-06
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         ATOMIC WAVEFUNCTION(S)
+
+
+ NUCLEAR CHARGE 26.0  SYMMETRY SPECIES            S    P    D
+ N. ELECTRONS   26.0  NUMBER OF PRIMITIVE GTOS   20   12    5
+                      NUMBER OF CONTRACTED GTOS   5    4    2
+                      NUMBER OF CLOSED SHELLS     4    2    0
+                      OPEN SHELL OCCUPATION       0    0    6
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+  26.0    17    -1.260241308E+03  1.270157535E+03 -1.992192916E+00  2.9E-06
+
+ NUCLEAR CHARGE  8.0  SYMMETRY SPECIES            S    P
+ N. ELECTRONS    8.0  NUMBER OF PRIMITIVE GTOS   14    6
+                      NUMBER OF CONTRACTED GTOS   4    3
+                      NUMBER OF CLOSED SHELLS     2    0
+                      OPEN SHELL OCCUPATION       0    4
+
+  ZNUC  SCFIT    TOTAL HF ENERGY   KINETIC ENERGY   VIRIAL THEOREM ACCURACY
+   8.0    13    -7.480074697E+01  7.460838933E+01 -2.002578231E+00  3.3E-06
+
+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+ *******************************************************************************
+ DENSITY MATRIX AS SUPERPOSITION OF ATOMIC DENSITIES
+ *******************************************************************************
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT PATO        TELAPSE       12.04 TCPU       11.39
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ ELECTRON CHARGE (AND SPIN) DENSITY - DERIVATIVES UP TO ORDER 0
+
+ CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH
+
+ CO-ORDINATES IN ANGSTROM
+ REDEFINITION OF THE WINDOW AS A RECTANGULAR WINDOW
+
+                        COORDINATES OF THE 3 POINTS (BOHR):
+              A)    5.537    0.000    8.730 POINT INDICES (  1,  1)
+              B)    0.000    0.000    0.000 POINT INDICES (NPY,  1)
+              C)   -5.537    0.000   17.459 POINT INDICES (NPY,NPX)
+
+ N. OF POINTS ALONG THE A-B SEGMENT (NPY)   24
+ N. OF POINTS ALONG THE B-C SEGMENT (NPX)   42
+ N. OF POINTS IN THE GRID :               1008
+ COSINE OF THE ANGLE A-B-C              0.6430
+ N. OF ELEMENTS IN THE SYMMETRY SUB-GROUP    2
+ N. OF POINTS IN THE IRREDUCIBLE ZONE :   1008
+
+
+    ALPHA+BETA ELECTRONS DENSITY - VALMIN  8.0552E-04 VALMAX  1.9531E+02
+
+ 1008 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN   24   42 0.44946E+00 0.44674E+00 0.64303E+00
+
+
+    ALPHA-BETA ELECTRONS DENSITY - VALMIN -8.8162E-01 VALMAX  8.7735E-01
+
+ 1008 DATA WRITTEN ON UNIT 25 WITH THE FOLLOWING HEADER
+-%-1MAPN   24   42 0.44946E+00 0.44674E+00 0.64303E+00
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT ECHG        TELAPSE       14.51 TCPU       13.86
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE       14.51 TCPU       13.86
+ EEEEEEEEEE TERMINATION  DATE 24 01 2025 TIME 13:44:36.2
+NODE    0 CPU TIME =        13.857
+NODE    1 CPU TIME =        13.799
+    TOTAL CPU TIME =        27.655
+  fort.9               ChargeDensity.f9                                      925972   Jan 24 13:44
+  fort.25              ChargeDensity.f25                                     53216    Jan 24 13:44
+  fort.31              ChargeDensity.f31                                     558718   Jan 24 13:44
+  DENS_CUBE.DAT        ChargeDensity_CHG.CUBE                                182885   Jan 24 13:44
+  SPIN_CUBE.DAT        ChargeDensity_SPIN.CUBE                               182884   Jan 24 13:44
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity_tmpfile
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       3.7T  927G  2.8T  25% /home
+
+  Usage by folders (du -m)
+873	/home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity_tmpfile
+
+  Detailed file list (ls -l .)
+    see /home/huanyu/GitHub/CPYTools-Test/hemitate/ChargeDensity/ChargeDensity.log file
+--------------------------------------------
+

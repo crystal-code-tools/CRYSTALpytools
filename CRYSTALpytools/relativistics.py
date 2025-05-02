@@ -40,9 +40,10 @@ class VectorField():
     use. **3D methods under development**.
     """
     def plot_2D(self, levels=100, quiverplot=True, quiverscale=1.0,
-                colorplot=True, colormap='jet', cbar_label=None, a_range=[],
-                b_range=[], rectangle=False, edgeplot=False, x_ticks=5,
-                y_ticks=5, figsize=[6.4, 4.8], fig=None, ax_index=None, **kwargs):
+                colorplot=True, colormap='jet', cbar_label=None,
+                a_range=[0.,1.], b_range=[0.,1.], rectangle=False, edgeplot=False,
+                x_ticks=5, y_ticks=5, figsize=[6.4, 4.8],
+                fig=None, ax_index=None, **kwargs):
         """
         Plot 2D vector field.
 
@@ -68,7 +69,7 @@ class VectorField():
             cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
             a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -183,9 +184,9 @@ class Magnetization(VectorField):
         return Properties_output(output).read_relativistics(file, type='MAGNETIZ')
 
     def plot_2D(self, unit='SI', levels=100, quiverplot=True, quiverscale=1.0,
-                colorplot=True, colormap='jet', cbar_label='default', a_range=[],
-                b_range=[], rectangle=False, edgeplot=False, x_ticks=5,
-                y_ticks=5, title='default', figsize=[6.4, 4.8],
+                colorplot=True, colormap='jet', cbar_label='default',
+                a_range=[0.,1.], b_range=[0.,1.], rectangle=False, edgeplot=False,
+                x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8],
                 fig=None, ax_index=None, **kwargs):
         """
         Plot 2D magnetization field.
@@ -215,7 +216,7 @@ class Magnetization(VectorField):
                 'None' for no label. Useful only if ``colorplot=True``.
             a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -353,9 +354,9 @@ class OrbitalCurrentDensity(VectorField):
         return Properties_output(output).read_relativistics(file, type='ORBCURDENS')
 
     def plot_2D(self, unit='SI', levels=100, quiverplot=True, quiverscale=1.0,
-                colorplot=True, colormap='jet', cbar_label='default', a_range=[],
-                b_range=[], rectangle=False, edgeplot=False, x_ticks=5,
-                y_ticks=5, title='default', figsize=[6.4, 4.8],
+                colorplot=True, colormap='jet', cbar_label='default',
+                a_range=[0., 1], b_range=[0., 1], rectangle=False, edgeplot=False,
+                x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8],
                 fig=None, ax_index=None, **kwargs):
         """
         Plot 2D orbital current density field.
@@ -385,7 +386,7 @@ class OrbitalCurrentDensity(VectorField):
                 'None' for no label. Useful only if ``colorplot=True``.
             a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -530,7 +531,7 @@ class SpinCurrentDensity(VectorField):
 
     def plot_2D(self, unit='SI', direction=['x','y','z'], levels=100,
                 quiverplot=True, quiverscale=1.0, colorplot=True, colormap='jet',
-                cbar_label='default', a_range=[], b_range=[], rectangle=False,
+                cbar_label='default', a_range=[0.,1.], b_range=[0.,1.], rectangle=False,
                 edgeplot=False, x_ticks=5, y_ticks=5, title='default',
                 figsize=[6.4, 4.8], fig=None, ax_index=None, **kwargs):
         """

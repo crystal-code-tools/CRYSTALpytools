@@ -33,9 +33,9 @@ Install CRYSTALpytools
 By PyPI
 -----------------
 
-CRYSTALpytools can be installed from ``pip``. ``pip`` is a package-management
-system written in Python and is used to install and manage software packages
-(called modules in python).
+CRYSTALpytools can be installed from ``pip`` at `PyPI <https://pypi.org/project/CRYSTALpytools/>`_.
+``pip`` is a package-management system written in Python and is used to install
+and manage software packages (called modules in python).
 
 .. code-block:: console
 
@@ -50,7 +50,7 @@ Windows users might need to install windows-curses. This can be done by using:
 By Conda Forge
 -----------------
 
-CRYSTALpytools is also available on `Conda Forge <https://conda-forge.org/>`_:
+CRYSTALpytools is also available on `Conda Forge <https://anaconda.org/conda-forge/crystalpytools>`_:
 
 .. code-block:: console
 

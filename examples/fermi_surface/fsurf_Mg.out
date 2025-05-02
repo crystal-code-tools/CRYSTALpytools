@@ -1,0 +1,408 @@
+Pre-Calc Summary
+--------------------------------------------
+  date:                Thu Dec 12 11:40:50 GMT 2024
+  hostname:            nhpc101
+  system:              Linux nhpc101 5.3.18-150300.59.76-default #1 SMP Thu Jun 16 04:23:47 UTC 2022 (2cc2ade) x86_64 x86_64 x86_64 GNU/Linux
+  user:                huanyu
+  input:               /home/huanyu/GitHub/FermiSurf/
+  output:              /home/huanyu/GitHub/FermiSurf/fsurf_Mg.out
+  temporary directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile
+  executable script:   /home/huanyu/GitHub/Spica-Vir/HPC-job-submission/PC-Job-Submission/run_job
+  executable dir:      module load CRYSTAL/23v1-intel
+  mpi + exe command:   mpiexec -np 6 Pproperties
+-------------------------------------------
+
+Find input data: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.d12
+Find input data: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.d3
+Warning! Duplicate file detected in temporary directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile/INPUT.
+  The file will be covered by the new entry /home/huanyu/GitHub/FermiSurf/fsurf_Mg.d3.
+Find input data: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.gui
+Find input reference: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.f9
+Find input reference: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.f9
+Find input reference: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.OPTINFO
+All files are synchonised.
+
+Job Ready to Go
+-------------------------------------------
+  Job name       : fsurf_Mg
+  Command        : mpiexec -np 6 Pproperties >> /home/huanyu/GitHub/FermiSurf/fsurf_Mg.out 2>&1
+  Temporary dir  : /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile
+  List of files  : total 964
+-rw-r--r-- 1 huanyu users     38 Dec 12 11:40 INPUT
+-rw-r--r-- 1 huanyu users   7579 Dec 12 11:40 Job_script_fsurf_Mg
+-rw-r--r-- 1 huanyu users 341170 Dec 12 11:40 OPTINFO.DAT
+-rw-r--r-- 1 huanyu users 309204 Dec 12 11:40 fort.20
+-rw-r--r-- 1 huanyu users   6246 Dec 12 11:40 fort.34
+-rw-r--r-- 1 huanyu users 309204 Dec 12 11:40 fort.9
+  Input script   :
+NEWK
+24 48
+ 1  0
+DLV_BAND
+1 24 24
+END
+-------------------------------------------
+
+ PROCESS            5  OF            6  WORKING
+ PROCESS            4  OF            6  WORKING
+ PROCESS            1  OF            6  WORKING
+ PROCESS            2  OF            6  WORKING
+ PROCESS            3  OF            6  WORKING
+ PROCESS            0  OF            6  WORKING
+
+         
+ *******************************************************************************
+ *                                                                             *
+ *                               CRYSTAL22                                     *
+ *                      public : 1.0.1 - Jul 29th, 2021                        *
+ *                       HTTP://WWW.CRYSTAL.UNITO.IT                           *
+ *                                                                             *
+ *                              MAIN AUTHORS                                   *
+ *                                                                             *
+ *  R. DOVESI(1,11), V.R. SAUNDERS(2), C. ROETTI(1,11), R. ORLANDO(1,11),      *
+ *  C.M. ZICOVICH-WILSON(1,3), F. PASCALE(4), B. CIVALLERI(1,11),              *
+ *  K. DOLL(5), N.M. HARRISON(6), I.J. BUSH(7), Ph. D'ARCO(8),                 *
+ *  M. LLUNELL(9), M. CAUSA'(10), Y. NOEL(8), L. MASCHIO(1,11), A. ERBA(1,11)  *
+ *  M. RE'RAT(14), S. CASASSA(1,11), B.G. SEARLE(2), J.K. DESMARAIS(1)         *
+ *                                                                             *
+ *        CONTRIBUTIONS TO THE CODE HAVE ALSO BEEN GIVEN BY                    *
+ *                                                                             *
+ *  M. FERRABONE(1,11), M. DE LA PIERRE(1,11), M. FERRERO(1,11),               *
+ *  J. BAIMA(1,11), E. ALBANESE(1,11), M.F. PEINTINGER(12), R. BAST(13),       *
+ *  B. KIRTMAN(15), V. LACIVITA(1,11), R. DEMICHELIS(1,16)                     *
+ *  G. BRANDEBURG(17), S. SALUSTRO(1,11), G. SANSONE(1,11)                     *
+ *  M.T. RUGGIERO(18), L.E. DAGA(1), L. DONA'(1), A. COSSARD(1)                *
+ *                                                                             *
+ * (1) THEORETICAL CHEMISTRY GROUP - UNIVERSITA' DI TORINO - TORINO (ITALY)    *
+ * (2) SCIENTIFIC COMPUTING DEPARTMENT - STFC DARESBURY (UK)                   *
+ * (3) UNIVERSIDAD AUTONOMA DEL ESTADO DE MORELOS - CUERNAVACA (MEXICO)        *
+ * (4) UNIVERSITE' DE LORRAINE - NANCY (FRANCE)                                *
+ * (5) UNIVERSITAET STUTTGART- STUTTGART (GERMANY)                             *
+ * (6) IMPERIAL COLLEGE - LONDON (UK)                                          *
+ * (7) SCIENTIFIC COMPUTING DEPARTMENT - STFC RAL (UK)                         *
+ * (8) UPMC - SORBONNE UNIVERSITES - PARIS (FRANCE)                            *
+ * (9) UNIVERSIDAD DE BARCELONA - BARCELONA (SPAIN)                            *
+ *(10) UNIVERSITA' DI NAPOLI "FEDERICO II" - NAPOLI (ITALY)                    *
+ *(11) NIS - NANOSTRUCTURED INTERFACES AND SURFACES - TORINO (ITALY)           *
+ *(12) MPI FUER CHEMISCHE ENERGIEKONVERSION - MUELHEIM AN DER RUHR (GERMANY)   *
+ *(13) UNIVERSITY OF TROMSO - TROMSO (NORWAY)                                  *
+ *(14) UNIVERSITE' DE PAU ET DES PAYS DE L'ADOUR - PAU (FRANCE)                *
+ *(15) UNIVERSITY OF CALIFORNIA SANTA BARBARA - SANTA BARBARA (USA)            *
+ *(16) CURTIN UNIVERSITY - PERTH (AUSTRALIA)                                   *
+ *(17) UNIVERSITY COLLEGE LONDON - LONDON (UK)                                 *
+ *(18) UNIVERSITY OF VERMONT - BURLINGTON (USA)                                *
+ *                                                                             *
+ *******************************************************************************
+ EEEEEEEEEE STARTING  DATE 12 12 2024 TIME 11:40:50.8
+ INFORMATION **** SET_MPP **** PCRYSTAL CALCULATION
+
+ *******************************************************************************
+ Mg metal                                                                        
+ CRYSTAL - PROPERTIES - TYPE OF CALCULATION :  RESTRICTED CLOSED SHELL
+ *******************************************************************************
+ KOHN-SHAM HAMILTONIAN
+
+ (EXCHANGE)[CORRELATION] FUNCTIONAL:(HSE06 SR/GGA)[PERDEW-BURKE-ERNZERHOF]
+
+ RANGE-SEPARATED HYBRID FUNCTIONAL 
+ OMEGA (SHORT-RANGE)[LONG-RANGE]:(    0.1100)[    0.0000]
+
+ HYBRID EXCHANGE - PERCENTAGE OF FOCK EXCHANGE    25.0000
+
+ DIRECT LATTICE VECTOR COMPONENTS (ANGSTROM)
+         2.60996   -1.50686    0.00000
+         0.00000    3.01372    0.00000
+         0.00000    0.00000    4.91815
+
+ LATTICE PARAMETERS  (ANGSTROM AND DEGREES) - PRIMITIVE CELL
+       A          B          C         ALPHA      BETA     GAMMA        VOLUME
+    3.01372    3.01372    4.91815     90.0000   90.0000  120.0000      38.68472
+ *******************************************************************************
+ N. OF ATOMS PER CELL         2 COULOMB OVERLAP TOL          (T1) 10**   -7
+ NUMBER OF SHELLS            18 COULOMB PENETRATION TOL      (T2) 10**   -7
+ NUMBER OF AO                38 EXCHANGE OVERLAP TOL         (T3) 10**   -7
+ N. OF ELECTRONS PER CELL    24 EXCHANGE PSEUDO OVP (F(G))   (T4) 10**   -7
+ CORE ELECTRONS PER CELL     20 EXCHANGE PSEUDO OVP (P(G))   (T5) 10**  -14
+ N. OF SYMMETRY OPERATORS    24 POLE ORDER IN MONO ZONE                   4
+ *******************************************************************************
+   ATOM N.AT.  SHELL    X(A)      Y(A)      Z(A)      EXAD       N.ELECT.
+ *******************************************************************************
+    1   12 MG    9     0.870    -1.507     1.230   2.936E-01      12.000
+    2   12 MG    9    -0.870     1.507    -1.230   2.936E-01      12.000
+ *******************************************************************************
+ DE(K)                   0.000E+00  ENERGY LEVEL SHIFTING        0.00000
+ TOTAL ENERGY -4.0000746863945E+02  CONVERGENCE ON ENER        2.532E-10
+ KIN. ENERGY   3.9925332620663E+02  VIR. COEFF.           1.03168689E+00
+ N. OF SCF CYCLES                5  FERMI ENERGY              -0.114E+00
+ WEIGHT OF F(I) IN F(I+1)      30
+ SHRINK. FACT.(MONKH.)    24 24 24  SHRINKING FACTOR(GILAT NET)       48
+ NUMBER OF K POINTS IN THE IBZ 793  CELL VOLUME (A.U.)        301.862304
+ *******************************************************************************
+
+ GCALCO - MAX INDICES DIRECT LATTICE VECTOR    18    18     9
+ NO.OF VECTORS CREATED 6999 STARS  372 RMAX    75.86313 BOHR
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT gordsh1     TELAPSE        0.45 TCPU        0.20
+
+ MATRIX SIZE: P(G)   56562, F(G)    9966, P(G) IRR    2594, F(G) IRR    1141
+ MAX G-VECTOR INDEX FOR 1- AND 2-ELECTRON INTEGRALS 363
+
+
+ CAPPA:IS1 24;IS2 24;IS3 24; K PTS MONK NET 793; SYMMOPS:K SPACE  24;G SPACE  24
+
+
+ CAPPA:IS1 24;IS2 24;IS3 24; K PTS MONK NET 793; SYMMOPS:K SPACE  24;G SPACE  24
+
+ *******************************************************************************
+ RESTART WITH NEW K POINTS NET
+ *******************************************************************************
+ POINTS IN THE IBZ                 793 POINTS(GILAT NET)              5425
+ SHRINK FACTORS(MONK.)        24 24 24 SHRINK FACTOR(GILAT)             48
+ *******************************************************************************
+ *** K POINTS COORDINATES (OBLIQUE COORDINATES IN UNITS OF IS = 24)
+   1-R(  0  0  0)   2-C(  1  0  0)   3-C(  2  0  0)   4-C(  3  0  0)
+   5-C(  4  0  0)   6-C(  5  0  0)   7-C(  6  0  0)   8-C(  7  0  0)
+   9-C(  8  0  0)  10-C(  9  0  0)  11-C( 10  0  0)  12-C( 11  0  0)
+  13-R( 12  0  0)  14-C(  1  1  0)  15-C(  2  1  0)  16-C(  3  1  0)
+  17-C(  4  1  0)  18-C(  5  1  0)  19-C(  6  1  0)  20-C(  7  1  0)
+  21-C(  8  1  0)  22-C(  9  1  0)  23-C( 10  1  0)  24-C( 11  1  0)
+  25-C(  2  2  0)  26-C(  3  2  0)  27-C(  4  2  0)  28-C(  5  2  0)
+  29-C(  6  2  0)  30-C(  7  2  0)  31-C(  8  2  0)  32-C(  9  2  0)
+  33-C( 10  2  0)  34-C( 11  2  0)  35-C(  3  3  0)  36-C(  4  3  0)
+  37-C(  5  3  0)  38-C(  6  3  0)  39-C(  7  3  0)  40-C(  8  3  0)
+  41-C(  9  3  0)  42-C( 10  3  0)  43-C(  4  4  0)  44-C(  5  4  0)
+  45-C(  6  4  0)  46-C(  7  4  0)  47-C(  8  4  0)  48-C(  9  4  0)
+  49-C( 10  4  0)  50-C(  5  5  0)  51-C(  6  5  0)  52-C(  7  5  0)
+  53-C(  8  5  0)  54-C(  9  5  0)  55-C(  6  6  0)  56-C(  7  6  0)
+  57-C(  8  6  0)  58-C(  9  6  0)  59-C(  7  7  0)  60-C(  8  7  0)
+  61-C(  8  8  0)  62-C(  0  0  1)  63-C(  1  0  1)  64-C(  2  0  1)
+  65-C(  3  0  1)  66-C(  4  0  1)  67-C(  5  0  1)  68-C(  6  0  1)
+  69-C(  7  0  1)  70-C(  8  0  1)  71-C(  9  0  1)  72-C( 10  0  1)
+  73-C( 11  0  1)  74-C( 12  0  1)  75-C(  1  1  1)  76-C(  2  1  1)
+  77-C(  3  1  1)  78-C(  4  1  1)  79-C(  5  1  1)  80-C(  6  1  1)
+  81-C(  7  1  1)  82-C(  8  1  1)  83-C(  9  1  1)  84-C( 10  1  1)
+  85-C( 11  1  1)  86-C(  2  2  1)  87-C(  3  2  1)  88-C(  4  2  1)
+  89-C(  5  2  1)  90-C(  6  2  1)  91-C(  7  2  1)  92-C(  8  2  1)
+  93-C(  9  2  1)  94-C( 10  2  1)  95-C( 11  2  1)  96-C(  3  3  1)
+  97-C(  4  3  1)  98-C(  5  3  1)  99-C(  6  3  1) 100-C(  7  3  1)
+ 101-C(  8  3  1) 102-C(  9  3  1) 103-C( 10  3  1) 104-C(  4  4  1)
+ 105-C(  5  4  1) 106-C(  6  4  1) 107-C(  7  4  1) 108-C(  8  4  1)
+ 109-C(  9  4  1) 110-C( 10  4  1) 111-C(  5  5  1) 112-C(  6  5  1)
+ 113-C(  7  5  1) 114-C(  8  5  1) 115-C(  9  5  1) 116-C(  6  6  1)
+ 117-C(  7  6  1) 118-C(  8  6  1) 119-C(  9  6  1) 120-C(  7  7  1)
+ 121-C(  8  7  1) 122-C(  8  8  1) 123-C(  0  0  2) 124-C(  1  0  2)
+ 125-C(  2  0  2) 126-C(  3  0  2) 127-C(  4  0  2) 128-C(  5  0  2)
+ 129-C(  6  0  2) 130-C(  7  0  2) 131-C(  8  0  2) 132-C(  9  0  2)
+ 133-C( 10  0  2) 134-C( 11  0  2) 135-C( 12  0  2) 136-C(  1  1  2)
+ 137-C(  2  1  2) 138-C(  3  1  2) 139-C(  4  1  2) 140-C(  5  1  2)
+ 141-C(  6  1  2) 142-C(  7  1  2) 143-C(  8  1  2) 144-C(  9  1  2)
+ 145-C( 10  1  2) 146-C( 11  1  2) 147-C(  2  2  2) 148-C(  3  2  2)
+ 149-C(  4  2  2) 150-C(  5  2  2) 151-C(  6  2  2) 152-C(  7  2  2)
+ 153-C(  8  2  2) 154-C(  9  2  2) 155-C( 10  2  2) 156-C( 11  2  2)
+ 157-C(  3  3  2) 158-C(  4  3  2) 159-C(  5  3  2) 160-C(  6  3  2)
+ 161-C(  7  3  2) 162-C(  8  3  2) 163-C(  9  3  2) 164-C( 10  3  2)
+ 165-C(  4  4  2) 166-C(  5  4  2) 167-C(  6  4  2) 168-C(  7  4  2)
+ 169-C(  8  4  2) 170-C(  9  4  2) 171-C( 10  4  2) 172-C(  5  5  2)
+ 173-C(  6  5  2) 174-C(  7  5  2) 175-C(  8  5  2) 176-C(  9  5  2)
+ 177-C(  6  6  2) 178-C(  7  6  2) 179-C(  8  6  2) 180-C(  9  6  2)
+ 181-C(  7  7  2) 182-C(  8  7  2) 183-C(  8  8  2) 184-C(  0  0  3)
+ 185-C(  1  0  3) 186-C(  2  0  3) 187-C(  3  0  3) 188-C(  4  0  3)
+ 189-C(  5  0  3) 190-C(  6  0  3) 191-C(  7  0  3) 192-C(  8  0  3)
+ 193-C(  9  0  3) 194-C( 10  0  3) 195-C( 11  0  3) 196-C( 12  0  3)
+ 197-C(  1  1  3) 198-C(  2  1  3) 199-C(  3  1  3) 200-C(  4  1  3)
+ 201-C(  5  1  3) 202-C(  6  1  3) 203-C(  7  1  3) 204-C(  8  1  3)
+ 205-C(  9  1  3) 206-C( 10  1  3) 207-C( 11  1  3) 208-C(  2  2  3)
+ 209-C(  3  2  3) 210-C(  4  2  3) 211-C(  5  2  3) 212-C(  6  2  3)
+ 213-C(  7  2  3) 214-C(  8  2  3) 215-C(  9  2  3) 216-C( 10  2  3)
+ 217-C( 11  2  3) 218-C(  3  3  3) 219-C(  4  3  3) 220-C(  5  3  3)
+ 221-C(  6  3  3) 222-C(  7  3  3) 223-C(  8  3  3) 224-C(  9  3  3)
+ 225-C( 10  3  3) 226-C(  4  4  3) 227-C(  5  4  3) 228-C(  6  4  3)
+ 229-C(  7  4  3) 230-C(  8  4  3) 231-C(  9  4  3) 232-C( 10  4  3)
+ 233-C(  5  5  3) 234-C(  6  5  3) 235-C(  7  5  3) 236-C(  8  5  3)
+ 237-C(  9  5  3) 238-C(  6  6  3) 239-C(  7  6  3) 240-C(  8  6  3)
+ 241-C(  9  6  3) 242-C(  7  7  3) 243-C(  8  7  3) 244-C(  8  8  3)
+ 245-C(  0  0  4) 246-C(  1  0  4) 247-C(  2  0  4) 248-C(  3  0  4)
+ 249-C(  4  0  4) 250-C(  5  0  4) 251-C(  6  0  4) 252-C(  7  0  4)
+ 253-C(  8  0  4) 254-C(  9  0  4) 255-C( 10  0  4) 256-C( 11  0  4)
+ 257-C( 12  0  4) 258-C(  1  1  4) 259-C(  2  1  4) 260-C(  3  1  4)
+ 261-C(  4  1  4) 262-C(  5  1  4) 263-C(  6  1  4) 264-C(  7  1  4)
+ 265-C(  8  1  4) 266-C(  9  1  4) 267-C( 10  1  4) 268-C( 11  1  4)
+ 269-C(  2  2  4) 270-C(  3  2  4) 271-C(  4  2  4) 272-C(  5  2  4)
+ 273-C(  6  2  4) 274-C(  7  2  4) 275-C(  8  2  4) 276-C(  9  2  4)
+ 277-C( 10  2  4) 278-C( 11  2  4) 279-C(  3  3  4) 280-C(  4  3  4)
+ 281-C(  5  3  4) 282-C(  6  3  4) 283-C(  7  3  4) 284-C(  8  3  4)
+ 285-C(  9  3  4) 286-C( 10  3  4) 287-C(  4  4  4) 288-C(  5  4  4)
+ 289-C(  6  4  4) 290-C(  7  4  4) 291-C(  8  4  4) 292-C(  9  4  4)
+ 293-C( 10  4  4) 294-C(  5  5  4) 295-C(  6  5  4) 296-C(  7  5  4)
+ 297-C(  8  5  4) 298-C(  9  5  4) 299-C(  6  6  4) 300-C(  7  6  4)
+ 301-C(  8  6  4) 302-C(  9  6  4) 303-C(  7  7  4) 304-C(  8  7  4)
+ 305-C(  8  8  4) 306-C(  0  0  5) 307-C(  1  0  5) 308-C(  2  0  5)
+ 309-C(  3  0  5) 310-C(  4  0  5) 311-C(  5  0  5) 312-C(  6  0  5)
+ 313-C(  7  0  5) 314-C(  8  0  5) 315-C(  9  0  5) 316-C( 10  0  5)
+ 317-C( 11  0  5) 318-C( 12  0  5) 319-C(  1  1  5) 320-C(  2  1  5)
+ 321-C(  3  1  5) 322-C(  4  1  5) 323-C(  5  1  5) 324-C(  6  1  5)
+ 325-C(  7  1  5) 326-C(  8  1  5) 327-C(  9  1  5) 328-C( 10  1  5)
+ 329-C( 11  1  5) 330-C(  2  2  5) 331-C(  3  2  5) 332-C(  4  2  5)
+ 333-C(  5  2  5) 334-C(  6  2  5) 335-C(  7  2  5) 336-C(  8  2  5)
+ 337-C(  9  2  5) 338-C( 10  2  5) 339-C( 11  2  5) 340-C(  3  3  5)
+ 341-C(  4  3  5) 342-C(  5  3  5) 343-C(  6  3  5) 344-C(  7  3  5)
+ 345-C(  8  3  5) 346-C(  9  3  5) 347-C( 10  3  5) 348-C(  4  4  5)
+ 349-C(  5  4  5) 350-C(  6  4  5) 351-C(  7  4  5) 352-C(  8  4  5)
+ 353-C(  9  4  5) 354-C( 10  4  5) 355-C(  5  5  5) 356-C(  6  5  5)
+ 357-C(  7  5  5) 358-C(  8  5  5) 359-C(  9  5  5) 360-C(  6  6  5)
+ 361-C(  7  6  5) 362-C(  8  6  5) 363-C(  9  6  5) 364-C(  7  7  5)
+ 365-C(  8  7  5) 366-C(  8  8  5) 367-C(  0  0  6) 368-C(  1  0  6)
+ 369-C(  2  0  6) 370-C(  3  0  6) 371-C(  4  0  6) 372-C(  5  0  6)
+ 373-C(  6  0  6) 374-C(  7  0  6) 375-C(  8  0  6) 376-C(  9  0  6)
+ 377-C( 10  0  6) 378-C( 11  0  6) 379-C( 12  0  6) 380-C(  1  1  6)
+ 381-C(  2  1  6) 382-C(  3  1  6) 383-C(  4  1  6) 384-C(  5  1  6)
+ 385-C(  6  1  6) 386-C(  7  1  6) 387-C(  8  1  6) 388-C(  9  1  6)
+ 389-C( 10  1  6) 390-C( 11  1  6) 391-C(  2  2  6) 392-C(  3  2  6)
+ 393-C(  4  2  6) 394-C(  5  2  6) 395-C(  6  2  6) 396-C(  7  2  6)
+ 397-C(  8  2  6) 398-C(  9  2  6) 399-C( 10  2  6) 400-C( 11  2  6)
+ 401-C(  3  3  6) 402-C(  4  3  6) 403-C(  5  3  6) 404-C(  6  3  6)
+ 405-C(  7  3  6) 406-C(  8  3  6) 407-C(  9  3  6) 408-C( 10  3  6)
+ 409-C(  4  4  6) 410-C(  5  4  6) 411-C(  6  4  6) 412-C(  7  4  6)
+ 413-C(  8  4  6) 414-C(  9  4  6) 415-C( 10  4  6) 416-C(  5  5  6)
+ 417-C(  6  5  6) 418-C(  7  5  6) 419-C(  8  5  6) 420-C(  9  5  6)
+ 421-C(  6  6  6) 422-C(  7  6  6) 423-C(  8  6  6) 424-C(  9  6  6)
+ 425-C(  7  7  6) 426-C(  8  7  6) 427-C(  8  8  6) 428-C(  0  0  7)
+ 429-C(  1  0  7) 430-C(  2  0  7) 431-C(  3  0  7) 432-C(  4  0  7)
+ 433-C(  5  0  7) 434-C(  6  0  7) 435-C(  7  0  7) 436-C(  8  0  7)
+ 437-C(  9  0  7) 438-C( 10  0  7) 439-C( 11  0  7) 440-C( 12  0  7)
+ 441-C(  1  1  7) 442-C(  2  1  7) 443-C(  3  1  7) 444-C(  4  1  7)
+ 445-C(  5  1  7) 446-C(  6  1  7) 447-C(  7  1  7) 448-C(  8  1  7)
+ 449-C(  9  1  7) 450-C( 10  1  7) 451-C( 11  1  7) 452-C(  2  2  7)
+ 453-C(  3  2  7) 454-C(  4  2  7) 455-C(  5  2  7) 456-C(  6  2  7)
+ 457-C(  7  2  7) 458-C(  8  2  7) 459-C(  9  2  7) 460-C( 10  2  7)
+ 461-C( 11  2  7) 462-C(  3  3  7) 463-C(  4  3  7) 464-C(  5  3  7)
+ 465-C(  6  3  7) 466-C(  7  3  7) 467-C(  8  3  7) 468-C(  9  3  7)
+ 469-C( 10  3  7) 470-C(  4  4  7) 471-C(  5  4  7) 472-C(  6  4  7)
+ 473-C(  7  4  7) 474-C(  8  4  7) 475-C(  9  4  7) 476-C( 10  4  7)
+ 477-C(  5  5  7) 478-C(  6  5  7) 479-C(  7  5  7) 480-C(  8  5  7)
+ 481-C(  9  5  7) 482-C(  6  6  7) 483-C(  7  6  7) 484-C(  8  6  7)
+ 485-C(  9  6  7) 486-C(  7  7  7) 487-C(  8  7  7) 488-C(  8  8  7)
+ 489-C(  0  0  8) 490-C(  1  0  8) 491-C(  2  0  8) 492-C(  3  0  8)
+ 493-C(  4  0  8) 494-C(  5  0  8) 495-C(  6  0  8) 496-C(  7  0  8)
+ 497-C(  8  0  8) 498-C(  9  0  8) 499-C( 10  0  8) 500-C( 11  0  8)
+ 501-C( 12  0  8) 502-C(  1  1  8) 503-C(  2  1  8) 504-C(  3  1  8)
+ 505-C(  4  1  8) 506-C(  5  1  8) 507-C(  6  1  8) 508-C(  7  1  8)
+ 509-C(  8  1  8) 510-C(  9  1  8) 511-C( 10  1  8) 512-C( 11  1  8)
+ 513-C(  2  2  8) 514-C(  3  2  8) 515-C(  4  2  8) 516-C(  5  2  8)
+ 517-C(  6  2  8) 518-C(  7  2  8) 519-C(  8  2  8) 520-C(  9  2  8)
+ 521-C( 10  2  8) 522-C( 11  2  8) 523-C(  3  3  8) 524-C(  4  3  8)
+ 525-C(  5  3  8) 526-C(  6  3  8) 527-C(  7  3  8) 528-C(  8  3  8)
+ 529-C(  9  3  8) 530-C( 10  3  8) 531-C(  4  4  8) 532-C(  5  4  8)
+ 533-C(  6  4  8) 534-C(  7  4  8) 535-C(  8  4  8) 536-C(  9  4  8)
+ 537-C( 10  4  8) 538-C(  5  5  8) 539-C(  6  5  8) 540-C(  7  5  8)
+ 541-C(  8  5  8) 542-C(  9  5  8) 543-C(  6  6  8) 544-C(  7  6  8)
+ 545-C(  8  6  8) 546-C(  9  6  8) 547-C(  7  7  8) 548-C(  8  7  8)
+ 549-C(  8  8  8) 550-C(  0  0  9) 551-C(  1  0  9) 552-C(  2  0  9)
+ 553-C(  3  0  9) 554-C(  4  0  9) 555-C(  5  0  9) 556-C(  6  0  9)
+ 557-C(  7  0  9) 558-C(  8  0  9) 559-C(  9  0  9) 560-C( 10  0  9)
+ 561-C( 11  0  9) 562-C( 12  0  9) 563-C(  1  1  9) 564-C(  2  1  9)
+ 565-C(  3  1  9) 566-C(  4  1  9) 567-C(  5  1  9) 568-C(  6  1  9)
+ 569-C(  7  1  9) 570-C(  8  1  9) 571-C(  9  1  9) 572-C( 10  1  9)
+ 573-C( 11  1  9) 574-C(  2  2  9) 575-C(  3  2  9) 576-C(  4  2  9)
+ 577-C(  5  2  9) 578-C(  6  2  9) 579-C(  7  2  9) 580-C(  8  2  9)
+ 581-C(  9  2  9) 582-C( 10  2  9) 583-C( 11  2  9) 584-C(  3  3  9)
+ 585-C(  4  3  9) 586-C(  5  3  9) 587-C(  6  3  9) 588-C(  7  3  9)
+ 589-C(  8  3  9) 590-C(  9  3  9) 591-C( 10  3  9) 592-C(  4  4  9)
+ 593-C(  5  4  9) 594-C(  6  4  9) 595-C(  7  4  9) 596-C(  8  4  9)
+ 597-C(  9  4  9) 598-C( 10  4  9) 599-C(  5  5  9) 600-C(  6  5  9)
+ 601-C(  7  5  9) 602-C(  8  5  9) 603-C(  9  5  9) 604-C(  6  6  9)
+ 605-C(  7  6  9) 606-C(  8  6  9) 607-C(  9  6  9) 608-C(  7  7  9)
+ 609-C(  8  7  9) 610-C(  8  8  9) 611-C(  0  0 10) 612-C(  1  0 10)
+ 613-C(  2  0 10) 614-C(  3  0 10) 615-C(  4  0 10) 616-C(  5  0 10)
+ 617-C(  6  0 10) 618-C(  7  0 10) 619-C(  8  0 10) 620-C(  9  0 10)
+ 621-C( 10  0 10) 622-C( 11  0 10) 623-C( 12  0 10) 624-C(  1  1 10)
+ 625-C(  2  1 10) 626-C(  3  1 10) 627-C(  4  1 10) 628-C(  5  1 10)
+ 629-C(  6  1 10) 630-C(  7  1 10) 631-C(  8  1 10) 632-C(  9  1 10)
+ 633-C( 10  1 10) 634-C( 11  1 10) 635-C(  2  2 10) 636-C(  3  2 10)
+ 637-C(  4  2 10) 638-C(  5  2 10) 639-C(  6  2 10) 640-C(  7  2 10)
+ 641-C(  8  2 10) 642-C(  9  2 10) 643-C( 10  2 10) 644-C( 11  2 10)
+ 645-C(  3  3 10) 646-C(  4  3 10) 647-C(  5  3 10) 648-C(  6  3 10)
+ 649-C(  7  3 10) 650-C(  8  3 10) 651-C(  9  3 10) 652-C( 10  3 10)
+ 653-C(  4  4 10) 654-C(  5  4 10) 655-C(  6  4 10) 656-C(  7  4 10)
+ 657-C(  8  4 10) 658-C(  9  4 10) 659-C( 10  4 10) 660-C(  5  5 10)
+ 661-C(  6  5 10) 662-C(  7  5 10) 663-C(  8  5 10) 664-C(  9  5 10)
+ 665-C(  6  6 10) 666-C(  7  6 10) 667-C(  8  6 10) 668-C(  9  6 10)
+ 669-C(  7  7 10) 670-C(  8  7 10) 671-C(  8  8 10) 672-C(  0  0 11)
+ 673-C(  1  0 11) 674-C(  2  0 11) 675-C(  3  0 11) 676-C(  4  0 11)
+ 677-C(  5  0 11) 678-C(  6  0 11) 679-C(  7  0 11) 680-C(  8  0 11)
+ 681-C(  9  0 11) 682-C( 10  0 11) 683-C( 11  0 11) 684-C( 12  0 11)
+ 685-C(  1  1 11) 686-C(  2  1 11) 687-C(  3  1 11) 688-C(  4  1 11)
+ 689-C(  5  1 11) 690-C(  6  1 11) 691-C(  7  1 11) 692-C(  8  1 11)
+ 693-C(  9  1 11) 694-C( 10  1 11) 695-C( 11  1 11) 696-C(  2  2 11)
+ 697-C(  3  2 11) 698-C(  4  2 11) 699-C(  5  2 11) 700-C(  6  2 11)
+ 701-C(  7  2 11) 702-C(  8  2 11) 703-C(  9  2 11) 704-C( 10  2 11)
+ 705-C( 11  2 11) 706-C(  3  3 11) 707-C(  4  3 11) 708-C(  5  3 11)
+ 709-C(  6  3 11) 710-C(  7  3 11) 711-C(  8  3 11) 712-C(  9  3 11)
+ 713-C( 10  3 11) 714-C(  4  4 11) 715-C(  5  4 11) 716-C(  6  4 11)
+ 717-C(  7  4 11) 718-C(  8  4 11) 719-C(  9  4 11) 720-C( 10  4 11)
+ 721-C(  5  5 11) 722-C(  6  5 11) 723-C(  7  5 11) 724-C(  8  5 11)
+ 725-C(  9  5 11) 726-C(  6  6 11) 727-C(  7  6 11) 728-C(  8  6 11)
+ 729-C(  9  6 11) 730-C(  7  7 11) 731-C(  8  7 11) 732-C(  8  8 11)
+ 733-R(  0  0 12) 734-C(  1  0 12) 735-C(  2  0 12) 736-C(  3  0 12)
+ 737-C(  4  0 12) 738-C(  5  0 12) 739-C(  6  0 12) 740-C(  7  0 12)
+ 741-C(  8  0 12) 742-C(  9  0 12) 743-C( 10  0 12) 744-C( 11  0 12)
+ 745-R( 12  0 12) 746-C(  1  1 12) 747-C(  2  1 12) 748-C(  3  1 12)
+ 749-C(  4  1 12) 750-C(  5  1 12) 751-C(  6  1 12) 752-C(  7  1 12)
+ 753-C(  8  1 12) 754-C(  9  1 12) 755-C( 10  1 12) 756-C( 11  1 12)
+ 757-C(  2  2 12) 758-C(  3  2 12) 759-C(  4  2 12) 760-C(  5  2 12)
+ 761-C(  6  2 12) 762-C(  7  2 12) 763-C(  8  2 12) 764-C(  9  2 12)
+ 765-C( 10  2 12) 766-C( 11  2 12) 767-C(  3  3 12) 768-C(  4  3 12)
+ 769-C(  5  3 12) 770-C(  6  3 12) 771-C(  7  3 12) 772-C(  8  3 12)
+ 773-C(  9  3 12) 774-C( 10  3 12) 775-C(  4  4 12) 776-C(  5  4 12)
+ 777-C(  6  4 12) 778-C(  7  4 12) 779-C(  8  4 12) 780-C(  9  4 12)
+ 781-C( 10  4 12) 782-C(  5  5 12) 783-C(  6  5 12) 784-C(  7  5 12)
+ 785-C(  8  5 12) 786-C(  9  5 12) 787-C(  6  6 12) 788-C(  7  6 12)
+ 789-C(  8  6 12) 790-C(  9  6 12) 791-C(  7  7 12) 792-C(  8  7 12)
+ 793-C(  8  8 12)
+
+ FERMI ENERGY AND DENSITY MATRIX CALCULATION ON COMPUTED EIGENVECTORS
+ DENSITY MATRIX AT SCF CYCLE (  5+1)
+
+ POSSIBLY CONDUCTING STATE - EFERMI(AU) -1.1421196E-01 (RES. CHARGE  1.67E-10;IT.  2)
+
+ CORE DENSITY MATRIX CALCULATION
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT NEWK        TELAPSE        1.28 TCPU        1.03
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT DLV_BAND    TELAPSE        3.01 TCPU        2.72
+ ENDPROP   
+ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT END         TELAPSE        3.01 TCPU        2.72
+ EEEEEEEEEE TERMINATION  DATE 12 12 2024 TIME 11:40:53.4
+NODE    0 CPU TIME =         2.715
+NODE    1 CPU TIME =         2.712
+NODE    2 CPU TIME =         2.715
+NODE    3 CPU TIME =         2.710
+NODE    4 CPU TIME =         2.749
+NODE    5 CPU TIME =         2.749
+    TOTAL CPU TIME =        16.350
+Warning! Duplicate file detected in out directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.gui.
+  The file will be covered by the new entry /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile/fort.34.
+  fort.34              fsurf_Mg.gui                                          6246     Dec 12 11:40
+Warning! Duplicate file detected in out directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.f9.
+  The file will be covered by the new entry /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile/fort.9.
+  fort.9               fsurf_Mg.f9                                           309204   Dec 12 11:40
+Warning! Duplicate file detected in out directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.OPTINFO.
+  The file will be covered by the new entry /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile/OPTINFO.DAT.
+  OPTINFO.DAT          fsurf_Mg.OPTINFO                                      341170   Dec 12 11:40
+Warning! Duplicate file detected in out directory: /home/huanyu/GitHub/FermiSurf/fsurf_Mg.f35.
+  The file will be covered by the new entry /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile/fort.35.
+  fort.35              fsurf_Mg.f35                                          37875425 Dec 12 11:40
+--------------------------------------------
+
+Temporary Directory Disk Info
+--------------------------------------------
+  Temporary directory      : /home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile
+
+  Disk usage (df -h)
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       3.7T  924G  2.8T  25% /home
+
+  Usage by folders (du -m)
+79	/home/huanyu/GitHub/FermiSurf/fsurf_Mg_tmpfile
+
+  Detailed file list (ls -l .)
+    see /home/huanyu/GitHub/FermiSurf/fsurf_Mg.log file
+--------------------------------------------
+

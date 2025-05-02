@@ -16,9 +16,10 @@ class ScalarField():
     """
     def plot_2D(
         self, levels=100, lineplot=False, contourline=None, isovalues='%.2f',
-        colorplot=False, colormap='jet', cbar_label=None, a_range=[],
-        b_range=[], edgeplot=False, x_ticks=5, y_ticks=5, figsize=[6.4, 4.8],
-        overlay=None, fig=None, ax_index=None, **kwargs):
+        colorplot=False, colormap='jet', cbar_label=None,
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
         can also get the overlapped plot of ``ScalarField`` and ``Trajectory``
@@ -105,7 +106,7 @@ class ScalarField():
             diff_base = np.abs(overlay.base-self.base)
             if np.any(diff_base>1e-3):
                 raise Exception("The plotting base of surface and trajectory are different.")
-            a_range = []; b_range=[] # no periodicity for Traj
+            a_range = [0., 1.]; b_range=[0., 1.] # no periodicity for Traj
 
         # plot
         ## layout
@@ -131,9 +132,9 @@ class ScalarField():
 
         return fig
 
-    def substract(self, *args):
+    def subtract(self, *args):
         """
-        Substracting data of the same type from the object.
+        Subtracting data of the same type from the object.
 
         Args:
             \*args (str|ScalarField): File names or ``ScalarField`` objects.
@@ -163,11 +164,15 @@ class ScalarField():
             # mesh grid
             if self.data.shape != obj.data.shape:
                 raise ValueError('Inconsistent mesh grid between input and object.')
-            # substract
+            # subtract
             self.data = self.data - obj.data
 
-        self.substracted = True # Hidden. For plotting.
+        self.subtracted = True # Hidden. For plotting.
         return self
+
+    def substract(self, *args):
+        """An old typo"""
+        return self.subtract(*args)
 
 
 class Trajectory():
@@ -212,7 +217,7 @@ class Trajectory():
         import numpy as np
         import matplotlib.pyplot as plt
         import copy
-        from CRYSTALpytools.base.plotbase import _get_operation
+        from CRYSTALpytools.base.plotbase import GridRotation2D
 
         # overlay
         if np.all(overlay!=None) and isinstance(overlay, ScalarField):
@@ -233,7 +238,7 @@ class Trajectory():
 
         ## Get bottom surf figure first
         if np.all(overlay!=None) and isinstance(overlay, ScalarField):
-            kwargs['a_range'] = []; kwargs['b_range'] = [] # no periodicity
+            kwargs['a_range'] = [0., 1.]; kwargs['b_range'] = [0., 1.] # no periodicity
             kwargs['edgeplot'] = False; kwargs['figsize'] = figsize
             kwargs['fig'] = fig; kwargs['ax_index'] = ax_index;
             kwargs['x_ticks'] = x_ticks; kwargs['y_ticks'] = y_ticks
@@ -242,8 +247,8 @@ class Trajectory():
             fig = overlay.plot_2D(**kwargs)
             ax = fig.axes[ax_index]
 
-        ## rotate the trajectory to plotting plane
-        rot, disp = _get_operation(self.base)
+        ## rotate the trajectory to plotting plane, base defined in OAB
+        rot, disp = GridRotation2D(np.vstack([self.base[1], self.base[2], self.base[0]]))
         ## plot TRAJ
         baserot = rot.apply(self.base)
         xmx = np.linalg.norm(baserot[2, :]-baserot[1, :])
@@ -255,14 +260,14 @@ class Trajectory():
             if len(traj) == 1:
                 v = traj[0] - baserot[1]
                 if v[0]>=0 and v[0]<xmx and v[1]>=0 and v[1]<ymx and np.abs(v[2])<=1e-3:
-                    ax.scatter(v[0], v[1], marker=cpt_marker, c=cpt_color, s=cpt_size)
+                    ax.scatter(traj[0,0], traj[0,1], marker=cpt_marker, c=cpt_color, s=cpt_size)
             # plot TRAJ
             else:
                 plttraj = [] # traj in plot plane
                 for v in traj:
                     v = v - baserot[1]
                     if v[0]>=0 and v[0]<xmx and v[1]>=0 and v[1]<ymx and np.abs(v[2])<=1e-3:
-                        plttraj.append(v)
+                        plttraj.append(v+baserot[1])
 
                 if len(plttraj) == 0:
                     continue
@@ -275,8 +280,8 @@ class Trajectory():
                             linestyle=traj_linestyle, linewidth=traj_linewidth)
 
         ax.set_aspect(1.0)
-        ax.set_xlim(0, xmx)
-        ax.set_ylim(0, ymx)
+        ax.set_xlim(baserot[1, 0], baserot[1, 0]+xmx)
+        ax.set_ylim(baserot[1, 1], baserot[1, 1]+ymx)
         return fig
 
 
@@ -301,7 +306,7 @@ class ChargeDensity(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFRHOO'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -327,9 +332,9 @@ class ChargeDensity(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -398,7 +403,7 @@ class ChargeDensity(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([0.02, 0.04, 0.08, 0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80, 200],
                                   dtype=float)
             else:
@@ -424,7 +429,7 @@ class ChargeDensity(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$|e|/\AA^{-3}$'
             else: ustr = r'$|e|/Bohr^{-3}$'
-            if self.substracted == False: cbar_label=r'$\rho$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$\rho$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta\rho$ ({})'.format(ustr)
 
         # axis index
@@ -511,7 +516,7 @@ class SpinDensity(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFSPDE'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -537,9 +542,9 @@ class SpinDensity(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.4f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -630,7 +635,7 @@ class SpinDensity(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$|e|/\AA^{-3}$'
             else: ustr = r'$|e|/Bohr^{-3}$'
-            if self.substracted == False: cbar_label=r'$\rho$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$\rho$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta\rho$ ({})'.format(ustr)
 
         # axis index
@@ -717,7 +722,7 @@ class Gradient(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFGRHO'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -743,9 +748,9 @@ class Gradient(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -814,7 +819,7 @@ class Gradient(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([0.02, 0.04, 0.08, 0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80, 200],
                                   dtype=float)
             else:
@@ -840,7 +845,7 @@ class Gradient(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$|e|/\AA^{-4}$'
             else: ustr = r'$|e|/Bohr^{-4}$'
-            if self.substracted == False: cbar_label=r'$\nabla\rho$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$\nabla\rho$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta(\nabla\rho)$ ({})'.format(ustr)
 
         # axis index
@@ -927,7 +932,7 @@ class Laplacian(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFLAPP'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -963,9 +968,9 @@ class Laplacian(ScalarField):
     def plot_2D(
         self, unit='Angstrom', plot_lapm=False, levels='default', lineplot=True,
         linewidth=1.0, isovalues='%.2f', colorplot=False, colormap='jet',
-        cbar_label='default', a_range=[], b_range=[], edgeplot=False, x_ticks=5,
-        y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        cbar_label='default', a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -1039,7 +1044,7 @@ class Laplacian(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([-80, -40, -20, -8, -4, -2, -0.8, -0.4, -0.2,
                                    -0.08, -0.04, -0.02, 0, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80], dtype=float)
@@ -1068,7 +1073,7 @@ class Laplacian(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$|e|/\AA^{-5}$'
             else: ustr = r'$|e|/Bohr^{-5}$'
-            if self.substracted == False: cbar_label=r'{}$\nabla^2\rho$ ({})'.format(pm, ustr)
+            if self.subtracted == False: cbar_label=r'{}$\nabla^2\rho$ ({})'.format(pm, ustr)
             else: cbar_label=r'$\Delta({}\nabla^2\rho)$ ({})'.format(pm, ustr)
 
         # axis index
@@ -1158,7 +1163,7 @@ class HamiltonianKE(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFKKIN'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -1184,9 +1189,9 @@ class HamiltonianKE(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -1255,7 +1260,7 @@ class HamiltonianKE(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([-80, -40, -20, -8, -4, -2, -0.8, -0.4, -0.2,
                                    -0.08, -0.04, -0.02, 0, 0.02, 0.04, 0.08,
                                    0.2, 0.4, 0.8, 2, 4, 8, 20, 40, 80], dtype=float)
@@ -1282,7 +1287,7 @@ class HamiltonianKE(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$eV/\AA^{-3}$'
             else: ustr = r'$Hartree/Bohr^{-3}$'
-            if self.substracted == False: cbar_label=r'$E_k$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$E_k$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta E_k$ ({})'.format(ustr)
 
         # axis index
@@ -1372,7 +1377,7 @@ class LagrangianKE(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFGKIN'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -1398,9 +1403,9 @@ class LagrangianKE(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -1469,7 +1474,7 @@ class LagrangianKE(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([0.02, 0.04, 0.08, 0.2, 0.4, 0.8,
                                    2, 4, 8, 20, 40, 80, 200], dtype=float)
             else:
@@ -1495,7 +1500,7 @@ class LagrangianKE(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$eV/\AA^{-3}$'
             else: ustr = r'$Hartree/Bohr^{-3}$'
-            if self.substracted == False: cbar_label=r'$E_k$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$E_k$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta E_k$ ({})'.format(ustr)
 
         # axis index
@@ -1585,7 +1590,7 @@ class VirialField(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFVIRI'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -1611,9 +1616,9 @@ class VirialField(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -1682,7 +1687,7 @@ class VirialField(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.array([0.02, 0.04, 0.08, 0.2, 0.4, 0.8,
                                    2, 4, 8, 20, 40, 80, 200], dtype=float)
             else:
@@ -1708,7 +1713,7 @@ class VirialField(ScalarField):
         if cbar_label=='default':
             if unit.lower() == 'angstrom': ustr = r'$eV/\AA^{-3}$'
             else: ustr = r'$Hartree/Bohr^{-3}$'
-            if self.substracted == False: cbar_label=r'$VF$ ({})'.format(ustr)
+            if self.subtracted == False: cbar_label=r'$VF$ ({})'.format(ustr)
             else: cbar_label=r'$\Delta VF$ ({})'.format(ustr)
 
         # axis index
@@ -1797,7 +1802,7 @@ class ELF(ScalarField):
         self.structure = struc
         self.unit = unit
         self.type = 'SURFELFB'
-        self.substracted = False # Hidden. For plotting.
+        self.subtracted = False # Hidden. For plotting.
 
     @classmethod
     def from_file(cls, file, output=None):
@@ -1823,9 +1828,9 @@ class ELF(ScalarField):
     def plot_2D(
         self, unit='Angstrom', levels='default', lineplot=True, linewidth=1.0,
         isovalues='%.2f', colorplot=False, colormap='jet', cbar_label='default',
-        a_range=[], b_range=[], edgeplot=False, x_ticks=5, y_ticks=5,
-        title='default', figsize=[6.4, 4.8], overlay=None, fig=None,
-        ax_index=None, **kwargs
+        a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+        x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8], overlay=None,
+        fig=None, ax_index=None, **kwargs
     ):
         """
         Plot 2D contour lines, color maps or both for the 2D data set. The user
@@ -1885,7 +1890,7 @@ class ELF(ScalarField):
 
         # default levels
         if np.all(levels=='default'):
-            if self.substracted == False:
+            if self.subtracted == False:
                 levels = np.linspace(0, 1, 21)
             else:
                 levels = np.array([-80, -40, -20, -8, -4, -2, -0.8, -0.4, -0.2,
@@ -1908,7 +1913,7 @@ class ELF(ScalarField):
                 else: contourline.append(['k', '-', linewidth*2])
         # cbar label
         if cbar_label=='default':
-            if self.substracted == False: cbar_label=r'ELF'
+            if self.subtracted == False: cbar_label=r'ELF'
             else: cbar_label=r'$\Delta$ ELF'
 
         # axis index

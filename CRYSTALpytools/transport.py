@@ -381,8 +381,13 @@ class Tensor():
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
                                 linewidth=commands[3][p][0], **kwargs)
                     if len(idx_n) > 0:
-                        ax.plot(x[idx_n], y[p, idx_n].flatten(), color=commands[1][p][1],
-                                linestyle=commands[2][p][1], linewidth=commands[3][p][1], **kwargs)
+                        if len(idx_p) > 0:
+                            ax.plot(x[idx_n], y[p, idx_n].flatten(), color=commands[1][p][1],
+                                    linestyle=commands[2][p][1], linewidth=commands[3][p][1], **kwargs)
+                        else: # add legend
+                            ax.plot(x[idx_n], y[p, idx_n].flatten(), label=commands[0][p][1],
+                                    color=commands[1][p][1], linestyle=commands[2][p][1],
+                                    linewidth=commands[3][p][1], **kwargs)
                     # linearly interpolate the gap, noticed when x_axis = 'potential' only
                     if len(idx_p) > 0 and len(idx_n) > 0:
                         lastppt = [x[idx_p[-1]], y[p, idx_p[-1]]]
@@ -424,9 +429,13 @@ class Tensor():
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
                                 linewidth=commands[3][p][0], **kwargs)
                     if len(idx_n) > 0:
-                        ax.plot(newx[idx_n], newy[idx_n], color=commands[1][p][1],
-                                linestyle=commands[2][p][1], linewidth=commands[3][p][1],
-                                **kwargs)
+                        if len(idx_p) > 0:
+                            ax.plot(newx[idx_n], newy[idx_n], color=commands[1][p][1],
+                                    linestyle=commands[2][p][1], linewidth=commands[3][p][1], **kwargs)
+                        else: # add legend
+                            ax.plot(newx[idx_n], newy[idx_n], label=commands[0][p][1],
+                                    color=commands[1][p][1], linestyle=commands[2][p][1],
+                                    linewidth=commands[3][p][1], **kwargs)
                     ax.set_xscale('log')
             else:
                 if self.spin == 1 or spin.lower() == 'up':
@@ -454,9 +463,13 @@ class Tensor():
                                 color=commands[1][p][0], linestyle=commands[2][p][0],
                                 linewidth=commands[3][p][0], **kwargs)
                     if len(idx_n) > 0:
-                        ax.plot(x[idx_n], y[idx_n, p].flatten(), color=commands[1][p][1],
-                                linestyle=commands[2][p][1], linewidth=commands[3][p][1],
-                                **kwargs)
+                        if len(idx_p) > 0:
+                            ax.plot(x[idx_n], y[idx_n, p].flatten(), color=commands[1][p][1],
+                                    linestyle=commands[2][p][1], linewidth=commands[3][p][1], **kwargs)
+                        else: # add legend
+                            ax.plot(x[idx_n], y[idx_n, p].flatten(), label=commands[0][p][1],
+                                    color=commands[1][p][1], linestyle=commands[2][p][1],
+                                    linewidth=commands[3][p][1], **kwargs)
 
             y_range.append([np.min(y), np.max(y)])
 

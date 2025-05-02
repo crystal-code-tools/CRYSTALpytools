@@ -300,7 +300,8 @@ class FermiSurface():
     .. note::
 
         The data grid is defined and saved in reciprocal unit cell, rather than
-        1BZ.
+        1BZ. To be consistent with real-space data grids, the grid is non-periodic,
+        i.e., the element at the boundary is repeated.
 
     Args:
         geometry (array|CStructure): Matrix of reciprocal lattice, or an
@@ -315,7 +316,7 @@ class FermiSurface():
         self.rlattice (array): Reciprocal lattice.
         self.dimension (int): 2 or 3
         self.spin (int): 1 or 2
-        self.bands (array): Bands
+        self.bands (array): Bands. Dimensionality same as input.
         self.efermi (float)
         self.BZ (list): Cartesian coordinates of vertices of 1BZ. Arranged in
             planes (i.e., the element of 4\*3 array represents a plane of 4 vertices).
@@ -419,27 +420,28 @@ class FermiSurface():
         self.cbm = np.zeros([2,], dtype=float)
         self.gap_pos = np.zeros([2, 2, 3], dtype=float)
 
-        nz = self.bands.shape[1]
-        ny = self.bands.shape[2]
-        nx = self.bands.shape[3]
+        nz = self.bands.shape[1]-1 # general grid repeats the last element
+        ny = self.bands.shape[2]-1
+        nx = self.bands.shape[3]-1
         fz = np.linspace(0, 1, nz, endpoint=False)
         fy = np.linspace(0, 1, ny, endpoint=False)
         fx = np.linspace(0, 1, nx, endpoint=False)
         for ispin in range(self.spin):
             nvb = -1; ncb = -1
-            for nbd, bd in enumerate(self.bands[:, :, :, :, ispin]):
-                if np.all(bd>0):
+            for nbd, bd in enumerate(self.bands[:, :-1, :-1, :-1, ispin]):
+                bd = np.round(bd, 4) # lower the accuracy
+                if np.all(bd>=0):
                     nvb = nbd - 1; ncb = nbd; break
                 else:
                     continue
             if nvb < 0 or ncb < 0:
                 raise ValueError("Cannot find VB/CB. All the bands are below/over Fermi level.")
-            fvbm = self.bands[nvb, :, :, :, ispin].flatten()
-            fcbm = self.bands[ncb, :, :, :, ispin].flatten()
+            fvbm = self.bands[nvb, :-1, :-1, :-1, ispin].flatten()
+            fcbm = self.bands[ncb, :-1, :-1, :-1, ispin].flatten()
             ivbm = np.argmax(fvbm)
-            icbm = np.argmax(fcbm)
-            vbm = np.round(fvbm[ivbm], 6)
-            cbm = np.round(fcbm[icbm], 6)
+            icbm = np.argmin(fcbm)
+            vbm = np.round(fvbm[ivbm], 4)
+            cbm = np.round(fcbm[icbm], 4)
 
             izv = int(ivbm // (ny*nx))
             iyv = int((ivbm - izv*ny*nx) // nx)
@@ -451,8 +453,8 @@ class FermiSurface():
             ixc = int(icbm - izc*ny*nx - iyc*nx)
             kcbm = np.array([fx[ixc], fy[iyc], fz[izc]]) @ self.rlattice
 
-            if vbm > 0. or cbm < 0.: gap = 0.
-            else: gap = cbm - vbm
+            gap = np.round(cbm-vbm, 4)
+            if gap < 0: gap = 0.
             self.gap[ispin] = gap
             self.vbm[ispin] = vbm
             self.cbm[ispin] = cbm
@@ -465,10 +467,20 @@ class FermiSurface():
             self.gap_pos = self.gap_pos[0]
         return self.gap, self.vbm, self.cbm, self.gap_pos
 
-    def plot(self, band_index='vb', isovalue=0., interp='no interp',
-             interp_size=1, colormap='jet', opacity=1.0, transparent=False,
-             BZ_plot=True, BZ_scale=1.0, BZ_color=(0., 0., 0.),
-             BZ_linewidth=1.0, tick_pos=[], tick_label=[], **kwargs):
+    def plot(self,
+             band_index='vb',
+             isovalue=0.,
+             volume_3d=False,
+             interp='no interp',
+             interp_size=1,
+             BZ_plot=True,
+             BZ_scale=1.0,
+             BZ_color=(0., 0., 0.),
+             BZ_linewidth=1.0,
+             tick_pos=[],
+             tick_label=[],
+             show_the_scene=True,
+             **kwargs):
         """
         Plot :math:`E(k)` in the first brillouin zone (1BZ).
 
@@ -477,17 +489,29 @@ class FermiSurface():
             `MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_ is used to
             display :math:`E(k)`, which is not installed by default.
 
-        * For 3D systems, it is displayed as isosurfaces of :math:`E(k)`.  
+        * For 3D systems, it is displayed as isosurfaces of :math:`E(k)`, or
+            its distributions if ``volume_3d=True``.  
         * For 2D systems, the distribution is displayed, so ``isovalue`` is
             disabled.
 
-        For 3D systems, displaying multiple bands is discouraged. But the user
-        can still visualize the isosurfaces of multiple bands and the same
-        ``isovalue`` and ``colormap`` applies to all the bands.
+        For 3D systems, displaying multiple bands at multiple isovalues is
+        discouraged. But the user can still visualize the isosurfaces of
+        multiple bands and the same ``isovalue`` and ``colormap`` applies to
+        all the bands. A barchart is plotted by matplotlib to indicate band
+        energy ranges and isovalues.
+
+        If ``volume_3d=True``, only 1 band is allowed. ``isovalue`` is ignored.
+        The grid in reciprocal lattice should be, ideally, orthogonal and
+        aligned to X Y and Z axes. If not, the grid is linearly interpolated by
+        the `scipy.interpolate.griddata() <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html>`_
+        method. More details are available in the :ref:`base.plotbase.tvtkGrid() <ref-tvtkGrid>`
+        function. The interpolated grid has the same size as specified by
+        ``interp_size``.
 
         .. note ::
 
             Too large ``interp_size`` might be very memory and cpu demanding!
+            Similarly, ``volume_3d=True`` might be very demanding in some cases!
 
         Args:
             band_index (list|str|int): Indices of bands to plot. Starting from
@@ -495,6 +519,8 @@ class FermiSurface():
                 :math:`\\alpha` state of band 4. Use 'vb' and 'cb' to display
                 the highest valance or the lowest conduction band.
             isovalue (float|list): *3D system only* Isovalue of surfaces.
+            volume_3d (bool): *3D system only* Plot 3D volume data rather than
+                isosurfaces. Only 1 band is permitted.
             interp (str): Interpolate data to smoothen the plot. 'no interp' or
                 'linear', 'nearest', 'slinear', 'cubic'. please refer to
                 `scipy.interpolate.interpn <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interpn.html>`_
@@ -502,9 +528,6 @@ class FermiSurface():
             interp_size (list[int]|int): The new size of interpolated data
                 (list) or a scaling factor. *Valid only when ``interp`` is not
                 'no interp'*.
-            colormap (str): `Mayavi colormap <https://docs.enthought.com/mayavi/mayavi/mlab_changing_object_looks.html>`_.
-            opacity (float): See `Mayavi mlab <https://docs.enthought.com/mayavi/mayavi/auto/mlab_helper_functions.html>`_.
-            transparent (bool): See `Mayavi mlab <https://docs.enthought.com/mayavi/mayavi/auto/mlab_helper_functions.html>`_.
             BZ_plot (bool): Whether to plot the boundary of 1BZ.
             BZ_scale (float): *Must be between 1 and 2*. Do not truncate data grid
                 at the boundary of 1BZ, slightly expanding it by the scaling
@@ -514,15 +537,39 @@ class FermiSurface():
             BZ_linewidth (float): Linewidth of the 1BZ plot.
             tick_pos (array): *Not implemented*
             tick_label (list): *Not implemented*
-            \*\*kwargs: Other keywords passed to the ``mlab.view()`` command to
-                adjust views. By default only ``distance='auto'`` is used.
+            show_the_scene (bool):  Display the scene by ``mlab.show()`` and
+                return None. Otherwise return the scene object.
+            \*\*kwargs: Other keywords passed to MayaVi. See below.
+            colormap (str): Colormap of surfaces / isosurfaces. *Not available
+                for ``volume_3d=True``*. Default is 'jet'.
+            opacity (float):  Opacity from 0 to 1. For ``volume_3d=True``, that
+                defines the opacity of the maximum value. The opacity of the
+                minimum is half of it.
+            transparent (bool): Scalar-dependent opacity. *Not for volume_3d=True*.
+            vmax (float): Maximum value of colormap. Default is max of displayed bands.
+            vmin (float): Minimum value of colormap. Default is min of displayed bands.
+            warp_scale (float): *2D only* The length along energy (z) axis. Default is 1.
+            azimuth: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            elevation: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            distance: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+                By default set to 'auto'.
+            focalpoint: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            roll: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
         Returns:
-            None
+            fig: MayaVi scence object, if ``show_the_scene=False``.
         """
         import copy, warnings, re
         import numpy as np
-        from mayavi import mlab
-        from scipy.interpolate import interpn # , LinearNDInterpolator
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as mcolors
+        from matplotlib.patches import Rectangle
+        from CRYSTALpytools.base.plotbase import GridInterpolate
+        try:
+            from mayavi import mlab
+            from tvtk.util.ctf import PiecewiseFunction
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
+        from CRYSTALpytools.base.plotbase import tvtkGrid
 
         #---------------------------------------------------------------------#
         #                                NOTE                                 #
@@ -534,11 +581,15 @@ class FermiSurface():
         # Input processing and sanity check
         k_points = np.array([self.bands.shape[3], self.bands.shape[2], self.bands.shape[1]], dtype=int)
         iband, ispin = FermiSurface._get_band_index(self.bands, band_index)
+        spin_label = {0 : 'alpha', 1 : 'beta'}
 
         isovalue = np.array(isovalue, dtype=float, ndmin=1)
-        if self.dimension == 3 and len(iband) > 1:
-            warnings.warn('For 3D systems, the user is strongly recommended to plot only 1 band every time.',
-                          stacklevel=2)
+        if self.dimension == 3 and volume_3d == False:
+            if len(iband) > 1 and len(isovalue) > 1:
+                    warnings.warn('For 3D systems, the user is strongly recommended to plot only 1 band or 1 isovalue every time. The same isovalue is applied to all the bands.',
+                                  stacklevel=2)
+        if self.dimension == 3 and volume_3d == True:
+            if len(iband) > 1: raise Exception("Only 1 band is permitted when 'volume_3d=True'.")
 
         # Define and scale 1BZ
         k_path = self.BZ
@@ -556,103 +607,103 @@ class FermiSurface():
             verteices[ik] = k[0]
 
         # Energy scale
-        emax = np.max(self.bands[iband, :, :, :, ispin])
-        emin = np.min(self.bands[iband, :, :, :, ispin])
-        if self.dimension == 3: # Check isovalues for 3D
-            if np.any(isovalue<=emin):
-                raise ValueError("At least 1 isovalue is less or equal to the minimum ({:.4f}) of the plotting data".format(emin))
-            if np.any(isovalue>=emax):
-                raise ValueError("At least 1 isovalue is greater or equal to the maximum ({:.4f}) of the plotting data".format(emax))
-        else: # Scale Z axis for 2D, same length as the longer one of x and y
+        emax = []; emin = []
+        for ibd, isp in zip(iband, ispin):
+            emax.append(np.max(self.bands[ibd, :, :, :, isp]))
+            emin.append(np.min(self.bands[ibd, :, :, :, isp]))
+        allmax = np.max(emax); allmin = np.min(emin)
+        ## Add bar chart for 3D isosurfaces
+        if self.dimension == 3 and volume_3d == False:
+            barfig, barax = plt.subplots(1, 1, layout='tight', figsize=[6, 4.5])
+            clist = list(mcolors.TABLEAU_COLORS.keys())
+            barpos = np.array([i*2+1 for i in range(len(iband))])
+            barlab = []
+            for i in range(len(iband)):
+                rect = Rectangle((barpos[i], emin[i]), 1, emax[i]-emin[i], color=clist[i%10])
+                barax.add_patch(rect)
+                barax.text(barpos[i]+0.5, emax[i], '{:.2f}'.format(emax[i]),
+                           horizontalalignment='center', verticalalignment='bottom')
+                barax.text(barpos[i]+0.5, emin[i], '{:.2f}'.format(emin[i]),
+                           horizontalalignment='center', verticalalignment='top')
+                barlab.append('Band {:d}\nSpin $\{}$'.format(iband[i]+1, spin_label[ispin[i]]))
+            barax.hlines(isovalue, 0, barpos[-1]+2, colors='tab:gray', linestyles='dotted')
+            barax.set_xticks(barpos+0.5, labels=barlab)
+            barax.set_xlim([0, barpos[-1]+2])
+            barax.set_yticks(isovalue)
+            barax.set_ylabel(r'$E_{iso}-E_{F}$ (eV)')
+            plt.show()
+
+        # 2D, Scale Z axis for 2D, same length as the longer one of x and y
+        if self.dimension == 2:
             xrange = np.max(verteices[:, 0])-np.min(verteices[:, 0])
             yrange = np.max(verteices[:, 1])-np.min(verteices[:, 1])
-            zscale = np.max([xrange, yrange]) / (emax - emin)
-
-        # 2 indices used by 2D systems
+            zscale = np.max([xrange, yrange]) / (allmax - allmin)
+        # 2D, indices of periodic and non-periodic dirs
         prdd = np.where(k_points>1)[0]
-        isod = np.where(k_points==1)
+        isod = np.where(k_points==1)[0]
         if len(isod) == 1: isod = isod[0]
-        else: isod = -1
+        elif len(isod) == 0: isod = -1
+        else: raise Exception("A 2D/3D k mesh must defined. Now only 1 k point is defined along {:d} dimensions.".format(len(isod)))
 
         # Interpolation
-        if interp.lower() not in ['no interp', 'linear', 'nearest', 'slinear', 'cubic']:
-            raise ValueError("Unknown interpolation method : '{}'.".format(interp))
         interp = interp.lower()
-
-        interp_size = np.array(interp_size, dtype=int, ndmin=1)
-        if len(interp_size) == 1:
-            if interp_size[0] < 2: interp = 'no interp'
-            else:
-                interp_size = np.array(k_points * interp_size[0], dtype=int)
-                if self.dimension == 2: interp_size[isod] = 1
-        else:
-            if np.all(interp_size<1): interp = 'no interp'
+        if interp not in ['no interp', 'linear', 'nearest', 'slinear', 'cubic']:
+            raise ValueError("Unknown interpolation method : '{}'.".format(interp))
+        if volume_3d == True:
+            interp = 'no interp' # not using GridInterpolate.
 
         # Fig scale, 1BZ might be very small for large systems.
         # Get a self-adaptative scaling factor. Applied only on plotted scenes
         fig_scale = 2 / np.max([np.linalg.norm(self.rlattice[0]),
                                 np.linalg.norm(self.rlattice[1]),
                                 np.linalg.norm(self.rlattice[2])])
+        # Figure
+        fig = mlab.figure(bgcolor=(1, 1, 1), fgcolor=(0, 0, 0))
 
         # Band data
-        fig = mlab.figure(bgcolor=(1, 1, 1), fgcolor=(0, 0, 0))
-        for ibd, isp in zip(iband, ispin):
+        for ibd, isp, vmx, vmi in zip(iband, ispin, emax, emin):
+            # Range of isovalues
+            if volume_3d == False and self.dimension == 3:
+                isoplot = isovalue[np.where((isovalue>vmi)&(isovalue<vmx))[0]]
+                if isoplot.shape[0] == 0:
+                    warnings.warn("Band {:d}, spin {}: No isovalue lies in the energy range.".format(ibd+1, spin_label[isp]),
+                                  stacklevel=2)
+                    continue
             # Interpolate band
-            if interp != 'no inter':
+            if interp != 'no interp':
                 if self.dimension == 3:
-                    newgrid = np.meshgrid(
-                        np.linspace(0, 1, interp_size[0]),
-                        np.linspace(0, 1, interp_size[1]),
-                        np.linspace(0, 1, interp_size[2]),
-                        indexing='ij'
-                    )
-                    newgrid = np.array([i.flatten() for i in newgrid])
-                    intband = interpn(
-                        (
-                            np.linspace(0, 1, k_points[0]),
-                            np.linspace(0, 1, k_points[1]),
-                            np.linspace(0, 1, k_points[2]),
-                        ),
+                    base = np.vstack([[0, 0, 0], self.rlattice])
+                    intband, _ = GridInterpolate(
+                        base,
                         np.transpose(self.bands[ibd, :, :, :, isp], axes=[2,1,0]),
-                        newgrid.T,
-                        method=interp,
+                        interp,
+                        interp_size,
                     )
+                    intkpts = np.multiply(interp_size, k_points)
                 else:
-                    newgrid = np.meshgrid(
-                        np.linspace(0, 1, interp_size[prdd[0]]),
-                        np.linspace(0, 1, interp_size[prdd[1]]),
-                        indexing='ij'
+                    base = np.vstack([[0, 0, 0], self.rlattice[prdd]])
+                    intband, _ = GridInterpolate(
+                        base,
+                        np.transpose(self.bands[ibd, :, :, :, isp], axes=[2,1,0]).reshape([k_points[prdd[0]], k_points[prdd[1]]]),
+                        interp,
+                        interp_size
                     )
-                    newgrid = np.array([i.flatten() for i in newgrid])
-
-                    intband = np.transpose(self.bands[ibd, :, :, :, isp], axes=[2,1,0])
-                    if isod == 0: intband = intband[0]
-                    elif isod == 1: intband = intband[:, 0, :]
-                    elif isod == 2: intband = intband[:, :, 0]
-                    intband = interpn(
-                        (
-                            np.linspace(0, 1, k_points[prdd[0]]),
-                            np.linspace(0, 1, k_points[prdd[1]]),
-                        ),
-                        intband,
-                        newgrid.T,
-                        method=interp,
-                    )
-                intband = intband.reshape(interp_size) # add the dimension back
-                del newgrid
+                    intkpts = np.multiply(interp_size, k_points)
+                    intkpts[isod] = 1
+                    intband = intband.reshape(intkpts)
             else:
                 intband = np.transpose(self.bands[ibd, :, :, :, isp], axes=[2,1,0])
-                interp_size = k_points
-            # Expand to a 2x2 supercell
-            pband = np.zeros(interp_size*2)
-            pband[:interp_size[0], :interp_size[1], :interp_size[2]] = intband
-            pband[interp_size[0]:, :interp_size[1], :interp_size[2]] = intband
-            pband[:interp_size[0], interp_size[1]:, :interp_size[2]] = intband
-            pband[:interp_size[0], :interp_size[1], interp_size[2]:] = intband
-            pband[interp_size[0]:, interp_size[1]:, :interp_size[2]] = intband
-            pband[interp_size[0]:, :interp_size[1], interp_size[2]:] = intband
-            pband[:interp_size[0], interp_size[1]:, interp_size[2]:] = intband
-            pband[interp_size[0]:, interp_size[1]:, interp_size[2]:] = intband
+                intkpts = k_points
+            # Expand to a 2x2 supercell, note it's a general, non-periodic grid
+            pband = np.zeros(intkpts*2-1)
+            pband[:intkpts[0], :intkpts[1], :intkpts[2]] = intband
+            pband[intkpts[0]:, :intkpts[1], :intkpts[2]] = intband[1:, :, :]
+            pband[:intkpts[0], intkpts[1]:, :intkpts[2]] = intband[:, 1:, :]
+            pband[:intkpts[0], :intkpts[1], intkpts[2]:] = intband[:, :, 1:]
+            pband[intkpts[0]:, intkpts[1]:, :intkpts[2]] = intband[1:, 1:, :]
+            pband[intkpts[0]:, :intkpts[1], intkpts[2]:] = intband[1:, :, 1:]
+            pband[:intkpts[0], intkpts[1]:, intkpts[2]:] = intband[:, 1:, 1:]
+            pband[intkpts[0]:, intkpts[1]:, intkpts[2]:] = intband[1:, 1:, 1:]
             del intband
 
             if isod == 0: pband = pband[0]
@@ -661,15 +712,16 @@ class FermiSurface():
             kptnew = np.array(pband.shape, dtype=int)
 
             if self.dimension == 3: # 3D plot
-                fracx = np.linspace(1, -1, kptnew[0], endpoint=False)[::-1]
-                fracy = np.linspace(1, -1, kptnew[1], endpoint=False)[::-1]
-                fracz = np.linspace(1, -1, kptnew[2], endpoint=False)[::-1]
+                fracx = np.linspace(-1, 1, kptnew[0])
+                fracy = np.linspace(-1, 1, kptnew[1])
+                fracz = np.linspace(-1, 1, kptnew[2])
                 cartx = fracx.reshape([-1, 1]) @ self.rlattice[0].reshape([1, 3])
                 carty = fracy.reshape([-1, 1]) @ self.rlattice[1].reshape([1, 3])
                 cartz = fracz.reshape([-1, 1]) @ self.rlattice[2].reshape([1, 3])
-                # Currently 3D volume plot do not display nan values properly.
-                # if volume_3d == True:
-                #     interplator = LinearNDInterpolator(GRID, intband.flatten(), rescale=False)
+
+                if volume_3d == False: nullvalue = np.nan
+                else: nullvalue = allmin-1.
+
                 for i in range(kptnew[0]):
                     x = cartx[i]
                     for j in range(kptnew[1]):
@@ -682,27 +734,64 @@ class FermiSurface():
                                 np.dot(v[l], norms[l]) * dists[l] for l in range(nedge)
                             ])
                             if np.all(dist>-1e-4): continue
-                            pband[i, j, k] = np.nan
+                            pband[i, j, k] = nullvalue
                 # Plot isosurface
-                contour = mlab.contour3d(pband,
-                                         figure=fig,
-                                         contours=isovalue.tolist(),
-                                         colormap=colormap,
-                                         opacity=opacity,
-                                         transparent=transparent,
-                                         vmax=emax,
-                                         vmin=emin)
-                # Non-orthogonal grid
-                polydata = contour.actor.actors[0].mapper.input
-                pts = np.array(polydata.points)
-                pts = (pts+1) @ self.rlattice/np.array(kptnew/2) - self.rlattice[0] - self.rlattice[1] - self.rlattice[2]
-                polydata.points = pts * fig_scale
+                if volume_3d == False:
+                    grid = tvtkGrid([[0., 0., 0.],
+                                     self.rlattice[0]*2*fig_scale, # pband defined on 2x2x2 grid
+                                     self.rlattice[1]*2*fig_scale,
+                                     self.rlattice[2]*2*fig_scale],
+                                    pband,
+                                    True,
+                                    None)
+
+                    keys = ['colormap', 'opacity', 'transparent', 'vmax', 'vmin']
+                    keywords = dict(figure=fig,
+                                    contours=isoplot.tolist(),
+                                    colormap='jet',
+                                    vmax=allmax,
+                                    vmin=allmin)
+                    for k, v in zip(kwargs.keys(), kwargs.values()):
+                        if k in keys: keywords[k] = v
+
+                    contour = mlab.pipeline.iso_surface(grid, **keywords)
+                # Plot volume
+                else:
+                    grid = tvtkGrid([[0., 0., 0.],
+                                     self.rlattice[0]*2*fig_scale, # pband defined on 2x2x2 grid
+                                     self.rlattice[1]*2*fig_scale,
+                                     self.rlattice[2]*2*fig_scale],
+                                    pband,
+                                    True,
+                                    interp_size,
+                                    fill_value=nullvalue)
+
+                    keys = ['vmax', 'vmin']
+                    keywords = dict(figure=fig,
+                                    vmax=allmax,
+                                    vmin=allmin)
+                    for k, v in zip(kwargs.keys(), kwargs.values()):
+                        if k in keys: keywords[k] = v
+
+                    vol = mlab.pipeline.volume(grid, **keywords)
+                    # transparency
+                    otf = PiecewiseFunction()
+                    otf.add_point(nullvalue, 0.)
+                    if 'opacity' in kwargs.keys():
+                        opacity = kwargs['opacity']
+                    else:
+                        opacity = 1.0
+                    for i, o in zip(np.linspace(allmin, allmax, 10),
+                                    np.linspace(opacity*0.5, opacity, 10)):
+                        otf.add_point(i, o)
+                    vol._otf = otf
+                    vol._volume_property.set_scalar_opacity(otf)
             else: # 2D plot
-                fracx = np.linspace(1, -1, kptnew[0], endpoint=False)[::-1]
-                fracy = np.linspace(1, -1, kptnew[1], endpoint=False)[::-1]
+                fracx = np.linspace(-1, 1, kptnew[0])
+                fracy = np.linspace(-1, 1, kptnew[1])
                 cartx = fracx.reshape([-1, 1]) @ self.rlattice[prdd[0]].reshape([1, 3])
                 carty = fracy.reshape([-1, 1]) @ self.rlattice[prdd[1]].reshape([1, 3])
-                mask = np.zeros_like(pband, dtype=bool)
+                # mask = np.zeros_like(pband, dtype=bool)
                 for i in range(kptnew[0]):
                     x = cartx[i]
                     for j in range(kptnew[1]):
@@ -713,21 +802,27 @@ class FermiSurface():
                             np.dot(v[l], norms[l]) * dists[l] for l in range(nedge)
                         ])
                         if np.all(dist>-1e-4): continue
-                        mask[i, j] = True
-                # Plot surface
-                surf = mlab.surf(pband,
-                                 figure=fig,
-                                 mask=mask,
-                                 colormap=colormap,
-                                 opacity=opacity,
-                                 transparent=transparent,
-                                 vmax=emax,
-                                 vmin=emin,
-                                 warp_scale=1)# warp_scale not used. To suppress warnings.
-                # Non-orthogonal grid
+                        pband[i, j] = np.nan
+                        # mask[i, j] = True
+                # Plot surface, did not find a masking method for pipeline surf.
+                keys = ['colormap', 'opacity', 'transparent', 'vmax', 'vmin', 'warp_scale']
+                keywords = dict(figure=fig,
+                                # mask=mask,
+                                colormap='jet',
+                                vmax=allmax,
+                                vmin=allmin,
+                                warp_scale=1)
+                for k, v in zip(kwargs.keys(), kwargs.values()):
+                    if k in keys: keywords[k] = v
+
+                surf = mlab.surf(pband, **keywords)
+                # Non-orthogonal grid, points are shifted by -0.5 for unknown reasons
                 polydata = surf.actor.actors[0].mapper.input
                 pts = np.array(polydata.points)
-                pts[:, prdd] = (pts[:, prdd]+1) @ self.rlattice[prdd, :][:, prdd]/np.array(kptnew/2)
+                dlatt = np.zeros([2, 2])
+                for i, pdir in enumerate(prdd):
+                    dlatt[i, :] = 2 * self.rlattice[pdir, :][prdd] / (kptnew[i]-1)
+                pts[:, prdd] = (pts[:, prdd]+0.5) @ dlatt
                 pts[:, isod] = pts[:, isod] * zscale
                 polydata.points = pts * fig_scale
 
@@ -749,12 +844,20 @@ class FermiSurface():
                        orientation='vertical',
                        nb_labels=5,
                        label_fmt='%.2f')
-        mview = {'distance' : 'auto', 'figure' : fig}
+
+
+        keys = ['azimuth', 'elevation', 'distance', 'focalpoint', 'roll']
+        keywords = dict(figure=fig, distance='auto')
         for k, v in zip(kwargs.keys(), kwargs.values()):
-            mview[k] = v
-        mlab.view(**mview)
-        mlab.show()
-        return
+            if k in keys: keywords[k] = v
+        mlab.view(**keywords)
+
+        if show_the_scene == False:
+            return fig
+        else:
+            mlab.gcf().scene.parallel_projection = True
+            mlab.show()
+            return
 
     def to_bxsf(self, filename, band_index=[]):
         """
@@ -876,7 +979,7 @@ class FermiSurface():
                     attrv = getattr(self, p)
                     setattr(self, p, H_to_eV(attrv))
             # reciprocal
-            self.BZ = angstrom_to_au(self.BZ)
+            self.BZ = [angstrom_to_au(i) for i in self.BZ]
             self.rlattice = angstrom_to_au(self.rlattice)
             for p in opt_d_props:
                 if hasattr(self, p):
@@ -891,7 +994,7 @@ class FermiSurface():
                     attrv = getattr(self, p)
                     setattr(self, p, eV_to_H(attrv))
             # reciprocal
-            self.BZ = au_to_angstrom(self.BZ)
+            self.BZ = [au_to_angstrom(i) for i in self.BZ]
             self.rlattice = au_to_angstrom(self.rlattice)
             for p in opt_d_props:
                 if hasattr(self, p):
@@ -1077,8 +1180,13 @@ class ChargeDensity():
     """
     Charge (spin) density object. Unit: :math:`e.\\AA^{-3}`.
 
+    .. note::
+
+        Definition follows the convention of Gaussian CUBE and XCrySDen XSF
+        formats, which requires a non-periodic grid defined over \[0, 1\].
+
     Args:
-        data (array): Plot data. nY\*nX\*nSpin (2D) or nZ\*nY\*nX\*nSpin (2D)
+        data (array): Plot data. nY\*nX\*nSpin (2D) or nZ\*nY\*nX\*nSpin (3D)
         base (array): 3(4)\*3 Cartesian coordinates of the 3(4) points defining
             base vectors BA, BC (2D) or OA, OB, OC (3D). The sequence is (O),
             A, B, C.
@@ -1103,7 +1211,7 @@ class ChargeDensity():
     def from_file(cls, *files, output=None, method='normal'):
         """
         Generate a ``ChargeDensity`` object from a single file, or from multiple
-        files by substracting values from the first entry. Can be used for
+        files by subtracting values from the first entry. Can be used for
         multiple dimensions (2D and 3D).
 
         .. note::
@@ -1116,7 +1224,7 @@ class ChargeDensity():
 
         * 'normal': Normal. For 2D fort.25 files, 1 entry. For 3D cube files,
             2 entries for charge and spin if needed.
-        * 'substact': Substracting data from the first entry based on following
+        * 'subtract': Subtracting data from the first entry based on following
             entries. Multiple entries only.  
         * 'alpha_beta': Save spin-polarized data in :math:`\\alpha` /
             :math:`\\beta` states, rather than charge(:math:`\\alpha+\\beta`)
@@ -1142,15 +1250,15 @@ class ChargeDensity():
             cls = Properties_output(output).read_ECH3(*files, method=method)
         return cls
 
-    def substract(self, *args):
+    def subtract(self, *args):
         """
-        Substracting data of the same type from the object.
+        Subtracting data of the same type from the object.
 
         Args:
             \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
         Returns:
             self (ChargeDensity) : spin dimension, if there is, is not kept.
-                Only charge density difference is substracted.
+                Only charge density difference is subtracted.
         """
         from CRYSTALpytools.crystal_io import Properties_output
         import numpy as np
@@ -1175,7 +1283,7 @@ class ChargeDensity():
             # spin
             if self.spin != obj.spin:
                 raise ValueError('Inconsistent spin dimensionalities between input and object.')
-            # substract
+            # subtract
             self.data = self.data - obj.data
 
         # spin difference is not kept - meaningless. (if not please remove this block)
@@ -1191,6 +1299,10 @@ class ChargeDensity():
             self.data = np.reshape(self.data, nshape, order='F')
             self.spin = 1
         return self
+
+    def substract(self, *args):
+        """An old typo"""
+        return self.subtract(*args)
 
     def alpha_beta(self):
         """
@@ -1218,11 +1330,27 @@ class ChargeDensity():
         self.data = np.reshape(np.hstack([alpha, beta]), oldshape, order='F')
         return self
 
-    def plot_2D(self, unit='Angstrom', option='both', levels=150, lineplot=False,
-                linewidth=1.0, isovalues=None, colorplot=True, colormap='jet',
-                cbar_label='default', a_range=[], b_range=[], rectangle=False, edgeplot=False,
-                x_ticks=5, y_ticks=5, title='default', figsize=[6.4, 4.8],
-                fig=None, ax_index=None, **kwargs):
+    def plot_2D(self,
+                unit='Angstrom',
+                option='both',
+                levels=150,
+                lineplot=False,
+                linewidth=1.0,
+                isovalues=None,
+                colorplot=True,
+                colormap='jet',
+                cbar_label='default',
+                a_range=[0., 1.],
+                b_range=[0., 1.],
+                rectangle=False,
+                edgeplot=False,
+                x_ticks=5,
+                y_ticks=5,
+                title='default',
+                figsize=[6.4, 4.8],
+                fig=None,
+                ax_index=None,
+                **kwargs):
         """
         Plot 2D charge/spin density map. A wrapper of ``plot.plot_dens_ECHG``
         and ``plot.plot_spin_ECHG``.
@@ -1247,7 +1375,7 @@ class ChargeDensity():
 
         Args:
             unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
-                Bohr :math:`^{-3}`.
+                Bohr:math:`^{-3}`.
             option (str): Available options see above.
             levels (int|array): Set levels of contour plot. A number for
                 linear scaled plot colors or an array for user-defined levels,
@@ -1258,8 +1386,8 @@ class ChargeDensity():
                 ``lineplot=True``. Other properties are not editable. Solid
                 black lines for positive values and 0, dotted for negative.
             isovalues (str|None): Add isovalues to contour lines and set their
-                formats. Useful only if ``lineplot=True``. None for not adding
-                isovalues
+                format string, e.g., ``"%.2f``. Used only if ``lineplot=True``.
+                None for not adding isovalues
             colorplot (bool): Plot color-filled contour plots.
             colormap (str): Matplotlib colormap option. Useful only if
                 ``colorplot=True``.
@@ -1446,6 +1574,202 @@ class ChargeDensity():
         # restore old unit
         self._set_unit(uold)
         return fig
+
+    def plot_3D(self,
+                unit='Angstrom',
+                option='charge',
+                isovalue=None,
+                volume_3d=False,
+                contour_2d=False,
+                interp='no interp',
+                interp_size=1,
+                grid_display_range=[[0,1], [0,1], [0,1]],
+                show_the_scene=True,
+                **kwargs):
+        """
+        Visualize **2D or 3D** charge densities with atomic structures using
+        `MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_ (*not installed
+        by default*).
+
+        * For 2D charge/spin densities, plot 2D heatmap with/without contour lines.
+        * For 3D charge/spin densities, plot 3D isosurfaces or volumetric data.
+
+        Args:
+            unit (str): 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for Bohr:math:`^{-3}`.
+            option (str): 'charge' or 'spin'.
+            isovalue (float|array): Isovalues of 3D/2D contour plots. A number
+                or an array for user-defined values of isosurfaces, **must be
+                consistent with ``unit``**. By default half between max and min
+                values.
+            volume_3d (bool): *3D only*. Display 3D volumetric data instead of
+                isosurfaces. ``isovalue`` is disabled.
+            contour_2d (bool): *2D only* Display 2D black contour lines over
+                colored contour surfaces.
+            interp (str): Interpolate data to smoothen the plot. 'no interp' or
+                'linear', 'nearest', 'slinear', 'cubic'. please refer to
+                `scipy.interpolate.interpn <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interpn.html>`_
+                 The interpolated data is not saved.
+            interp_size (list[int]|int): The new size of interpolated data
+                (list) or a scaling factor. *Valid only when ``interp`` is not
+                'no interp'*.
+            grid_display_range (array): 3\*2 array defining the displayed
+                region of the data grid. Fractional coordinates a, b, c are
+                used but only the periodic directions are applied.
+            show_the_scene (bool): Display the scene by ``mlab.show()`` and
+                return None. Otherwise return the scene object.
+            \*\*kwargs: Optional keywords passed to MayaVi or ``CStructure.visualize()``.
+                Allowed keywords are listed below.
+            colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\*3
+                RGB turple from 0 to 1 to define colors. *Not for volume_3d=True*.
+            opacity (float): Opacity from 0 to 1. For ``volume_3d=True``, that
+                defines the opacity of the maximum value. The opacity of the
+                minimum is half of it.
+            transparent (bool): Scalar-dependent opacity. *Not for volume_3d=True*.
+            color (turple): Color of contour lines. *'contour_2d=True' only*.
+            line_width (float): Width of 2D contour lines. *'contour_2d=True' only*.
+            vmax (float): Maximum value of colormap.
+            vmin (float): Minimum value of colormap.
+            title (str): Colorbar title.
+            orientation (str): Orientation of colorbar, 'horizontal' or 'vertical'.
+            nb_labels (int): The number of labels to display on the colorbar.
+            label_fmt (str): The string formater for the labels, e.g., '%.1f'.
+            atom_color (str): Color map of atoms. 'jmol' or 'cpk'.
+            bond_color (turple): Color of bonds, in a 1\*3 RGB turple from 0 to 1.
+            atom_bond_ratio (str): 'balls', 'large', 'medium', 'small' or
+                'sticks'. The relative sizes of balls and sticks.
+            cell_display (bool): Display lattice boundaries (at \[0., 0., 0.\] only).
+            cell_color (turple): Color of lattice boundaries, in a 1\*3 RGB turple from 0 to 1.
+            cell_linewidth (float): Linewidth of plotted lattice boundaries.
+            display_range (array): 3\*2 array defining the displayed region of
+                the structure. Fractional coordinates a, b, c are used but only
+                the periodic directions are applied.
+            scale (float): See :ref:`geometry.CStructure.get_bonds() <ref-CStrucGetBonds>`.
+            special_bonds (dict): See :ref:`geometry.CStructure.get_bonds() <ref-CStrucGetBonds>`.
+            azimuth: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            elevation: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            distance: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+                By default set to 'auto'.
+            focalpoint: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+            roll: See `mlab.view() <https://docs.enthought.com/mayavi/mayavi/auto/mlab_camera.html#view>`_.
+        Returns:
+            fig: MayaVi scence object, if ``show_the_scene=False``.
+        """
+        import numpy as np
+        import warnings
+        from CRYSTALpytools.base.plotbase import plot_3Dscalar, plot_3Dplane
+        try:
+            from mayavi import mlab
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
+
+
+        # Input processing and sanity check
+        if self.dimension != 2 and self.dimension != 3:
+            raise Exception('Not a 3D/2D charge density object.')
+
+        uold = self.unit
+        if self.unit.lower() != unit.lower(): self._set_unit(unit)
+
+        if np.all(self.structure==None):
+            raise Exception("Geometry structure not available.")
+
+        option = option.lower()
+        if option == 'charge': ispin = 0
+        elif option == 'spin': ispin = 1
+        else: raise ValueError("Unknown option: '{}'.".format(option))
+
+        if np.all(isovalue==None):
+            isovalue = (np.max(self.data) - np.min(self.data)) * 0.5 + np.min(self.data)
+
+        interp = interp.lower()
+        if interp not in ['no interp', 'linear', 'nearest', 'slinear', 'cubic']:
+            raise ValueError("Unknown interpolation method : '{}'.".format(interp))
+        if volume_3d == True:
+            interp = 'no interp' # not using GridInterpolate.
+
+
+        # Expansion, check periodicity
+        grid_display_range = np.array(grid_display_range, dtype=float)
+        if self.dimension == 2 and len(grid_display_range) > 2:
+            if grid_display_range[2, 0] != 0 or grid_display_range[2, 1] != 1:
+                warnings.warn("For 2D data grid, a 2x2 display range should be defined.",
+                              stacklevel=2)
+            grid_display_range = grid_display_range[0:2]
+        if len(grid_display_range) != self.dimension:
+            raise Exception("Grid display range must have the same dimensionality as grid data.")
+
+        if 'display_range' in kwargs.keys():
+            display_range = np.array(kwargs['display_range'], dtype=float)
+        else:
+            display_range = np.array([[0,1], [0,1], [0,1]], dtype=float)
+
+        if np.any(self.structure.pbc==False):
+            idir = np.where(self.structure.pbc==False)[0]
+            display_range[idir] = [0., 1.]
+
+        idx = np.where(display_range[:,1]-display_range[:,0]<1e-4)[0]
+        if len(idx) > 0:
+            direct = ['x', 'y', 'z'][idx[0]]
+            raise Exception("Structure display range error along {} axis!\n{} min = {:.2f}, {} max = {:.2f}. No data is displayed.".format(
+                direct, direct, display_range[idx[0], 0], direct, display_range[idx[0], 1]))
+        idx = np.where(grid_display_range[:,1]-grid_display_range[:,0]<1e-4)[0]
+        if len(idx) > 0:
+            direct = ['x', 'y', 'z'][idx[0]]
+            raise Exception("Grid display range error along {} axis!\n{} min = {:.2f}, {} max = {:.2f}. No data is displayed.".format(
+                direct, direct, grid_display_range[idx[0], 0], direct, grid_display_range[idx[0], 1]))
+
+        # Plot structure
+        keys = ['atom_color', 'bond_color', 'atom_bond_ratio', 'cell_display',
+                'cell_color', 'cell_linewidth', 'scale', 'special_bonds']
+        keywords = dict(show_the_scene=False, display_range=display_range)
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+
+        fig = self.structure.visualize(**keywords)
+
+        # Plot data
+        keys = ['colormap', 'opacity', 'transparent', 'line_width', 'color',
+                'vmax', 'vmin', 'title', 'orientation', 'nb_labels', 'label_fmt']
+        if self.dimension == 3: # 3D isosurfaces
+            keywords = dict(fig=fig,
+                            base=self.base,
+                            data=self.data[:, :, :, ispin],
+                            isovalue=isovalue,
+                            volume_3d=volume_3d,
+                            interp=interp,
+                            interp_size=interp_size,
+                            display_range=grid_display_range)
+            for k, v in zip(kwargs.keys(), kwargs.values()):
+                if k in keys: keywords[k] = v
+
+            fig = plot_3Dscalar(**keywords)
+        else: # 2D contour plots
+            keywords = dict(fig=fig,
+                            base=self.base,
+                            data=self.data[:, :, ispin],
+                            levels=isovalue,
+                            contour_2d=contour_2d,
+                            interp=interp,
+                            interp_size=interp_size,
+                            display_range=grid_display_range)
+            for k, v in zip(kwargs.keys(), kwargs.values()):
+                if k in keys: keywords[k] = v
+
+            fig = plot_3Dplane(**keywords)
+
+        # Final setups
+        keys = ['azimuth', 'elevation', 'distance', 'focalpoint', 'roll']
+        keywords = dict(figure=fig, distance='auto')
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+        mlab.view(**keywords)
+
+        if show_the_scene == False:
+            return fig
+        else:
+            mlab.gcf().scene.parallel_projection = True
+            mlab.show()
+            return
 
     def to_xsf(self, filename):
         """

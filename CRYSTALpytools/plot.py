@@ -16,9 +16,10 @@ import numpy as np
 def plot_ECHG(
     *echg, unit='Angstrom', output=[], option='both', levels=150,
     lineplot=False, linewidth=1.0, isovalues=None, colorplot=True,
-    colormap='jet', cbar_label='default', a_range=[], b_range=[], rectangle=False,
-    edgeplot=False, x_ticks=5, y_ticks=5, layout=None, title=None,
-    figsize=[6.4, 4.8], sharex=True, sharey=True, fontsize=14, **kwargs):
+    colormap='jet', cbar_label='default', a_range=[0.,1.], b_range=[0.,1.],
+    rectangle=False, edgeplot=False, x_ticks=5, y_ticks=5, layout=None,
+    title=None, figsize=[6.4, 4.8], sharex=True, sharey=True, fontsize=14,
+    **kwargs):
     """
     Read and plot multiple 2D charge density files / objects. The uniform plot
     set-ups are used for comparison.
@@ -39,7 +40,7 @@ def plot_ECHG(
         Otherwise plot charge densities.  
     * 'charge': Plot charge density.  
     * 'spin': Plot spin density.  
-    * 'diff': Substracting charge data from the first entry with the following
+    * 'diff': Subtracting charge data from the first entry with the following
         entries. Return to a non spin-polarized object.  
 
     Args:
@@ -113,9 +114,9 @@ def plot_ECHG(
         else:
             raise TypeError("Inputs must be either string or electronics.ChargeDensity objects.")
 
-    # substraction
+    # subtraction
     if 'diff' in option.lower():
-        obj[0].substract(*[i for i in obj[1:]])
+        obj[0].subtract(*[i for i in obj[1:]])
         option = 'charge'
         obj = [obj[0]]
     # set uniform levels
@@ -191,8 +192,8 @@ def plot_ECHG(
 def plot_relativistics2D(
     *relat, unit='SI', type=[], output=[], direction=['x','y','z'], levels=100,
     quiverplot=True, quiverscale=1.0, colorplot=True, colormap='jet',
-    cbar_label='default', a_range=[], b_range=[], rectangle=False, edgeplot=False,
-    x_ticks=5, y_ticks=5, layout=None, title=None, figsize=[6.4, 4.8],
+    cbar_label='default', a_range=[0., 1.], b_range=[0., 1.], rectangle=False,
+    edgeplot=False, x_ticks=5, y_ticks=5, layout=None, title=None, figsize=[6.4, 4.8],
     sharex=True, sharey=True, fontsize=14, **kwargs):
     """
     Plot 2D vector field properties from relativistics (2c-SCF) calculations.
@@ -805,8 +806,9 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
                   levels='default', lineplot=True, linewidth=1.0, isovalues='%.4f',
                   colorplot=False, colormap='jet', cbar_label='default',
                   cpt_marker='o', cpt_color='k', cpt_size=10, traj_color='r',
-                  traj_linestyle=':', traj_linewidth=0.5, a_range=[], b_range=[],
-                  edgeplot=False, x_ticks=5, y_ticks=5, layout=None, title=None,
+                  traj_linestyle=':', traj_linewidth=0.5,
+                  a_range=[0., 1.], b_range=[0., 1.], edgeplot=False,
+                  x_ticks=5, y_ticks=5, layout=None, title=None,
                   figsize=[6.4, 4.8], sharex=True, sharey=True, fontsize=14):
     """
     Read and plot multiple TOPOND 2D plot files / objects. The uniform plot
@@ -826,7 +828,7 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
     Available options:
 
     * 'normal' : Literally normal.  
-    * 'diff' : Substract data from the first entry using following entries. All
+    * 'diff' : Subtract data from the first entry using following entries. All
         the entries must have the same ``type`` and must be 'SURF*' types.  
     * 'overlay': Overlapping a 'TRAJ*' object on the 2D 'SURF*' object. Inputs
         must be 1\*2 lists of a ``Surf`` object and a ``Traj`` object. File
@@ -917,7 +919,7 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         else:
             raise TypeError("Input type does not meet the requirements.")
 
-    # substraction
+    # subtraction
     if 'diff' in option.lower():
         if isinstance(obj[0], Trajectory):
             raise TypeError("The 'diff' option is not applicable to 'topond.Trajectory' objects.")
@@ -925,7 +927,7 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
             if isinstance(i, Trajectory): continue
             if obj[0].type != i.type:
                 raise TypeError("Different properties are read for input objects / files, 'diff' option not available.")
-            obj[0].substract(i)
+            obj[0].subtract(i)
         obj = [obj[0]]
 
     # set uniform levels
@@ -976,7 +978,8 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
                 traj_linewidth, x_ticks, y_ticks, 'default', figsize, None, fig,
                 ax_index)
         else: # overlay plot
-            if a_range != [] or b_range != []:
+            if a_range[0] != 0. or a_range[1] != 1. \
+            or b_range[0] != 0. or b_range[1] != 1.:
                 warnings.warn("Periodic plotting not available for trajectory objects. Using default ranges.",
                               stacklevel=2)
                 a_range_tmp = []; b_range_tmp = []

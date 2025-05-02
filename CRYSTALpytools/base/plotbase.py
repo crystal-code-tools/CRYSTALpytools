@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Base functions for plotting 2D and 3D figures
+Basic utility functions for plotting 2D and 3D figures.
+
+.. note::
+
+    3D plotting functions are based on `MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_,
+    which is not included in the default dependences of CRYSTALpytools.
+
 """
+
+#--------------------------- 2D plots based on Matplotlib --------------------#
 
 def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
                        band_label, band_color, band_linestyle, band_linewidth,
@@ -675,6 +683,506 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
     return fig
 
 
+#---------------------------- grid general manipulation ----------------------#
+
+
+def GridCoordinates(base, shape, meshgrid):
+    """
+    Get cartesian coordinates by equally spaced grid data.
+
+    Args:
+        base (array): 4(3)\*3 Cartesian coordinates of points O, A, B(, C) to
+            define a 3(2)D map. Vectors OA, OB(, OC) are used.
+        shape (array): 1\*nDimen array, nX, nY(, nZ) of data array
+        meshgrid (bool): Get nD mesh grids or 1D array of coordinates.
+    Returns:
+        coords (list): 1\*3 list of x, y(, z) coordinates, either in nA\*nB(\*nC)
+            mesh grids or in 1D arrays, depending on ``meshgrid``.
+    """
+    import numpy as np
+
+    # sanity check
+    base = np.array(base)
+    shape = np.array(shape, ndmin=1)
+    ndim = shape.shape[0]
+
+    if ndim == 2:
+        if base.shape[0] != 3 or base.shape[1] != 3:
+            raise Exception("2D data grid must be defined on a 3*3 base vector.")
+    elif ndim == 3:
+        if base.shape[0] != 4 or base.shape[1] != 3:
+            raise Exception("3D data grid must be defined on a 4*3 base vector.")
+    else:
+        raise Exception("Only for 2D/3D data grids.")
+    basev = np.vstack([base[i]-base[0] for i in range(1, ndim+1)])
+
+    if meshgrid == False:
+        coords = []
+        for i in range(ndim):
+            frac = np.linspace(0, 1, shape[i], endpoint=False).reshape([-1, 1])
+            coords.append(np.add(frac @ [basev[i]], base[0]))
+    else:
+        fcoords = []
+        for i in range(ndim):
+            fcoords.append(
+                np.linspace(0, 1, shape[i], endpoint=False).reshape([-1, 1])
+            )
+        coords = np.meshgrid(*fcoords, indexing='ij'); del fcoords
+        coords = np.vstack([i.flatten() for i in coords]).T
+        coords = np.add((coords @ basev), base[0])  # n*3 cartesian from 0
+        coords = coords.T.reshape([3]+[i for i in shape])
+    return coords
+
+
+def GridExpand(base, data, display_range):
+    """
+    Expand 2D/3D data grid.
+
+    Args:
+        base (array): 4(3)\*3 Cartesian coordinates of points O, A, B(, C) to
+            define a 3(2)D map. Vectors OA, OB(, OC) are used.
+        data (array): nX\*nY(\*nZ) array of data.
+        display_range (array): 3(2)\*2 array of fractional display range, in
+            \[amin, amax\].
+    Returns:
+        newbase (array): Expanded base vectors.
+        newdata (array): Expanded data grid.
+    """
+    import numpy as np
+
+    # sanity check
+    base = np.array(base)
+    data = np.array(data)
+    display_range = np.array(display_range)
+
+    if data.ndim == 2:
+        if base.shape[0] != 3 or base.shape[1] != 3:
+            raise Exception("2D data grid must be defined on a 3*3 base vector.")
+    elif data.ndim == 3:
+        if base.shape[0] != 4 or base.shape[1] != 3:
+            raise Exception("3D data grid must be defined on a 4*3 base vector.")
+    else:
+        raise Exception("Only for 2D/3D data grids.")
+    basev = np.vstack([base[i]-base[0] for i in range(1, data.ndim+1)])
+
+    dispbg = np.round([i[0] for i in display_range], 12)
+    disped = np.round([i[1] for i in display_range], 12)
+    dist = disped - dispbg
+
+    idx = np.where(dist<1e-12)[0]
+    if len(idx) > 0:
+        direct = ['a', 'b', 'c'][idx[0]]
+        raise Exception("Display range error along {} axis!\n{} min = {:.2f}, {} max = {:.2f}. No data is displayed.".format(
+            direct, direct, dispbg[idx[0]], direct, disped[idx[0]]))
+
+    # new data and new base
+    newdata = np.zeros(np.array(
+        np.round(dist*data.shape, 0), dtype=int
+    ))
+    newbase = [dispbg @ basev + base[0]]
+    for i in range(data.ndim):
+        newbase = np.vstack([newbase, basev[i]*dist[i] + newbase[0]])
+
+    # duplicate data
+    origin = np.round(np.multiply(dispbg, data.shape), 0)
+    origin = np.array(origin, dtype=int)
+    end = np.round(np.multiply(disped, data.shape), 0)
+    end = np.array(end, dtype=int)
+    if data.ndim == 3:
+        oldidx1 = np.arange(origin[0], end[0], 1)
+        oldidx1 = np.sign(oldidx1) * np.abs(oldidx1) % data.shape[0]
+        oldidx2 = np.arange(origin[1], end[1], 1)
+        oldidx2 = np.sign(oldidx2) * np.abs(oldidx2) % data.shape[1]
+        oldidx3 = np.arange(origin[2], end[2], 1)
+        oldidx3 = np.sign(oldidx2) * np.abs(oldidx2) % data.shape[2]
+        for i, oi in enumerate(oldidx1):
+            for j, oj in enumerate(oldidx2):
+                for k, ok in enumerate(oldidx2):
+                    newdata[i, j, k] = data[oi, oj, ok]
+    else:
+        oldidx1 = np.arange(origin[0], end[0], 1)
+        oldidx1 = np.sign(oldidx1) * np.abs(oldidx1) % data.shape[0]
+        oldidx2 = np.arange(origin[1], end[1], 1)
+        oldidx2 = np.sign(oldidx2) * np.abs(oldidx2) % data.shape[1]
+        for i, oi in enumerate(oldidx1):
+            for j, oj in enumerate(oldidx2):
+                newdata[i, j] = data[oi, oj]
+    return newbase, newdata
+
+
+def GridInterpolate(base, data, method, size):
+    """
+    Interpolate 2D/ 3D grid data by `scipy.interpolate.interpn <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interpn.html>`_.
+
+    Args:
+        base (array): 3(4)\*3 Cartesian coordinates of the 3(4) points defining
+            base vectors BA, BC (2D) or OA, OB, OC (3D). The sequence is (O),
+            A, B, C.
+        data (array): nX\*nY(\*nZ) data grid.
+        method (str): 'linear', 'nearest', 'slinear', 'cubic'.
+        size (int): The new size of interpolated data (list) or a scaling factor.
+    Returns:
+        DATA (array): nX\*nY(\*nZ) data grid.
+        CRDS (array): (nX\*nY\*nZ)\*3 or (nX\*nY)\*3 cartesian coordinates.
+            Sequence is consistent with the flattened ``DATA``.
+    """
+    import numpy as np
+    from scipy.interpolate import griddata, interpn
+
+    data = np.array(data, dtype=float)
+    base = np.array(base, dtype=float)
+    if data.ndim == 3:
+        if base.shape[0] != 4 or base.shape[1] != 3:
+            raise ValueError('4*3 array of point O, A, B, C must be defined.')
+    elif data.ndim == 2:
+        if base.shape[0] != 3 or base.shape[1] != 3:
+            raise ValueError('3*3 array of point A, B, C must be defined.')
+    else:
+        raise ValueError('Only for 3D or 2D scalar fields.')
+
+    # method
+    method = method.lower()
+    if method not in ['linear', 'nearest', 'slinear', 'cubic']:
+        raise ValueError("Unknown interpolation method: {}.".format(method))
+
+    # size
+    size = np.array(size, ndmin=1, dtype=int)
+    if len(size) == 1:
+        size = size.repeat(data.ndim)
+    if len(size) != data.ndim:
+        raise ValueError("Specified dimension of interpolation = {:d}. The system dimension = {:d}.".format(len(size), data.ndim))
+    if np.all(size<1):
+        raise ValueError("'size' must have values larger than or equal to 1.")
+
+    # Interpolate on coordinates
+    newgrid_size = [size[i]*data.shape[i] for i in range(data.ndim)]
+    if data.ndim == 3:
+        oldgrid = (np.linspace(0, 1, data.shape[0]),
+                   np.linspace(0, 1, data.shape[1]),
+                   np.linspace(0, 1, data.shape[2]))
+        newgrid = np.meshgrid(
+            np.linspace(0, 1, newgrid_size[0]),
+            np.linspace(0, 1, newgrid_size[1]),
+            np.linspace(0, 1, newgrid_size[2]),
+            indexing='ij')
+    else:
+        oldgrid = (np.linspace(0, 1, data.shape[0]),
+                   np.linspace(0, 1, data.shape[1]))
+        newgrid = np.meshgrid(
+            np.linspace(0, 1, newgrid_size[0]),
+            np.linspace(0, 1, newgrid_size[1]),
+            indexing='ij')
+
+    newgrid = np.array([i.flatten() for i in newgrid]).T
+    DATA = interpn(oldgrid, data, newgrid, method=method)
+    DATA = DATA.reshape(newgrid_size)
+    CRDS = GridCoordinates(base, newgrid_size, meshgrid=True)
+    if data.ndim == 3:
+        CRDS = np.transpose(CRDS, axes=(1,2,3,0)).reshape([-1, 3])
+    else:
+        CRDS = np.transpose(CRDS, axes=(1,2,0)).reshape([-1, 3])
+    del data
+
+    return DATA, CRDS
+
+
+def GridRectangle2D(base, data):
+    """
+    Get 2D grid data on a rectangle regular grid by manipulating the data
+    matrix and orient it to xOy plane.
+
+    Args:
+        base (array): 3\*3 Cartesian coordinates of points O, A, B to define a
+            2D map. Vectors OA, OB are used.
+        data (array): Grid data in nX\*nY.
+    Returns:
+        basenew (array)
+        data (array)
+        X (array): nX\*nY mesh grid of x coordinates
+        Y (array): nX\*nY mesh grid of y coordinates
+    """
+    import numpy as np
+    import copy
+
+    va = base[1] - base[0]
+    lena = np.linalg.norm(va)
+    vb = base[2] - base[0]
+    lenb = np.linalg.norm(vb)
+    theta = np.arccos(np.clip(np.dot(va/lena, vb/lenb), -1.0, 1.0))
+    cosab = np.cos(theta)
+    sinab = np.sin(theta)
+
+    X, Y = np.meshgrid(np.linspace(0, lena, data.shape[0], endpoint=False),
+                       np.linspace(0, lenb, data.shape[1], endpoint=False),
+                       indexing='ij')
+    X = np.round(cosab*Y + X, 12)
+    Y = np.round(sinab*Y, 12)
+
+    if abs(cosab) > 1e-4:
+        if cosab > 0: # triangle from end to bg
+            for j in range(data.shape[1]):
+                idx = np.where(X[:, j]>=lena)[0]
+                if idx.shape[0] < 1: continue
+                i = np.min(idx)
+                tmp = copy.deepcopy(data[i:, j])
+                data[-i:, j] = data[:i, j]
+                data[:-i, j] = tmp
+                tmp = copy.deepcopy(X[i:, j])
+                X[-i:, j] = X[:i, j]
+                X[:-i, j] = tmp - lena
+        else: # triangle from bg to end
+            for j in range(data.shape[1]):
+                idx = np.where(X[:, j]<0)[0]
+                if idx.shape[0] < 1: continue
+                i = np.max(idx)
+                tmp = copy.deepcopy(data[:i+1, j])
+                data[:-i-1, j] = data[i+1:, j]
+                data[-i-1:, j] = tmp
+                tmp = copy.deepcopy(X[:i+1, j])
+                X[:-i-1, j] = X[i+1:, j]
+                X[-i-1:, j] = tmp + lena
+
+        # Bug fix: new X and Y mesh grid cannot be generated by basenew.
+        # Otherwise tiny shifts might occur
+        newb = np.cross(np.cross(va, vb)/sinab/lena/lenb, va/lena) * sinab * lenb + base[0]
+        basenew = np.vstack([base[0], base[1], newb])
+    else:
+        basenew = base
+
+    rot, _ = GridRotation2D(basenew)
+    base2d = rot.apply(basenew)
+    X += base2d[0, 0]
+    Y += base2d[0, 1]
+    return basenew, data, X, Y
+
+
+def GridRotation2D(base):
+    """
+    Get the rotation object and translational movement to align surface norm
+    (to z) and OA axis (to x) of 3D reference frame to the plotting frame. The
+    translational movement is used to move O (plot origin) to z=0. The plotting
+    referance frame is defined by the base vector OA (x) and OB (y).
+
+    Returns:
+        rot (Rotation): The Scipy rotation object.
+        disp (array): Displacement along x, y, z axes
+    """
+    from scipy.spatial.transform import Rotation
+    import numpy as np
+
+    pltx = base[1] - base[0]
+    plty = base[2] - base[0]
+    pltnorm = np.cross(pltx, plty)
+    pltynorm = np.cross(pltnorm, pltx)# Y not necessarily orthogonal to xz plane
+
+    pltx = pltx / np.linalg.norm(pltx)
+    pltynorm = pltynorm / np.linalg.norm(pltynorm)
+    pltnorm = pltnorm / np.linalg.norm(pltnorm)
+
+    oldv = np.vstack([pltx, pltynorm, pltnorm]).T
+    newv = np.eye(3)
+    rot = Rotation.from_matrix(newv @ np.linalg.inv(oldv))
+    disp = -rot.apply(base[0])
+    return rot, disp
+
+
+def tvtkGrid(base, data, CenterOrigin, InterpGridSize, **kwargs):
+    """
+    .. _ref-tvtkGrid:
+
+    Define a 3D/2D tvtk Grid for `MayaVi <https://docs.enthought.com/mayavi/mayavi/data.html>`_.
+    Only for representing **3D/2D scalar field** defined in the periodic,
+    uniform mesh.
+
+    * For orthogonal data grid aligned to x, y and z axes, return to the
+        ``ImageData`` class.  
+    * For non-orthogonal data grid or not aligned data grid, return to the
+        ``StructuredGrid`` classes, or interpolated ``ImageData`` class by
+        the `scipy.interpolate.griddata() <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html>`_
+        method and linear interpolation. Might be **very time consuming**.
+
+    .. note::
+
+        For generality, the input data grid is a non-periodic one.
+
+    Args:
+        base (array): Base vectors, 3(4)\*3 array of origin and point A, B(, C)
+        data (array): Scalar field data in column-major order, i.e., nA\*nB\*nC.
+        CenterOrigin (bool): Put origin of base vectors in the center. Usually
+            for reciprocal space visualization.
+        InterpGridSize (array|int|None): Interpolate non-orthogonal data into
+            orthogonal grid. 'None' for no interpolation. Integer input for
+            interpolation sizes. For volume data representation.
+        \*\*kwargs: Passed to `scipy.interpolate.griddata <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html>`_.
+    Returns:
+        grid (ImageData|StructuredGrid): vtk grid classes.
+    """
+    import numpy as np
+    import copy
+    from scipy.interpolate import griddata
+    try:
+        from tvtk.api import tvtk
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
+
+    data = np.array(data, dtype=float)
+    base = np.array(base, dtype=float)
+    ndim = data.ndim
+    if ndim == 3:
+        if base.shape[0] != 4 or base.shape[1] != 3:
+            raise ValueError('4*3 array of point O, A, B, C must be defined.')
+    elif ndim == 2:
+        if base.shape[0] != 3 or base.shape[1] != 3:
+            raise ValueError('3*3 array of point O, A, B must be defined.')
+        data = data.reshape([data.shape[0], data.shape[1], 1])
+    else:
+        raise ValueError('For 3D/2D data grid only.')
+
+    # alignment
+    bvec = np.array([base[i]-base[0] for i in range(1, ndim+1)])
+    if ndim == 2: bvec = np.vstack([bvec, np.cross(bvec[0], bvec[1])])
+    bvnorm = np.linalg.norm(bvec, axis=1)
+    align = bvec @ np.eye(3)
+
+    # Regular interpolation size
+    if np.all(InterpGridSize==None):
+        InterpGrid = False
+    else:
+        InterpGrid = True
+        size = np.array(InterpGridSize, ndmin=1, dtype=int)
+        if len(size) == 1:
+            size = size.repeat(ndim)
+        if len(size) != ndim:
+            raise ValueError("Specified dimension of interpolation = {:d}, not commensurate with grid dimensionality.".format(len(size)))
+        if np.all(size<1):
+            raise ValueError("'InterpGridSize' must have values larger than or equal to 1.")
+
+    # ImageData
+    isOrthogonal = True
+    for i in range(ndim):
+        if abs(align[i,i]-bvnorm[i]) >= 1e-4: isOrthogonal = False; break
+    if isOrthogonal == True:
+        if CenterOrigin == False:
+            origin = (base[0,0], base[0,1], base[0,2])
+        else:
+            origin = base[0] - np.sum(bvec, axis=0)*0.5
+            origin = (origin[0], origin[0], origin[0])
+
+        if ndim == 3:
+            spacing = (bvnorm[0]/data.shape[0],
+                       bvnorm[1]/data.shape[1],
+                       bvnorm[2]/data.shape[2])
+        else:
+            spacing = (bvnorm[0]/data.shape[0],
+                       bvnorm[1]/data.shape[1], 1.)
+        grid = tvtk.ImageData(spacing=spacing, origin=origin)
+        data = np.transpose(data) # To z, y, x as required by vtk
+        grid.point_data.scalars = data.flatten()
+        grid.point_data.scalars.name = 'scalars'
+        grid.dimensions = data.shape
+
+    # StructuredGrid
+    elif InterpGrid == False:
+        if CenterOrigin == False:
+            fbg = 0.; fed = 1.
+        else:
+            fbg = -0.5; fed = 0.5
+        pts = np.meshgrid(
+            np.linspace(fbg, fed, data.shape[0]),
+            np.linspace(fbg, fed, data.shape[1]),
+            np.linspace(fbg, fed, data.shape[2]),
+            indexing='ij')
+        pts = np.array([i.flatten() for i in pts]).T @ bvec # (nx,ny,nz) * 3
+        # Use x, y, z, consistent with coordinates
+        grid = tvtk.StructuredGrid(dimensions=(data.shape[2], data.shape[1], data.shape[0]))
+        grid.points = pts + base[0]
+        grid.point_data.scalars = data.flatten()
+        grid.point_data.scalars.name = 'scalars'
+
+    # Interpolated ImageData grid.
+    else:
+        # Old grid
+        pts = np.meshgrid(
+            np.linspace(0, 1, data.shape[0]),
+            np.linspace(0, 1, data.shape[1]),
+            np.linspace(0, 1, data.shape[2]),
+            indexing='ij'
+        )
+        pts = np.array([i.flatten() for i in pts]).T @ bvec
+        # New grid
+        x = np.linspace(np.min(pts[:,0]), np.max(pts[:,0]), size[0]*data.shape[0])
+        y = np.linspace(np.min(pts[:,1]), np.max(pts[:,1]), size[1]*data.shape[1])
+        z = np.linspace(np.min(pts[:,2]), np.max(pts[:,2]), size[2]*data.shape[2])
+        if CenterOrigin == False:
+            origin = base[0] + np.array([x[0], y[0], z[0]])
+        else:
+            origin = base[0] + np.array([x[0], y[0], z[0]]) - np.sum(bvec, axis=0)*0.5
+        origin = (origin[0], origin[1], origin[2])
+        # interp on new grid
+        X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
+        DATA = griddata(pts, data.flatten(), (X, Y, Z), **kwargs)
+        del pts, data, X, Y, Z
+
+        DATA = np.transpose(DATA) # To z, y, x as required by vtk
+        grid = tvtk.ImageData(spacing=(x[1]-x[0], y[1]-y[0], z[1]-z[0]),
+                              origin=origin)
+        grid.point_data.scalars = DATA.flatten()
+        grid.point_data.scalars.name = 'scalars'
+        grid.dimensions = DATA.shape
+    # ------------------------------------------------------------------------#
+    # Note: The following block is for vtk UnstructuredGrid class. Hexadegra  #
+    # in volume plotting are represented by discrete triangles. A tetrahedron #
+    # method is needed to divide a hexadegron into 6 detrahedra, which hugely #
+    # increases the cost and memory requirement. The code below bulids        #
+    # hexadegronal mesh and rarely tested                                     #
+    # ------------------------------------------------------------------------#
+    # pts = np.meshgrid(
+    #     np.linspace(0, 1, data.shape[0]),
+    #     np.linspace(0, 1, data.shape[1]),
+    #     np.linspace(0, 1, data.shape[2]),
+    #     indexing='ij'
+    # )
+    # pts = np.array([i.flatten() for i in pts]).T @ bvec
+    # # list all the hexahedrons
+    # ncell = int((data.shape[0]-1)*(data.shape[1]-1)*(data.shape[2]-1))
+    # cells = np.zeros([ncell, 9], dtype=int)
+    # ptsnew = np.zeros([8*ncell, 3], dtype=float)
+
+    # nslice = int(data.shape[1] * data.shape[2])
+    # ncol = data.shape[2]
+    # for i in range(data.shape[0]-1):
+    #     countx = int(i * (data.shape[1]-1) * (data.shape[2]-1))
+    #     for j in range(data.shape[1]-1):
+    #         county = int(j * (data.shape[2]-1))
+    #         for k in range(data.shape[2]-1):
+    #             countz = countx + county + k
+    #             nextz = countz + 1
+    #             # vertices
+    #             countv = int(8*countz)
+    #             cells[countz] = [8, countv, countv+1, countv+2, countv+3,
+    #                              countv+4, countv+5, countv+6, countv+7]
+    #             # hexahedron vertices: O, A, A+B, B, C, A+C, A+B+C, B+C
+    #             ptsnew[countv:countv+8] = [
+    #                 pts[countz], pts[countz+nslice], pts[countz+nslice+ncol], pts[countz+ncol],
+    #                 pts[nextz],  pts[nextz+nslice],  pts[nextz+nslice+ncol],  pts[nextz+ncol]
+    #             ]
+    # del pts
+    # cells = cells.flatten()
+    # offset = np.array([i*9 for i in range(ncell)], dtype=int)
+    # cell_types = np.array([tvtk.Hexahedron().cell_type for i in range(ncell)])
+    # cell_array = tvtk.CellArray()
+    # cell_array.set_cells(ncell, cells)
+    # grid = tvtk.UnstructuredGrid(points=ptsnew)
+    # grid.set_cells(cell_types, offset, cell_array)
+    # grid.point_data.scalars = data.flatten()
+    # grid.point_data.scalars.name = 'scalars'
+    # ------------------------------------------------------------------------#
+    return grid
+
+
+#--------------------------- 2D fields based on Matplotlib -------------------#
+
+
 def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, cbar_label,
                   a_range, b_range, rectangle, edgeplot, xticks, yticks, **kwargs):
     """
@@ -683,7 +1191,7 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     Args:
         fig (Figure): Matplotlib Figure object
         ax (Axes): Matplotlib Axes object
-        data (array): 2D map data.
+        data (array): 2D map data, in nY\*nX,
         base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
             2D map. Vectors BA and BC are used.
         levels (array|None): Contour line / color isovalues. It also defines
@@ -718,8 +1226,20 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     from pymatgen.core.lattice import Lattice
     import copy
 
-    # expand and rectangle
-    X, Y, data, a_range, b_range = _manipulate_2D_grid(data, base, a_range, b_range, rectangle)
+    # General grid manipulations are written in nX*nY and O, A, B
+    basenew = np.vstack([base[1], base[2], base[0]])
+    data = data.T
+
+    basenew, data = GridExpand(basenew, data, [a_range, b_range])
+    if rectangle == True:
+        basenew, data, X, Y = GridRectangle2D(basenew, data)
+        rot,_ = GridRotation2D(basenew) # used later
+        X = X.T; Y = Y.T; data = data.T
+    else:
+        rot,_ = GridRotation2D(basenew)
+        basenew = rot.apply(basenew)
+        CRDS = GridCoordinates(basenew, data.shape, meshgrid=True)
+        X = CRDS[0].T; Y = CRDS[1].T; data = data.T
 
     # plot, put colormap at the back
     if np.all(colormap!=None):
@@ -745,11 +1265,12 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         if np.all(isovalue!=None):
             ax.clabel(L, inline=1, fmt=isovalue)
 
-    # plot plane edges
+    # plot plane edges at the origin
     if edgeplot == True:
-        ## get shift: always close to the positive side of the plot
-        xpath, ypath = _get_2D_base_frame(base, a_range, b_range)
-        ax.plot(xpath, ypath,'k-', linewidth=1.0)
+        va = rot.apply((base[2]-base[1]))
+        vb = rot.apply((base[0]-base[1]))
+        path = np.vstack([[0.,0.,0.], va, va+vb, vb, [0.,0.,0.]])
+        ax.plot(path[:,0], path[:,1],'k-', linewidth=1.0)
 
     # New ranges due to changes of a b ranges in non-orthogonal axis
     xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
@@ -803,15 +1324,36 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
     from pymatgen.core.lattice import Lattice
     import copy
 
-    # expand and rectangle
-    X, Y, data, a_range, b_range = _manipulate_2D_grid(data, base, a_range, b_range, rectangle)
+    # General grid manipulations are written in nX*nY and O, A, B
+    basenew = np.vstack([base[1], base[2], base[0]])
+    data = data.transpose([1, 0, 2])
+
+    baseold = copy.deepcopy(basenew)
+    basenew, datax = GridExpand(baseold, data[:, :, 0], [a_range, b_range])
+    _, datay = GridExpand(baseold, data[:, :, 1], [a_range, b_range])
+    _, dataz = GridExpand(baseold, data[:, :, 2], [a_range, b_range])
+    del data
+    if rectangle == True:
+        baseold = copy.deepcopy(basenew)
+        data = np.dstack([datax, datay, dataz])
+        basenew, datax, X, Y = GridRectangle2D(baseold, data[:, :, 0])
+        _, datay, _, _ = GridRectangle2D(baseold, data[:, :, 1])
+        _, dataz, _, _ = GridRectangle2D(baseold, data[:, :, 2])
+        rot, _ = GridRotation2D(baseold)
+        X = X.T; Y = Y.T;
+        data = np.dstack([datax, datay, dataz]).transpose([1, 0, 2])
+        del datax, datay, dataz
+    else:
+        rot, _ = GridRotation2D(basenew)
+        basenew = rot.apply(basenew)
+        CRDS = GridCoordinates(basenew, datax.shape, meshgrid=True)
+        X = CRDS[0].T; Y = CRDS[1].T;
+        data = np.dstack([datax, datay, dataz]).transpose([1, 0, 2])
+        del datax, datay, dataz
 
     # get projection and norm of the arrows
-    rot, _ = _get_operation(base)
-    x3d = rot.inv().apply([1, 0, 0]) # x axis in 3D reference framework
-    y3d = rot.inv().apply([0, 1, 0]) # y axis in 3D reference framework
-    dataprj = np.dstack([data@x3d, data@y3d])
-    ## get norm
+    xyz3d = rot.apply(np.eye(3)) # xyz axes in 3D reference framework to plot coord
+    dataprj = data @ xyz3d
     vnorm = np.linalg.norm(data, axis=2)
     del data
 
@@ -833,7 +1375,9 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
     # plot plane edges
     if edgeplot == True:
         ## get shift: always close to the positive side of the plot
-        xpath, ypath = _get_2D_base_frame(base, a_range, b_range)
+        va = rot.apply((base[2]-base[1]))
+        vb = rot.apply((base[0]-base[1]))
+        path = np.vstack([[0.,0.,0.], va, va+vb, vb, [0.,0.,0.]])
         ax.plot(xpath, ypath,'k-', linewidth=1.0)
     # New ranges due to changes of a b ranges in non-orthogonal axis
     xrange = [np.round(np.min(X), 2), np.round(np.max(X), 2)]
@@ -846,207 +1390,340 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
     return fig
 
 
-def _manipulate_2D_grid(data, base, a_range, b_range, rectangle):
+#--------------------------- 2D/3D fields based on MayaVi---------------------#
+
+
+def plot_3Dscalar(fig, base, data, isovalue, volume_3d, interp, interp_size,
+                  display_range, **kwargs):
     """
-    Repeat 2D grid data and get rectangle region
+    Plot 3D scalar field.
 
     Args:
-        data (array): 2D map data.
-        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
-            2D map. Vectors BA and BC are used.
-        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
-        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
-        rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
-            region and reset :math:`b`. If used together with ``b_range``, that
-            refers to the old :math:`b`.
-
+        fig: MayaVi scence object
+        base (array): 4\*3 array of base vectors defining O, A, B, C.
+        data (array): nZ\*nY\*nX array of plot data.
+        isovalue (float|array): Isovalues of 3D/2D contour plots. A number
+                or an array for user-defined values of isosurfaces, **must be
+                consistent with ``unit``**.
+        volume_3d (bool): Display 3D volumetric data instead of isosurfaces.
+        interp (str): Interpolation method. 'no interp', 'linear', 'nearest',
+            'slinear', 'cubic'.
+        interp_size (list[int]|int): The new size of interpolated data (list)
+            or a scaling factor.
+        display_range (array): 3\*2 array defining the displayed region.
+            Fractional coordinates a, b, c are used.
+        \*\*kwargs: Optional keywords passed to MayaVi, listed below.
+        colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\*3
+            RGB turple from 0 to 1 to define colors. *Not for volume_3d=True*.
+        opacity (float): Opacity from 0 to 1. For ``volume_3d=True``, that
+            defines the opacity of the maximum value. The opacity of the
+            minimum is half of it.
+        transparent (bool): Scalar-dependent opacity. *Not for volume_3d=True*.
+        vmax (float): Maximum value of colormap.
+        vmin (float): Minimum value of colormap.
+        title (str): Colorbar title.
+        orientation (str): Orientation of colorbar, 'horizontal' or 'vertical'.
+        nb_labels (int): The number of labels to display on the colorbar.
+        label_fmt (str): The string formater for the labels, e.g., '%.1f'.
     Returns:
-        X (array): nY\*nX mesh grid.
-        Y (array): nY\*nX mesh grid.
-        data (array): nY\*nX mesh grid data.
-        a_range (array): 1\*2 fractional coordinate of plot range along vector BC.
-        b_range (array): 1\*2 fractional coordinate of plot range along vector BA.
+        fig: MayaVi scence object
     """
+    import copy, warnings, re
     import numpy as np
-    import copy
+    try:
+        from mayavi import mlab
+        from tvtk.util.ctf import PiecewiseFunction
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
 
-    vx = base[2, :] - base[1, :] # x, BC
-    len_vx = np.linalg.norm(vx)
-    npt_vx = data.shape[1] # a BA*BC matrix
-    vy = base[0, :] - base[1, :] # y, AB
-    len_vy = np.linalg.norm(vy)
-    npt_vy = data.shape[0]
-    cosxy = np.dot(vx, vy) / np.linalg.norm(vx) / np.linalg.norm(vy)
-    sinxy = np.linalg.norm(np.cross(vx,vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
+    #---------------------------------------------------------------------#
+    #                                NOTE                                 #
+    #---------------------------------------------------------------------#
+    # For visualization, data has the dimension of nX*nY*nZ. A transpose  #
+    # is needed!                                                          #
+    #---------------------------------------------------------------------#
 
-    X, Y = np.meshgrid(np.linspace(0, len_vx, npt_vx),
-                       np.linspace(0, len_vy, npt_vy))
-    # orthogonality
-    X = np.round(cosxy, 3)*Y + X
-    Y = np.round(sinxy, 3)*Y
+    # Input processing and sanity check
+    if data.ndim != 3 or base.shape[0] != 4:
+        raise Exception("A nZ*nY*nX array is needed for input data and a 4*3 array is needed for base vectors.")
+    data = data.T
 
-    # periodicity
-    ## a, b ranges are in lattice base vector. Can be non-orthogonal
-    ulen_vx = len_vx / (npt_vx-1)
-    ulen_vy = len_vy / (npt_vy-1)
-    extend = False
-    if len(a_range) == 2:
-        a_range = np.array([np.min(a_range), np.max(a_range)]) * len_vx
-        nlen_vx = a_range[1] - a_range[0]
-        nnpt_vx = int(np.round(nlen_vx/ulen_vx, 0)) + 1
-        extend = True
-        if nlen_vx/len_vx - np.round(nlen_vx/len_vx,0) > 1e-3:
-            raise ValueError('Use integer supercell sizes.')
+    if 'vmin' in kwargs.keys():
+        vmin = kwargs['vmin']
     else:
-        a_range = np.array([0., 1.]) * len_vx
-        nlen_vx = len_vx
-        nnpt_vx = npt_vx
-    if len(b_range) == 2:
-        b_range = np.array([np.min(b_range), np.max(b_range)]) * len_vy
-        nlen_vy = b_range[1] - b_range[0]
-        nnpt_vy = int(np.round(nlen_vy/ulen_vy, 0)) + 1
-        extend = True
-        if nlen_vy/len_vy - np.round(nlen_vy/len_vy,0) > 1e-3:
-            raise ValueError('Use integer supercell sizes.')
+        vmin = np.min(data)
+    if 'vmax' in kwargs.keys():
+        vmax = kwargs['vmax']
     else:
-        b_range = np.array([0., 1.]) * len_vy
-        nlen_vy = len_vy
-        nnpt_vy = npt_vy
-    ## grid
-    if extend == True:
-        # update base vectors
-        X, Y = np.meshgrid(np.linspace(0, nlen_vx, nnpt_vx),
-                           np.linspace(0, nlen_vy, nnpt_vy))
-        len_vx = nlen_vx
-        len_vy = nlen_vy
-        X = np.round(cosxy, 3)*Y + X
-        Y = np.round(sinxy, 3)*Y
+        vmax = np.max(data)
 
-        # represent (x,y) in old (vx,vy) basis.
-        shapedata = list(data.shape) # also usable for nY*nX*3 vector data
-        shapedata[0] = nnpt_vy
-        shapedata[1] = nnpt_vx
-        ndata = np.zeros(shapedata, dtype=float)
-        for i in range(nnpt_vy):
-            for j in range(nnpt_vx):
-                idx = j
-                idy = i
-                while idx >= npt_vx: idx -= npt_vx
-                while idx < 0: idx += npt_vx
-                while idy >= npt_vy: idy -= npt_vy
-                while idy < 0: idy += npt_vy
-                ndata[i, j] = data[idy, idx]
-        del data
-        data = copy.deepcopy(ndata)
-        del ndata
-        # shift data grid's origin to a_range[0], b_range[0]
-        ncol = int(np.round(a_range[0]/ulen_vx, 0))
-        nrow = int(np.round(b_range[0]/ulen_vy, 0))
-        if ncol < 0:
-            tmp = copy.deepcopy(data[:, nnpt_vx+ncol:])
-            data[:, -ncol:] = data[:, 0:nnpt_vx+ncol]
-            data[:, 0:-ncol] = tmp
+    if volume_3d == False:
+        isovalue = np.round(np.array(isovalue, ndmin=1), 12)
+        if np.any(isovalue<vmin) or np.any(isovalue>vmax):
+            warings.warn("Some of the isovalues are not within the visualized range, vmin = {:.4f}, vmax = {:.4f}.".format(vmin, vmax),
+                         stacklevel=2)
+        isovalue = isovalue[np.where((isovalue>=vmin)&(isovalue<=vmax))]
+        if len(isovalue) < 1:
+            raise Exception("No isovalue exists in the visulized range.")
+        elif len(isovalue) > 1:
+            if 'vmin' not in kwargs.keys():
+                vmin = np.min(isovalue)
+            if 'vmax' not in kwargs.keys():
+                vmax = np.max(isovalue)
+
+    # Interpolation
+    if interp != 'no interp':
+        data, _ = GridInterpolate(base, data, interp, interp_size)
+
+    # Expansion
+    base, data = GridExpand(base, data, display_range)
+
+    # Visualization
+    if volume_3d == False:
+        grid = tvtkGrid(base, data, CenterOrigin=False, InterpGridSize=None)
+        keys = ['colormap', 'opacity', 'transparent', 'vmax', 'vmin']
+        keywords = dict(figure=fig,
+                        contours=isovalue.tolist(),
+                        colormap='jet',
+                        vmax=vmax,
+                        vmin=vmin)
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+
+        plot = mlab.pipeline.iso_surface(grid, **keywords)
+    else:
+        if vmin*vmax >= 0: nullvalue = vmin - (vmax-vmin)
+        else: nullvalue = 0.
+
+        grid = tvtkGrid(base, data, CenterOrigin=False,
+                        InterpGridSize=interp_size, fill_value=nullvalue)
+        keys = ['vmax', 'vmin']
+        keywords = dict(figure=fig, vmax=vmax, vmin=vmin)
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+
+        plot = mlab.pipeline.volume(grid, **keywords)
+        # transparency
+        if 'opacity' in kwargs.keys():
+            opacity = kwargs['opacity']
         else:
-            tmp = copy.deepcopy(data[:, 0:ncol])
-            data[:, 0:nnpt_vx-ncol] = data[:, ncol:]
-            data[:, nnpt_vx-ncol:] = tmp
-        if nrow < 0:
-            tmp = copy.deepcopy(data[nnpt_vy+nrow:, :])
-            data[-nrow:, :] = data[0:nnpt_vy+nrow, :]
-            data[0:-nrow, :] = tmp
-        else:
-            tmp = copy.deepcopy(data[0:nrow, :])
-            data[0:nnpt_vy-nrow, :] = data[nrow:, :]
-            data[nnpt_vy-nrow:, :] = tmp
+            opacity = 1.0
 
-    # get rectangle region
-    if rectangle == True and np.abs(cosxy) > 1e-3:
-        for i in range(nnpt_vy):
-            if cosxy < 0: # case 1, cosxy < 0
-                j = 0
-                while X[i, j] < 0:
-                    tmp = X[i, j]
-                    X[i, j:-1] = X[i, j+1:]
-                    X[i, -1] = tmp + len_vx
-                    tmpd = data[i, j]
-                    data[i, j:-1] = data[i, j+1:]
-                    data[i, -1] = tmpd
-            else: # case 2, cosxy > 0
-                j = nnpt_vx-1
-                while X[i, j] >= len_vx:
-                    tmp = X[i, j]
-                    X[i, 1:j+1] = X[i, 0:j]
-                    X[i, 0] = tmp - len_vx
-                    tmpd = data[i, j]
-                    data[i, 1:j+1] = data[i, 0:j]
-                    data[i, 0] = tmpd
-        len_vy = len_vy * sinxy
-        cosxy = 0.
-        sinxy = 1.
+        if vmin*vmax >= 0: # vmin has the lowest opacity
+            vals = np.linspace(vmin, vmax, 10)
+            opci = np.linspace(opacity*0.5, opacity, 10)
+        else: # 0 has the lowest opacity
+            vals = np.hstack([np.linspace(vmin, 0, 5, endpoint=False),
+                              np.linspace(vmax, 0, 5, endpoint=False)[::-1]])
+            opci = np.hstack([np.linspace(opacity, opacity*0.5, 5, endpoint=False),
+                              np.linspace(opacity*0.5, opacity, 5, endpoint=False)])
 
-    return X, Y, data, a_range, b_range
+        otf = PiecewiseFunction()
+        otf.add_point(nullvalue, 0.)
+        for i, o in zip(vals, opci):
+            otf.add_point(i, o)
+        plot._otf = otf
+        plot._volume_property.set_scalar_opacity(otf)
+
+    keys = ['title', 'orientation', 'nb_labels', 'label_fmt']
+    keywords = dict(object=plot)
+    for k, v in zip(kwargs.keys(), kwargs.values()):
+        if k in keys: keywords[k] = v
+    mlab.scalarbar(**keywords)
+
+    return fig
 
 
-def _get_2D_base_frame(base, a_range, b_range):
+def plot_3Dplane(fig, base, data, levels, contour_2d, interp, interp_size,
+                 display_range, **kwargs):
+
     """
-    Get the 2D parallelogram plot boundary. Useful when the plot is extended.
-    The frame is always shifted to the origin, or positive side of the plot and
-    close to the origin.
+    Plot oriented 2D scalar fields in 3D structure.
 
     Args:
-        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
-            2D map. Vectors BA and BC are used.
-        a_range (list): Range of :math:`a` axis (x, or BC) in fractional coordinate.
-        b_range (list): Range of :math:`b` axis (x, or AB) in fractional coordinate.
-
+        fig: MayaVi scence object
+        base (array): 3\*3 array of base vectors defining A, B, C.
+        data (array): nY\*nX array of plot data.
+        levels (float|array): Number of Isovalues of 2D contour plots, equally
+            spaced between ``vmin`` and ``vmax``, or an array for user-define
+            values of contour lines, **'contour_2d=True' only**.
+        contour_2d (bool): Display black contour lines over the colored surface.
+        interp (str): Interpolation method. 'no interp', 'linear', 'nearest',
+            'slinear', 'cubic'.
+        interp_size (list[int]|int): The new size of interpolated data (list)
+            or a scaling factor.
+        display_range (array): 2\*2 array defining the displayed region.
+            Fractional coordinates a, b are used.
+        \*\*kwargs: Optional keywords passed to MayaVi, listed below.
+        colormap (turple|str): Colormap of heatmaps. Or a 1\*3 RGB turple from
+            0 to 1 to define colors.
+        color (turple): Color of contour lines. *'contour_2d=True' only*.
+        line_width (float): Line width of contour plots. *'contour_2d=True' only*.
+        opacity (float): Opacity from 0 to 1. For ``volume_3d=True``, that
+            defines the opacity of the maximum value. The opacity of the
+            minimum is half of it.
+        transparent (bool): Scalar-dependent opacity. *Not for volume_3d=True*.
+        vmax (float): Maximum value of colormap.
+        vmin (float): Minimum value of colormap.
+        title (str): Colorbar title.
+        orientation (str): Orientation of colorbar, 'horizontal' or 'vertical'.
+        nb_labels (int): The number of labels to display on the colorbar.
+        label_fmt (str): The string formater for the labels, e.g., '%.1f'.
     Returns:
-        xpath (array): 1\*3 array of x coordinates of parallelogram plot boundary.
-        ypath (array): 1\*3 array of y coordinates of parallelogram plot boundary.
+        fig: MayaVi scence object
     """
+    import copy, warnings, re
     import numpy as np
+    try:
+        from mayavi import mlab
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
 
-    vx = base[2, :] - base[1, :]
-    len_vx = np.linalg.norm(vx)
-    vy = base[0, :] - base[1, :]
-    len_vy = np.linalg.norm(vy)
-    cosxy = np.dot(vx, vy) / np.linalg.norm(vx) / np.linalg.norm(vy)
-    sinxy = np.linalg.norm(np.cross(vx,vy)) / np.linalg.norm(vx) / np.linalg.norm(vy)
-    shiftx = (a_range[0]/len_vx - int(a_range[0]/len_vx)) * len_vx
-    shifty = (b_range[0]/len_vy - int(b_range[0]/len_vy)) * len_vx
-    if shiftx < 0: shiftx += len_vx
-    if shifty < 0: shifty += len_vy
-    shiftx = shiftx + shifty * cosxy
-    shifty = shifty * sinxy
-    xpath = np.array([0, len_vx, len_vx+len_vy*cosxy, len_vy*cosxy, 0]) + shiftx
-    ypath = np.array([0, 0, len_vy*sinxy, len_vy*sinxy, 0]) + shifty
-    return xpath, ypath
+    #---------------------------------------------------------------------#
+    #                                NOTE                                 #
+    #---------------------------------------------------------------------#
+    # For visualization, data has the dimension of nX*nY. A transpose is  #
+    # needed!                                                             #
+    #---------------------------------------------------------------------#
+
+    # Input processing and sanity check
+    if data.ndim != 2 or base.shape[0] != 3:
+        raise Exception("A nY*nX array is needed for input data and a 3*3 array is needed for base vectors.")
+    base = np.vstack([base[1], base[2], base[0]])
+    data = data.T
+
+    if 'vmin' in kwargs.keys():
+        vmin = kwargs['vmin']
+    else:
+        vmin = np.min(data)
+    if 'vmax' in kwargs.keys():
+        vmax = kwargs['vmax']
+    else:
+        vmax = np.max(data)
+
+    if contour_2d == True:
+        levels = np.round(np.array(levels, ndmin=1), 12)
+        if levels.shape[0] >= 1:
+            if np.any(levels<vmin) or np.any(levels>vmax):
+                warnings.warn("Some of the contours are not within the visualized range, vmin = {:.4f}, vmax = {:.4f}.".format(vmin, vmax),
+                              stacklevel=2)
+            levels = levels[np.where((levels>=vmin)&(levels<=vmax))]
+
+        if levels.shape[0] < 1:
+            raise Exception("No contour exists in the visulized range. vmin = {:.4f}, vmax = {:.4f}.".format(vmin, vmax))
+
+    # Interpolation
+    if interp != 'no interp':
+        data, _ = GridInterpolate(base, data, interp, interp_size)
+
+    # Expansion
+    base, data = GridExpand(base, data, display_range)
+
+    # Visualization
+    grid = tvtkGrid(base, data, CenterOrigin=False, InterpGridSize=None)
+    keys = ['colormap', 'opacity', 'transparent', 'vmax', 'vmin']
+    keywords = dict(figure=fig,
+                    colormap='jet',
+                    vmax=vmax,
+                    vmin=vmin)
+
+    for k, v in zip(kwargs.keys(), kwargs.values()):
+        if k in keys: keywords[k] = v
+
+    surf = mlab.pipeline.surface(grid, **keywords)
+
+    if contour_2d == True:
+        keys = ['color', 'line_width', 'opacity', 'transparent', 'vmax', 'vmin']
+        keywords = dict(figure=fig,
+                        color=(0,0,0),
+                        contours=levels.tolist(),
+                        vmax=vmax,
+                        vmin=vmin)
+        for k, v in zip(kwargs.keys(), kwargs.values()):
+            if k in keys: keywords[k] = v
+
+        lines = mlab.pipeline.contour_surface(grid, **keywords)
+
+    keys = ['title', 'orientation', 'nb_labels', 'label_fmt']
+    keywords = dict(object=surf)
+    for k, v in zip(kwargs.keys(), kwargs.values()):
+        if k in keys: keywords[k] = v
+    mlab.scalarbar(**keywords)
+
+    return fig
 
 
-def _get_operation(base):
-    """
-    Get the rotation object and translational movement to align surface norm
-    (to z) and BC axis (to x) of 3D reference frame to the plotting frame. The
-    translational movement is used to move B (plot origin) to z=0. The plotting
-    referance frame is defined by the base vector BC (x) and BA (y).
+#-----------------------------------------------------------------------------#
+# Note: The following function passed tests of Mayavi examples, but not the   #
+# more complicated practical examples. Also, the volume rendering is not      #
+# available for x3d.                                                          #
+#-----------------------------------------------------------------------------#
+# def MayaViRenderHTML(x3d, html):
+#     """
+#     Convert X3D (XML based) scene saved by MayaVi into HTML based X3DOM file
+#     for embeddings and savings.
 
-    Returns:
-        rot (Rotation): The Scipy rotation object.
-        disp (array): Displacement along x, y, z axes
-    """
-    from scipy.spatial.transform import Rotation
-    import numpy as np
+#     Args:
+#         x3d (str): X3D filename.
+#         html (str): HTML filename.
+#     Returns:
+#         None
+#     """
+#     import re
 
-    pltx = base[2, :] - base[1, :]
-    plty = base[0, :] - base[1, :]
-    pltnorm = np.cross(pltx, plty)
-    pltynorm = np.cross(pltnorm, pltx)# Y not necessarily orthogonal to xz plane
+#     file = open(x3d, 'r')
+#     data = file.readlines()
+#     file.close()
 
-    pltx = pltx / np.linalg.norm(pltx)
-    pltynorm = pltynorm / np.linalg.norm(pltynorm)
-    pltnorm = pltnorm / np.linalg.norm(pltnorm)
+#     # Find the scene and match the keywords
+#     scenebg = 0; sceneed = 0
+#     keysave = ''
+#     for i in range(len(data)):
+#         if re.match(r'^\s*<Scene>\s*$', data[i], re.IGNORECASE):
+#             scenebg = i
+#         elif re.match(r'^\s*<\/Scene>\s*$', data[i], re.IGNORECASE):
+#             sceneed = i+1
+#         elif re.match(r'^\s*<[A-Z,a-z]+.*\/>\s*$', data[i], re.IGNORECASE):
+#             indent = ''
+#             for j in range(len(data[i])):
+#                 if data[i][j] != ' ': break
+#                 indent += data[i][j]
+#             line = data[i].strip()
+#             keyword = line.split()[0][1:]
+#             data[i] = indent + line[:-2] + '></{}>\n'.format(keyword)
+#         elif re.match(r'^\s*<[A-Z,a-z]+((?!>).)*$', data[i], re.IGNORECASE): # Not closed bracket
+#             keysave = data[i].strip().split()[0][1:]
+#         elif re.match(r'^((?!<).)*\/>\s*$', data[i], re.IGNORECASE):
+#             indent = ''
+#             for j in range(len(data[i])):
+#                 if data[i][j] != ' ': break
+#                 indent += data[i][j]
+#             line = data[i].strip()
+#             data[i] = indent + line[:-2] + '></{}>\n'.format(keysave)
 
-    oldv = np.vstack([pltx, pltynorm, pltnorm]).transpose()
-    newv = np.eye(3)
-    rot = Rotation.from_matrix(newv @ np.linalg.inv(oldv))
-    disp = -rot.apply(base[1, :])
-    return rot, disp
+#     # write into HTML
+#     htmldata = """\
+# <html>
+#   <head>
+#     <title>
+#       CRYSTALpytools 3D visualization
+#     </title>
+#     <link rel="stylesheet" type="text/css" href="https://www.x3dom.org/release/x3dom.css">
+#     </link>
+#     <script type="text/javascript" src="https://www.x3dom.org/release/x3dom.js">
+#     </script>
+#   </head>
+# <body>
+# <X3D>
+# <!--Inserting Generated X3D Scene-->
+# {}
+# <!--End of Inserted Scene-->
+# </X3D>
+# </body>
+# </html>
+# """.format(''.join([i for i in data[scenebg:sceneed]]))
+#     file = open(html, 'w')
+#     file.write("%s" % htmldata)
+#     file.close()
+#     return
+

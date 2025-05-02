@@ -6,6 +6,10 @@
 # *.SCFLOG
 # *.xyz
 # *.prop3d
+# Massive, non-original CRYSTAL files are not synced
+*.xsf
+*.bxsf
+*.obj
 
 #OsX stuff
 *.DS_Store

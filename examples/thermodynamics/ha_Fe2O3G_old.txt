@@ -1,0 +1,22 @@
+# DFT TOTAL ENERGY =     -5.506177744e+03 Hartree     =  -1.445646768172e+07 kJ/mol
+# CELL VOLUME      =             103.0488 Angstrom^3  =              62.0575 cm^3/mol
+# LATTICE PARAMETERS (ANGSTROM, DEGREE)
+           A           B           C       ALPHA        BETA       GAMMA
+      5.4710      5.4710      5.4710     55.2638     55.2638     55.2638
+
+# HARMONIC THERMODYNAMICS               
+
+## ZERO POINT ENERGY =   6.422324498674e+01 kJ/mol
+
+## TEMPERATURE DEPENDENT PROPERTIES
+
+    T(K)       U_vib(kJ/mol)    Entropy(J/mol*K)        C_V(J/mol*K)   Helmholtz(kJ/mol)
+  298.15  8.788999337529e+01  1.244874632691e+02  1.652736490576e+02 -1.445641690766e+07
+
+## GIBBS FREE ENERGY AT    0.00 GPa
+
+    T(K)       Gibbs(kJ/mol)
+  298.15 -1.445641690766e+07
+
+
+
