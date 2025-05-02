@@ -17,4 +17,5 @@ dependencies:
   - recommonmark
   - sphinx-markdown-tables
   - sphinx-gallery
+  - numpy
 
