@@ -37,6 +37,7 @@ I/O methods developed for CRYSTAL's friends (Not a comprehensive list! :)).
 .. toctree::
    :maxdepth: 1
 
+   crystalpytools.io.phonopy
    crystalpytools.io.xcrysden
 
 Developers
@@ -49,6 +50,7 @@ CRYSTALpytools instructions for developers.
 
    crystalpytools.base.basisset
    crystalpytools.base.crysd12
+   crystalpytools.base.dump
    crystalpytools.base.extfmt
    crystalpytools.base.inputbase
    crystalpytools.base.output
