@@ -19,7 +19,6 @@ dependencies:
   - sphinx-gallery
   - CRYSTALpytools
   - phonopy
-  - pyqt=4
   - vtk
   - mayavi
 
