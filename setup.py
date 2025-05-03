@@ -32,5 +32,10 @@ setuptools.setup(
     "pymatgen>=2022.7.25",
     "ase>=3.22.1",
     "basis_set_exchange>=0.9.1"
-    ]
+    ],
+    extras_require={
+        "phonopy"         : ["phonopy"],
+        "3D visualization": ["vtk", "mayavi"],
+        "all"             : ["phonopy", "vtk", "mayavi"]
+    }
 )

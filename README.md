@@ -36,7 +36,8 @@ conda activate crystal
 
 ### Install CRYSTALpytools
 
-The CRYSTALpytools package can be installed from pip. Pip is a package-management system written in Python and is used to install and manage software packages (called modules in python).
+The CRYSTALpytools package can be installed from `pip` of [PyPI](https://pypi.org/project/CRYSTALpytools/).
+PyPI is a package-management system written in Python and is used to install and manage software packages (called modules in python).
 
 ``` console
 pip install --upgrade CRYSTALpytools
@@ -46,6 +47,13 @@ Windows users might need to install windows-curses. This can be done by using:
 
 ``` console
 pip install windows-curses
+```
+
+Alternatively, the CRYSTALpytools package can be installed from [Conda Forge](https://anaconda.org/conda-forge/crystalpytools).
+Conda Forge is a community-based package-management system to install and manage software packages in conda environments.
+
+``` console
+conda install CRYSTALpytools -c conda-forge
 ```
 
 To check that CRYSTALpytools was install please type
