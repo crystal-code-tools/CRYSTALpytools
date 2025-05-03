@@ -101,7 +101,7 @@ class SCFBASE():
         scftitle = data[data.str.contains(r'^\s*T+\s+SDIK\s+TELAPSE')].index.to_numpy(dtype=int)
         scfend = data[data.str.contains(r'^\s*== SCF ENDED')].index.to_numpy(dtype=int)
         # This pattern excludes the initial charge assignment but charge info is not always printed out
-        realtitle = data[data.str.contains(r'^\s*CHARGE NORMALIZATION FACTOR')].index.to_numpy(dtype=int)
+        realtitle = data[data.str.contains(r'^\s*T+\s+MOQGAD\s+TELAPSE')].index.to_numpy(dtype=int)
         if len(realtitle) == 0:
             raise Exception('SCF block not found. Does it include SCF results?')
 

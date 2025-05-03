@@ -1441,11 +1441,13 @@ class Crystal_output:
             freq_header = self.df[self.df[0].str.contains(r'\s+DISPERSION K POINT NUMBER')].index
             # Generate list for IRREP symbols
             IRREP = []
-            irreptitle = self.df[self.df[0].str.contains(r'^\s+IRREP/CLA')].index
-            bg = irreptitle[0]
-            ed = empty_line[np.where(empty_line>bg)[0][0]]
-            dfmini = self.df[0][bg+4:ed]
-            IRREP = dfmini.map(lambda x: x[5:9].strip()).tolist()
+            irreptitle = self.df[self.df[0].str.contains(r'^\s+\(HARTREE\*\*2\)\s+\(CM\*\*\-1\)\s+\(THZ\)\s+\(KM\/MOL\)')].index
+            if len(irreptitle) > 0:
+                bg = irreptitle[0]
+                ed = empty_line[np.where(empty_line>bg)[0][0]]
+                dfmini = self.df[0][bg+1:ed]
+                IRREP = dfmini.map(lambda x: x[49:52].strip()).tolist()
+                IRREP = np.unique(np.array(IRREP))
         else:
             ## Gamma point / Gamma point QHA.
             nqpoint = len(edft)
@@ -1625,7 +1627,7 @@ class Crystal_output:
             struc = self.get_geometry(initial=False)
 
         k_path3d = np.vstack([i[0] for i in self.qpoint])
-        bands = np.reshape(self.frequency.transpose(), [self.nmode, self.nqpoint, 1])
+        bands = np.reshape(self.frequency.transpose(), [self.nmode[0], self.nqpoint, 1])
         recp_latt = struc.lattice.reciprocal_lattice.matrix
 
         # get labels and 1D k path

@@ -3,9 +3,9 @@
 """
 A post-processing module for electronic properties
 """
-from CRYSTALpytools import units
 import numpy as np
-
+from warnings import warn
+from CRYSTALpytools import units
 
 class ElectronBand():
     """
@@ -33,8 +33,6 @@ class ElectronBand():
     def __init__(self, spin, tick_pos, tick_label, efermi, bands, k_path,
                  geometry=None, reciprocal_latt=None, tick_pos3d=None,
                  k_path3d=None, unit='eV'):
-        import numpy as np
-
         self.spin = spin
         self.n_tick = len(tick_pos)
         self.tick_pos = np.array(tick_pos, dtype=float)
@@ -118,8 +116,6 @@ class ElectronBand():
                 is available. For spin-polarized cases, ``self.gap_pos[0]``
                 are vbm and cbm of :math:`\\alpha` state.
         """
-        import numpy as np
-
         self.gap = np.zeros([2,], dtype=float)
         self.vbm = np.zeros([2,], dtype=float)
         self.cbm = np.zeros([2,], dtype=float)
@@ -175,8 +171,6 @@ class ElectronBand():
         Returns:
             BandStructureSymmLine: Pymatgen band structure.
         """
-        import warnings
-        import numpy as np
         from pymatgen.core.lattice import Lattice
         from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
         from pymatgen.electronic_structure.core import Spin
@@ -195,19 +189,17 @@ class ElectronBand():
             labels = self.tick_label
         else:
             if len(labels) < self.n_tick:
-                warnings.warn(
-                    '''{:d} ticks available in band object, but {:d} labels are provided.
+                warn('''{:d} ticks available in band object, but {:d} labels are provided.
 The default labels will be used for missing ones.'''.format(self.n_tick, len(labels)),
-                    stacklevel=2
+                     stacklevel=2
                 )
                 for i in range(len(labels), self.n_tick):
                     labels.append(self.tick_label[i])
 
             elif len(labels) > self.n_tick:
-                warnings.warn(
-                    '''{:d} ticks available in band object, but {:d} labels are provided.
+                warn('''{:d} ticks available in band object, but {:d} labels are provided.
 The redundant labels will be omitted.'''.format(self.n_tick, len(labels)),
-                    stacklevel=2
+                     stacklevel=2
                 )
                 labels = labels[:self.n_tick]
 
@@ -323,7 +315,6 @@ class FermiSurface():
         self.unit (str): 'eV' or 'a.u.'
     """
     def __init__(self, geometry, bands, efermi=0., unit='eV'):
-        import numpy as np
         from scipy.spatial import Voronoi
         from pymatgen.core.structure import Structure
 
@@ -413,8 +404,6 @@ class FermiSurface():
                 (2nd element). For spin-polarized cases, ``self.gap_pos[0]``
                 are vbm and cbm of :math:`\\alpha` state.
         """
-        import numpy as np
-
         self.gap = np.zeros([2,], dtype=float)
         self.vbm = np.zeros([2,], dtype=float)
         self.cbm = np.zeros([2,], dtype=float)
@@ -558,8 +547,7 @@ class FermiSurface():
         Returns:
             fig: MayaVi scence object, if ``show_the_scene=False``.
         """
-        import copy, warnings, re
-        import numpy as np
+        import re
         import matplotlib.pyplot as plt
         import matplotlib.colors as mcolors
         from matplotlib.patches import Rectangle
@@ -586,8 +574,8 @@ class FermiSurface():
         isovalue = np.array(isovalue, dtype=float, ndmin=1)
         if self.dimension == 3 and volume_3d == False:
             if len(iband) > 1 and len(isovalue) > 1:
-                    warnings.warn('For 3D systems, the user is strongly recommended to plot only 1 band or 1 isovalue every time. The same isovalue is applied to all the bands.',
-                                  stacklevel=2)
+                    warn('For 3D systems, the user is strongly recommended to plot only 1 band or 1 isovalue every time. The same isovalue is applied to all the bands.',
+                         stacklevel=2)
         if self.dimension == 3 and volume_3d == True:
             if len(iband) > 1: raise Exception("Only 1 band is permitted when 'volume_3d=True'.")
 
@@ -666,8 +654,8 @@ class FermiSurface():
             if volume_3d == False and self.dimension == 3:
                 isoplot = isovalue[np.where((isovalue>vmi)&(isovalue<vmx))[0]]
                 if isoplot.shape[0] == 0:
-                    warnings.warn("Band {:d}, spin {}: No isovalue lies in the energy range.".format(ibd+1, spin_label[isp]),
-                                  stacklevel=2)
+                    warn("Band {:d}, spin {}: No isovalue lies in the energy range.".format(ibd+1, spin_label[isp]),
+                         stacklevel=2)
                     continue
             # Interpolate band
             if interp != 'no interp':
@@ -900,8 +888,7 @@ class FermiSurface():
             iband (array): 1\*nIndex indices of band, starting from 0.
             ispin (array): 1\*nIndex indices of spin, 0 or 1.
         """
-        import re, warnings
-        import numpy as np
+        import re
 
         index = np.unique(np.array(index, dtype=str, ndmin=1))
         iband = []; ispin = []; spin = band.shape[-1]
@@ -935,13 +922,13 @@ class FermiSurface():
                 if 'a' in i.lower():
                     iband.append(j-1); ispin.append(0)
                     if band.shape[-1]==1:
-                        warnings.warn("Not a spin-polarized system. Input 'a'/'b' are ignored.",
-                                      stacklevel=2)
+                        warn("Not a spin-polarized system. Input 'a'/'b' are ignored.",
+                             stacklevel=2)
                 # in case of 'ab' as input
                 if 'b' in i.lower():
                     if band.shape[-1]==1:
-                        warnings.warn("Not a spin-polarized system. Input 'a'/'b' are ignored.",
-                                      stacklevel=2)
+                        warn("Not a spin-polarized system. Input 'a'/'b' are ignored.",
+                             stacklevel=2)
                         iband.append(j-1); ispin.append(0)
                     else:
                         iband.append(j-1); ispin.append(1)
@@ -1021,8 +1008,6 @@ class ElectronDOS():
     """
 
     def __init__(self, spin, efermi, doss, energy, unit='eV'):
-        import numpy as np
-
         self.spin = spin
         self.efermi = efermi
         self.n_proj = np.shape(doss)[0]
@@ -1197,9 +1182,6 @@ class ChargeDensity():
     """
 
     def __init__(self, data, base, spin, dimen, struc=None, unit='Angstrom'):
-        import numpy as np
-        import warnings
-
         self.data = np.array(data, dtype=float)
         self.base = np.array(base, dtype=float)
         self.spin = int(spin)
@@ -1261,7 +1243,6 @@ class ChargeDensity():
                 Only charge density difference is subtracted.
         """
         from CRYSTALpytools.crystal_io import Properties_output
-        import numpy as np
 
         for i in args:
             if isinstance(i, str):
@@ -1314,8 +1295,6 @@ class ChargeDensity():
             self (ChargeDensity) : The first entry of ``self.data`` is :math:`\\alpha`
                 state density and the second is :math:`\\beta` state.
         """
-        import numpy as np
-
         if self.spin != 2:
             raise ValueError('Not a spin-polarized system.')
 
@@ -1421,9 +1400,7 @@ class ChargeDensity():
             ax (Axes): Matplotlib axes object
         """
         from CRYSTALpytools.base.plotbase import plot_2Dscalar
-        import numpy as np
         import matplotlib.pyplot as plt
-        import warnings
 
         # dimen
         if self.dimension != 2:
@@ -1502,8 +1479,8 @@ class ChargeDensity():
         # plot
         ## spin
         if self.spin == 1 and (option.lower()=='both' or option.lower()=='spin'):
-            warnings.warn("Spin options not available to non spin-polarized cases.",
-                          stacklevel=2)
+            warn("Spin options not available to non spin-polarized cases.",
+                 stacklevel=2)
             option = 'charge'
 
         ## get the correct axes
@@ -1654,8 +1631,6 @@ class ChargeDensity():
         Returns:
             fig: MayaVi scence object, if ``show_the_scene=False``.
         """
-        import numpy as np
-        import warnings
         from CRYSTALpytools.base.plotbase import plot_3Dscalar, plot_3Dplane
         try:
             from mayavi import mlab
@@ -1692,8 +1667,8 @@ class ChargeDensity():
         grid_display_range = np.array(grid_display_range, dtype=float)
         if self.dimension == 2 and len(grid_display_range) > 2:
             if grid_display_range[2, 0] != 0 or grid_display_range[2, 1] != 1:
-                warnings.warn("For 2D data grid, a 2x2 display range should be defined.",
-                              stacklevel=2)
+                warn("For 2D data grid, a 2x2 display range should be defined.",
+                     stacklevel=2)
             grid_display_range = grid_display_range[0:2]
         if len(grid_display_range) != self.dimension:
             raise Exception("Grid display range must have the same dimensionality as grid data.")
@@ -1804,7 +1779,6 @@ class ChargeDensity():
             None
         """
         from CRYSTALpytools.io.xcrysden import XSF
-        import numpy as np
 
         if np.all(self.structure==None): raise Exception('Geometry info unavailable.')
 

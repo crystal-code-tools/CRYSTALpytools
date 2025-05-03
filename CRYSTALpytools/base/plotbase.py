@@ -10,6 +10,10 @@ Basic utility functions for plotting 2D and 3D figures.
 
 """
 
+from copy import deepcopy
+from warnings import warn
+import numpy as np
+
 #--------------------------- 2D plots based on Matplotlib --------------------#
 
 def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
@@ -64,8 +68,6 @@ def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
         ax (Axes): Matplotlib Axes object.
     """
     import matplotlib.pyplot as plt
-    import numpy as np
-    import copy
 
     nsys = len(bands)
 
@@ -98,7 +100,7 @@ def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
     idx = np.argmax([i[-1] for i in k_xax])
     k_xax_max = k_xax[idx]
     for isys in range(nsys):
-        bandsplt = copy.deepcopy(bands[isys])
+        bandsplt = deepcopy(bands[isys])
         if np.all(fermi!=None):
             bandsplt = bandsplt + fermi
             energy_range = energy_range + fermi
@@ -183,8 +185,6 @@ def plot_compare_bands(
         ax (Axes): Matplotlib Axes object or a flatted list of them.
     """
     import matplotlib.pyplot as plt
-    import numpy as np
-    import copy
 
     nsys = len(bands)
 
@@ -230,7 +230,7 @@ def plot_compare_bands(
 
     # Start plotting
     keywords = ['label', 'color', 'linestyle', 'linewidth']
-    bandsplt = copy.deepcopy(bands)
+    bandsplt = deepcopy(bands)
 
     # uniform x scale along the longest x axis
     if not_scaled != True:
@@ -240,7 +240,7 @@ def plot_compare_bands(
             k_xax[i] = k_xax[i] / k_xax[i][-1] * k_xax_max[-1]
 
     for isys in range(nsys):
-        bandsplt = copy.deepcopy(bands[isys])
+        bandsplt = deepcopy(bands[isys])
         nband, nkpt, nspin = bandsplt.shape
         ## Fermi level
         if np.all(fermi!=None):
@@ -285,7 +285,6 @@ def _plot_bands_preprocess(
     ``not_scaled`` is a flag to set whether to set the same length of k pathes
     of different systems.
     """
-    import numpy as np
     import matplotlib.colors as mcolors
 
     nsys = len(bands)
@@ -391,7 +390,6 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
 
     return to a bigger command variable of \[label, color, linestyle, linewidth\].
     """
-    import numpy as np
     import matplotlib.colors as mcolors
 
     nsys = len(bands)
@@ -517,8 +515,6 @@ def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
         ax (Axes): Matplotlib axes object
     """
     import matplotlib.pyplot as plt
-    import numpy as np
-    import warnings, copy
     import matplotlib.colors as mcolors
 
     # Sanity check
@@ -528,7 +524,7 @@ def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
             raise ValueError('Specified number of projects are lager than the length of data.')
         dossplt = doss[np.array(prj, dtype=int)-1]
     else:
-        dossplt = copy.deepcopy(doss)
+        dossplt = deepcopy(doss)
 
     nprj, nenergy,  nspin = dossplt.shape
 
@@ -626,7 +622,6 @@ def plot_banddos(bands, doss, k_label, beta, overlap, prj, energy_range, k_range
         fig (Figure): Matplotlib figure object
     """
     import matplotlib.pyplot as plt
-    import numpy as np
     from CRYSTALpytools.electronics import ElectronDOS
     from CRYSTALpytools.phonons import PhononDOS
 
@@ -699,8 +694,6 @@ def GridCoordinates(base, shape, meshgrid):
         coords (list): 1\*3 list of x, y(, z) coordinates, either in nA\*nB(\*nC)
             mesh grids or in 1D arrays, depending on ``meshgrid``.
     """
-    import numpy as np
-
     # sanity check
     base = np.array(base)
     shape = np.array(shape, ndmin=1)
@@ -748,8 +741,6 @@ def GridExpand(base, data, display_range):
         newbase (array): Expanded base vectors.
         newdata (array): Expanded data grid.
     """
-    import numpy as np
-
     # sanity check
     base = np.array(base)
     data = np.array(data)
@@ -826,7 +817,6 @@ def GridInterpolate(base, data, method, size):
         CRDS (array): (nX\*nY\*nZ)\*3 or (nX\*nY)\*3 cartesian coordinates.
             Sequence is consistent with the flattened ``DATA``.
     """
-    import numpy as np
     from scipy.interpolate import griddata, interpn
 
     data = np.array(data, dtype=float)
@@ -901,9 +891,6 @@ def GridRectangle2D(base, data):
         X (array): nX\*nY mesh grid of x coordinates
         Y (array): nX\*nY mesh grid of y coordinates
     """
-    import numpy as np
-    import copy
-
     va = base[1] - base[0]
     lena = np.linalg.norm(va)
     vb = base[2] - base[0]
@@ -924,10 +911,10 @@ def GridRectangle2D(base, data):
                 idx = np.where(X[:, j]>=lena)[0]
                 if idx.shape[0] < 1: continue
                 i = np.min(idx)
-                tmp = copy.deepcopy(data[i:, j])
+                tmp = deepcopy(data[i:, j])
                 data[-i:, j] = data[:i, j]
                 data[:-i, j] = tmp
-                tmp = copy.deepcopy(X[i:, j])
+                tmp = deepcopy(X[i:, j])
                 X[-i:, j] = X[:i, j]
                 X[:-i, j] = tmp - lena
         else: # triangle from bg to end
@@ -935,10 +922,10 @@ def GridRectangle2D(base, data):
                 idx = np.where(X[:, j]<0)[0]
                 if idx.shape[0] < 1: continue
                 i = np.max(idx)
-                tmp = copy.deepcopy(data[:i+1, j])
+                tmp = deepcopy(data[:i+1, j])
                 data[:-i-1, j] = data[i+1:, j]
                 data[-i-1:, j] = tmp
-                tmp = copy.deepcopy(X[:i+1, j])
+                tmp = deepcopy(X[:i+1, j])
                 X[:-i-1, j] = X[i+1:, j]
                 X[-i-1:, j] = tmp + lena
 
@@ -968,7 +955,6 @@ def GridRotation2D(base):
         disp (array): Displacement along x, y, z axes
     """
     from scipy.spatial.transform import Rotation
-    import numpy as np
 
     pltx = base[1] - base[0]
     plty = base[2] - base[0]
@@ -1017,8 +1003,6 @@ def tvtkGrid(base, data, CenterOrigin, InterpGridSize, **kwargs):
     Returns:
         grid (ImageData|StructuredGrid): vtk grid classes.
     """
-    import numpy as np
-    import copy
     from scipy.interpolate import griddata
     try:
         from tvtk.api import tvtk
@@ -1219,12 +1203,10 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     Returns:
         fig (Figure): Matplotlib Figure object
     """
-    import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import cm, colors
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     from pymatgen.core.lattice import Lattice
-    import copy
 
     # General grid manipulations are written in nX*nY and O, A, B
     basenew = np.vstack([base[1], base[2], base[0]])
@@ -1317,24 +1299,22 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
     Returns:
         fig (Figure): Matplotlib Figure object
     """
-    import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import cm, colors
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     from pymatgen.core.lattice import Lattice
-    import copy
 
     # General grid manipulations are written in nX*nY and O, A, B
     basenew = np.vstack([base[1], base[2], base[0]])
     data = data.transpose([1, 0, 2])
 
-    baseold = copy.deepcopy(basenew)
+    baseold = deepcopy(basenew)
     basenew, datax = GridExpand(baseold, data[:, :, 0], [a_range, b_range])
     _, datay = GridExpand(baseold, data[:, :, 1], [a_range, b_range])
     _, dataz = GridExpand(baseold, data[:, :, 2], [a_range, b_range])
     del data
     if rectangle == True:
-        baseold = copy.deepcopy(basenew)
+        baseold = deepcopy(basenew)
         data = np.dstack([datax, datay, dataz])
         basenew, datax, X, Y = GridRectangle2D(baseold, data[:, :, 0])
         _, datay, _, _ = GridRectangle2D(baseold, data[:, :, 1])
@@ -1428,14 +1408,11 @@ def plot_3Dscalar(fig, base, data, isovalue, volume_3d, interp, interp_size,
     Returns:
         fig: MayaVi scence object
     """
-    import copy, warnings, re
-    import numpy as np
     try:
         from mayavi import mlab
         from tvtk.util.ctf import PiecewiseFunction
     except ModuleNotFoundError:
         raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
-
     #---------------------------------------------------------------------#
     #                                NOTE                                 #
     #---------------------------------------------------------------------#
@@ -1572,13 +1549,10 @@ def plot_3Dplane(fig, base, data, levels, contour_2d, interp, interp_size,
     Returns:
         fig: MayaVi scence object
     """
-    import copy, warnings, re
-    import numpy as np
     try:
         from mayavi import mlab
     except ModuleNotFoundError:
         raise ModuleNotFoundError('MayaVi is required for this functionality, which is not in the default dependency list of CRYSTALpytools.')
-
     #---------------------------------------------------------------------#
     #                                NOTE                                 #
     #---------------------------------------------------------------------#
@@ -1605,8 +1579,8 @@ def plot_3Dplane(fig, base, data, levels, contour_2d, interp, interp_size,
         levels = np.round(np.array(levels, ndmin=1), 12)
         if levels.shape[0] >= 1:
             if np.any(levels<vmin) or np.any(levels>vmax):
-                warnings.warn("Some of the contours are not within the visualized range, vmin = {:.4f}, vmax = {:.4f}.".format(vmin, vmax),
-                              stacklevel=2)
+                warn("Some of the contours are not within the visualized range, vmin = {:.4f}, vmax = {:.4f}.".format(vmin, vmax),
+                     stacklevel=2)
             levels = levels[np.where((levels>=vmin)&(levels<=vmax))]
 
         if levels.shape[0] < 1:

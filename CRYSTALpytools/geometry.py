@@ -2,10 +2,13 @@
 Class and methods to deal with geometries, including Pymatgen Structrue and
 Molecule geometries and CRYSTAL gui geometries
 """
+import numpy as np
+from copy import deepcopy
+from warnings import warn
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure import Molecule
-
-import numpy as np
+from pymatgen.core.lattice import Lattice
 
 # very slow to call mendeleev instances. Define a periodic table here for some simple cases
 ptable = {
@@ -81,10 +84,6 @@ class Crystal_gui():
         from CRYSTALpytools.geometry import CStructure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.core.surface import center_slab
-        from pymatgen.core.lattice import Lattice
-        import numpy as np
-        import warnings
-        import copy
 
         if type(struc) == Structure:
             struc = CStructure.from_pmg(struc)
@@ -157,7 +156,7 @@ class Crystal_gui():
                                           translation, to_unit_cell=False)
                     _, self.n_symmops, self.symmops = struc.get_sg_symmops(**kwargs)
                 else:
-                    warnings.warn('Polymer symmetry currently not examined.')
+                    warn('Polymer symmetry currently not examined.')
             else:
                 self.space_group = 1
                 self.n_symmops = 1
@@ -181,8 +180,6 @@ class Crystal_gui():
         Args:
             gui_file (str): The CRYSTAL structure (gui) file
         """
-        import numpy as np
-
         file = open(gui_file, 'r')
         data = file.readlines()
         file.close()
@@ -292,9 +289,6 @@ class CStructure(Structure):
     """
     def __init__(self, lattice, species, coords, symmetry_group=1, pbc=None,
                  standarize=False, **kwargs):
-        import numpy as np
-        from pymatgen.core.lattice import Lattice
-
         # conventional atomic number
         if isinstance(species[0], int) or isinstance(species[0], float) \
         or isinstance(species[0], np.int64) or isinstance(species[0], np.float64):
@@ -368,8 +362,6 @@ class CStructure(Structure):
         * 1D: Frac, Cart, Cart
         * 0D: Cart, Cart, Cart
         """
-        import numpy as np
-
         if self.ndimen == 0:
             crys_coords = self.cart_coords
         elif self.ndimen == 1:
@@ -388,9 +380,6 @@ class CStructure(Structure):
         """
         Use the CRYSTAL standard periodic boundary for low dimensional materials.
         """
-        import numpy as np
-        from pymatgen.core.lattice import Lattice
-
         latt = self.lattice.matrix
         if self.ndimen == 3:
             return self
@@ -403,7 +392,6 @@ class CStructure(Structure):
 
         def rotate(v1, v2): # A quick rotation function. v1: old, v2: new
             from scipy.spatial.transform import Rotation
-            import numpy as np
 
             v1 = v1 / np.linalg.norm(v1); v2 = v2 / np.linalg.norm(v2)
             vn = np.cross(v1,v2)
@@ -471,7 +459,6 @@ class CStructure(Structure):
                 fractional coordinates
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        import numpy as np
 
         ndimen = self.pbc.count(True)
         if ndimen < 3:
@@ -543,7 +530,6 @@ class CStructure(Structure):
             symmops (array): n_symmops\*4\*3 array of symmetry operations
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        import numpy as np
 
         struc = SpacegroupAnalyzer(self, **kwargs).get_refined_structure()
         self.sg = SpacegroupAnalyzer(struc, **kwargs).get_space_group_number()
@@ -598,9 +584,6 @@ class CStructure(Structure):
             pcel (CStructure): Pymatgen structure of primitive cell with
                 CRYSTALpytools methods.
         """
-        from pymatgen.core.lattice import Lattice
-        import numpy as np
-
         ndimen = self.pbc.count(True)
         natom = self.num_sites
         pbc = self.pbc
@@ -645,8 +628,6 @@ class CStructure(Structure):
         Returns:
             scel (CStructure): Pymatgen structure of supercell
         """
-        from pymatgen.core.lattice import Lattice
-
         ndimen = self.pbc.count(True)
         pbc = self.pbc
         natom = self.num_sites
@@ -677,9 +658,7 @@ class CStructure(Structure):
         Returns:
             rcel (CStructure): Pymatgen structure of rotated cell
         """
-        import numpy as np
         from scipy.spatial.transform import Rotation as Rot
-        from pymatgen.core.lattice import Lattice
 
         vec1 = vec1 / np.linalg.norm(vec1)
         vec2 = vec2 / np.linalg.norm(vec2)
@@ -713,8 +692,6 @@ class CStructure(Structure):
         Returns:
             vec (array): Norm vector, normalized to 1. 3\*1 1D array or nmiller\*3 3D array
         """
-        import numpy as np
-
         if len(np.shape(miller)) == 1:
             dimen = 1
             miller = np.array([miller], dtype=int)
@@ -784,8 +761,6 @@ class CStructure(Structure):
                 connectivity. In `scipy.sparse.bsr_array <https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.bsr_array.html>`_
                 format.
         """
-        import numpy as np
-        import warnings
         from scipy.sparse import bsr_array
 
         # get MAX bond lengths
@@ -806,8 +781,8 @@ class CStructure(Structure):
                 kb = k.split(':')[1].capitalize()
                 key1 = '{}:{}'.format(ka, kb)
                 if key not in bondMX.keys():
-                    warnings.warn("The specified pair '{}' does not exist in the structure. The definition is ignored.".format(k),
-                                  stacklevel=2)
+                    warn("The specified pair '{}' does not exist in the structure. The definition is ignored.".format(k),
+                         stacklevel=2)
                     continue
 
                 bondMX[key1] = special_bonds[k]
@@ -981,15 +956,13 @@ class CStructure(Structure):
         except ModuleNotFoundError:
             raise ModuleNotFoundError("MayaVi is required for this method.")
         from ase.data import colors
-        import numpy as np
-        import copy, warnings
 
         # Colormap by original indices
         if atom_color.lower() in ['jmol', 'cpk']:
             at_data = False
             if len(atom_data)>0:
-                warnings.warn("'atom_data' available but colormap not specified. Using the default display mode.",
-                              stacklevel=2)
+                warn("'atom_data' available but colormap not specified. Using the default display mode.",
+                     stacklevel=2)
         else:
             at_data = True
             if len(atom_data)==0:
@@ -998,8 +971,8 @@ class CStructure(Structure):
         if not isinstance(bond_color, str):
             bd_data = False
             if len(bond_data)>0:
-                warnings.warn("'bond_data' available but colormap not specified. Using the default display mode.",
-                              stacklevel=2)
+                warn("'bond_data' available but colormap not specified. Using the default display mode.",
+                     stacklevel=2)
         else:
             bd_data = True
             if len(bond_data)==0:
@@ -1057,10 +1030,10 @@ class CStructure(Structure):
 
         ## Atoms in display range
         for i, nbg, ned in zip([1,2,3], np.floor(dispbg), np.ceil(disped)):
-            tmp = copy.deepcopy(atplt)
+            tmp = deepcopy(atplt)
             for s in np.arange(nbg, ned, 1):
                 if s == 0: continue
-                ttmp = copy.deepcopy(tmp)
+                ttmp = deepcopy(tmp)
                 ttmp[:,i] = ttmp[:,i] + s
                 atplt = np.vstack([atplt, ttmp])
                 del ttmp
@@ -1088,8 +1061,8 @@ class CStructure(Structure):
             # not assigned data
             saved_atoms = np.unique(saved_atoms)
             if len(saved_atoms) < atom_data.shape[0]:
-                warnings.warn("Not all atoms defined by 'atom_data' are available in the visualized structure.",
-                              stacklevel=2)
+                warn("Not all atoms defined by 'atom_data' are available in the visualized structure.",
+                     stacklevel=2)
             del saved_atoms, idx, atom_data
 
         # Bonds to plot, new connectivity based on atplt is needed.
@@ -1106,9 +1079,9 @@ class CStructure(Structure):
         # align bonds to + directions
         idx_neg = np.unique(np.where(lattpt<0)[0])
         lattpt[idx_neg] = np.abs(lattpt[idx_neg])
-        tmp = copy.deepcopy(idx1[idx_neg])
-        idx1[idx_neg] = copy.deepcopy(idx2[idx_neg])
-        idx2[idx_neg] = copy.deepcopy(tmp)
+        tmp = deepcopy(idx1[idx_neg])
+        idx1[idx_neg] = deepcopy(idx2[idx_neg])
+        idx2[idx_neg] = deepcopy(tmp)
         del idx_neg, tmp
 
         if bd_data == False:
@@ -1151,8 +1124,8 @@ class CStructure(Structure):
             # not assigned data
             saved_bonds = np.unique(saved_bonds)
             if len(saved_bonds) < bond_data.shape[0]:
-                warnings.warn("Not all bonds defined by 'bond_data' are available in the visualized structure.",
-                              stacklevel=2)
+                warn("Not all bonds defined by 'bond_data' are available in the visualized structure.",
+                     stacklevel=2)
             del idx1, idx2, lattpt, obj, bdold, bond_data, oldidx, saved_bonds
 
         # plot
@@ -1294,9 +1267,6 @@ class CStructure(Structure):
 class CMolecule(Molecule):
     """Deprecated, use CStructure"""
     def __init__(species, coords, symmetry_group=1, **kwargs):
-        import warnings
-        import numpy as np
-
         if isinstance(species[0], int) or isinstance(species[0], float) \
         or isinstance(species[0], np.int64) or isinstance(species[0], np.float64):
             zconv = [int(i) for i in species]
@@ -1306,8 +1276,8 @@ class CMolecule(Molecule):
         self._symmetry_group = symmetry_group
         self._species_Z = zconv
 
-        warnings.warn("This is a deprecated method and returns to a pymatgen Molecule class only. Use CStructure with pbc=(False, False, False) instead.",
-                      stacklevel=2)
+        warn("This is a deprecated method and returns to a pymatgen Molecule class only. Use CStructure with pbc=(False, False, False) instead.",
+             stacklevel=2)
 
 
 

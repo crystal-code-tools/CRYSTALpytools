@@ -17,8 +17,4 @@ dependencies:
   - recommonmark
   - sphinx-markdown-tables
   - sphinx-gallery
-  - CRYSTALpytools
-  - phonopy
-  - vtk
-  - mayavi
 

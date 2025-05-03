@@ -460,9 +460,14 @@ class Harmonic():
                      imaginary_tol=1e-4, q_overlap_tol=1e-4, q_id=None, q_coord=None):
         """Deprecated. Call ``from_file()`` directly."""
         warn("Deprecated. Call 'from_file(source='phonopy')' instead.", stacklevel=2)
+        inpargs = {}
+        if edft != None:
+            inpargs['u_0'] = edft
+        if struc_yaml != None:
+            inpargs['struc_yaml'] = struc_yaml
         self.from_file(phono_yaml, source='phonopy', scale=scale,
                        imaginary_tol=imaginary_tol, q_overlap_tol=q_overlap_tol,
-                       q_id=q_id, q_coord=q_coord, struc_yaml=struc_yaml, u_0=edft)
+                       q_id=q_id, q_coord=q_coord, **inpargs)
         return self
 
 
