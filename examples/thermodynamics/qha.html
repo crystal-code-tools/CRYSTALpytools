@@ -1,0 +1,1056 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lattice Dynamics 2: Quasi-Harmonic Approximation &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/thermodynamics/qha.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="TOPOND" href="../topond/topond.html" />
+    <link rel="prev" title="Lattice Dynamics 1: Harmonic Approximation" href="harmonic.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Lattice Dynamics 2: Quasi-Harmonic Approximation</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/thermodynamics/qha.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Lattice-Dynamics-2:-Quasi-Harmonic-Approximation">
+<h1>Lattice Dynamics 2: Quasi-Harmonic Approximation<a class="headerlink" href="#Lattice-Dynamics-2:-Quasi-Harmonic-Approximation" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">thermodynamics</span></code> module is developed for both harmonic approximated (HA) and quasi-harmonic approximated (QHA) lattice dynamics. For simplicity, this part is focused only on QHA phonons. For HA, please refer to the <a class="reference internal" href="harmonic.html"><span class="doc">Lattice Dynamics 1: Harmonic Approximation</span></a> example book in the same catagory. For phonon band and density of states, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.phonons.html">phonons module</a>.</p>
+<section id="Basic-thermodynamic-properties">
+<h2>Basic thermodynamic properties<a class="headerlink" href="#Basic-thermodynamic-properties" title="Link to this heading"></a></h2>
+<p>This part is divided into 3 different testing cases to illustrate the available fitting procedures.</p>
+<section id="The-'thermo_freq()'-method">
+<h3>The ‘thermo_freq()’ method<a class="headerlink" href="#The-'thermo_freq()'-method" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> methods implements the ‘mode-by-mode’ fitting of frequencies.</p>
+<ol class="arabic simple">
+<li><p>DFT internal energies are fitted as adiabatic equation of states (EOS) defined in <a class="reference external" href="https://pymatgen.org/pymatgen.analysis.html#module-pymatgen.analysis.eos">pymatgen.eos</a> module, <span class="math notranslate nohighlight">\(E_{0}(V)\)</span>.</p></li>
+<li><p>Phonon frequencies are sorted by eigenvectors and fitted as polynomial functions of volume, <span class="math notranslate nohighlight">\(\nu(V)\)</span>.</p></li>
+<li><p>The analytical expression of Gibbs free energy is fitted at given temperature and pressure to get the equilibrium volume <span class="math notranslate nohighlight">\(\text{min}\{G(V; T,p)\}\)</span>.</p></li>
+<li><p>Other thermodynamic properties, including Helmholtz free energy <span class="math notranslate nohighlight">\(F\)</span>, entropy <span class="math notranslate nohighlight">\(S\)</span>, constant volume specific heat <span class="math notranslate nohighlight">\(C_{V}\)</span> and isothermal bulk modulus <span class="math notranslate nohighlight">\(K_{T}\)</span> are obtained.</p></li>
+<li><p>Mode-specific Grüneisen parameters are obtained by deriving the fitted <span class="math notranslate nohighlight">\(\omega(V; T,p)\)</span>.</p></li>
+<li><p>The macroscopic Grüneisen parameter <span class="math notranslate nohighlight">\(\gamma(T,p)\)</span>, volumetric thermal expansion coefficient <span class="math notranslate nohighlight">\(\alpha_{V}\)</span>, constant pressure specific heat <span class="math notranslate nohighlight">\(C_{p}\)</span>, adiabatic bulk modulus <span class="math notranslate nohighlight">\(K_{S}\)</span> are obtained following the standard Grüneisen method. See the <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code> method below.</p></li>
+</ol>
+<p><strong>NOTE</strong></p>
+<p><span class="math notranslate nohighlight">\(K_{T}\)</span> requires a refit of <span class="math notranslate nohighlight">\(F(V)\)</span> based on equation of states. At least 5 pressure sampling points are required to ensure a good fitting.</p>
+<p><span class="math notranslate nohighlight">\(\Gamma\)</span> point phonons of Form 1 paracetamols computed at 4 different volumes are fitted and plotted. The sequence of input files is arbitrary.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+
+file_list = [&#39;qha_paracetamolGm4.out&#39;, &#39;qha_paracetamolGp4.out&#39;,
+             &#39;qha_paracetamolGr0.out&#39;, &#39;qha_paracetamolGp8.out&#39;]
+T = np.array([20, 50, 80, 150, 200, 250, 330], dtype=float)
+p = np.linspace(0, 0.15, 6)
+
+qha = Quasi_harmonic(filename=&#39;qha_FreqFit.yaml&#39;, temperature=T,
+                     pressure=p).from_file(*file_list, source=&#39;crystal&#39;)
+qha.thermo_freq(eos_method=&#39;birch_murnaghan&#39;, poly_order=[2, 3],
+                min_method=&#39;BFGS&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:634: UserWarning: Close overlap of phonon modes detected at qpoint 0: 11 overlaps out of 240*240 mode combinations at this point.
+  close_overlap, dot_pdt = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.thermodynamics.Quasi_harmonic at 0x7fa41753a250&gt;
+</pre></div></div>
+</div>
+<p>Warning messages are printed out when the fitted volume data exceeds the sampled volume data at low temperature and high pressure, indicating that fittings there might be unstable.</p>
+<p>No warning message is printed out for 0 pressure thermodynamics. The difference is &lt;= 5 cm<span class="math notranslate nohighlight">\(^3\)</span>/mol, which is a good agreement with experimental measurements. The increased thermal expansion around 50~150K is reproduced.</p>
+<p>Experimental Data:</p>
+<p><a class="reference external" href="https://www.degruyter.com/document/doi/10.1524/zkri.2000.215.11.693/html">C. C. Wilson, Z. Kristallogr. Cryst. Mater., 2000, 215, 693–701</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+
+exp = np.array([111.5836, 111.9421, 112.0463, 113.4580, 114.3871,
+                115.0082, 116.0031])
+qha_zerop = qha.volume[0, :]
+# Angstrom^3 to cm^3/mol
+qha_zerop = qha_zerop * 0.602214 / 4
+
+fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=False)
+ax[0].plot(T, exp, &#39;+-k&#39;, label=&#39;Experiemnt&#39;)
+ax[0].plot(T, qha_zerop, &#39;x-r&#39;, label=&#39;QHA Fit&#39;)
+ax[0].legend(loc=&#39;lower right&#39;)
+ax[0].set_xlabel(&#39;Temperature (K)&#39;)
+ax[0].set_ylabel(r&#39;Volume (cm$^{3}$/mol)&#39;)
+ax[1].plot(T, qha.alpha_v[0, :]*1e4, &#39;x-r&#39;, label=&#39;QHA Fit&#39;)
+ax[1].set_xlabel(&#39;Temperature (K)&#39;)
+ax[1].set_ylabel(r&#39;$\alpha_{V} (\times 10^{-4})$&#39;)
+ax[1].legend(loc=&#39;upper right&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fa3bc101340&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_3_1.png" src="../../_images/examples_thermodynamics_qha_3_1.png" />
+</div>
+</div>
+</section>
+<section id="The-'thermo_eos()'-method">
+<h3>The ‘thermo_eos()’ method<a class="headerlink" href="#The-'thermo_eos()'-method" title="Link to this heading"></a></h3>
+<p>This test is to illustrate the procedure to fit a series of adiabatic EOSs at constant temperature to avoid eigenvectors and mode-specific fittings, which might be useful for large systems with low symmetry. But its stability is worse than <code class="docutils literal notranslate"><span class="pre">thermo_eos()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>.</p>
+<ol class="arabic simple">
+<li><p>Harmonic Helmholtz free energy for each sampled volume is used to fit EOS, <span class="math notranslate nohighlight">\(F(V; T)\)</span>.</p></li>
+<li><p>The difference between analytical pressure <span class="math notranslate nohighlight">\(p(V)=-\left(\frac{\partial F}{\partial V}\right)_{T}\)</span> and the given pressure <span class="math notranslate nohighlight">\(p_{0}\)</span> is minimized to get the equilibrium volume, <span class="math notranslate nohighlight">\(\text{min}\left[p(V) - p_{0}\right]^{2}\)</span>.</p></li>
+<li><p>Other thermodynamic properties, including Gibbs free energy <span class="math notranslate nohighlight">\(G\)</span>, constant pressure specific heat <span class="math notranslate nohighlight">\(C_{p}\)</span> (second derivative of <span class="math notranslate nohighlight">\(F\)</span>) and isothermal bulk modulus <span class="math notranslate nohighlight">\(K_{T}\)</span> are obtained.</p></li>
+<li><p><span class="math notranslate nohighlight">\(G(T; p)\)</span> is fitted as polynomial function to get entropy, <span class="math notranslate nohighlight">\(S=-\left(\frac{\partial G}{\partial T}\right)_p\)</span>.</p></li>
+</ol>
+<p>Since the analytical <span class="math notranslate nohighlight">\(G(V)\)</span> is not available, thermal expansion and other properties are fitted separately, see the following sections.</p>
+<p><strong>NOTE</strong></p>
+<p>At least 5 temperature sampling points are required to ensure a good fitting of <span class="math notranslate nohighlight">\(G(T; p)\)</span>.</p>
+<p>The time consumption and 0 pressure thermal expansion of the <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and the <code class="docutils literal notranslate"><span class="pre">thermo_eos()</span></code> methods are compared.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import time
+
+file_list = [&#39;qha_paracetamolGm4.out&#39;, &#39;qha_paracetamolGp4.out&#39;,
+             &#39;qha_paracetamolGr0.out&#39;, &#39;qha_paracetamolGp8.out&#39;]
+tempt = np.array([0, 20, 50, 80, 150, 200, 250, 330], dtype=float)
+press = np.linspace(0, 0.15, 6)
+
+mode = Quasi_harmonic(filename=&#39;qha_FreqFit.yaml&#39;).from_file(*file_list, source=&#39;crystal&#39;, mode_sort_tol=0.4)
+eos = Quasi_harmonic(filename=&#39;qha_EoSFit.yaml&#39;).from_file(*file_list, source=&#39;crystal&#39;, mode_sort_tol=None)
+
+tbg = time.perf_counter()
+# Mode-specific
+mode.thermo_freq(temperature=tempt, pressure=press,
+                 eos_method=&#39;birch_murnaghan&#39;,
+                 poly_order=3, min_method=&#39;BFGS&#39;, mutewarning=True)
+
+tmode = time.perf_counter()
+# EoS
+eos.thermo_eos(temperature=tempt, pressure=press,
+               eos_method=&#39;birch_murnaghan&#39;,
+               poly_order=3, mutewarning=True)
+
+teos = time.perf_counter()
+print(&#39;Time consumption for Mode-Specific fitting: %12.6f s&#39; % (tmode - tbg))
+print(&#39;Time consumption for EoS fitting: %12.6f s&#39; % (teos - tmode))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:634: UserWarning: Close overlap of phonon modes detected at qpoint 0: 11 overlaps out of 240*240 mode combinations at this point.
+  close_overlap, dot_pdt = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:640: UserWarning: The existing QHA file will be overwritten.
+  ThermoQHA.write_combine_data(self, close_overlap, dot_pdt)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Time consumption for Mode-Specific fitting:     1.459498 s
+Time consumption for EoS fitting:     0.597625 s
+</pre></div></div>
+</div>
+<p>0 pressure thermal expansion.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+
+exp = np.array([111.5836, 111.9421, 112.0463, 113.4580, 114.3871,
+                115.0082, 116.0031])
+# Angstrom^3 to cm^3/mol
+vol_mode = mode.volume[0, :] * 0.602214 / 4
+vol_eos = eos.volume[0, :] * 0.602214 / 4
+
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+ax.plot(tempt[1:], exp, &#39;+-k&#39;, label=&#39;Experiemnt&#39;)
+ax.plot(tempt, vol_mode, &#39;x-r&#39;, label=&#39;Mode&#39;)
+ax.plot(tempt, vol_eos, &#39;x:b&#39;, label=&#39;EOS&#39;)
+
+ax.legend(loc=&#39;lower right&#39;)
+ax.set_xlabel(&#39;Temperature (K)&#39;)
+ax.set_ylabel(r&#39;Volume (cm$^{3}$/mol)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Volume (cm$^{3}$/mol)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_7_1.png" src="../../_images/examples_thermodynamics_qha_7_1.png" />
+</div>
+</div>
+<p>It should be noted that entropy <span class="math notranslate nohighlight">\(S(V, T)\)</span> is obtained by <span class="math notranslate nohighlight">\(S=-\left(\frac{\partial G}{\partial T}\right)_{p}\)</span>, where <span class="math notranslate nohighlight">\(G(T; p)\)</span> is a polynomial fitting. That makes it less accurate compared to mode-specific fittings. See below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;{:&gt;3s}{:&gt;10s}{:&gt;10s}{:&gt;16s}{:&gt;16s}&#39;.format(&#39;T&#39;, &#39;S(mode)&#39;, &#39;S(EOS)&#39;, &#39;F(mode) 10^6&#39;, &#39;F(EOS) 10^6&#39;))
+for i in range(len(mode.temperature)):
+    print(&#39;{:3.0f}{:10.2f}{:10.2f}{:16.8f}{:16.8f}&#39;.format(
+            mode.temperature[i], mode.entropy[0,i], eos.entropy[0,i],
+            mode.helmholtz[0,i]/1e6, eos.helmholtz[0,i]/1e6
+    ))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  T   S(mode)    S(EOS)    F(mode) 10^6     F(EOS) 10^6
+  0      0.00     -0.00     -5.40069739     -5.40069872
+ 20      9.47     47.07     -5.40069744     -5.40069878
+ 50     84.39    118.68     -5.40069893     -5.40070031
+ 80    177.57    191.51     -5.40070329     -5.40070465
+150    378.39    366.18     -5.40072438     -5.40072517
+200    506.31    495.01     -5.40074730     -5.40074769
+250    626.11    627.22     -5.40077605     -5.40077622
+330    808.82    845.79     -5.40083387     -5.40083385
+</pre></div></div>
+</div>
+</section>
+<section id="The-'thermo_gruneisen()'-method">
+<h3>The ‘thermo_gruneisen()’ method<a class="headerlink" href="#The-'thermo_gruneisen()'-method" title="Link to this heading"></a></h3>
+<p>This method uses the standard Grüneisen model with following steps:</p>
+<ol class="arabic simple">
+<li><p>The pressure and temperature independent mode-specific Grüneisen parameters are fitted based on the volume <span class="math notranslate nohighlight">\(V_{0}\)</span> and freqency <span class="math notranslate nohighlight">\(\omega_{0}\)</span> of the most compact structure:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\gamma_{\textbf{q}i}=-\frac{\ln{\omega}-\ln{\omega_{0}}}{\ln{V}-\ln{V_{0}}}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Frequency at given volume can be expressed analytically by:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\omega_{\textbf{q}i}(V) = \omega_{\textbf{q}i}(V_{0})\left(\frac{V}{V_{0}}\right)^{-\gamma_{\textbf{q}i}}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Then <span class="math notranslate nohighlight">\(G(V; T,p)\)</span> is expressed and minimized in the same way as <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code>. The equilibrium volume, Helmholtz free energy <span class="math notranslate nohighlight">\(F\)</span>, entropy <span class="math notranslate nohighlight">\(S\)</span>, constant volume specific heat <span class="math notranslate nohighlight">\(C_{V}\)</span> and isothermal bulk modulus <span class="math notranslate nohighlight">\(K_{T}\)</span> are obtained.</p></li>
+<li><p>The macroscopic Grüneisen parameter <span class="math notranslate nohighlight">\(\gamma\)</span> is defined as <span class="math notranslate nohighlight">\(\sum_{\textbf{q}i}\frac{\gamma_{\textbf{q}i}C_{V,\textbf{q}i}}{C_{V}}\)</span></p></li>
+<li><p>With <span class="math notranslate nohighlight">\(\gamma\)</span>, we obtain volumetric themal expansion <span class="math notranslate nohighlight">\(\alpha_{V} = \frac{\gamma C_{V}}{K_{T}V}\)</span></p></li>
+<li><p>With <span class="math notranslate nohighlight">\(\alpha_{V}\)</span>, we obtain adiabatic bulk moduli <span class="math notranslate nohighlight">\(K_{S} = K_{T} + \frac{\alpha^{2}_{V}VTK^{2}_{T}}{C_{V}}\)</span> and constant pressure specific heat <span class="math notranslate nohighlight">\(C_{p} = C_{V} + \alpha^{2}_{V}K_{T}VT\)</span>.</p></li>
+</ol>
+<p>Read QHA output of Al<span class="math notranslate nohighlight">\(_{2}\)</span>O<span class="math notranslate nohighlight">\(_{3}\)</span> and fit with <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen</span></code> and fit equilibrium volumes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import matplotlib.pyplot as plt
+
+file = &#39;qha_corundumG.out&#39;
+T = np.linspace(0, 1000, 21)
+p = np.linspace(0, 1, 5)
+
+gru = Quasi_harmonic(filename=&#39;qha_GruFit.yaml&#39;).from_file(file, source=&#39;crystal-QHA&#39;)
+gru.thermo_gruneisen(temperature=T, pressure=p, eos_method=&#39;birch_murnaghan&#39;,
+                     poly_order=3, min_method=&#39;BFGS&#39;)
+
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+style = [&#39;v-b&#39;, &#39;v-c&#39;, &#39;v-g&#39;, &#39;v-y&#39;, &#39;v-r&#39;]
+
+for v, s, p in zip(gru.volume, style, gru.pressure):
+    ax.plot(T, v, s, label=&#39;{:.2f} GPa&#39;.format(p))
+
+ax.legend(loc=&#39;lower right&#39;)
+ax.set_xlabel(&#39;Temperature (K)&#39;)
+ax.set_ylabel(r&#39;Volume ($\AA^{3}$)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:634: UserWarning: Close overlap of phonon modes detected at qpoint 0: 40 overlaps out of 90*90 mode combinations at this point.
+  close_overlap, dot_pdt = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Volume ($\\AA^{3}$)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_11_2.png" src="../../_images/examples_thermodynamics_qha_11_2.png" />
+</div>
+</div>
+<p>Other thermodynamic properties by Grüneisen model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;Macroscopic Grüneisen parameter at 1000K, 0GPa : {:.4f}&#39;.format(gru.gruneisen[0, -1]))
+print(&#39;Thermal expansion coefficient at 500K, 1GPa : {:.8f}&#39;.format(gru.alpha_v[-1, 10]))
+print(&#39;Constant pressure specific heat at 500K, 1GPa : {:.4f} J/mol/K&#39;.format(gru.c_p[-1, 10]))
+print(&#39;Adiabatic bulk modulus at 500K, 1GPa : {:.4f} GPa&#39;.format(gru.k_s[-1, 10]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Macroscopic Grüneisen parameter at 1000K, 0GPa : 1.3731
+Thermal expansion coefficient at 500K, 1GPa : 0.00002215
+Constant pressure specific heat at 500K, 1GPa : 617.5261 J/mol/K
+Adiabatic bulk modulus at 500K, 1GPa : 240.5102 GPa
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Restart-QHA-calculations">
+<h2>Restart QHA calculations<a class="headerlink" href="#Restart-QHA-calculations" title="Link to this heading"></a></h2>
+<p>With the dumped YAML file, the user can extract the sorted and fitted phonons when restarting a calculation. Fittings are dumped by <code class="docutils literal notranslate"><span class="pre">thermo_*</span></code> methods, and can be read to calculate other themodynamic propertes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Quasi_harmonic
+
+freq = Quasi_harmonic.restart(&#39;qha_FreqFit.yaml&#39;)
+print(&quot;QHA method: {}&quot;.format(freq.method))
+print(&quot;EOS method: {}&quot;.format(freq.eos_method))
+print(&quot;Frequency polynomial order:&quot;)
+print(freq.fit_order)
+
+gru = Quasi_harmonic.restart(&#39;qha_GruFit.yaml&#39;)
+print(&quot;QHA method: {}&quot;.format(gru.method))
+print(&quot;EOS method: {}&quot;.format(gru.eos_method))
+print(&quot;Gruneisen parameter of mode 4 at Gamma:&quot;)
+print(gru.gru_fit[0, 3])
+
+eos = Quasi_harmonic.restart(&#39;qha_EoSFit.yaml&#39;)
+print(&quot;QHA method: {}&quot;.format(eos.method))
+print(&quot;EOS method: {}&quot;.format(eos.eos_method))
+print(&quot;Gibbs free energy polynomial order:&quot;)
+print(eos.fit_order)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+QHA method: thermo_freq
+EOS method: birch_murnaghan
+Frequency polynomial order:
+[3]
+QHA method: thermo_gruneisen
+EOS method: birch_murnaghan
+Gruneisen parameter of mode 4 at Gamma:
+1.6555410543
+QHA method: thermo_eos
+EOS method: birch_murnaghan
+Gibbs free energy polynomial order:
+[3]
+</pre></div></div>
+</div>
+</section>
+<section id="Other-thermodynamic-properties">
+<h2>Other thermodynamic properties<a class="headerlink" href="#Other-thermodynamic-properties" title="Link to this heading"></a></h2>
+<p>After getting the basic properties (equilibirum volum, entropy, Helmholtz free energy and Gibbs free energy) with methods in the previous section, other properties can be obtained with methods in this section. For simplicity properties calculated here are read from dumped restart files.</p>
+<section id="The-'expansion_vol()'-method">
+<h3>The ‘expansion_vol()’ method<a class="headerlink" href="#The-'expansion_vol()'-method" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Quasiharmonic.expansion_vol()</span></code> method fits the volumetric thermal expansion coefficients at constant pressure, <span class="math notranslate nohighlight">\(\alpha_{V}(T; p)\)</span>. For QHA objects generated by <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> or <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code> methods, thermal expansions have been fitted with the Grüneisen model. Calling this will overwrites the fitted data.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">plot</span></code> option, the user can inspect the quality of fittings from the output figure. If <code class="docutils literal notranslate"><span class="pre">plot=False</span></code>, the code will fit <span class="math notranslate nohighlight">\(V(T; p)\)</span> with polynomials that maximizes <span class="math notranslate nohighlight">\(R^{2}\)</span> of each curve. <code class="docutils literal notranslate"><span class="pre">poly_order</span></code> must &gt;= 2.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+
+obj = Quasi_harmonic.restart(&#39;qha_FreqFit.yaml&#39;)
+obj.expansion_vol(poly_order=[2, 3, 4], plot=True, fit_fig=&#39;qha_paracetamolG.png&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32766/2306850625.py:5: UserWarning: The fitted thermal expansion coefficient will be overwritten.
+  obj.expansion_vol(poly_order=[2, 3, 4], plot=True, fit_fig=&#39;qha_paracetamolG.png&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;CRYSTALpytools.thermodynamics.Quasi_harmonic at 0x7f112df939d0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_17_2.png" src="../../_images/examples_thermodynamics_qha_17_2.png" />
+</div>
+</div>
+<p>Plot <span class="math notranslate nohighlight">\(\alpha_{V}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+style = [&#39;+:k&#39;, &#39;+:b&#39;, &#39;+:c&#39;, &#39;+:g&#39;, &#39;+:m&#39;, &#39;+:r&#39;]
+for alpha, stl, p in zip(obj.alpha_v, style, obj.pressure):
+    ax.plot(obj.temperature, alpha*1e5, stl, label=&#39;{:.2f} GPa&#39;.format(p))
+
+ax.legend(loc=&#39;lower center&#39;)
+ax.set_xlabel(&#39;Temperature (K)&#39;)
+ax.set_ylabel(r&#39;$\alpha_{V}$ (10$^{-5}$)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;$\\alpha_{V}$ (10$^{-5}$)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_19_1.png" src="../../_images/examples_thermodynamics_qha_19_1.png" />
+</div>
+</div>
+</section>
+<section id="The-'specific_heat()'-method">
+<h3>The ‘specific_heat()’ method<a class="headerlink" href="#The-'specific_heat()'-method" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Quasiharmonic.specific_heat()</span></code> method computes constant volume <span class="math notranslate nohighlight">\(C_{V}\)</span> or pressure <span class="math notranslate nohighlight">\(C_{p}\)</span> specific heat.</p>
+<ul class="simple">
+<li><p>For <code class="docutils literal notranslate"><span class="pre">thermo_freq</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen</span></code>, <code class="docutils literal notranslate"><span class="pre">self.c_p</span></code> have been fitted with the Grüneisen model. Calling this will overwrites the fitted data.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">thermo_eos</span></code>, this method fits <code class="docutils literal notranslate"><span class="pre">self.c_v</span></code> from <code class="docutils literal notranslate"><span class="pre">self.c_p</span></code>. The <code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> method must be called first.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+
+obj = Quasi_harmonic.restart(&#39;qha_EoSFit.yaml&#39;)
+obj.expansion_vol(poly_order=3, plot=False)
+obj.specific_heat()
+
+print(&#39;C_V at 250K, 0GPa = {:.4f} J/mol/K&#39;.format(obj.c_v[0, 6]))
+print(&#39;C_p at 250K, 0GPa = {:.4f} J/mol/K&#39;.format(obj.c_p[0, 6]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+C_V at 250K, 0GPa = 663.5247 J/mol/K
+C_p at 250K, 0GPa = 669.5023 J/mol/K
+</pre></div></div>
+</div>
+</section>
+<section id="The-'bulk_modulus'-method">
+<h3>The ‘bulk_modulus’ method<a class="headerlink" href="#The-'bulk_modulus'-method" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Quasiharmonic.bulk_modulus()</span></code> method computes the adiabatic <span class="math notranslate nohighlight">\(K_{S}\)</span> bulk moduli.</p>
+<ul class="simple">
+<li><p>For <code class="docutils literal notranslate"><span class="pre">thermo_freq</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen</span></code>, <code class="docutils literal notranslate"><span class="pre">self.k_s</span></code> have been fitted with the Grüneisen model. Calling this will overwrites the fitted data.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">thermo_eos</span></code>, this method fits <code class="docutils literal notranslate"><span class="pre">self.k_s</span></code> from <code class="docutils literal notranslate"><span class="pre">self.k_t</span></code>. The <code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> method must be called first.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+
+obj = Quasi_harmonic.restart(&#39;qha_GruFit.yaml&#39;)
+obj.bulk_modulus()
+
+print(&#39;K_T at 300K, 0GPa = {:.4f} GPa&#39;.format(obj.k_t[0, 6]))
+print(&#39;K_S at 300K, 0GPa = {:.4f} GPa&#39;.format(obj.k_s[0, 6]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+K_T at 300K, 0GPa = 233.3333 GPa
+K_S at 300K, 0GPa = 234.9996 GPa
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_32766/3728630731.py:5: UserWarning: Attributes &#39;k_s&#39; exists, the fitting will be overwritten.
+  obj.bulk_modulus()
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Anisotropic-lattice-expansions">
+<h2>Anisotropic lattice expansions<a class="headerlink" href="#Anisotropic-lattice-expansions" title="Link to this heading"></a></h2>
+<p>Fits anisotropic lattice expansions, i.e., lattice parameters, from sampled HA calculation and fitted volumes. In practice, lattice matrices are fitted. To minimize the orders of freedom, the structure will be expanded and aligned to the standard representations of conventional cells when fitting. If there is no expansion, the structure will be reoriented to input geometry for consistency.</p>
+<section id="The-'lattice_poly()'-method">
+<h3>The ‘lattice_poly()’ method<a class="headerlink" href="#The-'lattice_poly()'-method" title="Link to this heading"></a></h3>
+<p>It fits linear expansions of the minimal set of lattice parameters. Volume constrain is applied to reduce one inequivalent lattice parameter.</p>
+<p><strong>NOTE</strong></p>
+<p>Equilibrium volumes must be fit with <code class="docutils literal notranslate"><span class="pre">thermo_*()</span></code> methods first.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">lattice_poly()</span></code> method individually fits lattice parameter <span class="math notranslate nohighlight">\(a\)</span> as the polynomial function of volume <span class="math notranslate nohighlight">\(V\)</span> at contant pressures. The optimized lattice parameters at DFT level are used for fitting.</p>
+<p>Fit and plot lattice parameters of paracetamol. The fitted lattice matrices is saved in <code class="docutils literal notranslate"><span class="pre">self.lattice</span></code> attribute. The inequivalent lattice parameters are saved in <code class="docutils literal notranslate"><span class="pre">self.latt_params</span></code> attribute.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import matplotlib.pyplot as plt
+
+
+file_list = [&#39;qha_paracetamolGm4.out&#39;, &#39;qha_paracetamolGp4.out&#39;,
+             &#39;qha_paracetamolGr0.out&#39;, &#39;qha_paracetamolGp8.out&#39;]
+T = np.array([0, 20, 50, 80, 150, 200, 250, 330], dtype=float)
+p = np.linspace(0, 0.15, 6)
+
+obj = Quasi_harmonic(filename=&#39;qha_LattPolyFit.yaml&#39;, temperature=T,
+                     pressure=p).from_file(*file_list, source=&#39;crystal&#39;)
+obj.thermo_freq(eos_method=&#39;birch_murnaghan&#39;, poly_order=[2, 3],
+                min_method=&#39;BFGS&#39;)
+obj.lattice_poly(poly_order=3)
+
+fig, ax = plt.subplots(2, 2, figsize=(8, 6), sharey=False, layout=&#39;tight&#39;)
+
+name = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;beta&#39;]
+color = [&#39;tab:gray&#39;, &#39;tab:purple&#39;, &#39;tab:blue&#39;, &#39;tab:green&#39;, &#39;tab:orange&#39;, &#39;tab:red&#39;]
+for il in range(obj.latt_params.shape[-1]):
+    for ip in range(obj.latt_params.shape[0]):
+        # nPressure*nTemperature*nLattice
+        fig.axes[il].plot(T, obj.latt_params[ip, :, il], color=color[ip],
+                          marker=&#39;v&#39;, label=&#39;{} @ {:.2f}GPa&#39;.format(name[il], p[ip]))
+    fig.axes[il].legend(loc=&#39;lower right&#39;)
+    fig.axes[il].set_xlabel(&#39;Temperature (K)&#39;)
+    fig.axes[il].set_ylabel(r&#39;Length ($\AA$)&#39;)
+fig.axes[-1].set_ylabel(r&#39;Degree ($\circ$)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:634: UserWarning: Close overlap of phonon modes detected at qpoint 0: 11 overlaps out of 240*240 mode combinations at this point.
+  close_overlap, dot_pdt = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Degree ($\\circ$)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_25_2.png" src="../../_images/examples_thermodynamics_qha_25_2.png" />
+</div>
+</div>
+</section>
+<section id="The-'lattice_hess()'-method">
+<h3>The ‘lattice_hess()’ method<a class="headerlink" href="#The-'lattice_hess()'-method" title="Link to this heading"></a></h3>
+<p>It adopts a multi-dimensional 2-order perturbation around the minimal set of equilibrium lattice parameters.</p>
+<div class="math notranslate nohighlight">
+\[G(\mathbf{v}) = G_{0}(\mathbf{v}_{0}) + \Delta\mathbf{v}\mathbf{H}\Delta\mathbf{v}^{T}\]</div>
+<p><span class="math notranslate nohighlight">\(\Delta\mathbf{v}\)</span> is the difference between the lattice parameters of sampled HA calculations and the equilibrium ones (to be fitted). The root-mean-squared deviations (RMSD) between <span class="math notranslate nohighlight">\(\Delta\mathbf{v}\mathbf{H}\Delta\mathbf{v}^{T}\)</span> and <span class="math notranslate nohighlight">\(G-G_{0}\)</span> is minimized at constant temperature and pressure.</p>
+<p>This method requires a larger number of HA calculations to ensure a robust fitting, which depends on the symmetry of the system. Volume constrain is applied, but its dimension in <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> is kept.</p>
+<p>Minimum HA references:</p>
+<ul class="simple">
+<li><p>Hexagonal, trigonal and tetragonal: 4</p></li>
+<li><p>Orthorhombic: 8</p></li>
+<li><p>Monoclinic: 13</p></li>
+<li><p>Triclinic: 26</p></li>
+</ul>
+<p>Use <code class="docutils literal notranslate"><span class="pre">interp</span></code> to linearly interpolate reference geometries and insert reference Gibbs free energies. Only available to objects generated by <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>. <code class="docutils literal notranslate"><span class="pre">interp</span></code> must less than <code class="docutils literal notranslate"><span class="pre">self.ncalc</span></code>.</p>
+<p><strong>NOTE</strong></p>
+<p>Recommended for finite temperatures and pressures.</p>
+<p>Fit and plot lattice parameters of corundum.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import matplotlib.pyplot as plt
+
+T = np.linspace(50, 1000, 20)
+p = np.linspace(0.5, 2, 4)
+
+obj = Quasi_harmonic(filename=&#39;qha_LattHessFit.yaml&#39;, temperature=T, pressure=p)
+obj.from_file(&#39;qha_corundumG.out&#39;, source=&#39;crystal-QHA&#39;)
+obj.thermo_gruneisen()
+obj.lattice_hess(interp=3)
+
+fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharey=False, layout=&#39;tight&#39;)
+
+name = [&#39;a&#39;, &#39;c&#39;]
+color = [&#39;tab:purple&#39;, &#39;tab:blue&#39;, &#39;tab:green&#39;, &#39;tab:orange&#39;, &#39;tab:red&#39;]
+for il in range(obj.latt_params.shape[-1]):
+    for ip in range(obj.latt_params.shape[0]):
+        # nPressure*nTemperature*nLattice
+        ax[il].plot(T, obj.latt_params[ip, :, il], color=color[ip],
+                    marker=&#39;v&#39;, label=&#39;{} @ {:.2f}GPa&#39;.format(name[il], p[ip]))
+    ax[il].legend(loc=&#39;lower right&#39;)
+    ax[il].set_xlabel(&#39;Temperature (K)&#39;)
+    ax[il].set_ylabel(r&#39;Length ($\AA$)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:634: UserWarning: Close overlap of phonon modes detected at qpoint 0: 40 overlaps out of 90*90 mode combinations at this point.
+  close_overlap, dot_pdt = self._combine_data(ha_list, mode_sort_tol=mode_sort_tol)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_27_1.png" src="../../_images/examples_thermodynamics_qha_27_1.png" />
+</div>
+</div>
+</section>
+<section id="The-'expansion_latt()'-method">
+<h3>The ‘expansion_latt()’ method<a class="headerlink" href="#The-'expansion_latt()'-method" title="Link to this heading"></a></h3>
+<p>It fits the linear expansion coefficients of the minimal set of lattice parameters. The quality of fittings can be evaluated by <code class="docutils literal notranslate"><span class="pre">plot=True</span></code>.</p>
+<p><strong>NOTE</strong></p>
+<p>Equilibrium lattice parameters must be fit with <code class="docutils literal notranslate"><span class="pre">lattice_*()</span></code> methods first.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import matplotlib.pyplot as plt
+
+obj = Quasi_harmonic.restart(&#39;qha_LattHessFit.yaml&#39;)
+obj.expansion_latt(plot=False)
+
+fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharey=False, layout=&#39;tight&#39;)
+
+name = [&#39;a&#39;, &#39;c&#39;]
+color = [&#39;tab:purple&#39;, &#39;tab:blue&#39;, &#39;tab:green&#39;, &#39;tab:orange&#39;, &#39;tab:red&#39;]
+for il in range(obj.alpha_l.shape[-1]):
+    for ip in range(obj.alpha_l.shape[0]):
+        # nPressure*nTemperature*nLattice
+        ax[il].plot(obj.temperature, obj.alpha_l[ip, :, il]*1e6, color=color[ip],
+                    marker=&#39;v&#39;, label=&#39;{} @ {:.2f}GPa&#39;.format(name[il], obj.pressure[ip]))
+    ax[il].legend(loc=&#39;lower right&#39;)
+    ax[il].set_xlabel(&#39;Temperature (K)&#39;)
+    ax[il].set_ylabel(r&#39;$\alpha_{l}$ $(\times10^{-6})$&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_29_0.png" src="../../_images/examples_thermodynamics_qha_29_0.png" />
+</div>
+</div>
+<p>For monoclinic and triclinic systems, use <code class="docutils literal notranslate"><span class="pre">Cartesian=True</span></code> for expansion rates along Cartesian coordinates.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.thermodynamics import Quasi_harmonic
+import matplotlib.pyplot as plt
+
+obj = Quasi_harmonic.restart(&#39;qha_LattPolyFit.yaml&#39;)
+obj.expansion_latt(poly_order=4, plot=False, Cartesian=True)
+
+fig, ax = plt.subplots(2, 2, figsize=(8, 6), sharey=False, layout=&#39;tight&#39;)
+
+name = [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]
+color = [&#39;tab:gray&#39;, &#39;tab:purple&#39;, &#39;tab:blue&#39;, &#39;tab:green&#39;, &#39;tab:orange&#39;, &#39;tab:red&#39;]
+for il in range(obj.alpha_l.shape[-1]):
+    for ip in range(obj.alpha_l.shape[0]):
+        # nPressure*nTemperature*nLattice
+        fig.axes[il].plot(obj.temperature, obj.alpha_l[ip, :, il]*1e4, color=color[ip],
+                          marker=&#39;v&#39;, label=&#39;{} @ {:.2f}GPa&#39;.format(name[il], obj.pressure[ip]))
+    fig.axes[il].legend(loc=&#39;lower right&#39;)
+    fig.axes[il].set_xlabel(&#39;Temperature (K)&#39;)
+    fig.axes[il].set_ylabel(r&#39;$\alpha$ $(\times10^{-4})$&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_31_0.png" src="../../_images/examples_thermodynamics_qha_31_0.png" />
+</div>
+</div>
+<p>The following code block is only used to generate a nice thumbnail for the example gallary.</p>
+<p>This is the end of the example notebook. For more information please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.thermodynamics.html">API documentation</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.imshow(plt.imread(&quot;./qha_paracetamolG.png&quot;))
+ax.axis(&#39;off&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(-0.5, 1599.5, 1199.5, -0.5)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_thermodynamics_qha_33_1.png" src="../../_images/examples_thermodynamics_qha_33_1.png" />
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="harmonic.html" class="btn btn-neutral float-left" title="Lattice Dynamics 1: Harmonic Approximation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../topond/topond.html" class="btn btn-neutral float-right" title="TOPOND" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

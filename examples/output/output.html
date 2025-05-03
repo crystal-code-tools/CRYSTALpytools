@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Output Analysis &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/output/output.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="File / Class Conversion" href="../convert/convert.html" />
+    <link rel="prev" title="Basis Set: Advanced" href="../input_and_basisset/basisset_advanced.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Output Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/output/output.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Output-Analysis">
+<h1>Output Analysis<a class="headerlink" href="#Output-Analysis" title="Link to this heading"></a></h1>
+<p>The standard screen output files (.out or .outp files) generated by the ‘crystal’ and ‘properties’ executables of CRYSTAL package can be analyzed by CRYSTALpytools.</p>
+<section id="The-'crystal_io.Crystal_output'-class">
+<h2>The ‘crystal_io.Crystal_output’ class<a class="headerlink" href="#The-'crystal_io.Crystal_output'-class" title="Link to this heading"></a></h2>
+<p>Methods for ‘crystal’ output files are defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Crystal_output</span></code> class. For phonon / spectra / thermodynamic / elastic properties, please refer to the corresponding modules. Here ‘fundamental’ properties are substracted.</p>
+<section id="Geometry">
+<h3>Geometry<a class="headerlink" href="#Geometry" title="Link to this heading"></a></h3>
+<p>Get geometry from SCF calculation. Return to a <code class="docutils literal notranslate"><span class="pre">geometry.CStructure</span></code> class, which is inherited from the <code class="docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code> class.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+struc = Crystal_output(&#39;out_mgoSCF.out&#39;).get_geometry()
+print(struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (Mg1 O1)
+Reduced Formula: MgO
+abc   :   2.981869   2.981869   2.981869
+angles:  60.000000  60.000000  60.000000
+pbc   :       True       True       True
+Sites (2)
+  #  SP      a    b    c
+---  ----  ---  ---  ---
+  0  Mg    0    0    0
+  1  O     0.5  0.5  0.5
+</pre></div></div>
+</div>
+<p>Get the optimized structure from a 0D molecule optimization and writes the ‘fort.34’ (.gui) file.</p>
+<p><strong>NOTE</strong></p>
+<p>Currently, pymatgen symmetry analysis is limited to 3D systems. If symmetry is kept during optimization, use <code class="docutils literal notranslate"><span class="pre">symmetry=initial</span></code> to read the symmetry operators when calculaton starts.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+struc = Crystal_output(&#39;out_coOpt.out&#39;).get_geometry(
+    initial=False, write_gui=True, gui_name=&#39;out_coOpt.gui&#39;, symmetry=&#39;initial&#39;)
+print(struc)
+! cat out_coOpt.gui
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Full Formula (C1 O1)
+Reduced Formula: CO
+abc   : 500.000000 500.000000 500.000000
+angles:  90.000000  90.000000  90.000000
+pbc   :      False      False      False
+Sites (2)
+  #  SP            a         b          c
+---  ----  ---------  --------  ---------
+  0  C     -0.000127  -8e-05    -6.4e-05
+  1  O      0.001727   0.00108   0.000864
+   0   1   1
+  5.000000000000E+02  0.000000000000E+00  0.000000000000E+00
+  0.000000000000E+00  5.000000000000E+02  0.000000000000E+00
+  0.000000000000E+00  0.000000000000E+00  5.000000000000E+02
+    1
+      1.000000000000      0.000000000000      0.000000000000
+      0.000000000000      1.000000000000      0.000000000000
+      0.000000000000      0.000000000000      1.000000000000
+      0.000000000000      0.000000000000      0.000000000000
+    2
+    6 -6.372620712800E-02 -3.982887945500E-02 -3.186310356400E-02
+    8  8.637262071280E-01  5.398288794550E-01  4.318631035640E-01
+    1    1
+</pre></div></div>
+</div>
+</section>
+<section id="Symmetry-Operators">
+<h3>Symmetry Operators<a class="headerlink" href="#Symmetry-Operators" title="Link to this heading"></a></h3>
+<p>Get symmetry operators of the initial / last geometry with <code class="docutils literal notranslate"><span class="pre">initial</span></code> option to be True / False. It is consistent with CRYSTAL output file, i.e. in fractional coordinates of the cell.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_coOpt.out&#39;)
+# Symmetry operators
+print(&quot;Symmetry operators = \n %s \n&quot; % out.get_symmops())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Symmetry operators =
+ [[[1. 0. 0.]
+  [0. 1. 0.]
+  [0. 0. 1.]
+  [0. 0. 0.]]]
+
+</pre></div></div>
+</div>
+</section>
+<section id="Basic-Convergence">
+<h3>Basic Convergence<a class="headerlink" href="#Basic-Convergence" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_convergence()</span></code> method provides a basic method to substract SCF/OPT convergence information. More detailed information is available with <code class="docutils literal notranslate"><span class="pre">get_scf_convergence()</span></code> or <code class="docutils literal notranslate"><span class="pre">get_opt_convergence</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_coOpt.out&#39;)
+out.get_convergence()
+print(&#39;Final optimization energy {:.4f} eV&#39;.format(out.final_energy))
+print(&#39;Optimization energy difference (eV)&#39;)
+print(out.opt_deltae)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Final optimization energy -3040.0635 eV
+Optimization energy difference (eV)
+[ 0.00000000e+00 -2.17745513e+00 -5.46948864e-03 -1.02859040e-03
+ -2.17364553e-04 -1.47186388e-06]
+</pre></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">get_final_energy()</span></code> is a shortcut.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_coOpt.out&#39;)
+print(&#39;Final optimization energy {:.4f} eV&#39;.format(out.get_final_energy()))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Final optimization energy -3040.0635 eV
+</pre></div></div>
+</div>
+</section>
+<section id="SCF-convergence">
+<h3>SCF convergence<a class="headerlink" href="#SCF-convergence" title="Link to this heading"></a></h3>
+<p>Get SCF convergence history with the <code class="docutils literal notranslate"><span class="pre">get_scf_convergence()</span></code> method.</p>
+<p><strong>NOTE</strong></p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">scf_energy</span></code> attribute refers to the DFT total energy. The <code class="docutils literal notranslate"><span class="pre">final_energy</span></code> attribute includes empirical correction terms (DFT-D, gCP…). <code class="docutils literal notranslate"><span class="pre">final_energy</span></code> is valid only when <code class="docutils literal notranslate"><span class="pre">scf_status='converged'</span></code>.</p></li>
+<li><p>Even though, in principle, this method also reads SCF from optimization output. To avoid ambiguity, use the <code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> method with <code class="docutils literal notranslate"><span class="pre">scf_history=True</span></code>.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+import matplotlib.pyplot as plt
+
+out = Crystal_output(&#39;out_mgoSCF.out&#39;).get_scf_convergence()
+
+print(&#39;SCF convergence status = {}&#39;.format(out.scf_status))
+print(&#39;SCF number of cycles = {:d}&#39;.format(out.scf_cycles))
+print(&#39;Final energy = {:.6f} eV&#39;.format(out.final_energy))
+
+fig, ax = plt.subplots(1, 1, figsize=[6, 3])
+x = [i for i in range(out.scf_cycles)]
+ax.plot(x, out.scf_energy, &#39;b-&#39;, label=&#39;SCF energy&#39;)
+ax.set_xlabel(&#39;Number of SCF Cycles&#39;)
+ax.set_ylabel(&#39;Total Energy (eV)&#39;)
+ax.legend()
+ax2 = ax.twinx()
+ax2.plot(x, out.scf_deltae, &#39;r-&#39;, label=r&#39;$\Delta$E&#39;)
+ax2.set_ylabel(&#39;Energy Differenece (eV)&#39;)
+ax2.legend()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SCF convergence status = converged
+SCF number of cycles = 8
+Final energy = -7495.338004 eV
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc55eac8af0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_output_output_11_2.png" src="../../_images/examples_output_output_11_2.png" />
+</div>
+</div>
+</section>
+<section id="Fermi-energy">
+<h3>Fermi energy<a class="headerlink" href="#Fermi-energy" title="Link to this heading"></a></h3>
+<p>Get fermi energy (and history) from SCF calculation.</p>
+<p><strong>NOTE</strong></p>
+<p>For ‘SPINLOCK’, Fermi energy returns to 0. For insulators, Fermi energy returns to VBM.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_gMVsaddleSCF.out&#39;).get_fermi_energy(history=True)
+
+print(&#39;Converged Fermi energy = {:.2f} eV&#39;.format(out[-1]))
+print(&#39;Fermi energy history (eV):&#39;)
+print(out)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Converged Fermi energy = -2.50 eV
+Fermi energy history (eV):
+[ 0.          0.          0.          0.          0.          0.
+ -2.43921236 -2.43860653 -2.4399284  -2.49155123 -2.49509761 -2.49855836
+ -2.50011667 -2.50167602 -2.50192865 -2.50190963 -2.50187654 -2.50197096]
+</pre></div></div>
+</div>
+</section>
+<section id="Band-gap">
+<h3>Band gap<a class="headerlink" href="#Band-gap" title="Link to this heading"></a></h3>
+<p>Get band gap from SCF calculation.</p>
+<p><strong>NOTE</strong></p>
+<p>For ‘SPINLOCK’ or conducting systems, energy gap returns to 0.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_gMVsaddleSCF.out&#39;).get_band_gap(history=True)
+
+print(&#39;Converged gaps = alpha : {:.4f} eV; beta : {:.4f} eV&#39;.format(out[-1,0], out[-1,1]))
+print(&#39;Alpha-gap history:&#39;)
+print(out[:, 0])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Converged gaps = alpha : 0.1204 eV; beta : 0.1205 eV
+Alpha-gap history:
+[0.     0.     0.     0.     0.     0.     0.     0.     0.     0.1292
+ 0.1255 0.123  0.121  0.1201 0.1203 0.1204 0.1204 0.1204]
+</pre></div></div>
+</div>
+</section>
+<section id="Mulliken-Charge">
+<h3>Mulliken Charge<a class="headerlink" href="#Mulliken-Charge" title="Link to this heading"></a></h3>
+<p>Get Mulliken charges of converged SCF / OPT calculations. The keyword ‘PPAN’ required. Currently it only reads charges per atom.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_gMVsaddleSCF.out&#39;).get_mulliken_charges()
+print(&#39;Charges of atom 1: Total = {:.4f}; Alpha = {:.4f}; Beta = {:.4f}&#39;.format(
+    out[0, 0], out[0, 1], out[0, 2]
+))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Charges of atom 1: Total = 6.0040; Alpha = 3.0020; Beta = 3.0020
+</pre></div></div>
+</div>
+</section>
+<section id="Optimization-Convergence">
+<h3>Optimization Convergence<a class="headerlink" href="#Optimization-Convergence" title="Link to this heading"></a></h3>
+<p>Get optimization convergence history with <code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> method.</p>
+<p><strong>NOTE</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">opt_energy</span></code> attribute refers to total DFT energy with corrections. The <code class="docutils literal notranslate"><span class="pre">opt_deltae</span></code> attribute refers to energy difference between 2 optimization steps.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+import matplotlib.pyplot as plt
+
+out = Crystal_output(&#39;out_coOpt.out&#39;).get_opt_convergence()
+print(&#39;OPT convergence status = {}&#39;.format(out.opt_status))
+print(&#39;OPT number of cycles = {:d}&#39;.format(out.opt_cycles))
+print(&#39;Final energy = {:.6f} eV&#39;.format(out.final_energy))
+print(&#39;Final RMS Gradient = {:.4f} Hartree/Bohr&#39;.format(out.opt_rmsgrad[-1]))
+
+fig, ax = plt.subplots(1, 1, figsize=[6, 3])
+x = [i for i in range(out.opt_cycles)]
+ax.plot(x, out.opt_energy, &#39;b-&#39;, label=&#39;OPT energy&#39;)
+ax.set_xlabel(&#39;Number of OPT Cycles&#39;)
+ax.set_ylabel(&#39;Total Energy (eV)&#39;)
+ax.legend()
+ax2 = ax.twinx()
+ax2.plot(x, out.opt_deltae, &#39;r-&#39;, label=r&#39;$\Delta$E&#39;)
+ax2.set_ylabel(&#39;Energy Differenece (eV)&#39;)
+ax2.legend()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+OPT convergence status = converged
+OPT number of cycles = 6
+Final energy = -3040.063479 eV
+Final RMS Gradient = 0.0003 Hartree/Bohr
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc55ec35610&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_output_output_19_2.png" src="../../_images/examples_output_output_19_2.png" />
+</div>
+</div>
+<p>The user can get geometry and write into ‘fort.34’ (.gui) files with <code class="docutils literal notranslate"><span class="pre">write_gui=True</span></code> and <code class="docutils literal notranslate"><span class="pre">gui_name</span></code> option.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_mgoOpt.out&#39;).get_opt_convergence(
+    write_gui=True, gui_name=&#39;out_mgoOpt.optstory/optstep&#39;)
+</pre></div>
+</div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">scf_history</span></code> option the user can access the SCF energies at every optimization step via the <code class="docutils literal notranslate"><span class="pre">scf_energy</span></code> attribute. Note that where <code class="docutils literal notranslate"><span class="pre">scf_energy</span></code> is a 1*nOptCycle list of arrays.</p>
+<p>Read from ‘SCFOUT.LOG’ file. If <code class="docutils literal notranslate"><span class="pre">scflog</span></code> is not None, <code class="docutils literal notranslate"><span class="pre">scf_history</span></code> is set to ‘True’ automatically.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_mgoOpt.out&#39;).get_opt_convergence(scflog=&#39;out_mgoOpt.SCFLOG&#39;)
+print(&#39;SCF energy history of OPT step 2 (eV)&#39;)
+print(out.scf_energy[1])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SCF energy history of OPT step 2 (eV)
+[-7493.84141118 -7495.34015428 -7495.34062005 -7495.34066489
+ -7495.34067826 -7495.34067824 -7495.34067825]
+</pre></div></div>
+</div>
+<p>Also possible to get SCF history with ‘ONELOG’ keyword enabled.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_mgoOptONELOG.out&#39;).get_opt_convergence(scf_history=True)
+print(&#39;SCF energy history of OPT step 2 (eV)&#39;)
+print(out.scf_energy[1])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SCF energy history of OPT step 2 (eV)
+[-7493.84141118 -7495.34015428 -7495.34062005 -7495.34066489
+ -7495.34067826 -7495.34067824 -7495.34067825]
+</pre></div></div>
+</div>
+</section>
+<section id="Forces">
+<h3>Forces<a class="headerlink" href="#Forces" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">grad=True</span></code> reads the RMS and MAX gradients just as the <code class="docutils literal notranslate"><span class="pre">get_opt_convergence()</span></code> method.</p>
+<p><strong>NOTE</strong></p>
+<p>This method typically gets forces available in the output file. For usual optimization setups, that means forces of the <strong>INITIAL</strong> geometry. To get forces of last optimization step, use ‘ONELOG’ keyword for optimization or provide SCFOUT.LOG file via the <code class="docutils literal notranslate"><span class="pre">scflog</span></code> option.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Crystal_output
+
+out = Crystal_output(&#39;out_mgoOpt.out&#39;)
+out.get_forces(grad=True, scflog=&#39;out_mgoOpt.SCFLOG&#39;)
+
+print(&#39;Unit: Hartree/Bohr\n&#39;)
+print(&quot;Forces on cell = \n %s \n\n Forces on atoms = \n %s \n\n RMS Gradient = \n %s \n\n&quot; %
+      (out.forces_cell[-1], out.forces_atoms[-1], out.opt_rmsgrad[-1]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Unit: Hartree/Bohr
+
+Forces on cell =
+ [[ 2.22325723e-06 -2.22325723e-06 -2.22325723e-06]
+ [-2.22325723e-06  2.22325723e-06 -2.22325723e-06]
+ [-2.22325723e-06 -2.22325723e-06  2.22325723e-06]]
+
+ Forces on atoms =
+ [[ 4.27329456e-16  3.87727906e-16  3.73283265e-16]
+ [-4.08825739e-16 -4.07966347e-16 -3.73283265e-16]]
+
+ RMS Gradient =
+ 3.1e-05
+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="The-'crystal_io.Properties_output'-class">
+<h2>The ‘crystal_io.Properties_output’ class<a class="headerlink" href="#The-'crystal_io.Properties_output'-class" title="Link to this heading"></a></h2>
+<p>This class is developed mostly for external file formats rather than the screen output, which has been discussed thoroughly in other modules.</p>
+<p>The screen output is used mostly for auxiliary proposes, which has been tested by calling other methods.</p>
+<section id="id1">
+<h3>Geometry<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>A quick test of the <code class="docutils literal notranslate"><span class="pre">get_geometry()</span></code> method.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+out = Properties_output(&#39;out_mgo.outp&#39;)
+out.get_geometry()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Structure Summary
+Lattice
+    abc : 2.9818692962636706 2.9818692962636706 2.9818692962636706
+ angles : 60.00000000000001 60.00000000000001 60.00000000000001
+ volume : 18.747821578249994
+      A : 0.0 2.1085 2.1085
+      B : 2.1085 0.0 2.1085
+      C : 2.1085 2.1085 0.0
+    pbc : True True True
+PeriodicSite: Mg (0.0, 0.0, 0.0) [0.0, 0.0, 0.0]
+PeriodicSite: O (2.108, 2.108, 2.108) [0.4999, 0.4999, 0.4999]
+</pre></div></div>
+</div>
+<p>For more information, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.crystal_io.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../input_and_basisset/basisset_advanced.html" class="btn btn-neutral float-left" title="Basis Set: Advanced" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../convert/convert.html" class="btn btn-neutral float-right" title="File / Class Conversion" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

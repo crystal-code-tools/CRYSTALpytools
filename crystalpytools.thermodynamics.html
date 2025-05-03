@@ -1,0 +1,1446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRYSTALpytools.thermodynamics module &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.thermodynamics.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRYSTALpytools.topond module" href="crystalpytools.topond.html" />
+    <link rel="prev" title="CRYSTALpytools.spectra module" href="crystalpytools.spectra.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples and Test Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystalpytools.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystalpytools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="crystalpytools.html">CRYSTALpytools Package</a></li>
+      <li class="breadcrumb-item active">CRYSTALpytools.thermodynamics module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/crystalpytools.thermodynamics.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><span class="math notranslate nohighlight">\(\newcommand{\AA}{\text{Å}}\)</span></p>
+<section id="module-CRYSTALpytools.thermodynamics">
+<span id="crystalpytools-thermodynamics-module"></span><h1>CRYSTALpytools.thermodynamics module<a class="headerlink" href="#module-CRYSTALpytools.thermodynamics" title="Link to this heading"></a></h1>
+<p>A post-processing module for DFT lattice dynamics by harmonic and quasiharmonic
+approximations (HA/QHA).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Harmonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocalc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_old</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for harmonic phonon calclulations. It can be parameterized from a
+CRYSTAL output file, phonopy ouput file or by setting all the information
+(usually for QHA).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em><em>|</em><em>float</em>) – <em>Optional</em> Temperatures where thermodynamic
+properties are computed. Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>|</em><em>float</em>) – <em>Optional</em> Pressures where thermodyanmic
+properties are calculated. Unit: GPa</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the printed-out file. If None, do not
+print out file.</p></li>
+<li><p><strong>autocalc</strong> (<em>bool</em>) – Automatically launch calculations.</p></li>
+<li><p><strong>use_old</strong> (<em>bool</em>) – Use the deprecated text fomat output, which cannot be
+used for restarting calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Temperatures and pressures can also be defined by <code class="docutils literal notranslate"><span class="pre">self.thermodynamics</span></code>,
+whose entries always cover the entries here.</p>
+<p>Phonon dispersions are forced to be summed if the automatic scheme
+(<code class="docutils literal notranslate"><span class="pre">autocalc=True</span></code>) is launched. To get verbose outputs, call
+<code class="docutils literal notranslate"><span class="pre">self.thermodynamics()</span></code> first and then call <code class="docutils literal notranslate"><span class="pre">self.print_results()</span></code>.</p>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ha</span> <span class="o">=</span> <span class="n">Harmonic</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">pressure</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,])</span>
+<span class="n">ha</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;harmonic_phonon.out&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.edft">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edft</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.edft" title="Link to this definition"></a></dt>
+<dd><p>For compatibility</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.restart">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.restart" title="Link to this definition"></a></dt>
+<dd><p>Restart calculation from a dumped YAML file. <code class="docutils literal notranslate"><span class="pre">autocalc</span></code> is switched
+off. Instantiation will not update the dumped file, but thermodynamic
+calculations will.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – YAML file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>obj</strong> (<em>Harmonic</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.from_file">
+<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crystal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_eigvt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.from_file" title="Link to this definition"></a></dt>
+<dd><p>Generate the Harominc object from an output file. Files generated by
+the following methods are supported (also the accepted entries for
+<code class="docutils literal notranslate"><span class="pre">source</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'crystal'</span></code>: CRYSTAL harmonic phonon outputs (Gamma, dispersion).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'crystal-QHA'</span></code>: CRYSTAL QHA outputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'phonopy'</span></code>: Phonopy qpoints and mesh files.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In rare cases, the user might want to collect data of a few
+specific q points. <code class="docutils literal notranslate"><span class="pre">q_id</span></code> and <code class="docutils literal notranslate"><span class="pre">q_coord</span></code> can be set but not
+simultaneously. If set, <code class="docutils literal notranslate"><span class="pre">q_id</span></code> takes priority and <code class="docutils literal notranslate"><span class="pre">q_coord</span></code> is
+ignored.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the output file.</p></li>
+<li><p><strong>source</strong> (<em>str</em>) – The program used for the output file.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>|</em><em>array</em>) – Scaling factors</p></li>
+<li><p><strong>scale_range</strong> (<em>array</em>) – nScale*2 array. The frequency range of the
+scaling factor. Including the minimum and excluding the maximum.
+Use empty list for a uniform scaling.</p></li>
+<li><p><strong>imaginary_tol</strong> (<em>float</em>) – The threshold of negative frequencies.</p></li>
+<li><p><strong>q_overlap_tol</strong> (<em>float</em>) – The threshold of overlapping points, defined
+as the 2nd norm of the difference of fractional q vectors</p></li>
+<li><p><strong>q_id</strong> (<em>array</em>) – Index (from 0) of q points to be read. 1*nqpoint.</p></li>
+<li><p><strong>q_coord</strong> (<em>array</em>) – Fractional coordinates of q points to read.
+nqpoint*3 list.</p></li>
+<li><p><strong>read_eigvt</strong> – Deprecated.</p></li>
+<li><p><strong>**kwargs</strong> – Other keywords passed to corresponding I/O functions.
+See below.</p></li>
+<li><p><strong>qha_index</strong> (<em>int</em>) – <em>crystal-QHA</em>. The index of calculation to read (from 0).</p></li>
+<li><p><strong>struc_yaml</strong> (<em>str</em>) – <em>phonopy</em>. ‘qpoints.yaml’ only.</p></li>
+<li><p><strong>u_0</strong> (<em>float</em>) – <em>phonopy</em>. Static internal energy in kJ/mol.</p></li>
+<li><p><strong>irreps_yaml</strong> (<em>array</em><em>[</em><em>str</em><em>]</em>) – <em>phonopy</em>. Read ‘irreps.yaml’ for mode
+symmetry symbols. The fractional coordinates in the file are
+used for <code class="docutils literal notranslate"><span class="pre">q_coord</span></code> if not specified. Phonopy ‘irreps.yaml’
+only contains symmetry info of a q point. Use a list of
+filenames for multiple q points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Harmonic</em>) – Attributes listed below.</p></li>
+<li><p><strong>structure</strong> (<em>CStructure</em>) – Extended Pymatgen structure class. For
+the finite displacement method, this is the cell before
+supercell expansion.</p></li>
+<li><p><strong>natom</strong> (<em>int</em>) – Number of atoms in the cell.</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – Volume of the cell. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>u_0</strong> (<em>float</em>) – Internal energy. Unit: kJ/mol</p></li>
+<li><p><strong>nqpoint</strong> (<em>int</em>) – Number of q points</p></li>
+<li><p><strong>qpoint</strong> (<em>list</em>) – nQpoint*4 list. The first three elements are
+fractional coordinates in reciprocal space and the last is
+its weight, i.e., number of equivalent q points.</p></li>
+<li><p><strong>nmode</strong> (<em>int</em>) – Number of modes.</p></li>
+<li><p><strong>frequency</strong> (<em>array[float]</em>) – nQpoint*nMode array of frequencies in THz.</p></li>
+<li><p><strong>mode_symm</strong> (<em>array[str]</em>) – nQpoint*nMode array of the  irreducible
+representations. In Mulliken symbols.</p></li>
+<li><p><strong>eigenvector</strong> (<em>array[float]</em>) – nQpoint*nMode*nAtom*3 array of phonon
+eigenvectors.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.from_frequency">
+<span class="sig-name descname"><span class="pre">from_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.from_frequency" title="Link to this definition"></a></dt>
+<dd><p>Generate a Harmonic object by specifying frequency and eigenvector.
+Usually called by other methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_0</strong> (<em>float</em>) – Static total energy in kJ/mol.</p></li>
+<li><p><strong>qpoint</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – nQpoint*4 array. The first three elements
+are fractional coordinate and the last is weight.</p></li>
+<li><p><strong>frequency</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Array of frequencies. Unit: THz</p></li>
+<li><p><strong>eigenvector</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Mass weighted and phased eigenvectors</p></li>
+<li><p><strong>1.</strong> (<em>normalized to</em>)</p></li>
+<li><p><strong>symmetry</strong> (<em>array</em><em>[</em><em>str</em><em>]</em>) – Irreducible representations in Mulliken symbols.</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="crystalpytools.geometry.html#CRYSTALpytools.geometry.CStructure" title="CRYSTALpytools.geometry.CStructure"><em>CStructure</em></a>) – Extended Pymatgen structure class. For the
+finite displacement method, this is the cell before expansion.</p></li>
+<li><p><strong>natom</strong> (<em>int</em>) – Number of atoms in the reduced cell.</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – Volume of the reduced cell. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The user should define <code class="docutils literal notranslate"><span class="pre">structure</span></code>. <code class="docutils literal notranslate"><span class="pre">natom</span></code> and <code class="docutils literal notranslate"><span class="pre">volume</span></code> are
+for developers only.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>Harmonic</em>) – Attributes see <code class="docutils literal notranslate"><span class="pre">from_file()</span></code>.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Exception</strong> – If computational data is stored in the object.</p></li>
+<li><p><strong>ValueError</strong> – If neither of the 2 available options are defined.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.thermodynamics">
+<span class="sig-name descname"><span class="pre">thermodynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.thermodynamics" title="Link to this definition"></a></dt>
+<dd><p>Calculate the thermodynamic properties (zp_energy, u_vib, entropy, c_v
+and Gibbs and Helmholtz free energy) of the HA system.</p>
+<p>Zero-point energy <span class="math notranslate nohighlight">\(E^{zp}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[E^{zp}=\sum_{i,\mathbf{q}}\frac{1}{2}\hbar\omega_{i,\mathbf{q}}\]</div>
+<p>Vibration contribution to internal energy <span class="math notranslate nohighlight">\(U^{vib}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[U^{vib}\left(T\right)=E^{zp}+\sum_{i,\mathbf{q}}
+\frac{\hbar\omega_{i,\mathbf{q}}}{\exp{\left(
+    \frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T}
+\right)}-1}\]</div>
+<p>Entropy <span class="math notranslate nohighlight">\(S\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[S\left(T\right)=k_{B}\sum_{i,\mathbf{q}}\left\{
+    \frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T\left[
+        \exp{\left(
+            \frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T}
+        \right)}-1
+    \right]}-\ln{\left[
+        1-\exp{\left(
+            -\frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T}
+        \right)}
+    \right]}
+\right\}\]</div>
+<p>Constant volume specific heat <span class="math notranslate nohighlight">\(C^{V}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[C_{V}\left(T\right)=\sum_{i,\mathbf{q}}
+\frac{\left(\hbar\omega_{i,\mathbf{q}}\right)^{2}}{k_{B}T^{2}}
+\frac{\exp{
+\left(
+    \frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T}
+\right)}
+}{\left[
+    \exp{\left(
+        \frac{\hbar\omega_{i,\mathbf{q}}}{k_{B}T}
+    \right)-1}
+\right]^{2}
+}\]</div>
+<p>The Helmholtz and Gibbs free energies are defined as:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}F(T) = U_{0} + F_{vib}(T) = U_{0} + U_{vib}(T) - TS(T)\\G(T, p) = F + pV\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em><em>|</em><em>float</em>) – <em>Optional</em> Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>|</em><em>float</em>) – <em>Optional</em> Unit: GPa</p></li>
+<li><p><strong>sumphonon</strong> (<em>bool</em>) – Deprecated. Not used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Harmonic</em>) – Attributes listed below.</p></li>
+<li><p><strong>self.helmholtz</strong> (<em>array</em>) – 1*nTemperature. Unit: KJ/mol</p></li>
+<li><p><strong>self.gibbs</strong> (<em>array</em>) – nPressure*nTemperature. Unit: KJ/mol</p></li>
+<li><p><strong>self.zp_energy</strong> (<em>float</em>) – Zero-point energy. Unit: KJ/mol</p></li>
+<li><p><strong>self.u_vib</strong> (<em>array</em>) – Vibrational contribution to internal energy.
+1*nTemperature. Unit: KJ/mol</p></li>
+<li><p><strong>self.entropy</strong> (<em>array</em>) – 1*nTemperature. Unit: J/mol*K</p></li>
+<li><p><strong>self.c_v</strong> (<em>array</em>) – Constant volume specific heat. 1*nTemperature.
+Unit: J/mol*K</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If temperature and pressure are defined neither here nor during initialization</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.mode_thermo">
+<span class="sig-name descname"><span class="pre">mode_thermo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.mode_thermo" title="Link to this definition"></a></dt>
+<dd><p>Return to thermodynamic properties of the specified mode(s). Units
+are consistent with the <code class="docutils literal notranslate"><span class="pre">thermodynamics()</span></code> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> (<em>int</em><em>|</em><em>array</em>) – Indices of q point, from 0.</p></li>
+<li><p><strong>m</strong> (<em>int</em><em>|</em><em>array</em>) – Indices of mode, from 0.</p></li>
+<li><p><strong>**kwargs</strong> – See below.</p></li>
+<li><p><strong>temperature</strong> (<em>array</em><em>|</em><em>float</em>) – If not present, use <code class="docutils literal notranslate"><span class="pre">self.temperature</span></code>. It will not update the attribute.</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>|</em><em>float</em>) – If not present, use <code class="docutils literal notranslate"><span class="pre">self.pressure</span></code>. It will not update the attribute.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>zp_energy</strong> (<em>float</em>)</p></li>
+<li><p><strong>u_vib</strong> (<em>array</em>) – 1*nTemperture</p></li>
+<li><p><strong>entropy</strong> (<em>array</em>) – 1*nTemperture</p></li>
+<li><p><strong>c_v</strong> (<em>array</em>) – 1*nTemperture</p></li>
+<li><p><strong>helmholtz</strong> (<em>array</em>) – 1*nTemperture, excluding DFT total energy of the system</p></li>
+<li><p><strong>gibbs</strong> (<em>array</em>) – nPressure*nTemperture, excluding DFT total energy of the system</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.write_HA_result">
+<span class="sig-name descname"><span class="pre">write_HA_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.write_HA_result" title="Link to this definition"></a></dt>
+<dd><p>Write output. Typically the code dumps data to file automatically.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Harmonic.from_phonopy">
+<span class="sig-name descname"><span class="pre">from_phonopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phono_yaml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Harmonic.from_phonopy" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Call <code class="docutils literal notranslate"><span class="pre">from_file()</span></code> directly.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Quasi_harmonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_old</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate and rearrange harmonic phonons, store the fitted, volume-dependent
+QHA phonon information and obtain the QHA thermodynamic properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>array</em><em>|</em><em>float</em>) – Should be given in ascending order, or will be sorted. Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>|</em><em>float</em>) – Should be given in ascending order, or will be sorted. Unit: GPa</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the output file in YAML format for restarting calculation.</p></li>
+<li><p><strong>use_old</strong> (<em>bool</em>) – Use the deprecated text fomat output, which cannot be
+used for restarting calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Temperatures and pressures can also be defined by <code class="docutils literal notranslate"><span class="pre">self.thermodynamics</span></code>,
+whose entries always cover the entries here.</p>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qha</span> <span class="o">=</span> <span class="n">Quasi_harmonic</span><span class="p">()</span>
+<span class="n">qha</span><span class="o">.</span><span class="n">from_QHA_file</span><span class="p">(</span><span class="s1">&#39;qha_phonon.out&#39;</span><span class="p">)</span>
+<span class="n">qha</span><span class="o">.</span><span class="n">thermo_freq</span><span class="p">(</span><span class="n">eos_method</span><span class="o">=</span><span class="s1">&#39;birch_murnaghan&#39;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">pressure</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]):</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.from_file">
+<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crystal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_sort_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_file" title="Link to this definition"></a></dt>
+<dd><p>Instatiation from output file(s). Files generated by the following
+methods are supported (also the accepted entries for <code class="docutils literal notranslate"><span class="pre">source</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'crystal'</span></code>: CRYSTAL harmonic phonon outputs (Gamma, dispersion).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'crystal-QHA'</span></code>: CRYSTAL QHA outputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'phonopy'</span></code>: Phonopy qpoints and mesh files.</p></li>
+</ul>
+<p>Instatiation from outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*filename</strong> (<em>str</em>) – Phonon output filename(s). Extendable.</p></li>
+<li><p><strong>source</strong> (<em>str</em>) – The program used for the output file.</p></li>
+<li><p><strong>mode_sort_tol</strong> (<em>float</em><em> | </em><em>None</em>) – The threshold of close mode overlaps
+with eigenvectors if present. If none, do not sort modes and
+eigenvector is not read.</p></li>
+<li><p><strong>**kwargs</strong> – Optional keywords passed to <code class="docutils literal notranslate"><span class="pre">Harmonic().from_file()</span></code>.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>|</em><em>array</em>)</p></li>
+<li><p><strong>scale_range</strong> (<em>array</em>)</p></li>
+<li><p><strong>imaginary_tol</strong> (<em>float</em>)</p></li>
+<li><p><strong>q_overlap_tol</strong> (<em>float</em>)</p></li>
+<li><p><strong>q_id</strong> (<em>array</em>) – Applied to all HA calculations.</p></li>
+<li><p><strong>q_coord</strong> (<em>array</em>) – Applied to all HA calculations.</p></li>
+<li><p><strong>struc_yaml</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – <em>phonopy</em>. ‘qpoints.yaml’ only.</p></li>
+<li><p><strong>u_0</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – <em>phonopy</em>. Static internal energy in kJ/mol.</p></li>
+<li><p><strong>irreps_yaml</strong> (<em>array</em><em>[</em><em>str</em><em>]</em>) – <em>phonopy</em>. nCalc*nQpoint array. Read
+‘irreps.yaml’ for mode symmetry symbols. The fractional coordinates
+in the file are used for <code class="docutils literal notranslate"><span class="pre">q_coord</span></code> if not specified. Phonopy
+‘irreps.yaml’ only contains symmetry info of a q point. Use a
+list of filenames for multiple q points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New Attributes listed below</p></li>
+<li><p><strong>ncalc</strong> (<em>int</em>) – Number of HA phonon calculations.</p></li>
+<li><p><strong>combined_volume</strong> (<em>array[float]</em>) – 1*nCalc volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>combined_struc</strong> (<em>list[CStructure]</em>) – 1*nCalc HA structures.</p></li>
+<li><p><strong>combined_u0</strong> (<em>array[float]</em>) – 1*nCalc static internal energies. Unit: kJ/mol</p></li>
+<li><p><strong>combined_freq</strong> (<em>array[float]</em>) – nQpoint*nMode*nCalc frequencies. Unit: THz</p></li>
+<li><p><strong>combined_symm</strong> (<em>array[str]</em>) – nQpoint*nMode*nCalc mode symmetry in Mulliken symbol.</p></li>
+<li><p><strong>nqpoint</strong> (<em>int</em>) – Number of q points.</p></li>
+<li><p><strong>qpoint</strong> (<em>array[float]</em>) – nQpoint*4 array. The first three elements are fractional coordinates,
+and the last is the weight.</p></li>
+<li><p><strong>nmode</strong> (<em>int</em>) – Number of modes.</p></li>
+<li><p><strong>natom</strong> (<em>int</em>) – Number of atoms.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.combined_edft">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combined_edft</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.combined_edft" title="Link to this definition"></a></dt>
+<dd><p>For compatibility with older versions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.restart">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.restart" title="Link to this definition"></a></dt>
+<dd><p>Restart calculation from a dumped YAML file. Instantiation will not
+update the dumped file, but thermodynamic calculations will.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – YAML file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>obj</strong> (<em>Quasi_harmonic</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_freq">
+<span class="sig-name descname"><span class="pre">thermo_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'birch_murnaghan'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutewarning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_freq" title="Link to this definition"></a></dt>
+<dd><p>Obtain thermodynamic properties by explicitly fitting phonon
+frequencies as polynomial functions of volume. DFT total energies are
+fitted as a function of volume by equation of states (EOS).</p>
+<p>The equilibrium volume is fitted by minimizing Gibbs free energy at
+constant temperature and pressure.</p>
+<div class="math notranslate nohighlight">
+\[V(T,p)=\text{min}[G(V;T,p)]=\text{min}[E_{0}(V)+F_{vib}(V;T,p)+pV)]\]</div>
+<p>Parameterized and tested algorithms for <code class="docutils literal notranslate"><span class="pre">min_method</span></code>:</p>
+<ul class="simple">
+<li><p>BFGS(no boundary)</p></li>
+<li><p>L-BFGS-B(with boundary)</p></li>
+</ul>
+<p>Isothermal bulk modulus <span class="math notranslate nohighlight">\(K_{T}\)</span> is obtained by a secondary fit of
+$F(V; T)$ with the same <code class="docutils literal notranslate"><span class="pre">eos_method</span></code>.</p>
+<div class="math notranslate nohighlight">
+\[K_{T}(p;T) = V(p;T)\left(\frac{\partial^{2}F(V;T)}{\partial V^{2}}\right)_{T}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a good fitting of isothermal bulk modulus <span class="math notranslate nohighlight">\(K_{T}\)</span>, the
+number of pressures must &gt;= 5.</p>
+</div>
+<p>The mode-specific Grüneisen parameters are obtained by deriving the
+the fitted frequency at given temperature, pressure and equilibrium volume:</p>
+<div class="math notranslate nohighlight">
+\[\gamma_{\textbf{q}i}(T,p)=-\frac{V_{0}}{\omega_{\textbf{q}i}}\frac{\text{d}\omega_{\textbf{q}i}}{\text{d}V_{0}}\]</div>
+<p>Then the macroscopic Grüneisen parameters and thermal expansions are
+obtained with the standard Grüneisen method. See the <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>
+method below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eos_method</strong> (<em>str</em>) – EOS used to fit DFT total energy and Helmholtz
+free energy (to get bulk modules). Valid entries are consistent
+with <a class="reference external" href="https://pymatgen.org/pymatgen.analysis.html#module-pymatgen.analysis.eos">PyMatGen eos module</a>.</p></li>
+<li><p><strong>poly_order</strong> (<em>array</em><em>[</em><em>int</em><em>]</em>) – The order of polynomials used to fit
+frequency as the function of volumes.</p></li>
+<li><p><strong>min_method</strong> (<em>string</em>) – Minimisation algorithms, ‘BFGS’/’L-BFGS-B’.
+See above.</p></li>
+<li><p><strong>volume_bound</strong> (<em>tuple-like</em>) – volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>mutewarning</strong> (<em>bool</em>) – Whether print out warning messages.</p></li>
+<li><p><strong>**kwargs</strong> – See below</p></li>
+<li><p><strong>temperature</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Should be given in ascending order, or will be sorted. Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Should be given in ascending order, or will be sorted. Unit: GPa</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – For DeltaFactor / Polynomial EOSs.</p></li>
+<li><p><strong>min_ndata_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>max_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>min_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New Attributes listed below</p></li>
+<li><p><strong>self.temperature</strong> (<em>array</em>) – Unit: K</p></li>
+<li><p><strong>self.pressure</strong> (<em>array</em>) – Unit: GPa</p></li>
+<li><p><strong>self.volume</strong> (<em>array</em>) – nPressure*nTemperature, same below. Equilibrium volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>self.helmholtz</strong> (<em>array</em>) – Helmholtz free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.gibbs</strong> (<em>array</em>) – Gibbs free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.entropy</strong> (<em>array</em>) – Entropy. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.gruneisen</strong> (<em>array</em>) – npressure*ntemperature, same below. Macroscopic Grüneisen parameter.</p></li>
+<li><p><strong>self.alpha_v</strong> (<em>array</em>) – Thermal expansion coefficient by Grüneisen method.</p></li>
+<li><p><strong>self.c_v</strong> (<em>array</em>) – Constant volume specific heat. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.c_p</strong> (<em>array</em>) – Constant pressure specific heat by Grüneisen method. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.k_t</strong> (<em>array</em>) – Isothermal bulk modulus. Unit: GPa.</p></li>
+<li><p><strong>self.k_s</strong> (<em>array</em>) – Adiabatic bulk modulus by Grüneisen method. Unit: GPa.</p></li>
+<li><p><strong>self.eos_method</strong> (<em>str</em>) – Name of the EOS.</p></li>
+<li><p><strong>self.u0_fit</strong> (<em>Pymatgen EOS</em>) – EOS used to fit DFT energy.</p></li>
+<li><p><strong>self.eos</strong> (<em>list[Pymatgen EOS]</em>) – Pymatgen EOS objects. EOS used to fit Helmholtz free energy.</p></li>
+<li><p><strong>self.e0_eos_method</strong> – Deprecated. Synonym of ‘self.eos_method’.</p></li>
+<li><p><strong>self.e0_eos</strong> – Deprecated. Synonym of ‘self.u0_fit’.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If temperature or pressure is defined neither here nor during initialization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_gruneisen">
+<span class="sig-name descname"><span class="pre">thermo_gruneisen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'birch_murnaghan'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutewarning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_gruneisen" title="Link to this definition"></a></dt>
+<dd><p>Obtain thermodynamic properties by Grüneisen parameters.</p>
+<p>The pressure and temperature independent mode-specific Grüneisen parameters are obtained by:</p>
+<div class="math notranslate nohighlight">
+\[\gamma_{\textbf{q}i}=-\frac{\ln{\omega}-\ln{\omega_{0}}}{\ln{V}-\ln{V_{0}}}\]</div>
+<p><span class="math notranslate nohighlight">\(V_{0}\)</span> is the most compact structure sampled. Frequency at given
+volume can be expressed analytically by:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{\textbf{q}i}(V) = \omega_{\textbf{q}i}(V_{0})\left(\frac{V}{V_{0}}\right)^{-\gamma_{\textbf{q}i}}\]</div>
+<p>Then the Gibbs free energy is minimized in the same way as <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code>.</p>
+<p>The macroscopic Grüneisen parameter is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\gamma=\sum_{\textbf{q}i}\frac{\gamma_{\textbf{q}i}C_{V,\textbf{q}i}}{C_{V}}\]</div>
+<p>Thermal expansion coefficient in Grüneisen model:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{V}^{gru}=\frac{\gamma C_{V}}{K_{T}V}\]</div>
+<p>Therefore this method does not require polynomial fittings of
+volume-temperature for expansion rate, adiabatic bulk modulus and
+constant pressure specific heat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eos_method</strong> (<em>str</em>) – <p>EOS used to fit DFT total energy and Helmholtz
+free energy (to get bulk modules). Valid entries are consistent
+with <a class="reference external" href="https://pymatgen.org/pymatgen.analysis.html#module-pymatgen.analysis.eos">PyMatGen eos module</a>.</p>
+</p></li>
+<li><p><strong>min_method</strong> (<em>string</em>) – Minimisation algorithms, ‘BFGS’/’L-BFGS-B’.
+See <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code>.</p></li>
+<li><p><strong>volume_bound</strong> (<em>tuple-like</em>) – volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>mutewarning</strong> (<em>bool</em>) – Whether print out warning messages.</p></li>
+<li><p><strong>**kwargs</strong> – See below</p></li>
+<li><p><strong>temperature</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Should be given in ascending order, or will be sorted. Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Should be given in ascending order, or will be sorted. Unit: GPa</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – For DeltaFactor / Polynomial EOSs.</p></li>
+<li><p><strong>min_ndata_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>max_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>min_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New Attributes listed below</p></li>
+<li><p><strong>self.temperature</strong> (<em>array</em>) – Unit: K</p></li>
+<li><p><strong>self.pressure</strong> (<em>array</em>) – Unit: GPa</p></li>
+<li><p><strong>self.volume</strong> (<em>array</em>) – nPressure*nTemperature, same below. Equilibrium volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>self.helmholtz</strong> (<em>array</em>) – Helmholtz free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.gibbs</strong> (<em>array</em>) – Gibbs free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.entropy</strong> (<em>array</em>) – Entropy. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.gruneisen</strong> (<em>array</em>) – npressure*ntemperature, same below. Macroscopic Grüneisen parameter.</p></li>
+<li><p><strong>self.alpha_v</strong> (<em>array</em>) – Thermal expansion coefficient by Grüneisen method.</p></li>
+<li><p><strong>self.c_v</strong> (<em>array</em>) – Constant volume specific heat. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.c_p</strong> (<em>array</em>) – Constant pressure specific heat by Grüneisen method. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.k_t</strong> (<em>array</em>) – Isothermal bulk modulus. Unit: GPa.</p></li>
+<li><p><strong>self.k_s</strong> (<em>array</em>) – Adiabatic bulk modulus by Grüneisen method. Unit: GPa.</p></li>
+<li><p><strong>self.eos_method</strong> (<em>str</em>) – Name of the EOS.</p></li>
+<li><p><strong>self.u0_fit</strong> (<em>Pymatgen EOS</em>) – EOS used to fit DFT energy.</p></li>
+<li><p><strong>self.eos</strong> (<em>list[Pymatgen EOS]</em>) – Pymatgen EOS objects. EOS used to fit Helmholtz free energy.</p></li>
+<li><p><strong>self.alpha_vgru</strong> – Deprecated. Synonym of ‘self.alpha_v’.</p></li>
+<li><p><strong>self.c_pgru</strong> – Deprecated. Synonym of ‘self.c_p’.</p></li>
+<li><p><strong>self.k_sgru</strong> – Deprecated. Synonym of ‘self.k_s’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_eos">
+<span class="sig-name descname"><span class="pre">thermo_eos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'birch_murnaghan'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[3,</span> <span class="pre">4]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutewarning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.thermo_eos" title="Link to this definition"></a></dt>
+<dd><p>Obtain thermodynamic properties by fitting EOS, which is fitted by the
+Helmholtz free energies of sampled harmonic phonons. The explicit
+sorting and fitting of frequency-volume relationship is disabled.</p>
+<p>The equilibrium volume is fitted by minimizing the difference between
+analytical pressure and the given pressure at constant temperature.</p>
+<div class="math notranslate nohighlight">
+\[V(T,p_{0})=\text{min}\left[
+    -\left(
+        \frac{\partial F(V)}{\partial V}
+    \right)_{T} - p_{0}
+\right]^{2}\]</div>
+<p>Parameterized and tested algorithms for <code class="docutils literal notranslate"><span class="pre">min_method</span></code>:</p>
+<ul class="simple">
+<li><p>BFGS(no boundary)</p></li>
+<li><p>L-BFGS-B(with boundary)</p></li>
+</ul>
+<p>Entropy is obtained by taking the derivative of Gibbs free energy at
+constant pressure.</p>
+<div class="math notranslate nohighlight">
+\[S=-\left(\frac{\partial G}{\partial T}\right)_{p}\]</div>
+<p>Constant pressure specific heat is obtained by taking the second
+derivative of <span class="math notranslate nohighlight">\(G\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[C_{p}=-T\left(\frac{\partial^{2}G}{\partial T^{2}}\right)_{p}\]</div>
+<p><span class="math notranslate nohighlight">\(G(T)\)</span> is fitted as polynomial specified by <code class="docutils literal notranslate"><span class="pre">poly_order</span></code>. The
+first order is forced to be 0 to ensure <span class="math notranslate nohighlight">\(S=0\)</span> at 0 K.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a good fitting of <span class="math notranslate nohighlight">\(G(T)\)</span>, entropy and c_p, the number of
+temperatures must &gt;= 5. <code class="docutils literal notranslate"><span class="pre">poly_order</span></code> must &gt; 2.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eos_method</strong> (<em>str</em>) – <p>EOS used to fit DFT total energy and Helmholtz
+free energy (to get bulk modules). Valid entries are consistent
+with <a class="reference external" href="https://pymatgen.org/pymatgen.analysis.html#module-pymatgen.analysis.eos">PyMatGen eos module</a>.</p>
+</p></li>
+<li><p><strong>poly_order</strong> (<em>array</em><em>[</em><em>int</em><em>]</em>) – The order of polynomials used to fit
+Gibbs free energy as the function of volumes.</p></li>
+<li><p><strong>min_method</strong> (<em>string</em><em>, </em><em>optional</em>) – Minimisation algorithms, ‘BFGS’/’L-BFGS-B’.
+See above.</p></li>
+<li><p><strong>volume_bound</strong> (<em>tuple-like</em>) – volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>mutewarning</strong> (<em>bool</em>) – Whether print out warning messages.</p></li>
+<li><p><strong>**kwargs</strong> – See below</p></li>
+<li><p><strong>temperature</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Unit: K</p></li>
+<li><p><strong>pressure</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Unit: GPa</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – For DeltaFactor / Polynomial EOSs.</p></li>
+<li><p><strong>min_ndata_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>max_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+<li><p><strong>min_poly_order_factor</strong> (<em>int</em>) – For Numerical EOS.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New attributes listed below</p></li>
+<li><p><strong>self.method</strong> (<em>str</em>) – ‘thermo_eos’</p></li>
+<li><p><strong>self.temperature</strong> (<em>array</em>) – Should be given in ascending order, or will be sorted. Unit: K</p></li>
+<li><p><strong>self.pressure</strong> (<em>array</em>) – Should be given in ascending order, or will be sorted. Unit: GPa</p></li>
+<li><p><strong>self.volume</strong> (<em>array</em>) – nPressure*nTemperature, same below. Equilibrium volumes. Unit: <span class="math notranslate nohighlight">\(\AA^{3}\)</span></p></li>
+<li><p><strong>self.helmholtz</strong> (<em>array</em>) – Helmholtz free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.gibbs</strong> (<em>array</em>) – Gibbs free energy. Unit: kJ/mol</p></li>
+<li><p><strong>self.entropy</strong> (<em>array</em>) – Entropy. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.c_p</strong> (<em>array</em>) – Constant pressure specific heat. Unit: <span class="math notranslate nohighlight">\(J.mol^{-1}.K^{-1}\)</span></p></li>
+<li><p><strong>self.k_t</strong> (<em>array</em>) – Isothermal bulk modulus. Unit: GPa.</p></li>
+<li><p><strong>self.eos</strong> (<em>list[Pymatgen EOS]</em>) – nTemperature*1 list of Pymatgen EOS objects. EOSs used to fit HA free energy at constant temperature.</p></li>
+<li><p><strong>self.eos_method</strong> (<em>str</em>) – The name of EOS used.</p></li>
+<li><p><strong>self.gibbs_fit</strong> (<em>list[Polynomial]</em>) – nPressure list of Polynomials of fitted Gibbs free energy, for entropy and c_p.</p></li>
+<li><p><strong>self.fe_eos</strong> – Deprecated. Synonym of ‘self.eos’.</p></li>
+<li><p><strong>self.fe_eos_method</strong> – Deprecated. Synonym of ‘self.fe_eos_method’.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Exception</strong> – If the number of HA calculations is less than 4.</p></li>
+<li><p><strong>Exception</strong> – If temperature or pressure is defined neither here nor during initialization.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_vol">
+<span class="sig-name descname"><span class="pre">expansion_vol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'expansion_fit.png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_vol" title="Link to this definition"></a></dt>
+<dd><p>Fit the thermal expansion curve as polynomials and get thermal expansion
+coefficients at equilibrium volumes.</p>
+<p>The volumetric thermal expansion coefficient at constant pressure:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{V}(T) = \frac{1}{V(T)}\left(\frac{\partial V(T)}{\partial T}\right)_{p}\]</div>
+<p><code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code> methods have fitted thermal
+expansion with Grüneisen model. Calling this will overwrite the fittings.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a good fitting. <code class="docutils literal notranslate"><span class="pre">poly_order</span></code> must be no smaller than 2. The
+length of <code class="docutils literal notranslate"><span class="pre">self.temperature</span></code> must no smaller than <code class="docutils literal notranslate"><span class="pre">poly_order+1</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly_order</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Order of polynomials.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – Plot V-T curves to examine the goodness of fitting. The
+order with the largest <span class="math notranslate nohighlight">\(R^{2}\)</span> is automatically selected.</p></li>
+<li><p><strong>fit_fig</strong> (<em>str</em>) – File name for the fitting plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New attributes listed below</p></li>
+<li><p><strong>self.vol_fit</strong> (<em>list</em>) – 1*nPressure. List of Numpy polynomial object, the fitted volume V(T).</p></li>
+<li><p><strong>self.alpha_v</strong> (<em>array</em>) – nPressure*nTemperature. Expansion coefficients at equilibrium volumes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.bulk_modulus">
+<span class="sig-name descname"><span class="pre">bulk_modulus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.bulk_modulus" title="Link to this definition"></a></dt>
+<dd><p>Calculate isothermal and adiabatic bulk moduli at equilibrium volumes.</p>
+<p>The following equation is used:</p>
+<div class="math notranslate nohighlight">
+\[K_{S} = K_{T} + \frac{\alpha^{2}_{V}VTK^{2}_{T}}{C_{V}}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>With <code class="docutils literal notranslate"><span class="pre">thermo_eos()</span></code>, must call <code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> first.</p></li>
+<li><dl class="simple">
+<dt>With <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>, unless the</dt><dd><p><code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> has been called, it will not change the
+results.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Only functions as a container of deprecated keywords. Not used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New attributes listed below</p></li>
+<li><p><strong>self.k_t</strong> (<em>array</em>) – Isothermal bulk modulus. Unit: GPa.</p></li>
+<li><p><strong>self.k_s</strong> (<em>array</em>) – nPressure*nTemperature. Adiabatic bulk modulus. Unit: GPa.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.specific_heat">
+<span class="sig-name descname"><span class="pre">specific_heat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.specific_heat" title="Link to this definition"></a></dt>
+<dd><p>Calculate constant volume or pressure specific heat at equilibrium volumes.</p>
+<p>The following equation is used:</p>
+<div class="math notranslate nohighlight">
+\[C_{p} - C_{V} = \alpha_{V}^{2}K_{T}VT\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>With <code class="docutils literal notranslate"><span class="pre">thermo_eos()</span></code>, must call <code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> first.</p></li>
+<li><dl class="simple">
+<dt>With <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>, unless the</dt><dd><p><code class="docutils literal notranslate"><span class="pre">expansion_vol()</span></code> has been called, it will not change the
+results.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New attributes listed below</p></li>
+<li><p><strong>self.c_v</strong> (<em>array</em>) – nPressure*nTemperature. Constant volume specific heat. Unit: J/mol/K</p></li>
+<li><p><strong>self.c_p</strong> (<em>array</em>) – nPressure*nTemperature. Constant pressure specific heat. Unit: J/mol/K.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.lattice_poly">
+<span class="sig-name descname"><span class="pre">lattice_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.lattice_poly" title="Link to this definition"></a></dt>
+<dd><p>Fit anisotropic expansions, i.e., lattice parameters, by polynomial
+fitting lattice parameters with repect to volume. (<span class="math notranslate nohighlight">\(V^{1/3}\)</span> is used.)
+More robust than <code class="docutils literal notranslate"><span class="pre">thermo_hess()</span></code>.</p>
+<p>Lattice will be expanded and aligned to the standard conventional cell.
+Volume constrain is applied. Minimum HA references: <code class="docutils literal notranslate"><span class="pre">poly_order+2</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">interp</span></code> to linearly interpolate reference geometries and
+insert reference Gibbs free energies. Only available to objects
+generated by <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>.
+<code class="docutils literal notranslate"><span class="pre">interp</span></code> must less than <code class="docutils literal notranslate"><span class="pre">self.ncalc</span></code>.</p>
+</div>
+<p>Currently only the fitted <code class="docutils literal notranslate"><span class="pre">self.lattice</span></code> can be read from dump file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly_order</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – The order of polynomials used to fit lattice
+parameters as function of volumes.</p></li>
+<li><p><strong>interp</strong> (<em>int</em>) – Number of interpolated HA calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> – New attribute listed below.</p></li>
+<li><p><strong>self.sg</strong> (<em>int</em>) – International space group number.</p></li>
+<li><p><strong>self.lattice</strong> (<em>array</em>) – nPress*nTempt*3*3 lattice matrix at given
+temperature and pressure. Standard conventional cell is used.</p></li>
+<li><p><strong>self.latt_params</strong> (<em>array</em>) – nPress*nTempt*nLatt minimal set of
+lattice parameters. The standard conventional cell is used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.lattice_hess">
+<span class="sig-name descname"><span class="pre">lattice_hess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.lattice_hess" title="Link to this definition"></a></dt>
+<dd><p>Fit anisotropic expansions, i.e., lattice parameters, by the second-order
+perturbation of Gibbs free energy <span class="math notranslate nohighlight">\(G\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[G(\mathbf{v})=G_{0}(\mathbf{v_{0}})+\Delta\mathbf{v}\mathbf{H}\Delta\mathbf{v}^{T}\]</div>
+<p><span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is the row vector of inequivalent lattice parameters.
+<span class="math notranslate nohighlight">\(\mathbf{v_0}\)</span> is the row vector of equilibrium lattice parameters.
+<span class="math notranslate nohighlight">\(\Delta\mathbf{v}\)</span> is the difference between <span class="math notranslate nohighlight">\(\mathbf{v_0}\)</span>
+and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>. <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> is the Hessian matrix.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Inspired by <em>Phys. Rev. Mater.</em>, 2019, <strong>3</strong>, 053605.</p>
+</div>
+<p>The root-mean-squared deviations (RMSD) between <span class="math notranslate nohighlight">\(\Delta\mathbf{v}\mathbf{H}\Delta\mathbf{v}^{T}\)</span>
+and <cite>G-G_{0}</cite> is minimized at constant temperature and pressure.
+Lattice will be expanded and aligned to the standard conventional cell.</p>
+<p>This method requires a larger number of HA calculations to ensure a
+successful fitting, which depends on the symmetry of the system. Volume
+constrain is applied to reduce one inequivalent lattice parameter, but
+its dimension in <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> is kept.</p>
+<p>Minimum HA references:</p>
+<ul class="simple">
+<li><p>Hexagonal, trigonal and tetragonal: 4</p></li>
+<li><p>Orthorhombic: 8</p></li>
+<li><p>Monoclinic: 13</p></li>
+<li><p>Triclinic: 26</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">interp</span></code> to linearly interpolate reference geometries and
+insert reference Gibbs free energies. Only available  to objects
+generated by <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>.
+<code class="docutils literal notranslate"><span class="pre">interp</span></code> must less than <code class="docutils literal notranslate"><span class="pre">self.ncalc</span></code>.</p>
+</div>
+<p>Currently only the fitted <code class="docutils literal notranslate"><span class="pre">self.lattice</span></code> can be read from dump file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interp</strong> (<em>int</em>) – Number of interpolated HA calculations.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize()</a>
+Passed keywords listed below.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Default ‘BFGS’.</p></li>
+<li><p><strong>jac</strong> (<em>str</em>) – Default ‘3-point’.</p></li>
+<li><p><strong>hess</strong> – Scipy default settings.</p></li>
+<li><p><strong>hessp</strong> – Scipy default settings.</p></li>
+<li><p><strong>bounds</strong> – Scipy default settings.</p></li>
+<li><p><strong>constraints</strong> – Scipy default settings.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Default 0.05.</p></li>
+<li><p><strong>options</strong> – Scipy default settings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> – New attribute listed below.</p></li>
+<li><p><strong>self.sg</strong> (<em>int</em>) – International space group number.</p></li>
+<li><p><strong>self.lattice</strong> (<em>array</em>) – nPress*nTempt*3*3 lattice matrix at given
+temperature and pressure. Standard conventional cell is used.</p></li>
+<li><p><strong>self.latt_params</strong> (<em>array</em>) – nPress*nTempt*nLatt minimal set of
+lattice parameters. The standard conventional cell is used.</p></li>
+<li><p><strong>self.latt_cart</strong> (<em>array</em>) – nPress*nTempt*3 projected lengths of cell
+on Cartesian coordinates. The standard conventional cell is used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.latt_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">latt_params</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.latt_params" title="Link to this definition"></a></dt>
+<dd><p>Generate nPress*nTempt*nLattice minimum set of lattice parameters
+from lattice matrices of the standard conventional cell. Callable only
+if the equilibrium lattice parametes are fitted.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.latt_cart">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">latt_cart</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.latt_cart" title="Link to this definition"></a></dt>
+<dd><p>Generate nPress*nTempt*3 set of projected lengths of cell on
+Cartesian coordinates from lattice matrices of the standard conventional
+cell. Callable only if the equilibrium lattice parametes are fitted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_latt">
+<span class="sig-name descname"><span class="pre">expansion_latt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'expansion_latt_{}.png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_latt" title="Link to this definition"></a></dt>
+<dd><p>Fit the thermal expansion curve as polynomials and get linear thermal
+expansion coefficients.</p>
+<p>The linear thermal expansion coefficient at constant pressure:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{l}(T) = \frac{1}{l(T)}\left(\frac{\partial l(T)}{\partial T}\right)_{p}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a good fitting. <code class="docutils literal notranslate"><span class="pre">poly_order</span></code> must be no smaller than 2. The
+length of <code class="docutils literal notranslate"><span class="pre">self.temperature</span></code> must no smaller than <code class="docutils literal notranslate"><span class="pre">poly_order+1</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly_order</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Order of polynomials.</p></li>
+<li><p><strong>Cartesian</strong> (<em>bool</em>) – Fit linear thermal expansion rate with reference to
+Cartesian coordinate. Useful for monoclinic and triclinic systems.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – Plot a-T curves to examine the goodness of fitting. The
+order with the largest <span class="math notranslate nohighlight">\(R^{2}\)</span> is automatically selected.</p></li>
+<li><p><strong>fit_fig</strong> (<em>str</em>) – File name for the fitting plots. Must include the
+format string for string variables.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>self</strong> (<em>Quasi_harmonic</em>) – New attributes listed below</p></li>
+<li><p><strong>self.latt_fit</strong> (<em>list</em>) – nPressure*nLattice. List of Numpy polynomial
+object, the fitted lattice parameters. <code class="docutils literal notranslate"><span class="pre">nLattice=3</span></code> if <code class="docutils literal notranslate"><span class="pre">Cartesian=True</span></code>.</p></li>
+<li><p><strong>self.alpha_l</strong> (<em>array</em>) – nPressure*nTemperature*nLattice. Expansion
+coefficients. <code class="docutils literal notranslate"><span class="pre">nLattice=3</span></code> if <code class="docutils literal notranslate"><span class="pre">Cartesian=True</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.eos_fit">
+<span class="sig-name descname"><span class="pre">eos_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.eos_fit" title="Link to this definition"></a></dt>
+<dd><p>Fit energy-volume relationship by equation of states. Expected to be
+called internally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>volume</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Unit: Angstrom^3</p></li>
+<li><p><strong>energy</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Unit: kJ/mol</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Name of EoS used. Consistent with
+<a class="reference external" href="https://pymatgen.org/pymatgen.analysis.html#module-pymatgen.analysis.eos">Pymatgen</a>.</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – For DeltaFactor / Polynomial methods.</p></li>
+<li><p><strong>min_ndata_factor</strong> (<em>int</em>) – For the NumericalEOS method.</p></li>
+<li><p><strong>max_poly_order_factor</strong> (<em>int</em>) – For the NumericalEOS method.</p></li>
+<li><p><strong>min_poly_order_factor</strong> (<em>int</em>) – For the NumericalEOS method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>eos</strong> (<em>Pymatgen EOS</em>) – The fitted equation of state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.freq_polynomial_fit">
+<span class="sig-name descname"><span class="pre">freq_polynomial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.freq_polynomial_fit" title="Link to this definition"></a></dt>
+<dd><p>Fit phonon frequencies as polynomial functions of volumes. <span class="math notranslate nohighlight">\(\omega(\Delta V)\)</span>
+is fitted. Expected to be called internally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>array</em><em>[</em><em>int</em><em>]</em>) – The order of polynomials used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>r2tot</strong> (<em>array</em>) – nQpoint*nMode array of R^2.</p></li>
+<li><p><strong>r2avg</strong> (<em>array</em>) – Averaged R^2 at each q point.</p></li>
+<li><p><strong>self</strong> – New attributes listed below.</p></li>
+<li><p><strong>fit_order</strong> (<em>array</em>) – Same as <code class="docutils literal notranslate"><span class="pre">order</span></code>.</p></li>
+<li><p><strong>freq_fit</strong> (<em>list</em>) – nQpoint*nMode list of fitted polynomials.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.freq_gruneisen_fit">
+<span class="sig-name descname"><span class="pre">freq_gruneisen_fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.freq_gruneisen_fit" title="Link to this definition"></a></dt>
+<dd><p>Fit mode-specific Grüneisen parameters from sampled HA calculations.
+Expected to be called internally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rmsdtot</strong> (<em>array</em>) – nQpoint*nMode array of R^2.</p></li>
+<li><p><strong>rmsdavg</strong> (<em>array</em>) – Averaged R^2 at each q point.</p></li>
+<li><p><strong>self</strong> – New attributes listed below.</p></li>
+<li><p><strong>gru_fit</strong> (<em>array</em>) – nQpoint*nMode array of Grüneisen parameters.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic._combine_data">
+<span class="sig-name descname"><span class="pre">_combine_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ha_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_sort_tol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic._combine_data" title="Link to this definition"></a></dt>
+<dd><p>Combine the HA calculation data and rearrange it in the ascending order
+of volumes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ha_list</strong> (<em>list</em><em>[</em><a class="reference internal" href="#CRYSTALpytools.thermodynamics.Harmonic" title="CRYSTALpytools.thermodynamics.Harmonic"><em>Harmonic</em></a><em>]</em>) – List of harmonic objects.</p></li>
+<li><p><strong>mode_sort_tol</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>close_overlap</strong> (<em>array[int]</em>) – nQpoint*nMode_ref*nCalc*nMode_sort
+boolean array (only 1 and 0). Whether close overlap is
+identified between the n-1 (ref) and the n (sort) calculations.
+The first Calc is useless (always 0).</p></li>
+<li><p><strong>dot_pdt</strong> (<em>array[float]</em>) – nQpoint*(nCalc-1) array, dot products between
+n-1 and n calculations.</p></li>
+<li><p><strong>self</strong> – Attributes listed below.</p></li>
+<li><p><strong>combined_volume</strong> (<em>array[float]</em>) – 1*nCalc</p></li>
+<li><p><strong>combined_struc</strong> (<em>list[CStructure]</em>) – 1*nCalc</p></li>
+<li><p><strong>combined_u0</strong> (<em>array[float]</em>) – 1*nCalc</p></li>
+<li><p><strong>combined_freq</strong> (<em>array[float]</em>) – nQpoint*nMode*nCalc</p></li>
+<li><p><strong>combined_symm</strong> (<em>array[str]</em>) – nQpoint*nMode*nCalc</p></li>
+<li><p><strong>nqpoint</strong> (<em>int</em>)</p></li>
+<li><p><strong>qpoint</strong> (<em>array[float]</em>) – nQpoint*4</p></li>
+<li><p><strong>nmode</strong> (<em>int</em>)</p></li>
+<li><p><strong>natom</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If number of q points, modes or atoms are not consistent across the HA calculations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic._phonon_continuity">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_phonon_continuity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigvt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_sort_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic._phonon_continuity" title="Link to this definition"></a></dt>
+<dd><p>Rearrange phonon modes by their continuity. If the difference between
+the maximum scalar product of corresponding eigenvectors (normalized to
+1) and scalar products of other modes is less than 0.4, warning is
+printed due to the potential overlap of modes. Adopted from CRYSTAL17.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="upperalpha simple">
+<li><p>Erba, <em>J. Chem. Phys.</em>, 2014, <strong>141</strong>, 124115.</p></li>
+</ol>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freq</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Phonon frequencies. Unit: THz</p></li>
+<li><p><strong>eigvt</strong> (<em>array</em><em>[</em><em>float</em><em>]</em>) – Eigenvectores normalized to 1</p></li>
+<li><p><strong>symm</strong> (<em>array</em><em>[</em><em>str</em><em>]</em>) – Irreducible representations in Mulliken symbols.</p></li>
+<li><p><strong>mode_sort_tol</strong> (<em>float</em>) – The threshold of close mode overlaps.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>freq</strong> (<em>array[float]</em>) – Sorted phonon frequencies</p></li>
+<li><p><strong>eigvt</strong> (<em>array[float]</em>) – Sorted eigenvectores</p></li>
+<li><p><strong>close_overlap</strong> (<em>array[float]</em>) – ncalc*nmode*nmode boolean matrix
+(only 1 and 0). Whether close overlap is identified between the
+previous calculation (2nd dimension) and the current one (3rd).</p></li>
+<li><p><strong>dot_pdt</strong> (<em>array[float]</em>) – 1*(nCalc-1) array, dot products between n-1
+and n calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic._clean_thermoprop">
+<span class="sig-name descname"><span class="pre">_clean_thermoprop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic._clean_thermoprop" title="Link to this definition"></a></dt>
+<dd><p>Clean fitted data. Called by ‘<a href="#id3"><span class="problematic" id="id4">thermo_</span></a>*’ methods only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic._interp_HA">
+<span class="sig-name descname"><span class="pre">_interp_HA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic._interp_HA" title="Link to this definition"></a></dt>
+<dd><p>Interpolate harmonic phonons for lattice fitting. Interpolation
+is done by reducing the volume steplength by half, and add points closest
+to the boundary first.</p>
+<p>Lattice will be expanded to conventional cell and aligned. <span class="math notranslate nohighlight">\(a\)</span> will
+be aligned to <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(b\)</span> in <span class="math notranslate nohighlight">\(xOy\)</span> plane.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only available to objects generated by <code class="docutils literal notranslate"><span class="pre">thermo_freq()</span></code> and <code class="docutils literal notranslate"><span class="pre">thermo_gruneisen()</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interp</strong> (<em>int</em>) – Number of interpolations. Must be smaller than <code class="docutils literal notranslate"><span class="pre">self.ncalc</span></code>.</p></li>
+<li><p><strong>thermo</strong> (<em>bool</em>) – Whether to run HA thermodynamics.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>sg</strong> (<em>int</em>) – International space group number.</p></li>
+<li><p><strong>vscale</strong> (<em>float</em>) – Volume ratio between conventional and primitive cell.</p></li>
+<li><p><strong>rot</strong> (<em>array</em>) – Rotation matrix from invernal convention to input / standard conventional cell.</p></li>
+<li><p><strong>lmx</strong> (<em>array</em>) – (nCalc+nInterp)*3*3 array of lattice matrices. The
+first nCalc elements are sampled lattices.</p></li>
+<li><p><strong>Gibbs</strong> (<em>array</em>) – (nCalc+nInterp)*nPress*nTempt array of Gibbs free energy in kJ/mol.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.from_HA_files">
+<span class="sig-name descname"><span class="pre">from_HA_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">input_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_sort_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_HA_files" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Call <code class="docutils literal notranslate"><span class="pre">from_file()</span></code> directly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.from_QHA_file">
+<span class="sig-name descname"><span class="pre">from_QHA_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_sort_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_QHA_file" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Call <code class="docutils literal notranslate"><span class="pre">from_file()</span></code> directly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.from_phonopy_files">
+<span class="sig-name descname"><span class="pre">from_phonopy_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phono_yaml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struc_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imaginary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_overlap_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.from_phonopy_files" title="Link to this definition"></a></dt>
+<dd><p>Deprecated. Call <code class="docutils literal notranslate"><span class="pre">from_file()</span></code> directly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_lin">
+<span class="sig-name descname"><span class="pre">expansion_lin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Quasi_harmonic.expansion_lin" title="Link to this definition"></a></dt>
+<dd><p>Deprecated and not compatibable. Only prints error message.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Phonopy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Phonopy</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Phonopy" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Deprecated.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Phonopy.read_structure">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Phonopy.read_structure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Phonopy.read_frequency">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Phonopy.read_frequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Phonopy.write_force_constants">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_force_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'HESSFREQ.DAT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phonopyfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FORCE_CONSTANTS'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Phonopy.write_force_constants" title="Link to this definition"></a></dt>
+<dd><p>Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file.</p>
+<p>For example, to convert the calculation ‘example’ with a 4*4*4
+supercelland get phonon frequencies at Gamma point, use the following
+code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">CRYSTALpytools.thermodynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phonopy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Phonopy</span><span class="o">.</span><span class="n">write_force_constants</span><span class="p">(</span><span class="n">hessfile</span><span class="o">=</span><span class="s1">&#39;example.HESSFREQ&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phonopy</span> <span class="o">--</span><span class="n">crystal</span> <span class="o">--</span><span class="n">qpoints</span><span class="o">=</span><span class="s1">&#39;0 0 0&#39;</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">.</span><span class="n">out</span> <span class="o">--</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;4 4 4&#39;</span> <span class="o">--</span><span class="n">readfc</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hessfile</strong> (<em>str</em>) – The HESSFREQ.DAT file</p></li>
+<li><p><strong>phonopyfile</strong> (<em>str</em>) – The output name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Output</span></span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Deprecated. Only prints out error messages.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_HA_result">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_HA_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_HA_result" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_combinedata">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_combinedata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_combinedata" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_sortphonon">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_sortphonon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_sortphonon" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_eosfit">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_eosfit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_eosfit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_polyfit">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_polyfit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_polyfit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_thermofreq">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_thermofreq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_thermofreq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_thermogru">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_thermogru</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_thermogru" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_QHA_thermoeos">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_QHA_thermoeos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_QHA_thermoeos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_expansion_vol">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_expansion_vol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_expansion_vol" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_bulk_modulus">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_bulk_modulus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_bulk_modulus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_specific_heat">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_specific_heat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_specific_heat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CRYSTALpytools.thermodynamics.Output.write_expansion_latt">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_expansion_latt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CRYSTALpytools.thermodynamics.Output.write_expansion_latt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="crystalpytools.spectra.html" class="btn btn-neutral float-left" title="CRYSTALpytools.spectra module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crystalpytools.topond.html" class="btn btn-neutral float-right" title="CRYSTALpytools.topond module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basis Set: Advanced &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/input_and_basisset/basisset_advanced.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Output Analysis" href="../output/output.html" />
+    <link rel="prev" title="Input and Basis Set Generation" href="input_and_basisset.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Basis Set: Advanced</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/input_and_basisset/basisset_advanced.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Basis-Set:-Advanced">
+<h1>Basis Set: Advanced<a class="headerlink" href="#Basis-Set:-Advanced" title="Link to this heading"></a></h1>
+<p>In the examples of <a class="reference internal" href="input_and_basisset.html"><span class="doc">Input and Basis Set Generation</span></a>, basic setups of basis set has been introduced. Here are examples to explain the structure of basis set objects used in CRYSTALpytools to help customizing and testing basis sets.</p>
+<p>Basis set converison highly depends on the <a class="reference external" href="https://molssi-bse.github.io/basis_set_exchange/index.html">Basis Set Exchange (BSE) Python API</a>. But for the optimal compatibility, CRYSTALpytools has its own classes and I/O methods for the CRYSTAL basis set format.</p>
+<p>Please read ‘input and basisset’ example cases for basic usages before you start with this one.</p>
+<section id="'base.basisset.AtomBS'-class">
+<h2>‘base.basisset.AtomBS’ class<a class="headerlink" href="#'base.basisset.AtomBS'-class" title="Link to this heading"></a></h2>
+<section id="Attributes">
+<h3>Attributes<a class="headerlink" href="#Attributes" title="Link to this heading"></a></h3>
+<p>The basic basis set class of an element (of conventional atomic number) is defined by the <code class="docutils literal notranslate"><span class="pre">AtomBS</span></code> class, which as 5 attributes:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">z</span></code>: Conventional atomic number, following the rules of CRYSTAL.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nshell</span></code>: Number of BS shells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ECP</span></code>: Formatted string of effective core pseudopotenital, to be printed before basis set definition.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">element</span></code>: <code class="docutils literal notranslate"><span class="pre">mendeleev.element</span></code> object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shells</span></code>: Basis set definition, see below.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.base.basisset import AtomBS, BasisSetBASE
+
+c = BasisSetBASE.from_bse(&#39;6-31G*&#39;, z=[6]).atoms[0]
+print(c.__dict__.keys())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;z&#39;, &#39;nshell&#39;, &#39;ECP&#39;, &#39;element&#39;, &#39;shells&#39;])
+</pre></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">shells</span></code> attribute is a list of atomic orbital shells, each of which corresponds to a certain angular momentum and consists of at least 1 Gaussian type orbitals (GTO).</p>
+<p>Here the angular momentum of every shell of the 6-31G* C atom is printed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for s in c.shells:
+    print(s[&#39;angular momentum&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0
+1
+1
+3
+</pre></div></div>
+</div>
+<p>As indicated by the case, every shell is defined by a dictionary, whose keys include:</p>
+<ul class="simple">
+<li><p>‘type’: The ‘ITYB’ parameter of CRYSTAL basis set, i.e., type of basis set.</p></li>
+<li><p>‘angular momentum’: ‘LAT’, shell type (s, sp, p, d, …).</p></li>
+<li><p>‘n orbital’: ‘NG’, number of GTOs.</p></li>
+<li><p>‘charge’: ‘CHE’, formal charge, initial guess.</p></li>
+<li><p>‘scale factor’: ‘SCAL’, almost obsolete, scale factor of the shell.</p></li>
+<li><p>‘orbitals’: GTO definition.</p></li>
+</ul>
+<p>The first 5 keys correspond to the first line of every shell definition and the ‘orbitals’ key corresponds to the nGTO*2 or nGTO*3 (sp shell) list / array of exponent, coefficient and contract factors.</p>
+<p>Check the parameters of the first sp shell and compare its s and p components.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import matplotlib.pyplot as plt
+
+print(c.shells[1][&#39;orbitals&#39;])
+
+x = np.linspace(-5, 5, 200)
+ys = 0.
+yp = 0.
+for i in c.shells[1][&#39;orbitals&#39;]:
+    ys += i[1]*np.exp(-i[0]*x**2)
+    yp += i[2]*np.exp(-i[0]*x**2)
+
+plt.plot(x, np.vstack([ys, yp]).transpose(), label=[&#39;s&#39;, &#39;p&#39;])
+plt.legend()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[ 7.86827235 -0.11933242  0.06899907]
+ [ 1.88128854 -0.16085415  0.31642396]
+ [ 0.54424926  1.14345644  0.74430829]]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fef753644f0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_input_and_basisset_basisset_advanced_5_2.png" src="../../_images/examples_input_and_basisset_basisset_advanced_5_2.png" />
+</div>
+</div>
+</section>
+<section id="Assign-charge">
+<h3>Assign charge<a class="headerlink" href="#Assign-charge" title="Link to this heading"></a></h3>
+<p>Basis sets from BSE do not contain charge information. A method is developed to automatically assign charge based on nuclear atomic charge, which has been tested on both all-electron and (less comprehensively) ECP basis sets.</p>
+<p>That is achieved by rearranging the electron configurations (EC) into the sequence of ‘1s’, ‘2s’,…, ‘1p’, ‘2p’,…,’3d’… up to g orbitals. As far as the developers are awared of, BSE basis set entries saved in the dictionary format follow the same pattern. When assigning charges, orbitals with the same angular momentum (<span class="math notranslate nohighlight">\(l\)</span>) are filled with charges based on that element’s EC., until they are all allocated. The rest orbitals of the same <span class="math notranslate nohighlight">\(l\)</span>, if there is any, are assigned with 0
+charge and regarded as split-valance, diffuse or polarization orbitals. ECP basis set uses the same algorithm with a pre-processing procedure. The total charge are substracted with charge of the same <span class="math notranslate nohighlight">\(l\)</span>, until it exactly hits the core charge of the basis set. This procedure is not always in sequence as in many cases, the filled d orbital is skipped and the s orbital is substacted and that meets the requirement. For example, for Sr (ECP: Stuttgart RSC 1997), 3d is skipped and 4s is
+substracted after 4p. Then the allocation algorithm runs from the inner-most orbital.</p>
+<p>Therefore a problem is clear for this algorithm: Empty orbitals are only allowed to appear on the valance or higher shells. Wrong allocation might occur when empty ‘tight functions’ are added into the contracted core shells. But that is very rare cases for (probably mostly) advanced post-HF methods and for CRSYTAL solid state calculations, the thing to be worried first is linear-dependence. Also that still results in the correct charge neutrality but some funcky charge allocations. That might
+(this is an assumption without test) lead to longer SCF convergence but not wrong results, and in fact in many codes based on Gaussian basis set, initial guess of formal charge is not required.</p>
+<p>6-311G(d,p) of Ge (32):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.base.basisset import AtomBS, BasisSetBASE
+
+c = BasisSetBASE.from_bse(&#39;6-311G(d,p)&#39;, z=[32]).atoms[0]
+print(c.print_crystal())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+32 18
+0 0 6 2.00 1.00
+ 357500.0000000000      0.0008389800
+  53670.0000000000      0.0062635000
+  12300.0000000000      0.0320360000
+   3512.0000000000      0.1275100000
+   1161.0000000000      0.3916500000
+    428.0000000000      0.5452800000
+0 0 3 2.00 1.00
+    428.0000000000      0.1816000000
+    170.0000000000      0.6224800000
+     72.0600000000      0.2487200000
+0 0 1 2.00 1.00
+     26.6900000000      1.0000000000
+0 0 1 2.00 1.00
+     11.5000000000      1.0000000000
+0 0 1 0.00 1.00
+      3.7420000000      1.0000000000
+0 0 1 0.00 1.00
+      1.4990000000      1.0000000000
+0 0 1 0.00 1.00
+      0.2292000000      1.0000000000
+0 0 1 0.00 1.00
+      0.0867500000      1.0000000000
+0 2 3 6.00 1.00
+   2345.0000000000      0.0225140000
+    554.2000000000      0.1833500000
+    177.3000000000      0.8600300000
+0 2 3 6.00 1.00
+     66.1300000000      0.3430600000
+     26.9000000000      0.5065200000
+     11.2600000000      0.2614100000
+0 2 3 2.00 1.00
+     11.2600000000      0.0672460000
+      6.1160000000      0.3723800000
+      2.8190000000      0.6176300000
+0 2 1 0.00 1.00
+      1.2110000000      1.0000000000
+0 2 1 0.00 1.00
+      0.3568000000      1.0000000000
+0 2 1 0.00 1.00
+      0.1621000000      1.0000000000
+0 2 1 0.00 1.00
+      0.0608400000      1.0000000000
+0 3 4 10.00 1.00
+     74.8400000000      0.0303900000
+     21.2300000000      0.1731900000
+      7.2970000000      0.4409000000
+      2.5490000000      0.5653200000
+0 3 1 0.00 1.00
+      0.8165000000      1.0000000000
+0 3 1 0.00 1.00
+      0.2280000000      1.0000000000
+
+</pre></div></div>
+</div>
+<p>Stuttgart-Cologne small core ECP of Hg(80)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.base.basisset import AtomBS, BasisSetBASE
+
+c = BasisSetBASE.from_bse(&#39;Stuttgart RSC 1997&#39;, z=[80]).atoms[0]
+print(c.print_crystal())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+80 16
+0 0 3 2.00 1.00
+     20.4111810000     -0.0449360000
+      8.0021900000      1.3091760000
+      6.0615460000     -1.8451020000
+0 0 1 2.00 1.00
+      1.1487070000      1.0000000000
+0 0 1 0.00 1.00
+      0.5379260000      1.0000000000
+0 0 1 0.00 1.00
+      0.1203120000      1.0000000000
+0 0 1 0.00 1.00
+      0.0435100000      1.0000000000
+0 0 1 0.00 1.00
+      0.0150000000      1.0000000000
+0 2 2 6.00 1.00
+      9.2838580000      0.1888940000
+      6.5219450000     -0.4259770000
+0 2 2 0.00 1.00
+      1.6863450000      0.5023740000
+      0.8790190000      0.5155700000
+0 2 1 0.00 1.00
+      0.3931810000      1.0000000000
+0 2 1 0.00 1.00
+      0.1125220000      1.0000000000
+0 2 1 0.00 1.00
+      0.0375950000      1.0000000000
+0 2 1 0.00 1.00
+      0.0120000000      1.0000000000
+0 3 4 10.00 1.00
+      5.0195620000     -0.1021360000
+      2.7138010000      0.1894800000
+      1.2578380000      0.4441490000
+      0.5535440000      0.4276150000
+0 3 1 0.00 1.00
+      0.2121650000      1.0000000000
+0 3 1 0.00 1.00
+      0.0700000000      1.0000000000
+0 3 1 0.00 1.00
+      0.0200000000      1.0000000000
+
+</pre></div></div>
+</div>
+</section>
+<section id="Effective-core-pesudopotential-(ECP)">
+<h3>Effective-core pesudopotential (ECP)<a class="headerlink" href="#Effective-core-pesudopotential-(ECP)" title="Link to this heading"></a></h3>
+<p>So far ECP is just an attribute under the <code class="docutils literal notranslate"><span class="pre">AtomBS</span></code> class, which is saved in formatted text and accessible by calling the <code class="docutils literal notranslate"><span class="pre">AtomBS().ECP</span></code> attribute. Any modifications of ECP must be done via text and assigning it to that attribute. Classes and methods for ECP is under consideration. In the wrapper method, <code class="docutils literal notranslate"><span class="pre">Crystal_input().bs_user()</span></code>, the user can manually set or overwrite ECP text with the <code class="docutils literal notranslate"><span class="pre">ECP</span></code> input argument.</p>
+</section>
+<section id="File-I/O">
+<h3>File I/O<a class="headerlink" href="#File-I/O" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">AtomBS</span></code> has built-in print function to write basis set in CRYSTAL format. But file format translation is achieved via BSE and wrapper functions, i.e., <code class="docutils literal notranslate"><span class="pre">AtomBS</span></code> only reads BSE data saved as dictionaries. Format string is consistent with <a class="reference external" href="https://molssi-bse.github.io/basis_set_exchange/bse_cli.html#list-formats">BSE python API</a></p>
+<p>Convert the collection of 6-31G* basis sets in Gaussian format, and write them into the external ‘adv_BASISSETS.DAT’ file in CRYSTAL format, with the title ‘6-31G* from BSE’.</p>
+</section>
+</section>
+<section id="'BasisSetBASE'-class">
+<h2>‘BasisSetBASE’ class<a class="headerlink" href="#'BasisSetBASE'-class" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">BasisSetBASE</span></code> class is essentially a list of <code class="docutils literal notranslate"><span class="pre">AtomBS</span></code> objects, which manages all the basis sets defined in a system. It is also where the <code class="docutils literal notranslate"><span class="pre">from_*()</span></code> methods are defined.</p>
+<p>For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.base.basisset.html">developer’s API documentation</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="input_and_basisset.html" class="btn btn-neutral float-left" title="Input and Basis Set Generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../output/output.html" class="btn btn-neutral float-right" title="Output Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

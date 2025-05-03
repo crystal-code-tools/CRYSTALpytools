@@ -1,0 +1,574 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "0efe7c6c-1941-46c0-b8c5-3b0bbeb97ac1",
+   "metadata": {},
+   "source": [
+    "# Lattice Dynamics 1: Harmonic Approximation\n",
+    "\n",
+    "The `thermodynamics` module is developed for both harmonic approximated (HA) and quasi-harmonic approximated (QHA) lattice dynamics. For simplicity, this part is focused only on HA phonons. For QHA, please refer to [Lattice Dynamics 2: Quasi-Harmonic Approximation](qha.ipynb) example book in the same catagory. For phonon band and density of states, please refer to the [phonons module](https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.phonons.html).\n",
+    "\n",
+    "## Instantiation\n",
+    "\n",
+    "No data is read at the object instantiation step. Instead, important controlling parameters are defined.\n",
+    "\n",
+    "Define the room temperature and pressure with `temperature` and `pressure` (optional) and specify whether to write data into an output file (`filename`) and whether to automatically run the calculation (`autocalc`)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d29181f4-724a-4d21-af51-a2fa6cee3e29",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:07.179030Z",
+     "iopub.status.busy": "2025-05-03T11:38:07.178162Z",
+     "iopub.status.idle": "2025-05-03T11:38:07.756072Z",
+     "shell.execute_reply": "2025-05-03T11:38:07.755512Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:07.178855Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False,\n",
+    "               temperature=[298.15], pressure=[0.])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6220e530-91ca-4663-9ae0-6160781050b3",
+   "metadata": {},
+   "source": [
+    "## File I/O\n",
+    "\n",
+    "Currently the user can read geometries, internal energies, phonon frequencies, eigenvectors from CRYSTAL or [phonopy](https://phonopy.github.io/phonopy/) (not internal energies). CRYSTALpytools helps to calculate important thermodynamic properties at specified temperature and pressure.\n",
+    "\n",
+    "### The 'from_file()' method.\n",
+    "\n",
+    "Please note that the phonon read methods defined in io modules are general-propose methods designed to be called (in most cases) internally. Users are always recommended to use the `from_file()` method after object instantiation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "c984e89e-e0ee-4974-8113-612eaf7b794d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:08.209037Z",
+     "iopub.status.busy": "2025-05-03T11:38:08.208110Z",
+     "iopub.status.idle": "2025-05-03T11:38:08.315589Z",
+     "shell.execute_reply": "2025-05-03T11:38:08.315082Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:08.208974Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of q / k points: 1\n",
+      "Number of modes at Gamma: 30\n",
+      "The first non-translational mode frequnecy at Gamma: 5.9206 THz\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False,\n",
+    "               temperature=[298.15], pressure=[0.])\n",
+    "obj.from_file('ha_Fe2O3G.out')\n",
+    "\n",
+    "print('Number of q / k points: {:d}'.format(obj.nqpoint))\n",
+    "print('Number of modes at Gamma: {:d}'.format(obj.nmode))\n",
+    "print('The first non-translational mode frequnecy at Gamma: {:.4f} THz'.format(\n",
+    "    obj.frequency[0, 3]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "059ab76c-019f-41fb-9cc0-7ac70335bbee",
+   "metadata": {},
+   "source": [
+    "This method also accepts outputs by 'QHA' keyword of CRYSTAL with `source='crystal-QHA'`.\n",
+    "`qha_index` should be specified to substract the desired data (starting from 0).\n",
+    "\n",
+    "Get the equilibrium geometry of QHA calculation of Al$_{2}$O$_{3}$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "53a31cc1-616e-47a1-984b-7a7c2a61caad",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:11.693004Z",
+     "iopub.status.busy": "2025-05-03T11:38:11.692257Z",
+     "iopub.status.idle": "2025-05-03T11:38:12.138376Z",
+     "shell.execute_reply": "2025-05-03T11:38:12.137831Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:11.692943Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of q / k points: 1\n",
+      "Number of modes at Gamma: 90\n",
+      "The first non-translational mode frequnecy at Gamma: 4.4021 THz\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False).from_file('qha_corundumG.out',\n",
+    "                                                        source='crystal-QHA',\n",
+    "                                                        qha_index=3)\n",
+    "print('Number of q / k points: {:d}'.format(obj.nqpoint))\n",
+    "print('Number of modes at Gamma: {:d}'.format(obj.nmode))\n",
+    "print('The first non-translational mode frequnecy at Gamma: {:.4f} THz'.format(\n",
+    "    obj.frequency[0, 3]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6fdd62f5-7fd6-47ec-92ac-597e628d2c5b",
+   "metadata": {},
+   "source": [
+    "Also might be useful to read phonon dispersions in the first Brillouin Zone for a better description of thermodynamics."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "7511f19a-757f-4ad4-90ec-b3203b74f20a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:14.409405Z",
+     "iopub.status.busy": "2025-05-03T11:38:14.408656Z",
+     "iopub.status.idle": "2025-05-03T11:38:14.810665Z",
+     "shell.execute_reply": "2025-05-03T11:38:14.810161Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:14.409345Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of q / k points: 27\n",
+      "Number of modes at Gamma: 30\n",
+      "The first non-translational mode frequnecy at Gamma: 5.9211 THz\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False).from_file('ha_Fe2O3Disp.out')\n",
+    "print('Number of q / k points: {:d}'.format(obj.nqpoint))\n",
+    "print('Number of modes at Gamma: {:d}'.format(obj.nmode))\n",
+    "print('The first non-translational mode frequnecy at Gamma: {:.4f} THz'.format(\n",
+    "    obj.frequency[0, 3]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "084d4f1c-ea58-40eb-a546-c74e803f81e6",
+   "metadata": {},
+   "source": [
+    "Output files of phonopy  calculations in 'yaml' format are accepted with `source='phonopy'`. Use `phono_yaml` for frequency files ('mesh.yaml', 'band.yaml' or 'qpoints.yaml').\n",
+    "'qpoints.yaml' file does not save structure information, so `struc_yaml` need to be defined for geometry ('phonopy.yaml' or 'phonopy_disp.yaml').\n",
+    "\n",
+    "DFT total energy is unknown, so it is important to specified that. A warning message is triggered in the following case.\n",
+    "\n",
+    "When using 'mesh.yaml', the length unit is unknown, so the default unit of 'angstrom' is assumed. A warning messange is triggered in the following case.\n",
+    "\n",
+    "**NOTE**\n",
+    "\n",
+    "[Phonopy](https://phonopy.github.io/phonopy/) is not in the dependency list of CRYSTALpytools."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "d25b993d-1af6-4d30-89dc-e73f1ddb86c4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:21.253450Z",
+     "iopub.status.busy": "2025-05-03T11:38:21.252702Z",
+     "iopub.status.idle": "2025-05-03T11:38:21.556732Z",
+     "shell.execute_reply": "2025-05-03T11:38:21.556297Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:21.253391Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:165: UserWarning: Static internal energy not available. Setting it to 0.\n",
+      "  phonon = Phonon.from_file(filename, source=source,\n",
+      "/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/phonons.py:457: UserWarning: Unknown length unit. 'angstrom' is assumed.\n",
+      "  pobj = YAML.read(strucfile, phonon=filename)\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of q / k points: 28\n",
+      "Number of modes at Gamma: 30\n",
+      "The first non-translational mode frequnecy at Gamma: 5.9193 THz\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False).from_file('ha_Fe2O3mesh.yaml', source='phonopy')\n",
+    "\n",
+    "print('Number of q / k points: {:d}'.format(obj.nqpoint))\n",
+    "print('Number of modes at Gamma: {:d}'.format(obj.nmode))\n",
+    "print('The first non-translational mode frequnecy at Gamma: {:.4f} THz'.format(\n",
+    "    obj.frequency[0, 3]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9f8e100e-cd03-40dd-9786-ec9a16a39e86",
+   "metadata": {},
+   "source": [
+    "## Restart calculation\n",
+    "\n",
+    "Information can be retrieved from the dumped YAML file with the classmethod ``Harmonic.restart()``. No modification of parameter (k points, scale factors etc.) is allowed.\n",
+    "\n",
+    "Thermodynamic calculations will update the dumped file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "98f144b0-725e-4558-a312-df119ad5c234",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:24.650163Z",
+     "iopub.status.busy": "2025-05-03T11:38:24.649413Z",
+     "iopub.status.idle": "2025-05-03T11:38:24.962920Z",
+     "shell.execute_reply": "2025-05-03T11:38:24.962416Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:24.650103Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/thermodynamics.py:182: UserWarning: The existing HA file will be overwritten.\n",
+      "  ThermoHA.write(self)\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Zero-point Energy: 64.2232 kJ/mol\n",
+      "Gibbs Free Energy: -14456416.9077 kJ/mol\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename='ha_Fe2O3G_restart.yaml', autocalc=False,\n",
+    "               temperature=[298.15], pressure=[0.])\n",
+    "obj.from_file('ha_Fe2O3G.out')\n",
+    "\n",
+    "obj = Harmonic.restart('ha_Fe2O3G_restart.yaml')\n",
+    "obj.thermodynamics()\n",
+    "\n",
+    "print('Zero-point Energy: {:.4f} kJ/mol'.format(obj.zp_energy))\n",
+    "print('Gibbs Free Energy: {:.4f} kJ/mol'.format(obj.gibbs[0, 0]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ce92c05-f914-45c0-a2bd-980bb797e44e",
+   "metadata": {},
+   "source": [
+    "**NOTE**\n",
+    "\n",
+    "The text output in < 2025 versions can be generated by setting ``use_old=True`` during initialization. But it cannot be used to restart calculations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "f97fa707-64c6-4713-952f-75c790ac0ac8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:38:43.601678Z",
+     "iopub.status.busy": "2025-05-03T11:38:43.600928Z",
+     "iopub.status.idle": "2025-05-03T11:38:43.648605Z",
+     "shell.execute_reply": "2025-05-03T11:38:43.648097Z",
+     "shell.execute_reply.started": "2025-05-03T11:38:43.601619Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_32673/1292865050.py:3: UserWarning: The text output is deprecated. Please use the dumping file in YAML format.\n",
+      "  obj = Harmonic(filename='ha_Fe2O3G_old.txt', use_old=True,\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<CRYSTALpytools.thermodynamics.Harmonic at 0x7fdb565e9d00>"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename='ha_Fe2O3G_old.txt', use_old=True,\n",
+    "               temperature=[298.15], pressure=[0.])\n",
+    "obj.from_file('ha_Fe2O3G.out')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7900975e-8ed0-4a17-a31a-354444064b82",
+   "metadata": {},
+   "source": [
+    "## Thermodynamics\n",
+    "\n",
+    "### Gamma point\n",
+    "\n",
+    "Call the `thermodynamics()` method after reading data. Temperature and pressure can also be specified here if not specified at instantiation stage."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "c72047e9-c216-4e73-92b8-8aee3d7ba28c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:39:04.737355Z",
+     "iopub.status.busy": "2025-05-03T11:39:04.736595Z",
+     "iopub.status.idle": "2025-05-03T11:39:05.036269Z",
+     "shell.execute_reply": "2025-05-03T11:39:05.035754Z",
+     "shell.execute_reply.started": "2025-05-03T11:39:04.737294Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "30 K, 0 GPa\n",
+      "DFT total energy (EL) =  -14456467.710887987 KJ/mol\n",
+      "Helmholtz free energy (EL+E0+ET-TS) =  -14456400.140414735  KJ/mol\n",
+      "Gibbs free energy (EL+E0+ET+pV-TS) =  -14456400.140414737  KJ/mol\n",
+      "Zero-point energy (E0) =  67.57226510101925  KJ/mol\n",
+      "Vibrational contribution to interla energy - E0 (ET) =  0.01025610055198456  KJ/mol\n",
+      "Entropy*Temperature (TS) =  12.047951449420218  J/mol\n",
+      "Heat capacity =  2.038146719204007  J/mol*K\n",
+      "Entropy =  0.4015983816473406  J/mol*K\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False, temperature=[30, 300],\n",
+    "               pressure=[0, 1])\n",
+    "obj.from_file('ha_Fe2O3Disp.out').thermodynamics()\n",
+    "\n",
+    "print('30 K, 0 GPa')\n",
+    "print('DFT total energy (EL) = ', obj.u_0, 'KJ/mol')\n",
+    "print('Helmholtz free energy (EL+E0+ET-TS) = ', obj.helmholtz[0], ' KJ/mol')\n",
+    "print('Gibbs free energy (EL+E0+ET+pV-TS) = ', obj.gibbs[0, 0], ' KJ/mol')\n",
+    "print('Zero-point energy (E0) = ', obj.zp_energy, ' KJ/mol')\n",
+    "print('Vibrational contribution to interla energy - E0 (ET) = ', obj.u_vib[0] - obj.zp_energy, ' KJ/mol')\n",
+    "print('Entropy*Temperature (TS) = ', obj.entropy[0] * 30, ' J/mol')\n",
+    "print('Heat capacity = ', obj.c_v[0], ' J/mol*K')\n",
+    "print('Entropy = ', obj.entropy[0], ' J/mol*K')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8b7fb102-e411-4f59-ba1c-3361f7e633aa",
+   "metadata": {},
+   "source": [
+    "References from 'ha_Fe2O3Disp.out' (30 K, 0 GPa) are attached below.\n",
+    "\n",
+    "```\n",
+    " *******************************************************************************\n",
+    "\n",
+    " HARMONIC VIBRATIONAL CONTRIBUTIONS TO THERMODYNAMIC FUNCTIONS AT GIVEN\n",
+    " TEMPERATURE AND PRESSURE:\n",
+    "\n",
+    " (EL = ELECTRONIC ENERGY\n",
+    "  E0 = ZERO-POINT ENERGY\n",
+    "  ET = THERMAL CONTRIBUTION TO THE VIBRATIONAL ENERGY\n",
+    "  PV = PRESSURE * VOLUME\n",
+    "  TS = TEMPERATURE * ENTROPY)\n",
+    "\n",
+    "                          AU/CELL             EV/CELL                 KJ/MOL\n",
+    " EL            :   -5506.177755084074 -149830.713962144044   -14456467.65868747\n",
+    " E0            :       0.025736916490       0.700337102153          67.57226472\n",
+    "\n",
+    "\n",
+    " *******************************************************************************\n",
+    "\n",
+    " THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS\n",
+    "\n",
+    " AT (T =   30.00 K, P =   0.00000000E+00 MPA):\n",
+    "\n",
+    "                          AU/CELL             EV/CELL                 KJ/MOL\n",
+    " ET            :       0.000003906371       0.000106297755           0.01025618\n",
+    " PV            :       0.000000000000       0.000000000000           0.00000000\n",
+    " TS            :       0.000004588856       0.000124869134           0.01204804\n",
+    " ET+PV-TS      :      -0.000000682486      -0.000018571378          -0.00179187\n",
+    " EL+E0+ET+PV-TS:   -5506.152018850070 -149830.013643613260   -14456400.08821461\n",
+    "\n",
+    " OTHER THERMODYNAMIC FUNCTIONS:\n",
+    "\n",
+    "                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)\n",
+    " ENTROPY       :       0.000152961883       0.004162304453           0.40160137\n",
+    " HEAT CAPACITY :       0.000776294034       0.021124034580           2.03815970\n",
+    "\n",
+    " *******************************************************************************\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "46d059a2-0eb5-4522-ba03-cef28ef1d5ba",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-05-03T11:39:16.304176Z",
+     "iopub.status.busy": "2025-05-03T11:39:16.303388Z",
+     "iopub.status.idle": "2025-05-03T11:39:16.602240Z",
+     "shell.execute_reply": "2025-05-03T11:39:16.601729Z",
+     "shell.execute_reply.started": "2025-05-03T11:39:16.304115Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "300 K, 1 GPa\n",
+      "Helmholtz free energy (EL+E0+ET-TS) =  -14456419.45244564  KJ/mol\n",
+      "Gibbs free energy (EL+E0+ET+pV-TS) =  -14456357.394993309  KJ/mol\n",
+      "Vibrational contribution to interla energy - E0 (ET) =  28.954255811802184  KJ/mol\n",
+      "Entropy*Temperature (TS) =  48268.078570283185  J/mol\n",
+      "Heat capacity =  187.33142960669963  J/mol*K\n",
+      "Entropy =  160.89359523427729  J/mol*K\n"
+     ]
+    }
+   ],
+   "source": [
+    "from CRYSTALpytools.thermodynamics import Harmonic\n",
+    "\n",
+    "obj = Harmonic(filename=None, autocalc=False, temperature=[30, 300],\n",
+    "               pressure=[0, 1])\n",
+    "obj.from_file('ha_Fe2O3Disp.out').thermodynamics()\n",
+    "\n",
+    "print('300 K, 1 GPa')\n",
+    "print('Helmholtz free energy (EL+E0+ET-TS) = ', obj.helmholtz[1], ' KJ/mol')\n",
+    "print('Gibbs free energy (EL+E0+ET+pV-TS) = ', obj.gibbs[1, 1], ' KJ/mol')\n",
+    "print('Vibrational contribution to interla energy - E0 (ET) = ', obj.u_vib[1] - obj.zp_energy, ' KJ/mol')\n",
+    "print('Entropy*Temperature (TS) = ', obj.entropy[1] * 300, ' J/mol')\n",
+    "print('Heat capacity = ', obj.c_v[1], ' J/mol*K')\n",
+    "print('Entropy = ', obj.entropy[1], ' J/mol*K')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3670cd3c-2215-48f9-b18f-1e33cdc5012e",
+   "metadata": {},
+   "source": [
+    "References from 'ha_Fe2O3Disp.out' (300 K, 1 GPa) are attached below.\n",
+    "\n",
+    "```\n",
+    " *******************************************************************************\n",
+    "\n",
+    " THERMODYNAMIC FUNCTIONS WITH VIBRATIONAL CONTRIBUTIONS\n",
+    "\n",
+    " AT (T =  300.00 K, P =   0.10000000E+04 MPA):\n",
+    "\n",
+    "                          AU/CELL             EV/CELL                 KJ/MOL\n",
+    " ET            :       0.011028118621       0.300090363974          28.95432136\n",
+    " PV            :       0.023636440017       0.643180231504          62.05746452\n",
+    " TS            :       0.018384386708       0.500264595280          48.26820050\n",
+    " ET+PV-TS      :       0.016280171930       0.443006000198          42.74358538\n",
+    " EL+E0+ET+PV-TS:   -5506.135737995654 -149829.570619041682   -14456357.34283737\n",
+    "\n",
+    " OTHER THERMODYNAMIC FUNCTIONS:\n",
+    "\n",
+    "                      mHARTREE/(CELL*K)     mEV/(CELL*K)              J/(MOL*K)\n",
+    " ENTROPY       :       0.061281289026       1.667548650933         160.89400166\n",
+    " HEAT CAPACITY :       0.071350898293       1.941556649380         187.33175707\n",
+    "\n",
+    " *******************************************************************************\n",
+    "```\n",
+    "\n",
+    "Here are several findings:\n",
+    "\n",
+    "1. Parameters from frequencies agree well with reference data. The choice of physical constants and unit conversion coefficients might lead to the discrepancy.  \n",
+    "2. The difference in DFT total energy lies in different coefficients for unit conversion. In CRYSTALpytools, constants and coefficients from [`scipy.constants`](https://docs.scipy.org/doc/scipy/reference/constants.html) is used.  "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "76b5ad58-fa1c-4456-a4e9-5534ba94df77",
+   "metadata": {},
+   "source": [
+    "For more details, please refer to the [API documentations](https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.thermodynamics.html)."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "crystal_py3.9",
+   "language": "python",
+   "name": "crystal_py3.9"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.19"
+  },
+  "widgets": {
+   "application/vnd.jupyter.widget-state+json": {
+    "state": {},
+    "version_major": 2,
+    "version_minor": 0
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

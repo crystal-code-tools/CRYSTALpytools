@@ -1,0 +1,654 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOPOND &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/topond/topond.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Thermoelectric Transport Properties" href="../transport/transport.html" />
+    <link rel="prev" title="Lattice Dynamics 2: Quasi-Harmonic Approximation" href="../thermodynamics/qha.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">TOPOND</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/topond/topond.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="TOPOND">
+<h1>TOPOND<a class="headerlink" href="#TOPOND" title="Link to this heading"></a></h1>
+<p>Code examples for <a class="reference external" href="https://www.crystal.unito.it/topond.html">TOPOND (topological analysis)</a> is given.</p>
+<section id="The-'read_topond()'-method">
+<h2>The ‘read_topond()’ method<a class="headerlink" href="#The-'read_topond()'-method" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">read_topond()</span></code> method is defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Properties_output</span></code> class, which read the formatted output of TOPOND analysis. Currently it reads 2D contour plot data ‘SURF<em>.DAT’ and trajectory data ‘TRAJ</em>.DAT’ and geometry information from standard output.</p>
+<p>To apply the correct unit and plotting styles, it is strongly recommended to specify the property name with <code class="docutils literal notranslate"><span class="pre">type</span></code> option. It can also infer the type from file names.</p>
+<p>Depending on the property, the <code class="docutils literal notranslate"><span class="pre">read_topond()</span></code> function returns to either a child class of the <code class="docutils literal notranslate"><span class="pre">topond.ScalarField</span></code> or the <code class="docutils literal notranslate"><span class="pre">topond.Trajectory</span></code> class (see below). It is also saved under the <code class="docutils literal notranslate"><span class="pre">&lt;type&gt;</span></code> attribute of <code class="docutils literal notranslate"><span class="pre">Properties_output</span></code> object. If the type is unknown, it is saved under the <code class="docutils literal notranslate"><span class="pre">TOPOND</span></code> attribute.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+outp = Properties_output(&#39;topo_urea.out&#39;).read_topond(&#39;topo_urea.SURFRHOO&#39;)
+print(&#39;Type: {}&#39;.format(outp.type))
+print(&#39;Dimension: {} * {}&#39;.format(outp.data.shape[0], outp.data.shape[1]))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type: SURFRHOO
+Dimension: 161 * 161
+</pre></div></div>
+</div>
+<p>TOPOND ‘SURF<em>‘ and ‘TRAJ</em>’ files do not contain the full geometry information of system. The standard output is strongly recommended to be added for ‘SURF<em>‘ files and required for ‘TRAJ</em>’ files. The warning message is given due to the missing geometry information for the ‘SURFRHOO’ object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+obj1 = Properties_output().read_topond(&#39;topo_urea.SURFRHOO&#39;)
+obj2 = Properties_output(&#39;topo_urea.out&#39;).read_topond(&#39;topo_urea.TRAJMOLG&#39;)
+
+print(&#39;Type: {}&#39;.format(obj2.type))
+print(&#39;N critical points: {:d}&#39;.format(len(obj2.cpoint)))
+print(&#39;N trajectories: {:d}&#39;.format(len(obj2.trajectory)))
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type: TRAJMOLG
+N critical points: 46
+N trajectories: 1346
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_15785/1397384057.py:3: UserWarning: Properties output file not found: Geometry not available
+  obj1 = Properties_output().read_topond(&#39;topo_urea.SURFRHOO&#39;)
+</pre></div></div>
+</div>
+</section>
+<section id="The-'topond'-module">
+<h2>The ‘topond’ module<a class="headerlink" href="#The-'topond'-module" title="Link to this heading"></a></h2>
+<p>So far the topond module is mainly developed for 2D plotting proposes.</p>
+<section id="Classes-based-on-'ScalarField'">
+<h3>Classes based on ‘ScalarField’<a class="headerlink" href="#Classes-based-on-'ScalarField'" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> class is the basic class for scalar fields obtained by TOPOND. Depending on the specific properties, child classes are generated, which shares similar methods:</p>
+<p><code class="docutils literal notranslate"><span class="pre">ChargeDensity</span></code>, <code class="docutils literal notranslate"><span class="pre">SpinDensity</span></code>, <code class="docutils literal notranslate"><span class="pre">Gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">Laplacian</span></code>, <code class="docutils literal notranslate"><span class="pre">HamiltonianKE</span></code>, <code class="docutils literal notranslate"><span class="pre">LagrangianKE</span></code>, <code class="docutils literal notranslate"><span class="pre">VirialField</span></code> and <code class="docutils literal notranslate"><span class="pre">ELF</span></code>.</p>
+<p>All the classes are aimed to be independent of dimensionality, but currently only 2D data has been implemented.</p>
+<p><strong>NOTE</strong></p>
+<p>Though 2D periodicity is supported, it is not suggested as TOPOND plotting frame is not always commensurate with periodic boundary.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">isovalues</span></code> to format isovalue strings.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import ChargeDensity
+
+urea = ChargeDensity.from_file(&#39;topo_urea.SURFRHOO&#39;)
+fig = urea.plot_2D(isovalues=&#39;%.2f&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/topond.py:330: UserWarning: Properties output file not found: Geometry not available
+  return Properties_output(output).read_topond(file, &#39;SURFRHOO&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_5_1.png" src="../../_images/examples_topond_topond_5_1.png" />
+</div>
+</div>
+<p>Similarly with the <code class="docutils literal notranslate"><span class="pre">substact</span></code> method the user can plot difference maps for objects of the same type. By default, positive values are denoted by red, solid lines and negative values by blue, dashed lines. 0 is denoted by the black, solid lines of twice line width.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import ChargeDensity
+
+urea = ChargeDensity.from_file(&#39;topo_urea.SURFRHOO&#39;)
+urea.subtract(&#39;topo_ureaPATO.SURFRHOO&#39;)
+fig = urea.plot_2D(isovalues=None, linewidth=0.5, figsize=[8, 5], a_range=[-1, 1])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/topond.py:330: UserWarning: Properties output file not found: Geometry not available
+  return Properties_output(output).read_topond(file, &#39;SURFRHOO&#39;)
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/topond.py:149: UserWarning: Properties output file not found: Geometry not available
+  obj = Properties_output().read_topond(i, type=self.type)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_7_1.png" src="../../_images/examples_topond_topond_7_1.png" />
+</div>
+</div>
+<p>Also possible to customize the levels and get color plots. Also as an illlustration why <code class="docutils literal notranslate"><span class="pre">a_range</span></code> and <code class="docutils literal notranslate"><span class="pre">b_range</span></code> are not suggested.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import ELF
+import numpy as np
+
+elf = ELF.from_file(&#39;topo_urea.SURFELFB&#39;, output=&#39;topo_urea.out&#39;)
+fig = elf.plot_2D(colorplot=True, lineplot=False, b_range=[-0.5, 0.5])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_9_0.png" src="../../_images/examples_topond_topond_9_0.png" />
+</div>
+</div>
+<p>It should be noted that both ‘SURFLAPP’ and ‘SURFLAPM’ files are saved as <code class="docutils literal notranslate"><span class="pre">Laplacian</span></code> objects. If the file type cannot be inferred from file names, it will be recognized as ‘SURFLAPP’. For the <code class="docutils literal notranslate"><span class="pre">Laplacian</span></code> class, its <code class="docutils literal notranslate"><span class="pre">plot_2D</span></code> function accepts a <code class="docutils literal notranslate"><span class="pre">plot_lapm</span></code> option.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import Laplacian
+import numpy as np
+
+levels = np.array([-100., -10., -1., -0.1, -0.01, 0.,
+                   0.01, 0.1, 1., 10., 100.])
+lap = Laplacian.from_file(&#39;topo_urea.SURFLAPP&#39;, output=&#39;topo_urea.out&#39;)
+fig = lap.plot_2D(colorplot=True, lineplot=False, plot_lapm=True, levels=levels)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_11_0.png" src="../../_images/examples_topond_topond_11_0.png" />
+</div>
+</div>
+</section>
+<section id="Classes-based-on-'Trajectory'">
+<h3>Classes based on ‘Trajectory’<a class="headerlink" href="#Classes-based-on-'Trajectory'" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code> class is the basic class for scalar fields obtained by TOPOND. Depending on the specific properties, child classes are generated which share similar methods:</p>
+<p><code class="docutils literal notranslate"><span class="pre">GradientTraj</span></code> and <code class="docutils literal notranslate"><span class="pre">ChemicalGraph</span></code></p>
+<p>All the classes are aimed to get 2D and 3D plots, but currently only 2D plotting has been implemented.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code> class generally uses the similar method names but is different from <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code>. To instantiate the object, geometry information from standard output is mandatory.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import ChemicalGraph
+
+mgraph = ChemicalGraph.from_file(&#39;topo_urea.TRAJMOLG&#39;, output=&#39;topo_urea.out&#39;)
+fig = mgraph.plot_2D()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_13_0.png" src="../../_images/examples_topond_topond_13_0.png" />
+</div>
+</div>
+</section>
+<section id="Overlapped-plotting">
+<h3>Overlapped plotting<a class="headerlink" href="#Overlapped-plotting" title="Link to this heading"></a></h3>
+<p>In both <code class="docutils literal notranslate"><span class="pre">ScalarField.plot_2D()</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory.plot_2D()</span></code> methods, the user can specify the <code class="docutils literal notranslate"><span class="pre">overlay</span></code> option to get the overlapped 2D surf and molecular graph plots.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import Laplacian, ChemicalGraph
+import numpy as np
+
+lapp = Laplacian.from_file(&#39;topo_urea.SURFLAPP&#39;, output=&#39;topo_urea.out&#39;)
+mgraph = ChemicalGraph.from_file(&#39;topo_urea.TRAJMOLG&#39;, output=&#39;topo_urea.out&#39;)
+fig = lapp.plot_2D(plot_lapm=True, isovalues=None, overlay=mgraph, figsize=[6, 6],
+                  traj_color=&#39;tab:gray&#39;, traj_linestyle=&#39;:&#39;, traj_linewidth=0.5)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_15_0.png" src="../../_images/examples_topond_topond_15_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import Gradient, ChemicalGraph
+import numpy as np
+
+levels = np.linspace(0, 10, 100)
+
+grho = Gradient.from_file(&#39;topo_urea.SURFGRHO&#39;, output=&#39;topo_urea.out&#39;)
+mgraph = ChemicalGraph.from_file(&#39;topo_urea.TRAJMOLG&#39;, output=&#39;topo_urea.out&#39;)
+fig = mgraph.plot_2D(cpt_color=&#39;tab:gray&#39;, traj_color=&#39;tab:gray&#39;,
+                     traj_linestyle=&#39;-&#39;, traj_linewidth=0.5, figsize=[6, 6],
+                     add_title=False, overlay=grho, isovalues=None, levels=levels,
+                     colorplot=True, lineplot=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_16_0.png" src="../../_images/examples_topond_topond_16_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="The-'plot_topond2D'-function">
+<h2>The ‘plot_topond2D’ function<a class="headerlink" href="#The-'plot_topond2D'-function" title="Link to this heading"></a></h2>
+<p>Similar to other modules, the <code class="docutils literal notranslate"><span class="pre">plot_topond2D()</span></code> function manages multiple objects / files and set the uniform scale for them.</p>
+<p>Multiple files plot, return to a figure of subplots. In this case, using the default scale is suggested as it is self-adaptive.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_topond2D
+
+fig = plot_topond2D(&#39;topo_urea.SURFRHOO&#39;, &#39;topo_urea.SURFGRHO&#39;, &#39;topo_urea.SURFLAPP&#39;,
+                    isovalues=None, figsize=[8, 4], layout=[1, 3])
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:907: UserWarning: Properties output file not found: Geometry not available
+  obj.append(Properties_output().read_topond(i, type=type))
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:907: UserWarning: Properties output file not found: Geometry not available
+  obj.append(Properties_output().read_topond(i, type=type))
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:907: UserWarning: Properties output file not found: Geometry not available
+  obj.append(Properties_output().read_topond(i, type=type))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_18_1.png" src="../../_images/examples_topond_topond_18_1.png" />
+</div>
+</div>
+<p>Get the charge difference map with <code class="docutils literal notranslate"><span class="pre">option='diff'</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_topond2D
+import numpy as np
+
+levels = np.linspace(-1, 1, 10)
+fig = plot_topond2D(&#39;topo_urea.SURFRHOO&#39;, &#39;topo_ureaPATO.SURFRHOO&#39;, option=&#39;diff&#39;,
+                    levels=levels, lineplot=True, colorplot=True, isovalues=None,
+                    linewidth=0.5)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:907: UserWarning: Properties output file not found: Geometry not available
+  obj.append(Properties_output().read_topond(i, type=type))
+/home/huanyu/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/plot.py:907: UserWarning: Properties output file not found: Geometry not available
+  obj.append(Properties_output().read_topond(i, type=type))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_20_1.png" src="../../_images/examples_topond_topond_20_1.png" />
+</div>
+</div>
+<p>Get overlapped plots with <code class="docutils literal notranslate"><span class="pre">option='overlay'</span></code>. Note in this case inputs must be 1 or more 1*2 list of <code class="docutils literal notranslate"><span class="pre">ScalarField</span></code> and <code class="docutils literal notranslate"><span class="pre">Trajectory</span></code> objects.</p>
+<p>With defalt levels the user can set different levels between 2 subplots. Otherwise only one is permitted.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.topond import Laplacian, ChemicalGraph, ELF
+from CRYSTALpytools.plot import plot_topond2D
+import numpy as np
+
+lap = Laplacian.from_file(&#39;topo_urea.SURFLAPP&#39;, output=&#39;topo_urea.out&#39;)
+mgraph = ChemicalGraph.from_file(&#39;topo_urea.TRAJMOLG&#39;, output=&#39;topo_urea.out&#39;)
+elf = ELF.from_file(&#39;topo_urea.SURFELFB&#39;, output=&#39;topo_urea.out&#39;)
+
+fig = plot_topond2D([lap, mgraph], elf, option=&#39;overlay&#39;, colorplot=True,
+                    lineplot=False, cpt_color=&#39;k&#39;, traj_color=&#39;tab:gray&#39;,
+                    traj_linestyle=&#39;-&#39;, traj_linewidth=0.5, figsize=[8, 4],
+                    title=&#39;A complex example&#39;, isovalues=None)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_22_0.png" src="../../_images/examples_topond_topond_22_0.png" />
+</div>
+</div>
+<p>The following code block is only used to generate a nice thumbnail for the example gallary.</p>
+<p>This is the end of the example notebook. For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.topond.html">API documentations</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.imshow(plt.imread(&quot;./topo_thumbnail.png&quot;))
+ax.axis(&#39;off&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(-0.5, 584.5, 461.5, -0.5)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_topond_topond_24_1.png" src="../../_images/examples_topond_topond_24_1.png" />
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../thermodynamics/qha.html" class="btn btn-neutral float-left" title="Lattice Dynamics 2: Quasi-Harmonic Approximation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../transport/transport.html" class="btn btn-neutral float-right" title="Thermoelectric Transport Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

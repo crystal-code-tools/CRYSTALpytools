@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geometry - Visualization &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/geometry/visualization.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Charge Density" href="../charge_density/charge_density.html" />
+    <link rel="prev" title="File / Class Conversion" href="../convert/convert.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../transport/transport.html">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transport/transport.html#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Geometry - Visualization</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/geometry/visualization.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Geometry---Visualization">
+<h1>Geometry - Visualization<a class="headerlink" href="#Geometry---Visualization" title="Link to this heading"></a></h1>
+<p>Here code examples for visualization options of geometry structures are given. For analysis and other properties, please refer to the corresponding example notebooks.</p>
+<p><strong>NOTE</strong></p>
+<p><a class="reference external" href="https://docs.enthought.com/mayavi/mayavi/">MayaVi</a> is needed for 3D structure visualizations discussed here, which is not included in the default dependency. The users are encouraged to install it according to their own needs.</p>
+<section id="Basic-structure-visualization">
+<h2>Basic structure visualization<a class="headerlink" href="#Basic-structure-visualization" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_graphite.gui&#39;))
+cstruc.visualize()
+</pre></div>
+</div>
+</div>
+<p>Output:</p>
+<p><img alt="6f0dab7b9a8b418bb2453a40ecc618d1" class="no-scaled-link" src="../../_images/geom_graphite.png" style="width: 320px;" /></p>
+<section id="display_range">
+<h3><code class="docutils literal notranslate"><span class="pre">display_range</span></code><a class="headerlink" href="#display_range" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">display_range</span></code> keyword controls the display range of the structure along 3 lattice vectors. Fractional coordinates are used.</p>
+<p>Display a 3*3*1 cell of graphite.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_graphite.gui&#39;))
+cstruc.visualize(display_range=[[0,3], [0,3], [0,1]])
+</pre></div>
+</div>
+</div>
+<p>Output:</p>
+<p><img alt="05b2f806f1f0421b94766f275a6ff89c" class="no-scaled-link" src="../../_images/geom_graphite3x3.png" style="width: 320px;" /></p>
+<p><code class="docutils literal notranslate"><span class="pre">display_range</span></code> must be defined as <code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">max]</span></code>, otherwise error is reported.</p>
+</section>
+<section id="display_matrix-and-display_origin">
+<h3><code class="docutils literal notranslate"><span class="pre">display_matrix</span></code> and <code class="docutils literal notranslate"><span class="pre">display_origin</span></code><a class="headerlink" href="#display_matrix-and-display_origin" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">display_matrix</span></code> and <code class="docutils literal notranslate"><span class="pre">display_origin</span></code> keywords changes the structure (and of course the lattice) displayed. The following equation is used:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{L} = \mathbf{M}\mathbf{L_{0}} + \mathbf{p}\mathbf{M}\mathbf{L_{0}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{L_{0}}=(\mathbf{a_{0}, b_{0}, c_{0}})^{T}\)</span> is the lattice of <code class="docutils literal notranslate"><span class="pre">self</span></code>. <span class="math notranslate nohighlight">\(\mathbf{M}\)</span> is the supercell matrix. <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> is the origin, which is defined as the fractional coordinates of the expanded supercell.</p>
+<p>Both keywords changes the displayed structure only.</p>
+<p>Display a 3*3*1 supercell of graphite.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_graphite.gui&#39;))
+cstruc.visualize(display_matrix=[[3,0,0], [0,3,0], [0,0,1]])
+</pre></div>
+</div>
+</div>
+<p>Output:</p>
+<p><img alt="6b0a17dff6ff4d0ba8426292202529f9" class="no-scaled-link" src="../../_images/geom_graphite3x3scel.png" style="width: 320px;" /></p>
+<p>Compared to <code class="docutils literal notranslate"><span class="pre">display_range</span></code>, it differs by lattice. <code class="docutils literal notranslate"><span class="pre">display_matrix</span></code> <strong>must be defined as the inter matrix with determinant &gt; 1</strong>, i.e., expansion only, otherwise error is given. <code class="docutils literal notranslate"><span class="pre">display_range</span></code> and <code class="docutils literal notranslate"><span class="pre">display_origin</span></code> can be defined by fractional numbers.</p>
+<p>The following examples are for testing proposes by developers. The users are suggested to skip to the next section.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_hematite.gui&#39;))
+# hexagonal
+cstruc.visualize(atom_bond_ratio=&#39;small&#39;, scale=1.0,
+                 display_matrix=[[1, -1, 0], [0, 1, -1], [1, 1, 1]])
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_hematite.gui&#39;))
+# trigonal
+cstruc.visualize(atom_bond_ratio=&#39;small&#39;, scale=1.0)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_co2.gui&#39;))
+# co2 at body center
+cstruc.visualize(display_origin=[0.5, 0.5, 0.5])
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_co2.gui&#39;))
+# co2 at origin
+cstruc.visualize()
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+# A complete sheet. Default option split the sheet to the bottom and the top
+cstruc.visualize(display_range=[[0,1], [0,1], [-0.05, 0.05]])
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+# A very long cell (very small in default figure)
+# Origin is in 250. A complete sheet around 500.
+cstruc.visualize(display_origin=[0.5, 0.5, 0.5])
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Data-visualization-mode">
+<h2>Data visualization mode<a class="headerlink" href="#Data-visualization-mode" title="Link to this heading"></a></h2>
+<p>The 3D structure visualization tool of CRYSTALpytools is featured by the data visualization mode, where the user can color atoms and bonds by defining the data associated to them. Here the rippled graphene in <em>J. Phys. Chem. C</em>, 2022, <strong>126</strong>, 19435–19445 is used as example.</p>
+<section id="Atom-data-visualization">
+<h3>Atom data visualization<a class="headerlink" href="#Atom-data-visualization" title="Link to this heading"></a></h3>
+<p>Distribution of z coordinates (rippling heights). Data are defined in the strucutre and duplicated in the supercell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+import numpy as np
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+at_data = np.vstack([
+    [i+1 for i in range(cstruc.num_sites)], # indices start from 1
+    cstruc.cart_coords[:, 2]
+]).T
+
+cstruc.visualize(atom_data=at_data, atom_color=&#39;jet&#39;,
+                 display_range=[[0,2], [0,2], [-0.05, 0.05]])
+</pre></div>
+</div>
+</div>
+<p>Output:</p>
+<p><img alt="da40035103c8495ca7a17aefea175c98" class="no-scaled-link" src="../../_images/geom_rippleG_atom.png" style="width: 640px;" /></p>
+<p>Remove data of atom 1~10. Use <code class="docutils literal notranslate"><span class="pre">atom_null</span></code> to set the color of atoms without data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+import numpy as np
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+at_data = np.vstack([
+    [i+1 for i in range(cstruc.num_sites)], # indices start from 1
+    cstruc.cart_coords[:, 2]
+]).T
+
+cstruc.visualize(atom_data=at_data[10:], atom_color=&#39;winter&#39;, atom_null=(1,0,0),
+                 display_range=[[0,2], [0,2], [-0.05, 0.05]])
+</pre></div>
+</div>
+</div>
+<p>Atoms without data are plotted in red, which is not present in colormap.</p>
+<p><img alt="deefbfa9960d4a0586f5251cb2ac692d" class="no-scaled-link" src="../../_images/geom_rippleG_atomNull.png" style="width: 640px;" /></p>
+</section>
+<section id="Bond-data-visualization">
+<h3>Bond data visualization<a class="headerlink" href="#Bond-data-visualization" title="Link to this heading"></a></h3>
+<p>Distribution of bond lengthes. Data are defined in the strucutre and duplicated in the supercell.</p>
+<p><strong>NOTE</strong></p>
+<p>Due to the settings of MayaVi, bonds in data display mode are plotted as ‘lines’ rather than ‘tubes’, which means the colored bonds might look very thick in small rendering windows. The solution is to zoom in and to expand the window, ideally using the full-screen mode.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+import numpy as np
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+
+cstruc.get_bonds()
+bd_data = []
+for b in cstruc.bonds:
+    bdlen = np.linalg.norm(
+        cstruc.frac_coords[b[0]-1]@cstruc.lattice.matrix - \
+        (cstruc.frac_coords[b[1]-1]+b[2])@cstruc.lattice.matrix
+    )
+    bd_data.append([b[0], b[1], bdlen]) # atom indices from 1
+
+cstruc.visualize(atom_bond_ratio=&#39;sticks&#39;,
+                 bond_color=&#39;jet&#39;,
+                 bond_data=bd_data,
+                 display_range=[[0,2], [0,2], [-0.05, 0.05]],
+                 display_origin=[0.5, 0.5, 0.])
+</pre></div>
+</div>
+</div>
+<p>Output:</p>
+<p><img alt="732857cc9a6848ee96d74b9de95a93cd" class="no-scaled-link" src="../../_images/geom_rippleG_bond.png" style="width: 640px;" /></p>
+</section>
+<section id="Atom-and-bond-data-visualization">
+<h3>Atom and bond data visualization<a class="headerlink" href="#Atom-and-bond-data-visualization" title="Link to this heading"></a></h3>
+<p>Visualizing ripple hight and bond length together. Note that here <code class="docutils literal notranslate"><span class="pre">display_matrix</span></code> rather than <code class="docutils literal notranslate"><span class="pre">display_range</span></code> is used. Expansions are made along periodic directions only.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.convert import cry_gui2pmg
+from CRYSTALpytools.geometry import CStructure
+import numpy as np
+
+cstruc = CStructure.from_pmg(cry_gui2pmg(&#39;geom_rippleG.gui&#39;))
+
+at_data = np.vstack([
+    [i+1 for i in range(cstruc.num_sites)], # indices start from 1
+    cstruc.cart_coords[:, 2]
+]).T
+
+cstruc.get_bonds()
+bd_data = []
+for b in cstruc.bonds:
+    bdlen = np.linalg.norm(
+        cstruc.frac_coords[b[0]-1]@cstruc.lattice.matrix - \
+        (cstruc.frac_coords[b[1]-1]+b[2])@cstruc.lattice.matrix
+    )
+    bd_data.append([b[0], b[1], bdlen]) # atom indices from 1
+
+cstruc.visualize(atom_bond_ratio=&#39;small&#39;,
+                 atom_color=&#39;jet&#39;,
+                 atom_data=at_data,
+                 bond_color=&#39;jet&#39;,
+                 bond_data=bd_data,
+                 display_range=[[0,1], [0,1], [-0.05, 0.05]],
+                 display_matrix=np.eye(3)*2,
+                 display_origin=[0.5, 0.5, 0.])
+</pre></div>
+</div>
+</div>
+<p>The following code block is only used to generate a nice thumbnail for the example gallary.</p>
+<p>This is the end of the example notebook. For more details, please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.geometry.html">API documentations</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=[8,8])
+ax.imshow(plt.imread(&quot;./geom_rippleG_both.png&quot;))
+ax.axis(&#39;off&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(-0.5, 1919.5, 1917.5, -0.5)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_geometry_visualization_24_1.png" src="../../_images/examples_geometry_visualization_24_1.png" />
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../convert/convert.html" class="btn btn-neutral float-left" title="File / Class Conversion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../charge_density/charge_density.html" class="btn btn-neutral float-right" title="Charge Density" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

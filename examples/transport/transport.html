@@ -1,0 +1,677 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thermoelectric Transport Properties &mdash; CRYSTALpytools 2025.5.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="canonical" href="https://crystal-code-tools.github.io/CRYSTALpytools/examples/transport/transport.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4e2b728b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tutorials and Workflow" href="../../tutorials.html" />
+    <link rel="prev" title="TOPOND" href="../topond/topond.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CRYSTALpytools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#create-a-conda-anaconda-environment">Create a conda/anaconda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-crystalpytools">Install CRYSTALpytools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-pypi">By PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#by-conda-forge">By Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#check-installation">Check Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#set-the-path-to-runcry-and-runprop">Set the path to runcry and runprop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples and Test Cases</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html">Input and Basis Set Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Crystal_input'-class">‘crystal_io.Crystal_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#'crystal_io.Properties_input'-class">‘crystal_io.Properties_input’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/input_and_basisset.html#Advanced:-Repeated-keywords-and-'append'-property">Advanced: Repeated keywords and ‘append’ property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html">Basis Set: Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'base.basisset.AtomBS'-class">‘base.basisset.AtomBS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../input_and_basisset/basisset_advanced.html#'BasisSetBASE'-class">‘BasisSetBASE’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output/output.html">Output Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Crystal_output'-class">The ‘crystal_io.Crystal_output’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/output.html#The-'crystal_io.Properties_output'-class">The ‘crystal_io.Properties_output’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../convert/convert.html">File / Class Conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-pymatgen">CRYSTAL &lt;-&gt; pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#CRYSTAL-&lt;-&gt;-ASE">CRYSTAL &lt;-&gt; ASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/convert.html#Saving-structure-files-(.cif-and-.xyz)">Saving structure files (.cif and .xyz)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../geometry/visualization.html">Geometry - Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Basic-structure-visualization">Basic structure visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/visualization.html#Data-visualization-mode">Data visualization mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../charge_density/charge_density.html">Charge Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'read_ECHG'-and-'read_ECH3'-methods">The ‘read_ECHG’ and ‘read_ECH3’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#'electronics.ChargeDensity'-class">‘electronics.ChargeDensity’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../charge_density/charge_density.html#The-'plot.plot_ECHG()'-function">The ‘plot.plot_ECHG()’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../elastic_properties/elastic_properties.html">Elastic Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'crystal_io.Crystal_output.get_elatensor()'-method">‘crystal_io.Crystal_output.get_elatensor()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'elastics'-module">‘elastics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#Plot">Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../elastic_properties/elastic_properties.html#'plot.plot_elastics3D()'-and-'plot.plot_elastics2D()'-functions">‘plot.plot_elastics3D()’ and ‘plot.plot_elastics2D()’ functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../electronic_structure/electronic_structure.html">Electronic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'read_electron_band()'-and-'read_electron_dos()'-methods">‘read_electron_band()’ and ‘read_electron_dos()’ methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'electronics'-module">‘electronics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_bands'-function">‘plot.plot_electron_bands’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_doss'-function">‘plot.plot_electron_doss’ function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electronic_structure/electronic_structure.html#'plot.plot_electron_banddos'-function">‘plot.plot_electron_banddos’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fermi_surface/fermi_surface.html">Fermi Surface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'read_Fermi_surface()'-method">The ‘read_Fermi_surface()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#The-'electronics.FermiSurface'-class">The ‘electronics.FermiSurface’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fermi_surface/fermi_surface.html#Visualization">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../phonons/phonons.html">Phonons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#I/O-methods-in-'crystal_io.Crystal_output'">I/O methods in ‘crystal_io.Crystal_output’</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'phonons'-module">The ‘phonons’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#The-'PhononBandDOS'-class">The ‘PhononBandDOS’ class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../phonons/phonons.html#Functions-in-the-'plot'-module">Functions in the ‘plot’ module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relativistics/relativistics.html">Relativistics (2c-SCF)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'read_relativistics'-method">The ‘read_relativistics’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'relativistics'-module">The ‘relativistics’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../relativistics/relativistics.html#The-'plot_relativistics2D'-function">The ‘plot_relativistics2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../spectra/spectra.html">Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#XRD-spectra">XRD spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#IR-spectra">IR spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#Raman-spectra">Raman spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectra/spectra.html#The-'Raman'-class">The ‘Raman’ class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/harmonic.html">Lattice Dynamics 1: Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Instantiation">Instantiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#File-I/O">File I/O</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Restart-calculation">Restart calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/harmonic.html#Thermodynamics">Thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../thermodynamics/qha.html">Lattice Dynamics 2: Quasi-Harmonic Approximation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Basic-thermodynamic-properties">Basic thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Restart-QHA-calculations">Restart QHA calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Other-thermodynamic-properties">Other thermodynamic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../thermodynamics/qha.html#Anisotropic-lattice-expansions">Anisotropic lattice expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../topond/topond.html">TOPOND</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'read_topond()'-method">The ‘read_topond()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'topond'-module">The ‘topond’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../topond/topond.html#The-'plot_topond2D'-function">The ‘plot_topond2D’ function</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Thermoelectric Transport Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#The-'read_transport()'-method">The ‘read_transport()’ method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'transport'-module">The ‘transport’ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-'plot_transport_tensor()'-method">The ‘plot_transport_tensor()’ method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../crystalpytools.html">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.adsorb.html">CRYSTALpytools.adsorb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.calculate.html">CRYSTALpytools.calculate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.convert.html">CRYSTALpytools.convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.crystal_io.html">CRYSTALpytools.crystal_io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.elastics.html">CRYSTALpytools.elastics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.electronics.html">CRYSTALpytools.electronics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.execute.html">CRYSTALpytools.execute module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.geometry.html">CRYSTALpytools.geometry module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.phonons.html">CRYSTALpytools.phonons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.plot.html">CRYSTALpytools.plot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.relativistics.html">CRYSTALpytools.relativistics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.spectra.html">CRYSTALpytools.spectra module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.thermodynamics.html">CRYSTALpytools.thermodynamics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.topond.html">CRYSTALpytools.topond module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.transport.html">CRYSTALpytools.transport module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#externals">Externals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.phonopy.html">CRYSTALpytools.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.io.xcrysden.html">CRYSTALpytools.io.xcrysden module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../crystalpytools.html#developers">Developers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.basisset.html">CRYSTALpytools.base.basisset module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.crysd12.html">CRYSTALpytools.base.crysd12 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.dump.html">CRYSTALpytools.base.dump module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.extfmt.html">CRYSTALpytools.base.extfmt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.inputbase.html">CRYSTALpytools.base.inputbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.output.html">CRYSTALpytools.base.output module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.plotbase.html">CRYSTALpytools.base.plotbase module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../crystalpytools.base.propd3.html">CRYSTALpytools.base.propd3 module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cite.html">How to Cite CRYSTALpytools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cite.html#general-structure-and-usage">General Structure and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CRYSTALpytools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples and Test Cases</a></li>
+      <li class="breadcrumb-item active">Thermoelectric Transport Properties</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/crystal-code-tools/CRYSTALpytools/blob/main/docs_source/examples/transport/transport.ipynb" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Thermoelectric-Transport-Properties">
+<h1>Thermoelectric Transport Properties<a class="headerlink" href="#Thermoelectric-Transport-Properties" title="Link to this heading"></a></h1>
+<p>Here code examples for thermoelectric transport properties are given. It is developed for the ‘BOLTZTRA’ keyword of CRYSTAL properties calculation.</p>
+<section id="The-'read_transport()'-method">
+<h2>The ‘read_transport()’ method<a class="headerlink" href="#The-'read_transport()'-method" title="Link to this heading"></a></h2>
+<p>This method is defined in the <code class="docutils literal notranslate"><span class="pre">crystal_io.Properties_output</span></code> class, which reads the ‘DAT’ formatted files (‘KAPPA.DAT’, ‘SIGMA.DAT’, ‘SIGMAS.DAT’, ‘SEEBECK.DAT’ and ‘TDF.DAT’) generated by CRYSTAL and return to classes based on <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code> (‘KAPPA’, ‘SIGMA’, ‘SIGMAS’ and ‘SEEBECK’) or based on<code class="docutils literal notranslate"><span class="pre">transport.Distribution</span></code> (‘TDF’).</p>
+<p>Currently the standard output is not required for plotting. But its geometry information will be saved if given.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.crystal_io import Properties_output
+
+obj = Properties_output(&#39;trans_G2S.out&#39;).read_transport(&#39;trans_G2S_SK.DAT&#39;)
+print(&#39;Object type: {}&#39;.format(obj.type))
+print(&#39;Temperature (K):&#39;)
+print(obj.T)
+print(&#39;Chemical Potential (eV):&#39;)
+print(obj.mu)
+print(&#39;Geometry:&#39;)
+print(obj.struc)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Object type: SEEBECK
+Temperature (K):
+[300. 310. 320. 330. 340. 350. 360. 370. 380. 390. 400. 410. 420. 430.
+ 440. 450. 460. 470. 480. 490. 500.]
+Chemical Potential (eV):
+[-4.84 -4.74 -4.64 -4.54 -4.44 -4.34 -4.24 -4.14 -4.04 -3.94 -3.84 -3.74
+ -3.64 -3.54 -3.44 -3.34 -3.24 -3.14 -3.04 -2.94 -2.84 -2.74 -2.64 -2.54
+ -2.44 -2.34 -2.24 -2.14 -2.04 -1.94 -1.84]
+Geometry:
+Full Formula (C48 S2)
+Reduced Formula: C24S
+abc   :  12.251302  12.223170 500.000000
+angles:  90.000000  90.000000 119.924043
+pbc   :       True       True      False
+Sites (50)
+  #  SP            a          b          c
+---  ----  ---------  ---------  ---------
+  0  C     -0.130438   0.133993   0.000898
+  1  C     -0.133358   0.332481  -5.6e-05
+  2  C     -0.133358  -0.465839  -5.6e-05
+  3  C     -0.130438  -0.264431   0.000898
+  4  C      0.072706  -0.066403   0.000264
+  5  C      0.072706   0.139109   0.000264
+  6  C      0.065737   0.332463  -0.00028
+  7  C      0.065737  -0.467165  -0.000416
+  8  C      0.065737  -0.266726  -0.00028
+  9  C      0.267281  -0.066308  -0.000652
+ 10  C      0.267563   0.133782  -0.00046
+ 11  C      0.267281   0.333588  -0.000652
+ 12  C      0.265303  -0.467684  -0.000598
+ 13  C      0.265303  -0.266999  -0.000598
+ 14  C      0.46534   -0.066598  -0.000378
+ 15  C      0.467883   0.133803  -0.000516
+ 16  C      0.467883   0.334079  -0.000516
+ 17  C      0.46534   -0.468049  -0.000378
+ 18  C      0.462232  -0.268918   9.2e-05
+ 19  C     -0.349876  -0.065801   0.001318
+ 20  C     -0.333112   0.131894   0.000118
+ 21  C     -0.332735   0.333666  -0.000232
+ 22  C     -0.333112  -0.465005   0.000118
+ 23  C     -0.349876  -0.284075   0.001318
+ 24  C     -0.050103  -0.134189   0.001308
+ 25  C     -0.050103   0.084085   0.001308
+ 26  C     -0.066867   0.265098   0.000116
+ 27  C     -0.067244   0.466412  -0.00023
+ 28  C     -0.066867  -0.331965   0.000116
+ 29  C      0.134676  -0.133428  -0.000382
+ 30  C      0.137784   0.068892   8.2e-05
+ 31  C      0.134676   0.268104  -0.000382
+ 32  C      0.132133   0.465881  -0.000514
+ 33  C      0.132133  -0.333748  -0.000514
+ 34  C      0.332735  -0.133718  -0.00065
+ 35  C      0.334713   0.066973  -0.0006
+ 36  C      0.334713   0.26774   -0.0006
+ 37  C      0.332735   0.466453  -0.00065
+ 38  C      0.332453  -0.333808  -0.000454
+ 39  C     -0.472686  -0.133587   0.000272
+ 40  C     -0.465716   0.066737  -0.000278
+ 41  C     -0.465716   0.267176  -0.000418
+ 42  C     -0.465716   0.467533  -0.000278
+ 43  C     -0.472686  -0.339098   0.000272
+ 44  C     -0.269541   0.064441   0.000902
+ 45  C     -0.266621   0.265849  -5.6e-05
+ 46  C     -0.266621   0.467597  -5.6e-05
+ 47  C     -0.269541  -0.333982   0.000902
+ 48  S     -0.330381  -0.16519    0.00359
+ 49  S     -0.069975  -0.034988   0.003576
+</pre></div></div>
+</div>
+</section>
+<section id="The-'transport'-module">
+<h2>The ‘transport’ module<a class="headerlink" href="#The-'transport'-module" title="Link to this heading"></a></h2>
+<p>Currently 2 basic (parent) classes are defined in this module, including <code class="docutils literal notranslate"><span class="pre">transport.Tensor</span></code> for ‘tensor-like’ thermoelectric properties and <code class="docutils literal notranslate"><span class="pre">transport.Distribution</span></code> for distribution functions.</p>
+<section id="The-'Tensor'-based-classes">
+<h3>The ‘Tensor’-based classes<a class="headerlink" href="#The-'Tensor'-based-classes" title="Link to this heading"></a></h3>
+<p>Child classes include: <code class="docutils literal notranslate"><span class="pre">Kappa</span></code>, <code class="docutils literal notranslate"><span class="pre">Sigma</span></code>, <code class="docutils literal notranslate"><span class="pre">Seebeck</span></code>, <code class="docutils literal notranslate"><span class="pre">SigmaS</span></code>, <code class="docutils literal notranslate"><span class="pre">PowerFactor</span></code> and <code class="docutils literal notranslate"><span class="pre">ZT</span></code>.</p>
+<p>Basic I/O with the <code class="docutils literal notranslate"><span class="pre">from_file</span></code> class method. The user can call either the <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> class or child classes.</p>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> for the optimal flexibility.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import Tensor
+
+obj = Tensor.from_file(&#39;trans_G2S_SG.DAT&#39;)
+print(&#39;Object type: {}&#39;.format(obj.type))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Object type: SIGMA
+</pre></div></div>
+</div>
+<p>Calling the child classes for safety. The following code leads to error.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import Seebeck
+
+obj = Seebeck.from_file(&#39;trans_G2S_SG.DAT&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[3], line 3</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">CRYSTALpytools</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">transport</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Seebeck
+<span class="ansi-green-fg">----&gt; 3</span> obj <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">Seebeck</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">from_file</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">trans_G2S_SG.DAT</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">~/apps/anaconda3/envs/crystal_py3.9/lib/python3.9/site-packages/CRYSTALpytools/transport.py:688</span>, in <span class="ansi-cyan-fg">Seebeck.from_file</span><span class="ansi-blue-fg">(cls, file, output)</span>
+<span class="ansi-green-intense-fg ansi-bold">    685</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">CRYSTALpytools</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">crystal_io</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Properties_output
+<span class="ansi-green-intense-fg ansi-bold">    687</span> obj <span style="color: rgb(98,98,98)">=</span> Properties_output(output)<span style="color: rgb(98,98,98)">.</span>read_transport(file)
+<span class="ansi-green-fg">--&gt; 688</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> obj<span style="color: rgb(98,98,98)">.</span>type<span style="color: rgb(98,98,98)">.</span>upper() <span style="color: rgb(98,98,98)">!=</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">SEEBECK</span><span style="color: rgb(175,0,0)">&#39;</span>: <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">TypeError</span>(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">Not a SEEBECK.DAT file.</span><span style="color: rgb(175,0,0)">&#39;</span>)
+<span class="ansi-green-intense-fg ansi-bold">    689</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> obj
+
+<span class="ansi-red-fg">TypeError</span>: Not a SEEBECK.DAT file.
+</pre></div></div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">PowerFactor.from_file()</span></code> class method, the user can get ‘POWERFACTOR’ type (<span class="math notranslate nohighlight">\(S^{2}\sigma\)</span>) from 2 arbitrary types in ‘SIGMA’, ‘SIGMAS’ and ‘SEEBECK’. The sequence is arbitrary.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import PowerFactor
+
+obj = PowerFactor.from_file(&#39;trans_G2S_SG.DAT&#39;, &#39;trans_G2S_SGS.DAT&#39;, output=&#39;trans_G2S.out&#39;)
+print(&#39;Object type: {}&#39;.format(obj.type))
+print(&#39;Object unit: {}&#39;.format(obj.unit))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Object type: POWERFACTOR
+Object unit: W/m/K^2
+</pre></div></div>
+</div>
+<p>Similarly, with <code class="docutils literal notranslate"><span class="pre">ZT.from_file()</span></code> the user can get ‘ZT’ type (thermoelectric dimensionless figure of merit, <span class="math notranslate nohighlight">\(\frac{S^{2}\sigma T}{\kappa}\)</span>) from 1 ‘KAPPA’ type file and 2 arbitrary ones from ‘SIGMA’, ‘SIGMAS’ and ‘SEEBECK’. The sequence is arbitrary.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import ZT
+
+obj = ZT.from_file(&#39;trans_G2S_SG.DAT&#39;, &#39;trans_G2S_SGS.DAT&#39;, &#39;trans_G2S_K.DAT&#39;, output=&#39;trans_G2S.out&#39;)
+print(&#39;Object type: {}&#39;.format(obj.type))
+print(&#39;Object unit: {}&#39;.format(obj.unit))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Object type: ZT
+Object unit: dimensionless
+</pre></div></div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">plot()</span></code> method one can visualize object. By defult it plots the property along the ‘xx’ direction as the function of chemical potential <span class="math notranslate nohighlight">\(\mu\)</span>. In that case, multiple data at different temperatures can be plotted as ‘series’.</p>
+<p>Specifing the temperature values by <code class="docutils literal notranslate"><span class="pre">plot_series</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import Sigma
+
+obj = Sigma.from_file(&#39;trans_G2S_SG.DAT&#39;)
+fig = obj.plot(plot_series=[300, 360, 420, 480])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_11_0.png" src="../../_images/examples_transport_transport_11_0.png" />
+</div>
+</div>
+<p>The logic of setting plot parameters is similar to density plots (see examples of <code class="docutils literal notranslate"><span class="pre">electronics.ElectronDOS</span></code>), which is not repeated again here.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">x_axis='carrier'</span></code>, the user can plot data as function of carrier densities. Temperature is also used as plot series. <code class="docutils literal notranslate"><span class="pre">direction=['xx',</span> <span class="pre">'yy']</span></code> plots tensor properties along different directions into different subplots.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = obj.plot(x_axis=&#39;carrier&#39;, plot_series=[300, 360, 420, 480],
+               direction=[&#39;xx&#39;, &#39;yy&#39;], plot_label=r&#39;$\sigma$ at&#39;,
+               plot_linewidth=0.5, plot_color=[&#39;b&#39;, &#39;c&#39;, &#39;g&#39;, &#39;r&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_13_0.png" src="../../_images/examples_transport_transport_13_0.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">x_axis='temperature'</span></code> plots the property as the function of temperature. Correspondingly, the plot series becomes chemical potential.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = obj.plot(x_axis=&#39;temperature&#39;, plot_label=r&#39;$\sigma$ at&#39;,
+               direction=[&#39;xx&#39;, &#39;yy&#39;], layout=[1,2], sharey=False,
+               plot_linewidth=1.5, plot_series=[-4.84, -4.44, -4.04, -3.64])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_15_0.png" src="../../_images/examples_transport_transport_15_0.png" />
+</div>
+</div>
+</section>
+<section id="The-'Distribution'-based-class">
+<h3>The ‘Distribution’-based class<a class="headerlink" href="#The-'Distribution'-based-class" title="Link to this heading"></a></h3>
+<p>Child classes include: <code class="docutils literal notranslate"><span class="pre">TDF</span></code></p>
+<p>Currently only the I/O method is defined for this class.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import TDF
+
+obj = TDF.from_file(&#39;trans_G2S_TDF.DAT&#39;, output=&#39;trans_G2S.out&#39;)
+print(&#39;Object type: {}&#39;.format(obj.type))
+print(&#39;Object unit: {}&#39;.format(obj.unit))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Object type: TDF
+Object unit: 1/hbar^2*eV*fs/angstrom
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="The-'plot_transport_tensor()'-method">
+<h2>The ‘plot_transport_tensor()’ method<a class="headerlink" href="#The-'plot_transport_tensor()'-method" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot.plot_transport_tensor()</span></code> method is designed for multi-system plots of tensor-like properties. It can also be used as a shortcut to plot data from file just as the <code class="docutils literal notranslate"><span class="pre">Tensor.plot</span></code> method.</p>
+<p>Normal usage with <code class="docutils literal notranslate"><span class="pre">option='normal'</span></code> and 1 property.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_transport_tensor
+
+fig = plot_transport_tensor(&#39;trans_Bi2Te3_SG.DAT&#39;, x_range=[-5.5, -3],
+                            direction=[&#39;xx&#39;, &#39;yy&#39;], figsize=[8, 4],
+                            layout=[1, 2], sharey=False, legend=&#39;upper center&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_19_0.png" src="../../_images/examples_transport_transport_19_0.png" />
+</div>
+</div>
+<p>Get power factor with a 1D list of 2 elements.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.plot import plot_transport_tensor
+
+fig = plot_transport_tensor([&#39;trans_Bi2Te3_SG.DAT&#39;, &#39;trans_Bi2Te3_SK.DAT&#39;],
+                            option=&#39;normal&#39;, x_axis=&#39;carrier&#39;,
+                            direction=[&#39;xx&#39;, &#39;yy&#39;], figsize=[8, 4],
+                            layout=[1, 2], sharey=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_21_0.png" src="../../_images/examples_transport_transport_21_0.png" />
+</div>
+</div>
+<p>Plot power factor and Seebeck coefficient of Bi2Te3 together. In this case, <code class="docutils literal notranslate"><span class="pre">option='normal'</span></code> plots multiple properties at various ‘plot series’ along various directions.</p>
+<p>Assuming every property is a ‘block’, the <code class="docutils literal notranslate"><span class="pre">layout</span></code> option specifies the layout of blocks. The layout within block is always nDirection*1. Similarly, <code class="docutils literal notranslate"><span class="pre">sharey</span></code> defines the y-axis within the same block.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = plot_transport_tensor(
+    &#39;trans_Bi2Te3_SK.DAT&#39;, [&#39;trans_Bi2Te3_SG.DAT&#39;, &#39;trans_Bi2Te3_SK.DAT&#39;],
+    option=&#39;normal&#39;, x_axis=&#39;carrier&#39;, direction=[&#39;xx&#39;, &#39;yy&#39;, &#39;zz&#39;],
+    figsize=[8, 6], layout=[1, 2], sharey=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_23_0.png" src="../../_images/examples_transport_transport_23_0.png" />
+</div>
+</div>
+<p>Compare data of 2 different materials with <code class="docutils literal notranslate"><span class="pre">option='multi'</span></code>.</p>
+<p><strong>NOTE</strong></p>
+<ol class="arabic simple">
+<li><p>The entries must be of the same type, same dimensionality.</p></li>
+<li><p>Multi-direction plotting is disabled. <code class="docutils literal notranslate"><span class="pre">direction</span></code> only accepts string input.</p></li>
+<li><p>Instead, <code class="docutils literal notranslate"><span class="pre">plot_series</span></code> is used to generate subplots.</p></li>
+<li><p>This function accepts inconsistent plot series. The common plot series is found automatically. See the example below.</p></li>
+</ol>
+<p>With <code class="docutils literal notranslate"><span class="pre">x_axis='potential'</span></code>, temperature is used as plot series.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from CRYSTALpytools.transport import Tensor
+from CRYSTALpytools.plot import plot_transport_tensor
+
+obj1 = Tensor.from_file(&#39;trans_TiNiSn_SK.DAT&#39;)
+obj2 = Tensor.from_file(&#39;trans_Bi2Te3_SK.DAT&#39;)
+
+print(&#39;Obj1 Temperature:&#39;)
+print(obj1.T)
+print(&#39;Obj2 Temperature:&#39;)
+print(obj2.T)
+
+fig = plot_transport_tensor(
+    obj1, obj2, option=&#39;multi&#39;, x_axis=&#39;potential&#39;, plot_label=[&#39;TiNiSn&#39;, &#39;Bi2Te3&#39;],
+    title=&#39;Seebeck Coeff.&#39;, direction=&#39;xx&#39;, figsize=[8, 5], x_range=[-6, -3],
+    layout=[1, 3]
+)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Obj1 Temperature:
+[300. 400. 500. 600. 700.]
+Obj2 Temperature:
+[300. 500. 700.]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_transport_transport_25_1.png" src="../../_images/examples_transport_transport_25_1.png" />
+</div>
+</div>
+<p>For more details please refer to the <a class="reference external" href="https://crystal-code-tools.github.io/CRYSTALpytools/crystalpytools.transport.html">API documentations</a>.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../topond/topond.html" class="btn btn-neutral float-left" title="TOPOND" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../tutorials.html" class="btn btn-neutral float-right" title="Tutorials and Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, CRYSTALpytools Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
