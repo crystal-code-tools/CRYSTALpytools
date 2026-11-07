@@ -37,17 +37,17 @@ class YAML():
 
     Args:
         struc (Structure|CStructure): Pymatgen Structure class, unit cell.
-        dim (list[int]): 1\*3 or 1\*9 list of supercell expansion matrix, i.e.,
+        dim (list[int]): 1\\*3 or 1\\*9 list of supercell expansion matrix, i.e.,
             the ``--dim`` option of phonopy.
         calculator (str): Name of calculator. Will be used to determine the
             conversion factors.
-        primitive (str|array): 9\*1 primitive matrix in phonopy convention, or
+        primitive (str|array): 9\\*1 primitive matrix in phonopy convention, or
             'auto' to automatically identify the primitive cell.
-        \*\*kwargs: Other attributes. Listed below.
-        qpoint (array): nQpoint\*4, Fractional coordinates and weight.
-        frequency (array): nQpoint\*nMode, In THz.
-        mode_symm (array): nQpoint\*nMode str, in Mulliken symbols.
-        eigenvector (array): nQpoint\*nMode\*nAtom\*3 complex, Mass-weighted and phased, normalized to 1.
+        \\*\\*kwargs: Other attributes. Listed below.
+        qpoint (array): nQpoint\\*4, Fractional coordinates and weight.
+        frequency (array): nQpoint\\*nMode, In THz.
+        mode_symm (array): nQpoint\\*nMode str, in Mulliken symbols.
+        eigenvector (array): nQpoint\\*nMode\\*nAtom\\*3 complex, Mass-weighted and phased, normalized to 1.
     """
     def __init__(self, struc, dim, calculator='crystal', primitive='auto', **kwargs):
         try:
@@ -533,7 +533,7 @@ def read_FC(input='FORCE_CONSTANTS'):
     Args:
         input (str): The input file name
     Returns:
-        hess (array): nMode\*nMode array. Mass-unweighted Hessian matrix.
+        hess (array): nMode\\*nMode array. Mass-unweighted Hessian matrix.
     """
     from pandas import DataFrame
 
@@ -576,7 +576,7 @@ def write_FC(hess, output='FORCE_CONSTANTS'):
     Input units: 'eV' and ':math:`\\AA`'.
 
     Args:
-        hess (array): nMode\*nMode array. Mass-unweighted Hessian matrix.
+        hess (array): nMode\\*nMode array. Mass-unweighted Hessian matrix.
         output (str): The output name
     Returns:
         None

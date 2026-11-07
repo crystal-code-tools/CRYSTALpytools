@@ -44,7 +44,7 @@ class GeomBASE():
         # lattice
         if len(title_line) != 0:
             latt_line = np.array(data.loc[title_line[0]+1].strip().split(), dtype=float)
-            ndimen = 3 - len(re.findall('\(ANGSTROM\)', data[title_line[0]+4]))
+            ndimen = 3 - len(re.findall('\\(ANGSTROM\\)', data[title_line[0]+4]))
             latt = Lattice.from_parameters(a=latt_line[0], b=latt_line[1],
                                            c=latt_line[2], alpha=latt_line[3],
                                            beta=latt_line[4], gamma=latt_line[5])
@@ -127,8 +127,8 @@ class SCFBASE():
         Returns:
             ncyc (int): Number of cycles
             endflag (str): 'terminated', 'converged', 'too many cycles' and 'unknown'
-            e (array): nCYC\*1 array of SCF energy. Unit: eV
-            de (array): nCYC\*1 array of SCF energy difference. Unit: eV
+            e (array): nCYC\\*1 array of SCF energy. Unit: eV
+            de (array): nCYC\\*1 array of SCF energy difference. Unit: eV
             spin (bool): Whether the system is spin-polarised.
             efermi (array): Fermi energy. Unit: eV
             gap (array): Band gap. Unit: eV
@@ -396,7 +396,7 @@ class POutBASE():
         generated since no dimensionality information is provided.
 
         Returns:
-            matrix (array): 3\*3 lattice matrix
+            matrix (array): 3\\*3 lattice matrix
         """
         struc = self.get_geometry()
         return struc.lattice.matrix
@@ -408,7 +408,7 @@ class POutBASE():
 
         Returns:
             atomsplt (array): Atomic numbers and coordinates in plotting frame.
-            base (array): *Valid for 2D plots only* 3\*3 range of orthogonal
+            base (array): *Valid for 2D plots only* 3\\*3 range of orthogonal
                 plotting base x and y. A: (xmin, ymax), B: (xmin, ymin), C:
                 (xmax, ymin). Unit: Bohr.
         """
@@ -477,7 +477,7 @@ class POutBASE():
         lattice is generated since no dimensionality information is provided.
 
         Returns:
-            matrix (array): 3\*3 reciprocal lattice matrix
+            matrix (array): 3\\*3 reciprocal lattice matrix
         """
         struc = self.get_geometry()
         return struc.lattice.reciprocal_lattice.matrix
@@ -488,9 +488,9 @@ class POutBASE():
         and sampled k points from output file.
 
         Returns:
-            tick_pos3d (array): ntick\*3 array of fractional coordinates of
+            tick_pos3d (array): ntick\\*3 array of fractional coordinates of
                 high symmetry k points
-            k_pos3d(array): nkpoint\*3 fractional coordinates of k points
+            k_pos3d(array): nkpoint\\*3 fractional coordinates of k points
         """
         import re
         import numpy as np

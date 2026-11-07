@@ -32,7 +32,7 @@ class AtomBS():
             NG (int): Number of Gaussian orbitals
             CHE (float): Charge
             SCAL (float): Scaling factor
-            orbitals (list): nGTO\*2 or nGTO\*3 (sp type) list of exponent
+            orbitals (list): nGTO\\*2 or nGTO\\*3 (sp type) list of exponent
                 and contraction factors
         Returns:
             obj (AtomBS)
@@ -163,7 +163,7 @@ class AtomBS():
                 Element object.
             bs (dict): BSE basis set dictionary
         Returns:
-            chg (list): nshell\*1 list of charge assigned to every shell.
+            chg (list): nshell\\*1 list of charge assigned to every shell.
         """
         import numpy as np
 

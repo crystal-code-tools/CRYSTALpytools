@@ -261,7 +261,7 @@ class Geom(BlockBASE):
         Args:
             sg (int): Space group number. Parameter IGR in the manual
             latt (list): Minimal set of crystallographic cell parameters
-            atom (list): Natom \* 4 list of conventional atomic number and 3D 
+            atom (list): Natom \\* 4 list of conventional atomic number and 3D 
                 fractional coordinates.
             IFLAG (int): See the manual
             IFHR (int): See the manual
@@ -410,7 +410,7 @@ class Geom(BlockBASE):
         Supercell by 'SUPERCEL' keyword
 
         Args:
-            mx (array | list | str): ndimen \* ndimen matrix, ``None`` or ``''``
+            mx (array | list | str): ndimen \\* ndimen matrix, ``None`` or ``''``
         """
         shape, value = super().set_matrix(mx)
         super().assign_keyword('SUPERCEL', shape, value); return self
@@ -455,7 +455,7 @@ class Geom(BlockBASE):
 
         Args:
             NDISP (int): See manual
-            atom (list): NDISP\*4 list. Including LB, DX, DY, DZ
+            atom (list): NDISP\\*4 list. Including LB, DX, DY, DZ
         """
         shape, value = super().set_list(NDISP, atom)
         super().assign_keyword('ATOMDISP', shape, value); return self
@@ -466,7 +466,7 @@ class Geom(BlockBASE):
 
         Args:
             NINS (int): See manual
-            atom (list): NINS\*4 list. Including NA, X, Y, Z
+            atom (list): NINS\\*4 list. Including NA, X, Y, Z
         """
         shape, value = super().set_list(NINS, atom)
         super().assign_keyword('ATOMINSE', shape, value); return self
@@ -480,7 +480,7 @@ class Geom(BlockBASE):
 
         Args:
             NL (int): See manual
-            atom (list): NL\*1 list. Including LB
+            atom (list): NL\\*1 list. Including LB
         """
         shape, value = super().set_list(NL, atom)
         super().assign_keyword('ATOMREMO', shape, value); return self
@@ -491,7 +491,7 @@ class Geom(BlockBASE):
 
         Args:
             NSOST (int): See manual
-            atom (list): NSOST\*2 list. Conventional atomic number of atoms to
+            atom (list): NSOST\\*2 list. Conventional atomic number of atoms to
                 be substituted and to substituted
         """
         shape, value = super().set_list(NSOST, atom)
@@ -507,7 +507,7 @@ class Geom(BlockBASE):
 
         Args:
             NMOL (int)
-            atom (list[list[int]]): NMOL\*4 list. See CRYSTAL manual.
+            atom (list[list[int]]): NMOL\\*4 list. See CRYSTAL manual.
         """
         shape, value = super().set_list(NMOL, atom)
         super().assign_keyword('MOLECULE2', shape, value); return self

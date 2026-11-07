@@ -10,7 +10,7 @@ import numpy as np
 
 class ScalarField():
     """
-    Basic TOPOND scalar field class, containing a nY\*nX (nZ\*nY\*nX) data
+    Basic TOPOND scalar field class, containing a nY\\*nX (nZ\\*nY\\*nX) data
     array for 2D (3D) fields. Call the property-specific child classes below to
     use. **3D methods under development**.
     """
@@ -49,7 +49,7 @@ class ScalarField():
                 number for linear scaled plot colors or an array for
                 user-defined levels. 1D.
             lineplot (bool): Plot contour lines.
-            contourline (list): nLevel\*3 contour line styles. Useful only if
+            contourline (list): nLevel\\*3 contour line styles. Useful only if
                 ``lineplot=True``. For every line, color, line style and line
                 width are defined in sequence.
             isovalues (str|None): Add isovalues to contour lines and set their
@@ -60,9 +60,9 @@ class ScalarField():
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -74,7 +74,7 @@ class ScalarField():
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -137,7 +137,7 @@ class ScalarField():
         Subtracting data of the same type from the object.
 
         Args:
-            \*args (str|ScalarField): File names or ``ScalarField`` objects.
+            \\*args (str|ScalarField): File names or ``ScalarField`` objects.
                 Must be of the same type (check the attribute ``type``).
         Returns:
             self (ScalarField) : Data difference
@@ -210,7 +210,7 @@ class Trajectory():
                 ``topond.ScalarField`` object if not None.
             fig (Figure|None): *Developers only*, matplotlib Figure class..
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
+            \\*\\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
         Returns:
             fig (Figure): Matplotlib Figure object
         """
@@ -291,8 +291,8 @@ class ChargeDensity(ScalarField):
     :math:`\\AA^{-3}` and 'a.u.' for Bohr :math:`^{-3}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -363,9 +363,9 @@ class ChargeDensity(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -379,7 +379,7 @@ class ChargeDensity(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -501,8 +501,8 @@ class SpinDensity(ScalarField):
     and 'a.u.' for Bohr :math:`^{-3}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -573,9 +573,9 @@ class SpinDensity(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -589,7 +589,7 @@ class SpinDensity(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -707,8 +707,8 @@ class Gradient(ScalarField):
     :math:`\\AA^{-4}` and 'a.u.' for Bohr :math:`^{-4}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -779,9 +779,9 @@ class Gradient(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -795,7 +795,7 @@ class Gradient(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -917,8 +917,8 @@ class Laplacian(ScalarField):
     and 'a.u.' for Bohr :math:`^{-5}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -1000,9 +1000,9 @@ class Laplacian(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -1016,7 +1016,7 @@ class Laplacian(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -1148,8 +1148,8 @@ class HamiltonianKE(ScalarField):
     for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -1220,9 +1220,9 @@ class HamiltonianKE(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -1236,7 +1236,7 @@ class HamiltonianKE(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -1362,8 +1362,8 @@ class LagrangianKE(ScalarField):
     for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -1434,9 +1434,9 @@ class LagrangianKE(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -1450,7 +1450,7 @@ class LagrangianKE(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -1575,8 +1575,8 @@ class VirialField(ScalarField):
     for eV.:math:`\\AA^{-3}` and 'a.u.' for Hartree.Bohr :math:`^{-3}`.
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
@@ -1647,9 +1647,9 @@ class VirialField(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -1663,7 +1663,7 @@ class VirialField(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -1788,8 +1788,8 @@ class ELF(ScalarField):
     for :math:`\\AA` and 'a.u.' for Bohr (only for plot base vectors).
 
     Args:
-        data (array): 2D (3D) Plot data. (nZ\*)nY\*nX. **3D methods under developing**.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        data (array): 2D (3D) Plot data. (nZ\\*)nY\\*nX. **3D methods under developing**.
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
     """
@@ -1859,9 +1859,9 @@ class ELF(ScalarField):
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
                 ``colorplot=True``. 'None' for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             edgeplot (bool): Whether to add cell boundaries represented by the
                 original base vectors (not inflenced by a/b range).
@@ -1875,7 +1875,7 @@ class ELF(ScalarField):
                 ``topond.Trajectory`` object if not None.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (int): *Developer Only*, index of the axis in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``topond.Trajectory``.
+            \\*\\*kwargs : Other arguments passed to ``topond.Trajectory``.
 
         Returns:
             fig (Figure): Matplotlib Figure object
@@ -1982,17 +1982,17 @@ class GradientTraj(Trajectory):
     for :math:`\\AA` and 'a.u.' for Bohr.
 
     Args:
-        wtraj (list[int]): 1\*nPath, weight of the path, int 0 to 3.
-        traj (list[array]): 1\*nPath, list of paths. Every array is a nPoint\*3
+        wtraj (list[int]): 1\\*nPath, weight of the path, int 0 to 3.
+        traj (list[array]): 1\\*nPath, list of paths. Every array is a nPoint\\*3
             3D ref framework coordinates of points on the path.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
 
     Returns:
-        self (GradientTraj): Import attributes: ``trajectory``, nPath\*2 list of
-            trajectory and its weight; ``cpoint``, nCpoint\*3 array of critical
+        self (GradientTraj): Import attributes: ``trajectory``, nPath\\*2 list of
+            trajectory and its weight; ``cpoint``, nCpoint\\*3 array of critical
             point coordinates in 3D ref framework.
     """
     def __init__(self, wtraj, traj, base, struc, unit='Angstrom'):
@@ -2064,7 +2064,7 @@ class GradientTraj(Trajectory):
                 ``topond.ScalarField`` object if not None.
             fig (Figure|None): *Developers only*, matplotlib Figure class..
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
+            \\*\\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
         Returns:
             fig (Figure): Matplotlib Figure object
         """
@@ -2150,17 +2150,17 @@ class ChemicalGraph(Trajectory):
     :math:`\\AA` and 'a.u.' for Bohr.
 
     Args:
-        wtraj (list[int]): 1\*nPath, weight of the path, int 0 to 3.
-        traj (list[array]): 1\*nPath, list of paths. Every array is a nPoint\*3
+        wtraj (list[int]): 1\\*nPath, weight of the path, int 0 to 3.
+        traj (list[array]): 1\\*nPath, list of paths. Every array is a nPoint\\*3
             3D ref framework coordinates of points on the path.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC.
         struc (CStructure): Extended Pymatgen Structure object.
         unit (str): In principle, should always be 'Angstrom' (case insensitive).
 
     Returns:
-        self (ChemicalGraph): Import attributes: ``trajectory``, nPath\*2 list
-            of trajectory and its weight; ``cpoint``, nCpoint\*3 array of
+        self (ChemicalGraph): Import attributes: ``trajectory``, nPath\\*2 list
+            of trajectory and its weight; ``cpoint``, nCpoint\\*3 array of
             critical point coordinates in 3D ref framework.
     """
     def __init__(self, wtraj, traj, base, struc, unit='Angstrom'):
@@ -2232,7 +2232,7 @@ class ChemicalGraph(Trajectory):
                 ``topond.ScalarField`` object if not None.
             fig (Figure|None): *Developers only*, matplotlib Figure class..
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
+            \\*\\*kwargs : Other arguments passed to ``ScalarField.plot_2D()``.
         Returns:
             fig (Figure): Matplotlib Figure object
         """

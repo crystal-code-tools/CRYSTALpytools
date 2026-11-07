@@ -268,9 +268,9 @@ class ThermoQHA():
 
         Args:
             qha (Quasi_harmonic): QHA object
-            overlap (array[int]): nQpoint\*nMode_ref\*nCalc\*nMode_sort. Boolean
+            overlap (array[int]): nQpoint\\*nMode_ref\\*nCalc\\*nMode_sort. Boolean
                 array of close overlaps. The first Calc is useless (always 0).
-            pdt (array[float]): nQpoint\*nCalc Dot products between n-1 and n
+            pdt (array[float]): nQpoint\\*nCalc Dot products between n-1 and n
                 calculations.
         """
         if os.path.isfile(qha.filename):

@@ -99,8 +99,8 @@ class PInputBlock(BlockBASE):
     def band(self, TITLE='', NLINE='', ISS='', NSUB='', INZB='', IFNB='',
              IPLO='', LPR66='', path=[]):
         """
-        ``path`` can either be a NLINE\*2 list of string (labels), or a
-        NLINE\*2\*3 list of int (fractional coordinates).
+        ``path`` can either be a NLINE\\*2 list of string (labels), or a
+        NLINE\\*2\\*3 list of int (fractional coordinates).
         """
         if path != []:
             shape = [1, 7]
@@ -283,7 +283,7 @@ class PInputBlock(BlockBASE):
     def potc(self, ICA='', NPU='', IPA='', datagrid=[]):
         """
         ``datagrid`` corresponds to X, Y, Z, ZP, ZM and ZD parameters, which
-        can be NPU\*3 (``ICA=0``), 2\*1 (``ICA=1``) or 3\*1 (``ICA=2``) lists.
+        can be NPU\\*3 (``ICA=0``), 2\\*1 (``ICA=1``) or 3\\*1 (``ICA=2``) lists.
         """
         if np.all(ICA==None) or np.all(ICA==''):
             super().assign_keyword('POTC', [], ICA); return self
@@ -318,7 +318,7 @@ class PInputBlock(BlockBASE):
 
     def emdldm(self, N='', PMAX='', STEP='', IPLO='', hkl=[], ICASO='', NSA1='', NSA2=''):
         """
-        ``hkl`` is a N\*3 list of int.
+        ``hkl`` is a N\\*3 list of int.
         """
         shape = [4,]
         value = [N, PMAX, STEP, IPLO]
@@ -370,8 +370,8 @@ class PInputBlock(BlockBASE):
 
     def doss(self, NPRO='', NPT='', INZB='', IFNB='', IPLO='', NPOL='', NPR='', *args):
         """
-        Energy range (BMI, BMA, 2\*1 list) and projections (N, NDM,
-        Nproj\*(NDM+1) list) are defined by extendable list variables. If both
+        Energy range (BMI, BMA, 2\\*1 list) and projections (N, NDM,
+        Nproj\\*(NDM+1) list) are defined by extendable list variables. If both
         are defined, projections should be the last entry.
         """
         shape, value = self._doss_like(NPRO, NPT, INZB, IFNB, IPLO, NPOL, NPR, args)
@@ -379,8 +379,8 @@ class PInputBlock(BlockBASE):
 
     def coop(self, NINT='', NPT='', INZB='', IFNB='', IPLO='', NPOL='', NPR='', *args):
         """
-        Energy range (BMI, BMA, 2\*1 list) and projections (N, NDM,
-        Nproj\*(NDM+1) list) are defined by extendable list variables. If both
+        Energy range (BMI, BMA, 2\\*1 list) and projections (N, NDM,
+        Nproj\\*(NDM+1) list) are defined by extendable list variables. If both
         are defined, projections should be the last entry.
         """
         shape, value = self._doss_like(NINT, NPT, INZB, IFNB, IPLO, NPOL, NPR, args)
@@ -388,8 +388,8 @@ class PInputBlock(BlockBASE):
 
     def cohp(self, NINT='', NPT='', INZB='', IFNB='', IPLO='', NPOL='', NPR='', *args):
         """
-        Energy range (BMI, BMA, 2\*1 list) and projections (N, NDM,
-        Nproj\*(NDM+1) list) are defined by extendable list variables. If both
+        Energy range (BMI, BMA, 2\\*1 list) and projections (N, NDM,
+        Nproj\\*(NDM+1) list) are defined by extendable list variables. If both
         are defined, projections should be the last entry.
         """
         shape, value = self._doss_like(NINT, NPT, INZB, IFNB, IPLO, NPOL, NPR, args)
@@ -677,7 +677,7 @@ class Grid2D(BlockBASE):
 
     def atoms(self, IA='', IB='', IC=''):
         """
-        IA IB IC are 4\*1 lists
+        IA IB IC are 4\\*1 lists
         """
         super().assign_keyword('ATOMS', [4, 4, 4], [IA, IB, IC]); return self
 
@@ -815,7 +815,7 @@ class Grid3DBASE(BlockBASE):
 
     def range(self, rg1='', rg2='', rg3=''):
         """
-        Inputs are 2\*1 lists. ``[minvalue, maxvalue]``. The sequence of rg123
+        Inputs are 2\\*1 lists. ``[minvalue, maxvalue]``. The sequence of rg123
         is consistent with CRYSTAL (2D: z; 1D: y, z; 0D: x, y, z)
         """
         if np.all(rg1=='') or np.all(rg1==None): # others

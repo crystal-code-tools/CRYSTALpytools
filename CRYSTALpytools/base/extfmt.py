@@ -21,10 +21,10 @@ class CrgraParser():
 
         Returns:
             spin (int): 1, closed shell; 2, open shell
-            tick_pos (array): n_tick\*1 array of 1D tick coordinates. Unit: Angstrom
-            tick_label (list): n_tick\*1 of default tick labels
+            tick_pos (array): n_tick\\*1 array of 1D tick coordinates. Unit: Angstrom
+            tick_label (list): n_tick\\*1 of default tick labels
             efermi (float): Fermi energy. Unit: eV. 0 for phonon bands.
-            bands (array): n_bands\*n_kpoints\*spin array of energy / frequency.
+            bands (array): n_bands\\*n_kpoints\\*spin array of energy / frequency.
                 Unit: eV / THz
             k_path (array): 1D coordinates of k points. Unit: Angstrom
             unit (str): 'eV' or 'THz'
@@ -160,7 +160,7 @@ class CrgraParser():
         Returns:
             spin (array): 1, closed shell; 2, open shell
             efermi (float): Fermi energy. Unit: eV. 0 for phonon bands.
-            doss (array): n_proj\*n_energy\*spin array of DOS. Positive values
+            doss (array): n_proj\\*n_energy\\*spin array of DOS. Positive values
                 for both spin up and spin down states
             energy (int): Number of sampling points (energy or frequency).
             unit (str): 'eV' or 'THz'
@@ -272,14 +272,14 @@ class CrgraParser():
         Returns:
             spin (array): 1, closed shell; 2, open shell
             all_a (array|list): 3D Cartesian coordinates of MAPNET point A.
-                1\*3 array of ``index`` is an integer or 1\*1 list. 1\*nIndex
+                1\\*3 array of ``index`` is an integer or 1\\*1 list. 1\\*nIndex
                 list otherwise. Same below.
             all_b (array|list): 3D Cartesian coordinates of MAPNET point B
             all_c (array|list): 3D Cartesian coordinates of MAPNET point C
             all_cosxy (float|list): Cosine of vector AB and BC
             all_struc (CStructure|list): Extended Pymatgen Structure object.
             all_map (array|list): 2D scalar field map commensurate with MAPNET
-                defined above, nY\*nX\*nSpin.
+                defined above, nY\\*nX\\*nSpin.
             unit (str): 'a.u.'
         """
         import pandas as pd
@@ -391,10 +391,10 @@ class DLVParser():
             filename (str): BAND.DAT or PHONBANDS.DAT.
         Returns:
             spin (int): 1, closed shell; 2, open shell
-            tick_pos (array): n_tick\*1 array of 1D tick coordinates. Unit: Angstrom
-            tick_label (list): n_tick\*1 of default tick labels
+            tick_pos (array): n_tick\\*1 array of 1D tick coordinates. Unit: Angstrom
+            tick_label (list): n_tick\\*1 of default tick labels
             efermi (float): Fermi energy. Unit: eV. 0 for phonon bands.
-            bands (array): n_bands\*n_kpoints\*spin array of energy / frequency.
+            bands (array): n_bands\\*n_kpoints\\*spin array of energy / frequency.
                 Unit: eV / THz
             k_path (array): 1D coordinates of k points. Unit: Angstrom
             unit (str): 'eV' or 'THz'
@@ -481,7 +481,7 @@ class DLVParser():
         Returns:
             spin (array): 1, closed shell; 2, open shell
             efermi (float): Fermi energy. Unit: eV. 0 for phonon bands.
-            doss (array): n_proj\*n_energy\*spin array of DOS. Positive values
+            doss (array): n_proj\\*n_energy\\*spin array of DOS. Positive values
             energy (int): Number of sampling points (energy or frequency).
             unit (str): 'eV' or 'THz'
         """
@@ -545,8 +545,8 @@ class DLVParser():
         2D systems only.
 
         Returns:
-            rlatt (array): 3\*3 reciprocal lattice matrix in Bohr.
-            bandnew (array): nBand\*nZ\*nY\*nX\*nSpin array of 3D band in Hartree.
+            rlatt (array): 3\\*3 reciprocal lattice matrix in Bohr.
+            bandnew (array): nBand\\*nZ\\*nY\\*nX\\*nSpin array of 3D band in Hartree.
             unit (str): 'a.u.'
         """
         import numpy as np
@@ -634,7 +634,7 @@ class TOPONDParser():
             cosxy (float): Always 0
             struc (None): Always None
             map (array): 2D scalar field map commensurate with MAPNET defined
-                above. nY\*nX\*1 (spin dimension kept but no use).
+                above. nY\\*nX\\*1 (spin dimension kept but no use).
             unit (str): 'a.u.'
         """
         import numpy as np
@@ -661,7 +661,7 @@ class TOPONDParser():
         struc = None
         map = np.zeros([npt_y, npt_x, 1], dtype=float)
 
-        tabtmp = pd.read_table(filename, sep='\s+', skiprows=5, header=None)
+        tabtmp = pd.read_table(filename, sep='\\s+', skiprows=5, header=None)
         tabtmp = tabtmp.to_numpy(dtype=float)
         nline_per_y = np.ceil(npt_x/np.shape(tabtmp)[1])
         last_line_entry = npt_x % np.shape(tabtmp)[1]
@@ -685,9 +685,9 @@ class TOPONDParser():
         Args:
             filename (str)
         Returns:
-            wtraj (list[int]): 1\*nPath, weight of the path
-            traj (list[array]): 1\*nPath, list of critical paths. Every array
-                is the nPoint\*3 3D ref framework coordinates of points on the
+            wtraj (list[int]): 1\\*nPath, weight of the path
+            traj (list[array]): 1\\*nPath, list of critical paths. Every array
+                is the nPoint\\*3 3D ref framework coordinates of points on the
                 path.
             unit (str): 'a.u.'
         """
@@ -727,9 +727,9 @@ class BOLTZTRAParaser():
             v (float): Volume in cm:math:`^{3}`.
             t (array): Temperature in K.
             mu (array): Chemical potential in eV.
-            dc (array): nT\*nMu\*nspin array of carrier density. Unit:
+            dc (array): nT\\*nMu\\*nspin array of carrier density. Unit:
                 cm:math:`^{-3}`.
-            tensor (array): nT\*nMu\*ndimen\*nspin array of tensor elements.
+            tensor (array): nT\\*nMu\\*ndimen\\*nspin array of tensor elements.
             unit (str): Unit of tensor.
         """
         import pandas as pd
@@ -802,8 +802,8 @@ class BOLTZTRAParaser():
         Returns:
             spin (int): 1 for closed shell and 2 for open shell.
             type (str): Type. Currently only 'TDF'
-            energy (array): nEnergy\*nspin array, Energy in eV.
-            distr (array): nEnergy\*nDimen\*nspin array of distribution. Unit:
+            energy (array): nEnergy\\*nspin array, Energy in eV.
+            distr (array): nEnergy\\*nDimen\\*nspin array of distribution. Unit:
                 :math:`\\hbar^{-2}.eV.fs.\\AA^{-2}`.
         """
         import pandas as pd
@@ -852,12 +852,12 @@ class CUBEParser():
             filename (str):
 
         Returns:
-            origin (array): 1\*3 Cartesian coordinates of origin. Unit: :math:`\\AA`.
-            a (array): 1\*3 Cartesian coordinates of grid x base vector end. Unit: :math:`\\AA`.
-            b (array): 1\*3 Cartesian coordinates of grid y base vector end. Unit: :math:`\\AA`.
-            c (array): 1\*3 Cartesian coordinates of grid z base vector end. Unit: :math:`\\AA`.
+            origin (array): 1\\*3 Cartesian coordinates of origin. Unit: :math:`\\AA`.
+            a (array): 1\\*3 Cartesian coordinates of grid x base vector end. Unit: :math:`\\AA`.
+            b (array): 1\\*3 Cartesian coordinates of grid y base vector end. Unit: :math:`\\AA`.
+            c (array): 1\\*3 Cartesian coordinates of grid z base vector end. Unit: :math:`\\AA`.
             struc (CStructure): Extended Pymatgen Structure object.
-            grid (array): nZ\*nY\*nX array of 3D data grid.
+            grid (array): nZ\\*nY\\*nX array of 3D data grid.
             unit (str): Data grid unit, 'a.u.'
         """
         import pandas as pd

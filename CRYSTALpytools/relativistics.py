@@ -35,7 +35,7 @@ class ChargeDensity(ChgDens):
 
 class VectorField():
     """
-    The basic vector field object, containing a nY\*nX\*3 (nZ\*nY\*nX\*3) data
+    The basic vector field object, containing a nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) data
     array for 2D (3D) fields. Call the property-specific child classes below in
     use. **3D methods under development**.
     """
@@ -67,9 +67,9 @@ class VectorField():
             colorplot (bool): Plot color-filled contour plots.
             colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -83,7 +83,7 @@ class VectorField():
                 fixed to be equal.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+            \\*\\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
 
         Returns:
@@ -151,9 +151,9 @@ class Magnetization(VectorField):
     magnetization: A/m).
 
     Args:
-        data (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of magnetization vectors
+        data (array): nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) array of magnetization vectors
             in 2D (3D) plane.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC (2D) or 3 base vectors (3D)
         dimen (int): Dimensionality of the plot.
         struc (CStructure): Extended Pymatgen Structure object.
@@ -214,9 +214,9 @@ class Magnetization(VectorField):
             colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
             cbar_label (str|None): Label of colorbar. 'default' for unit.
                 'None' for no label. Useful only if ``colorplot=True``.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -232,7 +232,7 @@ class Magnetization(VectorField):
                 fixed to be equal.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+            \\*\\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
 
         Returns:
@@ -321,9 +321,9 @@ class OrbitalCurrentDensity(VectorField):
     orbital current density: A/m :math:`^{2}`).
 
     Args:
-        data (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of orbnital current vectors
+        data (array): nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) array of orbnital current vectors
             in 2D (3D) plane.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC (2D) or 3 base vectors (3D)
         dimen (int): Dimensionality of the plot.
         struc (CStructure): Extended Pymatgen Structure object.
@@ -384,9 +384,9 @@ class OrbitalCurrentDensity(VectorField):
             colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
             cbar_label (str|None): Label of colorbar. 'default' for unit.
                 'None' for no label. Useful only if ``colorplot=True``.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (y, or BA) in
+            b_range (list): 1\\*2 range of :math:`b` axis (y, or BA) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -402,7 +402,7 @@ class OrbitalCurrentDensity(VectorField):
                 fixed to be equal.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+            \\*\\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
 
         Returns:
@@ -491,13 +491,13 @@ class SpinCurrentDensity(VectorField):
     spin current density: A/m :math:`^{2}`).
 
     Args:
-        data_x (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of spin current vectors
+        data_x (array): nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) array of spin current vectors
             :math:`J^{x}` in 2D (3D) plane.
-        data_y (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of spin current vectors
+        data_y (array): nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) array of spin current vectors
             :math:`J^{y}` in 2D (3D) plane.
-        data_z (array): nY\*nX\*3 (nZ\*nY\*nX\*3) array of spin current vectors
+        data_z (array): nY\\*nX\\*3 (nZ\\*nY\\*nX\\*3) array of spin current vectors
             :math:`J^{z}` in 2D (3D) plane.
-        base (array): 3\*3 Cartesian coordinates of the 3 points defining
+        base (array): 3\\*3 Cartesian coordinates of the 3 points defining
             vectors BA and BC (2D) or 3 base vectors (3D)
         dimen (int): Dimensionality of the plot.
         struc (CStructure): Extended Pymatgen Structure object.
@@ -561,9 +561,9 @@ class SpinCurrentDensity(VectorField):
             colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
             cbar_label (str|None): Label of colorbar. 'default' for unit.
                 'None' for no label. Useful only if ``colorplot=True``.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+            b_range (list): 1\\*2 range of :math:`b` axis (x, or AB) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -580,7 +580,7 @@ class SpinCurrentDensity(VectorField):
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in
                 ``fig.axes``. Must be consistent with length of ``direction``.
-            \*\*kwargs : Other arguments passed to ``axes.quiver()`` function
+            \\*\\*kwargs : Other arguments passed to ``axes.quiver()`` function
                 to set arrow styles.
 
         Returns:

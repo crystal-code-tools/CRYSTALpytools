@@ -16,7 +16,7 @@ class Tensor3D():
     3D elastic tensor and related properties.
 
     Args:
-        matrix (numpy.ndarray): 6\*6 compliance or stiffness matrix. Unit: GPa :math:`^{-1}` or GPa.
+        matrix (numpy.ndarray): 6\\*6 compliance or stiffness matrix. Unit: GPa :math:`^{-1}` or GPa.
         lattice (numpy.ndarray): lattice matrix.
         is_compliance (bool): Compliance or stiffness matrix used as input.
     """
@@ -45,14 +45,14 @@ class Tensor3D():
     @property
     def stiffness(self):
         """
-        6\*6 stiffness matrix in Voigt annotation. Unit: GPa.
+        6\\*6 stiffness matrix in Voigt annotation. Unit: GPa.
         """
         return self._C
 
     @property
     def compliance(self):
         """
-        6\*6 compliance matrix in Voigt annotation. Unit: GPa :math:`^{-1}`.
+        6\\*6 compliance matrix in Voigt annotation. Unit: GPa :math:`^{-1}`.
         """
         return self._S
 
@@ -105,14 +105,14 @@ class Tensor3D():
 
         Args:
             property (str): Property to compute. See options above.
-            u (numpy.ndarray): 3\*1 or nu\*3 array of vectors.
+            u (numpy.ndarray): 3\\*1 or nu\\*3 array of vectors.
             nchi (int): Resolution of auxiliary angle :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
 
         Returns:
-            e (float | numpy.ndarray): float or nu\*1, some sort of property.
+            e (float | numpy.ndarray): float or nu\\*1, some sort of property.
         """
         property_list = ['young', 'comp', 'shear', 'shear avg', 'shear min',
                          'shear max', 'poisson', 'poisson avg', 'poisson min',
@@ -184,13 +184,13 @@ class Tensor3D():
 
         Args:
             property (str): Property to compute. See options above.
-            u (numpy.ndarray): 3\*1 or nu\*3 array of vector 1.
-            v (numpy.ndarray): 3\*1 or nu\*3 array of vector 2.
+            u (numpy.ndarray): 3\\*1 or nu\\*3 array of vector 1.
+            v (numpy.ndarray): 3\\*1 or nu\\*3 array of vector 2.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
 
         Returns:
-            e (float | numpy.ndarray): float or nu\*1, some sort of property.
+            e (float | numpy.ndarray): float or nu\\*1, some sort of property.
         """
         property_list = ['shear', 'poisson']
         property = property.lower()
@@ -262,18 +262,18 @@ class Tensor3D():
         This method can be used for multi-plane, multi-property plots. The same
         scale is enforced for subplots of the same property. Subplot titles are
         added automatically. The layout of subplots is, by default,
-        nProp\*nPlane or 1\*nProp, which is not editable.
+        nProp\\*nPlane or 1\\*nProp, which is not editable.
 
         Args:
             property (str|list): Property(ies) to compute. See options above.
-            plane (numpy.ndarray): 3\*1 or nplane\*3 array of planes.
+            plane (numpy.ndarray): 3\\*1 or nplane\\*3 array of planes.
             ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane,
                 in radian :math:`[0, 2\\pi)`.
             nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             plane_definition (str): The method used to define the plane. See
                 options above.
-            u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into
+            u (numpy.ndarray): 3\\*1 or nu\\*3 array of vectors to be added into
                 the figure. A line segment with doubled radius is plotted to
                 indicate the vector. Or 'max' / 'min' / 'bothends', plot
                 vectors corresponding to the max and min of elastic properties.
@@ -292,11 +292,11 @@ class Tensor3D():
                 values ('-').
             loop_linewidth (str|list): Linewidth of band structure. If only one
                 number is given, apply it to all plots. For the 'multi' mode,
-                1\*nSystem list of linewidth numbers. 'None' for default values
+                1\\*nSystem list of linewidth numbers. 'None' for default values
                 (1.0).
-            figsize (list): The figure size specified as \[width, height\].
+            figsize (list): The figure size specified as \\[width, height\\].
             get_data (bool): *Developer only* Return data or figure.
-            \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
+            \\*\\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
                 the loops. Applied to all the loops.
 
         Returns:
@@ -474,7 +474,7 @@ class Tensor3D():
             range_cbar, range_x, range_y, range_z (list[float,float]): *Not
                 suggested* Explicitly specifying the ranges of colorbar, x, y
                 and z axes.
-            u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into
+            u (numpy.ndarray): 3\\*1 or nu\\*3 array of vectors to be added into
                 the figure. A line segment with doubled radius is plotted to
                 indicate the vector. Or 'max' / 'min' / 'bothends', plot
                 vectors corresponding to the max and min of elastic properties.
@@ -494,13 +494,13 @@ class Tensor3D():
                 `matplotlib <https://matplotlib.org/>`_. Alternatively use
                 `plotly <https://plotly.com/>`_ to enable interactive
                 inspections in Jupyter Notebook.
-            \*\*kwargs: Parameters passed to ``Axes3D.view_init`` (matplotlib)
+            \\*\\*kwargs: Parameters passed to ``Axes3D.view_init`` (matplotlib)
                 or ``fig.update_layout()`` (plotly). Only camera position
                 keywords are suggested.
 
         Returns:
             fig (Figure): Matplotlib or plotly ``Figure`` object. It ``axes``
-                is a 2\*1 list of matplotlib ``Axis`` object. The first element
+                is a 2\\*1 list of matplotlib ``Axis`` object. The first element
                 is the axis of colorbar. The second is the axis of 3D surface.
                 ``None`` if ``plot_lib = 'plotly'``.
 
@@ -696,7 +696,7 @@ class Tensor3D():
         lattice information is available.
 
         Args:
-            new_lattice (numpy.ndarray) 3\*3 array of new lattice.
+            new_lattice (numpy.ndarray) 3\\*3 array of new lattice.
 
         Returns:
             self (Tensor3D)
@@ -756,8 +756,8 @@ class Tensor2D():
     z. Basic units: GPa, m
 
     Args:
-        matrix (numpy.ndarray): 3\*3 compliance or stiffness matrix.
-        lattice (numpy.ndarray): 2\*2 lattice matrix.
+        matrix (numpy.ndarray): 3\\*3 compliance or stiffness matrix.
+        lattice (numpy.ndarray): 2\\*2 lattice matrix.
         is_compliance (bool): Compliance or stiffness matrix used as input.
     """
     def __init__(self, matrix, lattice=None, is_compliance=True):
@@ -787,14 +787,14 @@ class Tensor2D():
     @property
     def stiffness(self):
         """
-        3\*3 stiffness matrix in Voigt annotation. Basic units: GPa, m.
+        3\\*3 stiffness matrix in Voigt annotation. Basic units: GPa, m.
         """
         return self._C
 
     @property
     def compliance(self):
         """
-        3\*3 compliance matrix in Voigt annotation. Basic units: GPa, m.
+        3\\*3 compliance matrix in Voigt annotation. Basic units: GPa, m.
         """
         return self._S
 
@@ -837,12 +837,12 @@ class Tensor2D():
 
         Args:
             property (str): Property to compute. See options above.
-            u (numpy.ndarray): 2\*1 or nu\*2 array of vectors.
+            u (numpy.ndarray): 2\\*1 or nu\\*2 array of vectors.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
 
         Returns:
-            e (float | numpy.ndarray): float or nu\*1, some sort of property.
+            e (float | numpy.ndarray): float or nu\\*1, some sort of property.
         """
         # sanity check
         property_list = ['young', 'comp', 'shear', 'poisson']
@@ -900,13 +900,13 @@ class Tensor2D():
 
         Args:
             property (str): Property to compute. See options above.
-            u (numpy.ndarray): 2\*1 or nu\*2 array of vector 1.
-            v (numpy.ndarray): 2\*1 or nu\*2 array of vector 2.
+            u (numpy.ndarray): 2\\*1 or nu\\*2 array of vector 1.
+            v (numpy.ndarray): 2\\*1 or nu\\*2 array of vector 2.
             use_cartesian (bool): Vector is defined as cartesian or fractional
                 coordinates. (*Only when lattice information is available*.)
 
         Returns:
-            e (float | numpy.ndarray): float or nu\*1, some sort of property.
+            e (float | numpy.ndarray): float or nu\\*1, some sort of property.
         """
         # sanity check
         property_list = ['shear', 'poisson']
@@ -967,7 +967,7 @@ class Tensor2D():
         * "poisson": In-plane Poisson ratio between 2 vectors in the plane.
 
         This method can be used for multi-property plots. Subplot titles are
-        added automatically. The layout of subplots is, by default, 1\*nProp.
+        added automatically. The layout of subplots is, by default, 1\\*nProp.
 
         .. note::
 
@@ -975,14 +975,14 @@ class Tensor2D():
 
         Args:
             property (str|list): Property(ies) to compute. See options above.
-            plane (numpy.ndarray): 3\*1 or nplane\*3 array of planes.
+            plane (numpy.ndarray): 3\\*1 or nplane\\*3 array of planes.
             ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane,
                 in radian :math:`[0, 2\\pi)`.
             nchi (int): Resolution of auxiliary angle  :math:`\\chi`, in radian
                 :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
             plane_definition (str): The method used to define the plane. See
                 options above.
-            u (numpy.ndarray): 2\*1 or nu\*2 array of vectors to be added into
+            u (numpy.ndarray): 2\\*1 or nu\\*2 array of vectors to be added into
                 the figure. A line segment with doubled radius is plotted to
                 indicate the vector. Or 'max' / 'min' / 'bothends', plot
                 vectors corresponding to the max and min of elastic properties.
@@ -1001,13 +1001,13 @@ class Tensor2D():
                 values ('-').
             loop_linewidth (str|list): Linewidth of band structure. If only one
                 number is given, apply it to all plots. For the 'multi' mode,
-                1\*nSystem list of linewidth numbers. 'None' for default values
+                1\\*nSystem list of linewidth numbers. 'None' for default values
                 (1.0).
-            layout (list|tuple): 2\*1 list. The layout of subplots. The first
-                element is nrows, the second is ncolumns. By default, 1\*nProp.
-            figsize (list): The figure size specified as \[width, height\].
+            layout (list|tuple): 2\\*1 list. The layout of subplots. The first
+                element is nrows, the second is ncolumns. By default, 1\\*nProp.
+            figsize (list): The figure size specified as \\[width, height\\].
             get_data (bool): *Developer only* Return data or figure.
-            \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
+            \\*\\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize
                 the loops. Applied to all the loops.
 
         Returns:
@@ -1098,7 +1098,7 @@ class Tensor2D():
         lattice information is available.
 
         Args:
-            new_lattice (numpy.ndarray) 2\*2 array of new lattice.
+            new_lattice (numpy.ndarray) 2\\*2 array of new lattice.
 
         Returns:
             self (Tensor2D)
@@ -1169,14 +1169,14 @@ def young(S, u, ndimen):
     Einstein's notation is used. :math:`i,j,k,l=1,ndimen; j>i; l>k`.
 
     Args:
-        S (numpy.ndarray): ndimen\*ndimen\*ndimen\*ndimen compliance matrix in
+        S (numpy.ndarray): ndimen\\*ndimen\\*ndimen\\*ndimen compliance matrix in
             Cartesian form. Base units: GPa, m.
-        u (numpy.ndarray): nu\*ndimen array. Must be normalized Cartesian
+        u (numpy.ndarray): nu\\*ndimen array. Must be normalized Cartesian
             vectors.
         ndimen (int): Dimensionality, either 2 or 3.
 
     Returns:
-        e (numpy.ndarray): nu\*1 Youngs's modulus. Base units: GPa, m.
+        e (numpy.ndarray): nu\\*1 Youngs's modulus. Base units: GPa, m.
     """
     rf = 1 / np.array([
         [1., 2., 2.],
@@ -1199,14 +1199,14 @@ def comp(S, u, ndimen):
     Einstein's notation is used. :math:`i,j,k=1,ndimen; j>i`.
 
     Args:
-        S (numpy.ndarray): ndimen\*ndimen\*ndimen\*ndimen compliance matrix in
+        S (numpy.ndarray): ndimen\\*ndimen\\*ndimen\\*ndimen compliance matrix in
             Cartesian form. Base units: GPa, m.
-        u (numpy.ndarray): nu\*ndimen array. Must be normalized Cartesian
+        u (numpy.ndarray): nu\\*ndimen array. Must be normalized Cartesian
             vectors.
         ndimen (int): Dimensionality, either 2 or 3.
 
     Returns:
-        beta (numpy.ndarray): nu\*1 Linear compressibility.
+        beta (numpy.ndarray): nu\\*1 Linear compressibility.
     """
     rf = 1 / np.array([
         [1., 2., 2.],
@@ -1229,16 +1229,16 @@ def shear(S, u, v, ndimen):
     Einstein's notation is used. :math:`i,j,k,l=1,ndimen`.
 
     Args:
-        S (numpy.ndarray): ndimen\*ndimen\*ndimen\*ndimen compliance matrix in
+        S (numpy.ndarray): ndimen\\*ndimen\\*ndimen\\*ndimen compliance matrix in
             Cartesian form. Base units: GPa, m.
-        u (numpy.ndarray): nu\*ndimen array. Must be normalized Cartesian
+        u (numpy.ndarray): nu\\*ndimen array. Must be normalized Cartesian
             vectors.
-        v (numpy.ndarray): nu\*nv\*ndimen array. Must be normalized Cartesian
+        v (numpy.ndarray): nu\\*nv\\*ndimen array. Must be normalized Cartesian
             vectors.
         ndimen (int): Dimensionality, either 2 or 3.
 
     Returns:
-        g (numpy.ndarray): nu\*nv Shear modulus. Base units: GPa, m.
+        g (numpy.ndarray): nu\\*nv Shear modulus. Base units: GPa, m.
     """
     rf = 1 / np.array([
         [1., 2., 2.],
@@ -1264,16 +1264,16 @@ def poisson(S, u, v, ndimen):
     Einstein's notation is used. :math:`i,j,k=1,ndimen; j>i`.
 
     Args:
-        S (numpy.ndarray): ndimen\*ndimen\*ndimen\*ndimen compliance matrix in
+        S (numpy.ndarray): ndimen\\*ndimen\\*ndimen\\*ndimen compliance matrix in
             Cartesian form. Base units: GPa, m.
-        u (numpy.ndarray): nu\*ndimen array. Must be normalized Cartesian
+        u (numpy.ndarray): nu\\*ndimen array. Must be normalized Cartesian
             vectors.
-        v (numpy.ndarray): nu\*nv\*ndimen array. Must be normalized Cartesian
+        v (numpy.ndarray): nu\\*nv\\*ndimen array. Must be normalized Cartesian
             vectors.
         ndimen (int): Dimensionality, either 2 or 3.
 
     Returns:
-        nu (numpy.ndarray): nu\*nv Poisson ratio.
+        nu (numpy.ndarray): nu\\*nv Poisson ratio.
     """
     rf = 1 / np.array([
         [1., 2., 2.],
@@ -1321,8 +1321,8 @@ def tensor_from_file(output, conventional_lattice=True, *thickness):
 def voigt2cart(V):
     """
     Convert stiffness / compliance matrix in Voigt representation into
-    Cartesian representation. For 3D: 6\*6 to 3\*3\*3\*3. For 2D: 3\*3 to
-    2\*2\*2\*2.
+    Cartesian representation. For 3D: 6\\*6 to 3\\*3\\*3\\*3. For 2D: 3\\*3 to
+    2\\*2\\*2\\*2.
 
     Args:
         V (numpy.ndarray): Voigt represented matrix.
@@ -1347,8 +1347,8 @@ def voigt2cart(V):
 
 def cart2voigt(C):
     """
-    Convert 3\*3\*3\*3  stiffness / compliance matrix in Cartesian
-    representation into 6\*6 Voigt representation.
+    Convert 3\\*3\\*3\\*3  stiffness / compliance matrix in Cartesian
+    representation into 6\\*6 Voigt representation.
 
     Args:
         C (numpy.ndarray): Cartesian represented matrix.
@@ -1393,7 +1393,7 @@ def _plot3D_mplib(tensor, range_cbar, range_x, range_y, range_z, colormap,
         Rmax (numpy.ndarray): *Developers Only* Auxiliary data to plot lattices
             of the same scale. The length of lattice vectors are arbitrary and
             no intersection with plot is ensured.
-        \*\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
+        \\*\\*kwargs: Parameters passed to ``Axes3D.view_init`` Only camera
             position keywords are suggested.
 
     Returns:
@@ -1523,7 +1523,7 @@ def _plot3D_plotly(tensor, range_cbar, range_x, range_y, range_z, colormap,
             axes.
         colormap (str): Colormap name.
         figsize (list): Figure size in inches. For plotly, 300 ppi is assumed.
-        \*\*kwargs: Parameters passed to ``fig.update_layout()`` Only camera
+        \\*\\*kwargs: Parameters passed to ``fig.update_layout()`` Only camera
             position keywords are suggested.
 
     Returns:
@@ -1656,13 +1656,13 @@ def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
 
     Args:
         tensor (Tensor3D|Tensor2D): Tensor classes with data, attribute 'r',
-            shape: nProp\*nPlane\*nTheta. 'norm', norm vectors, shape nPlane\*3.
+            shape: nProp\\*nPlane\\*nTheta. 'norm', norm vectors, shape nPlane\\*3.
             'theta', pole angle. 'lattice', lattice.
-        rmax (list|None): 1\*nProp list. Explicitly set the plot radius of
+        rmax (list|None): 1\\*nProp list. Explicitly set the plot radius of
             every property.
         use_cartesian (bool): Vector is defined as cartesian or fractional
             coordinates. (*Only when lattice information is available*.)
-        u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into the
+        u (numpy.ndarray): 3\\*1 or nu\\*3 array of vectors to be added into the
             figure. A line segment with doubled radius is plotted to indicate
             the vector. Or 'max' / 'min' / 'bothends', plot vectors
             corresponding to the max and min of elastic properties. For
@@ -1678,15 +1678,15 @@ def _plot2D(tensor, rmax, use_cartesian, u, utext, loop_label, loop_color,
             given, apply it to all plots. 'None' for default values ('-').
         loop_linewidth (str|list): Linewidth of band structure. If only one
             number is given, apply it to all plots. For the 'multi' mode,
-            1\*nSystem list of linewidth numbers. 'None' for default values (1.0).
-        layout (list|tuple): 2\*1 list. The layout of subplots. The first element
-            is nrows, the second is ncolumns. By default, 1\*nProp or
-            nProp\*nPlane.
-        figsize (list): The figure size specified as \[width, height\].
+            1\\*nSystem list of linewidth numbers. 'None' for default values (1.0).
+        layout (list|tuple): 2\\*1 list. The layout of subplots. The first element
+            is nrows, the second is ncolumns. By default, 1\\*nProp or
+            nProp\\*nPlane.
+        figsize (list): The figure size specified as \\[width, height\\].
         fig (Figure): *Developer Only*, matplotlib Figure class.
         ax_index (list[int]): *Developer Only*, 1D list of indices of axes in
             ``fig.axes``.
-        \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
+        \\*\\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
             loops. Applied to all the loops.
 
     Returns:

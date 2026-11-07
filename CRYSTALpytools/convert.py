@@ -346,7 +346,7 @@ def cry_pmg2gui(structure, gui_file=None, pbc=None, vacuum=None, symmetry=True,
     Args:
         structure (Structure | Molecule): Pymatgen Structure / Molecule object.
         gui_file (str): CRYSTAL gui / fort.34 file.
-        pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
+        pbc (list): 1\\*3 boolian list. Implements periodicity along x, y and z
             directions. If none, the code will read it from input structure.
         vacuum (float): Vacuum distance. Unit: :math:`\\AA`. If none, set the
             length of non-periodic direction to 500 Angstrom. Low dimensional

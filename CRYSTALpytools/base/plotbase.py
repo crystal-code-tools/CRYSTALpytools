@@ -31,27 +31,27 @@ def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
 
     Args:
         ax (Axes): Matplotlib Axes object. To be passed from wrapper functions.
-        bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
+        bands (list): Band structure, 1\\*nSystem list of nBand\\*nKpoint\\*nSpin
             numpy arrays.
-        k_xax (list): Coordinates of x axis. 1\*nSystem list.
-        k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
-            of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
-        k_label (list[str] | None): 1\*nTick list of strings of the label for
+        k_xax (list): Coordinates of x axis. 1\\*nSystem list.
+        k_path (list): Coordinates of high-symmetric k points, 1\\*nSystem list
+            of 1\\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
+        k_label (list[str] | None): 1\\*nTick list of strings of the label for
             high symmetry points along the path. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
             experssions can also be used as in matplotlib.
-        energy_range (list): 1\*2 list of plotting energy range.
-        k_range (list): 1\*2 list of plotting k range. Can either be length
+        energy_range (list): 1\\*2 list of plotting energy range.
+        k_range (list): 1\\*2 list of plotting k range. Can either be length
             (float) or k label (str). Must be used with ``not_scaled=False``
             and the same set of ``k_label``.
-        band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
-            spin>1 and 1\*nSystem list is used, they are marked with the same
+        band_label (list): 1\\*nSystem or nSystem\\*2 (spin) plot legend. If
+            spin>1 and 1\\*nSystem list is used, they are marked with the same
             label.
-        band_color (list): 1\*nSystem or nSystem\*2 (spin) plot color. If spin
-            >1 and 1\*nSystem list is used, they are in the same color.
-        band_linestyle (list): 1\*nSystem or nSystem\*2 (spin) linestyle string.
-            If spin>1 and 1\*nSystem list is used, they are in the same style.
-        band_linewidth (list): 1\*nSystem or nSystem\*2 (spin) width of the plot
-            lines. If spin>1 and 1\*nSystem list is used, they are in the same
+        band_color (list): 1\\*nSystem or nSystem\\*2 (spin) plot color. If spin
+            >1 and 1\\*nSystem list is used, they are in the same color.
+        band_linestyle (list): 1\\*nSystem or nSystem\\*2 (spin) linestyle string.
+            If spin>1 and 1\\*nSystem list is used, they are in the same style.
+        band_linewidth (list): 1\\*nSystem or nSystem\\*2 (spin) width of the plot
+            lines. If spin>1 and 1\\*nSystem list is used, they are in the same
             width.
         fermi (float | None): Fermi energy. By default the band is aligned to
             0. Can be used to offset the band. None for not plotting Fermi
@@ -61,7 +61,7 @@ def plot_overlap_bands(ax, bands, k_xax, k_path, k_label, energy_range, k_range,
         fermi_linewidth(float): Width of the Fermi level.
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
-        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+        \\*\\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
             when plotting bands. Applied to all bands.
 
     Returns:
@@ -145,29 +145,29 @@ def plot_compare_bands(
     Args:
         ax (Axes): Matplotlib Axes object or a flatted list of them. To be
             passed from wrapper functions.
-        bands (list): Band structure, 1\*nSystem list of nBand\*nKpoint\*nSpin
+        bands (list): Band structure, 1\\*nSystem list of nBand\\*nKpoint\\*nSpin
             numpy arrays.
-        k_xax (list): Coordinates of x axis. 1\*nSystem list.
-        k_path (list): Coordinates of high-symmetric k points, 1\*nSystem list
-            of 1\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
-        k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
+        k_xax (list): Coordinates of x axis. 1\\*nSystem list.
+        k_path (list): Coordinates of high-symmetric k points, 1\\*nSystem list
+            of 1\\*nTick numpy arrays. Unit: :math:`\\AA^{-1}`.
+        k_label (list): nSystem\\*nTick or 1\\*nTick list of strings of the label
              for high symmetry points along the path. If a 1D list is given,
              the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
              experssions can also be used  as in matplotlib.
         not_scaled (bool): Whether to scale the x-axis for different volumes.
-        energy_range (list): 1\*2 list of plotting energy range.
-        k_range (list): 1\*2 list of plotting k range. Can either be length
+        energy_range (list): 1\\*2 list of plotting energy range.
+        k_range (list): 1\\*2 list of plotting k range. Can either be length
             (float) or k label (str). Must be used with ``not_scaled=False``
             and the same set of ``k_label``.
-        band_label (list): 1\*nSystem or nSystem\*2 (spin) plot legend. If
-            spin>1 and 1\*nSystem list is used, they are marked with the same
+        band_label (list): 1\\*nSystem or nSystem\\*2 (spin) plot legend. If
+            spin>1 and 1\\*nSystem list is used, they are marked with the same
             label.
-        band_color (list|str): A color string or 1\*2 color list for spin. If
+        band_color (list|str): A color string or 1\\*2 color list for spin. If
             nSpin>1 but a string is given, same color for both spins.
-        band_linestyle (list|str): A linestyle string or 1\*2 linestyle list
+        band_linestyle (list|str): A linestyle string or 1\\*2 linestyle list
             for spin.  If nSpin>1 but a string is given, same linestyle for
             both spins.
-        band_linewidth (list|float): A linewidth number or 1\*2 linewidth list
+        band_linewidth (list|float): A linewidth number or 1\\*2 linewidth list
             for spin. If nSpin>1 but a string is given, same linewidth for both
             spins.
         fermi (float | None): Fermi energy. By default the band is aligned to
@@ -178,7 +178,7 @@ def plot_compare_bands(
         fermi_linewidth(float): Width of the Fermi level.
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
-        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+        \\*\\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
             when plotting bands. Applied to all bands.
 
     Returns:
@@ -383,12 +383,12 @@ def _plot_label_preprocess(bands, band_label, band_color, band_linestyle, band_l
     the meanings of parameters, refer to ``plot_compare_bands``. The same rule
     is applied to DOS.
 
-    1. For None input, generate nsystem\*2 list default values  
-    2. For string/float inputs, generate nsystem\*2 list same values  
-    3. For nsystem\*1 inputs, generate nsystem\*2 list, spin-up and down states share the same style.  
-    4. For nsystem\*2 inputs, do nothing.
+    1. For None input, generate nsystem\\*2 list default values  
+    2. For string/float inputs, generate nsystem\\*2 list same values  
+    3. For nsystem\\*1 inputs, generate nsystem\\*2 list, spin-up and down states share the same style.  
+    4. For nsystem\\*2 inputs, do nothing.
 
-    return to a bigger command variable of \[label, color, linestyle, linewidth\].
+    return to a bigger command variable of \\[label, color, linestyle, linewidth\\].
     """
     import matplotlib.colors as mcolors
 
@@ -481,22 +481,22 @@ def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
 
     Args:
         ax (Axes): Matplotlib Axes object.
-        doss (numpy.ndarray): nProj\*nEnergy\*nSpin array of DOS. Positive
+        doss (numpy.ndarray): nProj\\*nEnergy\\*nSpin array of DOS. Positive
             values for both spin up and spin down states.
-        energy (numpy.ndarray): 1\*nEnergy array of energy.
+        energy (numpy.ndarray): 1\\*nEnergy array of energy.
         beta (str): Plot settings for :math:`\beta` states ('up' or 'down').
         prj (list): Index of selected projections, consistent with the first
             dimension of the ``doss``, starting from 1.
-        energy_range (list): 1\*2 list of energy range.
-        dos_range (list): 1\*2 list of DOS range.
-        dos_label (list): 1\*nProj or nProj\*2 (spin) plot legend. If spin>1
-            and 1\*nProj list is used, they are marked with the same label.
-        dos_color (list): 1\*nProj or nProj\*2 (spin) plot color. If spin>1 and
-            1\*nProj list is used, they are in the same color.
-        dos_linestyle (list): 1\*nProj or nProj\*2 (spin) linestyle string. If
-            spin>1 and 1\*nProj list is used, they are in the same style.
-        dos_linewidth (list): 1\*nProj or nProj\*2 (spin) width of the plot
-            lines. If spin>1 and 1\*nSystem list is used, they are in the same
+        energy_range (list): 1\\*2 list of energy range.
+        dos_range (list): 1\\*2 list of DOS range.
+        dos_label (list): 1\\*nProj or nProj\\*2 (spin) plot legend. If spin>1
+            and 1\\*nProj list is used, they are marked with the same label.
+        dos_color (list): 1\\*nProj or nProj\\*2 (spin) plot color. If spin>1 and
+            1\\*nProj list is used, they are in the same color.
+        dos_linestyle (list): 1\\*nProj or nProj\\*2 (spin) linestyle string. If
+            spin>1 and 1\\*nProj list is used, they are in the same style.
+        dos_linewidth (list): 1\\*nProj or nProj\\*2 (spin) width of the plot
+            lines. If spin>1 and 1\\*nSystem list is used, they are in the same
             width.
         fermi (float|None): Fermi energy in eV. By default the band is aligned
             to 0. Can be used to offset the band. None for not plotting Fermi
@@ -508,7 +508,7 @@ def plot_doss(ax, doss, energy, beta, prj, energy_range, dos_range,
             None for not adding legend.
         plot_vertical (bool): *Developer Only* Get vertical (DOS-Energy) DOS
             plots.
-        \*\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
+        \\*\\*kwargs: Other commands passed to matplotlib ``axes.plot()`` method
             when plotting bands. Applied to all bands.
 
     Returns:
@@ -686,12 +686,12 @@ def GridCoordinates(base, shape, meshgrid):
     Get cartesian coordinates by equally spaced grid data.
 
     Args:
-        base (array): 4(3)\*3 Cartesian coordinates of points O, A, B(, C) to
+        base (array): 4(3)\\*3 Cartesian coordinates of points O, A, B(, C) to
             define a 3(2)D map. Vectors OA, OB(, OC) are used.
-        shape (array): 1\*nDimen array, nX, nY(, nZ) of data array
+        shape (array): 1\\*nDimen array, nX, nY(, nZ) of data array
         meshgrid (bool): Get nD mesh grids or 1D array of coordinates.
     Returns:
-        coords (list): 1\*3 list of x, y(, z) coordinates, either in nA\*nB(\*nC)
+        coords (list): 1\\*3 list of x, y(, z) coordinates, either in nA\\*nB(\\*nC)
             mesh grids or in 1D arrays, depending on ``meshgrid``.
     """
     # sanity check
@@ -732,11 +732,11 @@ def GridExpand(base, data, display_range):
     Expand 2D/3D data grid.
 
     Args:
-        base (array): 4(3)\*3 Cartesian coordinates of points O, A, B(, C) to
+        base (array): 4(3)\\*3 Cartesian coordinates of points O, A, B(, C) to
             define a 3(2)D map. Vectors OA, OB(, OC) are used.
-        data (array): nX\*nY(\*nZ) array of data.
-        display_range (array): 3(2)\*2 array of fractional display range, in
-            \[amin, amax\].
+        data (array): nX\\*nY(\\*nZ) array of data.
+        display_range (array): 3(2)\\*2 array of fractional display range, in
+            \\[amin, amax\\].
     Returns:
         newbase (array): Expanded base vectors.
         newdata (array): Expanded data grid.
@@ -806,15 +806,15 @@ def GridInterpolate(base, data, method, size):
     Interpolate 2D/ 3D grid data by `scipy.interpolate.interpn <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interpn.html>`_.
 
     Args:
-        base (array): 3(4)\*3 Cartesian coordinates of the 3(4) points defining
+        base (array): 3(4)\\*3 Cartesian coordinates of the 3(4) points defining
             base vectors BA, BC (2D) or OA, OB, OC (3D). The sequence is (O),
             A, B, C.
-        data (array): nX\*nY(\*nZ) data grid.
+        data (array): nX\\*nY(\\*nZ) data grid.
         method (str): 'linear', 'nearest', 'slinear', 'cubic'.
         size (int): The new size of interpolated data (list) or a scaling factor.
     Returns:
-        DATA (array): nX\*nY(\*nZ) data grid.
-        CRDS (array): (nX\*nY\*nZ)\*3 or (nX\*nY)\*3 cartesian coordinates.
+        DATA (array): nX\\*nY(\\*nZ) data grid.
+        CRDS (array): (nX\\*nY\\*nZ)\\*3 or (nX\\*nY)\\*3 cartesian coordinates.
             Sequence is consistent with the flattened ``DATA``.
     """
     from scipy.interpolate import griddata, interpn
@@ -882,14 +882,14 @@ def GridRectangle2D(base, data):
     matrix and orient it to xOy plane.
 
     Args:
-        base (array): 3\*3 Cartesian coordinates of points O, A, B to define a
+        base (array): 3\\*3 Cartesian coordinates of points O, A, B to define a
             2D map. Vectors OA, OB are used.
-        data (array): Grid data in nX\*nY.
+        data (array): Grid data in nX\\*nY.
     Returns:
         basenew (array)
         data (array)
-        X (array): nX\*nY mesh grid of x coordinates
-        Y (array): nX\*nY mesh grid of y coordinates
+        X (array): nX\\*nY mesh grid of x coordinates
+        Y (array): nX\\*nY mesh grid of y coordinates
     """
     va = base[1] - base[0]
     lena = np.linalg.norm(va)
@@ -992,14 +992,14 @@ def tvtkGrid(base, data, CenterOrigin, InterpGridSize, **kwargs):
         For generality, the input data grid is a non-periodic one.
 
     Args:
-        base (array): Base vectors, 3(4)\*3 array of origin and point A, B(, C)
-        data (array): Scalar field data in column-major order, i.e., nA\*nB\*nC.
+        base (array): Base vectors, 3(4)\\*3 array of origin and point A, B(, C)
+        data (array): Scalar field data in column-major order, i.e., nA\\*nB\\*nC.
         CenterOrigin (bool): Put origin of base vectors in the center. Usually
             for reciprocal space visualization.
         InterpGridSize (array|int|None): Interpolate non-orthogonal data into
             orthogonal grid. 'None' for no interpolation. Integer input for
             interpolation sizes. For volume data representation.
-        \*\*kwargs: Passed to `scipy.interpolate.griddata <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html>`_.
+        \\*\\*kwargs: Passed to `scipy.interpolate.griddata <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html>`_.
     Returns:
         grid (ImageData|StructuredGrid): vtk grid classes.
     """
@@ -1175,13 +1175,13 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
     Args:
         fig (Figure): Matplotlib Figure object
         ax (Axes): Matplotlib Axes object
-        data (array): 2D map data, in nY\*nX,
-        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+        data (array): 2D map data, in nY\\*nX,
+        base (array): 3\\*3 Cartesian coordinates of points A, B, C to define a
             2D map. Vectors BA and BC are used.
         levels (array|None): Contour line / color isovalues. It also defines
             the range of data.
         contourline (list|None): If not None, set line styles and colors of
-            every contourline. nLevel\*3 list of matplotlib plot color,
+            every contourline. nLevel\\*3 list of matplotlib plot color,
             linestyle and linewidth.
         isovalue (str|None): If not None, set the format of isovalues added to
             contourlines. Useful only when ``contourline`` is not None.
@@ -1197,7 +1197,7 @@ def plot_2Dscalar(fig, ax, data, base, levels, contourline, isovalue, colormap, 
         edgeplot (bool): Whether to plot plane edges
         xticks (int): Number of ticks in the x direction.
         yticks (int): Number of ticks in the y direction.
-        \*\*kwargs: Other arguments passed to ``axes.contour()`` function to
+        \\*\\*kwargs: Other arguments passed to ``axes.contour()`` function to
             set contour lines.
 
     Returns:
@@ -1273,8 +1273,8 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
     Args:
         fig (Figure): Matplotlib Figure object
         ax (Axes): Matplotlib Axes object
-        data (array): 2D vector map data, in nY\*nX\*3.
-        base (array): 3\*3 Cartesian coordinates of points A, B, C to define a
+        data (array): 2D vector map data, in nY\\*nX\\*3.
+        base (array): 3\\*3 Cartesian coordinates of points A, B, C to define a
             2D map. Vectors BA and BC are used.
         scale (float): Tune the length of arrows.
         colorquiver (str): Specify the color of arrows or 'colored' for color-
@@ -1293,7 +1293,7 @@ def plot_2Dvector(fig, ax, data, base, scale, colorquiver, levels, colormap, cba
         edgeplot (bool): Whether to plot plane edges
         xticks (int): Number of ticks in the x direction.
         yticks (int): Number of ticks in the y direction.
-        \*\*kwargs: Other arguments passed to ``axes.quiver()`` function to
+        \\*\\*kwargs: Other arguments passed to ``axes.quiver()`` function to
             set contour lines.
 
     Returns:
@@ -1380,8 +1380,8 @@ def plot_3Dscalar(fig, base, data, isovalue, volume_3d, interp, interp_size,
 
     Args:
         fig: MayaVi scence object
-        base (array): 4\*3 array of base vectors defining O, A, B, C.
-        data (array): nZ\*nY\*nX array of plot data.
+        base (array): 4\\*3 array of base vectors defining O, A, B, C.
+        data (array): nZ\\*nY\\*nX array of plot data.
         isovalue (float|array): Isovalues of 3D/2D contour plots. A number
                 or an array for user-defined values of isosurfaces, **must be
                 consistent with ``unit``**.
@@ -1390,10 +1390,10 @@ def plot_3Dscalar(fig, base, data, isovalue, volume_3d, interp, interp_size,
             'slinear', 'cubic'.
         interp_size (list[int]|int): The new size of interpolated data (list)
             or a scaling factor.
-        display_range (array): 3\*2 array defining the displayed region.
+        display_range (array): 3\\*2 array defining the displayed region.
             Fractional coordinates a, b, c are used.
-        \*\*kwargs: Optional keywords passed to MayaVi, listed below.
-        colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\*3
+        \\*\\*kwargs: Optional keywords passed to MayaVi, listed below.
+        colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\\*3
             RGB turple from 0 to 1 to define colors. *Not for volume_3d=True*.
         opacity (float): Opacity from 0 to 1. For ``volume_3d=True``, that
             defines the opacity of the maximum value. The opacity of the
@@ -1519,8 +1519,8 @@ def plot_3Dplane(fig, base, data, levels, contour_2d, interp, interp_size,
 
     Args:
         fig: MayaVi scence object
-        base (array): 3\*3 array of base vectors defining A, B, C.
-        data (array): nY\*nX array of plot data.
+        base (array): 3\\*3 array of base vectors defining A, B, C.
+        data (array): nY\\*nX array of plot data.
         levels (float|array): Number of Isovalues of 2D contour plots, equally
             spaced between ``vmin`` and ``vmax``, or an array for user-define
             values of contour lines, **'contour_2d=True' only**.
@@ -1529,10 +1529,10 @@ def plot_3Dplane(fig, base, data, levels, contour_2d, interp, interp_size,
             'slinear', 'cubic'.
         interp_size (list[int]|int): The new size of interpolated data (list)
             or a scaling factor.
-        display_range (array): 2\*2 array defining the displayed region.
+        display_range (array): 2\\*2 array defining the displayed region.
             Fractional coordinates a, b are used.
-        \*\*kwargs: Optional keywords passed to MayaVi, listed below.
-        colormap (turple|str): Colormap of heatmaps. Or a 1\*3 RGB turple from
+        \\*\\*kwargs: Optional keywords passed to MayaVi, listed below.
+        colormap (turple|str): Colormap of heatmaps. Or a 1\\*3 RGB turple from
             0 to 1 to define colors.
         color (turple): Color of contour lines. *'contour_2d=True' only*.
         line_width (float): Line width of contour plots. *'contour_2d=True' only*.

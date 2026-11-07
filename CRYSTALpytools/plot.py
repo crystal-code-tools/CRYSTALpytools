@@ -44,7 +44,7 @@ def plot_ECHG(
         entries. Return to a non spin-polarized object.  
 
     Args:
-        \*echg (electronics.ChargeDensity|str): Extendable. File names or
+        \\*echg (electronics.ChargeDensity|str): Extendable. File names or
             ``electronics.ChargeDensity`` objects.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
             Bohr :math:`^{-3}`.
@@ -55,7 +55,7 @@ def plot_ECHG(
         option (str): Available options see above.
         levels (int|array): Set levels of contour plot. A number for linear
             scaled plot colors or an array for user-defined levels, **must be
-            consistent with ``unit``**. 2\*nLevel can be defined when
+            consistent with ``unit``**. 2\\*nLevel can be defined when
             ``option='both'``.
         lineplot (bool): Plot contour lines.
         linewidth (float): Contour linewidth. Useful only if ``lineplot=True``.
@@ -66,10 +66,10 @@ def plot_ECHG(
         colorplot (bool): Plot color-filled contour plots.
         colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
         cbar_label (str): Label of colorbar. Useful only if ``colorplot=True``.
-            1\*2 list of colorbar titles can be set for spin-polarized systems.
+            1\\*2 list of colorbar titles can be set for spin-polarized systems.
             'None' for no labels and 'default' for default label.
-        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
-        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
+        a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): 1\\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
             refers to the old :math:`b`.
@@ -77,7 +77,7 @@ def plot_ECHG(
             base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
-        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
+        layout (list|tuple): The layout of subplots, \\[nrow, ncol\\]. Default is
             2 cols per row.
         title (str|None): The title of the plot. 'None' for no title. The
             default subplot titles are used either way.
@@ -86,7 +86,7 @@ def plot_ECHG(
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the heightest level of title.
-        \*\*kwargs : Other arguments passed to ``axes.contour()`` function to
+        \\*\\*kwargs : Other arguments passed to ``axes.contour()`` function to
             set contour lines. Applied to all the subplots.
 
     Returns:
@@ -214,7 +214,7 @@ def plot_relativistics2D(
         it, use ``plot_ECHG``.
 
     Args:
-        \*relat (str|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity|):
+        \\*relat (str|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity|):
             extendable input of vector field classes, or input files.
         unit (str): Plot unit. 'SI' for :math:`\\AA` and A/m (A/m :math:`^{2}`).
             'a.u.' for Bohr and a.u. magnetization / current density.
@@ -236,8 +236,8 @@ def plot_relativistics2D(
         colormap (str): Matplotlib colormap option. Useful only if ``colorplot=True``.
         cbar_label (str|None): Label of colorbar. 'default' for unit. 'None'
             for no label. Useful only if ``colorplot=True``.
-        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
-        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
+        a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in fractional coordinate.
+        b_range (list): 1\\*2 range of :math:`b` axis (x, or AB) in fractional coordinate.
         rectangle (bool): If :math:`a, b` are non-orthogonal, plot a rectangle
             region and reset :math:`b`. If used together with ``b_range``, that
             refers to the old :math:`b` (i.e., expansion first).
@@ -245,7 +245,7 @@ def plot_relativistics2D(
             base vectors (not inflenced by a/b range or rectangle options).
         x_ticks (int): Number of ticks on x axis.
         y_ticks (int): Number of ticks on y axis.
-        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
+        layout (list|tuple): The layout of subplots, \\[nrow, ncol\\]. Default is
             2 cols per row.
         title (str|None): The title of the plot. 'None' for no title. The
             default subplot titles are used either way.
@@ -254,7 +254,7 @@ def plot_relativistics2D(
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the heightest level of title.
-        \*\*kwargs : Other arguments passed to ``axes.quiver()`` function to
+        \\*\\*kwargs : Other arguments passed to ``axes.quiver()`` function to
             set arrow styles. Applied to all the subplots.
 
         Returns:
@@ -364,11 +364,11 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
     Plot electron band structures.
 
     Args:
-        \*bands (ElectronBand|str): ``electronics.ElectronBand`` object or
+        \\*bands (ElectronBand|str): ``electronics.ElectronBand`` object or
             band structure files of the CRYSTAL properties excutable. Note that
             lattice information is not available if file names are specified.
         unit (str): The unit of energy. Can be 'eV' or 'a.u.'.
-        k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
+        k_label (list): nSystem\\*nTick or 1\\*nTick list of strings of the label
              for high symmetry points along the path. If a 1D list is given,
              the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
              experssions can also be used  as in matplotlib.
@@ -378,25 +378,25 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
         energy_range (array): A 2x1 array specifying the energy range.
         k_range (array): A 2x1 array specifying the k-range.
         band_label (str|list): Plot legend. If only one string is given, apply
-            it to all plots. 1\*nSystem or nSystem\*2 (spin) plot legend
-            otherwise. If spin>1 and 1\*nSystem list is used, they are marked
+            it to all plots. 1\\*nSystem or nSystem\\*2 (spin) plot legend
+            otherwise. If spin>1 and 1\\*nSystem list is used, they are marked
             with the same label.
         band_color (str|list): Color of band structure. If only one string is
             given, apply it to all plots. For 'single' and 'compare' modes,
-            also 1\*2 color list for spin. For the 'multi' mode, 1\*nSystem or
-            nSystem\*2 (spin) plot color. If spin>1 and spin dimension is not
+            also 1\\*2 color list for spin. For the 'multi' mode, 1\\*nSystem or
+            nSystem\\*2 (spin) plot color. If spin>1 and spin dimension is not
             included, spin states are in the same color. 'None' for default
             values ('tab:blue' and other tab series).
         band_linestyle (str|list): Linestyle of band structure. If only one
             string is given, apply it to all plots. For 'single' and 'compare'
-            also r 1\*2 linestyle list for spin. For the 'multi' mode,
-            1\*nSystem or nSystem\*2 (spin) linestyle string. If spin>1 and
+            also r 1\\*2 linestyle list for spin. For the 'multi' mode,
+            1\\*nSystem or nSystem\\*2 (spin) linestyle string. If spin>1 and
             spin dimension is not included, spin states are in the same style.
             'None' for default values ('-').
         band_linewidth (str|list): Linewidth of band structure. If only one
             number is given, apply it to all plots. For 'single' and 'compare'
-            modes, also 1\*2 linewidth list for spin. For the 'multi' mode,
-            1\*nSystem or nSystem\*2 (spin) linewidth numbers. If spin>1 and
+            modes, also 1\\*2 linewidth list for spin. For the 'multi' mode,
+            1\\*nSystem or nSystem\\*2 (spin) linewidth numbers. If spin>1 and
             spin dimension is not included, spin states are in the same width.
             'None' for default values (1.0).
         fermi_level (float|list|None): Fermi energy in the same unit as input
@@ -407,15 +407,15 @@ def plot_electron_bands(*bands, unit='eV', k_label=[], mode='single',
         fermi_linestyle (str): Line style of Fermi level.
         fermi_linewidth(float): Width of the Fermi level.
         layout (list|tuple): For 'compare' mode, the layout of subplots,
-            \[nrow, ncol\]. The default is 2 cols per row.
+            \\[nrow, ncol\\]. The default is 2 cols per row.
         title (str): The title of the plot.
-        figsize (list): The figure size specified as \[width, height\].
+        figsize (list): The figure size specified as \\[width, height\\].
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the highest level title and axis labels.
-        \*\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
+        \\*\\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -528,7 +528,7 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
     Plot electron density of states.
 
     Args:
-        \*doss (ElectronDOS|str): ``electronics.ElectronDOS`` object or DOSS
+        \\*doss (ElectronDOS|str): ``electronics.ElectronDOS`` object or DOSS
             files of the CRYSTAL properties excutable. Note that lattice
             information is not available if file names are specified.
         unit (str): 'eV' or 'a.u.'
@@ -540,25 +540,25 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
         prj (list): Index of selected projections, consistent with the first
             dimension of the ``doss``, starting from 1. Effective for all the
             subplots.
-        energy_range (list): 1\*2 list of energy range
-        dos_range (list): 1\*2 list of DOS range
+        energy_range (list): 1\\*2 list of energy range
+        dos_range (list): 1\\*2 list of DOS range
         dos_label (str|list): Plot legend. If only one string is given, apply
-            it to all plots. 1\*nPrj or nPrj\*2 (spin) plot legend otherwise.
-            If spin>1 and 1\*nSystem list is used, they are marked with the
+            it to all plots. 1\\*nPrj or nPrj\\*2 (spin) plot legend otherwise.
+            If spin>1 and 1\\*nSystem list is used, they are marked with the
             same label. Effective for all the subplots.
         dos_color (str|list): Color of DOSS plots. If only one string is given,
-            apply it to all plots. 1\*nPrj or nPrj\*2 (spin) plot color. If
+            apply it to all plots. 1\\*nPrj or nPrj\\*2 (spin) plot color. If
             spin>1 and spin dimension is not included, spin states are in the
             same color. 'None' for default values (matplotlib Tableau Palette
             for both spin-up and spin-down states). Effective for all
             the subplots.
         dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
-            given, apply it to all plots. 1\*nPrj or nPrj\*2 (spin) line
+            given, apply it to all plots. 1\\*nPrj or nPrj\\*2 (spin) line
             styles. If spin>1 and spin dimension is not included, spin states
             are in the same linestyle. 'None' for default values ('-' for
             spin-ups and '--' for spin-downs). Effective for all the subplots.
         dos_linewidth (str|list): Linewidth of DOSS plot. If only one number is
-            given, apply it to all plots. 1\*nPrj or nPrj\*2 (spin) line
+            given, apply it to all plots. 1\\*nPrj or nPrj\\*2 (spin) line
             widthes. If spin>1 and spin dimension is not included, spin states
             are in the same linestyle. 'None' for default values (1.0).
             Effective for all the subplots.
@@ -569,13 +569,13 @@ def plot_electron_doss(*doss, unit='eV', beta='up', overlap=False, prj=[],
         fermi_linestyle (str): Line style of Fermi level.
         fermi_linewidth(float): Width of the Fermi level.
         title (str): The title of the plot.
-        figsize (list): The figure size specified as \[width, height\].
+        figsize (list): The figure size specified as \\[width, height\\].
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the highest level title and axis labels.
-        \*\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
+        \\*\\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -693,7 +693,7 @@ def plot_electron_banddos(
     ``plot_electron_bands``.
 
     Args:
-        \*data: Either 1 or 2 entries. For one enetry, it is fort.25 containing
+        \\*data: Either 1 or 2 entries. For one enetry, it is fort.25 containing
             both band and DOS, or ``ElectronBandDOS`` object. For 2 entries,
             the first entry is ``bands`` of ``plot_electron_bands`` and the
             second is ``doss`` of ``plot_electron_doss``
@@ -831,7 +831,7 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
     * 'diff' : Subtract data from the first entry using following entries. All
         the entries must have the same ``type`` and must be 'SURF*' types.  
     * 'overlay': Overlapping a 'TRAJ*' object on the 2D 'SURF*' object. Inputs
-        must be 1\*2 lists of a ``Surf`` object and a ``Traj`` object. File
+        must be 1\\*2 lists of a ``Surf`` object and a ``Traj`` object. File
         names are not permitted as geometry information is mandatory.
 
     .. note::
@@ -849,8 +849,8 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         ``Laplacian().plot_2D()``.
 
     Args:
-        \*topond (electronics.ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph|list|str):
-            Extendable. File names, ``topond`` objects or 1\*2 list for
+        \\*topond (electronics.ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph|list|str):
+            Extendable. File names, ``topond`` objects or 1\\*2 list for
             ``option='overlay'``. Geometry information is not available if file
             names are used - **might lead to errors!**.
         unit (str): Plot unit. 'Angstrom' for :math:`\\AA^{-3}`, 'a.u.' for
@@ -876,9 +876,9 @@ def plot_topond2D(*topond, unit='Angstrom', type='infer', option='normal',
         traj_color (str): Line color of 2D trajectory plot.
         traj_linestyl (str): Line style of 2D trajectory plot.
         traj_linewidth (str): Line width of 2D trajectory plot.
-        a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in fractional
+        a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in fractional
             coordinate. 'Surf' plots only.
-        b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in fractional
+        b_range (list): 1\\*2 range of :math:`b` axis (x, or AB) in fractional
             coordinate. 'Surf' plots only.
         edgeplot (bool): Whether to add cell boundaries represented by the
             original base vectors (not inflenced by a/b range).
@@ -1033,7 +1033,7 @@ def plot_cry_rholine(rholine_obj):
 
     plt.plot(rholine_obj.x, rholine_obj.y)
 
-    plt.xlabel('d  [$\AA$]', fontsize=14)
+    plt.xlabel('d  [$\\AA$]', fontsize=14)
     plt.ylabel(r'$\rho$  [$\frac{e}{\AA^3}$]', fontsize=16)
 
     path = os.path.join('./'+'figure_'+'rholine_' +
@@ -1141,7 +1141,7 @@ def plot_transport_tensor(
 
     1. Normal: For 1 entry, same as ``transport.Tensor.plot()``. Otherwise plot
         different transport properties of the same system. A massive plot in
-        nRow\*nCol is plotted and each subplot consists of nDir\*1 subplots. The
+        nRow\\*nCol is plotted and each subplot consists of nDir\\*1 subplots. The
         ``layout`` option only specifies the layout of property blocks, and the
         ``sharey`` option fixes the y axis scale of 'sub-subplots'.  
     2. Multi: Plot transport properties of different systems together for
@@ -1152,8 +1152,8 @@ def plot_transport_tensor(
     (:math:`S^{2}\\sigma`) or dimensionless figure of merit
     (:math:`ZT = \\frac{S^{r}\\sigma T}{\\kappa}`).
 
-    * Power Factor: 1\*2 list of any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.  
-    * ZT: 1\*3 list of 1 'KAPPA' and any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.
+    * Power Factor: 1\\*2 list of any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.  
+    * ZT: 1\\*3 list of 1 'KAPPA' and any 2 in 'SIGMA', 'SIGMAS' and 'SEEBECK'.
 
     .. note::
 
@@ -1168,7 +1168,7 @@ def plot_transport_tensor(
     3. X_axis: Temperature :math:`T`; Plot series: Chemical potential :math:`\\mu`.
 
     Args:
-        \*boltztra (str|Tensor): DAT' files by CRYSTAL BOLTZTRA keyword or the
+        \\*boltztra (str|Tensor): DAT' files by CRYSTAL BOLTZTRA keyword or the
             `transport.Tensor` objects.
         option (str): 'power factor', 'zt' and 'multi'. See above.
         x_axis (str): X axis options, 'potential', 'carrier' or 'temperature'.
@@ -1176,7 +1176,7 @@ def plot_transport_tensor(
         x_range (list): Display range of x axis. Y axis is self-adaptive.
         direction (str|list): Depending on the dimensionality of the system,
             including 'xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy' and 'zz'.
-            A list of options will generate nDirect\*1 subplots. The direction
+            A list of options will generate nDirect\\*1 subplots. The direction
             of each subplot is annotated on the upper left corner. **List entry
             is not allowed for ``option='multi'``**.
         spin (str): Spin-polarized systems only. Electron spins to plot. 'up',
@@ -1187,12 +1187,12 @@ def plot_transport_tensor(
         plot_label (list|str|None): None for default values: ``plot_series``
             and its unit, or sequence number of materials for ``option='multi'``.
             If str, prefixing that entry in front of the default value. If list,
-            it should be 1\*nPlotSeries, or 1\*nBoltztra for ``option='multi'``,
+            it should be 1\\*nPlotSeries, or 1\\*nBoltztra for ``option='multi'``,
             for every plot line.
         plot_color (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
             If str, use the same color for all the plot lines. If
-            1\*nPlotSeries(nBoltztra), use the same color for every plot line.
-            If 2\*nPlotSeries(nBoltztra), use different colors for p-type and
+            1\\*nPlotSeries(nBoltztra), use the same color for every plot line.
+            If 2\\*nPlotSeries(nBoltztra), use different colors for p-type and
             n-type carrier properties.
         plot_linestyle (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
             See explanations of ``plot_color``.
@@ -1201,15 +1201,15 @@ def plot_transport_tensor(
         zero_color (str): Color of the 0 value line.
         zero_linestyle (str): Linestyle of the 0 value line.
         zero_linewidth (float): Linewidth of the 0 value line.
-        layout (list[int]): Layout of subplots. By default it is nDirection\*1
-            or nPlot_series\*1 gird of figures.
+        layout (list[int]): Layout of subplots. By default it is nDirection\\*1
+            or nPlot_series\\*1 gird of figures.
         title (str): Title
         figsize (list): Figure size.
         legend (str|None): Location of legend. None for not adding legend.
         sharey (bool): Share y axis for multiple subplots. Share x is enforced.
         fontsize (float|int): Font size of the title, subplot capations
             (direction), x and y axis capations.
-        \*\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
+        \\*\\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
                 method. Applied to all the plots.
     Returns:
         fig (Figure): Matplotlib Figure object.
@@ -1542,8 +1542,8 @@ def plot_elastics3D(
     * "poisson max": Maximum Poisson ratio.
 
     Args:
-        \*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
-            Can be CRYSTAL output files, ``Tensor3D`` objects and 6\*6
+        \\*tensor (str | Tensor3D | numpy.ndarray): Elastic tensor definition.
+            Can be CRYSTAL output files, ``Tensor3D`` objects and 6\\*6
             **elastic** matrices in Voigt notation, GPa. For files,
             ``conventional_lattice=True``.
         property (str | list[str]): The properties to plot. See above.
@@ -1561,7 +1561,7 @@ def plot_elastics3D(
         range_cbar, range_x, range_y, range_z (list[float,float]): *Not
             suggested* Explicitly specifying the ranges of colorbar, x, y and z
             axes.
-        u (numpy.ndarray): 3\*1 or nu\*3 array of vectors to be added into the
+        u (numpy.ndarray): 3\\*1 or nu\\*3 array of vectors to be added into the
             figure. A line segment with doubled radius is plotted to indicate
             the vector. Or 'max' / 'min' / 'bothends', plot vectors
             corresponding to the max and min of elastic properties. For
@@ -1573,13 +1573,13 @@ def plot_elastics3D(
             coordinates. (*Only when lattice information is available*.)
         plot_lattice (bool): Draw the lattice box around the 3D surface.
         colormap (str): Colormap name.
-        layout (list|tuple): The layout of subplots, \[nrow, ncol\]. Default is
-            nTensor\*nProperty or 1\*nTensor.
+        layout (list|tuple): The layout of subplots, \\[nrow, ncol\\]. Default is
+            nTensor\\*nProperty or 1\\*nTensor.
         title (str|None): The title of the plot. 'None' for no title. The
             default subplot titles (property) are added either way.
         figsize (list): Matplotlib figure size.
         fontsize (int): Fontsize of the heightest level of title.
-        \*\*kwargs: Parameters passed to ``Axes3D.view_init``. Only camera
+        \\*\\*kwargs: Parameters passed to ``Axes3D.view_init``. Only camera
             position keywords are suggested.
 
     Returns:
@@ -1707,7 +1707,7 @@ def plot_elastics2D(
     * 'cartesian': The plane normal vector in Cartesian coordinates.  
     * 'fractional': The plane normal vector in fractional coordinates.
 
-    The default layout is either 1\*nProp or nProp\*nPlane. For multi-system
+    The default layout is either 1\\*nProp or nProp\\*nPlane. For multi-system
     plottings, the properties on the same plane are plotted into the same axis
     for comparison. The radius is 'uniform' for the same property, i.e., same
     raidus for plots on various materials and planes.
@@ -1716,26 +1716,26 @@ def plot_elastics2D(
 
         For multi-system plotting, the ``loop_*`` inputs do not change with
         the plotting planes, but with systems in order to distinguish them.
-        Therefore they should be defined by 1\*nTensor list. In this case,
+        Therefore they should be defined by 1\\*nTensor list. In this case,
         ``loop_label`` is used. Otherwise it is not called.
 
         For multi-system plotting, ``u`` and ``utext`` options are disabled.
 
     Args:
-        \*tensor (str|Tensor3D|numpy.ndarray): Elastic tensor definition. Can be
-            CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects and 6\*6 /
-            3\*3 **elastic** matrices in Voigt notation, GPa. But
+        \\*tensor (str|Tensor3D|numpy.ndarray): Elastic tensor definition. Can be
+            CRYSTAL output files, ``Tensor3D`` / ``Tensor2D``objects and 6\\*6 /
+            3\\*3 **elastic** matrices in Voigt notation, GPa. But
             dimensionalities of systems must be consistent. For 3D files,
             ``conventional_lattice=True``.
         property (str | list[str]): The properties to plot. See above.
-        plane (numpy.ndarray): *3D only* 3\*1 or nplane\*3 array of planes.
+        plane (numpy.ndarray): *3D only* 3\\*1 or nplane\\*3 array of planes.
         ntheta (int): Resolution of azimuth angle :math:`\\theta` on plane, in
             radian :math:`[0, 2\\pi)`.
         nchi (int): *3D only* Resolution of auxiliary angle  :math:`\\chi`, in
             radian :math:`[0, 2\\pi)`. Shear modulus and Poisson ratio only.
         plane_definition (str): *3D only* The method used to define the plane.
             See options above.
-        u (numpy.ndarray): nDimen\*1 or nu\*nDimen array of vectors to be added
+        u (numpy.ndarray): nDimen\\*1 or nu\\*nDimen array of vectors to be added
             into the figure. A line segment with doubled radius is plotted to
             indicate the vector. Or 'max' / 'min' / 'bothends', plot vectors
             corresponding to the max and min of elastic properties. For
@@ -1749,7 +1749,7 @@ def plot_elastics2D(
         loop_label (str|list): *Multi-tensor only* Label of loops. None for
             default values: sequence number of materials If str, prefixing that
             entry in front of the default value. If list, it should be in
-            1\*nTensor.
+            1\\*nTensor.
         loop_color (str|list): Color of 2D loops. If only one string is given,
             apply it to all loops. 'None' for default values (matplotlib
             Tableau Palette).
@@ -1757,15 +1757,15 @@ def plot_elastics2D(
             given, apply it to all plots. 'None' for default values ('-').
         loop_linewidth (str|list): Linewidth of band structure. If only one
             number is given, apply it to all plots. For the 'multi' mode,
-            1\*nSystem list of linewidth numbers. 'None' for default values (1.0).
-        layout (list|tuple): *2D only* 2\*1 list. The layout of subplots. The
-            first element is nrows, the second is ncolumns. By default, 1\*nProp.
+            1\\*nSystem list of linewidth numbers. 'None' for default values (1.0).
+        layout (list|tuple): *2D only* 2\\*1 list. The layout of subplots. The
+            first element is nrows, the second is ncolumns. By default, 1\\*nProp.
         title (str): Title
-        figsize (list): The figure size specified as \[width, height\].
+        figsize (list): The figure size specified as \\[width, height\\].
         legend (str|None): *Multi-tensor only* Location of legend. None for not
             adding legend.
         fontsize (float|int): Font size of the title.
-        \*\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
+        \\*\\*kwargs: Parameters passed to ``PolarAxes.plot`` to customize the
             loops. Applied to all the loops.
 
     Returns:
@@ -1958,12 +1958,12 @@ def plot_phonon_bands(*bands, unit='cm-1', q_overlap_tol=1e-4,
     Plot phonon band structures.
 
     Args:
-        \*bands (PhononBand|str): ``phonons.PhononBand`` object or the standard
+        \\*bands (PhononBand|str): ``phonons.PhononBand`` object or the standard
             screen output (.out) files of CRYSTAL.
         unit (str): The unit of frequency. Can be 'cm-1' or 'THz'.
         q_overlap_tol (float): The threshold for overlapped k points. Only used
              for getting tick positions. *For filename input only.*
-        k_label (list): nSystem\*nTick or 1\*nTick list of strings of the label
+        k_label (list): nSystem\\*nTick or 1\\*nTick list of strings of the label
              for high symmetry points along the path. If a 1D list is given,
              the same labels are used for all the systems. `mathtext <https://matplotlib.org/stable/users/explain/text/mathtext.html>`_
              experssions can also be used  as in matplotlib.
@@ -1973,33 +1973,33 @@ def plot_phonon_bands(*bands, unit='cm-1', q_overlap_tol=1e-4,
         frequency_range (array): A 2x1 array specifying the frequency range.
         k_range (array): A 2x1 array specifying the k-range.
         band_label (str|list): Plot legend. If only one string is given, apply
-            it to all plots. 1\*nSystem plot legend otherwise.
+            it to all plots. 1\\*nSystem plot legend otherwise.
         band_color (str|list): Color of band structure. If only one string is
-            given, apply it to all plots. For the 'multi' mode, 1\*nSystem list
+            given, apply it to all plots. For the 'multi' mode, 1\\*nSystem list
             of plot colors. 'None' for default values (matplotlib Tableau
             Palette).
         band_linestyle (str|list): Linestyle of band structure. If only one
             string is given, apply it to all plots. For the 'multi' mode,
-            1\*nSystem list of linestyle strings. 'None' for default values
+            1\\*nSystem list of linestyle strings. 'None' for default values
             ('-').
         band_linewidth (str|list): Linewidth of band structure. If only one
             number is given, apply it to all plots. For the 'multi' mode,
-            1\*nSystem list of linewidth numbers. 'None' for default values
+            1\\*nSystem list of linewidth numbers. 'None' for default values
             (1.0).
         plot_freq0 (bool): Whether to plot 0 frequency line.
         freq0_color (str): Color of the 0 frequency line.
         freq0_linestyle (str): Line style of 0 frequency line.
         freq0_linewidth(float): Width of the 0 frequency line.
         layout (list|tuple): For 'compare' mode, the layout of subplots,
-            \[nrow, ncol\]. The default is 2 cols per row.
+            \\[nrow, ncol\\]. The default is 2 cols per row.
         title (str): The title of the plot.
-        figsize (list): The figure size specified as \[width, height\].
+        figsize (list): The figure size specified as \\[width, height\\].
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the highest level title and axis labels.
-        \*\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
+        \\*\\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -2101,7 +2101,7 @@ def plot_phonon_doss(
     Plot phonon density of states.
 
     Args:
-        \*doss (PhononDOS|str): ``phonon.PhononDOS`` object or the standard
+        \\*doss (PhononDOS|str): ``phonon.PhononDOS`` object or the standard
             screen output (.out) files of CRYSTAL.
         unit (str): The unit of frequency. Can be 'cm-1' or 'THz'.
         read_INS (bool): Read the inelastic neutron scattering spectra. *For
@@ -2121,21 +2121,21 @@ def plot_phonon_doss(
             :math:`\\sigma` of :math:`a\\exp{\\frac{(x-b)^{2}}{2\\sigma^{2}}}`.
             '0' for no Gaussian broadening. The length of data will be tripled.
             Valid only for data on the plot. Data saved in object is unchanged.
-        frequency_range (list): 1\*2 list of frequency range
-        dos_range (list): 1\*2 list of DOS range
+        frequency_range (list): 1\\*2 list of frequency range
+        dos_range (list): 1\\*2 list of DOS range
         dos_label (str|list): Plot legend. If only one string is given, apply
-            it to all plots. 1\*nPrj plot legend otherwise. Effective for all
+            it to all plots. 1\\*nPrj plot legend otherwise. Effective for all
             the subplots.
         dos_color (str|list): Color of DOSS plots. If only one string is given,
-            apply it to all plots. When ``overlap=True``, 1\*nPrj list of plot
+            apply it to all plots. When ``overlap=True``, 1\\*nPrj list of plot
             color. 'None' for default values (matplotlib Tableau Palette).
             Effective for all the subplots.
         dos_linestyle (str|list): Linestyle of DOSS plot. If only one string is
-            given, apply it to all plots. When ``overlap=True``, 1\*nPrj list
+            given, apply it to all plots. When ``overlap=True``, 1\\*nPrj list
             of line styles. 'None' for default values ('-'). Effective for all
             the subplots.
         dos_linewidth (str|list): Linewidth of DOSS plot. If only one number is
-            given, apply it to all plots. When ``overlap=True``, 1\*nPrj list
+            given, apply it to all plots. When ``overlap=True``, 1\\*nPrj list
             of line widthes. 'None' for default values (1.0). Effective for all
             the subplots.
         plot_freq0 (bool): Whether to plot 0 frequency line.
@@ -2143,13 +2143,13 @@ def plot_phonon_doss(
         freq0_linestyle (str): Line style of the 0 frequency line.
         freq0_linewidth(float): Width of the 0 frequency line.
         title (str): The title of the plot.
-        figsize (list): The figure size specified as \[width, height\].
+        figsize (list): The figure size specified as \\[width, height\\].
         legend (str|None): Loc parameter passed to `axes.legend() <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html>`_
             None for not adding legend.
         sharex (bool): Whether to share the x-axis among subplots.
         sharey (bool): Whether to share the y-axis among subplots.
         fontsize (int): Fontsize of the highest level title and axis labels.
-        \*\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
+        \\*\\*kwargs: Other arguments passed to ``Axes.plot()`` of band plots.
 
     Returns:
         fig (Figure): Matplotlib figure object
@@ -2291,7 +2291,7 @@ def plot_phonon_banddos(
     and ``plot_phonon_bands``.
 
     Args:
-        \*data: Either 1 or 2 entries. For one enetry, it is the standard
+        \\*data: Either 1 or 2 entries. For one enetry, it is the standard
             screen output (.out) file with both band and DOS, or ``PhononBandDOS``
             object. For 2 entries, the first entry is ``bands`` of
             ``plot_phonon_bands`` and the second is ``doss`` of ``plot_phonon_doss``.
@@ -2423,19 +2423,19 @@ def plot_XRD(*xrd, option='LP', shift=10, label=None, color=None,
         shift (float): If multiple spectra are plotted, shifting them up by the
             given value. Shift length is the value after normalization.
         label (list|str|None): List of plot labels. 'None' for the default
-            values ('# \<number\>') and string for prefix the string before
-            number. Otherwise should be a 1\*nXRD list.
+            values ('# \\<number\\>') and string for prefix the string before
+            number. Otherwise should be a 1\\*nXRD list.
         color (list|str|None): If str, use the same color for all the plot
-            lines. If 1\*nXRD, use the color defined for every plot line.
+            lines. If 1\\*nXRD, use the color defined for every plot line.
             'None' for default values (matplotlib Tableau Palette).
         linestyle (list|str|None): See explanations of ``color``.
         linewidth (list|float|None): See explanations of ``color``.
-        theta_range (list): 1\*2 list of theta range in degree.
+        theta_range (list): 1\\*2 list of theta range in degree.
         title (str|None): The title of the plot. 'None' for no title.
         figsize (list): Matplotlib figure size.
         legend (str|None): Location of legend. None for not adding legend.
         fontsize (int): Fontsize of the axis label and title.
-        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+        \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
 
     Returns:
         fig (Figure): Matplotlib figure.
@@ -2504,7 +2504,7 @@ def plot_IR(*ir, unit='cm-1', option='LG', shift=0, label=None, color=None,
             legend='upper left', sharey=True, fontsize=14, **kwargs):
     """
     Plot the IR spectra of multiple systems into the same plot axes. For
-    reflectance spectra, nDirection\*1 plots are generated. All the input files
+    reflectance spectra, nDirection\\*1 plots are generated. All the input files
     must have the same symmetry.
 
     .. note::
@@ -2520,21 +2520,21 @@ def plot_IR(*ir, unit='cm-1', option='LG', shift=0, label=None, color=None,
         shift (float): If multiple spectra are plotted, shifting them up by the
             given value. Shift length is the value after normalization.
         label (list|str|None): List of plot labels. 'None' for the default
-            values ('# \<number\>') and string for prefix the string before
-            number. Otherwise should be a 1\*nIR list.
+            values ('# \\<number\\>') and string for prefix the string before
+            number. Otherwise should be a 1\\*nIR list.
         color (list|str|None): If str, use the same color for all the plot
-            lines. If 1\*nIR, use the color defined for every plot line. 'None'
+            lines. If 1\\*nIR, use the color defined for every plot line. 'None'
             for default values (matplotlib Tableau Palette).
         linestyle (list|str|None): See explanations of ``color``.
         linewidth (list|float|None): See explanations of ``color``.
-        x_range (list): 1\*2 list of x axis range.
+        x_range (list): 1\\*2 list of x axis range.
         title (str|None): The title of the plot. 'None' for no title.
         figsize (list): Matplotlib figure size.
         legend (str|None): Location of legend. None for not adding legend.
         sharey (bool): Whether to share the y-axis among subplots. Share x is
             enforced.
         fontsize (int): Fontsize of the axis label and title.
-        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+        \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
 
     Returns:
         fig (Figure): Matplotlib figure.
@@ -2669,21 +2669,21 @@ def plot_Raman(*raman, option='poly', overlap=True,
         shift (float): If multiple spectra are plotted, shifting them up by the
             given value. Shift length is the value after normalization.
         label (list|str|None): List of plot labels. 'None' for the default
-            values ('# \<number\>') and string for prefix the string before
-            number. Otherwise should be a 1\*nRaman list.
+            values ('# \\<number\\>') and string for prefix the string before
+            number. Otherwise should be a 1\\*nRaman list.
         color (list|str|None): If str, use the same color for all the plot
-            lines. If 1\*nRaman, use the color defined for every plot line.
+            lines. If 1\\*nRaman, use the color defined for every plot line.
             'None' for default values (matplotlib Tableau Palette).
         linestyle (list|str|None): See explanations of ``color``.
         linewidth (list|float|None): See explanations of ``color``.
-        x_range (list): 1\*2 list of x axis range.
+        x_range (list): 1\\*2 list of x axis range.
         title (str|None): The title of the plot. 'None' for no title.
         figsize (list): Matplotlib figure size.
         legend (str|None): Location of legend. None for not adding legend.
         sharey (bool): Whether to share the y-axis among subplots. Share x is
             enforced.
         fontsize (int): Fontsize of the axis label and title.
-        \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
+        \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()`` method.
 
     Returns:
         fig (Figure): Matplotlib figure.

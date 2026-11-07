@@ -19,19 +19,19 @@ class PhononBand():
 
         Even though this class is not directly inherited from the
         ``electronics.ElectronBand`` class, its ``bands`` attribute still has
-        the same, nBand\*nKpoint\*nSpin dimentionalities for using the shared
+        the same, nBand\\*nKpoint\\*nSpin dimentionalities for using the shared
         plotting functions. nSpin is always 1 here.
 
     Args:
-        tick_pos (array): 1\*nTick array of 1D tick coordinates. Unit: Angstrom
-        tick_label (list): 1\*nTick of default tick labels
-        bands (array): nBand\*nKpoint\*1 array of frequency. Unit: THz
+        tick_pos (array): 1\\*nTick array of 1D tick coordinates. Unit: Angstrom
+        tick_label (list): 1\\*nTick of default tick labels
+        bands (array): nBand\\*nKpoint\\*1 array of frequency. Unit: THz
         k_path (array): 1D coordinates of k points. Unit: Angstrom
         geometry (Structure): Pymatgen structure
-        reciprocal_latt (array): 3\*3 array of reciprocal lattice matrix. Not
+        reciprocal_latt (array): 3\\*3 array of reciprocal lattice matrix. Not
             valid if ``geometry`` is specified.
-        tick_pos3d (array): 1\*nTick 3D fractional tick coordinates
-        k_path3d (array): nKpoints\*3 3D fractional coordinates of k points
+        tick_pos3d (array): 1\\*nTick 3D fractional tick coordinates
+        k_path3d (array): nKpoints\\*3 3D fractional coordinates of k points
         unit (str): In principle, should always be 'THz': THz-Angstrom.
     """
     def __init__(self, tick_pos, tick_label, bands, k_path, geometry=None,
@@ -80,7 +80,7 @@ class PhononBand():
         :ref:`plot.plot_phonon_bands() <ref-plot>`.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``PhononBand`` object). Check documents for
                 :ref:`plot.plot_electron_bands() <ref-plot>`.
         Returns:
@@ -132,11 +132,11 @@ class PhononDOS():
 
         Even though this class is not directly inherited from the
         ``electronics.ElectronDOS`` class, its ``doss`` attribute still has the
-        same, nProj\*nFrequency\*nSpin dimentionalities for using the shared
+        same, nProj\\*nFrequency\\*nSpin dimentionalities for using the shared
         plotting functions. nSpin is always 1 here.
 
     Args:
-        doss (array): nProj\*nFrequency\*1 array of DOS.
+        doss (array): nProj\\*nFrequency\\*1 array of DOS.
         frequency (array): Positions of DOS peaks (x axis)
         unit (str): In principle, should always be 'THz': THz-Angstrom.
     """
@@ -181,7 +181,7 @@ class PhononDOS():
         :ref:`plot.plot_phonon_doss() <ref-plot>`.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``PhononDOS`` object). Check documents for :ref:`plot.plot_phonon_doss() <ref-plot>`.
         Returns:
             fig (Figure): Matplotlib figure object
@@ -282,7 +282,7 @@ class PhononBandDOS():
         :ref:`plot.plot_phonon_banddos() <ref-plot>`.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``PhononBandDOS`` object). Check documents for
                 :ref:`plot.plot_phonon_banddos() <ref-plot>`.
         Returns:
@@ -314,12 +314,12 @@ class Phonon():
             structure for phonon dispersion calculations by finite displacement
             method must be reduced accordingly.
         u_0 (float): Internal energy. Unit: eV.
-        qpoint (array): nQpoint\*4 array. The first 3 elements are fractional
+        qpoint (array): nQpoint\\*4 array. The first 3 elements are fractional
             coordinates in reciprocal space and the fourth is its weight.
-        frequency (array): nQpoint\*nMode array. Phonon frequencies in THz.
-        mode_symm (array): nQpoint\*nMode array of irreducible representations.
+        frequency (array): nQpoint\\*nMode array. Phonon frequencies in THz.
+        mode_symm (array): nQpoint\\*nMode array of irreducible representations.
             In Mulliken symbols.
-        eigenvector (array): nQpoint\*nMode\*nAtom\*3 complex array. **Phased
+        eigenvector (array): nQpoint\\*nMode\\*nAtom\\*3 complex array. **Phased
             and mass-weighted** eigenvectors normalized to 1. Unit: :math:`\\AA`.
         fragment_idx (array): Indices of atoms (starting from 1) if a fragement
             calculation is performed.
@@ -393,10 +393,10 @@ class Phonon():
         Args:
             filename (str): Name of the output file.
             source (str): The program used for the output file.
-            q_id (array): Index (from 0) of q points to be read. 1\*nqpoint.
+            q_id (array): Index (from 0) of q points to be read. 1\\*nqpoint.
             q_coord (array): Fractional coordinates of q points to read.
-                nqpoint\*3 list.
-            \*\*kwargs: Other keywords passed to corresponding I/O functions.
+                nqpoint\\*3 list.
+            \\*\\*kwargs: Other keywords passed to corresponding I/O functions.
                 See below.
             qha_index (int): *crystal-QHA*. The index of calculation to read (from 0).
             struc_yaml (str): *phonopy*. 'qpoints.yaml' only.
@@ -628,11 +628,11 @@ class Phonon():
 
         Args:
             scale (float|array): Scaling factors
-            scale_range (array): nScale\*2 array. The frequency range of the
+            scale_range (array): nScale\\*2 array. The frequency range of the
                 scaling factor. Including the minimum and excluding the maximum.
                 Use empty list for a uniform scaling.
         Returns:
-            freq (array): nQpoint\*nMode frequencies in THz.
+            freq (array): nQpoint\\*nMode frequencies in THz.
         """
         scale = np.array(scale, dtype=float, ndmin=1)
         scale_range = np.array(scale_range, dtype=float, ndmin=2)
@@ -716,11 +716,11 @@ class Phonon():
 
         Args:
             struc (CStructure): Structure
-            freq (array): nQpoint\*nMode array of phonon frequencies in THz.
-            eigvec (array): nQpoint\*nMode\*nAtom\*3 complex array of phonon
+            freq (array): nQpoint\\*nMode array of phonon frequencies in THz.
+            eigvec (array): nQpoint\\*nMode\\*nAtom\\*3 complex array of phonon
                 eigenvectors, must corresponding to the method specified.
             method (str): 'remove classical', 'mass weight'.
-            fragment_idx (array): 1\*nAtom array of ints. Atomic indices from 1.
+            fragment_idx (array): 1\\*nAtom array of ints. Atomic indices from 1.
         Returns:
             eigvec (array): Mass-weighted and phased eigenvector normalized to 1.
         """

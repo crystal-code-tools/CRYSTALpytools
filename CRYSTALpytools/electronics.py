@@ -17,16 +17,16 @@ class ElectronBand():
 
     Args:
         spin (int): 1, closed shell; 2, open shell
-        tick_pos (array): 1\*nTick array of 1D tick coordinates. Unit: :math:`\\AA`
-        tick_label (list): 1\*nTick of default tick labels.
+        tick_pos (array): 1\\*nTick array of 1D tick coordinates. Unit: :math:`\\AA`
+        tick_label (list): 1\\*nTick of default tick labels.
         efermi (float): Fermi energy. Unit: eV.
-        bands (array): nBand\*nKpoint\*nSpin array of energy of band structure.
+        bands (array): nBand\\*nKpoint\\*nSpin array of energy of band structure.
             Aligned to :math:`E_{F}=0`. Unit: eV.
         k_path (array): 1D coordinates of k points for band structure. Unit: :math:`\\AA`.
         geometry (Structure): Pymatgen structure
-        reciprocal_latt (array): 3\*3 array of reciprocal lattice matrix.
-        tick_pos3d (array): 1\*nTick 3D fractional tick coordinates.
-        k_path3d (array): nKpoints\*3 3D fractional coordinates of k points.
+        reciprocal_latt (array): 3\\*3 array of reciprocal lattice matrix.
+        tick_pos3d (array): 1\\*nTick 3D fractional tick coordinates.
+        k_path3d (array): nKpoints\\*3 3D fractional coordinates of k points.
         unit (str): In principle, should always be 'eV': eV-Angstrom.
     """
 
@@ -80,7 +80,7 @@ class ElectronBand():
         check documentations there.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``ElectronBand`` object). Check documents for
                 :ref:`plot.plot_electron_bands() <ref-plotebands>`.
         Returns:
@@ -101,7 +101,7 @@ class ElectronBand():
 
     def get_bandgap(self):
         """
-        Get band gap. For spin-polarized systems, 2\*1 arrays are used for
+        Get band gap. For spin-polarized systems, 2\\*1 arrays are used for
         :math:`\\alpha` and :math:`\\beta` states. Data is rounded to 6 decimal
         places. Unit is consistent with the ``self.unit`` attribute.
 
@@ -298,7 +298,7 @@ class FermiSurface():
     Args:
         geometry (array|CStructure): Matrix of reciprocal lattice, or an
             extended pymatgen Structure object.
-        bands (array): nBand\*nZ\*nY\*nX\*nSpin of band energy aligned to
+        bands (array): nBand\\*nZ\\*nY\\*nX\\*nSpin of band energy aligned to
             :math:`E_{F}=0`. The non-periodic direction must have the dimension
             of 1. Unit: eV.
         efermi (float): Fermi energy. Unit: eV.
@@ -311,7 +311,7 @@ class FermiSurface():
         self.bands (array): Bands. Dimensionality same as input.
         self.efermi (float)
         self.BZ (list): Cartesian coordinates of vertices of 1BZ. Arranged in
-            planes (i.e., the element of 4\*3 array represents a plane of 4 vertices).
+            planes (i.e., the element of 4\\*3 array represents a plane of 4 vertices).
         self.unit (str): 'eV' or 'a.u.'
     """
     def __init__(self, geometry, bands, efermi=0., unit='eV'):
@@ -390,7 +390,7 @@ class FermiSurface():
 
     def get_bandgap(self):
         """
-        Get band gap. For spin-polarized systems, 2\*1 arrays are used for
+        Get band gap. For spin-polarized systems, 2\\*1 arrays are used for
         :math:`\\alpha` and :math:`\\beta` states. Data is rounded to 6 decimal
         places. Unit is consistent with the ``self.unit`` attribute.
 
@@ -528,7 +528,7 @@ class FermiSurface():
             tick_label (list): *Not implemented*
             show_the_scene (bool):  Display the scene by ``mlab.show()`` and
                 return None. Otherwise return the scene object.
-            \*\*kwargs: Other keywords passed to MayaVi. See below.
+            \\*\\*kwargs: Other keywords passed to MayaVi. See below.
             colormap (str): Colormap of surfaces / isosurfaces. *Not available
                 for ``volume_3d=True``*. Default is 'jet'.
             opacity (float):  Opacity from 0 to 1. For ``volume_3d=True``, that
@@ -613,7 +613,7 @@ class FermiSurface():
                            horizontalalignment='center', verticalalignment='bottom')
                 barax.text(barpos[i]+0.5, emin[i], '{:.2f}'.format(emin[i]),
                            horizontalalignment='center', verticalalignment='top')
-                barlab.append('Band {:d}\nSpin $\{}$'.format(iband[i]+1, spin_label[ispin[i]]))
+                barlab.append('Band {:d}\nSpin $\\{}$'.format(iband[i]+1, spin_label[ispin[i]]))
             barax.hlines(isovalue, 0, barpos[-1]+2, colors='tab:gray', linestyles='dotted')
             barax.set_xticks(barpos+0.5, labels=barlab)
             barax.set_xlim([0, barpos[-1]+2])
@@ -854,7 +854,7 @@ class FermiSurface():
         Write data into the `XCrySDen <http://www.xcrysden.org/>`_ BXSF file
         format. Unit: :math:`\\AA^{-1}` and eV. Band labels:
 
-        * \[0\:-2\]: Band index strating from 1;  
+        * \\[0\\:-2\\]: Band index strating from 1;  
         * -2: Useless, 0;  
         * -1: Spin. Alpha / No spin, 1; Beta, 2
 
@@ -882,11 +882,11 @@ class FermiSurface():
         The method to process band indices.
 
         Args:
-            band (array): nBand\*nZ\*nY\*nX*nSpin array.
+            band (array): nBand\\*nZ\\*nY\\*nX*nSpin array.
             index (list|str|int): See the ``plot()`` method.
         Returns:
-            iband (array): 1\*nIndex indices of band, starting from 0.
-            ispin (array): 1\*nIndex indices of spin, 0 or 1.
+            iband (array): 1\\*nIndex indices of band, starting from 0.
+            ispin (array): 1\\*nIndex indices of spin, 0 or 1.
         """
         import re
 
@@ -1001,7 +1001,7 @@ class ElectronDOS():
     Args:
         spin (int): 1, closed shell; 2, open shell
         efermi (float): Fermi energy. Unit: eV.
-        doss (array): n_proj\*n_energy\*spin array of DOS. Positive values
+        doss (array): n_proj\\*n_energy\\*spin array of DOS. Positive values
             for both spin up and spin down states
         energy (array): Positions of DOS peaks (x axis)
         unit (str): In principle, should always be 'eV': eV-Angstrom.
@@ -1036,7 +1036,7 @@ class ElectronDOS():
         :ref:`plot.plot_electron_doss() <ref-plotedoss>`.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``ElectronDOS`` object). Check documents for
                 :ref:`plot.plot_electron_doss() <ref-plotedoss>`.
         Returns:
@@ -1138,7 +1138,7 @@ class ElectronBandDOS():
         :ref:`plot.plot_electron_banddos() <ref-plot>`.
 
         Args:
-            \*\*kwargs: Plot setting parameters (i.e., except the variable for
+            \\*\\*kwargs: Plot setting parameters (i.e., except the variable for
                 ``ElectronBandDOS`` object). Check documents for
                 :ref:`plot.plot_electron_banddos() <ref-plot>`.
         Returns:
@@ -1168,11 +1168,11 @@ class ChargeDensity():
     .. note::
 
         Definition follows the convention of Gaussian CUBE and XCrySDen XSF
-        formats, which requires a non-periodic grid defined over \[0, 1\].
+        formats, which requires a non-periodic grid defined over \\[0, 1\\].
 
     Args:
-        data (array): Plot data. nY\*nX\*nSpin (2D) or nZ\*nY\*nX\*nSpin (3D)
-        base (array): 3(4)\*3 Cartesian coordinates of the 3(4) points defining
+        data (array): Plot data. nY\\*nX\\*nSpin (2D) or nZ\\*nY\\*nX\\*nSpin (3D)
+        base (array): 3(4)\\*3 Cartesian coordinates of the 3(4) points defining
             base vectors BA, BC (2D) or OA, OB, OC (3D). The sequence is (O),
             A, B, C.
         spin (int): 1 or 2.
@@ -1214,7 +1214,7 @@ class ChargeDensity():
             3D cube files, 2 entries for charge and spin if needed.
 
         Args:
-            \*files (str): Path to the charge density / spin density file(s).
+            \\*files (str): Path to the charge density / spin density file(s).
                 All the entries must be in the same file format.
             output (str): Screen output file.
             method (str): See above.
@@ -1237,7 +1237,7 @@ class ChargeDensity():
         Subtracting data of the same type from the object.
 
         Args:
-            \*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
+            \\*args (str|ChargeDensity): File names or ``ChargeDensity`` objects.
         Returns:
             self (ChargeDensity) : spin dimension, if there is, is not kept.
                 Only charge density difference is subtracted.
@@ -1358,7 +1358,7 @@ class ChargeDensity():
             option (str): Available options see above.
             levels (int|array): Set levels of contour plot. A number for
                 linear scaled plot colors or an array for user-defined levels,
-                **must be consistent with ``unit``**. 2\*nLevel can be defined
+                **must be consistent with ``unit``**. 2\\*nLevel can be defined
                 when ``option='both'``.
             lineplot (bool): Plot contour lines.
             linewidth (float): Contour linewidth. Useful only if
@@ -1371,12 +1371,12 @@ class ChargeDensity():
             colormap (str): Matplotlib colormap option. Useful only if
                 ``colorplot=True``.
             cbar_label (str): Label of colorbar. Useful only if
-                ``colorplot=True``. 1\*2 list of colorbar titles can be set for
+                ``colorplot=True``. 1\\*2 list of colorbar titles can be set for
                 spin-polarized systems. 'default' for unit and symbol. 'None'
                 for no labels.
-            a_range (list): 1\*2 range of :math:`a` axis (x, or BC) in
+            a_range (list): 1\\*2 range of :math:`a` axis (x, or BC) in
                 fractional coordinate.
-            b_range (list): 1\*2 range of :math:`b` axis (x, or AB) in
+            b_range (list): 1\\*2 range of :math:`b` axis (x, or AB) in
                 fractional coordinate.
             rectangle (bool): If :math:`a, b` are non-orthogonal, plot a
                 rectangle region and reset :math:`b`. If used together with
@@ -1392,7 +1392,7 @@ class ChargeDensity():
                 fixed to be equal.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs: Other arguments passed to ``axes.contour()`` function
+            \\*\\*kwargs: Other arguments passed to ``axes.contour()`` function
                 to set contour lines.
 
         Returns:
@@ -1589,14 +1589,14 @@ class ChargeDensity():
             interp_size (list[int]|int): The new size of interpolated data
                 (list) or a scaling factor. *Valid only when ``interp`` is not
                 'no interp'*.
-            grid_display_range (array): 3\*2 array defining the displayed
+            grid_display_range (array): 3\\*2 array defining the displayed
                 region of the data grid. Fractional coordinates a, b, c are
                 used but only the periodic directions are applied.
             show_the_scene (bool): Display the scene by ``mlab.show()`` and
                 return None. Otherwise return the scene object.
-            \*\*kwargs: Optional keywords passed to MayaVi or ``CStructure.visualize()``.
+            \\*\\*kwargs: Optional keywords passed to MayaVi or ``CStructure.visualize()``.
                 Allowed keywords are listed below.
-            colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\*3
+            colormap (turple|str): Colormap of isosurfaces/heatmaps. Or a 1\\*3
                 RGB turple from 0 to 1 to define colors. *Not for volume_3d=True*.
             opacity (float): Opacity from 0 to 1. For ``volume_3d=True``, that
                 defines the opacity of the maximum value. The opacity of the
@@ -1611,13 +1611,13 @@ class ChargeDensity():
             nb_labels (int): The number of labels to display on the colorbar.
             label_fmt (str): The string formater for the labels, e.g., '%.1f'.
             atom_color (str): Color map of atoms. 'jmol' or 'cpk'.
-            bond_color (turple): Color of bonds, in a 1\*3 RGB turple from 0 to 1.
+            bond_color (turple): Color of bonds, in a 1\\*3 RGB turple from 0 to 1.
             atom_bond_ratio (str): 'balls', 'large', 'medium', 'small' or
                 'sticks'. The relative sizes of balls and sticks.
-            cell_display (bool): Display lattice boundaries (at \[0., 0., 0.\] only).
-            cell_color (turple): Color of lattice boundaries, in a 1\*3 RGB turple from 0 to 1.
+            cell_display (bool): Display lattice boundaries (at \\[0., 0., 0.\\] only).
+            cell_color (turple): Color of lattice boundaries, in a 1\\*3 RGB turple from 0 to 1.
             cell_linewidth (float): Linewidth of plotted lattice boundaries.
-            display_range (array): 3\*2 array defining the displayed region of
+            display_range (array): 3\\*2 array defining the displayed region of
                 the structure. Fractional coordinates a, b, c are used but only
                 the periodic directions are applied.
             scale (float): See :ref:`geometry.CStructure.get_bonds() <ref-CStrucGetBonds>`.

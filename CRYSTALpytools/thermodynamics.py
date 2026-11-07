@@ -115,17 +115,17 @@ class Harmonic():
             filename (str): Name of the output file.
             source (str): The program used for the output file.
             scale (float|array): Scaling factors
-            scale_range (array): nScale\*2 array. The frequency range of the
+            scale_range (array): nScale\\*2 array. The frequency range of the
                 scaling factor. Including the minimum and excluding the maximum.
                 Use empty list for a uniform scaling.
             imaginary_tol (float): The threshold of negative frequencies.
             q_overlap_tol (float): The threshold of overlapping points, defined
                 as the 2nd norm of the difference of fractional q vectors
-            q_id (array): Index (from 0) of q points to be read. 1\*nqpoint.
+            q_id (array): Index (from 0) of q points to be read. 1\\*nqpoint.
             q_coord (array): Fractional coordinates of q points to read.
-                nqpoint\*3 list.
+                nqpoint\\*3 list.
             read_eigvt: Deprecated.
-            \*\*kwargs: Other keywords passed to corresponding I/O functions.
+            \\*\\*kwargs: Other keywords passed to corresponding I/O functions.
                 See below.
             qha_index (int): *crystal-QHA*. The index of calculation to read (from 0).
             struc_yaml (str): *phonopy*. 'qpoints.yaml' only.
@@ -145,14 +145,14 @@ class Harmonic():
             volume (float): Volume of the cell. Unit: :math:`\\AA^{3}`
             u_0 (float): Internal energy. Unit: kJ/mol
             nqpoint (int): Number of q points
-            qpoint (list): nQpoint\*4 list. The first three elements are 
+            qpoint (list): nQpoint\\*4 list. The first three elements are 
                 fractional coordinates in reciprocal space and the last is
                 its weight, i.e., number of equivalent q points.
             nmode (int): Number of modes.
-            frequency (array[float]): nQpoint\*nMode array of frequencies in THz.
-            mode_symm (array[str]): nQpoint\*nMode array of the  irreducible
+            frequency (array[float]): nQpoint\\*nMode array of frequencies in THz.
+            mode_symm (array[str]): nQpoint\\*nMode array of the  irreducible
                 representations. In Mulliken symbols.
-            eigenvector (array[float]): nQpoint\*nMode\*nAtom\*3 array of phonon
+            eigenvector (array[float]): nQpoint\\*nMode\\*nAtom\\*3 array of phonon
                 eigenvectors.
         """
         if hasattr(self, "frequency"):
@@ -192,7 +192,7 @@ class Harmonic():
 
         Args:
             u_0 (float): Static total energy in kJ/mol.
-            qpoint (array[float]): nQpoint\*4 array. The first three elements
+            qpoint (array[float]): nQpoint\\*4 array. The first three elements
                 are fractional coordinate and the last is weight.
             frequency (array[float]): Array of frequencies. Unit: THz
             eigenvector (array[float]): Mass weighted and phased eigenvectors
@@ -314,14 +314,14 @@ class Harmonic():
 
         Returns:
             self (Harmonic): Attributes listed below.
-            self.helmholtz (array): 1\*nTemperature. Unit: KJ/mol
-            self.gibbs (array): nPressure\*nTemperature. Unit: KJ/mol
+            self.helmholtz (array): 1\\*nTemperature. Unit: KJ/mol
+            self.gibbs (array): nPressure\\*nTemperature. Unit: KJ/mol
             self.zp_energy (float): Zero-point energy. Unit: KJ/mol
             self.u_vib (array): Vibrational contribution to internal energy.
-                1\*nTemperature. Unit: KJ/mol
-            self.entropy (array): 1\*nTemperature. Unit: J/mol\*K
-            self.c_v (array): Constant volume specific heat. 1\*nTemperature.
-                Unit: J/mol\*K
+                1\\*nTemperature. Unit: KJ/mol
+            self.entropy (array): 1\\*nTemperature. Unit: J/mol\\*K
+            self.c_v (array): Constant volume specific heat. 1\\*nTemperature.
+                Unit: J/mol\\*K
 
         :raise Exception: If temperature and pressure are defined neither here nor during initialization
         """
@@ -392,16 +392,16 @@ class Harmonic():
         Args:
             q (int|array): Indices of q point, from 0.
             m (int|array): Indices of mode, from 0.
-            \*\*kwargs: See below.
+            \\*\\*kwargs: See below.
             temperature (array|float): If not present, use ``self.temperature``. It will not update the attribute.
             pressure (array|float): If not present, use ``self.pressure``. It will not update the attribute.
         Returns:
             zp_energy (float)
-            u_vib (array): 1\*nTemperture
-            entropy (array): 1\*nTemperture
-            c_v (array): 1\*nTemperture
-            helmholtz (array): 1\*nTemperture, excluding DFT total energy of the system
-            gibbs (array): nPressure\*nTemperture, excluding DFT total energy of the system
+            u_vib (array): 1\\*nTemperture
+            entropy (array): 1\\*nTemperture
+            c_v (array): 1\\*nTemperture
+            helmholtz (array): 1\\*nTemperture, excluding DFT total energy of the system
+            gibbs (array): nPressure\\*nTemperture, excluding DFT total energy of the system
         """
         if 'temperature' in kwargs: T = kwargs['temperature']
         else: T = self.temperature
@@ -524,12 +524,12 @@ class Quasi_harmonic:
         Instatiation from outputs.
 
         Args:
-            \*filename (str): Phonon output filename(s). Extendable.
+            \\*filename (str): Phonon output filename(s). Extendable.
             source (str): The program used for the output file.
             mode_sort_tol (float | None): The threshold of close mode overlaps
                 with eigenvectors if present. If none, do not sort modes and
                 eigenvector is not read.
-            \*\*kwargs: Optional keywords passed to ``Harmonic().from_file()``.
+            \\*\\*kwargs: Optional keywords passed to ``Harmonic().from_file()``.
             scale (float|array):
             scale_range (array):
             imaginary_tol (float):
@@ -538,7 +538,7 @@ class Quasi_harmonic:
             q_coord (array): Applied to all HA calculations.
             struc_yaml (list[str]): *phonopy*. 'qpoints.yaml' only.
             u_0 (list[float]): *phonopy*. Static internal energy in kJ/mol.
-            irreps_yaml (array[str]): *phonopy*. nCalc\*nQpoint array. Read
+            irreps_yaml (array[str]): *phonopy*. nCalc\\*nQpoint array. Read
                 'irreps.yaml' for mode symmetry symbols. The fractional coordinates
                 in the file are used for ``q_coord`` if not specified. Phonopy
                 'irreps.yaml' only contains symmetry info of a q point. Use a
@@ -547,13 +547,13 @@ class Quasi_harmonic:
         Returns:
             self (Quasi_harmonic): New Attributes listed below
             ncalc (int): Number of HA phonon calculations.
-            combined_volume (array[float]): 1\*nCalc volumes. Unit: :math:`\\AA^{3}`
-            combined_struc (list[CStructure]): 1\*nCalc HA structures.
-            combined_u0 (array[float]): 1\*nCalc static internal energies. Unit: kJ/mol
-            combined_freq (array[float]): nQpoint\*nMode\*nCalc frequencies. Unit: THz
-            combined_symm (array[str]): nQpoint\*nMode\*nCalc mode symmetry in Mulliken symbol.
+            combined_volume (array[float]): 1\\*nCalc volumes. Unit: :math:`\\AA^{3}`
+            combined_struc (list[CStructure]): 1\\*nCalc HA structures.
+            combined_u0 (array[float]): 1\\*nCalc static internal energies. Unit: kJ/mol
+            combined_freq (array[float]): nQpoint\\*nMode\\*nCalc frequencies. Unit: THz
+            combined_symm (array[str]): nQpoint\\*nMode\\*nCalc mode symmetry in Mulliken symbol.
             nqpoint (int): Number of q points.
-            qpoint (array[float]): nQpoint\*4 array. The first three elements are fractional coordinates,
+            qpoint (array[float]): nQpoint\\*4 array. The first three elements are fractional coordinates,
                 and the last is the weight.
             nmode (int): Number of modes.
             natom (int): Number of atoms.
@@ -720,7 +720,7 @@ class Quasi_harmonic:
             volume_bound (tuple-like), Boundary conditions of equilibrium
                 volumes. Unit: :math:`\\AA^{3}`
             mutewarning (bool): Whether print out warning messages.
-            \*\*kwargs: See below
+            \\*\\*kwargs: See below
             temperature (array[float]): Should be given in ascending order, or will be sorted. Unit: K
             pressure (array[float]): Should be given in ascending order, or will be sorted. Unit: GPa
             order (int): For DeltaFactor / Polynomial EOSs.
@@ -730,11 +730,11 @@ class Quasi_harmonic:
             self (Quasi_harmonic): New Attributes listed below
             self.temperature (array): Unit: K
             self.pressure (array): Unit: GPa
-            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
+            self.volume (array): nPressure\\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
             self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
             self.gibbs (array): Gibbs free energy. Unit: kJ/mol
             self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
-            self.gruneisen(array): npressure\*ntemperature, same below. Macroscopic Grüneisen parameter.
+            self.gruneisen(array): npressure\\*ntemperature, same below. Macroscopic Grüneisen parameter.
             self.alpha_v (array): Thermal expansion coefficient by Grüneisen method.
             self.c_v (array): Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
             self.c_p (array): Constant pressure specific heat by Grüneisen method. Unit: :math:`J.mol^{-1}.K^{-1}`
@@ -997,7 +997,7 @@ class Quasi_harmonic:
             volume_bound (tuple-like), Boundary conditions of equilibrium
                 volumes. Unit: :math:`\\AA^{3}`
             mutewarning (bool): Whether print out warning messages.
-            \*\*kwargs: See below
+            \\*\\*kwargs: See below
             temperature (array[float]): Should be given in ascending order, or will be sorted. Unit: K
             pressure (array[float]): Should be given in ascending order, or will be sorted. Unit: GPa
             order (int): For DeltaFactor / Polynomial EOSs.
@@ -1007,11 +1007,11 @@ class Quasi_harmonic:
             self (Quasi_harmonic): New Attributes listed below
             self.temperature (array): Unit: K
             self.pressure (array): Unit: GPa
-            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
+            self.volume (array): nPressure\\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
             self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
             self.gibbs (array): Gibbs free energy. Unit: kJ/mol
             self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
-            self.gruneisen(array): npressure\*ntemperature, same below. Macroscopic Grüneisen parameter.
+            self.gruneisen(array): npressure\\*ntemperature, same below. Macroscopic Grüneisen parameter.
             self.alpha_v (array): Thermal expansion coefficient by Grüneisen method.
             self.c_v (array): Constant volume specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
             self.c_p (array): Constant pressure specific heat by Grüneisen method. Unit: :math:`J.mol^{-1}.K^{-1}`
@@ -1258,7 +1258,7 @@ class Quasi_harmonic:
             volume_bound (tuple-like), Boundary conditions of equilibrium
                 volumes. Unit: :math:`\\AA^{3}`
             mutewarning (bool): Whether print out warning messages.
-            \*\*kwargs: See below
+            \\*\\*kwargs: See below
             temperature (array[float]): Unit: K
             pressure (array[float]): Unit: GPa
             order (int): For DeltaFactor / Polynomial EOSs.
@@ -1269,13 +1269,13 @@ class Quasi_harmonic:
             self.method (str): 'thermo_eos'
             self.temperature (array): Should be given in ascending order, or will be sorted. Unit: K
             self.pressure (array): Should be given in ascending order, or will be sorted. Unit: GPa
-            self.volume (array): nPressure\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
+            self.volume (array): nPressure\\*nTemperature, same below. Equilibrium volumes. Unit: :math:`\\AA^{3}`
             self.helmholtz (array): Helmholtz free energy. Unit: kJ/mol
             self.gibbs (array): Gibbs free energy. Unit: kJ/mol
             self.entropy (array): Entropy. Unit: :math:`J.mol^{-1}.K^{-1}`
             self.c_p (array): Constant pressure specific heat. Unit: :math:`J.mol^{-1}.K^{-1}`
             self.k_t (array): Isothermal bulk modulus. Unit: GPa.
-            self.eos (list[Pymatgen EOS]): nTemperature\*1 list of Pymatgen EOS objects. EOSs used to fit HA free energy at constant temperature.
+            self.eos (list[Pymatgen EOS]): nTemperature\\*1 list of Pymatgen EOS objects. EOSs used to fit HA free energy at constant temperature.
             self.eos_method (str): The name of EOS used.
             self.gibbs_fit (list[Polynomial]): nPressure list of Polynomials of fitted Gibbs free energy, for entropy and c_p.
             self.fe_eos: Deprecated. Synonym of 'self.eos'.
@@ -1467,8 +1467,8 @@ class Quasi_harmonic:
 
         Returns:
             self (Quasi_harmonic): New attributes listed below
-            self.vol_fit (list): 1\*nPressure. List of Numpy polynomial object, the fitted volume V(T).
-            self.alpha_v (array): nPressure\*nTemperature. Expansion coefficients at equilibrium volumes.
+            self.vol_fit (list): 1\\*nPressure. List of Numpy polynomial object, the fitted volume V(T).
+            self.alpha_v (array): nPressure\\*nTemperature. Expansion coefficients at equilibrium volumes.
         """
         from matplotlib.pyplot import subplots
         from matplotlib.colors import TABLEAU_COLORS as mcolors
@@ -1560,11 +1560,11 @@ class Quasi_harmonic:
                 results.
 
         Args:
-            \*\*kwargs: Only functions as a container of deprecated keywords. Not used.
+            \\*\\*kwargs: Only functions as a container of deprecated keywords. Not used.
         Returns:
             self (Quasi_harmonic): New attributes listed below
             self.k_t (array): Isothermal bulk modulus. Unit: GPa.
-            self.k_s (array): nPressure\*nTemperature. Adiabatic bulk modulus. Unit: GPa.
+            self.k_s (array): nPressure\\*nTemperature. Adiabatic bulk modulus. Unit: GPa.
         """
         # Sanity check
         if not hasattr(self, 'alpha_v'):
@@ -1607,8 +1607,8 @@ class Quasi_harmonic:
 
         Returns:
             self (Quasi_harmonic): New attributes listed below
-            self.c_v (array): nPressure\*nTemperature. Constant volume specific heat. Unit: J/mol/K
-            self.c_p (array): nPressure\*nTemperature. Constant pressure specific heat. Unit: J/mol/K.
+            self.c_v (array): nPressure\\*nTemperature. Constant volume specific heat. Unit: J/mol/K
+            self.c_p (array): nPressure\\*nTemperature. Constant pressure specific heat. Unit: J/mol/K.
         """
         # Sanity check
         if not hasattr(self, 'alpha_v'):
@@ -1653,9 +1653,9 @@ class Quasi_harmonic:
         Returns:
             self: New attribute listed below.
             self.sg (int): International space group number.
-            self.lattice (array): nPress\*nTempt\*3\*3 lattice matrix at given
+            self.lattice (array): nPress\\*nTempt\\*3\\*3 lattice matrix at given
                 temperature and pressure. Standard conventional cell is used.
-            self.latt_params (array): nPress\*nTempt\*nLatt minimal set of
+            self.latt_params (array): nPress\\*nTempt\\*nLatt minimal set of
                 lattice parameters. The standard conventional cell is used.
         """
         # Sainity check
@@ -1803,7 +1803,7 @@ class Quasi_harmonic:
 
         Args:
             interp (int): Number of interpolated HA calculations.
-            \*\*kwargs: Passed to `scipy.optimize.minimize() <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_
+            \\*\\*kwargs: Passed to `scipy.optimize.minimize() <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_
                 Passed keywords listed below.
             method (str): Default 'BFGS'.
             jac (str): Default '3-point'.
@@ -1816,11 +1816,11 @@ class Quasi_harmonic:
         Returns:
             self: New attribute listed below.
             self.sg (int): International space group number.
-            self.lattice (array): nPress\*nTempt\*3\*3 lattice matrix at given
+            self.lattice (array): nPress\\*nTempt\\*3\\*3 lattice matrix at given
                 temperature and pressure. Standard conventional cell is used.
-            self.latt_params (array): nPress\*nTempt\*nLatt minimal set of
+            self.latt_params (array): nPress\\*nTempt\\*nLatt minimal set of
                 lattice parameters. The standard conventional cell is used.
-            self.latt_cart (array): nPress\*nTempt\*3 projected lengths of cell
+            self.latt_cart (array): nPress\\*nTempt\\*3 projected lengths of cell
                 on Cartesian coordinates. The standard conventional cell is used.
         """
         # Sainity check
@@ -1966,7 +1966,7 @@ class Quasi_harmonic:
 
     @property
     def latt_params(self):
-        """Generate nPress\*nTempt\*nLattice minimum set of lattice parameters
+        """Generate nPress\\*nTempt\\*nLattice minimum set of lattice parameters
         from lattice matrices of the standard conventional cell. Callable only
         if the equilibrium lattice parametes are fitted."""
         if not hasattr(self, 'lattice') or not hasattr(self, 'sg'):
@@ -1995,7 +1995,7 @@ class Quasi_harmonic:
 
     @property
     def latt_cart(self):
-        """Generate nPress\*nTempt\*3 set of projected lengths of cell on
+        """Generate nPress\\*nTempt\\*3 set of projected lengths of cell on
         Cartesian coordinates from lattice matrices of the standard conventional
         cell. Callable only if the equilibrium lattice parametes are fitted."""
         if not hasattr(self, 'lattice'):
@@ -2039,9 +2039,9 @@ class Quasi_harmonic:
 
         Returns:
             self (Quasi_harmonic): New attributes listed below
-            self.latt_fit (list): nPressure\*nLattice. List of Numpy polynomial
+            self.latt_fit (list): nPressure\\*nLattice. List of Numpy polynomial
                 object, the fitted lattice parameters. ``nLattice=3`` if ``Cartesian=True``.
-            self.alpha_l (array): nPressure\*nTemperature\*nLattice. Expansion
+            self.alpha_l (array): nPressure\\*nTemperature\\*nLattice. Expansion
                 coefficients. ``nLattice=3`` if ``Cartesian=True``.
         """
         from matplotlib.pyplot import subplots
@@ -2191,11 +2191,11 @@ class Quasi_harmonic:
         Args:
             order (list[int] | array[int]): The order of polynomials used.
         Returns:
-            r2tot (array): nQpoint\*nMode array of R^2.
+            r2tot (array): nQpoint\\*nMode array of R^2.
             r2avg (array): Averaged R^2 at each q point.
             self: New attributes listed below.
             fit_order (array): Same as ``order``.
-            freq_fit (list): nQpoint\*nMode list of fitted polynomials.
+            freq_fit (list): nQpoint\\*nMode list of fitted polynomials.
         """
         order = np.array(order, dtype=int, ndmin=1)
 
@@ -2239,10 +2239,10 @@ class Quasi_harmonic:
         Expected to be called internally.
 
         Returns:
-            rmsdtot (array): nQpoint\*nMode array of R^2.
+            rmsdtot (array): nQpoint\\*nMode array of R^2.
             rmsdavg (array): Averaged R^2 at each q point.
             self: New attributes listed below.
-            gru_fit (array): nQpoint\*nMode array of Grüneisen parameters.
+            gru_fit (array): nQpoint\\*nMode array of Grüneisen parameters.
         """
         # Polynomial without constant
         gru_fit = np.zeros([self.nqpoint, self.nmode])
@@ -2276,20 +2276,20 @@ class Quasi_harmonic:
             mode_sort_tol (float | None)
 
         Returns:
-            close_overlap (array[int]): nQpoint\*nMode_ref\*nCalc*nMode_sort
+            close_overlap (array[int]): nQpoint\\*nMode_ref\\*nCalc*nMode_sort
                 boolean array (only 1 and 0). Whether close overlap is
                 identified between the n-1 (ref) and the n (sort) calculations.
                 The first Calc is useless (always 0).
-            dot_pdt (array[float]): nQpoint\*(nCalc-1) array, dot products between
+            dot_pdt (array[float]): nQpoint\\*(nCalc-1) array, dot products between
                 n-1 and n calculations.
             self : Attributes listed below.
-            combined_volume (array[float]): 1\*nCalc
-            combined_struc (list[CStructure]): 1\*nCalc
-            combined_u0 (array[float]): 1\*nCalc
-            combined_freq (array[float]): nQpoint\*nMode\*nCalc
-            combined_symm (array[str]): nQpoint\*nMode\*nCalc
+            combined_volume (array[float]): 1\\*nCalc
+            combined_struc (list[CStructure]): 1\\*nCalc
+            combined_u0 (array[float]): 1\\*nCalc
+            combined_freq (array[float]): nQpoint\\*nMode\\*nCalc
+            combined_symm (array[str]): nQpoint\\*nMode\\*nCalc
             nqpoint (int):
-            qpoint (array[float]): nQpoint\*4
+            qpoint (array[float]): nQpoint\\*4
             nmode (int):
             natom (int):
 
@@ -2418,10 +2418,10 @@ class Quasi_harmonic:
         Returns:
             freq (array[float]): Sorted phonon frequencies
             eigvt (array[float]): Sorted eigenvectores
-            close_overlap (array[float]):ncalc\*nmode\*nmode boolean matrix
+            close_overlap (array[float]):ncalc\\*nmode\\*nmode boolean matrix
                 (only 1 and 0). Whether close overlap is identified between the
                 previous calculation (2nd dimension) and the current one (3rd).
-            dot_pdt (array[float]): 1\*(nCalc-1) array, dot products between n-1
+            dot_pdt (array[float]): 1\\*(nCalc-1) array, dot products between n-1
                 and n calculations.
         """
         # Exclude negative and 0 frequencies
@@ -2499,7 +2499,7 @@ class Quasi_harmonic:
 
 
     def _clean_thermoprop(self):
-        """Clean fitted data. Called by 'thermo_\*' methods only."""
+        """Clean fitted data. Called by 'thermo_\\*' methods only."""
         props = ['volume', 'helmholtz', 'gibbs', 'entropy', 'c_v', 'c_p',
                  'k_t', 'k_s', 'alpha_v', 'gruneisen', 'lattice']
         for p in props:
@@ -2526,9 +2526,9 @@ class Quasi_harmonic:
             sg (int): International space group number.
             vscale (float): Volume ratio between conventional and primitive cell.
             rot (array): Rotation matrix from invernal convention to input / standard conventional cell.
-            lmx (array): (nCalc+nInterp)\*3\*3 array of lattice matrices. The
+            lmx (array): (nCalc+nInterp)\\*3\\*3 array of lattice matrices. The
                 first nCalc elements are sampled lattices.
-            Gibbs (array): (nCalc+nInterp)\*nPress\*nTempt array of Gibbs free energy in kJ/mol.
+            Gibbs (array): (nCalc+nInterp)\\*nPress\\*nTempt array of Gibbs free energy in kJ/mol.
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -2672,7 +2672,7 @@ class Phonopy():
         """
         Write Phonopy/VASP FORCE_CONSTANTS file by CRYSTAL HESSFREQ.DAT file.
 
-        For example, to convert the calculation 'example' with a 4\*4\*4
+        For example, to convert the calculation 'example' with a 4\\*4\\*4
         supercelland get phonon frequencies at Gamma point, use the following
         code:
 
