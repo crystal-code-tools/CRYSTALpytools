@@ -40,10 +40,10 @@ class Crystal_gui():
 
     Args:
         dimensionality (int): Number of dimensions
-        lattice (array): 3\*3 lattice matrix in Angstrom
-        symmops (array): n_symmops\*4\*3 matrices of symmetry operators
-        atom_number (array): natom\*1 int array of atomic numbers
-        atom_positions (array): natom\*3 array of Cartesian coordinates
+        lattice (array): 3\\*3 lattice matrix in Angstrom
+        symmops (array): n_symmops\\*4\\*3 matrices of symmetry operators
+        atom_number (array): natom\\*1 int array of atomic numbers
+        atom_positions (array): natom\\*3 array of Cartesian coordinates
         space_group (int): CRYSTAL space group number
     """
     def __init__(self, dimensionality=None, lattice=None, symmops=None,
@@ -71,7 +71,7 @@ class Crystal_gui():
 
         Args:
             struc (Structure|Molecule): Pymatgen Structure / Molecule object.
-            pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
+            pbc (list): 1\\*3 boolian list. Implements periodicity along x, y and z
                 directions. If none, the code will read it from input structure.
             vacuum (float): Vacuum distance. Unit: Angstrom. Low dimensional
                 systems only.
@@ -275,7 +275,7 @@ class CStructure(Structure):
     Arguments not listed are the same as `Pymatgen Structure <https://pymatgen.org/pymatgen.core.html#pymatgen.core.structure.Structure>`_
 
     Args:
-        species (list[int]): Same as pymatgen or a 1\*nAtom list of
+        species (list[int]): Same as pymatgen or a 1\\*nAtom list of
             **conventional** atomic numbers.
         symmetry_group (int): Symmetry group number or symbol in CRYSTAL
             convention.
@@ -283,7 +283,7 @@ class CStructure(Structure):
         standarize (bool): Whether to use the CRYSTAL convention of periodic
             boundaries for low dimensional materials. It calls the
             ``standarize_pbc()`` method.
-        \*\*kwargs: Other arguments passed to pymatgen Structure.
+        \\*\\*kwargs: Other arguments passed to pymatgen Structure.
     Returns:
         self (CStructure): ``CStructure`` object.
     """
@@ -455,7 +455,7 @@ class CStructure(Structure):
                 International Crystallographic Table
             platt (list): minimal set of crystallographic cell parameters
             natom_irr (int): number of irrducible atoms
-            atom (list): natom\*4 array. 1st element: atomic number; 2-4:
+            atom (list): natom\\*4 array. 1st element: atomic number; 2-4:
                 fractional coordinates
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -527,7 +527,7 @@ class CStructure(Structure):
             self (CStructure): New attributes are listed below
             sg (int): Space group number
             n_symmops (int): number of symmetry operations
-            symmops (array): n_symmops\*4\*3 array of symmetry operations
+            symmops (array): n_symmops\\*4\\*3 array of symmetry operations
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -578,7 +578,7 @@ class CStructure(Structure):
         middle of lattice to utilize symmetry (as the default of CRYSTAL).
 
         Args:
-            smx (array): 3\*3 array of *supercell expansion matrix*. Inverse
+            smx (array): 3\\*3 array of *supercell expansion matrix*. Inverse
                 will be taken automatically.
         Returns:
             pcel (CStructure): Pymatgen structure of primitive cell with
@@ -624,7 +624,7 @@ class CStructure(Structure):
         middle of lattice to utilize symmetry (as the default of CRYSTAL).
 
         Args:
-            smx (array): 3\*3 array of supercell expansion matrix
+            smx (array): 3\\*3 array of supercell expansion matrix
         Returns:
             scel (CStructure): Pymatgen structure of supercell
         """
@@ -687,10 +687,10 @@ class CStructure(Structure):
         Find the norm vector of a specified Miller plane
 
         Args:
-            miller (array | list): Miller indices. 3\*1 1D array or nmiller\*3 3D array
+            miller (array | list): Miller indices. 3\\*1 1D array or nmiller\\*3 3D array
 
         Returns:
-            vec (array): Norm vector, normalized to 1. 3\*1 1D array or nmiller\*3 3D array
+            vec (array): Norm vector, normalized to 1. 3\\*1 1D array or nmiller\\*3 3D array
         """
         if len(np.shape(miller)) == 1:
             dimen = 1
@@ -726,7 +726,7 @@ class CStructure(Structure):
 
         Args:
             struc (Structure|Molecule): Pymatgen Structure / Molecule object.
-            pbc (list): 1\*3 boolian list. Implements periodicity along x, y and z
+            pbc (list): 1\\*3 boolian list. Implements periodicity along x, y and z
                 directions. If none, the code will read it from input structure.
             vacuum (float): Vacuum distance. Unit: Angstrom. Low dimensional
                 systems only.
@@ -753,11 +753,11 @@ class CStructure(Structure):
                 length in :math:`\\AA`. The sequence of ``A`` ``B`` is arbitrary.
         Returns:
             self (CStructure): New attributes listed below.
-            self.bonds (list): nBond\*3 list. The first and second elements are
+            self.bonds (list): nBond\\*3 list. The first and second elements are
                 atom indices (starting from 1) of the bond. The third element
-                is a 1\*3 integer array lattice vector of the second element.
-                The first atom always has the lattice vector of \[0,0,0\].
-            self.bond_matrix (bsr_array): nAtom\*nAtom sparse matrix of bond
+                is a 1\\*3 integer array lattice vector of the second element.
+                The first atom always has the lattice vector of \\[0,0,0\\].
+            self.bond_matrix (bsr_array): nAtom\\*nAtom sparse matrix of bond
                 connectivity. In `scipy.sparse.bsr_array <https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.bsr_array.html>`_
                 format.
         """
@@ -841,10 +841,10 @@ class CStructure(Structure):
         integrated network, 1 molecule of all atoms are returned.
 
         Args:
-            \*\*kwargs: See the ``get_bonds()`` method.
+            \\*\\*kwargs: See the ``get_bonds()`` method.
         Returns:
             self (CStructure): New attributes listed below.
-            self.molecules (list): nMolecule\*nAtom_per_molecule int list of
+            self.molecules (list): nMolecule\\*nAtom_per_molecule int list of
                 atom indices (from 1).
         """
         from scipy.sparse.csgraph import connected_components
@@ -905,7 +905,7 @@ class CStructure(Structure):
         Args:
             atom_color (str): Color map of atoms. 'jmol' or 'cpk' for normal
                 display (by elements). Or MayaVi colormaps for data display.
-            atom_data (array): nAtom\*2 array. The first column is atom indices
+            atom_data (array): nAtom\\*2 array. The first column is atom indices
                 (from 1) and the second is data. Atoms without assigned data
                 are plotted in the color specified by ``atom_null``.
             atom_null (turple): *Useful only for data-display mode*. Color of
@@ -913,7 +913,7 @@ class CStructure(Structure):
             atom_cbar_label (str): Title of atom data colorbar.
             bond_color (turple|str): Color of bonds for normal display or
                 MayaVi colormaps for data display.
-            bond_data (array): nBond\*3 array. The first 2 columns are atom
+            bond_data (array): nBond\\*3 array. The first 2 columns are atom
                 indices (from 1) connecting atom A and B. The 3rd column is
                 data.
             bond_null (turple): *Useful only for data-display mode*. Color of
@@ -921,21 +921,21 @@ class CStructure(Structure):
             bond_cbar_label (str): Title of bond data colorbar.
             atom_bond_ratio (str): 'balls', 'large', 'medium', 'small' or
                 'sticks'. The relative sizes of balls and sticks.
-            cell_display (bool): Display lattice boundaries (at \[0., 0., 0.\] only).
+            cell_display (bool): Display lattice boundaries (at \\[0., 0., 0.\\] only).
             cell_color (turple): Color of lattice boundaries.
             cell_linewidth (float): Linewidth of plotted lattice boundaries.
-            display_matrix (array): nDimen\*nDimen **integer** matrix to
+            display_matrix (array): nDimen\\*nDimen **integer** matrix to
                 manipulate the structure. Matrices with determinant :math:`\\geq`
                 1 are meaningful, otherwise error will be displayed.
-            display_origin (array): 1\*3 array of structure origin in fractional
+            display_origin (array): 1\\*3 array of structure origin in fractional
                 coordinates of the **expanded supercell**.
-            display_range (array): 3\*2 array defining the displayed region.
+            display_range (array): 3\\*2 array defining the displayed region.
                 Fractional coordinates a, b, c are used but only the periodic
                 directions are applied. Defined according to the **expanded
                 and translated supercell**.
             show_the_scene (bool): Display the scene by ``mlab.show()`` and
                 return None. Otherwise return the scene object.
-            \*\*kwargs: Other keywords passed to MayaVi or ``self.get_bonds()``.
+            \\*\\*kwargs: Other keywords passed to MayaVi or ``self.get_bonds()``.
                 See below.
             scale (float): Scale the sum of atomic radius A and radius B.
             special_bonds(dict): Dictionary of bond lengths that are not

@@ -578,7 +578,7 @@ class Crystal_output:
         Get cell transformation matrix
 
         Returns:
-            self.trans_matrix (np.ndarray): 3\*3 array of supercell
+            self.trans_matrix (np.ndarray): 3\\*3 array of supercell
                 expansion matrix
         """
         import pandas as pd
@@ -762,7 +762,7 @@ class Crystal_output:
             if not re.match(r'^   WARNING', line):
                 config_list.extend(line.split())
 
-        '''multiplicity = []
+        r'''multiplicity = []
 
         for i in range(len(config_list)):
             if config_list[i] == 'MULTIPLICITY' and i < len(config_list) - 1:
@@ -1008,8 +1008,8 @@ class Crystal_output:
 
         Returns:
             self.band_gap (float|array): Band gap of the system. For
-                spin-polarized systems, ``self.band_gap`` would be either a 2\*1
-                array (``history=False``) or a nCYC\*2 array (``history=True``).
+                spin-polarized systems, ``self.band_gap`` would be either a 2\\*1
+                array (``history=False``) or a nCYC\\*2 array (``history=True``).
             self.spin_pol (bool): *Not returned but defined* Whether the
                 calculation is spin-polarized.
         """
@@ -1052,8 +1052,8 @@ class Crystal_output:
         Return the atomic Mulliken charges (PPAN keyword in input).
 
         Returns:
-            self.mulliken_charges (array): natom\*1 for non spin-polarised systems.
-                natom\*3 for spin-polarised systems. [total, :math:`\\alpha`, :math:`\\beta`].
+            self.mulliken_charges (array): natom\\*1 for non spin-polarised systems.
+                natom\\*3 for spin-polarised systems. [total, :math:`\\alpha`, :math:`\\beta`].
         """
         import re
         import warnings
@@ -1246,8 +1246,8 @@ class Crystal_output:
 
         Returns:
             self (Crystal_output): New attributes listed below
-            self.forces_atoms (array): natom\*3 array. Atomic forces. Unit: Hartree/Bohr
-            self.forces_cell (array): 3\*3 array. Cell forces, 3D only. Unit: Hartree/Bohr
+            self.forces_atoms (array): natom\\*3 array. Atomic forces. Unit: Hartree/Bohr
+            self.forces_cell (array): 3\\*3 array. Cell forces, 3D only. Unit: Hartree/Bohr
             self.opt_maxgrad (array): Maximum gradient convergence. Unit: Hartree/Bohr
             self.opt_rmsgrad (array): RMS gradient convergence. Unit: Hartree/Bohr
         """
@@ -1347,8 +1347,8 @@ class Crystal_output:
                 'None' for keeping the original data.
             eigvec (str): Eigenvectors saved. 'unsaved', 'original', 'classical',
                 'mass unweight'. See above.
-            \*\*kwargs: Developers only. See below.
-            read_spec (bool): Read spectra information at Gamma. Extra 1\*nmode
+            \\*\\*kwargs: Developers only. See below.
+            read_spec (bool): Read spectra information at Gamma. Extra 1\\*nmode
                 arrays of 'IR', 'intens' and 'Raman' are returned.
             read_eigvt : Deprecated. Use ``eigvec`` instead.
             eigvt_amplitude: Deprecated. Use ``eigvec`` instead.
@@ -1362,17 +1362,17 @@ class Crystal_output:
             self.edft (float|arra): :math:`E_{0}` Energy with empirical
                 corrections. An 1D array for QHA output. Unit: kJ/mol.
             self.nqpoint (int): Number of q points. For QHA, number of calculations.
-            self.qpoint (array[float): nQpoint\*4 array. The first three
+            self.qpoint (array[float): nQpoint\\*4 array. The first three
                 elements are fractional coordinates and the last is weight, i.e.,
-                number of equivalent q points. For QHA, \[0, 0, 0, 1\] repeated
+                number of equivalent q points. For QHA, \\[0, 0, 0, 1\\] repeated
                 for nqpoint times.
             self.nmode (int): Number of modes at q point.
-            self.frequency (array[float]): nQpoint\*nMode array ofvibrational
+            self.frequency (array[float]): nQpoint\\*nMode array ofvibrational
                 frequency. Unit: THz
-            self.mode_symm (array[str]): nQpoint\*nMode array of the
+            self.mode_symm (array[str]): nQpoint\\*nMode array of the
                 irreducible representations. In Mulliken symbols.
             self.eigenvector (array[complex]): *``read_eigvt = True only``*
-                nqpoint\*nmode\*natom\*3 array of eigenvectors.
+                nqpoint\\*nmode\\*natom\\*3 array of eigenvectors.
         """
         import re
         import pandas as pd
@@ -1756,7 +1756,7 @@ class Crystal_output:
                 inferred from input file name.
 
         Returns:
-            self.\* (IR|Raman): Dependending on the ``type`` keyword, return to
+            self.\\* (IR|Raman): Dependending on the ``type`` keyword, return to
                 ``spectra.IR`` or ``spectra.Raman`` objects. Attribute names
                 same as ``type`` are set.
         """
@@ -1819,11 +1819,11 @@ class Crystal_output:
         Extracts the elastic tensor from the data.
 
         Args:
-            \*thickness (float): Effective thickness of low dimensional
+            \\*thickness (float): Effective thickness of low dimensional
                  materials, in :math:`\\AA`.
         Returns:
             self.tensor (numpy.ndarray): Symmetrized elastic tensor in Voigt
-                notation. For 3D systems, 6\*6; for 2D, 3\*3; for 1D, 1\*1.
+                notation. For 3D systems, 6\\*6; for 2D, 3\\*3; for 1D, 1\\*1.
                 The matrix always has 2 dimensions. Unit: GPa for 3D and 1D, 2D
                 if effective thickness of materials are specified. Otherwise
                 GPa.m for 2D and GPa.m :math:`^{2}` for 1D (might lead to very
@@ -2559,8 +2559,8 @@ class Properties_input(Properties_inputBASE):
             plotting_option (int): DOS plotting options.
             poly (int): Degree of the polynomial for smearing.
             print_option (int): Properties printing options.
-            projections (list): nProj\*nElement list of ints specifying the
-                projections for the pdoss calculation, or nProj\*1 list of
+            projections (list): nProj\\*nElement list of ints specifying the
+                projections for the pdoss calculation, or nProj\\*1 list of
                 strings specifying element names to project on all atoms of the
                 same element (``output_file`` is needed).
             proj_type (str): Type of projection ('atom' or 'site').
@@ -2818,11 +2818,11 @@ class Properties_output(POutBASE):
 
     def read_topond(self, topondfile, type='infer'):
         """
-        Read the 2D scalar plot files ('SURF\*.DAT') or trajectory files
-        (TRAJ\*.DAT) written by `TOPOND <https://www.crystal.unito.it/topond.html>`_.
+        Read the 2D scalar plot files ('SURF\\*.DAT') or trajectory files
+        (TRAJ\\*.DAT) written by `TOPOND <https://www.crystal.unito.it/topond.html>`_.
 
         Geometry information is printed in the standard ouput, which is not
-        mandatory for 'SURF\*.DAT' but is mandatory for 'TRAJ\*.DAT'
+        mandatory for 'SURF\\*.DAT' but is mandatory for 'TRAJ\\*.DAT'
 
         .. note::
 
@@ -2841,7 +2841,7 @@ class Properties_output(POutBASE):
             type (str): 'infer' or specified. Otherwise warning will be given.
 
         Returns:
-            self.\* (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph):
+            self.\\* (ChargeDensity|SpinDensity|Gradient|Laplacian|HamiltonianKE|LagrangianKE|VirialField|ELF|GradientTraj|ChemicalGraph):
                 Return to ``topond`` property classes, depending on input file types. The
                 attribute name is upper case type names. If unknown, return to
                 ``self.TOPOND``. A ``topond.ChargeDensity`` or
@@ -2957,7 +2957,7 @@ class Properties_output(POutBASE):
             the first 2D data map for spin =1 and first 2 maps for spin=2.
 
         Args:
-            \*f25_files (str): Path to the fort.25 file(s).
+            \\*f25_files (str): Path to the fort.25 file(s).
             method (str): Data processing method. See above.
             index (int|list): Sequence number of headers with the '-%-MAPN'
                 pattern. Useful only if the standard screen output is not
@@ -3076,7 +3076,7 @@ class Properties_output(POutBASE):
             densities.
 
         Args:
-            \*cubefiles (str): Path to the CUBE file(s).
+            \\*cubefiles (str): Path to the CUBE file(s).
             method (str): Data processing method. See above.
 
         Returns:
@@ -3172,7 +3172,7 @@ class Properties_output(POutBASE):
                 available. Starting from 0.
 
         Returns:
-            self.\* (ChargeDensity|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity):
+            self.\\* (ChargeDensity|Magnetization|OrbitalCurrentDensity|SpinCurrentDensity):
                 Return to classes defined in the ``relativisitcs`` module,
                 depending on ``type``. The attribute name is upper case type
                 names. Unit: charge densities, :math:`\\AA^{-3}`; magnetization,
@@ -3334,7 +3334,7 @@ class Properties_output(POutBASE):
 
         m_dens = []
         for i in l_dens:
-            m_dens.append(re.sub("\s\s+", " ", i))
+            m_dens.append(re.sub("\\s\\s+", " ", i))
 
         n_dens = []
         for i in m_dens:
@@ -3505,7 +3505,7 @@ class Properties_output(POutBASE):
             boltztra_out (str): 'DAT' files by CRYSTAL BOLTZTRA keyword.
 
         Returns:
-            self.\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
+            self.\\* (Tensor|Distribution): ``transport.Tensor`` ('KAPPA',
                 'SIGMA', 'SIGMAS', 'SEEBECK') or ``transport.Distribution``
                 (TDF) classes, depending on the input file. The attribute name
                 is upper case types.

@@ -21,7 +21,7 @@ class BlockBASE():
         self._block_ed (str): End of block indicator, 'END'
         self._block_data (str) : Formatted text string for d12.
         self._block_dict (dict): Keyword and value (in text) pairs. Key: CRYSTAL
-            keyword in string. Value: A 3\*1 or 4\*1 list, see below.
+            keyword in string. Value: A 3\\*1 or 4\\*1 list, see below.
             * 1st element: For keywords: String, formatted output; ``None``, not including the keyword; ``''``, keyword only
             * 1st element: For subblocks: Name of the 'real' attribute (protected by property decorator)
             * 2nd: bool, whether it is a sub-block or not;
@@ -158,7 +158,7 @@ class BlockBASE():
         known dimensions. Such as atom coordinate list.
 
         Args:
-            \*args : ``''``, Clean data; ``None``, Return keyword only; 
+            \\*args : ``''``, Clean data; ``None``, Return keyword only; 
                 ``int, list``, int for length of the list, list for list data
         Returns:
             shape (list): 1 + length 1D list or []

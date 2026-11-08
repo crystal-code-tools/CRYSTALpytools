@@ -14,14 +14,14 @@ class XSF():
 
     Args:
         struc (CStructure): Extended Pymatgen Structure object.
-        forces (array): nForce\*4 array of forces (or any vector associated
+        forces (array): nForce\\*4 array of forces (or any vector associated
             with atoms). The first element is the index of atom (from 0) and
             the last 3 are Cartesian components along x, y and z directions.
             Unit: Hartree/:math:`\\AA`.
-        grid_base (array): 3(4)\*3 array of Cartesian coordinates of points O,
+        grid_base (array): 3(4)\\*3 array of Cartesian coordinates of points O,
             A, B(, C) to define a 2D(3D) grid. Vectors OA, OB (and OC) are used.
             Unit: :math:`\\AA`.
-        grid_data (arary): (nZ\*)nY\*nX array of 2D(3D) data grid.
+        grid_data (arary): (nZ\\*)nY\\*nX array of 2D(3D) data grid.
     """
     def __init__(self, struc, forces=[], grid_base=[], grid_data=[]):
         import numpy as np
@@ -321,7 +321,7 @@ class BXSF():
     Args:
         relattice (array|CStructure): Reciprocal lattice matrix or structure
             object.
-        bands (array): nBand\*nZ\*nY\*nX\*nSpin array. Unit: eV. Aligned to
+        bands (array): nBand\\*nZ\\*nY\\*nX\\*nSpin array. Unit: eV. Aligned to
             :math:`E_{F}=0`.
         efermi (float): Fermi energy. Unit: eV.
         band_index (list|str|int): Indices of bands. Starting from 1. For spin-
@@ -368,7 +368,7 @@ class BXSF():
         Write Fermi surface data into a new XSF file. Band label is a string,
         with indices:
 
-        * \[0\:-2\]: Band index strating from 1;  
+        * \\[0\\:-2\\]: Band index strating from 1;  
         * -2: Useless, 0;  
         * -1: Spin. Alpha / No spin, 1; Beta, 2
 

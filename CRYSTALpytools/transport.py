@@ -12,9 +12,9 @@ class Tensor():
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
         type (str): 'KAPPA', 'SIGMA', 'SIGMAS' or 'SEEBECK'.
@@ -215,7 +215,7 @@ class Tensor():
             x_range (list): Display range of x axis. Y axis is self-adaptive.
             direction (str|list): Depending on the dimensionality of the system,
                 including 'xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy' and
-                'zz'. A list of options will generate nDirect\*1 subplots. The
+                'zz'. A list of options will generate nDirect\\*1 subplots. The
                 direction of each subplot is annotated on the upper left corner.
             spin (str): Spin-polarized systems only. Electron spins to plot.
                 'up', 'down' or 'sum'.
@@ -223,12 +223,12 @@ class Tensor():
                 Should be commensurate with the choice of ``x_axis``.
             plot_label (list|str|None): None for default values: ``plot_series``
                 and its unit. If str, prefixing that entry in front of the
-                default value. If list, it should be 1\*nPlotSeries for every
+                default value. If list, it should be 1\\*nPlotSeries for every
                 plot line.
             plot_color (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
                 If str, use the same color for all the plot lines. If
-                1\*nPlotSeries, use the same color for every plot line. If
-                2\*nPlotSeries, use different colors for p-type and n-type
+                1\\*nPlotSeries, use the same color for every plot line. If
+                2\\*nPlotSeries, use different colors for p-type and n-type
                 carrier properties.
             plot_linestyle (list|str|None): Similar to ``electronics.ElectronDOS.plot()``.
                 See explanations of ``plot_color``.
@@ -237,7 +237,7 @@ class Tensor():
             zero_color (str): Color of the 0 value line.
             zero_linestyle (str): Linestyle of the 0 value line.
             zero_linewidth (float): Linewidth of the 0 value line.
-            layout (list[int]): Layout of subplots. By default it is nDirection\*1
+            layout (list[int]): Layout of subplots. By default it is nDirection\\*1
                 gird of figures.
             title (str|None): Plot title. 'default' for the property plotted.
                 'None' for no title.
@@ -248,7 +248,7 @@ class Tensor():
                 (direction), x and y axis capations.
             fig (Figure): *Developer Only*, matplotlib Figure class.
             ax_index (list[int]): *Developer Only*, indices of axes in ``fig.axes``.
-            \*\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
+            \\*\\*kwargs: Other arguments passed to the matplotlib ``Axes.plot()``
                 method. Applied to all the plots.
         Returns:
             fig (Figure): Matplotlib Figure object.
@@ -521,8 +521,8 @@ class Distribution():
 
     Args:
         energy (array): Energy in eV.
-        distr (array): nEnergy\*nDimen\*nSpin Distribution function
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        distr (array): nEnergy\\*nDimen\\*nSpin Distribution function
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
         type (str): 'TDF'.
@@ -570,9 +570,9 @@ class Kappa(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -611,9 +611,9 @@ class Sigma(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -656,9 +656,9 @@ class Seebeck(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*1 array of carrier density in
+        carrier_density (array): nT\\*nPot\\*1 array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*1 array of flattened tensor elements.
+        tensor (array): nT\\*nPot\\*nDimen\\*1 array of flattened tensor elements.
             nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -697,9 +697,9 @@ class SigmaS(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -738,9 +738,9 @@ class PowerFactor(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -784,9 +784,9 @@ class ZT(Tensor):
     Args:
         temperature (array): Temperature in K
         potential (array): Chemical potential in eV.
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`.
-        tensor (array): nT\*nPot\*nDimen\*nSpin array of flattened tensor
+        tensor (array): nT\\*nPot\\*nDimen\\*nSpin array of flattened tensor
             elements. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 
@@ -829,8 +829,8 @@ class TDF(Distribution):
 
     Args:
         energy (array): Energy in eV.
-        distr (array): nEnergy\*nDimen\*nSpin Distribution function
-        carrier_density (array): nT\*nPot\*nSpin array of carrier density in
+        distr (array): nEnergy\\*nDimen\\*nSpin Distribution function
+        carrier_density (array): nT\\*nPot\\*nSpin array of carrier density in
             cm :math:`^{-3}`. nDimen = 6 for 3D systems, 3 for 2D and 1 for 1D.
         struc (CStructure): Extended Pymatgen Structure object.
 

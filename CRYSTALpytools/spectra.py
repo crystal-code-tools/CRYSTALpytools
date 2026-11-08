@@ -40,12 +40,12 @@ class XRD():
         Plot XRD spectra.
 
         Args:
-            theta_range (list): 1\*2 list of theta range in degree.
+            theta_range (list): 1\\*2 list of theta range in degree.
             normalize (bool): Normalize the maximum intensity to 100.
             title (str|None): The title of the plot. 'None' for no title.
             figsize (list): Matplotlib figure size.
             fontsize (int): Fontsize of the axis label and title.
-            \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
+            \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
                 method.
 
         Returns:
@@ -83,9 +83,9 @@ class IR():
 
     Args:
         freq (array): Frequencies. Must be commensurate with unit.
-        absorb (array): Absorbance spectrum, nType\*nFreq array.
+        absorb (array): Absorbance spectrum, nType\\*nFreq array.
         reflec (array): Reflectance spectrum along inequivalent polarization
-            directions (periodic systems only), nDir\*nFreq array.
+            directions (periodic systems only), nDir\\*nFreq array.
         type (str): 'molecule' or 'crystal'
         unit (str): 'cm-1' or 'THz'.
     """
@@ -136,18 +136,18 @@ class IR():
                 given value. Shift length is the value after normalization if
                 ``normalize=True``.
             label (list|str|None): *For ``option='REFL'`` only* List of
-                plot labels. 'None' for the default values ('# \<number\>') and
+                plot labels. 'None' for the default values ('# \\<number\\>') and
                 string for prefix the string before number. Otherwise should be
-                a 1\*nPlot list.
+                a 1\\*nPlot list.
             color (list|str|None): *For ``option='REFL'`` only*  If str,
-                use the same color for all the plot lines. If 1\*nPlot, use the
+                use the same color for all the plot lines. If 1\\*nPlot, use the
                 color defined for every plot line. 'None' for default values
                 (matplotlib Tableau Palette).
             linestyle (list|str|None): *For ``option='REFL'`` only* See
                 explanations of ``color``.
             linewidth (list|float|None): *For ``option='REFL'`` only* See
                 explanations of ``color``.
-            x_range (list): 1\*2 list of x axis range.
+            x_range (list): 1\\*2 list of x axis range.
             title (str|None): The title of the plot. 'None' for no title.
             figsize (list): Matplotlib figure size.
             legend (str|None): Location of legend. None for not adding legend.
@@ -155,7 +155,7 @@ class IR():
                 is enforced.
             fontsize (int): Fontsize of the axis label and title.
             fig (Figure): *Developer Only* Matplotlib figure object.
-            \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
+            \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
                 method.
 
         Returns:
@@ -320,9 +320,9 @@ class Raman():
 
     Args:
         freq (array): Frequencies. Must be commensurate with unit.
-        poly (array): Polycrystalline isotropic spectrum, 3\*nFreq array for
+        poly (array): Polycrystalline isotropic spectrum, 3\\*nFreq array for
             total, parallel and perpendicular directions.
-        single (array): Single crystal spectrum, 6\*nFreq array for xx, xy, xz,
+        single (array): Single crystal spectrum, 6\\*nFreq array for xx, xy, xz,
             yy, yz, zz directions.
         unit (str): 'cm-1' or 'THz'.
     """
@@ -371,13 +371,13 @@ class Raman():
             label (list|str|None): List of plot labels. 'None' for the default
                 values ('total', 'parallel' series or 'xx' 'yy' series) and
                 string for prefix the string before default values. Otherwise
-                should be a 1\*nPlot list.
+                should be a 1\\*nPlot list.
             color (list|str|None): If str, use the same color for all the plot
-                lines. If 1\*nPlot, use the color defined for every plot line.
+                lines. If 1\\*nPlot, use the color defined for every plot line.
                 'None' for default values (matplotlib Tableau Palette).
             linestyle (list|str|None): See explanations of ``color``.
             linewidth (list|float|None): See explanations of ``color``.
-            x_range (list): 1\*2 list of x axis range.
+            x_range (list): 1\\*2 list of x axis range.
             title (str|None): The title of the plot. 'None' for no title.
             figsize (list): Matplotlib figure size.
             legend (str|None): Location of legend. None for not adding legend.
@@ -386,7 +386,7 @@ class Raman():
             fontsize (int): Fontsize of the axis label and title.
             fig (Figure): *Developer Only* Matplotlib figure object.
             ax_index (int): *Developer Only* Index of the Axes object in fig.
-            \*\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
+            \\*\\*kwargs: Other parameters passed to matplotlib ``Axes.plot()``
                 method.
 
         Returns:
